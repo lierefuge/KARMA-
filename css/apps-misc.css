@@ -1,0 +1,54 @@
+/* ============================================================
+   KARMA — css/apps-misc.css
+   Hedefler · Ekip · Klip uygulamaları (rozetler + liste satırları)
+   Renkler studio-theme.css token'larından gelir.
+   ============================================================ */
+
+/* ana ekran ikonları */
+.ic-goals { background: linear-gradient(160deg, #ffb86b, #e0632a); color: #fff; }
+.ic-team  { background: linear-gradient(160deg, #6ec3ff, #2b6cff); color: #fff; }
+.ic-video { background: linear-gradient(160deg, #ff5c7a, #b02a4a); color: #fff; }
+
+/* üst özet şeridi */
+.gl-top {
+  background: var(--studio-note-dim-bg);
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--text-0, #f5f6fa);
+}
+
+/* rozet / hedef satırı */
+.gl-badge {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 11px;
+  border-radius: 12px;
+  background: var(--studio-note-dim-bg);
+  border: 1px solid var(--studio-card-line);
+  margin-bottom: 8px;
+}
+.gl-badge.on { border-color: rgba(74, 222, 128, .38); }
+.gl-badge-ic {
+  width: 34px; height: 34px; flex-shrink: 0;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  background: var(--studio-track);
+}
+.gl-badge.on .gl-badge-ic { background: rgba(74, 222, 128, .18); }
+.gl-badge-name {
+  font-size: 12.5px; font-weight: 700;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.gl-badge-desc { font-size: 10.5px; color: var(--text-3, #9a9aa5); }
+.gl-badge-val { font-size: 11px; font-weight: 700; color: var(--text-2, #c5c5cf); flex-shrink: 0; }
+
+/* dar ekran */
+@media (max-width: 380px) {
+  .gl-badge { padding: 9px; gap: 8px; }
+  .gl-badge-val { font-size: 10px; }
+}

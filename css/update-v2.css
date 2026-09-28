@@ -1,0 +1,175 @@
+/* ============================================================
+   KARMA — css/update-v2.css
+   Stüdyo (parça başına bütçe) · Platform listeleri · Çevre/DM ·
+   ZOR MOD değer gizleme · Mağaza içi listeler · Analiz
+   ============================================================ */
+
+/* ---------- STÜDYO: parça satırı + parça başına bütçe ---------- */
+.trk-row {
+  background: var(--studio-card-bg, rgba(255,255,255,.03));
+  border: 1px solid var(--studio-card-line, rgba(255,255,255,.08));
+  border-radius: 10px;
+  padding: 8px 9px;
+  margin-bottom: 8px;
+}
+.trk-row .trk-line { display: flex; align-items: center; gap: 6px; }
+.trk-row .t-rank {
+  min-width: 20px; text-align: center; font-size: 11.5px; font-weight: 800;
+  color: var(--karma-2, #b06cff);
+}
+.trk-budget-row {
+  display: flex; align-items: center; gap: 8px; margin-top: 7px;
+}
+.trk-budget-label { font-size: 10.5px; color: var(--text-2, #c5c5cf); white-space: nowrap; }
+.trk-budget-row input[type=range] { flex: 1 1 0; min-width: 40px; }
+.trk-budget-val {
+  width: 84px; text-align: right; font-size: 11px; font-weight: 700;
+  color: var(--karma-2, #5ce89b);
+}
+.hide-values .trk-budget-val { color: var(--text-3, #8a8a96); }
+
+/* ---------- PLATFORM LİSTE PANOSU ---------- */
+.list-board { display: flex; flex-direction: column; gap: 7px; }
+.list-board-row {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--studio-card-bg, rgba(255,255,255,.03));
+  border: 1px solid var(--studio-card-line, rgba(255,255,255,.08));
+  border-left: 3px solid #1ed760;
+  border-radius: 10px; padding: 9px 11px;
+}
+.list-board-row .lb-icon { font-size: 20px; width: 26px; text-align: center; }
+.list-board-row .lb-name { font-size: 12.5px; font-weight: 800; }
+.list-board-row .lb-sub { font-size: 10.5px; color: var(--text-2, #c5c5cf); margin-top: 2px; }
+
+/* ---------- DM: rol etiketi ---------- */
+.dm-role-badge {
+  display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 999px;
+  font-size: 9.5px; font-weight: 700; letter-spacing: .02em;
+  background: rgba(176,108,255,.16); color: #c9a4ff; vertical-align: middle;
+}
+
+/* ---------- ZOR MOD: SAYISAL DEĞERLER GİZLİ ----------
+   Değer yerinde kalır (düzen bozulmaz) ama okunamaz. */
+.hide-values .stat-card .v,
+.hide-values .hub-stats .v,
+.hide-values .studio-health-val,
+.hide-values .studio-row-val,
+.hide-values [data-hide-value] {
+  filter: blur(6px);
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+.hide-values .stat-card .v.money { filter: none; }        /* kasa her zaman görünür */
+.hide-values .studio-craft-side .stat-card .v { filter: blur(6px); }
+.hide-values .hide-value-note { display: block !important; }
+
+/* zor mod rozeti */
+body.hide-values .brand-sub::after {
+  content: " · ZOR MOD";
+  color: #ff8a8a;
+  font-weight: 800;
+}
+
+/* ============================================================
+   MAĞAZA İÇİ LİSTELER  (Spotify / Apple / YouTube)
+   ============================================================ */
+.store-lists {
+  border: 1px solid var(--stroke-2); border-radius: var(--radius-s);
+  background: rgba(255,255,255,.02); padding: 10px 11px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.sl-head {
+  font-size: 10.5px; letter-spacing: .4px; text-transform: uppercase;
+  color: var(--text-3); margin-bottom: 5px;
+}
+.sl-row {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 0; border-bottom: 1px solid var(--stroke);
+}
+.sl-row:last-child { border-bottom: none; }
+.sl-row .grow { display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; }
+.sl-row .grow b { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sl-row .grow span { font-size: 10.5px; color: var(--text-2); }
+.sl-row .cover { border-radius: 7px; flex: 0 0 auto; }
+.sl-ic { font-size: 15px; width: 22px; text-align: center; flex: 0 0 auto; }
+.sl-badge {
+  flex: 0 0 auto; font-size: 9px; font-weight: 800; letter-spacing: .3px;
+  padding: 2px 7px; border-radius: 999px; text-transform: uppercase;
+  background: var(--glass-2); color: var(--text-3);
+}
+.sl-badge.karma { background: rgba(176,108,255,.18); color: var(--karma-2); }
+.sl-badge.ok { background: rgba(92,232,155,.16); color: var(--money); }
+.sl-empty { font-size: 11px; color: var(--text-3); padding: 6px 0; line-height: 1.5; }
+
+/* ============================================================
+   ANALİZ SEKMESİ
+   ============================================================ */
+.an-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.an-card {
+  border: 1px solid var(--stroke-2); border-radius: var(--radius-s);
+  background: rgba(255,255,255,.02); padding: 11px 12px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.an-card .k { font-size: 10px; letter-spacing: .3px; text-transform: uppercase; color: var(--text-3); }
+.an-card .v { font-size: 20px; font-weight: 900; color: var(--text-0); }
+.an-card .v.money { color: var(--money); }
+
+.an-panel {
+  border: 1px solid var(--stroke-2); border-radius: var(--radius-s);
+  background: rgba(255,255,255,.02); padding: 12px; margin-top: 12px;
+}
+.an-panel-head { font-size: 12px; font-weight: 800; margin-bottom: 10px; }
+.an-chart {
+  display: flex; align-items: flex-end; gap: 4px;
+  height: 96px; padding: 4px 0;
+}
+.an-chart i {
+  flex: 1 1 0; min-width: 3px; border-radius: 3px 3px 0 0;
+  background: linear-gradient(180deg, var(--karma-2), var(--karma));
+  min-height: 3px;
+}
+.an-plat { display: flex; align-items: center; gap: 9px; margin: 7px 0; }
+.an-plat-name { width: 96px; flex: 0 0 auto; font-size: 11px; color: var(--text-2); }
+.an-bar { flex: 1 1 0; height: 8px; border-radius: 5px; background: var(--glass-2); overflow: hidden; }
+.an-bar i { display: block; height: 100%; }
+.an-plat-val { width: 62px; flex: 0 0 auto; text-align: right; font-size: 11px; font-weight: 700; }
+
+.an-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--stroke);
+}
+.an-row:last-child { border-bottom: none; }
+.an-age {
+  width: 30px; flex: 0 0 auto; text-align: center;
+  font-size: 10.5px; font-weight: 700; color: var(--text-3);
+}
+.an-row .cover { border-radius: 8px; flex: 0 0 auto; }
+.an-row .grow { flex: 1 1 auto; min-width: 0; }
+.an-title { font-size: 12.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.an-sub { font-size: 10.5px; color: var(--text-2); }
+.an-metrics { display: flex; gap: 12px; flex: 0 0 auto; }
+.an-m { display: flex; flex-direction: column; align-items: flex-end; font-size: 9.5px; color: var(--text-3); }
+.an-m b { font-size: 12px; color: var(--text-0); }
+@media (max-width: 640px) {
+  .an-metrics { gap: 8px; }
+  .an-plat-name { width: 74px; }
+}
+
+/* ============================================================
+   ŞİRKET (LABEL) — dağıtım konsolu dili
+   ============================================================ */
+.label-console .c-block,
+.label-console .craft-section {
+  border: 1px solid var(--stroke-2); border-radius: var(--radius-m);
+  background: var(--bg-2); padding: 14px;
+}
+.label-console .c-head h2 { font-size: 16px; }
+.label-console .stat-card {
+  background: var(--glass); border: 1px solid var(--stroke);
+  border-radius: var(--radius-s);
+}
+.label-console .label-hero {
+  border: 1px solid var(--stroke-2); border-radius: var(--radius-m);
+  background: linear-gradient(135deg, rgba(176,108,255,.08), transparent), var(--bg-2);
+}

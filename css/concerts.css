@@ -1,0 +1,79 @@
+/* ============================================================
+   KARMA — concerts.css
+   Konser kartı, bilet satış grafiği ve turne şehir logu.
+   ============================================================ */
+
+.concert-card {
+  padding: 14px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(180deg, var(--bg-3), var(--bg-2));
+  border: 1px solid var(--stroke);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cc-top { display: flex; align-items: center; gap: 12px; }
+.cc-top .title { font-size: 13.5px; font-weight: 800; }
+.cc-top .sub { font-size: 11px; color: var(--text-2); margin-top: 2px; }
+
+.cc-sales {
+  padding: 10px 12px;
+  border-radius: var(--radius-s);
+  background: rgba(255, 203, 92, 0.07);
+  border: 1px solid rgba(255, 203, 92, 0.18);
+}
+.cc-sales-head {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11.5px; font-weight: 800; margin-bottom: 4px;
+}
+
+.cc-foot {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--text-2);
+  border-top: 1px solid var(--stroke); padding-top: 9px;
+}
+.cc-foot .grow { flex: 1; }
+
+/* ---------------- turne şehir logu ---------------- */
+.tour-log { display: flex; flex-direction: column; gap: 7px; }
+
+.tl-row {
+  display: grid;
+  grid-template-columns: 26px minmax(120px, 1fr) minmax(80px, 1.4fr) 76px;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: var(--radius-s);
+  background: var(--glass);
+  border: 1px solid var(--stroke);
+}
+.tl-idx {
+  width: 22px; height: 22px; border-radius: 7px;
+  display: grid; place-items: center;
+  font-size: 11px; font-weight: 900;
+  background: linear-gradient(135deg, var(--karma), #8a4dff);
+}
+.tl-city { min-width: 0; }
+.tl-city b { display: block; font-size: 12.5px; font-weight: 800; }
+.tl-city span { font-size: 10px; color: var(--text-3); }
+
+.tl-bar {
+  height: 8px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08); overflow: hidden;
+}
+.tl-bar > i {
+  display: block; height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, #5ce89b, #1ed760);
+  transition: width 0.4s ease;
+}
+
+.tl-fans {
+  font-size: 12px; font-weight: 900; color: var(--money);
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .tl-row { grid-template-columns: 24px 1fr 64px; }
+  .tl-bar { display: none; }
+}

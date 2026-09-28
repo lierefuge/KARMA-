@@ -1,0 +1,96 @@
+/* ============================================================
+   KARMA — css/social-v2.css
+   Sosyal uygulamalar bire bir: story şeridi düzeltmesi, tam ekran
+   story, kaydırma (snap), gesture ipucu, tıklanabilir bildirimler,
+   önerilen hesaplar. + TEST PANELİ stilleri.
+   ============================================================ */
+
+/* ---------------- STORY ŞERİDİ (yarısı kesilme düzeltmesi) ---------------- */
+.story-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  margin: -4px -16px 4px;
+  padding: 4px 16px 10px;
+}
+.story-row::-webkit-scrollbar { display: none; }
+.story-item {
+  flex: 0 0 auto;              /* KESİLMEYİ ÖNLER */
+  width: 62px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+.story-ring { flex: 0 0 auto; }
+.story-ring.seen { background: rgba(255, 255, 255, .22); }   /* görülmüş hikaye */
+.story-item span {
+  max-width: 64px; font-size: 9.5px; color: var(--text-1);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ---------------- TAM EKRAN STORY (ortadan kesilme düzeltmesi) ---------------- */
+.app-shell.no-pad .app-body { padding: 0; gap: 0; }
+.story-view { position: relative; inset: auto; flex: 1; min-height: 100%; border-radius: 0; }
+.story-view .story-bars { position: relative; z-index: 4; }
+.story-view .story-head { position: relative; z-index: 4; }
+
+/* ---------------- TIKTOK / REELS: kaydırmalı tam ekran ---------------- */
+.app-shell.snap .app-body { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+.app-shell.snap .tt-card,
+.app-shell.snap .reel-card { scroll-snap-align: start; scroll-snap-stop: always; }
+
+/* ---------------- GESTURE İPUCU (Instagram) ---------------- */
+.ig-gesture-hint {
+  display: flex; justify-content: space-between;
+  font-size: 9.5px; color: var(--text-3);
+  padding: 0 2px; margin-bottom: -6px;
+}
+
+/* ---------------- ÖNERİLEN HESAPLAR ---------------- */
+.ig-suggest {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 9px 2px; border-bottom: 1px solid rgba(255, 255, 255, .06);
+}
+.ig-suggest .iph-left { flex: 1 1 auto; min-width: 0; }
+
+/* ---------------- TIKLANABİLİR BİLDİRİM ---------------- */
+.x-notif.tap { cursor: pointer; transition: background .15s; }
+.x-notif.tap:active { background: rgba(255, 255, 255, .05); }
+.notif-chev { margin-left: auto; color: var(--text-3); font-size: 16px; }
+.ig-follow-btn.sm { padding: 5px 10px; font-size: 11px; margin-left: auto; }
+
+/* ============================================================
+   TEST PANELİ
+   ============================================================ */
+.dev-panel { display: flex; flex-direction: column; gap: 12px; }
+.dev-info {
+  font-size: 11.5px; color: var(--text-2);
+  background: rgba(176, 108, 255, .10);
+  border: 1px solid rgba(176, 108, 255, .28);
+  border-radius: 10px; padding: 9px 11px;
+}
+.dev-info b { color: var(--text-0); }
+.dev-sec {
+  border: 1px solid var(--stroke); border-radius: 12px;
+  background: rgba(255, 255, 255, .02); padding: 11px;
+}
+.dev-sec > b { display: block; font-size: 12px; margin-bottom: 8px; }
+.dev-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* ============================================================
+   UYGULAMA BAŞINA BİLDİRİM ROZETİ (nav bell)
+   ============================================================ */
+.nav-bell { position: relative; }
+.nav-bell b {
+  position: absolute; top: -4px; right: -6px;
+  min-width: 15px; height: 15px; padding: 0 4px;
+  border-radius: 999px; background: #ff3b5c; color: #fff;
+  font-size: 9.5px; font-weight: 800; display: grid; place-items: center;
+}

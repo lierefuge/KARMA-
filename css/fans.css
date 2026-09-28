@@ -1,0 +1,39 @@
+/* ============================================================
+   KARMA — css/fans.css
+   Fanbase uygulaması (süperfan ekonomisi paneli)
+   ============================================================ */
+.fans-wrap { padding: 12px; display: flex; flex-direction: column; gap: 12px; }
+
+.fans-hero {
+  background: linear-gradient(135deg, #2b1147, #4a1a63);
+  border: 1px solid rgba(180, 120, 255, .35);
+  border-radius: 16px; padding: 16px; color: #fff;
+}
+.fans-hero-title { font-size: 13px; font-weight: 700; opacity: .9; }
+.fans-hero-followers { font-size: 30px; font-weight: 800; margin: 6px 0 10px; }
+.fans-hero-followers span { font-size: 13px; font-weight: 500; opacity: .7; }
+.fans-tier-row { display: flex; gap: 8px; }
+.fans-tier {
+  flex: 1; background: rgba(255,255,255,.08); border-radius: 12px;
+  padding: 8px; text-align: center;
+}
+.fans-tier b { display: block; font-size: 16px; }
+.fans-tier span { font-size: 10px; opacity: .75; }
+.fans-tier.hot { background: rgba(255, 90, 200, .25); }
+.fans-note { margin-top: 10px; font-size: 10.5px; line-height: 1.5; opacity: .7; }
+
+.fans-card {
+  background: var(--panel, #17171c); border: 1px solid var(--line, #2a2a32);
+  border-radius: 14px; padding: 13px; display: flex; flex-direction: column; gap: 8px;
+}
+.fans-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.fans-card-title { font-size: 14px; font-weight: 700; color: var(--text-0, #fff); }
+.fans-card-sub { font-size: 11px; color: var(--text-3, #9a9aa5); margin-top: 2px; }
+.fans-line { font-size: 12px; color: var(--text-2, #c5c5cf); }
+.fans-line b { color: var(--text-0, #fff); }
+.fans-card .btn { width: 100%; }
+.fans-card .btn[disabled] { opacity: .5; }
+.fans-foot { text-align: center; font-size: 11px; color: var(--text-3, #9a9aa5); padding-bottom: 8px; }
+
+/* ana ekran ikonu */
+.app-icon.ic-fans { background: linear-gradient(160deg, #a855f7, #6d28d9); color: #fff; }

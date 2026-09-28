@@ -1,0 +1,96 @@
+/* ============================================================
+   KARMA — css/studio-theme.css
+   STUDIO RENK TOKEN'LARI — TEK KAYNAK
+   ------------------------------------------------------------
+   Sadece RENK burada tanımlanır; yapı (layout) css/studio.css'te.
+   Tüm telefon uygulamaları bu token'ları kullanır.
+
+   TOKEN AİLELERİ
+     --studio-card-bg / --studio-card-line   → kart yüzeyi & kenar
+     --studio-track                          → bar zeminleri
+     --studio-note-dim-bg                    → "dim" not zemini
+     --studio-axis                           → grafik ekseni yazısı
+     --studio-accent*                        → aksan presetleri
+     --studio-note-<ton>-rgb / -a            → yorum tonları (R,G,B + alfa)
+     --studio-note-line-a                    → notun sol şerit şiddeti
+
+   TEMA
+     Koyu          : :root (varsayılan)
+     Açık (elle)   : html[data-theme="light"] / body.theme-light
+     Açık (otomatik): html[data-theme="auto"] + prefers-color-scheme: light
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+
+  /* ---- yüzey ---- */
+  --studio-card-bg: var(--bg-2, #12151d);
+  --studio-card-line: var(--stroke, rgba(255, 255, 255, .09));
+  --studio-track: var(--glass-2, rgba(255, 255, 255, .08));
+  --studio-note-dim-bg: var(--glass, rgba(255, 255, 255, .05));
+  --studio-axis: var(--text-3, #5c6273);
+
+  /* ---- aksan presetleri (kart aksan çubuğu / sağlık skoru) ---- */
+  --studio-accent: #ff5c7a;
+  --studio-accent-hot: #ff5c7a;
+  --studio-accent-ok: #4ade80;
+  --studio-accent-warn: #facc15;
+  --studio-accent-bad: #f87171;
+  --studio-accent-info: #6ec3ff;
+  --studio-accent-violet: #b06cff;
+  --studio-accent-money: #5ce89b;
+  --studio-accent-gold: #ffcb5c;
+
+  /* ---- yorum tonları: R,G,B + alfa (koyu tema) ---- */
+  --studio-note-dim-rgb: 255, 255, 255;   --studio-note-dim-a: .07;
+  --studio-note-ok-rgb: 74, 222, 128;     --studio-note-ok-a: .14;
+  --studio-note-warn-rgb: 250, 204, 21;   --studio-note-warn-a: .13;
+  --studio-note-bad-rgb: 248, 113, 113;   --studio-note-bad-a: .15;
+  --studio-note-info-rgb: 110, 195, 255;  --studio-note-info-a: .13;
+  --studio-note-violet-rgb: 150, 90, 255; --studio-note-violet-a: .14;
+  --studio-note-hot-rgb: 255, 92, 122;    --studio-note-hot-a: .13;
+  --studio-note-line-a: .55;
+}
+
+/* ---- AÇIK TEMA (elle) ---- */
+html[data-theme="light"],
+body[data-theme="light"],
+body.theme-light {
+  color-scheme: light;
+  --studio-card-bg: #ffffff;
+  --studio-card-line: rgba(15, 18, 30, .14);
+  --studio-track: rgba(15, 18, 30, .10);
+  --studio-note-dim-bg: rgba(15, 18, 30, .05);
+  --studio-axis: #6a7080;
+
+  --studio-note-dim-rgb: 15, 18, 30;     --studio-note-dim-a: .05;
+  --studio-note-ok-rgb: 22, 140, 70;     --studio-note-ok-a: .16;
+  --studio-note-warn-rgb: 190, 130, 10;  --studio-note-warn-a: .16;
+  --studio-note-bad-rgb: 200, 50, 50;    --studio-note-bad-a: .16;
+  --studio-note-info-rgb: 40, 110, 200;  --studio-note-info-a: .16;
+  --studio-note-violet-rgb: 110, 60, 200;--studio-note-violet-a: .16;
+  --studio-note-hot-rgb: 210, 40, 80;    --studio-note-hot-a: .16;
+  --studio-note-line-a: .70;
+}
+
+/* ---- AÇIK TEMA (otomatik mod) ---- */
+@media (prefers-color-scheme: light) {
+  html[data-theme="auto"],
+  body[data-theme="auto"] {
+    color-scheme: light;
+    --studio-card-bg: #ffffff;
+    --studio-card-line: rgba(15, 18, 30, .14);
+    --studio-track: rgba(15, 18, 30, .10);
+    --studio-note-dim-bg: rgba(15, 18, 30, .05);
+    --studio-axis: #6a7080;
+
+    --studio-note-dim-rgb: 15, 18, 30;      --studio-note-dim-a: .05;
+    --studio-note-ok-rgb: 22, 140, 70;      --studio-note-ok-a: .16;
+    --studio-note-warn-rgb: 190, 130, 10;   --studio-note-warn-a: .16;
+    --studio-note-bad-rgb: 200, 50, 50;     --studio-note-bad-a: .16;
+    --studio-note-info-rgb: 40, 110, 200;   --studio-note-info-a: .16;
+    --studio-note-violet-rgb: 110, 60, 200; --studio-note-violet-a: .16;
+    --studio-note-hot-rgb: 210, 40, 80;     --studio-note-hot-a: .16;
+    --studio-note-line-a: .70;
+  }
+}

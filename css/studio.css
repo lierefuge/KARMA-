@@ -1,0 +1,157 @@
+/* ============================================================
+   KARMA — css/studio.css
+   ORTAK "STUDIO" BİLEŞENLERİ — YAPI (layout)
+   Renkler: css/studio-theme.css token'larından gelir.
+   Rehber: docs/studio-components.md
+
+   BİLEŞENLER VE VARYANTLARI
+     .studio-card                      kart + sol aksan çubuğu (--studio-accent)
+     .studio-head [.baseline]          kart başlık satırı
+     .studio-title [.sm .mb .mb6]      başlık
+     .studio-note + ton                yorum/öneri satırı
+         tonlar: .ok .warn .bad .info .violet .hot .dim
+     .studio-row                       etiket + bar + değer satırı
+         .studio-row-label [.wide .sm .xs]
+         .studio-row-val   [.wide]
+     .studio-bar [.lg .block]          yatay bar
+         .studio-bar-fill              dolgu (genişlik+renk inline)
+     .studio-health                    sağlık skoru bloğu
+         .studio-health-label / -val / -emoji / -bar
+     .studio-axis                      grafik eksen etiketi
+   ============================================================ */
+
+/* ============================================================
+   KART + AKSAN ÇUBUĞU
+   ============================================================ */
+.studio-card {
+  position: relative;
+  box-sizing: border-box;
+  max-width: 100%;
+  background: var(--studio-card-bg);
+  border: 1px solid var(--studio-card-line);
+  border-radius: 14px;
+  padding: 13px 13px 13px 16px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.studio-card::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--studio-accent);
+}
+
+/* ============================================================
+   BAŞLIKLAR
+   ============================================================ */
+.studio-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
+.studio-head.baseline { align-items: baseline; margin-bottom: 8px; }
+.studio-title { font-size: 13px; font-weight: 800; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.studio-title.sm { font-size: 12px; margin-bottom: 8px; }
+.studio-title.mb { margin-bottom: 10px; }
+.studio-title.mb6 { margin-bottom: 6px; }
+
+/* ============================================================
+   YORUM / ÖNERİ SATIRI
+   Ton renkleri studio-theme.css'teki --studio-note-<ton>-rgb/-a'dan gelir.
+   ============================================================ */
+.studio-note {
+  --tone: var(--studio-note-dim-rgb);
+  --tone-a: var(--studio-note-dim-a);
+  margin-top: 11px;
+  background: rgba(var(--tone), var(--tone-a));
+  box-shadow: inset 2px 0 0 rgba(var(--tone), var(--studio-note-line-a));
+  border-radius: 10px;
+  padding: 9px 11px;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--text-1, #e8e8ef);
+  overflow-wrap: break-word;
+}
+.studio-note b { color: var(--text-0, #fff); }
+
+.studio-note.ok     { --tone: var(--studio-note-ok-rgb);     --tone-a: var(--studio-note-ok-a); }
+.studio-note.warn   { --tone: var(--studio-note-warn-rgb);   --tone-a: var(--studio-note-warn-a); }
+.studio-note.bad    { --tone: var(--studio-note-bad-rgb);    --tone-a: var(--studio-note-bad-a); }
+.studio-note.info   { --tone: var(--studio-note-info-rgb);   --tone-a: var(--studio-note-info-a); }
+.studio-note.violet { --tone: var(--studio-note-violet-rgb); --tone-a: var(--studio-note-violet-a); }
+.studio-note.hot    { --tone: var(--studio-note-hot-rgb);    --tone-a: var(--studio-note-hot-a); }
+.studio-note.dim    { background: var(--studio-note-dim-bg); box-shadow: inset 2px 0 0 var(--studio-card-line); }
+
+/* ============================================================
+   YATAY BAR SATIRI
+   ============================================================ */
+.studio-row { display: flex; align-items: center; gap: 8px; margin: 7px 0; min-width: 0; }
+.studio-row-label {
+  width: 118px; flex-shrink: 0;
+  font-size: 11px; color: var(--text-2, #c5c5cf);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.studio-row-label.wide { width: 132px; }
+.studio-row-label.sm { width: 80px; }
+.studio-row-label.xs { width: 70px; }
+.studio-row-val { width: 36px; flex-shrink: 0; text-align: right; font-size: 11px; font-weight: 700; }
+.studio-row-val.wide { width: 78px; font-weight: 400; color: var(--text-2, #c5c5cf); }
+
+.studio-bar {
+  flex: 1 1 0; min-width: 24px; height: 8px;
+  background: var(--studio-track);
+  border-radius: 5px; overflow: hidden;
+}
+.studio-bar.lg { height: 9px; }
+.studio-bar.block { width: 100%; flex: none; margin-top: 4px; }
+.studio-bar-fill {
+  display: block; height: 100%; width: 0;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--studio-accent-hot), #ff8a5c);
+}
+
+/* ============================================================
+   SAĞLIK SKORU
+   ============================================================ */
+.studio-health { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.studio-health-label { font-size: 12px; color: var(--studio-axis); }
+.studio-health-val { font-size: 22px; font-weight: 900; min-width: 0; overflow-wrap: break-word; }
+.studio-health-emoji { font-size: 34px; flex-shrink: 0; }
+.studio-health-bar { margin-top: 10px; height: 10px; background: var(--studio-track); border-radius: 6px; overflow: hidden; }
+.studio-health-bar i { display: block; height: 100%; }
+
+/* ============================================================
+   GRAFİK EKSENİ
+   ============================================================ */
+.studio-axis { display: flex; justify-content: space-between; font-size: 9.5px; color: var(--studio-axis); margin-top: -2px; }
+
+/* ============================================================
+   RESPONSIVE — dar ekran (telefon) uyumu
+   ============================================================ */
+@media (max-width: 480px) {
+  .studio-card { padding: 11px 10px 11px 14px; border-radius: 12px; }
+  .studio-head { gap: 6px; margin-bottom: 8px; }
+  .studio-title { font-size: 12.5px; }
+  .studio-row { gap: 6px; margin: 6px 0; }
+  .studio-row-label { width: 92px; font-size: 10.5px; }
+  .studio-row-label.wide { width: 104px; }
+  .studio-row-label.sm { width: 68px; }
+  .studio-row-label.xs { width: 58px; }
+  .studio-row-val { width: 32px; font-size: 10.5px; }
+  .studio-row-val.wide { width: 66px; }
+  .studio-note { font-size: 11px; padding: 8px 9px; }
+  .studio-health-val { font-size: 19px; }
+  .studio-health-emoji { font-size: 27px; }
+  .studio-axis { font-size: 9px; }
+}
+
+@media (max-width: 360px) {
+  .studio-card { padding: 10px 9px 10px 13px; }
+  .studio-row-label { width: 76px; }
+  .studio-row-label.wide { width: 88px; }
+  .studio-row-label.sm { width: 58px; }
+  .studio-row-label.xs { width: 50px; }
+  .studio-row-val.wide { width: 56px; }
+  .studio-health-emoji { display: none; }
+  .studio-note { font-size: 10.5px; }
+}
+
+/* dar ekranda taşma güvenliği */
+.studio-card, .studio-row, .studio-bar { min-width: 0; }

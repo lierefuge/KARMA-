@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow, noarchive" />
+<title>KARMA Music Game — Music Industry Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/main.css" />
+<link rel="stylesheet" href="css/career.css" />
+<link rel="stylesheet" href="css/phone.css" />
+<link rel="stylesheet" href="css/apps.css" />
+<link rel="stylesheet" href="css/apps-ext.css" />
+<link rel="stylesheet" href="css/ext.css" />
+<link rel="stylesheet" href="css/concerts.css" />
+<link rel="stylesheet" href="css/jobs.css" />
+<link rel="stylesheet" href="css/albums.css" />
+<link rel="stylesheet" href="css/payout.css" />
+<link rel="stylesheet" href="css/artistapps.css" />
+<link rel="stylesheet" href="css/fans.css" />
+<link rel="stylesheet" href="css/studio-theme.css" />
+<link rel="stylesheet" href="css/studio.css" />
+<link rel="stylesheet" href="css/update-v2.css" />
+<link rel="stylesheet" href="css/studio-wizard.css" />
+<link rel="stylesheet" href="css/lyrics-editor.css" />
+<link rel="stylesheet" href="css/social-v2.css" />
+<link rel="stylesheet" href="css/apps-misc.css" />
+<link rel="stylesheet" href="css/phone-extras.css" />
+<link rel="stylesheet" href="css/player.css" />
+<link rel="stylesheet" href="css/ytplayer.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- ================= TOP BAR ================= -->
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">K</div>
+        <div class="brand-text">
+          <span class="brand-name">KARMA</span>
+          <span class="brand-sub">MUSIC INDUSTRY SIMULATOR</span>
+        </div>
+      </div>
+
+      <div class="topbar-stats">
+        <div class="stat" title="Oyun içi gün">
+          <span class="stat-label">GÜN</span>
+          <span class="stat-value" id="stat-day">1</span>
+        </div>
+        <div class="stat" title="Oyun içi tarih">
+          <span class="stat-label">TARİH</span>
+          <span class="stat-value" id="stat-date">1 Oca 2008</span>
+        </div>
+        <div class="stat" title="Oyuncu yaşı">
+          <span class="stat-label">YAŞ</span>
+          <span class="stat-value" id="stat-age">15</span>
+        </div>
+        <div class="stat" title="Kasa bakiyesi">
+          <span class="stat-label">KASA</span>
+          <span class="stat-value money" id="stat-balance">₺25.000</span>
+        </div>
+        <div class="stat" title="Sanatçı popülerliği">
+          <span class="stat-label">POPÜLERLİK</span>
+          <span class="stat-value" id="stat-pop">0</span>
+        </div>
+        <div class="stat" title="Aylık dinleyici">
+          <span class="stat-label">AYLIK DİNL.</span>
+          <span class="stat-value" id="stat-monthly">0</span>
+        </div>
+      </div>
+
+      <div class="view-switch" id="view-switch">
+        <button class="vs-btn active" data-view="career">🎤 Sanatçı / Kariyer</button>
+        <button class="vs-btn" data-view="phone">📱 Telefon</button>
+      </div>
+
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" id="btn-settings" title="Ayarlar & Kayıt">⚙️</button>
+        <button class="btn btn-ghost" id="btn-save">Kaydet</button>
+        <button class="btn btn-primary" id="btn-next-day">
+          <span>Günü Bitir</span>
+          <small>→ <b id="next-day-preview">2 Oca</b></small>
+        </button>
+      </div>
+    </header>
+
+    <!-- ================= MAIN ================= -->
+    <main class="layout">
+
+      <!-- COMPANY / CAREER PANEL -->
+      <section class="career-panel" id="career-panel">
+        <nav class="career-tabs" id="career-tabs">
+          <button class="tab active" data-tab="career">Kariyer</button>
+          <button class="tab" data-tab="studio">Stüdyo</button>
+          <button class="tab" data-tab="jobs">Yan İş</button>
+          <button class="tab" data-tab="releases">Yayınlar</button>
+          <button class="tab" data-tab="albums">Albümler</button>
+          <button class="tab" data-tab="charts">Listeler</button>
+          <button class="tab" data-tab="analytics">Analiz</button>
+          <button class="tab" data-tab="concerts">Konser</button>
+          <button class="tab" data-tab="label">Şirket</button>
+          <button class="tab" data-tab="events">Olaylar</button>
+        </nav>
+        <div class="career-body" id="career-body"><!-- rendered by JS --></div>
+      </section>
+
+      <!-- PHONE -->
+      <section class="phone-stage">
+        <div class="phone-frame" id="phone-frame">
+          <div class="phone-notch"></div>
+          <div class="phone-screen" id="phone-screen">
+            <div class="status-bar">
+              <span class="status-time" id="status-time">09:41</span>
+              <span class="status-island"></span>
+              <span class="status-right" id="status-cc" title="Kontrol Merkezi">
+                <span class="sig">▮▮▮</span>
+                <span class="wifi">✦</span>
+                <span class="battery"><i id="battery-level"></i></span>
+              </span>
+            </div>
+
+            <div class="phone-viewport" id="phone-viewport">
+              <!-- home screen / app screens injected here -->
+            </div>
+
+            <div class="home-indicator" id="home-indicator"></div>
+          </div>
+        </div>
+        <p class="phone-hint">Uygulamaya dokun · Ana ekrana dönmek için çubuğa bas</p>
+      </section>
+
+    </main>
+
+    <!-- ================= TOASTS / MODAL ================= -->
+    <div class="toast-stack" id="toast-stack"></div>
+    <div class="modal-root" id="modal-root"></div>
+  </div>
+
+  <!-- ================= DATA ================= -->
+  <script src="js/data/artists.js"></script>
+  <script src="js/data/labels.js"></script>
+  <script src="js/data/genres.js"></script>
+  <script src="js/data/creative.js"></script>
+  <script src="js/data/news.js"></script>
+  <script src="js/data/real-songs.js"></script>
+  <script src="js/data/charts.js"></script>
+  <script src="js/data/discography.js"></script>
+  <script src="js/data/distro.js"></script>
+  <script src="js/data/lyrics.js"></script>
+  <script src="js/data/persona.js"></script>
+
+  <!-- ================= CORE ================= -->
+  <script src="js/core/util.js"></script>
+  <script src="js/core/events.js"></script>
+  <script src="js/core/state.js"></script>
+  <script src="js/core/game.js"></script>
+
+  <!-- ================= SYSTEMS ================= -->
+  <script src="js/systems/economy.js"></script>
+<script src="js/systems/fans.js"></script>
+<script src="js/systems/shortform.js"></script>
+<script src="js/systems/catalog.js"></script>
+<script src="js/systems/press.js"></script>
+<script src="js/systems/ai.js"></script>
+<script src="js/systems/skills.js"></script>
+<script src="js/systems/goals.js"></script>
+<script src="js/systems/team.js"></script>
+<script src="js/systems/video.js"></script>
+<script src="js/systems/sponsor.js"></script>
+<script src="js/systems/phoneos.js"></script>
+<script src="js/systems/phonehome.js"></script>
+<script src="js/systems/playlists.js"></script>
+  <script src="js/systems/jobs.js"></script>
+  <script src="js/systems/stats.js"></script>
+  <script src="js/systems/settings.js"></script>
+  <script src="js/systems/imagery.js"></script>
+  <script src="js/systems/contacts.js"></script>
+  <script src="js/systems/chat.js"></script>
+  <script src="js/systems/lists.js"></script>
+  <script src="js/systems/career.js"></script>
+  <script src="js/systems/label.js"></script>
+  <script src="js/systems/relations.js"></script>
+  <script src="js/systems/platforms.js"></script>
+  <script src="js/systems/social.js"></script>
+  <script src="js/systems/live.js"></script>
+  <script src="js/systems/interactions.js"></script>
+  <script src="js/systems/concerts.js"></script>
+  <script src="js/systems/awards.js"></script>
+  <script src="js/systems/rivalry.js"></script>
+  <script src="js/systems/beef.js"></script>
+  <script src="js/systems/crisis.js"></script>
+  <script src="js/systems/incidents.js"></script>
+  <script src="js/systems/livestream.js"></script>
+  <script src="js/systems/audio.js"></script>
+  <script src="js/systems/devtools.js"></script>
+
+  <!-- ================= UI ================= -->
+  <script src="js/ui/components.js"></script>
+<script src="js/ui/studio.js"></script>
+  <script src="js/ui/career-ui.js"></script>
+
+  <!-- ================= PHONE APPS ================= -->
+  <script src="js/apps/phone.js"></script>
+  <script src="js/apps/spotify.js"></script>
+  <script src="js/apps/applemusic.js"></script>
+  <script src="js/apps/youtube.js"></script>
+  <script src="js/apps/instagram.js"></script>
+  <script src="js/apps/tiktok.js"></script>
+  <script src="js/apps/x.js"></script>
+  <script src="js/apps/news.js"></script>
+  <script src="js/apps/artistapps.js"></script>
+  <script src="js/apps/messages.js"></script>
+<script src="js/apps/fans.js"></script>
+<script src="js/apps/goals.js"></script>
+<script src="js/apps/team.js"></script>
+<script src="js/apps/video.js"></script>
+<script src="js/apps/phoneapps.js"></script>
+
+  <!-- ================= BOOT ================= -->
+  <script src="js/main.js"></script>
+</body>
+</html>

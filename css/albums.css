@@ -1,0 +1,34 @@
+/* ============================================================
+   KARMA — albums.css
+   Albüm konsepti kartları
+   ============================================================ */
+
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+.album-card {
+  display: flex;
+  gap: 13px;
+  padding: 13px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(180deg, var(--bg-3), var(--bg-2));
+  border: 1px solid var(--stroke);
+}
+
+.ac-cover {
+  width: 74px; height: 74px; flex: 0 0 auto;
+  border-radius: 10px;
+  display: grid; place-items: center;
+  font-size: 30px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.ac-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.ac-title { font-size: 14px; font-weight: 800; }
+.ac-sub { font-size: 10.5px; color: var(--text-2); line-height: 1.45; }
+
+.ac-stats { display: flex; flex-wrap: wrap; gap: 5px; }
+.ac-stats .pill { font-size: 9.5px; }

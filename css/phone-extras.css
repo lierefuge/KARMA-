@@ -1,0 +1,306 @@
+/* ============================================================
+   KARMA — css/phone-extras.css
+   Telefon OS ekstraları: mini player · arama · kontrol merkezi
+   Spotlight · App Store · Telefon Ayarları
+   ============================================================ */
+
+/* ============================================================
+   ALT NAVİGASYON (gerçek uygulamalar gibi)
+   view.tabPos === "bottom" olan uygulamalar kullanır.
+   ============================================================ */
+.seg-bottom {
+  flex-shrink: 0;
+  display: flex; justify-content: space-around; gap: 2px;
+  margin: 0; padding: 7px 4px 11px;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 0;
+  background: rgba(8, 8, 12, .96);
+  backdrop-filter: blur(16px);
+}
+.seg-bottom button {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  background: none; border: none; border-radius: 0;
+  padding: 2px 0;
+  color: rgba(255, 255, 255, .45);
+  font-size: 9.5px; font-weight: 600; cursor: pointer;
+}
+.seg-bottom button.active { background: none; box-shadow: none; color: #1ed760; }
+.seg-bottom .tb-ic { font-size: 18px; line-height: 1; }
+.seg-bottom .tb-lb { letter-spacing: .2px; }
+/* Spotify dışındaki uygulamalar için nötr aktif renk */
+.app-instagram .seg-bottom button.active { color: #fff; }
+.app-youtube .seg-bottom button.active { color: #ff4b4b; }
+.app-tiktok .seg-bottom button.active { color: #25f4ee; }
+.app-x .seg-bottom button.active { color: #fff; }
+.app-applemusic .seg-bottom button.active { color: #fb5c74; }
+
+/* ============================================================
+   INSTAGRAM / X 1:1 ek parçalar
+   ============================================================ */
+/* gönderi kaydet (bookmark) */
+.ig-save { background: none; border: none; cursor: pointer; font-size: 17px; opacity: .55; }
+.ig-save.on { opacity: 1; filter: drop-shadow(0 0 6px rgba(255, 203, 92, .6)); }
+
+/* X repost / kaydet */
+.xp-repost, .xp-save { cursor: pointer; }
+.xp-repost.on { color: #00ba7c; font-weight: 800; }
+.xp-save.on { color: #ffcb5c; font-weight: 800; }
+.x-detail-actions {
+  display: flex; justify-content: space-around; align-items: center; gap: 6px;
+  margin: 8px 0 12px; padding: 8px 6px;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+  font-size: 11.5px; font-weight: 700; color: var(--text-2);
+}
+.x-detail-actions span { cursor: pointer; }
+
+/* hikaye: ilerleme + dokunma alanları */
+.story-bars i.active { background: rgba(255, 255, 255, .95); }
+.story-tap { position: absolute; top: 0; bottom: 0; width: 40%; z-index: 3; }
+.story-tap.left { left: 0; }
+.story-tap.right { right: 0; }
+
+/* IG öne çıkanlar */
+.ig-highlights { display: flex; gap: 14px; padding: 4px 2px 10px; overflow-x: auto; }
+.ig-hl { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; flex-shrink: 0; }
+.ig-hl-ring {
+  width: 58px; height: 58px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 22px;
+  background: rgba(255, 255, 255, .08);
+  border: 2px solid rgba(255, 255, 255, .18);
+}
+.ig-hl span { font-size: 10px; color: var(--text-2); }
+
+/* X profil banner */
+.x-banner { height: 92px; border-radius: 12px; margin: -4px -4px 0; }
+
+/* X trend detay başlığı */
+.x-trend.big { padding: 14px; margin-bottom: 10px; }
+.x-trend.big .tag { font-size: 20px; }
+
+/* ============================================================
+   DM DERİNLİĞİ: yazıyor… · yanıt alıntısı · yanıt barı
+   ============================================================ */
+.dm-bubble.typing { display: inline-flex; gap: 4px; align-items: center; padding: 10px 12px; }
+.dm-bubble.typing i {
+  width: 6px; height: 6px; border-radius: 50%; display: block;
+  background: rgba(255, 255, 255, .55);
+  animation: dm-dot 1s infinite ease-in-out;
+}
+.dm-bubble.typing i:nth-child(2) { animation-delay: .15s; }
+.dm-bubble.typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes dm-dot {
+  0%, 60%, 100% { transform: translateY(0); opacity: .4; }
+  30% { transform: translateY(-3px); opacity: 1; }
+}
+.dm-reply-quote {
+  font-size: 10.5px; opacity: .8;
+  border-left: 2px solid rgba(255, 255, 255, .4);
+  padding-left: 6px; margin-bottom: 5px;
+}
+.dm-reply-bar {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 10px; padding: 8px 10px; border-radius: 10px;
+  background: var(--studio-note-dim-bg, rgba(255, 255, 255, .06));
+  font-size: 11px;
+}
+.dm-reply-bar button { margin-left: auto; background: none; border: none; color: inherit; cursor: pointer; font-size: 13px; }
+.dm-bubble.them { cursor: pointer; }
+
+/* ---- parça satırı "⋯" menüsü ---- */
+.t-more {
+  background: none; border: none; cursor: pointer;
+  color: rgba(255, 255, 255, .45); font-size: 17px; font-weight: 800;
+  padding: 1px 6px; border-radius: 8px; flex-shrink: 0; line-height: 1;
+}
+.t-more:hover { background: rgba(255, 255, 255, .1); color: #fff; }
+
+/* ---- ana ekran arama şeridi ---- */
+.home-search {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0 auto 16px;
+  width: min(78%, 250px);
+  padding: 8px 12px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .14);
+  backdrop-filter: blur(8px);
+  color: #fff; font-size: 13px; font-weight: 600;
+  cursor: pointer;
+}
+.home-search span:first-child { font-size: 13px; }
+.home-search .hs-cc { margin-left: auto; opacity: .8; font-size: 14px; }
+
+/* ============================================================
+   ANA EKRAN: kaydırmalı sayfalar · klasörler · düzenleme
+   ============================================================ */
+.home-screen {
+  display: flex; flex-direction: column;
+  padding: 58px 0 92px;        /* alt boşluk: dock için */
+  overflow: hidden;
+}
+.home-top { flex-shrink: 0; padding: 0 22px; }
+
+.home-pages {
+  flex: 1;
+  display: flex;
+  overflow-x: auto; overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.home-pages::-webkit-scrollbar { display: none; }
+.home-page {
+  min-width: 100%; box-sizing: border-box;
+  scroll-snap-align: start;
+  padding: 4px 22px 8px;
+  overflow-y: auto;
+}
+
+.home-dots { flex-shrink: 0; display: flex; justify-content: center; gap: 7px; padding: 6px 0 4px; }
+.home-dot {
+  width: 7px; height: 7px; padding: 0; border: none; border-radius: 50%;
+  background: rgba(255, 255, 255, .32); cursor: pointer; transition: background .2s, transform .2s;
+}
+.home-dot.on { background: #fff; transform: scale(1.15); }
+
+/* klasör simgesi (2×2 mini önizleme) */
+.app-icon.folder {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 3px; padding: 7px;
+  background: rgba(255, 255, 255, .18);
+}
+.fl-mini {
+  width: 100%; height: 100%; border-radius: 6px;
+  display: grid; place-items: center;
+  font-size: 12px; overflow: hidden;
+}
+
+/* düzenleme modu */
+.home-editbar {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0 0 10px; padding: 7px 10px;
+  border-radius: 12px;
+  background: rgba(176, 108, 255, .2);
+  color: #fff; font-size: 11px; font-weight: 600;
+}
+.home-editbar button {
+  margin-left: auto; padding: 5px 10px;
+  border: none; border-radius: 9px;
+  background: rgba(255, 255, 255, .18); color: #fff;
+  font-size: 11px; font-weight: 700; cursor: pointer;
+}
+.home-screen.editing .app-icon-wrap { animation: jiggle .42s ease-in-out infinite alternate; }
+@keyframes jiggle { from { transform: rotate(-1.3deg); } to { transform: rotate(1.3deg); } }
+
+/* ---- mini player (akışta, dock üstünde) ---- */
+.mini-player {
+  flex-shrink: 0;
+  margin: 0 14px 8px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: rgba(20, 20, 26, .82);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, .12);
+  cursor: pointer;
+}
+.mp-art { width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0; }
+.mp-title { font-size: 12px; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mp-sub { font-size: 10px; color: rgba(255, 255, 255, .6); }
+.mp-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: none; background: rgba(255, 255, 255, .14); color: #fff;
+  font-size: 13px; cursor: pointer; flex-shrink: 0;
+}
+
+/* ---- kontrol merkezi ---- */
+.cc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cc-tile {
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 14px;
+  padding: 11px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.cc-tile:first-child, .cc-tile:nth-child(5), .cc-tile:nth-child(6) { grid-column: span 2; }
+.cc-label { font-size: 10px; letter-spacing: .6px; text-transform: uppercase; color: var(--text-3, #9a9aa5); font-weight: 700; }
+.cc-tile input[type="range"] { width: 100%; accent-color: var(--karma, #b06cff); }
+.cc-row { display: flex; align-items: center; gap: 9px; }
+.cc-np-title { font-size: 12.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cc-np-sub { font-size: 10.5px; color: var(--text-3, #9a9aa5); }
+.cc-np-ctrl { display: flex; gap: 8px; margin-top: 6px; }
+.cc-np-ctrl button { flex: 1; padding: 7px; border-radius: 10px; border: none; background: rgba(255, 255, 255, .1); color: #fff; font-size: 13px; cursor: pointer; }
+.cc-tgl, .cc-wide {
+  width: 100%; text-align: left; padding: 9px 11px; border-radius: 11px;
+  background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .09);
+  color: var(--text-1, #c7cbd8); font-size: 12px; font-weight: 600; cursor: pointer;
+}
+.cc-tgl.on { background: rgba(176, 108, 255, .28); border-color: rgba(176, 108, 255, .5); color: #fff; }
+.cc-wide { margin-top: 6px; }
+.cc-bat-row { display: flex; align-items: center; gap: 9px; }
+.cc-bat-val { font-size: 15px; font-weight: 900; }
+.battery.big { width: 34px; height: 16px; border-color: #fff; }
+.battery.big > i { border-radius: 1px; }
+
+/* ---- spotlight sonuçları ---- */
+.sp-res {
+  display: flex; align-items: center; gap: 11px;
+  padding: 10px 11px; border-radius: 12px;
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .07);
+  margin-bottom: 7px; cursor: pointer;
+}
+.sp-res-ic {
+  width: 34px; height: 34px; flex-shrink: 0; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; background: rgba(255, 255, 255, .07);
+}
+.sp-res-name { font-size: 12.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sp-res-sub { font-size: 10.5px; color: var(--text-3, #9a9aa5); }
+
+/* ---- telefon ayarları ---- */
+.phset-row {
+  display: flex; align-items: center; gap: 11px;
+  padding: 11px; border-radius: 13px;
+  background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .08);
+}
+.phset-swatch { width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0; }
+.phset-name { font-size: 12.5px; font-weight: 700; }
+.phset-sub { font-size: 10.5px; color: var(--text-3, #9a9aa5); }
+.phset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; margin: 10px 0 14px; }
+.phset-wall {
+  height: 62px; border-radius: 12px; border: 2px solid transparent;
+  display: flex; align-items: flex-end; padding: 6px;
+  cursor: pointer; color: #fff; font-size: 9.5px; font-weight: 700; text-shadow: 0 1px 3px rgba(0, 0, 0, .6);
+}
+.phset-wall.on { border-color: #b06cff; }
+.phset-card {
+  background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: 13px; padding: 11px; margin-bottom: 11px;
+}
+.phset-card input[type="range"] { width: 100%; accent-color: var(--karma, #b06cff); }
+.phset-item {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 11px 4px; background: none; border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, .06);
+  color: var(--text-1, #c7cbd8); font-size: 12.5px; font-weight: 600; cursor: pointer; text-align: left;
+}
+.phset-item:last-child { border-bottom: none; }
+.phset-item.on { color: #b06cff; }
+.phset-item span { color: var(--text-3, #9a9aa5); font-weight: 600; }
+
+/* ana ekran ikonları */
+.ic-appstore  { background: linear-gradient(160deg, #2ec4ff, #0a6bd6); color: #fff; }
+.ic-phone-set { background: linear-gradient(160deg, #6b7280, #2b2f38); color: #fff; }
+
+/* dar ekran */
+@media (max-width: 380px) {
+  .cc-grid { gap: 8px; }
+  .home-search { width: 86%; }
+  .home-page { padding: 4px 16px 8px; }
+  .home-top { padding: 0 16px; }
+}

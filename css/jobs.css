@@ -1,0 +1,71 @@
+/* ============================================================
+   KARMA — jobs.css
+   Yan iş kartları · Beceri kartları · DM durum & ulaşılabilirlik
+   ============================================================ */
+
+.job-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.job-card {
+  padding: 13px 14px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(180deg, var(--bg-3), var(--bg-2));
+  border: 1px solid var(--stroke);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.job-card.locked { opacity: 0.55; }
+.job-card.locked .jc-icon { filter: grayscale(1); }
+
+.jc-head { display: flex; align-items: flex-start; gap: 10px; }
+.jc-icon { font-size: 24px; width: 34px; text-align: center; flex: 0 0 auto; }
+.jc-name { font-size: 13px; font-weight: 800; }
+.jc-desc { font-size: 10.5px; color: var(--text-2); margin-top: 2px; line-height: 1.4; }
+
+.jc-meta {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  font-size: 10px; color: var(--text-3); font-weight: 700;
+}
+.jc-meta > span {
+  padding: 3px 8px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--stroke);
+}
+
+/* ---------------- BECERİLER ---------------- */
+.skill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+.skill-card {
+  padding: 12px 13px;
+  border-radius: var(--radius-s);
+  background: linear-gradient(180deg, rgba(176,108,255,0.10), rgba(176,108,255,0.03));
+  border: 1px solid rgba(176, 108, 255, 0.22);
+  display: flex; flex-direction: column; gap: 9px;
+}
+.sk-head { display: flex; align-items: center; gap: 10px; }
+.sk-icon { font-size: 20px; }
+.sk-name { font-size: 12.5px; font-weight: 800; }
+.sk-desc { font-size: 10px; color: var(--text-2); margin-top: 2px; }
+.sk-lv {
+  font-size: 15px; font-weight: 900; color: var(--karma-2);
+  min-width: 30px; text-align: right;
+}
+
+/* ---------------- DM durum & ulaşılabilirlik ---------------- */
+.dm-status { font-size: 9.5px; opacity: 0.75; }
+.dm-status.seen { color: #7fd4ff; opacity: 0.95; font-weight: 700; }
+
+.dm-reach {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 11px;
+  flex: 0 0 auto;
+}
