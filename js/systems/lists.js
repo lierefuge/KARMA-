@@ -46,6 +46,10 @@
     DEFS,
     listById,
 
+    /* v10 — liste etkisinin doyum sınırı: kümülatif ~2,1 → en fazla ~3,1× taban.
+       Tek bir liste şarkıyı efsane yapmaz; gerçekte de yapmıyor. */
+    LIFT_CAP: 2.1,
+
     pull(song) {
       if (!song) return 0;
       const p = K.state.player;
@@ -178,7 +182,18 @@
     _announce(song, def, rank) {
       const s = K.state;
       const reach = 0.04 + (K.lists.pull(song) / 100) * 0.12;
-      song.dailyStreams = (song.dailyStreams || 0) * (1 + reach);
+      /* v10 GERÇEKLİK DÜZELTMESİ — LİSTE ETKİSİ SINIRLI, AZALAN VERİMLİ.
+         Eski hâlde her liste girişi dailyStreams'i KALICI olarak çarpıyordu;
+         çok listeye giren şarkı üstel biçimde büyüyordu (400 günde 30 kat).
+         Gerçekte liste etkisi doyuma ulaşır: bir playlist şarkıyı 2-3 katına
+         çıkarır, 30 katına değil. Geçici etki ayrıca "boosts" ile sürüyor. */
+      song.listLift = song.listLift || 0;
+      const room = Math.max(0, K.lists.LIFT_CAP - song.listLift);
+      const gain = Math.min(reach, room * 0.45);
+      if (gain > 0.001) {
+        song.listLift += gain;
+        song.dailyStreams = (song.dailyStreams || 0) * (1 + gain);
+      }
       // listedeki başarı DM'e yansır: erişilebilir sanatçılar tebrik eder
       if (K.relations && K.relations.maybeListCongrats) {
         setTimeout(() => { try { K.relations.maybeListCongrats(song, def.name); } catch (e) {} }, 1800);
