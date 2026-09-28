@@ -13,7 +13,6 @@
   border: 1px solid var(--stroke);
   border-radius: var(--radius-l);
   overflow: hidden;
-  backdrop-filter: blur(14px);
 }
 
 .career-tabs {
@@ -116,7 +115,7 @@
 .row-item .sub { font-size: 11px; color: var(--text-2); margin-top: 2px; }
 
 .cover {
-  width: 46px; height: 46px; border-radius: 8px; flex: 0 0 auto;
+  width: 46px; height: 46px; border-radius: var(--radius-xs); flex: 0 0 auto;
   display: grid; place-items: center;
   font-weight: 900; font-size: 17px; color: #0b0b12;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
@@ -151,7 +150,7 @@
 .stage-chip {
   flex: 1;
   font-size: 9.5px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase;
-  padding: 6px 4px; text-align: center; border-radius: 6px;
+  padding: 6px 4px; text-align: center; border-radius: var(--radius-xs);
   background: var(--glass); border: 1px solid var(--stroke); color: var(--text-3);
 }
 .stage-chip.done { background: rgba(92,232,155,0.14); border-color: rgba(92,232,155,0.34); color: #9df3c5; }
@@ -254,7 +253,7 @@
   background: var(--glass); border: 1px solid var(--stroke);
 }
 .studio-step .step-no {
-  width: 24px; height: 24px; border-radius: 999px; flex: 0 0 auto;
+  width: 24px; height: 24px; border-radius: var(--radius-pill); flex: 0 0 auto;
   display: grid; place-items: center; font-size: 12px; font-weight: 800;
   background: rgba(176,108,255,.18); color: var(--karma-2);
 }
@@ -287,7 +286,7 @@
 .craft-step {
   display: inline-grid; place-items: center;
   min-width: 20px; height: 20px; padding: 0 7px;
-  border-radius: 999px; flex: 0 0 auto;
+  border-radius: var(--radius-pill); flex: 0 0 auto;
   background: rgba(176,108,255,.2); color: var(--karma-2);
   font-size: 11px; font-weight: 800; letter-spacing: .2px;
 }
@@ -304,7 +303,7 @@
 .opt-note b { color: var(--text-0); }
 .opt-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .opt-chip {
-  font-size: 10.5px; padding: 3px 9px; border-radius: 999px;
+  font-size: 10.5px; padding: 3px 9px; border-radius: var(--radius-pill);
   background: var(--glass-2); border: 1px solid var(--stroke-2); color: var(--text-2);
 }
 .opt-chip b { color: var(--karma-2); }
@@ -333,7 +332,7 @@
 .ag-line.muted { color: var(--text-3); }
 .ag-pills { display: flex; flex-wrap: wrap; gap: 6px; }
 .ag-pill {
-  font-family: inherit; font-size: 10.5px; padding: 4px 9px; border-radius: 999px;
+  font-family: inherit; font-size: 10.5px; padding: 4px 9px; border-radius: var(--radius-pill);
   background: var(--glass-2); border: 1px solid var(--stroke-2); color: var(--text-1);
   cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
 }
