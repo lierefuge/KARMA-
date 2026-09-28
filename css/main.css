@@ -29,12 +29,16 @@
   --hot: #ff5c7a;
   --gold: #ffcb5c;
 
-  --radius-s: 10px;
-  --radius-m: 16px;
-  --radius-l: 24px;
+  /* --- köşe yuvarlaklığı: TEK ölçek (v10 stabilizasyon) --- */
+  --radius-xs: 6px;     /* küçük etiket, çip, mini kutu   */
+  --radius-s: 10px;     /* satır, giriş, küçük kart        */
+  --radius-m: 14px;     /* kart, panel bloğu               */
+  --radius-l: 20px;     /* büyük panel, modal, ekran       */
+  --radius-pill: 999px; /* hap biçimli düğme / rozet       */
 
-  --shadow-1: 0 4px 20px rgba(0, 0, 0, 0.45);
-  --shadow-2: 0 18px 60px rgba(0, 0, 0, 0.6);
+  /* --- gölge: 2 kademe, daha sade ve sıkı (v10) --- */
+  --shadow-1: 0 2px 10px rgba(0, 0, 0, 0.38);
+  --shadow-2: 0 10px 30px rgba(0, 0, 0, 0.5);
 
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
 
@@ -94,7 +98,6 @@ body::before {
   padding: 0 22px;
   background: linear-gradient(180deg, rgba(18, 21, 29, 0.96), rgba(12, 14, 20, 0.92));
   border-bottom: 1px solid var(--stroke);
-  backdrop-filter: blur(18px);
 }
 
 .brand { display: flex; align-items: center; gap: 12px; min-width: 210px; }
@@ -103,7 +106,7 @@ body::before {
   width: 40px; height: 40px;
   display: grid; place-items: center;
   font-weight: 900; font-size: 20px;
-  border-radius: 12px;
+  border-radius: var(--radius-s);
   color: #fff;
   background: linear-gradient(135deg, var(--karma), var(--karma-2));
   box-shadow: 0 0 22px var(--karma-glow);
@@ -135,7 +138,7 @@ body::before {
 .vs-btn {
   font-family: inherit; font-size: 12px; font-weight: 700;
   color: var(--text-2); background: transparent; border: none;
-  border-radius: 7px; padding: 8px 13px; cursor: pointer; white-space: nowrap;
+  border-radius: var(--radius-xs); padding: 8px 13px; cursor: pointer; white-space: nowrap;
   transition: all 0.16s;
 }
 .vs-btn:hover { color: var(--text-0); background: var(--glass); }
@@ -223,7 +226,6 @@ body::before {
 .modal-backdrop {
   position: absolute; inset: 0;
   background: rgba(4, 5, 8, 0.72);
-  backdrop-filter: blur(6px);
   display: grid; place-items: center;
   animation: fade-in 0.2s;
   padding: 24px;
@@ -276,7 +278,7 @@ body::before {
 .pill {
   display: inline-flex; align-items: center; gap: 5px;
   font-size: 10px; font-weight: 700; letter-spacing: 0.4px;
-  padding: 3px 9px; border-radius: 999px;
+  padding: 3px 9px; border-radius: var(--radius-pill);
   background: var(--glass-2); border: 1px solid var(--stroke);
   color: var(--text-1);
 }
@@ -304,12 +306,12 @@ body::before {
   overflow: hidden;
 }
 
-.bar { height: 6px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; }
-.bar > i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--karma), var(--karma-2)); transition: width 0.4s ease; }
+.bar { height: 6px; border-radius: var(--radius-pill); background: rgba(255,255,255,0.08); overflow: hidden; }
+.bar > i { display: block; height: 100%; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--karma), var(--karma-2)); transition: width 0.4s ease; }
 
 /* scrollbars */
 ::-webkit-scrollbar { width: 9px; height: 9px; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: var(--radius-xs); }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 ::-webkit-scrollbar-track { background: transparent; }
 
