@@ -10,7 +10,7 @@
 
 .sp-hero {
   padding: 18px;
-  border-radius: 16px;
+  border-radius: var(--radius-m);
   background: linear-gradient(150deg, #1ed760, #0a5f27);
   display: flex; align-items: center; gap: 14px;
   box-shadow: 0 12px 30px rgba(30,215,96,0.25);
@@ -21,26 +21,26 @@
 
 .sp-section-title { font-size: 15px; font-weight: 800; letter-spacing: 0.1px; margin-top: 4px; }
 .sp-playlist {
-  padding: 12px; border-radius: 12px;
+  padding: 12px; border-radius: var(--radius-s);
   background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
   border: 1px solid rgba(255,255,255,0.08);
   display: flex; gap: 12px; align-items: center;
 }
 .sp-pl-cover {
-  width: 58px; height: 58px; border-radius: 8px; flex: 0 0 auto;
+  width: 58px; height: 58px; border-radius: var(--radius-xs); flex: 0 0 auto;
   display: grid; place-items: center; font-size: 22px; font-weight: 900;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  box-shadow: var(--shadow-1);
 }
 .sp-pl-name { font-size: 13.5px; font-weight: 800; }
 .sp-pl-desc { font-size: 11px; color: var(--text-2); margin-top: 3px; line-height: 1.45; }
 
 .sp-track {
   display: flex; align-items: center; gap: 11px;
-  padding: 7px 8px; border-radius: 9px;
+  padding: 7px 8px; border-radius: var(--radius-s);
   cursor: pointer;
 }
 .sp-track:hover { background: rgba(255,255,255,0.06); }
-.sp-track .cover { width: 42px; height: 42px; border-radius: 6px; font-size: 14px; }
+.sp-track .cover { width: 42px; height: 42px; border-radius: var(--radius-xs); font-size: 14px; }
 .sp-track .t-name { font-size: 13px; font-weight: 700; }
 .sp-track .t-artist { font-size: 11px; color: var(--text-2); margin-top: 2px; }
 .sp-track .t-plays { font-size: 10.5px; color: var(--text-3); font-weight: 700; white-space: nowrap; }
@@ -48,7 +48,7 @@
 
 .sp-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 .sp-stat {
-  padding: 11px 12px; border-radius: 10px;
+  padding: 11px 12px; border-radius: var(--radius-s);
   background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07);
 }
 .sp-stat .k { font-size: 9.5px; letter-spacing: 0.7px; text-transform: uppercase; color: var(--text-3); font-weight: 700; }
@@ -61,7 +61,7 @@
 
 .am-hero {
   padding: 20px 18px;
-  border-radius: 16px;
+  border-radius: var(--radius-m);
   background: linear-gradient(150deg, #fb5c74, #8e1731);
   color: #fff;
   box-shadow: 0 12px 30px rgba(251,92,116,0.25);
@@ -72,7 +72,7 @@
 
 .am-chart-row {
   display: flex; align-items: center; gap: 12px;
-  padding: 9px 10px; border-radius: 10px;
+  padding: 9px 10px; border-radius: var(--radius-s);
   background: rgba(255,255,255,0.045);
   border: 1px solid rgba(255,255,255,0.06);
 }
@@ -88,7 +88,7 @@
 .app-youtube .app-nav { background: rgba(20,6,6,0.92); }
 
 .yt-channel {
-  padding: 16px; border-radius: 16px;
+  padding: 16px; border-radius: var(--radius-m);
   background: linear-gradient(150deg, #2b0a0a, #100404);
   border: 1px solid rgba(255,80,80,0.18);
   display: flex; flex-direction: column; gap: 12px;
@@ -100,11 +100,11 @@
 
 .yt-video {
   display: flex; gap: 10px; cursor: pointer;
-  padding: 6px; border-radius: 10px;
+  padding: 6px; border-radius: var(--radius-s);
 }
 .yt-video:hover { background: rgba(255,255,255,0.05); }
 .yt-thumb {
-  width: 118px; height: 66px; border-radius: 8px; flex: 0 0 auto;
+  width: 118px; height: 66px; border-radius: var(--radius-xs); flex: 0 0 auto;
   display: grid; place-items: center; position: relative;
   background: linear-gradient(135deg, #333, #111);
   overflow: hidden;
@@ -119,7 +119,7 @@
 .yt-thumb .dur {
   position: absolute; right: 5px; bottom: 4px;
   background: rgba(0,0,0,0.8); color: #fff;
-  font-size: 9.5px; font-weight: 700; padding: 1px 4px; border-radius: 3px;
+  font-size: 9.5px; font-weight: 700; padding: 1px 4px; border-radius: var(--radius-xs);
 }
 .yt-video .vt { font-size: 12.5px; font-weight: 700; line-height: 1.35; }
 .yt-video .vm { font-size: 10.5px; color: var(--text-2); margin-top: 5px; }
@@ -165,7 +165,7 @@
 
 .ig-follow-btn {
   font-family: inherit; font-size: 12px; font-weight: 800;
-  padding: 7px 20px; border-radius: 8px; border: none; cursor: pointer;
+  padding: 7px 20px; border-radius: var(--radius-xs); border: none; cursor: pointer;
   color: #fff;
   background: linear-gradient(135deg, #ee2a7b, #6228d7);
 }
@@ -176,7 +176,7 @@
 .app-tiktok .app-nav { background: rgba(0,0,0,0.9); }
 
 .tt-song {
-  padding: 14px; border-radius: 14px;
+  padding: 14px; border-radius: var(--radius-m);
   background: linear-gradient(120deg, rgba(37,244,238,0.14), rgba(254,44,85,0.14));
   border: 1px solid rgba(255,255,255,0.1);
   display: flex; align-items: center; gap: 12px;
@@ -187,7 +187,7 @@
 .tt-videos { font-size: 11px; font-weight: 800; color: #25f4ee; }
 .tt-trend {
   display: inline-flex; align-items: center; gap: 4px;
-  font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: var(--radius-pill);
   background: rgba(254,44,85,0.18); color: #ff7a95;
 }
 .tt-bar-row { display: flex; align-items: center; gap: 9px; }
@@ -227,7 +227,7 @@
 
 .dm-list-row {
   display: flex; gap: 11px; align-items: center;
-  padding: 10px 6px; cursor: pointer; border-radius: 10px;
+  padding: 10px 6px; cursor: pointer; border-radius: var(--radius-s);
 }
 .dm-list-row:hover { background: rgba(255,255,255,0.05); }
 .dm-list-row .p-avatar { width: 50px; height: 50px; font-size: 17px; border-radius: 50%; }
@@ -235,7 +235,7 @@
 .dm-list-row .nm { font-size: 13.5px; font-weight: 800; }
 .dm-list-row .last { font-size: 11.5px; color: var(--text-2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dm-unread {
-  min-width: 21px; height: 21px; padding: 0 6px; border-radius: 999px;
+  min-width: 21px; height: 21px; padding: 0 6px; border-radius: var(--radius-pill);
   background: #2b8fff; color: #fff; font-size: 11px; font-weight: 800;
   display: grid; place-items: center;
 }
@@ -246,7 +246,7 @@
 .dm-bubble {
   max-width: 78%;
   padding: 9px 13px;
-  border-radius: 18px;
+  border-radius: var(--radius-m);
   font-size: 12.5px;
   line-height: 1.45;
   position: relative;
@@ -270,13 +270,13 @@
 .dm-system {
   align-self: center;
   font-size: 10.5px; color: var(--text-3); text-align: center;
-  padding: 4px 12px; background: rgba(255,255,255,0.05); border-radius: 999px;
+  padding: 4px 12px; background: rgba(255,255,255,0.05); border-radius: var(--radius-pill);
   max-width: 90%;
 }
 
 .dm-offer {
   align-self: stretch;
-  border-radius: 14px;
+  border-radius: var(--radius-m);
   padding: 13px;
   border: 1px solid rgba(176,108,255,0.35);
   background: linear-gradient(180deg, rgba(176,108,255,0.16), rgba(176,108,255,0.05));
@@ -311,7 +311,7 @@
 .dm-quick { display: flex; gap: 6px; flex-wrap: wrap; }
 .dm-chip {
   font-family: inherit; font-size: 11px; font-weight: 700;
-  padding: 7px 12px; border-radius: 999px; cursor: pointer;
+  padding: 7px 12px; border-radius: var(--radius-pill); cursor: pointer;
   background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
   color: var(--text-0); transition: all 0.14s;
 }
@@ -328,7 +328,7 @@
 }
 .dm-composer input {
   flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.09);
-  border-radius: 999px; padding: 10px 15px; color: #fff; font-family: inherit; font-size: 13px; outline: none;
+  border-radius: var(--radius-pill); padding: 10px 15px; color: #fff; font-family: inherit; font-size: 13px; outline: none;
 }
 .dm-composer input:focus { border-color: #2b8fff; }
 .dm-send {
@@ -338,15 +338,14 @@
 }
 
 /* selectable artist list inside message "new DM" */
-.dm-select-row { display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 10px; cursor: pointer; }
+.dm-select-row { display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: var(--radius-s); cursor: pointer; }
 .dm-select-row:hover { background: rgba(255,255,255,0.06); }
 
 /* phone action sheet */
 .sheet {
   position: absolute; left: 8px; right: 8px; bottom: 8px;
-  border-radius: 18px; overflow: hidden; z-index: 200;
+  border-radius: var(--radius-m); overflow: hidden; z-index: 200;
   background: rgba(30,32,40,0.96);
-  backdrop-filter: blur(24px);
   border: 1px solid rgba(255,255,255,0.12);
   animation: sheet-in 0.26s cubic-bezier(0.2,0.9,0.3,1.1);
   box-shadow: 0 -10px 40px rgba(0,0,0,0.6);
