@@ -57,8 +57,7 @@
 
       // viral şans
       if (U.chance(promo.viral + song.quality / 900)) {
-        song.viral = true;
-        K.toast("🔥 Viral!", `"${song.title}" ${promo.name}'da patladı!`, "ok");
+        K.game.markViral(song, "🔥 Viral!", `"${song.title}" ${promo.name}'da patladı!`);
       }
 
       // TikTok ise kısa video keşif hunisini besle (ses trendi)
