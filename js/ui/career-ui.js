@@ -2302,22 +2302,47 @@
               <span class="muted">sonraki ödeme: ${K.ECON.payoutPeriodDays - (s.day % K.ECON.payoutPeriodDays)} gün</span>
             </div>
             <div class="pp-rates">
-              <span class="pill">Spotify ${U.money(K.ECON.streamRates.spotify).replace("₺","₺")}/dinlenme</span>
-              <span class="pill">Apple ${U.money(K.ECON.streamRates.apple)}/dinlenme</span>
-              <span class="pill">YouTube ${U.money(K.ECON.streamRates.youtube)}/dinlenme</span>
+              <span class="pill">Spotify ${U.money(K.econ.rate("spotify"))}/dinlenme</span>
+              <span class="pill">Apple ${U.money(K.econ.rate("apple"))}/dinlenme</span>
+              <span class="pill">YouTube ${U.money(K.econ.rate("youtube"))}/dinlenme</span>
+              <span class="pill">diğer mağazalar ${U.money(K.econ.rate("other"))}/dinlenme</span>
               <span class="pill karma">toplam kazanç ${U.money(s.player.totalStreamRevenue || 0)}</span>
             </div>
             ${(() => {
-              const mtd = { spotify: 0, apple: 0, youtube: 0 };
-              (s.player.songs || []).forEach(sg => { const m = sg.month || {}; mtd.spotify += m.spotify || 0; mtd.apple += m.apple || 0; mtd.youtube += m.youtube || 0; });
-              const r = K.ECON.streamRates;
-              const gross = mtd.spotify * r.spotify + mtd.apple * r.apple + mtd.youtube * r.youtube;
+              const cl = K.economy.climate();
+              const pend = K.economy.pending();
+              const fin = s.player.lastFinance || {};
+              const marj = fin.margin;
+              const drift = cl.fxDrift || 0;
+              return `<div class="pp-rates" style="margin-top:6px">
+                <span class="pill">💱 kur ${cl.fx.toFixed(2)} ₺/$
+                  <span class="${drift >= 0 ? "up" : "down"}">${drift >= 0 ? "▲" : "▼"}${Math.abs(Math.round(drift * 100))}%</span>
+                  ${cl.shock ? "⚡ ani şok" : ""}</span>
+                <span class="pill">📈 enflasyon endeksi ${cl.inflationIndex.toFixed(3)} (maliyetler +%${Math.round((cl.inflationIndex - 1) * 100)})</span>
+                <span class="pill">🧾 vergi dilimi %${Math.round((fin.bracketRate || 0) * 100)} · efektif %${Math.round((fin.effRate || 0) * 100)}</span>
+                <span class="pill">📊 kâr marjı ${marj == null ? "—" : (marj < 0 ? "−%" + Math.abs(Math.round(marj * 100)) : "%" + Math.round(marj * 100))}</span>
+              </div>
+              <div class="pp-rates" style="margin-top:6px">
+                <span class="pill">⏳ rapor bekleyen ${U.compact(pend.streams)} dinlenme</span>
+                <span class="pill">💤 yolda olan para ${U.money(pend.value)}</span>
+                <span class="muted">ödeme gecikmesi: Spotify ${K.ECON.payoutLag.spotify}g · Apple ${K.ECON.payoutLag.apple}g · YouTube ${K.ECON.payoutLag.youtube}g · diğer ${K.ECON.payoutLag.other}g</span>
+              </div>`;
+            })()}
+            ${(() => {
+              const mtd = { spotify: 0, apple: 0, youtube: 0, other: 0 };
+              (s.player.songs || []).forEach(sg => {
+                const m = sg.month || {};
+                const bill = K.econ.billable(sg);           // 30 sn eşiği
+                K.econ.STORES.forEach(st => { mtd[st] += (m[st] || 0) * bill; });
+              });
+              const gross = K.econ.STORES.reduce((n, st) => n + mtd[st] * K.econ.rate(st), 0);
               const lblPct = s.player.labelId ? ((K.labelById(s.player.labelId) || {}).royalty || 50) : 0;
               const net = gross * (1 - lblPct / 100);
               return `<div class="stat-grid" style="margin-top:8px">
-                <div class="stat-card"><span class="k">Spotify (bu ay)</span><span class="v">${U.compact(mtd.spotify)}</span><span class="d">≈ ${U.money(mtd.spotify * r.spotify)}</span></div>
-                <div class="stat-card"><span class="k">Apple Music (bu ay)</span><span class="v">${U.compact(mtd.apple)}</span><span class="d">≈ ${U.money(mtd.apple * r.apple)}</span></div>
-                <div class="stat-card"><span class="k">YouTube (bu ay)</span><span class="v">${U.compact(mtd.youtube)}</span><span class="d">≈ ${U.money(mtd.youtube * r.youtube)}</span></div>
+                <div class="stat-card"><span class="k">Spotify (bu ay)</span><span class="v">${U.compact(mtd.spotify)}</span><span class="d">≈ ${U.money(mtd.spotify * K.econ.rate("spotify"))}</span></div>
+                <div class="stat-card"><span class="k">Apple Music (bu ay)</span><span class="v">${U.compact(mtd.apple)}</span><span class="d">≈ ${U.money(mtd.apple * K.econ.rate("apple"))}</span></div>
+                <div class="stat-card"><span class="k">YouTube (bu ay)</span><span class="v">${U.compact(mtd.youtube)}</span><span class="d">≈ ${U.money(mtd.youtube * K.econ.rate("youtube"))}</span></div>
+                <div class="stat-card"><span class="k">Raporlanan (bu ay)</span><span class="v">${U.compact(mtd.spotify + mtd.apple + mtd.youtube + mtd.other)}</span><span class="d">30 sn üstü dinlenme</span></div>
                 <div class="stat-card"><span class="k">Ay Sonu Net</span><span class="v money">${U.money(net)}</span><span class="d">${lblPct ? "şirket payı %" + lblPct : "bağımsız"}</span></div>
               </div>`;
             })()}
@@ -2325,9 +2350,9 @@
               <div class="row-item">
                 <div class="cover" style="background:${U.gradientFor("pay" + p.day)}">💰</div>
                 <div class="grow"><div class="title">Gün ${p.day} ödemesi</div>
-                <div class="sub">Spotify ${U.fmt(p.spotify)} · Apple ${U.fmt(p.apple)} · YT ${U.fmt(p.youtube)}${p.labelPct ? " · şirket payı " + U.money(p.labelPct) : ""}</div></div>
+                <div class="sub">Spotify ${U.fmt(p.spotify)} · Apple ${U.fmt(p.apple)} · YT ${U.fmt(p.youtube)}${p.other ? " · diğer " + U.fmt(p.other) : ""}${p.labelPct ? " · şirket payı " + U.money(p.labelPct) : ""}${p.recoup ? " · avans " + U.money(p.recoup) : ""}${p.pendingValue ? " · yolda " + U.money(p.pendingValue) : ""}</div></div>
                 <span class="pill money">+${U.money(p.net)}</span>
-              </div>`).join("")}</div>` : `<div class="mini-empty" style="margin-top:8px">Henüz telif ödemesi almadın. İlk ödeme 30. günde.</div>`}
+              </div>`).join("")}</div>` : `<div class="mini-empty" style="margin-top:8px">Henüz telif tahsilatı yok. Mağazalar dinlenmeyi geç raporlar: ilk ödeme, mağaza türüne göre <b>${K.ECON.payoutLag.apple}–${K.ECON.payoutLag.youtube} gün</b> sonra yatar.</div>`}
           </div>
 
           <div class="chart-grid">
