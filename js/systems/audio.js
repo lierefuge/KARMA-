@@ -538,8 +538,11 @@
   /* ---------------- public ---------------- */
   K.audio = {
     supported,
-    isPlaying() { return st.playing; },
-    current() { return st.song; },
+    /* v10.2 — GERÇEK MÜZİK: gerçek katalog şarkısı çalınıyorsa tüm durum
+       sorguları K.preview'a devredilir. Böylece oyunun her yerindeki
+       ilerleme çubuğu / düğmeler gerçek kaydı doğru yansıtır. */
+    isPlaying() { return (K.preview && K.preview.active()) ? K.preview.isPlaying() : st.playing; },
+    current() { return (K.preview && K.preview.active()) ? K.preview.current() : st.song; },
     style() { return STYLE[st.genre] || STYLE.trap; },
     analyser() { return analyser; },
     volume() { return st.volume; },
@@ -554,15 +557,26 @@
     resetMelodicCounter() { melodicCount = 0; },
 
     progress() {
+      if (K.preview && K.preview.active()) return K.preview.progress();
       if (!st.playing || !ctx) return 0;
       const el = ctx.currentTime - st.startedAt;
       return st.loopDur ? (el % st.loopDur) / st.loopDur : 0;
     },
     elapsed() {
+      if (K.preview && K.preview.active()) return K.preview.elapsed();
       if (!st.playing || !ctx) return 0;
       return (ctx.currentTime - st.startedAt) % (st.loopDur || 1);
     },
-    loopDuration() { return st.loopDur || 0; },
+    loopDuration() {
+      if (K.preview && K.preview.active()) return K.preview.duration();
+      return st.loopDur || 0;
+    },
+    /* sentezleyiciyi durdur (K.preview'a dokunmaz) */
+    _stopSynth() {
+      st.playing = false;
+      if (schedTimer) { clearInterval(schedTimer); schedTimer = null; }
+      if (master && ctx) master.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.12);
+    },
 
     setRate(r) {
       st.rate = U.clamp(r, 0.5, 1.6);
@@ -576,6 +590,16 @@
 
     play(track) {
       if (!track) return false;
+      /* v10.2 — GERÇEK KAYIT ÖNCELİKLİ.
+         Şarkının iTunes önizlemesi varsa sentezlenmiş döngü yerine
+         GERÇEK parçayı çal. Yoksa (oyuncunun kendi şarkıları) sentez sürer. */
+      if (K.preview && K.preview.has(track)) {
+        K.audio._stopSynth();
+        K.bus.emit("audio:mode", "real");
+        return K.preview.play(track);
+      }
+      if (K.preview && K.preview.active()) K.preview.stop();
+      K.bus.emit("audio:mode", "synth");
       const r = resolve(track);
       st.song = {
         id: track.id, title: track.title || "Bilinmeyen",
@@ -615,14 +639,16 @@
     },
 
     stop() {
-      st.playing = false;
-      if (schedTimer) { clearInterval(schedTimer); schedTimer = null; }
-      if (master && ctx) master.gain.setTargetAtTime(0.0001, ctx.currentTime, 0.12);
-      K.bus.emit("audio:stopped", null);
+      const real = K.preview && K.preview.active();
+      if (real) K.preview.stop();          // gerçek kayıt durur
+      K.audio._stopSynth();
+      if (!real) K.bus.emit("audio:stopped", null);
     },
 
-    toggle() {
+    toggle(track) {
+      if (K.preview && K.preview.active()) return K.preview.toggle(track);
       if (st.playing) { K.audio.stop(); return false; }
+      if (track) { K.audio.play(track); return true; }
       if (st.song) { K.audio.play(st.song); return true; }
       return false;
     }
