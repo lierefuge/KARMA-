@@ -77,6 +77,8 @@
       K.game.refreshMonthly();
       // ay sonu: platform bazlı telif ödemesi + fan kulübü geliri + gider/vergi
       if (K.ECON.payoutPeriodDays && s.day % K.ECON.payoutPeriodDays === 0) {
+        // v10: önce enflasyon + kur + borç faizi ilerler, sonra tahsilat/gider
+        if (K.econ && K.econ.monthlyTick) K.econ.monthlyTick();
         if (K.economy.settleMonth) K.economy.settleMonth();
         if (K.fans && K.fans.monthly) K.fans.monthly();
         if (K.sponsor && K.sponsor.monthly) K.sponsor.monthly();
@@ -152,6 +154,24 @@
       p.songs.forEach(song => {
         if (!song.dailyStreams) song.dailyStreams = K.game.initialDaily(song);
 
+        /* v10 GERÇEKLİK DÜZELTMESİ — VİRAL ARTIK SÜRELİ.
+           Eski hâlde song.viral bir kez true olduktan sonra ASLA sönmüyordu;
+           bu da dailyStreams'i her gün %1 büyütüp şarkıyı sonsuza dek
+           şişiriyordu. Gerçekte viral bir pencere 2-5 hafta sürer, sonra
+           şarkı normal seyrine döner. */
+        if (song.viral && song.viralUntil && s.day > song.viralUntil) {
+          song.viral = false;
+          song.viralEndedDay = s.day;
+          if (!song.viralEndNotified) {
+            song.viralEndNotified = true;
+            s.notifications = (s.notifications || []).concat([{
+              title: "📉 Viral dönemi bitti",
+              msg: `"${song.title}" trend penceresini kapattı; dinlenme normal seyrine dönüyor.`,
+              kind: "warn", day: s.day
+            }]).slice(-60);
+          }
+        }
+
         // yaşlanma + promosyon + trend çarpanları
         let mult = 1;
         const ageDays = s.day - (song.publishedDay || s.day);
@@ -186,18 +206,32 @@
         song.lastDaily = daily;
         song.ageDays = ageDays;
 
-        // platform dağılımı (temsilî)
-        song.platforms = song.platforms || { spotify: 0.5, apple: 0.2, youtube: 0.3 };
+        // platform dağılımı (temsilî) — v10: 4. kalem "diğer mağazalar"
+        // (Deezer/Amazon/TIDAL/SoundCloud/Instagram vb. toplamı)
+        song.platforms = song.platforms || { spotify: 0.46, apple: 0.19, youtube: 0.28, other: 0.07 };
+        if (song.platforms.other == null) {
+          const s0 = song.platforms;
+          const sum = (s0.spotify || 0) + (s0.apple || 0) + (s0.youtube || 0);
+          const k = sum > 0 ? (1 - 0.07) / sum : 1;
+          song.platforms = {
+            spotify: (s0.spotify || 0) * k,
+            apple: (s0.apple || 0) * k,
+            youtube: (s0.youtube || 0) * k,
+            other: 0.07
+          };
+        }
         song.spotifyStreams = Math.round(song.streams * song.platforms.spotify);
         song.appleStreams = Math.round(song.streams * song.platforms.apple);
         song.youtubeViews = Math.round(song.streams * song.platforms.youtube * 1.1);
 
         // AYLIK TELİF: günlük gelir YOK. Platform bazlı biriktirilir,
         // ay sonunda ödenir. Sadece o ayın YENİ dinlenmeleri ödenir.
-        song.month = song.month || { spotify: 0, apple: 0, youtube: 0 };
+        song.month = song.month || { spotify: 0, apple: 0, youtube: 0, other: 0 };
+        if (song.month.other == null) song.month.other = 0;
         song.month.spotify += daily * song.platforms.spotify;
         song.month.apple += daily * song.platforms.apple;
         song.month.youtube += daily * song.platforms.youtube;
+        song.month.other += daily * (song.platforms.other || 0);
 
         p.streams += daily;
 
@@ -402,13 +436,30 @@
       });
     },
 
+    /* Bir şarkıyı SÜRELİ viral yapar. Süre dolunca viral kendiliğinden
+       söner (accrueStreams içinde kontrol edilir). */
+    markViral(song, title, msg, days) {
+      if (!song) return false;
+      const s = K.state;
+      const dur = days || U.randInt(16, 34);
+      song.viral = true;
+      song.viralUntil = s.day + dur;
+      song.viralStartDay = song.viralStartDay || s.day;
+      song.viralEndNotified = false;
+      if (title) K.toast(title, msg || song.title, "ok");
+      s.notifications = (s.notifications || []).concat([{
+        title: title || "🔥 Viral", msg: (msg || song.title) + ` (${dur} günlük trend penceresi)`,
+        kind: "ok", day: s.day
+      }]).slice(-60);
+      return true;
+    },
+
     tickTrends() {
       const s = K.state;
       // son yayınlanan şarkı viral olabilir
       s.player.songs.forEach(song => {
         if (!song.viral && song.ageDays <= 3 && (song.lastDaily || 0) > 4000 && U.chance((0.06 + song.quality / 1200) * (song.viralBonus || 1))) {
-          song.viral = true;
-          K.toast("📈 Viral oldu!", `"${song.title}" TikTok'ta trend oluyor!`, "ok");
+          K.game.markViral(song, "📈 Viral oldu!", `"${song.title}" TikTok'ta trend oluyor!`);
         }
       });
       // trend listesi (X)
