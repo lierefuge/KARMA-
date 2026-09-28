@@ -563,16 +563,33 @@
         title: v.title, sub: channelName, shellClass: "app-youtube",
         render: () => {
           const on = K.audio && K.audio.isPlaying();
+          /* v10.2 — GERÇEK YOUTUBE.
+             Gerçek bir katalog şarkısıysa gömülü YouTube oynatıcısı gösterilir:
+             video gerçekten YouTube'dan akar. Sentezlenmiş görselleştirici
+             kapanır (DOM'da kalır ki mevcut kod bozulmasın), alttaki kontrol
+             çubuğu 30 saniyelik sesli önizlemeyi yönetir. */
+          /* NOT: platforms.findSong yalnızca OYUNCUNUN şarkılarını arar; gerçek
+             katalog şarkıları için K.preview.has() kullanılır (başlık
+             normalleştirmesiyle ‘(Official Video)’ gibi ekleri de eşler). */
+          const hasReal = !!(K.preview && K.preview.has(v));
+          const ytQ = encodeURIComponent(((v.channel || channelName || "") + " " + (v.title || "")));
           return `
-          <div class="yt-player" style="${bg}">
+          <div class="yt-player${hasReal ? " has-embed" : ""}" style="${bg}">
             <div class="yt-player-ov"></div>
+            ${hasReal ? `<iframe class="yt-embed"
+                src="https://www.youtube.com/embed?listType=search&list=${ytQ}&rel=0&modestbranding=1&playsinline=1"
+                title="${U.escape(v.title || "")}"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen loading="lazy"></iframe>` : ""}
             <canvas class="yt-viz" width="600" height="300" data-yt-viz></canvas>
-            <button class="yt-play-big" data-pact="yt-toggle">${on ? "⏸" : "▶"}</button>
+            ${hasReal ? "" : `<button class="yt-play-big" data-pact="yt-toggle">${on ? "⏸" : "▶"}</button>`}
             <div class="yt-ctrl">
               <div class="yt-prog"><i data-yt-prog style="width:0%"></i></div>
-              <div class="yt-times"><span data-yt-cur>0:00</span><span class="muted">önizleme · döngü</span></div>
+              <div class="yt-times"><span data-yt-cur>0:00</span>
+                <span class="muted">${hasReal ? "YouTube'da açık · 30 sn sesli önizleme" : "önizleme · döngü"}</span></div>
             </div>
           </div>
+          ${hasReal ? `<div class="yt-embed-note">▶ Gerçek YouTube araması: <b>${U.escape(v.title || "")}</b> — yukarıdaki oynatıcıdan çalabilirsin.</div>` : ""}
 
           <div class="yt-watch-actions" style="justify-content:center">
             <button data-pact="yt-restart">⏮</button>
