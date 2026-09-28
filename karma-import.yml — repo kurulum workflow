@@ -1,0 +1,75 @@
+
+name: KARMA import
+
+# Tek seferlik kurulum: 99 kaynak dosyayı temiz bir commit ile yerleştirir,
+# ardından kendi geçici dosyalarını siler. İş bitince bu workflow kendini kaldırır.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Depoyu al
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Paketi çöz
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/imp
+          base64 -d .karma-import/bundle.b64 > /tmp/imp/bundle.zip
+          cd /tmp/imp
+          unzip -q bundle.zip
+          echo "--- paket içeriği ---"
+          find /tmp/imp/karma-game -type f | wc -l
+
+      - name: Kaynak dosyaları yerleştir
+        run: |
+          set -euo pipefail
+          cp -a /tmp/imp/karma-game/. ./
+          # bu oturumda oluşan geçici test dosyalarını kaldır
+          git rm -f --ignore-unmatch docs/.karma-import-test.md docs/.t1.md docs/.t2.md
+          rm -f docs/.karma-import-test.md docs/.t1.md docs/.t2.md
+          echo "--- kök ---"
+          ls -A
+
+      - name: Doğrula
+        run: |
+          set -euo pipefail
+          test -f index.html
+          test -f js/main.js
+          test -f css/main.css
+          test -f KARMA-Oyun.html
+          test -f docs/studio-components.md
+          test ! -f docs/.karma-import-test.md
+          test ! -f docs/.t1.md
+          echo "OK — $(find css js -type f | wc -l) css/js dosyası, $(wc -c < KARMA-Oyun.html) bayt tek dosyalık sürüm"
+
+      - name: Commit ve push
+        run: |
+          set -euo pipefail
+          git config user.name "karma-setup[bot]"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "KARMA v9 — kaynak kodlar, tek dosyalık sürüm ve temiz proje yapısı"
+          git push origin HEAD:main
+          echo "SHA=$(git rev-parse HEAD)"
+
+      - name: Geçici dosyaları temizle
+        if: always()
+        run: |
+          set -euo pipefail
+          git rm -r -f --ignore-unmatch .karma-import
+          git rm -f --ignore-unmatch .github/workflows/karma-import.yml
+          if git diff --cached --quiet; then
+            echo "temizlenecek bir şey yok"
+          else
+            git commit -m "chore: geçici içe aktarma dosyalarını kaldır"
+            git push origin HEAD:main
+          fi
+          git push origin --delete karma-import-test || echo "branch zaten yok"
