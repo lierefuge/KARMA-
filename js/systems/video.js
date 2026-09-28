@@ -41,8 +41,7 @@
       p.popularity = U.clamp((p.popularity || 0) + t.pop, 0, 99);
       p.image = U.clamp((p.image || 50) + 0.8, 0, 100);
       if (U.chance(t.viral + (song.quality || 50) / 1200)) {
-        song.viral = true;
-        K.toast("🔥 Klip patladı!", `"${song.title}" klibi viral oldu.`, "ok");
+        K.game.markViral(song, "🔥 Klip patladı!", `"${song.title}" klibi viral oldu.`);
       }
       if (K.social && K.social.createPost) K.social.createPost("youtube", `"${song.title}" (Official Video) yayında! 🎬`, song.id);
       K.toast(t.icon + " Klip yayında", `"${song.title}" · ${t.name} · ${U.money(t.cost)}`, "ok");
