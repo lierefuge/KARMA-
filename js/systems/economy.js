@@ -7,19 +7,170 @@
   "use strict";
   const U = K.util;
 
+  /* ============================================================
+     K.econ — v10 GERÇEKLİK MOTORU
+     · kur (USD/₺) dalgalanması   → telif geliri kurla ölçeklenir
+     · enflasyon endeksi          → maliyet VE telif nominal artar
+     · platform başına dinlenme ücreti
+     · 30 saniye eşiği            → atlanan çalma gelir sayılmaz
+     · kademeli gelir vergisi
+     · borç gecikme faizi
+     ============================================================ */
+  K.econ = {
+    STORES: ["spotify", "apple", "youtube", "other"],
+
+    ensure() {
+      const s = K.state;
+      s.econ = s.econ || {};
+      const e = s.econ;
+      if (e.fx == null) e.fx = K.ECON.baseFx;
+      if (e.inflationIndex == null) e.inflationIndex = 1;
+      if (e.startDay == null) e.startDay = s.day;
+      return e;
+    },
+
+    /* 1 USD'nin oyun başına göre kaç katı ₺ ettiği */
+    fxFactor() { return K.econ.ensure().fx / K.ECON.baseFx; },
+
+    /* enflasyon endeksi (1.00 = oyun başı) */
+    infl() { return K.econ.ensure().inflationIndex; },
+
+    /* bir mağazanın GÜNCEL ₺/dinlenme ücreti */
+    rate(store) {
+      return (K.ECON.streamRates[store] || 0) * K.econ.fxFactor() * K.econ.infl();
+    },
+
+    /* ---- 30 SANİYE EŞİĞİ ----
+       Dinlenmenin gelir sayılan oranı. Kalite, giriş uzunluğu ve
+       hook gücü belirler; feature'lı şarkı daha az atlanır. */
+    skipRateFor(song) {
+      const q = (song && song.quality != null) ? song.quality : 50;
+      const intro = (song && song.introLength != null) ? song.introLength : 8;
+      const hook = (song && song.hookStrength != null) ? song.hookStrength : (song && song.quality) || 55;
+      let r = K.ECON.skipRateMax
+        - (q / 100) * (K.ECON.skipRateMax - K.ECON.skipRateMin) * 1.35
+        - (hook / 100) * 0.10
+        + Math.max(0, intro - 8) * 0.012
+        - (song && song.featureArtistId ? 0.05 : 0);
+      return U.clamp(r, K.ECON.skipRateMin, K.ECON.skipRateMax);
+    },
+
+    /* gelir sayılan dinlenme çarpanı (1 − atlama) */
+    billable(song) { return 1 - K.econ.skipRateFor(song); },
+
+    /* ---- KADEMELİ GELİR VERGİSİ ---- */
+    taxFor(income) {
+      let left = Math.max(0, income), prev = 0, tax = 0;
+      const br = K.ECON.taxBrackets || [];
+      for (let i = 0; i < br.length; i++) {
+        const span = br[i].upTo - prev;
+        if (span <= 0) { prev = br[i].upTo; continue; }
+        const part = Math.min(left, span);
+        if (part <= 0) break;
+        tax += part * br[i].rate;
+        left -= part;
+        prev = br[i].upTo;
+        if (left <= 0) break;
+      }
+      return Math.round(tax);
+    },
+
+    taxRateFor(income) { return income > 0 ? K.econ.taxFor(income) / income : 0; },
+
+    /* hangi dilimde olduğumuz (muhasebe paneli) */
+    bracketFor(income) {
+      const br = K.ECON.taxBrackets || [];
+      for (let i = 0; i < br.length; i++) if (income <= br[i].upTo) return br[i];
+      return br[br.length - 1] || { upTo: Infinity, rate: 0 };
+    },
+
+    /* ---- AYLIK EKONOMİ ADIMI ----
+       enflasyon ilerler, kur sürüklenir (ara sıra şok), borca faiz işler. */
+    monthlyTick() {
+      const s = K.state, p = s.player, e = K.econ.ensure();
+      e.inflationIndex *= (1 + K.ECON.inflationMonthly);
+      let drift = U.rand(K.ECON.fxMonthlyDrift * 0.35, K.ECON.fxMonthlyDrift * 1.75);
+      let shock = false;
+      if (U.chance(K.ECON.fxShockChance)) {
+        drift += U.rand(K.ECON.fxShockMin, K.ECON.fxShockMax);
+        shock = true;
+      }
+      e.fx *= (1 + drift);
+      e.lastDrift = drift;
+      e.lastShock = shock;
+
+      let interest = 0;
+      if (p.debt > 0) {
+        interest = Math.round(p.debt * K.ECON.debtPenaltyMonthly);
+        p.debt += interest;
+        e.lastDebtInterest = interest;
+        s.notifications = (s.notifications || []).concat([{
+          title: "\u{1F3E6} Borç faizi",
+          msg: `Ödenmeyen borca ${U.money(interest)} gecikme faizi işledi · toplam borç ${U.money(p.debt)}`,
+          kind: "bad", day: s.day
+        }]).slice(-60);
+      } else {
+        e.lastDebtInterest = 0;
+      }
+      return { inflation: K.ECON.inflationMonthly, fxDrift: drift, shock, debtInterest: interest, fx: e.fx };
+    },
+
+    /* ---- KÂR MARJI ----
+       (gelir − gider) / gelir. Negatifse iş zarar ediyor demektir. */
+    margin(income, cost) {
+      if (!income || income <= 0) return cost > 0 ? -1 : 0;
+      return (income - cost) / income;
+    }
+  };
+
   K.economy = {
     canAfford(amount) { return K.state.balance >= amount; },
 
     /* son ayın muhasebe raporu */
     report() { return (K.state.player && K.state.player.lastFinance) || null; },
 
-    /* aylık net akış tahmini (Kariyer sekmesi) */
+    /* aylık net akış tahmini (Kariyer sekmesi)
+       v10: 30 sn eşiği, kur ve enflasyon hesaba katılır. */
     forecast() {
       const p = K.state.player;
-      const monthly = (p.songs || []).reduce((n, x) => n + (x.lastDaily || 0), 0) * 30;
-      const rates = K.ECON.streamRates;
-      const gross = monthly * ((rates.spotify + rates.apple + rates.youtube) / 3);
+      const songs = p.songs || [];
+      let gross = 0;
+      songs.forEach(song => {
+        const bill = K.econ.billable(song);
+        const perDay = (song.lastDaily || 0) * 30 * bill;
+        const pl = song.platforms || { spotify: 0.46, apple: 0.19, youtube: 0.28, other: 0.07 };
+        K.econ.STORES.forEach(st => { gross += perDay * (pl[st] || 0) * K.econ.rate(st); });
+      });
       return Math.round(gross);
+    },
+
+    /* vadesi gelmemiş (rapor bekleyen) telif — "yolda olan para" */
+    pending() {
+      const p = K.state.player;
+      const out = { spotify: 0, apple: 0, youtube: 0, other: 0, value: 0 };
+      (p.royalties || []).forEach(r => {
+        K.econ.STORES.forEach(st => {
+          if (r.paid && r.paid[st]) return;
+          const n = (r.streams && r.streams[st]) || 0;
+          out[st] += n;
+          out.value += n * K.econ.rate(st);
+        });
+      });
+      out.value = Math.round(out.value);
+      out.streams = Math.round(out.spotify + out.apple + out.youtube + out.other);
+      return out;
+    },
+
+    /* kur + enflasyon + borç özeti (muhasebe paneli) */
+    climate() {
+      const e = K.econ.ensure();
+      return {
+        fx: e.fx,
+        fxDrift: e.lastDrift || 0,
+        shock: !!e.lastShock,
+        inflationIndex: e.inflationIndex,
+        debtInterest: e.lastDebtInterest || 0
+      };
     },
 
     spend(amount, reason) {
@@ -37,43 +188,89 @@
       return true;
     },
 
-    /* ---------------- AYLIK TELİF ÖDEMESİ ----------------
-       Her platformun dinlenme başına ücreti vardır ve ödeme
-       AYLIK yapılır. Sadece O AYIN yeni dinlenmeleri ödenir;
-       geçmiş toplam dinlenmeler tekrar ödenmez. */
+    /* ---------------- AYLIK TELİF ÖDEMESİ (v10 — GECİKMELİ) ----------------
+       Gerçek dünyada mağazalar dinlenmeyi geç raporlar, ödeme gecikir:
+         Spotify 60 gün · Apple 45 gün · YouTube 75 gün · diğer mağazalar 55 gün
+       Bu yüzden dinlenme önce RAPOR KUYRUĞUNA girer; vadesi gelince ödenir.
+       30 SANİYE EŞİĞİ: atlanan çalma gelir sayılmaz (bkz. K.econ.billable). */
     settleMonth() {
       const s = K.state, p = s.player;
-      const rates = K.ECON.streamRates;
       const dm = K.settings ? K.settings.diffMult().income : 1;
+      const lag = K.ECON.payoutLag;
+      K.econ.ensure();
 
-      let sp = 0, ap = 0, yt = 0, artistPool = 0, producerCutTotal = 0, featureCutTotal = 0;
       let labelPct = p.labelId ? ((K.labelById(p.labelId) || {}).royalty || 50) : 0;
-      if (K.team && K.team.bonus) labelPct = Math.max(0, labelPct - K.team.bonus().lawyerCut * 100);   // avukat şirket payını düşürür
-      p.songs.forEach(song => {
-        const m = song.month || { spotify: 0, apple: 0, youtube: 0 };
-        const ssp = m.spotify || 0, sap = m.apple || 0, syt = m.youtube || 0;
-        if (!song.masterSold) {          // satılan katalog master'ı → telif alıcıya gider
-          sp += ssp; ap += sap; yt += syt;
-          const sg = (ssp * rates.spotify + sap * rates.apple + syt * rates.youtube) * dm;
-          let pool = sg * (1 - labelPct / 100);
-          // prodüktör puanı (ör. exclusive beat %3)
-          const pp = (song.producerPoints || 0) / 100;
-          if (pp > 0) { const cut = pool * pp; pool -= cut; producerCutTotal += cut; }
-          // feature / söz paylaşımı (ör. %50 → sanatçı payı yarıya iner)
-          const share = (song.revenueShare != null) ? song.revenueShare : 1;
-          if (share < 1) { const cut = pool * (1 - share); pool -= cut; featureCutTotal += cut; }
-          artistPool += pool;
-        }
-        song.month = { spotify: 0, apple: 0, youtube: 0 };   // sıfırla → birikmez
-        song.monthPayout = 0;
-      });
+      if (K.team && K.team.bonus) labelPct = Math.max(0, labelPct - K.team.bonus().lawyerCut * 100);
 
-      sp = Math.round(sp); ap = Math.round(ap); yt = Math.round(yt);
-      const gross = (sp * rates.spotify + ap * rates.apple + yt * rates.youtube) * dm;
+      /* ---- 1) BU AYIN dinlenmesini rapor kuyruğuna al (henüz para yok) ---- */
+      p.royalties = p.royalties || [];
+      let queued = 0;
+      p.songs.forEach(song => {
+        const m = song.month || {};
+        const single = { spotify: 0, apple: 0, youtube: 0, other: 0 };
+        const bill = K.econ.billable(song);              // 30 sn eşiği
+        K.econ.STORES.forEach(st => { single[st] = (m[st] || 0) * bill; });
+        const total = K.econ.STORES.reduce((n, st) => n + single[st], 0);
+        song.month = { spotify: 0, apple: 0, youtube: 0, other: 0 };   // sıfırla → birikmez
+        song.monthPayout = 0;
+        if (total > 0.5) {
+          queued += total;
+          p.royalties.push({
+            songId: song.id, reportedDay: s.day, streams: single,
+            due: {
+              spotify: s.day + lag.spotify, apple: s.day + lag.apple,
+              youtube: s.day + lag.youtube, other: s.day + lag.other
+            },
+            paid: { spotify: false, apple: false, youtube: false, other: false }
+          });
+        }
+      });
+      if (queued > 0) {
+        s.notifications = (s.notifications || []).concat([{
+          title: "📊 Rapor gönderildi",
+          msg: `${U.fmt(Math.round(queued))} dinlenme mağazalara raporlandı. Ödeme ${lag.spotify}–${lag.youtube} gün içinde yatar.`,
+          kind: "", day: s.day
+        }]).slice(-60);
+      }
+
+      /* ---- 2) VADESİ GELEN raporları tahsil et ---- */
+      const songById = {};
+      p.songs.forEach(x => { songById[x.id] = x; });
+      const paidN = { spotify: 0, apple: 0, youtube: 0, other: 0 };
+      const grossBy = { spotify: 0, apple: 0, youtube: 0, other: 0 };
+      let artistPool = 0, producerCutTotal = 0, featureCutTotal = 0, masterCutTotal = 0, waiting = 0;
+
+      p.royalties.forEach(r => {
+        const song = songById[r.songId];
+        K.econ.STORES.forEach(st => {
+          if (r.paid[st]) return;
+          if (s.day < r.due[st]) { waiting += (r.streams[st] || 0); return; }
+          r.paid[st] = true;
+          const n = r.streams[st] || 0;
+          if (n <= 0) return;
+          paidN[st] += n;
+          const g = n * K.econ.rate(st) * dm;            // kur + enflasyon burada uygulanır
+          grossBy[st] += g;
+          if (song && song.masterSold) { masterCutTotal += g; return; }   // master satıldı → telif alıcının
+          let pool = g * (1 - labelPct / 100);
+          const pp = ((song && song.producerPoints) || 0) / 100;
+          if (pp > 0) { const c = pool * pp; pool -= c; producerCutTotal += c; }
+          const share = (song && song.revenueShare != null) ? song.revenueShare : 1;
+          if (share < 1) { const c = pool * (1 - share); pool -= c; featureCutTotal += c; }
+          artistPool += pool;
+        });
+      });
+      p.royalties = p.royalties.filter(r => K.econ.STORES.some(st => !r.paid[st]));
+      if (p.royalties.length > 500) p.royalties = p.royalties.slice(-500);
+
+      const sp = Math.round(paidN.spotify), ap = Math.round(paidN.apple);
+      const yt = Math.round(paidN.youtube), ot = Math.round(paidN.other);
+      const gross = grossBy.spotify + grossBy.apple + grossBy.youtube + grossBy.other;
       const labelCut = Math.round(gross * labelPct / 100);
       artistPool = Math.round(artistPool);
       producerCutTotal = Math.round(producerCutTotal);
       featureCutTotal = Math.round(featureCutTotal);
+      masterCutTotal = Math.round(masterCutTotal);
 
       /* --- AVANS RECOUP: sanatçıya kalan pay ÖNCE avans borcunu kapatır --- */
       let recoup = 0, recoupedNow = false;
@@ -104,19 +301,26 @@
         }
       }
 
+      const pend = K.economy.pending();
       const payout = {
         day: s.day, period: K.ECON.payoutPeriodDays,
-        spotify: sp, apple: ap, youtube: yt,
+        spotify: sp, apple: ap, youtube: yt, other: ot,
         gross: Math.round(gross), net, labelCut, recoup, publishing,
         producerCut: producerCutTotal, featureCut: featureCutTotal,
+        masterCut: masterCutTotal,
+        queued: Math.round(queued), waiting: Math.round(waiting),
+        pendingValue: pend.value, pendingStreams: pend.streams,
+        fx: K.econ.ensure().fx, infl: K.econ.infl(),
         recoupLeft: deal ? Math.max(0, deal.advance - (deal.recouped || 0)) : 0
       };
       p.payouts = p.payouts || [];
       p.payouts.unshift(payout);
       p.payouts = p.payouts.slice(0, 24);
 
-      if (sp + ap + yt > 0) {
+      if (sp + ap + yt + ot > 0) {
         K.toast("💰 Telif ödemesi", `Spotify ${U.fmt(sp)} · Apple ${U.fmt(ap)} · YT ${U.fmt(yt)} → net ${U.money(net)}`, net > 0 ? "ok" : "warn");
+      } else if (pend.streams > 0) {
+        K.toast("💰 Telif ödemesi", `Bu ay tahsilat yok — ${U.fmt(pend.streams)} dinlenme rapor bekliyor (${U.money(pend.value)} yolda).`, "warn");
       } else {
         K.toast("💰 Telif ödemesi", "Bu ay dinlenme yok — ödeme yok.", "warn");
       }
@@ -142,12 +346,14 @@
         0, 10
       );
       const teamSal = (K.team && K.team.salaryTotal) ? K.team.salaryTotal() : 0;
-      const upkeep = Math.round(
-        (K.ECON.monthlyBase + K.ECON.equipmentUpkeep) * (1 + lvl * 0.8)
+      /* v10: tüm gider kalemleri ENFLASYON endeksiyle çarpılır —
+         yıllar geçtikçe aynı hayat daha pahalıya gelir. */
+      const infl = K.econ.infl();
+      const upkeepRaw = (K.ECON.monthlyBase + K.ECON.equipmentUpkeep) * (1 + lvl * 0.8)
         + staffSal
         + teamSal
-        + (p.songs || []).length * K.ECON.perSongUpkeep
-      );
+        + (p.songs || []).length * K.ECON.perSongUpkeep;
+      const upkeep = Math.round(upkeepRaw * infl);
 
       /* önce mevcut borcun yarısını kapat */
       if (p.debt > 0 && s.balance > 0) {
@@ -169,28 +375,48 @@
       if (s.balance >= upkeep) s.balance -= upkeep;
       else { short = upkeep - s.balance; s.balance = 0; p.debt += short; }
 
-      /* vergi (bu ayın geliri üzerinden) */
+      /* vergi — KADEMELİ DİLİM (v10): gelir arttıkça efektif oran yükselir */
       const inc = p.monthIncome || 0;
-      const taxable = Math.max(0, inc - K.ECON.taxFreeMonthly);
-      const tax = Math.round(taxable * K.ECON.taxRate);
+      const tax = K.econ.taxFor(inc);
+      const effRate = K.econ.taxRateFor(inc);
+      const bracket = K.econ.bracketFor(inc);
       let taxShort = 0;
       if (tax > 0) {
         if (s.balance >= tax) s.balance -= tax;
         else { taxShort = tax - s.balance; s.balance = 0; p.debt += taxShort; }
       }
-      /* MUHASEBE RAPORU (Kariyer sekmesinde görünür) */
-      p.lastFinance = { day: s.day, income: inc, upkeep, tax, net: inc - upkeep - tax, debt: p.debt || 0 };
+
+      /* ---- v10: KÂR MARJI + kur/enflasyon/borç faizi raporu ---- */
+      const climate = K.economy.climate();
+      const cost = upkeep + tax;
+      const margin = K.econ.margin(inc, cost);
+      p.lastFinance = {
+        day: s.day, income: inc, upkeep, tax, net: inc - cost, debt: p.debt || 0,
+        margin, effRate, bracketRate: bracket.rate, bracketUpTo: bracket.upTo,
+        fx: climate.fx, fxDrift: climate.fxDrift, fxShock: climate.shock,
+        infl: climate.inflationIndex, debtInterest: climate.debtInterest,
+        upkeepRaw: Math.round(upkeepRaw)
+      };
       p.monthIncome = 0;
 
       const bad = (short + taxShort) > 0 || p.debt > 0;
       s.notifications = (s.notifications || []).concat([{
         title: "🧾 Aylık gider",
-        msg: `Gider ${U.money(upkeep)} · Vergi ${U.money(tax)}${p.debt > 0 ? " · ⚠️ borç " + U.money(p.debt) : ""}`,
+        msg: `Gider ${U.money(upkeep)} · Vergi ${U.money(tax)} (%${Math.round(effRate * 100)} efektif)`
+           + `${p.debt > 0 ? " · ⚠️ borç " + U.money(p.debt) : ""}`
+           + ` · marj %${Math.round(margin * 100)}`,
         kind: bad ? "bad" : "", day: s.day
       }]).slice(-60);
-      K.toast("🧾 Aylık gider", `Gider ${U.money(upkeep)} · Vergi ${U.money(tax)}`, bad ? "bad" : "warn");
-      K.bus.emit("money", { amount: -(upkeep + tax), reason: "monthly" });
-      return { upkeep, tax, debt: p.debt };
+      if (margin < 0 && inc > 0) {
+        s.notifications = (s.notifications || []).concat([{
+          title: "📉 Zarar ediyorsun",
+          msg: `Bu ay gelirin giderini karşılamadı (marj %${Math.round(margin * 100)}). Gider ${U.money(upkeep)}, gelir ${U.money(inc)}.`,
+          kind: "bad", day: s.day
+        }]).slice(-60);
+      }
+      K.toast("🧾 Aylık gider", `Gider ${U.money(upkeep)} · Vergi ${U.money(tax)} · marj %${Math.round(margin * 100)}`, bad ? "bad" : "warn");
+      K.bus.emit("money", { amount: -cost, reason: "monthly" });
+      return { upkeep, tax, debt: p.debt, margin, effRate, infl };
     },
 
     /* günlük şirket kârı (oyuncunun label'ı varsa) */
