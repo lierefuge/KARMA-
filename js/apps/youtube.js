@@ -568,16 +568,17 @@
              video gerçekten YouTube'dan akar. Sentezlenmiş görselleştirici
              kapanır (DOM'da kalır ki mevcut kod bozulmasın), alttaki kontrol
              çubuğu 30 saniyelik sesli önizlemeyi yönetir. */
-          /* NOT: platforms.findSong yalnızca OYUNCUNUN şarkılarını arar; gerçek
-             katalog şarkıları için K.preview.has() kullanılır (başlık
-             normalleştirmesiyle ‘(Official Video)’ gibi ekleri de eşler). */
-          const hasReal = !!(K.preview && K.preview.has(v));
-          const ytQ = encodeURIComponent(((v.channel || channelName || "") + " " + (v.title || "")));
+          /* v10.5 — GERÇEK YouTube video kimliğiyle gömme.
+             Eskiden listType=search kullanılıyordu; YouTube bu yöntemi
+             bozduğu için oynatıcı “ERROR” veriyordu. Artık her gerçek şarkı
+             için önceden çözülmüş, gömülebilirliği doğrulanmış kimlik var. */
+          const vid = (K.preview && K.preview.ytId) ? K.preview.ytId(v) : null;
+          const hasReal = !!vid;
           return `
           <div class="yt-player${hasReal ? " has-embed" : ""}" style="${bg}">
             <div class="yt-player-ov"></div>
             ${hasReal ? `<iframe class="yt-embed"
-                src="https://www.youtube.com/embed?listType=search&list=${ytQ}&rel=0&modestbranding=1&playsinline=1"
+                src="https://www.youtube.com/embed/${vid}?rel=0&modestbranding=1&playsinline=1"
                 title="${U.escape(v.title || "")}"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen loading="lazy"></iframe>` : ""}
@@ -589,7 +590,7 @@
                 <span class="muted">${hasReal ? "YouTube'da açık · 30 sn sesli önizleme" : "önizleme · döngü"}</span></div>
             </div>
           </div>
-          ${hasReal ? `<div class="yt-embed-note">▶ Gerçek YouTube araması: <b>${U.escape(v.title || "")}</b> — yukarıdaki oynatıcıdan çalabilirsin.</div>` : ""}
+          ${hasReal ? `<div class="yt-embed-note">▶ Gerçek YouTube kaydı: <b>${U.escape(v.title || "")}</b> — yukarıdaki oynatıcıdan çalabilirsin.</div>` : ""}
 
           <div class="yt-watch-actions" style="justify-content:center">
             <button data-pact="yt-restart">⏮</button>
