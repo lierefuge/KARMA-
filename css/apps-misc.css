@@ -12,7 +12,7 @@
 /* üst özet şeridi */
 .gl-top {
   background: var(--studio-note-dim-bg);
-  border-radius: 10px;
+  border-radius: var(--radius-s);
   padding: 9px 11px;
   font-size: 12px;
   font-weight: 700;
@@ -26,7 +26,7 @@
   align-items: center;
   gap: 10px;
   padding: 10px 11px;
-  border-radius: 12px;
+  border-radius: var(--radius-s);
   background: var(--studio-note-dim-bg);
   border: 1px solid var(--studio-card-line);
   margin-bottom: 8px;
@@ -34,7 +34,7 @@
 .gl-badge.on { border-color: rgba(74, 222, 128, .38); }
 .gl-badge-ic {
   width: 34px; height: 34px; flex-shrink: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-s);
   display: flex; align-items: center; justify-content: center;
   font-size: 17px;
   background: var(--studio-track);
