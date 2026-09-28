@@ -214,12 +214,21 @@
             <div class="sp-stat" style="background:rgba(251,92,116,0.1)"><div class="k">Popülerlik</div><div class="v">${Math.round(prof.popularity)}</div></div>
             <div class="sp-stat" style="background:rgba(251,92,116,0.1)"><div class="k">En İyi Liste</div><div class="v">${prof.chartPeak ? "#" + prof.chartPeak : "—"}</div></div>
           </div>
-          ${K.ui.section("Şarkılar")}
-          ${songs.map((s, i) => chartRow({ title: s.title, artistName: prof.name, id: s.id, streams: s.streams, rank: i + 1, art: s.art }, i)).join("")}
+          ${K.ui.section("Şarkılar", `<span class="muted">${Math.min(20, songs.length)} / ${songs.length}</span>`)}
+          ${songs.slice(0, 20).map((s, i) => chartRow({ title: s.title, artistName: prof.name, id: s.id, streams: s.streams, rank: i + 1, art: s.art }, i)).join("")}
+          ${songs.length > 20
+            ? `<div class="p-row" data-pact="aa-all">
+                 <span style="font-size:18px">≡</span>
+                 <div class="grow"><div class="p-title">Tüm şarkıları gör</div>
+                 <div class="p-sub">${songs.length} şarkı · tam diskografi</div></div>
+                 <span style="color:var(--text-3)">›</span>
+               </div>`
+            : ""}
           ${K.ui.discographySection(artistId, "aa-album")}`,
         onAction: (act, el) => {
           const app = K.phone.appById("applemusic");
           if (act === "play") app.playById(el.dataset.arg);
+          else if (act === "aa-all") K.phone.appById("spotify").openAllSongs(artistId, { shellClass: "app-applemusic" });
           else if (act === "aa-album") app.openAlbumFor(artistId, el.dataset.arg);
         }
       });
