@@ -47,6 +47,11 @@
             duration: sg.ms ? Math.round(sg.ms / 1000) : 150 + (U.hashHue(sg.title) % 90),
             coverSeed: a.id + "_" + i,
             art: sg.art || null,
+            /* v10.2 — GERÇEK SES ÖNİZLEMESİ (iTunes previewUrl) + Apple Music bağlantısı */
+            preview: ((K.REAL_PREVIEWS || {})[artistId] || {})[sg.title] ?
+              K.REAL_PREVIEWS[artistId][sg.title].p : null,
+            appleUrl: ((K.REAL_PREVIEWS || {})[artistId] || {})[sg.title] ?
+              K.REAL_PREVIEWS[artistId][sg.title].a : "",
             real: true
           });
         });
