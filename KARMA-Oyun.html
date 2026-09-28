@@ -48,6 +48,13 @@
   --radius-l: 20px;     /* büyük panel, modal, ekran       */
   --radius-pill: 999px; /* hap biçimli düğme / rozet       */
 
+  /* --- cihaz köşeleri: iç içe geçen radius kuralı ---------------
+     İçteki köşe = dıştaki köşe − çerçeve payı.
+     Telefon gövdesi 54px, çerçeve payı 12px → ekran 42px.
+     Bu ikisi ölçeğe DAHİL DEĞİL; telefon kapsül olmasın diye ayrı tutulur. */
+  --radius-device: 54px;    /* telefon gövdesi (dış)          */
+  --radius-device-in: 42px; /* telefon ekranı (iç)            */
+
   /* --- gölge: 2 kademe, daha sade ve sıkı (v10) --- */
   --shadow-1: 0 2px 10px rgba(0, 0, 0, 0.38);
   --shadow-2: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -344,7 +351,11 @@ body::before {
 
   .career-panel { height: 100%; min-height: 0; }
   .phone-stage { justify-self: center; width: 100%; overflow-y: auto; padding-bottom: 10px; }
-  .phone-frame { width: 100%; max-width: 390px; height: auto; min-height: 640px; max-height: calc(100vh - var(--topbar-h) - 90px); }
+  /* NOT: .phone-frame ölçüsü burada TANIMLANMAZ.
+     Bu dosya (main.css) phone.css'ten ÖNCE yüklendiği için buradaki bir
+     .phone-frame kuralı her zaman eziliyordu — dar ekranda telefonun
+     ezilmesinin sebebi buydu. Telefon ölçüsü artık phone.css'te tek yerde,
+     orantılı biçimde tanımlı (aşağıdaki medya sorgusuna bakın). */
 }
 
 /* Geniş ekran: değiştirici gizli, iki panel birlikte */
@@ -733,16 +744,30 @@ body::before {
   justify-content: flex-start;
   gap: 10px;
   padding-top: 4px;
+  /* v10.1 — pencere telefonu sığdıramıyorsa sahne kendi içinde kaydırılır;
+     telefon asla okunamayacak kadar küçülmez. */
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
 }
 
 /* ---------- hardware frame ---------- */
 .phone-frame {
   position: relative;
-  width: 390px;
-  height: 800px;
-  max-height: calc(100vh - var(--topbar-h) - 70px);
+  /* v10.1 — TELEFON ARTIK HER EKRANDA AYNI ORANDA KALIR.
+     Eski hâlde genişlik sabit 390px, yükseklik ise yalnızca max-height ile
+     kısıtlıydı: pencere kısaldığında telefon eziliyor, gövde ile ekranın
+     köşe yarıçapları uyuşmuyordu. Artık GENİŞLİK TEK KAYNAK — hem ekran
+     genişliğinden hem kullanılabilir yükseklikten sınırlanır, yükseklik
+     ondan türetilir, oran asla bozulmaz. */
+  /* clamp alt sınırı: telefon 280px'in altına inmez; onun yerine sahne kaydırılır.
+     280px, 1280×720 gibi yaygın ekranlarda telefonun tam sığdığı eşiktir. */
+  --ph-w: clamp(280px, min(390px, calc(100vw - 40px), calc((100vh - var(--topbar-h) - 70px) * 390 / 800)), 390px);
+  width: var(--ph-w);
+  height: calc(var(--ph-w) * 800 / 390);
   aspect-ratio: 390 / 800;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-device);
   padding: 12px;
   background:
     linear-gradient(150deg, #3a3f4d 0%, #14161d 30%, #0a0b10 60%, #2a2e39 100%);
@@ -761,7 +786,7 @@ body::before {
   position: absolute;
   left: -3px; top: 150px;
   width: 3px; height: 90px;
-  border-radius: var(--radius-xs) 0 0 3px;
+  border-radius: 3px 0 0 3px;   /* mikro detay — ölçeğe dahil değil */
   background: linear-gradient(180deg, #2c313c, #14161c);
   box-shadow: 0 110px 0 0 #232833, 0 200px 0 0 #232833;
 }
@@ -789,12 +814,16 @@ body::before {
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: var(--radius-pill);
+  /* iç köşe = dış köşe − çerçeve payı (54 − 12) → kenarlar paralel kalır */
+  border-radius: var(--radius-device-in);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   background: var(--bg-0);
   isolation: isolate;
+  /* v10.1 — uygulamalar PENCEREYE değil TELEFONUN KENDİ genişliğine göre
+     yeniden boyutlansın diye kapsayıcı sorgusu kaynağı. */
+  container: phone / inline-size;
 }
 
 /* ---------- status bar ---------- */
@@ -817,9 +846,9 @@ body::before {
 .status-island { position: absolute; left: 50%; transform: translateX(-50%); }
 .status-right { display: flex; align-items: center; gap: 6px; font-size: 11px; }
 .sig { letter-spacing: -1px; font-size: 10px; }
-.battery { width: 24px; height: 12px; border: 1.4px solid #fff; border-radius: var(--radius-xs); position: relative; display: inline-block; }
+.battery { width: 24px; height: 12px; border: 1.4px solid #fff; border-radius: 3px; position: relative; display: inline-block; }
 .battery::after { content: ""; position: absolute; right: -4px; top: 3px; width: 2px; height: 4px; background: #fff; border-radius: 0 1px 1px 0; }
-.battery > i { display: block; height: 100%; width: 74%; background: #fff; border-radius: var(--radius-xs); transition: width 0.3s, background 0.3s; }
+.battery > i { display: block; height: 100%; width: 74%; background: #fff; border-radius: 1px; transition: width 0.3s, background 0.3s; }
 .battery > i.low { background: #ff5c7a; }
 
 /* ---------- viewport ---------- */
@@ -1036,6 +1065,52 @@ body::before {
 
 .phone-hint { font-size: 11px; color: var(--text-3); letter-spacing: 0.2px; }
 .ic-news { background: linear-gradient(160deg, #ff9b4a, #d33b1f); }
+
+/* ============================================================
+   v10.1 — TELEFON ÖLÇÜSÜ: HER EKRANDA AYNI ORAN
+   Tek kaynak --ph-w; yükseklik ondan türetilir (390:800).
+   Üst bar dar ekranda alt satıra kaydığı için payı artırıyoruz.
+   ============================================================ */
+@media (max-width: 1080px) {
+  .phone-frame {
+    /* üst bar + görünüm değiştirici + boşluklar için ~190px pay */
+    --ph-w: clamp(280px, min(390px,
+                             calc(100vw - 28px),
+                             calc((100vh - 190px) * 390 / 800)), 390px);
+  }
+}
+
+/* çok kısa pencerelerde (yatay telefon vb.) taşmayı önle */
+@media (max-height: 700px) and (min-width: 1081px) {
+  .phone-frame {
+    --ph-w: clamp(280px, min(390px, calc((100vh - 110px) * 390 / 800)), 390px);
+  }
+}
+
+/* ============================================================
+   v10.1 — UYGULAMALAR TELEFONUN GENİŞLİĞİNE GÖRE KÜÇÜLÜR
+   Telefon daraldığında (kısa pencere / küçük ekran) ana ekran
+   ikonları, dock ve başlıklar taşmasın; orantılı küçülsün.
+   Bu sorgular PENCEREYE değil .phone-screen kapsayıcısına bakar.
+   ============================================================ */
+@container phone (max-width: 360px) {
+  .app-icon { width: 52px; height: 52px; font-size: 23px; border-radius: var(--radius-s); }
+  .app-grid { gap: 16px 10px; }
+  .app-label { font-size: 9.5px; }
+  .app-badge { min-width: 18px; height: 18px; font-size: 10px; }
+  .home-dock { left: 12px; right: 12px; bottom: 14px; padding: 12px; gap: 10px; }
+  .home-header .full-date { font-size: 22px; }
+  .home-header .balance-chip { font-size: 11px; padding: 5px 11px; }
+}
+
+@container phone (max-width: 320px) {
+  .app-icon { width: 46px; height: 46px; font-size: 20px; }
+  .app-grid { gap: 14px 8px; }
+  .app-label { font-size: 9px; }
+  .home-dock { padding: 10px; gap: 8px; }
+  .home-header .full-date { font-size: 20px; }
+  .status-bar { padding: 0 16px 0 18px; font-size: 11.5px; }
+}
 
 </style>
 <style>
