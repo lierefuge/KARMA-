@@ -18,17 +18,16 @@
   position: relative;
   display: inline-flex; align-items: center; gap: 5px;
   padding: 6px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(10px);
   color: #fff; font-family: inherit; font-size: 12px; font-weight: 800;
   cursor: pointer;
 }
 .bell-chip:hover { background: rgba(255, 255, 255, 0.2); }
 .bell-chip b {
   min-width: 17px; height: 17px; padding: 0 4px;
-  border-radius: 999px; background: #ff3b30; color: #fff;
+  border-radius: var(--radius-pill); background: #ff3b30; color: #fff;
   font-size: 10px; font-weight: 900;
   display: grid; place-items: center;
 }
@@ -36,7 +35,7 @@
 /* kariyer paneli alt sekme çubuğu */
 .sub-tabs {
   display: flex; gap: 4px; padding: 3px;
-  border-radius: 10px; background: var(--glass);
+  border-radius: var(--radius-s); background: var(--glass);
   border: 1px solid var(--stroke);
   overflow-x: auto; scrollbar-width: none;
   margin-bottom: 12px;
@@ -45,7 +44,7 @@
 .sub-tabs button {
   font-family: inherit; font-size: 11.5px; font-weight: 700;
   color: var(--text-2); background: transparent; border: none;
-  border-radius: 8px; padding: 7px 13px; cursor: pointer; white-space: nowrap;
+  border-radius: var(--radius-xs); padding: 7px 13px; cursor: pointer; white-space: nowrap;
   transition: all 0.15s;
 }
 .sub-tabs button.active { background: rgba(255, 255, 255, 0.14); color: #fff; }
