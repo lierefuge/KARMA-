@@ -5,7 +5,51 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
-## GÜNCELLEME v8 — Faz 2: iş, sponsorluk, duayen, A&R, ödül, muhasebe (bu sürüm)
+## GÜNCELLEME v10 — Gerçeklik katmanı + görünüm stabilizasyonu (bu sürüm)
+
+### Ekonomi ve endüstri gerçekçiliği
+- **30 saniye eşiği (`K.econ.billable`):** dinlenmenin bir kısmı gelir sayılmaz.
+  Kalite, giriş uzunluğu ve hook gücü belirler (%8–34 arası atlama). Arayüzde
+  "30 sn üstü dinlenme" olarak görünür.
+- **Telif ödeme gecikmesi (`K.ECON.payoutLag`):** mağazalar dinlenmeyi geç raporlar —
+  Spotify 60 · Apple 45 · YouTube 75 · diğer 55 gün. Dinlenme önce **rapor kuyruğuna**
+  girer; kasa panelinde "yolda olan para" ve "rapor bekleyen dinlenme" olarak görünür.
+- **Kur (USD/₺) dalgalanması:** telif gelirleri kurla ölçeklenir. Aylık ortalama
+  değer kaybı + ara sıra ani şok; kasa panelinde kur ve günlük değişim yüzdesi.
+- **Enflasyon endeksi:** maliyetler VE telif nominal olarak birlikte artar.
+- **Kademeli gelir vergisi (`K.ECON.taxBrackets`):** %0 / %15 / %22 / %30 dilimleri;
+  efektif oran panelde gösterilir. Ödenmeyen borca **aylık %3,5 gecikme faizi** işler.
+- **Kâr marjı:** her ayın gelir/gider dengesi hesaplanır; negatifse uyarı gelir.
+- **4. gelir kalemi:** Spotify/Apple/YouTube yanında Deezer, Amazon, TIDAL,
+  SoundCloud, Instagram toplamı "diğer mağazalar" olarak ayrı ücretlenir.
+
+### Denge ve gerçekçilik düzeltmeleri (test sırasında bulundu)
+- **Viral artık SÜRELİ.** `song.viral` bir kez açıldığında asla kapanmıyordu;
+  şarkı her gün %1 büyüyüp sonsuza dek şişiyordu. Artık 16–34 günlük trend
+  penceresi var, dolunca söner ve kullanıcıya bildirim gider.
+- **Liste etkisi doyuma uğrar (`K.lists.LIFT_CAP`).** Her liste girişi
+  `dailyStreams`'i kalıcı çarpıyordu → çok listeye giren şarkı üstel büyüyordu
+  (400 günde ~30 kat). Artık kümülatif etki ~3×'te durur.
+- **Olay etkileri geçici.** Olay/trend bonusları kalıcı taban değişikliği değil,
+  sönümlenen `boosts` kalemi olarak uygulanır.
+- **Ses trendi biter.** TikTok sesi momentum eşiğin altına düşünce kapanır ve
+  etkisi 20 gün içinde sıfıra iner (eskiden video sayısı sonsuza dek büyüyordu).
+
+  Sonuç (400 günlük simülasyon): dinlenme 86 **milyar**dan 27,9 **milyon**a indi;
+  şarkı artık yükseliyor → zirve yapıyor → **düşüyor**.
+
+### Görünüm stabilizasyonu ("cıvık durmasın")
+- **Tek köşe yuvarlaklığı ölçeği:** `--radius-xs/s/m/l/pill`. Dağınık 20 farklı
+  değer (3px, 7px, 9px, 11px, 13px, 18px…) kaldırıldı; **176 sabit değer + 44 hap**
+  token'a bağlandı. `--radius-m` 16→14, `--radius-l` 24→20.
+- **Bulanıklık tamamen kaldırıldı:** 11 adet `backdrop-filter: blur()` silindi —
+  panel kenarları netleşti, metin keskinleşti, telefonda kaydırma hızlanır.
+- **Gölgeler sadeleşti:** dev `0 18px 60px` → `0 10px 30px`, `0 4px 20px` → `0 2px 10px`.
+  20 CSS dosyası düzeltildi.
+
+---
+
+## GÜNCELLEME v8 — Faz 2: iş, sponsorluk, duayen, A&R, ödül, muhasebe 
 
 - **Sponsorluk + sell-out:** kötü imajlı marka anlaşması itibar ve takipçi kaybettirir,
   “satıldı” tepkisi gelir (`selloutUntil`).
