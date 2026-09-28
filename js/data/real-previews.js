@@ -3,7 +3,8 @@
    Gerçek şarkılar için 30 saniyelik GERÇEK ses önizlemeleri.
    Kaynak: iTunes Search API (country=TR) · previewUrl / trackViewUrl
    p = doğrudan çalınabilir ses (m4a)   a = Apple Music sayfası
-   Eşleşme: normalleştirilmiş başlık karşılaştırması (Türkçe harf duyarlı)
+   Üretici: node tools/fetch-artist-discography.js
+   Güncelleme: 2026-09-28
    ============================================================ */
 (function (K) {
   "use strict";
@@ -1023,37 +1024,753 @@
   }
  },
  "sehinsah": {
-  "Darilmak Yok": {
-   "a": "https://music.apple.com/tr/album/darilmak-yok/1732287805?i=1732287807&uo=4",
-   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/22/d0/a1/22d0a168-1bf3-d6a2-3c18-b5947319c216/mzaf_12014207637569021273.plus.aac.p.m4a"
+  "mavi ay": {
+   "a": "https://music.apple.com/tr/album/mavi-ay/6790860145?i=6790860146&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/66/cb/c8/66cbc85f-b9ee-6a68-f602-65df7e692134/mzaf_16368830319669315877.plus.aac.p.m4a"
   },
-  "Dünya'dan Atlas'a": {
-   "a": "https://music.apple.com/tr/album/d%C3%BCnyadan-atlasa/1732287516?i=1732287517&uo=4",
-   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/fd/9e/cb/fd9ecb20-fb6b-d9f2-5cdd-30cdfe29d5ed/mzaf_8184675281419102994.plus.aac.p.m4a"
+  "NASINASI?": {
+   "a": "https://music.apple.com/tr/album/nasinasi/1870507098?i=1870507099&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a7/85/df/a785dfa1-02ad-e441-5b02-20d1575bc0c1/mzaf_1450386773280276001.plus.aac.p.m4a"
+  },
+  "INVIDIA": {
+   "a": "https://music.apple.com/tr/album/invidia/1826991659?i=1826991660&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0e/ef/4b/0eef4bfd-7cd2-d844-0e73-a605d078782e/mzaf_11525505180416395330.plus.aac.p.m4a"
+  },
+  "Cheval Blanc": {
+   "a": "https://music.apple.com/tr/album/cheval-blanc/1797358884?i=1797358885&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/68/aa/95/68aa952f-ff82-bc12-27ee-363c1c96e909/mzaf_4777642378493376382.plus.aac.p.m4a"
+  },
+  "FUTAŞK": {
+   "a": "https://music.apple.com/tr/album/futa%C5%9Fk/1793065224?i=1793065225&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b7/4d/0d/b74d0db0-f685-8ec2-da00-4f47d477128d/mzaf_1302367259674918107.plus.aac.p.m4a"
+  },
+  "BLACKROCK": {
+   "a": "https://music.apple.com/tr/album/blackrock/1797358643?i=1797358644&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b3/73/e6/b373e6c8-a8eb-7dea-cce9-9905b89c12b3/mzaf_12603989554373020176.plus.aac.p.m4a"
+  },
+  "KBR": {
+   "a": "https://music.apple.com/tr/album/kbr/1787147085?i=1787147086&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0c/58/48/0c584845-74f0-4a8a-78d8-38affd7cb289/mzaf_780085891511653542.plus.aac.p.m4a"
+  },
+  "Daim": {
+   "a": "https://music.apple.com/tr/album/daim/1734614223?i=1734614226&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d1/b5/f0/d1b5f0e8-c529-9d17-526d-b25dc52cc402/mzaf_13462163800066070769.plus.aac.p.m4a"
+  },
+  "Ikarus": {
+   "a": "https://music.apple.com/tr/album/ikarus/1731984614?i=1731984615&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4c/50/ac/4c50ac8c-60bd-b739-b82b-a7b3f074124a/mzaf_18100163609647278538.plus.aac.p.m4a"
+  },
+  "Kirlendi Tüm Duygularım": {
+   "a": "https://music.apple.com/tr/album/kirlendi-t%C3%BCm-duygular%C4%B1m/1729410746?i=1729410753&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/12/9f/49/129f49bc-5036-a399-2988-00d10540a2b6/mzaf_15865549711964805365.plus.aac.p.m4a"
+  },
+  "Meclis-i Ala": {
+   "a": "https://music.apple.com/tr/album/meclis-i-ala/1766552327?i=1766552702&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/61/3e/64/613e6461-a072-d0cc-e6f9-8e5470e668f4/mzaf_6645248683159355981.plus.aac.p.m4a"
+  },
+  "UFUKMANIA": {
+   "a": "https://music.apple.com/tr/album/ufukmania/1753899308?i=1753899313&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c9/c7/05/c9c705f0-cfc6-6caa-b73f-cc18d6b843b3/mzaf_10816644601649669266.plus.aac.p.m4a"
   },
   "Galvanize": {
    "a": "https://music.apple.com/tr/album/galvanize/1684303050?i=1684303056&uo=4",
    "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/a3/a0/28/a3a02845-2f4d-dde3-fbfd-2a3742958515/mzaf_5926485955311672405.plus.aac.p.m4a"
   },
-  "Kıskanç": {
-   "a": "https://music.apple.com/tr/album/k%C4%B1skan%C3%A7/1448254607?i=1448254615&uo=4",
-   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/2e/ab/35/2eab35ff-b881-520f-1d29-693ef6d87960/mzaf_18023334979272752701.plus.aac.p.m4a"
+  "KYOTO/GEISHA": {
+   "a": "https://music.apple.com/tr/album/kyoto-geisha/1685913968?i=1685914403&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/7b/47/c0/7b47c0f4-8311-143f-453e-523ca3fe7d2c/mzaf_801589604882021706.plus.aac.p.m4a"
   },
-  "Nabız": {
-   "a": "https://music.apple.com/tr/album/nab%C4%B1z/1687317261?i=1687317467&uo=4",
-   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7b/75/a6/7b75a6bd-a65e-41b4-7ea8-8d5e575efe3f/mzaf_4299633830505437687.plus.aac.p.m4a"
+  "Fırtına": {
+   "a": "https://music.apple.com/tr/album/f%C4%B1rt%C4%B1na/1678146919?i=1678146932&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/39/d0/6e/39d06e4b-d7c7-afed-0a2f-7d657f34458b/mzaf_4645357563088929094.plus.aac.p.m4a"
+  },
+  "İST/TAKSÎMİ": {
+   "a": "https://music.apple.com/tr/album/i-st-taks%C3%AEmi/1679809638?i=1679809644&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b0/48/c2/b048c233-9681-b198-b9c3-57817cac7098/mzaf_13235069111368139485.plus.aac.p.m4a"
+  },
+  "Hüsran": {
+   "a": "https://music.apple.com/tr/album/h%C3%BCsran/1714730313?i=1714730627&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/ce/44/75/ce44751b-de56-8c72-cae8-f78e761cfdca/mzaf_2368461517053539584.plus.aac.p.m4a"
+  },
+  "CimCimem": {
+   "a": "https://music.apple.com/tr/album/cimcimem/1690409522?i=1690409528&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/af/f0/6c/aff06c96-ecdf-b47a-d8bd-f82d777c8bde/mzaf_2061141529147463049.plus.aac.p.m4a"
+  },
+  "Prenses [Remix]": {
+   "a": "https://music.apple.com/tr/album/prenses-remix/1680582769?i=1680582950&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/42/d9/7d/42d97d9f-cb4e-472f-4cfe-a7df7dd704c7/mzaf_16341991903164098142.plus.aac.p.m4a"
+  },
+  "Darılmak Yok (Hamam Sessions)": {
+   "a": "https://music.apple.com/tr/album/dar%C4%B1lmak-yok-hamam-sessions/1704851283?i=1704851284&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/9d/8f/a7/9d8fa7ff-7de5-5768-2ac3-6d9337bcbd7e/mzaf_16663023534393045520.plus.aac.p.m4a"
+  },
+  "Canım Babam": {
+   "a": "https://music.apple.com/tr/album/can%C4%B1m-babam/1707172375?i=1707172387&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/5a/45/45/5a45453d-f9d7-9cc9-210d-2f746917b752/mzaf_8193686440922206630.plus.aac.p.m4a"
+  },
+  "Prenses": {
+   "a": "https://music.apple.com/tr/album/prenses/1732401191?i=1732401192&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/b6/54/1b/b6541bc9-8942-f0f6-663e-a850f075c999/mzaf_6405207949433775202.plus.aac.p.m4a"
+  },
+  "Dönmedin Ki": {
+   "a": "https://music.apple.com/tr/album/d%C3%B6nmedin-ki/1732287779?i=1732287781&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/ba/ea/62/baea622c-23eb-0f1c-0459-55d5f922b8dc/mzaf_3417626934269515978.plus.aac.p.m4a"
+  },
+  "Diabolico": {
+   "a": "https://music.apple.com/tr/album/diabolico/1732287739?i=1732287740&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/aa/5d/7c/aa5d7c96-034d-7a7b-12da-9698cfb82eb5/mzaf_17062730853526167938.plus.aac.p.m4a"
+  },
+  "Ellerinde": {
+   "a": "https://music.apple.com/tr/album/ellerinde/1732287552?i=1732287553&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/ef/d2/13/efd21365-a0eb-7e50-4585-2d5a189a1928/mzaf_13418355585266740227.plus.aac.p.m4a"
+  },
+  "Muz Cumhuriyeti": {
+   "a": "https://music.apple.com/tr/album/muz-cumhuriyeti/1732401276?i=1732401277&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/dd/1f/93/dd1f9377-1dd5-79ae-c070-887cee94d54e/mzaf_4671503936123490458.plus.aac.p.m4a"
+  },
+  "Hadi Yaparsın": {
+   "a": "https://music.apple.com/tr/album/hadi-yapars%C4%B1n/1732986110?i=1732986111&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/3f/09/80/3f0980ea-44d1-eed9-ae32-0391de21520b/mzaf_5372903312406679897.plus.aac.p.m4a"
+  },
+  "M.I.Ş": {
+   "a": "https://music.apple.com/tr/album/m-i-%C5%9F/1557557821?i=1557557953&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview124/v4/dd/57/0d/dd570d5f-435e-3140-8769-248ec720a0b1/mzaf_6170471861615014151.plus.aac.p.m4a"
+  },
+  "The Face Of Vision": {
+   "a": "https://music.apple.com/tr/album/the-face-of-vision/1732401254?i=1732401255&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/b5/31/10/b53110f3-e797-93f0-0b7f-a1b40c385f88/mzaf_16483231552042373502.plus.aac.p.m4a"
+  },
+  "Samanyolu": {
+   "a": "https://music.apple.com/tr/album/samanyolu/1732401308?i=1732401309&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/99/b5/27/99b52711-9d68-b13b-0073-15392e07c250/mzaf_33867199988790191.plus.aac.p.m4a"
+  },
+  "Kunteper": {
+   "a": "https://music.apple.com/tr/album/kunteper/1732407202?i=1732407203&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/3a/26/07/3a260710-598c-b78b-5126-4839f1854311/mzaf_17520793130097282363.plus.aac.p.m4a"
+  },
+  "Darilmak Yok": {
+   "a": "https://music.apple.com/tr/album/darilmak-yok/1732287805?i=1732287807&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/22/d0/a1/22d0a168-1bf3-d6a2-3c18-b5947319c216/mzaf_12014207637569021273.plus.aac.p.m4a"
+  },
+  "Baban": {
+   "a": "https://music.apple.com/tr/album/baban/1512044325?i=1512044331&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/32/b4/4a/32b44a00-8b6e-84d5-0c2e-9435e3983650/mzaf_16937374188437210818.plus.aac.p.m4a"
+  },
+  "Ihtan (feat. DJ Artz) [Groovypedia Live]": {
+   "a": "https://music.apple.com/tr/album/ihtan-feat-dj-artz-groovypedia-live/1533940664?i=1533940665&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/86/58/1c/86581cf9-b278-64bc-ce47-97524f1659bd/mzaf_10567796553544501482.plus.aac.p.m4a"
+  },
+  "Trump": {
+   "a": "https://music.apple.com/tr/album/trump/1732401328?i=1732401329&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/5a/84/5a/5a845a3d-2368-d87f-8297-822addd82c25/mzaf_7088269004882094513.plus.aac.p.m4a"
+  },
+  "Dön Dünya": {
+   "a": "https://music.apple.com/tr/album/d%C3%B6n-d%C3%BCnya/1877676130?i=1877676137&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/16/cf/2e/16cf2efe-7a30-edb6-76c9-00e5f0c2c57f/mzaf_5443136340668344489.plus.aac.p.m4a"
   },
   "Pirana": {
    "a": "https://music.apple.com/tr/album/pirana/1450618543?i=1450618550&uo=4",
    "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/fc/0b/eb/fc0beb70-5cea-26c3-88e4-579d50165a8b/mzaf_8989506167553675387.plus.aac.p.m4a"
   },
+  "Yaz Yağmurum (feat. Onur Betin)": {
+   "a": "https://music.apple.com/tr/album/yaz-ya%C4%9Fmurum-feat-onur-betin/1467463456?i=1467463460&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d7/c4/a7/d7c4a78c-66c6-1284-12b4-bd5744fa6b30/mzaf_14691823626929810532.plus.aac.p.m4a"
+  },
+  "Aslan Marşı": {
+   "a": "https://music.apple.com/tr/album/aslan-mar%C5%9F%C4%B1/1464152333?i=1464152434&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/3c/75/9e/3c759ec6-0bc7-ec21-7309-e2c60dbe8197/mzaf_2868734787806028190.plus.aac.p.m4a"
+  },
+  "İmza": {
+   "a": "https://music.apple.com/tr/album/i-mza/1481352010?i=1481352015&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/48/78/41/48784154-b721-de5c-f44b-f27ade99f83f/mzaf_8286403347585465518.plus.aac.p.m4a"
+  },
+  "Talep - Arz": {
+   "a": "https://music.apple.com/tr/album/talep-arz/1476817569?i=1476817571&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/33/42/18/3342185a-b4b1-f733-94ef-f62aebdcc2d2/mzaf_7796677429539000840.plus.aac.p.m4a"
+  },
+  "Çocuk": {
+   "a": "https://music.apple.com/tr/album/%C3%A7ocuk/1475912033?i=1475912247&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/aa/9c/46/aa9c4680-33f0-7a8f-9892-bd110baaa51f/mzaf_16315390071730013261.plus.aac.p.m4a"
+  },
   "Yak Yak Yak": {
    "a": "https://music.apple.com/tr/album/yak-yak-yak/1407408201?i=1407408910&uo=4",
    "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/6d/32/2b/6d322b68-c997-6fdb-728a-305a925b9d20/mzaf_1985014731045794129.plus.aac.p.m4a"
   },
-  "Yaz Yağmurum (feat. Onur Betin)": {
-   "a": "https://music.apple.com/tr/album/yaz-ya%C4%9Fmurum-feat-onur-betin/1467463456?i=1467463460&uo=4",
-   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d7/c4/a7/d7c4a78c-66c6-1284-12b4-bd5744fa6b30/mzaf_14691823626929810532.plus.aac.p.m4a"
+  "Dünya'dan Atlas'a": {
+   "a": "https://music.apple.com/tr/album/d%C3%BCnyadan-atlasa/1732287516?i=1732287517&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/fd/9e/cb/fd9ecb20-fb6b-d9f2-5cdd-30cdfe29d5ed/mzaf_8184675281419102994.plus.aac.p.m4a"
+  },
+  "Milyon": {
+   "a": "https://music.apple.com/tr/album/milyon/1732485544?i=1732485545&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/69/22/37/692237ae-e76e-6c2e-5799-af24e574167f/mzaf_9033980527614827249.plus.aac.p.m4a"
+  },
+  "Karma (Groovypedia Live)": {
+   "a": "https://music.apple.com/tr/album/karma-groovypedia-live/1554075591?i=1554075592&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/4a/9d/d6/4a9dd63d-68ad-fce3-3ba6-c5580804c15f/mzaf_864022531131844666.plus.aac.p.m4a"
+  },
+  "Karma": {
+   "a": "https://music.apple.com/tr/album/karma/1732287601?i=1732287602&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/82/41/e5/8241e50f-b0f9-6a0f-0826-568dbb288d38/mzaf_17967051644373409291.plus.aac.p.m4a"
+  },
+  "Hayal (Groovypedia Live)": {
+   "a": "https://music.apple.com/tr/album/hayal-groovypedia-live/1554113389?i=1554113391&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/7c/57/8b/7c578bef-d0ab-299c-357c-659e42a880c0/mzaf_1330101637355182871.plus.aac.p.m4a"
+  },
+  "Uzulme (feat. ARTZ)": {
+   "a": "https://music.apple.com/tr/album/uzulme-feat-artz/1732407197?i=1732407198&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/58/c6/eb/58c6ebfd-31b5-6265-4e6d-49f23e9a6430/mzaf_5876291069896608517.plus.aac.p.m4a"
+  },
+  "entropi": {
+   "a": "https://music.apple.com/tr/album/entropi/6781298579?i=6781298582&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/bb/26/07/bb260774-7a1f-5c01-16b1-13e9badf9a50/mzaf_469273010492981292.plus.aac.p.m4a"
+  },
+  "yAllah": {
+   "a": "https://music.apple.com/tr/album/yallah/6781298579?i=6781298591&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1e/c4/e8/1ec4e815-1321-1b7b-aaae-2caca96fe601/mzaf_14157522764004086416.plus.aac.p.m4a"
+  },
+  "çivi": {
+   "a": "https://music.apple.com/tr/album/%C3%A7ivi/6781298579?i=6781298588&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e0/94/39/e09439e9-731a-6af4-e908-d796efb8eebf/mzaf_7668738088859592352.plus.aac.p.m4a"
+  },
+  "bu aşk / haram": {
+   "a": "https://music.apple.com/tr/album/bu-a%C5%9Fk-haram/6781298579?i=6781298587&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9d/8f/ce/9d8fcef2-3e01-e223-3d59-06d9004d617f/mzaf_12608983549789948418.plus.aac.p.m4a"
+  },
+  "plajda": {
+   "a": "https://music.apple.com/tr/album/plajda/6781298579?i=6781298589&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ee/0f/1f/ee0f1fab-7340-7563-8879-a86d9d2be201/mzaf_11087047085741055662.plus.aac.p.m4a"
+  },
+  "ESKİ OKUL": {
+   "a": "https://music.apple.com/tr/album/eski-okul/1794117861?i=1794117862&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/31/1c/6f/311c6f02-8f72-5b01-c21f-7518c48f1194/mzaf_10371977220507180629.plus.aac.p.m4a"
+  },
+  "2PAC MI WUTANG MI": {
+   "a": "https://music.apple.com/tr/album/2pac-mi-wutang-mi/1794117861?i=1794117863&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1c/2a/b8/1c2ab858-2206-8f25-260e-921f92712001/mzaf_1168845579895897732.plus.aac.p.m4a"
+  },
+  "TYGA": {
+   "a": "https://music.apple.com/tr/album/tyga/1794117861?i=1794117864&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/da/e1/6b/dae16bdc-8adf-c31b-ce62-22d26f5e124b/mzaf_12209501462925759313.plus.aac.p.m4a"
+  },
+  "BU GECENİN YILDIZI KİM": {
+   "a": "https://music.apple.com/tr/album/bu-geceni-n-yildizi-ki-m/1794117861?i=1794117865&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/43/12/9c/43129c5b-42f4-03b9-46a7-9dc1a6d46564/mzaf_13298083809916825679.plus.aac.p.m4a"
+  },
+  "HERKES SAVAŞ İSTİYOR": {
+   "a": "https://music.apple.com/tr/album/herkes-sava%C5%9F-i-sti-yor/1794117861?i=1794117866&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/aa/6c/fa/aa6cfab8-d27d-fbe5-8191-148c4c473513/mzaf_5815978468280470807.plus.aac.p.m4a"
+  },
+  "YA PARA YA CANIN": {
+   "a": "https://music.apple.com/tr/album/ya-para-ya-canin/1794117861?i=1794117867&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/22/0f/1e/220f1e23-c64e-442a-1c71-d8844f012103/mzaf_18017959062695662542.plus.aac.p.m4a"
+  },
+  "Suikast Mevsimi": {
+   "a": "https://music.apple.com/tr/album/suikast-mevsimi/1741750606?i=1741750943&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/84/28/fa/8428fab7-1ea0-4cf2-2291-1755cfa5dfcf/mzaf_5521511764452072981.plus.aac.p.m4a"
+  },
+  "Yarim Yamalak": {
+   "a": "https://music.apple.com/tr/album/yarim-yamalak/1741750606?i=1741750941&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d5/d3/30/d5d3304e-a796-f61e-a21d-bddfc4aef090/mzaf_16745309593415311367.plus.aac.p.m4a"
+  },
+  "C.Iğerto": {
+   "a": "https://music.apple.com/tr/album/c-i%C4%9Ferto/1741750606?i=1741750607&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c8/40/6c/c8406c0a-da62-7b67-790b-34dbda991e8c/mzaf_11240355542805906648.plus.aac.p.m4a"
+  },
+  "Su": {
+   "a": "https://music.apple.com/tr/album/su/1741750606?i=1741750951&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9f/25/dc/9f25dccc-6d6c-8cee-92b8-3d0609406f9e/mzaf_986621830616557025.plus.aac.p.m4a"
+  },
+  "Kirmizi": {
+   "a": "https://music.apple.com/tr/album/kirmizi/1741750606?i=1741750946&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4c/7c/b6/4c7cb63a-d755-9731-b556-e6d2a537af8e/mzaf_11654126479520632153.plus.aac.p.m4a"
+  },
+  "Bana Sen Gerek": {
+   "a": "https://music.apple.com/tr/album/bana-sen-gerek/1741750606?i=1741750942&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8f/ad/5a/8fad5ad8-5028-50a4-9146-6e3e7e1e784a/mzaf_14665946027620126844.plus.aac.p.m4a"
+  },
+  "Circus": {
+   "a": "https://music.apple.com/tr/album/circus/1741750606?i=1741750938&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b2/67/0b/b2670b98-95e3-70c5-e19e-e524edc59bf1/mzaf_13355695874200730305.plus.aac.p.m4a"
+  },
+  "Neyin Uğruna/Tavşan": {
+   "a": "https://music.apple.com/tr/album/neyin-u%C4%9Fruna-tav%C5%9Fan/1741750606?i=1741750949&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b5/4f/27/b54f27ba-edb0-cd52-2a7e-a548533a0fad/mzaf_10370947436670882755.plus.aac.p.m4a"
+  },
+  "Dprsyn/Gemiler": {
+   "a": "https://music.apple.com/tr/album/dprsyn-gemiler/1741750606?i=1741750947&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b0/4e/68/b04e682c-4172-d534-442a-5dd0aae2d6d2/mzaf_8316949923274061250.plus.aac.p.m4a"
+  },
+  "Derin Aşk": {
+   "a": "https://music.apple.com/tr/album/derin-a%C5%9Fk/1741750606?i=1741750939&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/10/56/b2/1056b262-82db-8cb0-39c5-4b337a7da663/mzaf_3516737321936616101.plus.aac.p.m4a"
+  },
+  "Daadoh": {
+   "a": "https://music.apple.com/tr/album/daadoh/1741750606?i=1741750950&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2e/4e/75/2e4e75a3-f80d-3729-771d-5ea85a223a76/mzaf_3283065170966957650.plus.aac.p.m4a"
+  },
+  "Nefes Alama": {
+   "a": "https://music.apple.com/tr/album/nefes-alama/1741750606?i=1741750945&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/52/9e/f5/529ef5cf-efba-bf40-7dcb-a6379d005d9f/mzaf_17484789464327732750.plus.aac.p.m4a"
+  },
+  "Babaroblox (feat. Atlas)": {
+   "a": "https://music.apple.com/tr/album/babaroblox-feat-atlas/1741750606?i=1741750952&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2d/92/07/2d920746-99ca-62a1-85f8-f7fa28ccdca1/mzaf_14257604759306456967.plus.aac.p.m4a"
+  },
+  "+28 (Tirat)": {
+   "a": "https://music.apple.com/tr/album/28-tirat/1620144321?i=1620144498&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/67/7b/3f/677b3f65-282e-cec3-647c-9a7c17724ffe/mzaf_18197299070516881084.plus.aac.p.m4a"
+  },
+  "En Eskiden Beri": {
+   "a": "https://music.apple.com/tr/album/en-eskiden-beri/1732407320?i=1732407325&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/37/88/0d/37880dae-26c1-d434-e3a9-abfed5758c90/mzaf_17259986494297960995.plus.aac.p.m4a"
+  },
+  "Rehabilite": {
+   "a": "https://music.apple.com/tr/album/rehabilite/1732407320?i=1732407327&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b8/e3/33/b8e33370-24de-a058-b9f6-bfe8724611f5/mzaf_18206420048736047796.plus.aac.p.m4a"
+  },
+  "Sür Ya da Öl": {
+   "a": "https://music.apple.com/tr/album/s%C3%BCr-ya-da-%C3%B6l/1732407320?i=1732407323&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e8/5a/25/e85a25ca-5d0b-5d85-ce5e-fee564a689aa/mzaf_10034262273618483589.plus.aac.p.m4a"
+  },
+  "Labirent": {
+   "a": "https://music.apple.com/tr/album/labirent/1732407320?i=1732407326&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/87/5b/47/875b470d-20af-1ffe-9dd1-809c44824d43/mzaf_13465739096677481599.plus.aac.p.m4a"
+  },
+  "Türlü Bela": {
+   "a": "https://music.apple.com/tr/album/t%C3%BCrl%C3%BC-bela/1732407320?i=1732407330&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/27/be/76/27be761f-9a25-38f2-c4cf-4b3eed49d846/mzaf_6398298432382236279.plus.aac.p.m4a"
+  },
+  "Dilemma x Kuytu": {
+   "a": "https://music.apple.com/tr/album/dilemma-x-kuytu/1732407320?i=1732407332&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e4/9f/89/e49f89b8-077d-e9d1-3fe6-172bc4e3c3e8/mzaf_10947872000628130253.plus.aac.p.m4a"
+  },
+  "Intro": {
+   "a": "https://music.apple.com/tr/album/intro/1732407320?i=1732407321&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2a/47/33/2a473353-4496-fb33-04c8-6e4fc0962473/mzaf_4162011589341763195.plus.aac.p.m4a"
+  },
+  "Outro": {
+   "a": "https://music.apple.com/tr/album/outro/1732407320?i=1732407333&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a4/0a/ea/a40aeabb-74ee-afb0-7bc4-8ecf5c2cf14f/mzaf_3631716399511651105.plus.aac.p.m4a"
+  },
+  "Sendeliyorum": {
+   "a": "https://music.apple.com/tr/album/sendeliyorum/1732407320?i=1732407324&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/64/77/a8/6477a851-95f2-6286-47fa-89af08d68f60/mzaf_3567796071054696944.plus.aac.p.m4a"
+  },
+  "Az": {
+   "a": "https://music.apple.com/tr/album/az/1732407320?i=1732407329&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c1/7f/90/c17f90c7-9ba3-fce9-95bc-cc1a0c5f3820/mzaf_17438747583938195689.plus.aac.p.m4a"
+  },
+  "Plüton (feat. DJ Artz)": {
+   "a": "https://music.apple.com/tr/album/pl%C3%BCton-feat-dj-artz/1732934138?i=1732934368&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4b/a0/12/4ba01278-da88-be18-2408-cd761e2e3907/mzaf_130442578133139671.plus.aac.p.m4a"
+  },
+  "Sayın Türk (feat. DJ Artz)": {
+   "a": "https://music.apple.com/tr/album/say%C4%B1n-t%C3%BCrk-feat-dj-artz/1732934138?i=1732934145&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/cb/1e/b8/cb1eb8e7-906d-145f-f01a-f9052ba253fb/mzaf_11214364150344910389.plus.aac.p.m4a"
+  },
+  "Hepsi Benim 2 (feat. DJ Artz)": {
+   "a": "https://music.apple.com/tr/album/hepsi-benim-2-feat-dj-artz/1732934138?i=1732934142&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/77/ce/72/77ce726b-66e0-e074-ee85-e6f7dcc5012c/mzaf_6297772933065133036.plus.aac.p.m4a"
+  },
+  "Krang (feat. Hidra & DJ Artz)": {
+   "a": "https://music.apple.com/tr/album/krang-feat-hidra-dj-artz/1732934138?i=1732934141&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/c5/76/75/c57675b7-b433-c4c4-afb4-02dcc4d60ada/mzaf_17001769511161602692.plus.aac.p.m4a"
+  },
+  "Evim (feat. DJ Artz)": {
+   "a": "https://music.apple.com/tr/album/evim-feat-dj-artz/1732934138?i=1732934358&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/28/84/ad/2884ad0a-4eda-894a-0f07-4b2fa778f46c/mzaf_16655541477185228893.plus.aac.p.m4a"
+  },
+  "Rec, Play, Pause (feat. DJ Artz, Xir & Sansar Salvo)": {
+   "a": "https://music.apple.com/tr/album/rec-play-pause-feat-dj-artz-xir-sansar-salvo/1732934138?i=1732934146&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8e/4c/5f/8e4c5f0d-9823-0747-9dcc-35808490d0cb/mzaf_174002775264175801.plus.aac.p.m4a"
+  },
+  "Satın Alıcazzz (feat. DJ Artz)": {
+   "a": "https://music.apple.com/tr/album/sat%C4%B1n-al%C4%B1cazzz-feat-dj-artz/1732934138?i=1732934370&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/79/9f/2b/799f2b70-49c3-aa95-ec28-b769ae851f11/mzaf_9153183755862308474.plus.aac.p.m4a"
+  },
+  "Arkadaş (feat. DJ Artz)": {
+   "a": "https://music.apple.com/tr/album/arkada%C5%9F-feat-dj-artz/1732934138?i=1732934369&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f4/7c/e0/f47ce067-bd87-62a4-5277-640f3602b430/mzaf_5012799608411474914.plus.aac.p.m4a"
+  },
+  "Rec, Play, Pause (feat. Ben Büdü, Xir & Sansar Salvo) [Remix]": {
+   "a": "https://music.apple.com/tr/album/rec-play-pause-feat-ben-b%C3%BCd%C3%BC-xir-sansar-salvo-remix/1732934138?i=1732934365&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ec/b5/c9/ecb5c9f8-8948-db0a-a6d4-8b9668542c44/mzaf_7656322837003832229.plus.aac.p.m4a"
+  },
+  "İstiklal (feat. DJ Artz & Bugy)": {
+   "a": "https://music.apple.com/tr/album/i-stiklal-feat-dj-artz-bugy/1732934138?i=1732934360&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/46/7e/a8/467ea864-7d42-2320-1efe-071f8448e598/mzaf_16590719522942719138.plus.aac.p.m4a"
+  },
+  "Ne Varsa Kafada Var (feat. DJ Artz)": {
+   "a": "https://music.apple.com/tr/album/ne-varsa-kafada-var-feat-dj-artz/1732934138?i=1732934140&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a9/6f/df/a96fdf70-e571-1ffa-a0d1-d9f1049d29db/mzaf_10959314873220148184.plus.aac.p.m4a"
+  },
+  "Skit Baltalayıcısı (Skit)": {
+   "a": "https://music.apple.com/tr/album/skit-baltalay%C4%B1c%C4%B1s%C4%B1-skit/1732934138?i=1732934357&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f0/f2/8b/f0f28b1d-c565-dd46-ef6c-3b09b463c94d/mzaf_7118038291865072895.plus.aac.p.m4a"
+  },
+  "U.A.A. (feat. Ezhel & DJ Artz)": {
+   "a": "https://music.apple.com/tr/album/u-a-a-feat-ezhel-dj-artz/1732934138?i=1732934359&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/e2/f7/77/e2f777af-56f3-4425-3999-c62e05725f03/mzaf_5739171776785006664.plus.aac.p.m4a"
+  },
+  "Yerim Rahat (feat. DJ Artz & Emrah Karakuyu)": {
+   "a": "https://music.apple.com/tr/album/yerim-rahat-feat-dj-artz-emrah-karakuyu/1732934138?i=1732934362&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/43/5f/9f/435f9ffa-3d68-903b-165f-07f5f1aa1fbc/mzaf_14713159939998281806.plus.aac.p.m4a"
+  },
+  "Var Arantım (feat. Ben Büdü) [Remix]": {
+   "a": "https://music.apple.com/tr/album/var-arant%C4%B1m-feat-ben-b%C3%BCd%C3%BC-remix/1732934138?i=1732934366&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4d/7c/18/4d7c1879-2c2f-a012-53f2-fbcd90d43631/mzaf_4405597628652457720.plus.aac.p.m4a"
+  },
+  "Çok Hızlısın Kanka (Skit)": {
+   "a": "https://music.apple.com/tr/album/%C3%A7ok-h%C4%B1zl%C4%B1s%C4%B1n-kanka-skit/1732934138?i=1732934143&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/49/98/32/499832b4-86c4-7b65-7289-a05130a63914/mzaf_7521586469360491109.plus.aac.p.m4a"
+  },
+  "U.A.A. (feat. Ben Büdü & Ezhel) [Remix]": {
+   "a": "https://music.apple.com/tr/album/u-a-a-feat-ben-b%C3%BCd%C3%BC-ezhel-remix/1732934138?i=1732934364&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/60/87/7b/60877bce-258c-6d2b-fd72-e107e5a0389d/mzaf_1529467283275734014.plus.aac.p.m4a"
+  },
+  "İstiklal (feat. Ben Büdü) [Dub Remix]": {
+   "a": "https://music.apple.com/tr/album/i-stiklal-feat-ben-b%C3%BCd%C3%BC-dub-remix/1732934138?i=1732934363&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/79/d9/f3/79d9f3e7-6087-b330-3b3d-a6b47155e115/mzaf_11704808314211934194.plus.aac.p.m4a"
+  },
+  "Hadi Görüşürüz (Skit)": {
+   "a": "https://music.apple.com/tr/album/hadi-g%C3%B6r%C3%BC%C5%9F%C3%BCr%C3%BCz-skit/1732934138?i=1732934367&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/52/32/3c/52323c72-53ed-fe50-c60d-5717d614019d/mzaf_10029595544328188723.plus.aac.p.m4a"
+  },
+  "Nergis TV (Skit)": {
+   "a": "https://music.apple.com/tr/album/nergis-tv-skit/1732934138?i=1732934361&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/24/d6/c8/24d6c8be-36fa-2736-854d-72d941906f5e/mzaf_1814085891127317863.plus.aac.p.m4a"
+  },
+  "Var Arantım (feat. DJ Artz)": {
+   "a": "https://music.apple.com/tr/album/var-arant%C4%B1m-feat-dj-artz/1732934138?i=1732934144&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/eb/40/58/eb405839-a27c-f79d-4f6c-88c12c68e572/mzaf_5838049631682490013.plus.aac.p.m4a"
+  },
+  "Benim Adım Arda": {
+   "a": "https://music.apple.com/tr/album/benim-ad%C4%B1m-arda/1878389480?i=1878389485&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a9/9e/d9/a99ed998-bdb0-d9a2-0459-05e947be6b5d/mzaf_4251772359732484531.plus.aac.p.m4a"
+  },
+  "TakaTuka Freestyle": {
+   "a": "https://music.apple.com/tr/album/takatuka-freestyle/1874030738?i=1874030740&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/db/67/1f/db671f7f-6449-3c1f-71aa-adc0beebc610/mzaf_3673170579589464182.plus.aac.p.m4a"
+  },
+  "Lab Cypher 6": {
+   "a": "https://music.apple.com/tr/album/lab-cypher-6/1830176036?i=1830176039&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d3/3c/c0/d33cc061-94cc-8116-1372-f653b0a0cc2c/mzaf_10461824457115969518.plus.aac.p.m4a"
+  },
+  "Memleketim (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/memleketim-feat-%C5%9Fehin%C5%9Fah/1806669528?i=1806669560&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/60/a8/a5/60a8a5f3-cd28-f6f4-6a26-17c7b94e2055/mzaf_3744424192062336595.plus.aac.p.m4a"
+  },
+  "Eskisi Gibi": {
+   "a": "https://music.apple.com/tr/album/eskisi-gibi/1802649523?i=1802649752&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d0/da/19/d0da1956-e4cb-f8ea-3818-272c1526602a/mzaf_6557501236524102514.plus.aac.p.m4a"
+  },
+  "Pembe Yalanlar": {
+   "a": "https://music.apple.com/tr/album/pembe-yalanlar/1733446410?i=1733446583&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/4e/2c/d8/4e2cd8cb-fbb5-1516-ad70-e5276a7caf46/mzaf_3032563637406040581.plus.aac.p.m4a"
+  },
+  "#PHONKFREESTYLE": {
+   "a": "https://music.apple.com/tr/album/phonkfreestyle/1886537727?i=1886537728&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/01/4c/99/014c9982-727f-6c0c-efcd-e4871d1f7a9a/mzaf_11333179872407507627.plus.aac.p.m4a"
+  },
+  "PEAK POINT": {
+   "a": "https://music.apple.com/tr/album/peak-point/1783101040?i=1783101046&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8f/20/08/8f2008fa-5b24-a4d8-39da-429696ead890/mzaf_7584967953912066010.plus.aac.p.m4a"
+  },
+  "BANA NE": {
+   "a": "https://music.apple.com/tr/album/bana-ne/1779771987?i=1779771993&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f2/81/e0/f281e0ee-c979-7da4-8d14-691391f5dde2/mzaf_11332110479976512473.plus.aac.p.m4a"
+  },
+  "Deliyoo": {
+   "a": "https://music.apple.com/tr/album/deliyoo/1761184682?i=1761184688&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/51/2b/97/512b97b3-95c3-4ffe-16de-483e5e96d541/mzaf_4552669783254892082.plus.aac.p.m4a"
+  },
+  "Tanrıyı Kıyamete Zorlama": {
+   "a": "https://music.apple.com/tr/album/tanr%C4%B1y%C4%B1-k%C4%B1yamete-zorlama/1773763760?i=1773763761&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/9f/3a/4a/9f3a4a65-52be-0a35-bed1-2f43375c5ffd/mzaf_2318612032554136225.plus.aac.p.m4a"
+  },
+  "Havadis (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/havadis-feat-%C5%9Fehin%C5%9Fah/1729129665?i=1729129666&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/03/cc/aa/03ccaaf5-7302-5365-9007-fe94fc5bcfe4/mzaf_11561994174860066305.plus.aac.p.m4a"
+  },
+  "Maymunlar Cehennemi": {
+   "a": "https://music.apple.com/tr/album/maymunlar-cehennemi/1690837172?i=1690837184&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/1e/6d/c5/1e6dc57d-f718-fcea-6b44-c6e47a028b73/mzaf_11782905552768903401.plus.aac.p.m4a"
+  },
+  "High 2": {
+   "a": "https://music.apple.com/tr/album/high-2/1686390721?i=1686390732&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/c6/78/b9/c678b9fe-825a-8efe-e3d6-989c3f8f2ba4/mzaf_9395246505094040371.plus.aac.p.m4a"
+  },
+  "No Risk No Fun": {
+   "a": "https://music.apple.com/tr/album/no-risk-no-fun/1641681379?i=1641681381&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/23/39/35/23393558-dcb6-47c3-ecb4-58bc66f504a8/mzaf_6635403018251383153.plus.aac.p.m4a"
+  },
+  "Yaşamak": {
+   "a": "https://music.apple.com/tr/album/ya%C5%9Famak/1639448662?i=1639448663&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/4f/d4/35/4fd4355d-d445-50f5-5290-65d0485e6af5/mzaf_2499960018980265939.plus.aac.p.m4a"
+  },
+  "Nefret": {
+   "a": "https://music.apple.com/tr/album/nefret/1631944380?i=1631944391&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/c7/b1/d3/c7b1d345-50f6-7e81-65e3-ab2d19e49868/mzaf_1429486484599832000.plus.aac.p.m4a"
+  },
+  "Taktik": {
+   "a": "https://music.apple.com/tr/album/taktik/1626623053?i=1626623057&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/02/fe/01/02fe0186-ad38-8d68-55a1-604e416774d8/mzaf_3956710082120597233.plus.aac.p.m4a"
+  },
+  "Kader": {
+   "a": "https://music.apple.com/tr/album/kader/1575863613?i=1575864218&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/a5/3f/1f/a53f1fb4-2923-4433-dac3-93798f6f0446/mzaf_12692707191911369891.plus.aac.p.m4a"
+  },
+  "Merhamet Yok": {
+   "a": "https://music.apple.com/tr/album/merhamet-yok/1560474467?i=1560474468&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview114/v4/d0/30/74/d030741d-3f7d-efce-1f6d-00e2bd39a9ae/mzaf_10364536954969788846.plus.aac.p.m4a"
+  },
+  "Lanet": {
+   "a": "https://music.apple.com/tr/album/lanet/1554342960?i=1554343209&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/84/d4/bc/84d4bc43-9e28-b0f3-3667-b5188b812802/mzaf_3422241713167818511.plus.aac.p.m4a"
+  },
+  "Eksik Olmaz": {
+   "a": "https://music.apple.com/tr/album/eksik-olmaz/1547332050?i=1547332051&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/07/8b/d6/078bd62e-afd7-e6c1-d386-9985d455b29d/mzaf_468691921315281591.plus.aac.p.m4a"
+  },
+  "Pendname (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/pendname-feat-%C5%9Fehin%C5%9Fah/1542893362?i=1542893364&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/60/31/4a/60314ac5-cd6a-1bab-2929-fa3df40a877a/mzaf_17980853887622158512.plus.aac.p.m4a"
+  },
+  "Ah Bebek (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/ah-bebek-feat-%C5%9Fehin%C5%9Fah/1543552165?i=1543552166&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c8/b9/4c/c8b94cf4-3c70-c34e-9da5-84b7354c2acf/mzaf_14539331911756638814.plus.aac.p.m4a"
+  },
+  "Kıskanç": {
+   "a": "https://music.apple.com/tr/album/k%C4%B1skan%C3%A7/1448254607?i=1448254615&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/2e/ab/35/2eab35ff-b881-520f-1d29-693ef6d87960/mzaf_18023334979272752701.plus.aac.p.m4a"
+  },
+  "Bahaneleriniz": {
+   "a": "https://music.apple.com/tr/album/bahaneleriniz/1462293339?i=1462293531&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/6a/75/f4/6a75f4cf-22f3-1759-d2eb-9b22909c0780/mzaf_16153258226225453554.plus.aac.p.m4a"
+  },
+  "Sabret (feat. Alba & Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/sabret-feat-alba-%C5%9Fehin%C5%9Fah/1788461984?i=1788462310&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/48/d3/7f/48d37f6c-c5e2-bb4f-2062-a8fb0db2d2db/mzaf_9336517100046088500.plus.aac.p.m4a"
+  },
+  "Islah (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/islah-feat-%C5%9Fehin%C5%9Fah/1441112011?i=1441112015&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c4/31/de/c431de90-f49d-f9a2-d1d5-26eb13eba385/mzaf_6301086397047816891.plus.aac.p.m4a"
+  },
+  "High Altitudes": {
+   "a": "https://music.apple.com/tr/album/high-altitudes/1255487388?i=1255487391&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/e8/cb/37/e8cb37de-c57b-beee-615f-a3c3dcf093f4/mzaf_13077012847727865565.plus.aac.p.m4a"
+  },
+  "High Altitudes (Extended Mix)": {
+   "a": "https://music.apple.com/tr/album/high-altitudes-extended-mix/1255487388?i=1255487394&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/37/7f/e5/377fe5fc-0fb7-53ad-fce4-d4dc3125f1c2/mzaf_13406839827750696434.plus.aac.p.m4a"
+  },
+  "Yeşil": {
+   "a": "https://music.apple.com/tr/album/ye%C5%9Fil/1744594808?i=1744594971&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/36/46/79/3646797d-7892-36c8-6ac4-b086f5dd77bf/mzaf_12964673407421901182.plus.aac.p.m4a"
+  },
+  "Simülasyon (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/sim%C3%BClasyon-feat-%C5%9Fehin%C5%9Fah/1547908630?i=1547908631&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c2/e2/14/c2e214f7-e3c4-513c-eee0-c9e7ba8d51c6/mzaf_5638417588944647917.plus.aac.p.m4a"
+  },
+  "Git (feat. Emrah Karakuyu & Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/git-feat-emrah-karakuyu-%C5%9Fehin%C5%9Fah/1770003255?i=1770003441&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8f/80/0f/8f800f13-2744-0387-3f82-50f09d34e2c0/mzaf_8673351002608515244.plus.aac.p.m4a"
+  },
+  "Bizde Korsan Yok (feat. Şehinşah) [Remix]": {
+   "a": "https://music.apple.com/tr/album/bizde-korsan-yok-feat-%C5%9Fehin%C5%9Fah-remix/1515570875?i=1515571041&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/52/fd/78/52fd7848-2af0-125b-5c18-40713b40a4dd/mzaf_15830049061123478982.plus.aac.p.m4a"
+  },
+  "Radikal Eşkiya (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/radikal-e%C5%9Fkiya-feat-%C5%9Fehin%C5%9Fah/1876194773?i=1876194787&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/53/b8/7a/53b87a4a-f729-c9c2-f2e8-5377c1e29bdf/mzaf_13566736700289183959.plus.aac.p.m4a"
+  },
+  "Duygusal Olmaya Gerek Yok (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/duygusal-olmaya-gerek-yok-feat-%C5%9Fehin%C5%9Fah/1849112259?i=1849112263&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a1/d3/a0/a1d3a084-830c-a276-4c67-9556f3cd96ee/mzaf_11806189746640131095.plus.aac.p.m4a"
+  },
+  "Sefalette İhtilal (feat. Şehinşah, Garez, Patron, Saian, Karaçalı, Garez, Radyasyon, Fiber & Mic Neşter)": {
+   "a": "https://music.apple.com/tr/album/sefalette-i-htilal-feat-%C5%9Fehin%C5%9Fah-garez-patron-saian/1540703194?i=1540703767&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/20/4c/e7/204ce7c6-3bef-681d-93a7-b775d976aee9/mzaf_1975135657585857945.plus.aac.p.m4a"
+  },
+  "Tımarhane 2.0": {
+   "a": "https://music.apple.com/tr/album/t%C4%B1marhane-2-0/1819958725?i=1819959643&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b4/7a/2f/b47a2fcb-2f1f-f107-6b8c-0783b02bd83b/mzaf_15876167169927304060.plus.aac.p.m4a"
+  },
+  "KUMBARA": {
+   "a": "https://music.apple.com/tr/album/kumbara/1854473411?i=1854473506&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/aa/13/27/aa1327be-7078-5378-4fa4-b45a55bfa470/mzaf_15312376940605083128.plus.aac.p.m4a"
+  },
+  "Sönük Kaldın": {
+   "a": "https://music.apple.com/tr/album/s%C3%B6n%C3%BCk-kald%C4%B1n/1828179804?i=1828179809&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/20/ac/75/20ac7584-c5ba-e167-6406-4497540cf31a/mzaf_11201430064061767612.plus.aac.p.m4a"
+  },
+  "Rastafaray": {
+   "a": "https://music.apple.com/tr/album/rastafaray/1841892572?i=1841892581&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/47/82/72/478272e7-5e57-700b-37b8-99611d5df11b/mzaf_11516844131321025323.plus.aac.p.m4a"
+  },
+  "Bando (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/bando-feat-%C5%9Fehin%C5%9Fah/1756719016?i=1756719473&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/fe/55/3d/fe553d45-ba8b-0ae3-dcb8-f08e1315d342/mzaf_15504728528806532853.plus.aac.p.m4a"
+  },
+  "Galatasarayim": {
+   "a": "https://music.apple.com/tr/album/galatasarayim/1747078234?i=1747078237&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ba/82/21/ba822156-a528-f2a0-82e7-47e67903cce1/mzaf_6534763400093181299.plus.aac.p.m4a"
+  },
+  "Bay Bay (feat. Şehinşah & Hidra)": {
+   "a": "https://music.apple.com/tr/album/bay-bay-feat-%C5%9Fehin%C5%9Fah-hidra/1738634144?i=1738634389&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b7/e8/31/b7e8317b-d912-199d-5d9b-f45098420ac5/mzaf_7575831381528101689.plus.aac.p.m4a"
+  },
+  "Havadis": {
+   "a": "https://music.apple.com/tr/album/havadis/1746271617?i=1746272219&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/13/b6/32/13b632ed-33ae-2cce-f555-9d52148fb52c/mzaf_17231513204022366034.plus.aac.p.m4a"
+  },
+  "Pırlanta (feat. Nasiko)": {
+   "a": "https://music.apple.com/tr/album/p%C4%B1rlanta-feat-nasiko/1719127284?i=1719127612&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/83/df/fa/83dffa8f-7d1c-3b20-95c2-02b1c39ec48e/mzaf_1267290980804759132.plus.aac.p.m4a"
+  },
+  "Bla Bla Bla Bla": {
+   "a": "https://music.apple.com/tr/album/bla-bla-bla-bla/1625373836?i=1625374016&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d2/32/b4/d232b487-8200-8c48-2396-443da6820391/mzaf_3853681520922104239.plus.aac.p.m4a"
+  },
+  "Canavar (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/canavar-feat-%C5%9Fehin%C5%9Fah/1829231300?i=1829231500&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b9/79/87/b97987d5-a0ff-4996-941e-5494e628b0c0/mzaf_1027873771877085838.plus.aac.p.m4a"
+  },
+  "Sıfır Sıkıntı (feat. Muşta, Şehinşah & SvA)": {
+   "a": "https://music.apple.com/tr/album/s%C4%B1f%C4%B1r-s%C4%B1k%C4%B1nt%C4%B1-feat-mu%C5%9Fta-%C5%9Fehin%C5%9Fah-sva/1370449142?i=1370449221&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/cc/bc/a3/ccbca306-b130-60fe-968e-9c375bd15ad4/mzaf_12403407906915752430.plus.aac.p.m4a"
+  },
+  "GÜNEŞ": {
+   "a": "https://music.apple.com/tr/album/g%C3%BCne%C5%9F/1569866493?i=1569867731&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0e/41/3d/0e413de9-0c88-c964-e9db-d4c1a75f3ed0/mzaf_15211511330359764652.plus.aac.p.m4a"
+  },
+  "MATRIX": {
+   "a": "https://music.apple.com/tr/album/matrix/1567053448?i=1567053846&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/c8/62/2c/c8622cb4-673c-6e74-0341-3e9476969e4d/mzaf_18438246580669320825.plus.aac.p.m4a"
+  },
+  "Anunakiler (feat. Ati242, Hidra & Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/anunakiler-feat-ati242-hidra-%C5%9Fehin%C5%9Fah/1588647294?i=1588647304&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/06/83/36/06833643-408a-1433-17e0-ba997a08e83a/mzaf_10274235635991159427.plus.aac.p.m4a"
+  },
+  "Kabul Olmaz Bizim Gibiler": {
+   "a": "https://music.apple.com/tr/album/kabul-olmaz-bizim-gibiler/1515185275?i=1515185639&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b6/aa/bc/b6aabc21-b486-0015-359c-21e4a1ab66d5/mzaf_3827711439452955989.plus.aac.p.m4a"
+  },
+  "High (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/high-feat-%C5%9Fehin%C5%9Fah/1686391592?i=1686391817&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/ab/e7/03/abe70355-a42d-8b5c-893d-5672f208a61d/mzaf_16226567509724327277.plus.aac.p.m4a"
+  },
+  "Nedeni Var (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/nedeni-var-feat-%C5%9Fehin%C5%9Fah/1767645807?i=1767645809&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ac/ae/7a/acae7af4-8e56-eed9-44de-7975beab9b34/mzaf_14879994505512213399.plus.aac.p.m4a"
+  },
+  "Politik-A-Politik (feat. Şehinşah & Fieber)": {
+   "a": "https://music.apple.com/tr/album/politik-a-politik-feat-%C5%9Fehin%C5%9Fah-fieber/1767446837?i=1767446956&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ad/89/a2/ad89a297-c33b-4ef4-422d-9d6493933f7a/mzaf_5556880522018222253.plus.aac.p.m4a"
+  },
+  "Politik-APolitik (feat. Şehinşah & Fieber)": {
+   "a": "https://music.apple.com/tr/album/politik-apolitik-feat-%C5%9Fehin%C5%9Fah-fieber/1829231300?i=1829231506&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/0d/bf/0b/0dbf0b51-4ae7-1a25-81c0-70e9d7c00257/mzaf_3264787674672880981.plus.aac.p.m4a"
+  },
+  "Yeri Yok (feat. Şehinşah & Fieber)": {
+   "a": "https://music.apple.com/tr/album/yeri-yok-feat-%C5%9Fehin%C5%9Fah-fieber/1829231300?i=1829231307&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/55/ff/31/55ff3120-a9e6-8987-e2e9-af3b23e4b675/mzaf_1229523134793368199.plus.aac.p.m4a"
+  },
+  "Underground Legends (feat. Şehinşah & Fieber)": {
+   "a": "https://music.apple.com/tr/album/underground-legends-feat-%C5%9Fehin%C5%9Fah-fieber/1829231300?i=1829231520&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a4/4c/93/a44c930f-5304-6f22-4e82-a48196fa4a29/mzaf_6872705775291769088.plus.aac.p.m4a"
+  },
+  "Kırmızı Işıkta Geç (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/k%C4%B1rm%C4%B1z%C4%B1-i%C5%9F%C4%B1kta-ge%C3%A7-feat-%C5%9Fehin%C5%9Fah/1542230324?i=1542230343&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/e4/9e/a8/e49ea884-ff1d-9ede-34e2-05051520caae/mzaf_2353768910311549905.plus.aac.p.m4a"
+  },
+  "Ekmek,Yoğurt,Gaz yağı,Soğan,Bomba (feat. Şehinşah & Fieber)": {
+   "a": "https://music.apple.com/tr/album/ekmek-yog-urt-gaz-yag-%C4%B1-sog-an-bomba-feat-%C5%9Fehin%C5%9Fah-fieber/1767446837?i=1767446930&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6b/05/04/6b05047b-0817-a19a-567e-3771b47cc6c1/mzaf_2754783943749474121.plus.aac.p.m4a"
+  },
+  "Kim Bunlar (feat. Şehinşah & Fieber)": {
+   "a": "https://music.apple.com/tr/album/kim-bunlar-feat-%C5%9Fehin%C5%9Fah-fieber/1767446837?i=1767446960&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/94/97/b5/9497b5e8-0f68-42b2-b240-6b9a45d676ac/mzaf_10543792248584549791.plus.aac.p.m4a"
+  },
+  "Gel (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/gel-feat-%C5%9Fehin%C5%9Fah/1497928570?i=1497928612&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/87/6e/d3/876ed3ea-be50-18e8-2e94-8ebd38349534/mzaf_1458066000509646462.plus.aac.p.m4a"
+  },
+  "Press (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/press-feat-%C5%9Fehin%C5%9Fah/1481655283?i=1481655285&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/32/71/f9/3271f929-5dc9-3cc9-e9ff-4aa6e5ae1af9/mzaf_718045233798178022.plus.aac.p.m4a"
+  },
+  "Yok Sana (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/yok-sana-feat-%C5%9Fehin%C5%9Fah/1460820690?i=1460821183&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/fd/5b/a2/fd5ba2f1-2de1-f733-829a-fac8493159d8/mzaf_14968834905547407808.plus.aac.p.m4a"
+  },
+  "Şüpheli Şahıs (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/%C5%9F%C3%BCpheli-%C5%9Fah%C4%B1s-feat-%C5%9Fehin%C5%9Fah/1800758889?i=1800759321&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/db/f0/b4/dbf0b451-aeab-b394-f984-efb4762bd2c6/mzaf_15498692606535315163.plus.aac.p.m4a"
+  },
+  "Yan (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/yan-feat-%C5%9Fehin%C5%9Fah/1447957319?i=1447957472&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/67/63/8d/67638d30-41a2-aee8-539e-ad0bf393e5f8/mzaf_14123523125796997000.plus.aac.p.m4a"
+  },
+  "Nabız": {
+   "a": "https://music.apple.com/tr/album/nab%C4%B1z/1687317261?i=1687317467&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7b/75/a6/7b75a6bd-a65e-41b4-7ea8-8d5e575efe3f/mzaf_4299633830505437687.plus.aac.p.m4a"
+  },
+  "Yıkılıyorum (feat. Şehinşah & Cegıd)": {
+   "a": "https://music.apple.com/tr/album/y%C4%B1k%C4%B1l%C4%B1yorum-feat-%C5%9Fehin%C5%9Fah-ceg%C4%B1d/1447957319?i=1447957452&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b3/d6/d7/b3d6d7ca-a227-0df6-49f0-8c7e881e410c/mzaf_11412355359159102982.plus.aac.p.m4a"
+  },
+  "Sizle Muhattabım (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/sizle-muhattab%C4%B1m-feat-%C5%9Fehin%C5%9Fah/1447957319?i=1447957467&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/c6/cc/72/c6cc72d5-71b3-5651-7542-a76dfe9ddb0f/mzaf_13521836253114546726.plus.aac.p.m4a"
+  },
+  "Düşünmemek (Remix) [feat. Şehinşah]": {
+   "a": "https://music.apple.com/tr/album/d%C3%BC%C5%9F%C3%BCnmemek-remix-feat-%C5%9Fehin%C5%9Fah/1447957319?i=1447957675&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/93/81/98/93819878-0755-2d59-67cd-d14eda6b39be/mzaf_4394626526491624667.plus.aac.p.m4a"
+  },
+  "Ihtan (feat. Şehinşah & Ezhel)": {
+   "a": "https://music.apple.com/tr/album/ihtan-feat-%C5%9Fehin%C5%9Fah-ezhel/1447957319?i=1447957662&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ca/7d/1f/ca7d1f69-6d1d-9e82-fef2-a6875a667c91/mzaf_3408195283480558979.plus.aac.p.m4a"
+  },
+  "Mis Track (feat. Grogi, Red, Patron, Kamufle, Şehinşah, DJ Sivo & DJ Artz)": {
+   "a": "https://music.apple.com/tr/album/mis-track-feat-grogi-red-patron-kamufle-%C5%9Fehin%C5%9Fah-dj/1501799442?i=1501799530&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/b5/c7/b5/b5c7b56d-8934-228d-cf37-c7029c8ff7cc/mzaf_15456861684106447444.plus.aac.p.m4a"
+  },
+  "Adam Olmaz (feat. Eypio, Cash Flow & Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/adam-olmaz-feat-eypio-cash-flow-%C5%9Fehin%C5%9Fah/1440151053?i=1440151744&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/a7/ed/77/a7ed772e-558e-4523-0fcf-4e546e2b56b3/mzaf_17806813647889845343.plus.aac.p.m4a"
+  },
+  "Soğuk Savaş (feat. Fuat Ergin, Ezhel & Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/so%C4%9Fuk-sava%C5%9F-feat-fuat-ergin-ezhel-%C5%9Fehin%C5%9Fah/1440151053?i=1440151995&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/88/f8/1c/88f81c9f-b5d6-22dd-ca73-5552d7951b0c/mzaf_15017121641359048426.plus.aac.p.m4a"
+  },
+  "Tabi Len (feat. Sansar Salvo, Şehinşah & Red)": {
+   "a": "https://music.apple.com/tr/album/tabi-len-feat-sansar-salvo-%C5%9Fehin%C5%9Fah-red/1440151053?i=1440151749&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/b7/c8/be/b7c8be9b-9aed-73e6-3870-7499ec620637/mzaf_715582397311691177.plus.aac.p.m4a"
+  },
+  "Dile Benden Rap Küçük Aptal (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/dile-benden-rap-k%C3%BC%C3%A7%C3%BCk-aptal-feat-%C5%9Fehin%C5%9Fah/1652050788?i=1652055115&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/30/f1/fa/30f1fa87-6020-763e-9133-6b2274aa91a7/mzaf_11209144805394395437.plus.aac.p.m4a"
+  },
+  "Güneş Doğarken (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/g%C3%BCne%C5%9F-do%C4%9Farken-feat-%C5%9Fehin%C5%9Fah/1507944674?i=1507944677&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/37/ec/90/37ec908d-bce5-8e84-da92-b830370cf572/mzaf_15194402593070836507.plus.aac.p.m4a"
+  },
+  "Mistrack (feat. Hayki, REDO, Şehinşah, ARTZ, Kamufle, DJ Sivo & Patron)": {
+   "a": "https://music.apple.com/tr/album/mistrack-feat-hayki-redo-%C5%9Fehin%C5%9Fah-artz-kamufle-dj-sivo/1747556825?i=1747557808&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/d0/6e/3e/d06e3e49-d4eb-72b9-b002-84df95742318/mzaf_13592654383410683819.plus.aac.p.m4a"
+  },
+  "Sevgi Ülkesinin İrticacı Pezevenkleri (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/sevgi-%C3%BClkesinin-i-rticac%C4%B1-pezevenkleri-feat-%C5%9Fehin%C5%9Fah/1455648549?i=1455648844&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview115/v4/81/5c/99/815c99f5-9ee4-2371-4f58-796fa387c436/mzaf_2893754220834226949.plus.aac.p.m4a"
+  },
+  "Kalk! (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/kalk-feat-%C5%9Fehin%C5%9Fah/1082063712?i=1082063905&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ef/e2/30/efe230fb-feb6-d65e-fbdd-c94886e1efd6/mzaf_3819720994709671135.plus.aac.p.m4a"
+  },
+  "Moroccan Sipahi (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/moroccan-sipahi-feat-%C5%9Fehin%C5%9Fah/1082063712?i=1082063911&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/be/18/46/be18468f-46a6-4df5-f686-b2cc25de7b28/mzaf_686292385826446016.plus.aac.p.m4a"
   }
  },
  "sila": {
@@ -1159,9 +1876,197 @@
   }
  },
  "weghrumi": {
+  "TUZAK": {
+   "a": "https://music.apple.com/tr/album/tuzak/6780994378?i=6780994752&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/2f/26/61/2f2661fc-ee0e-5c0e-c633-f34914c1c3b6/mzaf_4458040365069498858.plus.aac.p.m4a"
+  },
+  "Geri Ver": {
+   "a": "https://music.apple.com/tr/album/geri-ver/1852026633?i=1852026637&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/90/12/2e/90122e51-023c-f951-e2f0-f9f00f74e3ae/mzaf_17298556457120456686.plus.aac.p.m4a"
+  },
+  "Güldüğün Gün": {
+   "a": "https://music.apple.com/tr/album/g%C3%BCld%C3%BC%C4%9F%C3%BCn-g%C3%BCn/1788946156?i=1788946359&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/86/61/56/86615602-8c71-06c8-a9ec-211c40832e0e/mzaf_8623031337097164741.plus.aac.p.m4a"
+  },
+  "Yanlışlarla Karşılaştım": {
+   "a": "https://music.apple.com/tr/album/yanl%C4%B1%C5%9Flarla-kar%C5%9F%C4%B1la%C5%9Ft%C4%B1m/1798238489?i=1798238491&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/60/d8/17/60d81745-8a85-5b46-d893-2c6170037368/mzaf_7497334596617374777.plus.aac.p.m4a"
+  },
+  "16-24": {
+   "a": "https://music.apple.com/tr/album/16-24/1794312173?i=1794312177&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/08/10/f3/0810f36b-708b-5e21-9bc7-fef953bbe141/mzaf_11626187766279860013.plus.aac.p.m4a"
+  },
+  "Göz Ucuyla": {
+   "a": "https://music.apple.com/tr/album/g%C3%B6z-ucuyla/1811361226?i=1811361634&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/17/78/ae/1778aebf-fa65-4998-fd8b-45d585f50b7c/mzaf_15896673206525599268.plus.aac.p.m4a"
+  },
+  "Tütün ve Votka": {
+   "a": "https://music.apple.com/tr/album/t%C3%BCt%C3%BCn-ve-votka/1861759775?i=1861759877&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b3/ce/45/b3ce4540-e303-217f-e139-9497ae402864/mzaf_9462523412518798134.plus.aac.p.m4a"
+  },
+  "Kennedy'i Ben Vurdum": {
+   "a": "https://music.apple.com/tr/album/kennedyi-ben-vurdum/1731850307?i=1731850322&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/27/a4/b3/27a4b350-e63c-f0ce-d14d-f853a4ef6783/mzaf_3870173849196251595.plus.aac.p.m4a"
+  },
+  "Sana Vuruldum (Ulubatlı Hasan)": {
+   "a": "https://music.apple.com/tr/album/sana-vuruldum-ulubatl%C4%B1-hasan/1747967413?i=1747967414&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/5d/93/37/5d9337dd-6b5b-6960-02c1-40559e3b7cac/mzaf_14427275684704188198.plus.aac.p.m4a"
+  },
+  "Karardı Bulutlar": {
+   "a": "https://music.apple.com/tr/album/karard%C4%B1-bulutlar/1763814980?i=1763814990&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f1/a4/66/f1a46611-2eb8-45b1-137b-b38e23a52ea6/mzaf_1183665107792612031.plus.aac.p.m4a"
+  },
+  "Çok İnsan Affettim": {
+   "a": "https://music.apple.com/tr/album/%C3%A7ok-i-nsan-affettim/1708443486?i=1708443492&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4d/d1/24/4dd12442-97d6-b562-aefa-2443fcb2954b/mzaf_5584263514722312757.plus.aac.p.m4a"
+  },
+  "RUMİ MADAFAKA": {
+   "a": "https://music.apple.com/tr/album/rumi-madafaka/1704852489?i=1704852492&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/52/ca/b7/52cab7f0-4baf-6585-48b7-b51589d78819/mzaf_3089089423058790415.plus.aac.p.m4a"
+  },
+  "Yağsın Dünya Üstüme": {
+   "a": "https://music.apple.com/tr/album/ya%C4%9Fs%C4%B1n-d%C3%BCnya-%C3%BCst%C3%BCme/1716702777?i=1716702788&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/90/c2/ab/90c2abb3-97f2-2004-1010-145bab0b8ba3/mzaf_11791866881417139805.plus.aac.p.m4a"
+  },
+  "Bu Ben Olmamak": {
+   "a": "https://music.apple.com/tr/album/bu-ben-olmamak/1693796846?i=1693796865&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/03/a4/aa/03a4aa9f-f8bf-9573-92a2-0c14fa0d368e/mzaf_15504016045212910167.plus.aac.p.m4a"
+  },
+  "ÇÖP ŞİŞ": {
+   "a": "https://music.apple.com/tr/album/%C3%A7%C3%B6p-%C5%9Fi-%C5%9F/1712271512?i=1712271514&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/8e/36/33/8e3633f7-d2d5-27e1-a253-0f068a0e59b3/mzaf_11463074928687113922.plus.aac.p.m4a"
+  },
   "Kin": {
    "a": "https://music.apple.com/tr/album/kin/1664988486?i=1664988679&uo=4",
    "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview123/v4/44/68/32/446832ce-c054-6119-7d00-585df1184adc/mzaf_17712194504674330250.plus.aac.p.m4a"
+  },
+  "Maskara": {
+   "a": "https://music.apple.com/tr/album/maskara/1681197330?i=1681197334&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/9e/ec/5c/9eec5c60-a996-45e0-a4bd-9d446bf00758/mzaf_12951785448224192335.plus.aac.p.m4a"
+  },
+  "Halit Abi": {
+   "a": "https://music.apple.com/tr/album/halit-abi/1685221595?i=1685221598&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/31/b0/a1/31b0a11b-2b9e-e10a-442b-ac10792ecf4e/mzaf_3760735157262590169.plus.aac.p.m4a"
+  },
+  "Senin Olamam": {
+   "a": "https://music.apple.com/tr/album/senin-olamam/1630797616?i=1630797617&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/f2/f7/41/f2f741e1-c942-3eb1-f4e8-d6d8bb50ee41/mzaf_9868069643442726480.plus.aac.p.m4a"
+  },
+  "Pringles": {
+   "a": "https://music.apple.com/tr/album/pringles/1640334298?i=1640334299&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/bb/dd/c9/bbddc96a-9e0f-7c45-579f-9173c1abe707/mzaf_3075036610266751668.plus.aac.p.m4a"
+  },
+  "Toz Duman": {
+   "a": "https://music.apple.com/tr/album/toz-duman/1646461595?i=1646461596&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview112/v4/53/2a/62/532a62f4-71e7-cdb0-7868-ffe911730e97/mzaf_14711941725380653807.plus.aac.p.m4a"
+  },
+  "P.U.T.A.": {
+   "a": "https://music.apple.com/tr/album/p-u-t-a/1596136684?i=1596136685&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/af/05/a4/af05a4ca-3348-1890-7a64-062412180392/mzaf_5168626096112122319.plus.aac.p.m4a"
+  },
+  "Pardon": {
+   "a": "https://music.apple.com/tr/album/pardon/1564588813?i=1564588816&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview125/v4/a1/86/4a/a1864a26-0925-5aab-002c-519796e83351/mzaf_17024787902560517109.plus.aac.p.m4a"
+  },
+  "Canım İstedi": {
+   "a": "https://music.apple.com/tr/album/can%C4%B1m-i-stedi/1591843090?i=1591843091&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview126/v4/54/c2/ec/54c2ec8e-af9e-4f81-cf9b-c1e8572cd222/mzaf_11089632934396878129.plus.aac.p.m4a"
+  },
+  "Depar": {
+   "a": "https://music.apple.com/tr/album/depar/1601656656?i=1601656658&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview116/v4/fa/00/a1/fa00a183-e685-2395-a475-49fb21235b1c/mzaf_3958840311468489384.plus.aac.p.m4a"
+  },
+  "Outro": {
+   "a": "https://music.apple.com/tr/album/outro/1876194773?i=1876195055&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/7c/ea/db/7ceadba9-e420-8980-f29f-5408baad3cd1/mzaf_5015996224550210307.plus.aac.p.m4a"
+  },
+  "Halef Selef": {
+   "a": "https://music.apple.com/tr/album/halef-selef/1876194773?i=1876195039&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/62/3b/14/623b14b6-12e0-9ab2-31d5-6cd1362da99c/mzaf_8213410387437394784.plus.aac.p.m4a"
+  },
+  "Balbiber": {
+   "a": "https://music.apple.com/tr/album/balbiber/1876194773?i=1876195030&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6b/58/34/6b58347a-fb62-702a-e73e-40ca4da5013e/mzaf_7969778154829926367.plus.aac.p.m4a"
+  },
+  "Radikal Eşkiya (feat. Şehinşah)": {
+   "a": "https://music.apple.com/tr/album/radikal-e%C5%9Fkiya-feat-%C5%9Fehin%C5%9Fah/1876194773?i=1876194787&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/53/b8/7a/53b87a4a-f729-c9c2-f2e8-5377c1e29bdf/mzaf_13566736700289183959.plus.aac.p.m4a"
+  },
+  "ŞSS": {
+   "a": "https://music.apple.com/tr/album/%C5%9Fss/1876194773?i=1876195043&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/00/fc/06/00fc0619-fb76-9fec-0632-ad1bed219e3f/mzaf_12217914958067019037.plus.aac.p.m4a"
+  },
+  "Daha Çok Var": {
+   "a": "https://music.apple.com/tr/album/daha-%C3%A7ok-var/1876194773?i=1876195037&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/84/93/95/849395f9-03eb-7f85-a807-b821378b180b/mzaf_6394015321135975520.plus.aac.p.m4a"
+  },
+  "Intro": {
+   "a": "https://music.apple.com/tr/album/intro/1876194773?i=1876194775&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f9/23/1f/f9231f16-e9c9-d105-cfd5-4056090497b2/mzaf_11133655648601550319.plus.aac.p.m4a"
+  },
+  "Aziz Yıldırım": {
+   "a": "https://music.apple.com/tr/album/aziz-y%C4%B1ld%C4%B1r%C4%B1m/1691054533?i=1691054777&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4e/a6/fa/4ea6fa34-9022-14fe-c819-42d49f955a11/mzaf_1990902575946224750.plus.aac.p.m4a"
+  },
+  "Kiko Gloss": {
+   "a": "https://music.apple.com/tr/album/kiko-gloss/1691054533?i=1691054534&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/00/2f/0e/002f0e62-995c-2278-613a-eb26849b23e9/mzaf_16166961465668573296.plus.aac.p.m4a"
+  },
+  "Martı ya da Mercedes": {
+   "a": "https://music.apple.com/tr/album/mart%C4%B1-ya-da-mercedes/1691054533?i=1691054535&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/34/67/05/3467056f-f6b2-3807-35ce-5a2b53e4d554/mzaf_14596498123415857514.plus.aac.p.m4a"
+  },
+  "Kapkara": {
+   "a": "https://music.apple.com/tr/album/kapkara/1691054533?i=1691054778&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a5/d4/94/a5d494b9-7b2f-2314-9ba1-bd4eca3e529e/mzaf_14801929215049464296.plus.aac.p.m4a"
+  },
+  "Murabba": {
+   "a": "https://music.apple.com/tr/album/murabba/1622043451?i=1622043452&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/ff/75/8b/ff758b78-b4d6-fbb6-7d6c-8a24344838e0/mzaf_12107458391538716285.plus.aac.p.m4a"
+  },
+  "Şefaat": {
+   "a": "https://music.apple.com/tr/album/%C5%9Fefaat/1622043451?i=1622043454&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/4e/e9/51/4ee95159-1d5a-393d-70fe-9fb2be397218/mzaf_16794601669082502136.plus.aac.p.m4a"
+  },
+  "Tuzlu Kahve": {
+   "a": "https://music.apple.com/tr/album/tuzlu-kahve/1622043451?i=1622043453&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/5f/01/d8/5f01d89d-73a1-6210-65bf-75259b332cc6/mzaf_12835169809069461959.plus.aac.p.m4a"
+  },
+  "Koma Freestyle": {
+   "a": "https://music.apple.com/tr/album/koma-freestyle/1622043451?i=1622043455&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/05/76/cf/0576cf93-7dc2-5c6c-d4b4-a1a69e3699d1/mzaf_5492970961970268424.plus.aac.p.m4a"
+  },
+  "kozzy (feat. Wegh) [remix]": {
+   "a": "https://music.apple.com/tr/album/kozzy-feat-wegh-remix/6805369753?i=6805369754&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a7/f7/45/a7f745f4-f76c-fb55-afcd-50e106c29b87/mzaf_5038936363689707837.plus.aac.p.m4a"
+  },
+  "9mm": {
+   "a": "https://music.apple.com/tr/album/9mm/1775234333?i=1775234342&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/13/24/71/13247178-c8bc-800a-52ad-d1fb33ade41e/mzaf_4059863491955709608.plus.aac.p.m4a"
+  },
+  "Yanlışlarla Karşılaştım (feat. Wegh)": {
+   "a": "https://music.apple.com/tr/album/yanl%C4%B1%C5%9Flarla-kar%C5%9F%C4%B1la%C5%9Ft%C4%B1m-feat-wegh/1785722598?i=1785722810&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/04/fb/69/04fb697c-e847-a4f8-60cf-0cbe7f4f18b6/mzaf_18168852183968635140.plus.aac.p.m4a"
+  },
+  "Bana Öyle Güldüğün Gün (feat. Wegh)": {
+   "a": "https://music.apple.com/tr/album/bana-%C3%B6yle-g%C3%BCld%C3%BC%C4%9F%C3%BCn-g%C3%BCn-feat-wegh/1787502267?i=1787502268&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a6/b0/4a/a6b04ac7-0183-755d-a9a7-6f23d1dce595/mzaf_6464572033451568969.plus.aac.p.m4a"
+  },
+  "Sorun Var": {
+   "a": "https://music.apple.com/tr/album/sorun-var/1654889177?i=1654889185&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview122/v4/5e/50/6c/5e506cf4-19a6-8e1f-e48a-44416702e4e7/mzaf_6124847348848375010.plus.aac.p.m4a"
+  },
+  "salıncak": {
+   "a": "https://music.apple.com/tr/album/sal%C4%B1ncak/1880080506?i=1880080519&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/2e/ed/e5/2eede509-4c4e-0fc1-87ed-aae8f4e2fa4e/mzaf_4265771705682066907.plus.aac.p.m4a"
+  },
+  "55-53": {
+   "a": "https://music.apple.com/tr/album/55-53/1893088611?i=1893088627&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/a6/5d/4d/a65d4d84-34df-085c-8c2d-71331c6007f2/mzaf_18258030954874870810.plus.aac.p.m4a"
+  },
+  "Ağır Ol Abi": {
+   "a": "https://music.apple.com/tr/album/a%C4%9F%C4%B1r-ol-abi/1834111841?i=1834112031&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/92/d2/f9/92d2f929-a2fd-0a68-3999-0b548c02ece6/mzaf_15909384246100904599.plus.aac.p.m4a"
   }
  }
 };
