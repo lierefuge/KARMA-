@@ -47,10 +47,34 @@
     startBalance: 25000,
     startAge: 15,
     royaltyPerStream: 0.0011,     // (eski) — artık platform bazlı aylık ödeme var
-    /* PLATFORM BAZLI DİNLENME ÜCRETİ (₺ / dinlenme) */
-    streamRates: { spotify: 0.005, apple: 0.015, youtube: 0.008 },
+    /* PLATFORM BAZLI DİNLENME ÜCRETİ (₺ / dinlenme) — temel değerler.
+       Gerçek dünyada bunlar USD'dir; oyunda 1 USD = baseFx ₺ kabul edilir ve
+       kur dalgalanması tüm telif gelirini oransal olarak büyütür/küçültür. */
+    streamRates: { spotify: 0.005, apple: 0.015, youtube: 0.008, other: 0.004 },
     payoutPeriodDays: 30,          // her 30 günde bir telif ödemesi
     streamRevenueShare: 0.62,     // sanatçıya kalan (label yoksa 1.0)
+
+    /* ---------- v10 GERÇEKLİK KATMANI: kur · enflasyon · gecikme · vergi ---------- */
+    baseFx: 32,                    // 1 USD = 32 ₺ (oyun başı)
+    fxMonthlyDrift: 0.018,         // aylık ortalama ₺ değer kaybı (%1,8)
+    fxShockChance: 0.07,           // aylık ani kur şoku olasılığı
+    fxShockMin: 0.08,              // şok alt sınırı
+    fxShockMax: 0.30,              // şok üst sınırı
+    inflationMonthly: 0.021,       // aylık enflasyon: maliyet VE telif nominal artışı
+    /* TELİF ÖDEME GECİKMESİ (gün) — mağazalar dinlenmeyi geç raporlar.
+       Dinlenme bu süre dolmadan ödenmez. */
+    payoutLag: { spotify: 60, apple: 45, youtube: 75, other: 55 },
+    /* 30 SANİYE EŞİĞİ: dinlenmenin bir kısmı gelir sayılmaz (atlanan çalma). */
+    skipRateMin: 0.08,             // en iyi durumda bile %8 atlanır
+    skipRateMax: 0.34,             // kötü/uzun girişli şarkıda %34 atlanır
+    /* GELİR VERGİSİ DİLİMLERİ (aylık, kümülatif değil kademeli) */
+    taxBrackets: [
+      { upTo: 15000, rate: 0 },
+      { upTo: 60000, rate: 0.15 },
+      { upTo: 150000, rate: 0.22 },
+      { upTo: Infinity, rate: 0.30 }
+    ],
+    debtPenaltyMonthly: 0.035,     // ödenmeyen borca aylık gecikme faizi
     labelFoundCost: 250000,       // kendi şirketini kurma
     labelFoundMinPop: 45,
     minAdvance: 20000,
@@ -66,8 +90,8 @@
     costStartPop: 5,          // bu popülaritenin altında sabit gider YOK (aile desteği)
     costStartFollowers: 5000, // bu takipçinin altında sabit gider YOK
     perSongUpkeep: 120,       // her yayınlanmış şarkı için aylık bakım (katalog masrafı)
-    taxRate: 0.14,            // aylık gelir vergisi oranı
-    taxFreeMonthly: 15000,    // bu tutara kadar vergi alınmaz
+    taxRate: 0.14,            // (eski) sabit oran — artık taxBrackets kullanılıyor
+    taxFreeMonthly: 15000,    // (eski) vergisiz taban — taxBrackets[0].upTo ile aynı
     superfanRate: 0.02,       // takipçinin süperfan oranı
     clubPlatformCut: 0.15     // fan kulübü platform komisyonu
   };
