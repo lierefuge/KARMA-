@@ -2,12 +2,349 @@
    KARMA — data/real-songs.js  (OTOMATİK ÜRETİLDİ)
    Her sanatçı için GERÇEK şarkılar + gerçek albüm kapağı görselleri.
    Kaynak: iTunes Search/Lookup API (country=TR).
-   Güncelleme: 2026-09-25
+   Üretici: node tools/fetch-artist-discography.js
+   Güncelleme: 2026-09-28
    ============================================================ */
 (function (K) {
   "use strict";
   K.REAL_SONGS = {
   "sehinsah": [
+    {
+      "title": "mavi ay",
+      "artistName": "Şehinşah",
+      "album": "mavi ay - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/57/14/f0/5714f055-4ed8-0819-b737-f009549fca0e/0.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 194122
+    },
+    {
+      "title": "NASINASI?",
+      "artistName": "Şehinşah",
+      "album": "NASINASI? - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/c3/d8/c4/c3d8c4b9-7fde-df96-a60e-a6519d24f61f/0.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 185806
+    },
+    {
+      "title": "INVIDIA",
+      "artistName": "Şehinşah",
+      "album": "INVIDIA - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/47/6e/ec/476eec07-7bc4-f8d7-13cf-4ae95acc08aa/0.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 190800
+    },
+    {
+      "title": "Cheval Blanc",
+      "artistName": "Şehinşah",
+      "album": "Cheval Blanc - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/3c/41/4d/3c414d6b-1262-b794-7474-aab9f67bb7e0/0.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 156923
+    },
+    {
+      "title": "FUTAŞK",
+      "artistName": "Şehinşah",
+      "album": "FUTAŞK - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/0a/8d/d6/0a8dd681-ac33-b060-6d4c-5c7e540583c8/0.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 121500
+    },
+    {
+      "title": "BLACKROCK",
+      "artistName": "Şehinşah & Cotard",
+      "album": "BLACKROCK - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/bf/b5/fb/bfb5fb23-fa0a-dda7-e4ba-932a298f9572/0.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 147689
+    },
+    {
+      "title": "KBR",
+      "artistName": "Şehinşah",
+      "album": "KBR - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/bd/d5/49/bdd54941-4a65-5020-9a03-284cc652f31e/0.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 143182
+    },
+    {
+      "title": "Daim",
+      "artistName": "Şehinşah",
+      "album": "Daim - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/dc/32/87/dc328783-b5a8-13cd-8692-3b90342e42fc/0.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 247031
+    },
+    {
+      "title": "Ikarus",
+      "artistName": "Şehinşah",
+      "album": "Ikarus - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/48/8c/ed/488ced22-f9f3-12cc-6470-5180e85f99db/0.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 218344
+    },
+    {
+      "title": "Kirlendi Tüm Duygularım",
+      "artistName": "Şehinşah, Anıl Piyancı & Keisan",
+      "album": "Kirlendi Tüm Duygularım - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/5a/85/16/5a85169c-b53f-8f71-d95f-0a3592ad4579/198391147029.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 240500
+    },
+    {
+      "title": "Meclis-i Ala",
+      "artistName": "Şehinşah",
+      "album": "Meclis-i Ala - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/08/9f/60/089f60a4-a413-c232-5140-ec8d13e47702/198846232973.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 229091
+    },
+    {
+      "title": "UFUKMANIA",
+      "artistName": "Şehinşah",
+      "album": "UFUKMANIA - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/53/2d/d1/532dd1d5-e7a9-0a21-8815-1fbab6de0842/196872239485.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 143625
+    },
+    {
+      "title": "Galvanize",
+      "artistName": "Şehinşah & Cotard",
+      "album": "Galvanize - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/20/cb/97/20cb97fa-d758-34b6-066e-c41c2ac16ea6/cover.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 177008
+    },
+    {
+      "title": "KYOTO/GEISHA",
+      "artistName": "Şehinşah, Cotard & Emrah Turken",
+      "album": "KYOTO/GEISHA - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/07/2d/03/072d03b3-6dcc-72f1-64aa-008fd5f133d1/cover.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 190588
+    },
+    {
+      "title": "Fırtına",
+      "artistName": "Şehinşah, Cotard & ERU",
+      "album": "Fırtına - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/31/5f/9f/315f9f29-bc57-27a7-f84f-86ec47cfa7e1/cover.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 171574
+    },
+    {
+      "title": "İST/TAKSÎMİ",
+      "artistName": "Şehinşah, Hidra & Emrah Turken",
+      "album": "İST/TAKSÎMİ - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/2c/03/39/2c0339cd-0f5d-049a-439a-afe5b20bc394/cover.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 173858
+    },
+    {
+      "title": "Hüsran",
+      "artistName": "Şehinşah",
+      "album": "Hüsran - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/44/ed/d7/44edd70c-5a18-1a67-62d9-430f2704d8d6/cover.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 192000
+    },
+    {
+      "title": "CimCimem",
+      "artistName": "Şehinşah",
+      "album": "CimCimem - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/a7/42/e6/a742e62d-4d8b-6e69-4389-c10b72586295/cover.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 179070
+    },
+    {
+      "title": "Prenses [Remix]",
+      "artistName": "Şehinşah, Emrah Türken & Cotard",
+      "album": "Prenses [Remix] - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/1f/2d/17/1f2d175a-6514-c38e-4520-818b6d63e0a7/cover.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 206573
+    },
+    {
+      "title": "Darılmak Yok (Hamam Sessions)",
+      "artistName": "Şehinşah",
+      "album": "Darılmak Yok (Hamam Sessions) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/66/22/bf/6622bf09-da6b-d759-3496-1ac98818b680/0.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 168800
+    },
+    {
+      "title": "Canım Babam",
+      "artistName": "Şehinşah",
+      "album": "Canım Babam - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/ce/4f/92/ce4f92d6-ae37-17e6-dbc4-9ee7c1562f25/cover.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 140250
+    },
+    {
+      "title": "Prenses",
+      "artistName": "Şehinşah",
+      "album": "Prenses - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/ef/c6/e0/efc6e071-8e8e-7f30-44a6-709efdf9ef7e/0.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 188923
+    },
+    {
+      "title": "Dönmedin Ki",
+      "artistName": "Şehinşah",
+      "album": "Dönmedin Ki - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/c0/f3/3f/c0f33fc5-1956-1602-1e97-3624678bbe15/0.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 201143
+    },
+    {
+      "title": "Diabolico",
+      "artistName": "Şehinşah",
+      "album": "Diabolico - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/ae/3c/60/ae3c6019-08ff-f9e9-7122-f2b8646aef79/0.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 189913
+    },
+    {
+      "title": "Ellerinde",
+      "artistName": "Şehinşah",
+      "album": "Ellerinde - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/57/6f/ce/576fceaa-b3a0-14b7-31a8-0a7e22cf43be/0.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 150000
+    },
+    {
+      "title": "Muz Cumhuriyeti",
+      "artistName": "Şehinşah",
+      "album": "Muz Cumhuriyeti - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/47/f7/5b/47f75bfc-11ca-1952-38a0-8835a464fbed/0.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 201600
+    },
+    {
+      "title": "Hadi Yaparsın",
+      "artistName": "Şehinşah",
+      "album": "Hadi Yaparsın - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/e4/7f/27/e47f278c-d42b-1590-4f4a-d4673bf406e7/0.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 195692
+    },
+    {
+      "title": "M.I.Ş",
+      "artistName": "Şehinşah",
+      "album": "M.I.Ş - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/78/4b/1f/784b1fa5-c061-8736-ca3a-b1454dce8382/cover.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 155698
+    },
+    {
+      "title": "The Face Of Vision",
+      "artistName": "Şehinşah",
+      "album": "The Face Of Vision - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/db/fe/22/dbfe22dc-e7a2-47ec-56fe-675a46317880/0.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 141176
+    },
+    {
+      "title": "Samanyolu",
+      "artistName": "Şehinşah",
+      "album": "Samanyolu - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/ef/22/fc/ef22fc29-48af-a7f0-589a-70969708c98c/0.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 225169
+    },
+    {
+      "title": "Kunteper",
+      "artistName": "Şehinşah",
+      "album": "Kunteper - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/51/d7/b4/51d7b436-f2fc-8d87-4caa-8897c22f630d/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 230400
+    },
+    {
+      "title": "Darilmak Yok",
+      "artistName": "Şehinşah",
+      "album": "Darilmak Yok - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/a5/64/0d/a5640d70-998b-bbd1-dc1a-52f942293868/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 166957
+    },
+    {
+      "title": "Baban",
+      "artistName": "Şehinşah",
+      "album": "Baban - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/9d/6b/3d/9d6b3d73-4d7b-4acb-f0d9-4e2834639356/cover.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 278075
+    },
+    {
+      "title": "Ihtan (feat. DJ Artz) [Groovypedia Live]",
+      "artistName": "Şehinşah",
+      "album": "Ihtan (Groovypedia Live) [feat. DJ Artz] - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/8b/5c/71/8b5c7165-abc8-676c-1510-0d0570fd6983/cover_8697420780548.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 234772
+    },
+    {
+      "title": "Trump",
+      "artistName": "Şehinşah",
+      "album": "Trump - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/5f/77/67/5f77670a-c1a0-0ba6-4073-8d883014dce4/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 148149
+    },
+    {
+      "title": "Dön Dünya",
+      "artistName": "Şehinşah & Cem Adrian",
+      "album": "Dön Dünya - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/d2/d4/ba/d2d4bacf-aab4-0f5f-9f07-edb9ddbe043d/196874096963.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 186383
+    },
+    {
+      "title": "Pirana",
+      "artistName": "Şehinşah",
+      "album": "Pirana - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/62/6f/b3/626fb3bb-3878-65d6-0f8a-b9304136f007/cover.jpg/600x600bb.jpg",
+      "year": "2019",
+      "ms": 214983
+    },
+    {
+      "title": "Yaz Yağmurum (feat. Onur Betin)",
+      "artistName": "Şehinşah",
+      "album": "Yaz Yağmurum (feat. Onur Betin) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/89/a9/63/89a96350-2024-4784-4454-fa07d336ab04/cover.jpg/600x600bb.jpg",
+      "year": "2019",
+      "ms": 211278
+    },
+    {
+      "title": "Aslan Marşı",
+      "artistName": "Şehinşah",
+      "album": "Aslan Marşı - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/a6/cf/c0/a6cfc08f-87d4-d527-2140-c62d79f78773/cover.jpg/600x600bb.jpg",
+      "year": "2019",
+      "ms": 220973
+    },
+    {
+      "title": "İmza",
+      "artistName": "Şehinşah & Hidra",
+      "album": "İmza - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/0e/f7/61/0ef76160-fe87-9093-96f6-d35d84f973f1/cover.jpg/600x600bb.jpg",
+      "year": "2019",
+      "ms": 400592
+    },
+    {
+      "title": "Talep - Arz",
+      "artistName": "Şehinşah",
+      "album": "Talep - Arz - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/e0/f2/39/e0f2392e-10e5-5aae-f0d9-3a3bbb4ba4bf/cover.jpg/600x600bb.jpg",
+      "year": "2019",
+      "ms": 186276
+    },
+    {
+      "title": "Çocuk",
+      "artistName": "Şehinşah",
+      "album": "Çocuk - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/ab/65/da/ab65dabb-f210-75ae-7570-c698934c5c56/cover.jpg/600x600bb.jpg",
+      "year": "2019",
+      "ms": 302769
+    },
     {
       "title": "Yak Yak Yak",
       "artistName": "Şehinşah",
@@ -25,36 +362,684 @@
       "ms": 245040
     },
     {
-      "title": "Pirana",
+      "title": "Milyon",
       "artistName": "Şehinşah",
-      "album": "Pirana - Single",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/62/6f/b3/626fb3bb-3878-65d6-0f8a-b9304136f007/cover.jpg/600x600bb.jpg",
-      "year": "2019",
-      "ms": 214983
+      "album": "Milyon - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/17/3b/c4/173bc46c-8731-8272-b315-822881b4238b/0.jpg/600x600bb.jpg",
+      "year": "2018",
+      "ms": 241000
     },
     {
-      "title": "Nabız",
-      "artistName": "Hidra, Şehinşah & FerzanBeats",
-      "album": "Yarım Kalan",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/02/97/8e/02978ee4-0ccc-537b-a125-f71e795eb315/197188745929.jpg/600x600bb.jpg",
+      "title": "Karma (Groovypedia Live)",
+      "artistName": "Şehinşah",
+      "album": "Karma (Groovypedia Live) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/67/ea/40/67ea40c9-385b-df5d-dcb8-aeeed16832d5/cover_4062851773515.jpg/600x600bb.jpg",
+      "year": "2018",
+      "ms": 313000
+    },
+    {
+      "title": "Karma",
+      "artistName": "Şehinşah",
+      "album": "Karma - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/9a/4c/13/9a4c136a-572e-da58-5138-108056732e14/0.jpg/600x600bb.jpg",
       "year": "2017",
-      "ms": 258947
+      "ms": 312000
     },
     {
-      "title": "Darilmak Yok",
+      "title": "Hayal (Groovypedia Live)",
       "artistName": "Şehinşah",
-      "album": "Darilmak Yok - Single",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/a5/64/0d/a5640d70-998b-bbd1-dc1a-52f942293868/0.jpg/600x600bb.jpg",
-      "year": "2020",
-      "ms": 166957
+      "album": "Hayal (Groovypedia Live) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/10/be/fe/10befe09-de85-b255-5b46-d082e9d76da6/cover_4062851773522.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 202000
     },
     {
-      "title": "Galvanize",
-      "artistName": "Şehinşah & Cotard",
-      "album": "Galvanize - Single",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/20/cb/97/20cb97fa-d758-34b6-066e-c41c2ac16ea6/cover.jpg/600x600bb.jpg",
+      "title": "Uzulme (feat. ARTZ)",
+      "artistName": "Şehinşah",
+      "album": "Uzulme (feat. ARTZ) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/0f/32/8e/0f328eb6-ab36-7212-d5b0-230bb55a9eb9/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 250627
+    },
+    {
+      "title": "entropi",
+      "artistName": "Şehinşah",
+      "album": "Entropi - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/d5/86/f4/d586f460-2e55-ecb2-89df-536a00d819af/0.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 144012
+    },
+    {
+      "title": "yAllah",
+      "artistName": "Şehinşah",
+      "album": "Entropi - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/d5/86/f4/d586f460-2e55-ecb2-89df-536a00d819af/0.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 111846
+    },
+    {
+      "title": "çivi",
+      "artistName": "Şehinşah",
+      "album": "Entropi - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/d5/86/f4/d586f460-2e55-ecb2-89df-536a00d819af/0.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 130360
+    },
+    {
+      "title": "bu aşk / haram",
+      "artistName": "Şehinşah",
+      "album": "Entropi - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/d5/86/f4/d586f460-2e55-ecb2-89df-536a00d819af/0.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 192162
+    },
+    {
+      "title": "plajda",
+      "artistName": "Şehinşah",
+      "album": "Entropi - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/d5/86/f4/d586f460-2e55-ecb2-89df-536a00d819af/0.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 150230
+    },
+    {
+      "title": "ESKİ OKUL",
+      "artistName": "Şehinşah, Berkay Duman & Anıl Piyancı",
+      "album": "6EP - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e7/94/a5/e794a593-56d4-3fbf-4d2b-d2266b19e8f5/0.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 198159
+    },
+    {
+      "title": "2PAC MI WUTANG MI",
+      "artistName": "Şehinşah, Berkay Duman & Anıl Piyancı",
+      "album": "6EP - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e7/94/a5/e794a593-56d4-3fbf-4d2b-d2266b19e8f5/0.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 157612
+    },
+    {
+      "title": "TYGA",
+      "artistName": "Şehinşah, Berkay Duman & Anıl Piyancı",
+      "album": "6EP - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e7/94/a5/e794a593-56d4-3fbf-4d2b-d2266b19e8f5/0.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 200313
+    },
+    {
+      "title": "BU GECENİN YILDIZI KİM",
+      "artistName": "Şehinşah, Berkay Duman & Anıl Piyancı",
+      "album": "6EP - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e7/94/a5/e794a593-56d4-3fbf-4d2b-d2266b19e8f5/0.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 167033
+    },
+    {
+      "title": "HERKES SAVAŞ İSTİYOR",
+      "artistName": "Şehinşah, Berkay Duman, Anıl Piyancı & Hidra",
+      "album": "6EP - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e7/94/a5/e794a593-56d4-3fbf-4d2b-d2266b19e8f5/0.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 286154
+    },
+    {
+      "title": "YA PARA YA CANIN",
+      "artistName": "Şehinşah, Berkay Duman, Anıl Piyancı & Hidra",
+      "album": "6EP - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e7/94/a5/e794a593-56d4-3fbf-4d2b-d2266b19e8f5/0.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 240000
+    },
+    {
+      "title": "Suikast Mevsimi",
+      "artistName": "Şehinşah & Ati242",
+      "album": "IKARUS",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/7b/b9/557bb9f3-4c23-1b48-03e8-c86d74f6928d/0.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 148154
+    },
+    {
+      "title": "Yarim Yamalak",
+      "artistName": "Şehinşah",
+      "album": "IKARUS",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/7b/b9/557bb9f3-4c23-1b48-03e8-c86d74f6928d/0.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 178909
+    },
+    {
+      "title": "C.Iğerto",
+      "artistName": "Şehinşah",
+      "album": "IKARUS",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/7b/b9/557bb9f3-4c23-1b48-03e8-c86d74f6928d/0.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 111429
+    },
+    {
+      "title": "Su",
+      "artistName": "Şehinşah",
+      "album": "IKARUS",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/7b/b9/557bb9f3-4c23-1b48-03e8-c86d74f6928d/0.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 216682
+    },
+    {
+      "title": "Kirmizi",
+      "artistName": "Şehinşah",
+      "album": "IKARUS",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/7b/b9/557bb9f3-4c23-1b48-03e8-c86d74f6928d/0.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 211556
+    },
+    {
+      "title": "Bana Sen Gerek",
+      "artistName": "Şehinşah",
+      "album": "IKARUS",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/7b/b9/557bb9f3-4c23-1b48-03e8-c86d74f6928d/0.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 173419
+    },
+    {
+      "title": "Circus",
+      "artistName": "Şehinşah",
+      "album": "IKARUS",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/7b/b9/557bb9f3-4c23-1b48-03e8-c86d74f6928d/0.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 208454
+    },
+    {
+      "title": "Neyin Uğruna/Tavşan",
+      "artistName": "Şehinşah",
+      "album": "IKARUS",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/7b/b9/557bb9f3-4c23-1b48-03e8-c86d74f6928d/0.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 254041
+    },
+    {
+      "title": "Dprsyn/Gemiler",
+      "artistName": "Şehinşah",
+      "album": "IKARUS",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/7b/b9/557bb9f3-4c23-1b48-03e8-c86d74f6928d/0.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 219197
+    },
+    {
+      "title": "Derin Aşk",
+      "artistName": "Şehinşah",
+      "album": "IKARUS",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/7b/b9/557bb9f3-4c23-1b48-03e8-c86d74f6928d/0.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 226364
+    },
+    {
+      "title": "Daadoh",
+      "artistName": "Şehinşah & Archie",
+      "album": "IKARUS",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/7b/b9/557bb9f3-4c23-1b48-03e8-c86d74f6928d/0.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 223036
+    },
+    {
+      "title": "Nefes Alama",
+      "artistName": "Şehinşah",
+      "album": "IKARUS",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/7b/b9/557bb9f3-4c23-1b48-03e8-c86d74f6928d/0.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 189061
+    },
+    {
+      "title": "Babaroblox (feat. Atlas)",
+      "artistName": "Şehinşah",
+      "album": "IKARUS",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/7b/b9/557bb9f3-4c23-1b48-03e8-c86d74f6928d/0.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 160125
+    },
+    {
+      "title": "+28 (Tirat)",
+      "artistName": "Şehinşah",
+      "album": "Tirat",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/e4/59/4a/e4594a65-258a-1ef3-2e4a-8081a0061f6f/5054197160257.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 171892
+    },
+    {
+      "title": "En Eskiden Beri",
+      "artistName": "Şehinşah",
+      "album": "666",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/60/8b/d4/608bd4e4-8b68-362b-419c-8cf3e6350c87/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 191934
+    },
+    {
+      "title": "Rehabilite",
+      "artistName": "Şehinşah",
+      "album": "666",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/60/8b/d4/608bd4e4-8b68-362b-419c-8cf3e6350c87/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 196351
+    },
+    {
+      "title": "Sür Ya da Öl",
+      "artistName": "Şehinşah & Lia Shine",
+      "album": "666",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/60/8b/d4/608bd4e4-8b68-362b-419c-8cf3e6350c87/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 163514
+    },
+    {
+      "title": "Labirent",
+      "artistName": "Şehinşah & Hidra",
+      "album": "666",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/60/8b/d4/608bd4e4-8b68-362b-419c-8cf3e6350c87/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 194377
+    },
+    {
+      "title": "Türlü Bela",
+      "artistName": "Şehinşah",
+      "album": "666",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/60/8b/d4/608bd4e4-8b68-362b-419c-8cf3e6350c87/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 251892
+    },
+    {
+      "title": "Dilemma x Kuytu",
+      "artistName": "Şehinşah",
+      "album": "666",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/60/8b/d4/608bd4e4-8b68-362b-419c-8cf3e6350c87/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 227114
+    },
+    {
+      "title": "Intro",
+      "artistName": "Şehinşah",
+      "album": "666",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/60/8b/d4/608bd4e4-8b68-362b-419c-8cf3e6350c87/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 151081
+    },
+    {
+      "title": "Outro",
+      "artistName": "Şehinşah",
+      "album": "666",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/60/8b/d4/608bd4e4-8b68-362b-419c-8cf3e6350c87/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 97297
+    },
+    {
+      "title": "Sendeliyorum",
+      "artistName": "Şehinşah",
+      "album": "666",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/60/8b/d4/608bd4e4-8b68-362b-419c-8cf3e6350c87/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 261757
+    },
+    {
+      "title": "Az",
+      "artistName": "Şehinşah",
+      "album": "666",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/60/8b/d4/608bd4e4-8b68-362b-419c-8cf3e6350c87/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 193513
+    },
+    {
+      "title": "Plüton (feat. DJ Artz)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 263239
+    },
+    {
+      "title": "Sayın Türk (feat. DJ Artz)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 242759
+    },
+    {
+      "title": "Hepsi Benim 2 (feat. DJ Artz)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 154737
+    },
+    {
+      "title": "Krang (feat. Hidra & DJ Artz)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 234667
+    },
+    {
+      "title": "Evim (feat. DJ Artz)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 156000
+    },
+    {
+      "title": "Rec, Play, Pause (feat. DJ Artz, Xir & Sansar Salvo)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 268889
+    },
+    {
+      "title": "Satın Alıcazzz (feat. DJ Artz)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 229800
+    },
+    {
+      "title": "Arkadaş (feat. DJ Artz)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 295131
+    },
+    {
+      "title": "Rec, Play, Pause (feat. Ben Büdü, Xir & Sansar Salvo) [Remix]",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 266205
+    },
+    {
+      "title": "İstiklal (feat. DJ Artz & Bugy)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 178286
+    },
+    {
+      "title": "Ne Varsa Kafada Var (feat. DJ Artz)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 219392
+    },
+    {
+      "title": "Skit Baltalayıcısı (Skit)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 54912
+    },
+    {
+      "title": "U.A.A. (feat. Ezhel & DJ Artz)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 210000
+    },
+    {
+      "title": "Yerim Rahat (feat. DJ Artz & Emrah Karakuyu)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 233997
+    },
+    {
+      "title": "Var Arantım (feat. Ben Büdü) [Remix]",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 175932
+    },
+    {
+      "title": "Çok Hızlısın Kanka (Skit)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 16696
+    },
+    {
+      "title": "U.A.A. (feat. Ben Büdü & Ezhel) [Remix]",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 238734
+    },
+    {
+      "title": "İstiklal (feat. Ben Büdü) [Dub Remix]",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 224582
+    },
+    {
+      "title": "Hadi Görüşürüz (Skit)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 16293
+    },
+    {
+      "title": "Nergis TV (Skit)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 52908
+    },
+    {
+      "title": "Var Arantım (feat. DJ Artz)",
+      "artistName": "Şehinşah",
+      "album": "DEEV (Deluxe Edition)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 192000
+    },
+    {
+      "title": "Benim Adım Arda",
+      "artistName": "Arda Gezer & Şehinşah",
+      "album": "Benim Adım Arda - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/7b/77/bb/7b77bbc4-2fea-e5c6-4a7b-82c045684cbd/cover.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 142800
+    },
+    {
+      "title": "TakaTuka Freestyle",
+      "artistName": "Furkan Karakılıç, Şehinşah, Alara Serena & Armo DD",
+      "album": "TakaTuka Freestyle - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/b5/3d/c9/b53dc9b7-adf6-2282-c97d-e176885249cf/0.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 161308
+    },
+    {
+      "title": "Lab Cypher 6",
+      "artistName": "Harim, Allame, aspi, Şehinşah, Vesca & Zizzy",
+      "album": "Lab Cypher 6 - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/ff/e7/2d/ffe72d84-bb77-14a2-5a1f-f31df38b931e/196873475738.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 257167
+    },
+    {
+      "title": "Memleketim (feat. Şehinşah)",
+      "artistName": "Hidra",
+      "album": "Memleketim (feat. Şehinşah) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/80/80/e8/8080e844-6ab5-3634-c444-9f2ca687023c/199350203336.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 157895
+    },
+    {
+      "title": "Eskisi Gibi",
+      "artistName": "Rollen & Şehinşah",
+      "album": "Eskisi Gibi - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/7f/a0/1b/7fa01b89-adff-0f39-4cde-29c4d894b871/cover.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 217403
+    },
+    {
+      "title": "Pembe Yalanlar",
+      "artistName": "13 Killoki & Şehinşah",
+      "album": "Pembe Yalanlar - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/f0/50/52/f0505234-65eb-b66b-772f-34b85822c5fd/198391357893.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 168000
+    },
+    {
+      "title": "#PHONKFREESTYLE",
+      "artistName": "DEHA INC., Şehinşah, Reckol & 13 Killoki",
+      "album": "#PHONKFREESTYLE - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/41/45/94/41459421-ade7-5190-0702-89bc358efc35/5955.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 178775
+    },
+    {
+      "title": "PEAK POINT",
+      "artistName": "Ohash & Şehinşah",
+      "album": "PEAK POINT - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/56/0d/c9/560dc9b0-e77c-976b-ba86-fe4f5d25e091/cover.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 212800
+    },
+    {
+      "title": "BANA NE",
+      "artistName": "Zen-G & Şehinşah",
+      "album": "BANA NE - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/2c/30/6a/2c306af8-040a-a66c-d365-9f5c01e3cf47/196872673906.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 195000
+    },
+    {
+      "title": "Deliyoo",
+      "artistName": "Arda Gezer, Şehinşah & Patron",
+      "album": "Deliyoo - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/76/5b/94/765b94ed-cf2a-2457-2ff0-989f902ce1bf/cover.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 202609
+    },
+    {
+      "title": "Tanrıyı Kıyamete Zorlama",
+      "artistName": "Birand, Auxibeatz & Şehinşah",
+      "album": "Tanrıyı Kıyamete Zorlama - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/4b/69/12/4b69122c-c1ec-b3f3-a6c8-0af198d7b75e/cover.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 167654
+    },
+    {
+      "title": "Havadis (feat. Şehinşah)",
+      "artistName": "Alba",
+      "album": "Havadis (feat. Şehinşah) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/06/58/98/065898a4-051e-77ad-63b8-4e46ad1d3954/cover.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 192000
+    },
+    {
+      "title": "Maymunlar Cehennemi",
+      "artistName": "Cash Flow & Şehinşah",
+      "album": "Maymunlar Cehennemi - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/c6/1a/55/c61a55ca-efa0-804b-e503-333984000900/cover.jpg/600x600bb.jpg",
       "year": "2023",
-      "ms": 177008
+      "ms": 184667
+    },
+    {
+      "title": "High 2",
+      "artistName": "Hidra & Şehinşah",
+      "album": "High 2 - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/d1/92/c5/d192c536-1f04-6b54-10b3-c0ccabe2de97/197188719593.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 172800
+    },
+    {
+      "title": "No Risk No Fun",
+      "artistName": "Defkhan & Şehinşah",
+      "album": "No Risk No Fun - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/5e/f7/ec/5ef7ec8c-0a74-11ff-33bb-6401011f61d0/cover_4099885184482.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 154632
+    },
+    {
+      "title": "Yaşamak",
+      "artistName": "Kum & Şehinşah",
+      "album": "Yaşamak - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/53/9d/7f/539d7f19-5cfe-326d-c720-143cb36f7e13/22UMGIM88797.rgb.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 140332
+    },
+    {
+      "title": "Nefret",
+      "artistName": "Arda Gezer, Şehinşah & SALİ",
+      "album": "Nefret - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/b7/5a/12/b75a127b-d9d0-a003-aeee-136801ab936d/cover.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 202000
+    },
+    {
+      "title": "Taktik",
+      "artistName": "Ebru Keskin & Şehinşah",
+      "album": "Taktik - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/ca/36/38/ca36386b-f4b2-66e2-fdc5-be56ed42c9d4/cover.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 196000
+    },
+    {
+      "title": "Kader",
+      "artistName": "Aspova & Şehinşah",
+      "album": "Kader - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/be/c0/56/bec056b3-5537-d733-92da-6cc3bf56ed96/cover.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 189500
+    },
+    {
+      "title": "Merhamet Yok",
+      "artistName": "Orkundk & Şehinşah",
+      "album": "Merhamet Yok - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/6b/ea/69/6bea6931-0602-6a45-cc4f-ebd61c3ff9a7/artwork.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 194159
+    },
+    {
+      "title": "Lanet",
+      "artistName": "Arda Gezer, Şehinşah & Caner Özgür",
+      "album": "Lanet - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/fb/19/78/fb1978b6-e8af-c8f3-bfd6-ddcca1b0138c/cover.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 189500
+    },
+    {
+      "title": "Eksik Olmaz",
+      "artistName": "Atik, Nosta & Şehinşah",
+      "album": "Eksik Olmaz - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/9e/10/75/9e10752c-14a6-5cd1-baed-bee53594ba1d/artwork.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 258207
+    },
+    {
+      "title": "Pendname (feat. Şehinşah)",
+      "artistName": "Mordeus",
+      "album": "Pendname (feat. Şehinşah) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/0c/65/d1/0c65d15c-0284-b96f-dc65-8a975bed5dba/artwork.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 138096
+    },
+    {
+      "title": "Ah Bebek (feat. Şehinşah)",
+      "artistName": "Newada",
+      "album": "Ah Bebek (feat. Şehinşah) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/53/24/72/5324722e-629f-5ace-7973-961147924ff0/artwork.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 263496
     },
     {
       "title": "Kıskanç",
@@ -65,15 +1050,583 @@
       "ms": 202528
     },
     {
-      "title": "Yaz Yağmurum (feat. Onur Betin)",
-      "artistName": "Şehinşah",
-      "album": "Yaz Yağmurum (feat. Onur Betin) - Single",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/89/a9/63/89a96350-2024-4784-4454-fa07d336ab04/cover.jpg/600x600bb.jpg",
+      "title": "Bahaneleriniz",
+      "artistName": "Muşta & Şehinşah",
+      "album": "Bahaneleriniz - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/ab/9a/f1/ab9af180-2a8b-a126-882a-e5101c53ed26/cover.jpg/600x600bb.jpg",
       "year": "2019",
-      "ms": 211278
+      "ms": 250080
+    },
+    {
+      "title": "Sabret (feat. Alba & Şehinşah)",
+      "artistName": "Forsa",
+      "album": "Sabret (feat. Alba & Şehinşah) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/ed/93/12/ed931258-a17d-8508-6dcf-186829b06559/cover.jpg/600x600bb.jpg",
+      "year": "2019",
+      "ms": 234174
+    },
+    {
+      "title": "Islah (feat. Şehinşah)",
+      "artistName": "Muşta",
+      "album": "Islah (feat. Şehinşah) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/ed/d7/6b/edd76b25-d782-28b7-39b1-7ff3dd1306e6/cover.jpg/600x600bb.jpg",
+      "year": "2018",
+      "ms": 232253
+    },
+    {
+      "title": "High Altitudes",
+      "artistName": "Samet Özgür",
+      "album": "High Altitudes - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music117/v4/15/04/f4/1504f4b8-622e-a1fc-c853-7ac81895a006/191079447053_cover.jpg/600x600bb.jpg",
+      "year": "2017",
+      "ms": 174375
+    },
+    {
+      "title": "High Altitudes (Extended Mix)",
+      "artistName": "Samet Özgür",
+      "album": "High Altitudes - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music117/v4/15/04/f4/1504f4b8-622e-a1fc-c853-7ac81895a006/191079447053_cover.jpg/600x600bb.jpg",
+      "year": "2017",
+      "ms": 262507
+    },
+    {
+      "title": "Yeşil",
+      "artistName": "Veron Algos, Şehinşah & Artz",
+      "album": "Yeşil - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/38/5b/06/385b0603-5321-6829-cbdd-ed977e09ae79/cover.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 141688
+    },
+    {
+      "title": "Simülasyon (feat. Şehinşah)",
+      "artistName": "Leo Lidran",
+      "album": "Simülasyon (feat. Şehinşah) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/35/77/af/3577afe9-5860-caf0-abe0-c9517fdb459b/194152839004.png/600x600bb.jpg",
+      "year": "2015",
+      "ms": 194952
+    },
+    {
+      "title": "Git (feat. Emrah Karakuyu & Şehinşah)",
+      "artistName": "Anıl Piyancı",
+      "album": "Git (feat. Emrah Karakuyu & Şehinşah) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/df/f2/55/dff255d4-95fe-210c-17c2-c3da518bc29e/cover.jpg/600x600bb.jpg",
+      "year": "2013",
+      "ms": 178987
+    },
+    {
+      "title": "Bizde Korsan Yok (feat. Şehinşah) [Remix]",
+      "artistName": "Neşternino & Rise",
+      "album": "Bizde Korsan Yok (feat. Şehinşah) [Remix] - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/2d/03/cc/2d03ccf3-c252-fae3-c1eb-91c5741f065c/cover.jpg/600x600bb.jpg",
+      "year": "2011",
+      "ms": 174897
+    },
+    {
+      "title": "Radikal Eşkiya (feat. Şehinşah)",
+      "artistName": "Wegh",
+      "album": "CURCUNA",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a7/5b/07/a75b07a5-12a0-f1a3-749c-67e5b15b6307/cover.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 219786
+    },
+    {
+      "title": "Duygusal Olmaya Gerek Yok (feat. Şehinşah)",
+      "artistName": "Sansar Salvo",
+      "album": "Duygusal Olmaya Gerek Yok (feat. Şehinşah) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/99/2d/37/992d3797-62d2-14bc-3e92-18f2e8836fe4/3617384915515.jpg/600x600bb.jpg",
+      "year": "2006",
+      "ms": 311938
+    },
+    {
+      "title": "Sefalette İhtilal (feat. Şehinşah, Garez, Patron, Saian, Karaçalı, Garez, Radyasyon, Fiber & Mic Neşter)",
+      "artistName": "Kaplan",
+      "album": "Sefalette İhtilal (feat. Şehinşah, Garez, Patron, Saian, Karaçalı, Garez, Radyasyon, Fiber & Mic Neşter) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/bc/5c/ad/bc5cade5-ed30-7efc-cb08-9481c630a2ff/artwork.jpg/600x600bb.jpg",
+      "year": "2006",
+      "ms": 248532
+    },
+    {
+      "title": "Tımarhane 2.0",
+      "artistName": "Ceg & Şehinşah",
+      "album": "Bipolar",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/bb/f2/43/bbf24328-20b2-b372-1a3e-fe4d7641e5ee/199350914775.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 193000
+    },
+    {
+      "title": "KUMBARA",
+      "artistName": "Aspova, Hidra, Şehinşah & Allame",
+      "album": "FAM",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/54/4d/62/544d629e-d7bf-ceb5-3272-c2eec4f2f65d/cover.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 194783
+    },
+    {
+      "title": "Sönük Kaldın",
+      "artistName": "Xentix & Şehinşah",
+      "album": "LUES",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/37/6a/ce/376acefb-4f46-38aa-f9d8-7335e1228c55/0.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 252000
+    },
+    {
+      "title": "Rastafaray",
+      "artistName": "ERU, Jeng & Şehinşah",
+      "album": "Rastafaray",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/1b/6a/4d/1b6a4d9d-bbfc-6351-a2c7-4b5c50db32d9/8721416334726.png/600x600bb.jpg",
+      "year": "2025",
+      "ms": 129533
+    },
+    {
+      "title": "Bando (feat. Şehinşah)",
+      "artistName": "Ceza",
+      "album": "Yatay Zeka",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/e1/29/30/e129309d-dc66-db9a-6112-c8d051e14072/198588599402.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 193083
+    },
+    {
+      "title": "Galatasarayim",
+      "artistName": "Leo & Şehinşah",
+      "album": "Şampiyonlarin Yazi - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/37/3a/c1/373ac106-b5aa-ab23-3810-2134ec55b7d6/0.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 181622
+    },
+    {
+      "title": "Bay Bay (feat. Şehinşah & Hidra)",
+      "artistName": "Beta Berk Bayındır",
+      "album": "ANKA",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/eb/f8/73/ebf8738d-97e6-e6a8-c0e0-9c598bf35aad/dj.iazbhhgu.png/600x600bb.jpg",
+      "year": "2024",
+      "ms": 232727
+    },
+    {
+      "title": "Havadis",
+      "artistName": "Alba & Şehinşah",
+      "album": "Bipolar",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/ae/82/6e/ae826e80-6518-9700-4149-73b2a98ca55c/cover.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 192000
+    },
+    {
+      "title": "Pırlanta (feat. Nasiko)",
+      "artistName": "Sir-Dav & Şehinşah",
+      "album": "Nitrometan (feat. Nasiko)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/07/09/e8/0709e8cb-4a86-40ce-d00a-2e4accd7e5e1/cover_4099885869754.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 166286
+    },
+    {
+      "title": "Bla Bla Bla Bla",
+      "artistName": "Sagopa Kajmer & Şehinşah",
+      "album": "Kağıt Kesikleri",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/c0/a2/54/c0a25429-4b3d-84d2-e2c4-d1044b049892/196925054683.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 279216
+    },
+    {
+      "title": "Canavar (feat. Şehinşah)",
+      "artistName": "Hayki",
+      "album": "Haykırış a.k.a Lanet Olasılık Collection",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/46/56/0b/46560b24-3e4e-65f5-17ac-01683789e9dc/0.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 208091
+    },
+    {
+      "title": "Sıfır Sıkıntı (feat. Muşta, Şehinşah & SvA)",
+      "artistName": "İstanbul Trip",
+      "album": "Sıfır Sıkıntı (feat. Muşta, Şehinşah & SvA) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music118/v4/41/d3/70/41d37007-640c-3097-70ed-dda9265d057c/192562414781.jpg/600x600bb.jpg",
+      "year": "2001",
+      "ms": 374982
+    },
+    {
+      "title": "GÜNEŞ",
+      "artistName": "Ati242 & Şehinşah",
+      "album": "DIPSOMANIA",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/ed/7b/62/ed7b623a-1d26-8fb0-14dd-3c0480d616c1/196006788834.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 193144
+    },
+    {
+      "title": "MATRIX",
+      "artistName": "Spade427 & Şehinşah",
+      "album": "KARANFİL",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/74/98/73/7498733f-c55c-c3e7-7350-30d5ef0e9f19/cover.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 146483
+    },
+    {
+      "title": "Anunakiler (feat. Ati242, Hidra & Şehinşah)",
+      "artistName": "Lia Shine",
+      "album": "Bir Şeytan Masalı",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/51/4a/9c/514a9c18-0a56-d93d-0aad-99d623e191e8/artwork.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 298938
+    },
+    {
+      "title": "Kabul Olmaz Bizim Gibiler",
+      "artistName": "Vio & Şehinşah",
+      "album": "Yanyol, Vol. 2",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/35/d2/d2/35d2d20c-cda7-5686-6d6c-c206bf2cda73/cover.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 173899
+    },
+    {
+      "title": "High (feat. Şehinşah)",
+      "artistName": "Hidra",
+      "album": "C-137",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/4c/47/ec/4c47ec7e-1fc6-9258-d40f-8de86f968da0/197188767594.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 172421
+    },
+    {
+      "title": "Nedeni Var (feat. Şehinşah)",
+      "artistName": "Arda Gezer & Helineda",
+      "album": "Episode 1 - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/43/46/bd/4346bd99-1937-a037-5f1a-6c697960665f/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 174614
+    },
+    {
+      "title": "Politik-A-Politik (feat. Şehinşah & Fieber)",
+      "artistName": "Hayki",
+      "album": "Haykırış a.k.a. Lanet Olasılık",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/46/03/35/4603352f-4196-25db-a206-7e6c3eb5def9/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 247040
+    },
+    {
+      "title": "Politik-APolitik (feat. Şehinşah & Fieber)",
+      "artistName": "Hayki",
+      "album": "Haykırış a.k.a Lanet Olasılık Collection",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/46/56/0b/46560b24-3e4e-65f5-17ac-01683789e9dc/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 247040
+    },
+    {
+      "title": "Yeri Yok (feat. Şehinşah & Fieber)",
+      "artistName": "Hayki",
+      "album": "Haykırış a.k.a Lanet Olasılık Collection",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/46/56/0b/46560b24-3e4e-65f5-17ac-01683789e9dc/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 240065
+    },
+    {
+      "title": "Underground Legends (feat. Şehinşah & Fieber)",
+      "artistName": "Hayki",
+      "album": "Haykırış a.k.a Lanet Olasılık Collection",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/46/56/0b/46560b24-3e4e-65f5-17ac-01683789e9dc/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 240065
+    },
+    {
+      "title": "Kırmızı Işıkta Geç (feat. Şehinşah)",
+      "artistName": "Fatal MF",
+      "album": "Compilation Album",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/7d/d3/7e/7dd37ecc-05f7-95f4-549e-fddee794ed1c/artwork.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 191477
+    },
+    {
+      "title": "Ekmek,Yoğurt,Gaz yağı,Soğan,Bomba (feat. Şehinşah & Fieber)",
+      "artistName": "Hayki",
+      "album": "Haykırış a.k.a. Lanet Olasılık",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/46/03/35/4603352f-4196-25db-a206-7e6c3eb5def9/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 194717
+    },
+    {
+      "title": "Kim Bunlar (feat. Şehinşah & Fieber)",
+      "artistName": "Hayki",
+      "album": "Haykırış a.k.a. Lanet Olasılık",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/46/03/35/4603352f-4196-25db-a206-7e6c3eb5def9/0.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 204069
+    },
+    {
+      "title": "Gel (feat. Şehinşah)",
+      "artistName": "Ref74",
+      "album": "Thuglife - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/08/d8/5d/08d85d29-abc8-a2cc-6d43-0031500af8db/artwork.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 142446
+    },
+    {
+      "title": "Press (feat. Şehinşah)",
+      "artistName": "Ati242",
+      "album": "Junkie Flow - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/ca/2f/07/ca2f07e9-19e5-3e54-03a0-531c863640ea/artwork.jpg/600x600bb.jpg",
+      "year": "2019",
+      "ms": 179653
+    },
+    {
+      "title": "Yok Sana (feat. Şehinşah)",
+      "artistName": "Bossy",
+      "album": "HASTA",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/12/24/78/122478d1-7842-9a13-96a9-b1a3252d3f5f/cover.jpg/600x600bb.jpg",
+      "year": "2019",
+      "ms": 179765
+    },
+    {
+      "title": "Şüpheli Şahıs (feat. Şehinşah)",
+      "artistName": "Şam",
+      "album": "P.O.P Mixtape, pt. 1",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/6e/ad/07/6ead0712-0a3e-3dea-be1b-5fa0759afe3e/196292997880_Cover.jpg/600x600bb.jpg",
+      "year": "2018",
+      "ms": 258488
+    },
+    {
+      "title": "Yan (feat. Şehinşah)",
+      "artistName": "Artz",
+      "album": "İşin Mutfağı",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/13/ae/10/13ae1062-50c9-db61-a736-46335502433b/193483328195.jpg/600x600bb.jpg",
+      "year": "2017",
+      "ms": 144156
+    },
+    {
+      "title": "Nabız",
+      "artistName": "Hidra, Şehinşah & FerzanBeats",
+      "album": "Yarım Kalan",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/02/97/8e/02978ee4-0ccc-537b-a125-f71e795eb315/197188745929.jpg/600x600bb.jpg",
+      "year": "2017",
+      "ms": 258947
+    },
+    {
+      "title": "Yıkılıyorum (feat. Şehinşah & Cegıd)",
+      "artistName": "Artz",
+      "album": "İşin Mutfağı",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/13/ae/10/13ae1062-50c9-db61-a736-46335502433b/193483328195.jpg/600x600bb.jpg",
+      "year": "2017",
+      "ms": 214152
+    },
+    {
+      "title": "Sizle Muhattabım (feat. Şehinşah)",
+      "artistName": "Artz",
+      "album": "İşin Mutfağı",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/13/ae/10/13ae1062-50c9-db61-a736-46335502433b/193483328195.jpg/600x600bb.jpg",
+      "year": "2017",
+      "ms": 193796
+    },
+    {
+      "title": "Düşünmemek (Remix) [feat. Şehinşah]",
+      "artistName": "Artz",
+      "album": "İşin Mutfağı",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/13/ae/10/13ae1062-50c9-db61-a736-46335502433b/193483328195.jpg/600x600bb.jpg",
+      "year": "2017",
+      "ms": 214495
+    },
+    {
+      "title": "Ihtan (feat. Şehinşah & Ezhel)",
+      "artistName": "Artz",
+      "album": "İşin Mutfağı",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/13/ae/10/13ae1062-50c9-db61-a736-46335502433b/193483328195.jpg/600x600bb.jpg",
+      "year": "2017",
+      "ms": 217731
+    },
+    {
+      "title": "Mis Track (feat. Grogi, Red, Patron, Kamufle, Şehinşah, DJ Sivo & DJ Artz)",
+      "artistName": "Hayki",
+      "album": "2005 - 2015 Compilation",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/c3/c8/65/c3c86580-be68-d98d-7a58-1774744a1155/cover_4062851866330.jpg/600x600bb.jpg",
+      "year": "2017",
+      "ms": 304300
+    },
+    {
+      "title": "Adam Olmaz (feat. Eypio, Cash Flow & Şehinşah)",
+      "artistName": "Anıl Piyancı & Artz",
+      "album": "Batı Yakası",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/69/84/51/6984514b-4abb-0abc-05ef-128e648699c9/193483117737.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 376952
+    },
+    {
+      "title": "Soğuk Savaş (feat. Fuat Ergin, Ezhel & Şehinşah)",
+      "artistName": "Anıl Piyancı & Artz",
+      "album": "Batı Yakası",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/69/84/51/6984514b-4abb-0abc-05ef-128e648699c9/193483117737.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 344300
+    },
+    {
+      "title": "Tabi Len (feat. Sansar Salvo, Şehinşah & Red)",
+      "artistName": "Anıl Piyancı & Artz",
+      "album": "Batı Yakası",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/69/84/51/6984514b-4abb-0abc-05ef-128e648699c9/193483117737.jpg/600x600bb.jpg",
+      "year": "2016",
+      "ms": 204148
+    },
+    {
+      "title": "Dile Benden Rap Küçük Aptal (feat. Şehinşah)",
+      "artistName": "Yunus Emre & Frekans",
+      "album": "Best Of (2005-2015)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/e1/c8/be/e1c8be1e-9fbd-abed-1781-9fe67e51f7f2/cover.jpg/600x600bb.jpg",
+      "year": "2015",
+      "ms": 199732
+    },
+    {
+      "title": "Güneş Doğarken (feat. Şehinşah)",
+      "artistName": "Şiirbaz",
+      "album": "Ölene Kadar Gerçek Hiphop",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/76/10/a2/7610a222-b6ce-efe9-421e-0c847dacd37e/655036202319.png/600x600bb.jpg",
+      "year": "2015",
+      "ms": 165007
+    },
+    {
+      "title": "Mistrack (feat. Hayki, REDO, Şehinşah, ARTZ, Kamufle, DJ Sivo & Patron)",
+      "artistName": "Grogi",
+      "album": "Kafamızı Yap (Bootleg)",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/75/c0/41/75c04199-f746-cdaa-a1ac-e9bf6d4656d8/198588156261.jpg/600x600bb.jpg",
+      "year": "2012",
+      "ms": 304256
+    },
+    {
+      "title": "Sevgi Ülkesinin İrticacı Pezevenkleri (feat. Şehinşah)",
+      "artistName": "Karaçalı",
+      "album": "Şimdi Git Zombi",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/76/00/40/7600403a-8823-8e17-d463-259a6a10e00e/840095244466_cover.jpg/600x600bb.jpg",
+      "year": "2008",
+      "ms": 229460
+    },
+    {
+      "title": "Kalk! (feat. Şehinşah)",
+      "artistName": "Patron",
+      "album": "Söndürülmüş Yıldızlar & Şaşal",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/3a/89/ae/3a89ae64-867a-b114-bd2b-97f8d0d0c4da/5054960020559_cover.jpg/600x600bb.jpg",
+      "year": "2007",
+      "ms": 224630
+    },
+    {
+      "title": "Moroccan Sipahi (feat. Şehinşah)",
+      "artistName": "Patron",
+      "album": "Söndürülmüş Yıldızlar & Şaşal",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/3a/89/ae/3a89ae64-867a-b114-bd2b-97f8d0d0c4da/5054960020559_cover.jpg/600x600bb.jpg",
+      "year": "2007",
+      "ms": 225837
     }
   ],
   "weghrumi": [
+    {
+      "title": "TUZAK",
+      "artistName": "Wegh",
+      "album": "TUZAK - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a5/cd/94/a5cd9426-487a-13fa-6051-032f9d4ce9cd/cover.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 168000
+    },
+    {
+      "title": "Geri Ver",
+      "artistName": "Wegh",
+      "album": "Geri Ver - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/8f/43/98/8f4398f2-2e6f-fea7-8686-f681a81df1d7/cover.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 169412
+    },
+    {
+      "title": "Güldüğün Gün",
+      "artistName": "Wegh",
+      "album": "Güldüğün Gün - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/60/e9/45/60e9456c-ffcf-7f02-8683-e77c216cdbc0/cover.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 168774
+    },
+    {
+      "title": "Yanlışlarla Karşılaştım",
+      "artistName": "Wegh & Keskin",
+      "album": "Yanlışlarla Karşılaştım - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/9a/b5/bc/9ab5bcb5-a3d7-0ab0-0db0-23bba03ef89a/cover.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 126000
+    },
+    {
+      "title": "16-24",
+      "artistName": "Wegh",
+      "album": "16-24 - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/8a/14/0f/8a140ff2-fa39-36b7-8d3b-484c6433e91c/cover.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 147000
+    },
+    {
+      "title": "Göz Ucuyla",
+      "artistName": "Wegh & Reynmen",
+      "album": "Göz Ucuyla - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/29/d3/f9/29d3f9d4-2db8-a034-4610-3e1d6d77cb6c/cover.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 162000
+    },
+    {
+      "title": "Tütün ve Votka",
+      "artistName": "Wegh",
+      "album": "Tütün ve Votka - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/b5/d0/c6/b5d0c685-b416-318c-dfcf-9c64a7f1bebc/cover.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 104427
+    },
+    {
+      "title": "Kennedy'i Ben Vurdum",
+      "artistName": "Wegh",
+      "album": "Kennedy'i Ben Vurdum - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/ec/56/ff/ec56ff22-41b6-0421-5326-d6a32cf80c0d/cover.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 138364
+    },
+    {
+      "title": "Sana Vuruldum (Ulubatlı Hasan)",
+      "artistName": "Wegh",
+      "album": "Sana Vuruldum (Ulubatlı Hasan) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/00/13/1d/00131d69-7e79-0e02-3727-05f5e43013af/cover.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 228000
+    },
+    {
+      "title": "Karardı Bulutlar",
+      "artistName": "Wegh",
+      "album": "Karardı Bulutlar - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a4/36/6c/a4366c58-bd78-bf54-10d6-1c6e9a01ae29/cover.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 145655
+    },
+    {
+      "title": "Çok İnsan Affettim",
+      "artistName": "Wegh",
+      "album": "Çok İnsan Affettim - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/bb/5c/85/bb5c8526-a30d-86fd-a83c-0a28c2cf8013/23UM1IM12885.rgb.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 172364
+    },
+    {
+      "title": "RUMİ MADAFAKA",
+      "artistName": "Wegh",
+      "album": "RUMİ MADAFAKA - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/a7/e6/7e/a7e67e72-c647-be09-cdfd-3dff2e0131e0/23UM1IM02343.rgb.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 122727
+    },
+    {
+      "title": "Yağsın Dünya Üstüme",
+      "artistName": "Wegh",
+      "album": "Yağsın Dünya Üstüme - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/fd/e5/9e/fde59eaa-9e3c-b9cd-962c-97ac63ba205f/23UM1IM55302.rgb.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 137143
+    },
+    {
+      "title": "Bu Ben Olmamak",
+      "artistName": "Wegh",
+      "album": "Bu Ben Olmamak - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/b6/ac/dc/b6acdcc5-08ba-7462-8b0d-088e2331b986/23UMGIM72198.rgb.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 127731
+    },
+    {
+      "title": "ÇÖP ŞİŞ",
+      "artistName": "Wegh",
+      "album": "ÇÖP ŞİŞ - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/5b/ab/1e/5bab1e54-ca41-985e-fa66-fbd985e7fc95/23UM1IM28058.rgb.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 115600
+    },
     {
       "title": "Kin",
       "artistName": "Wegh & Critical",
@@ -81,6 +1634,262 @@
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/e5/3e/6b/e53e6b93-9f1c-4adc-5d6a-e99155eb3c6f/23UMGIM03005.rgb.jpg/600x600bb.jpg",
       "year": "2023",
       "ms": 164250
+    },
+    {
+      "title": "Maskara",
+      "artistName": "Wegh & bodega grande",
+      "album": "Maskara - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/10/15/ed/1015ed0b-e476-72d3-31d6-377785c7ab7c/23UMGIM38794.rgb.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 151661
+    },
+    {
+      "title": "Halit Abi",
+      "artistName": "Wegh & bodega grande",
+      "album": "Halit Abi - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/97/be/e0/97bee0d1-624e-8ccf-bd79-ea3af37f0ba3/23UMGIM48201.rgb.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 128394
+    },
+    {
+      "title": "Senin Olamam",
+      "artistName": "Wegh",
+      "album": "Senin Olamam - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/b7/3e/fe/b73efed5-7cc6-c857-f2a9-c1eef5acde91/0.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 181790
+    },
+    {
+      "title": "Pringles",
+      "artistName": "Wegh",
+      "album": "Pringles - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/be/7a/10/be7a1003-acee-8d9c-d97e-18edf1f71d83/0.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 132000
+    },
+    {
+      "title": "Toz Duman",
+      "artistName": "Wegh",
+      "album": "Toz Duman - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/05/3f/63053f6a-bf2c-6a80-af74-ea21e1d66312/0.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 186857
+    },
+    {
+      "title": "P.U.T.A.",
+      "artistName": "Wegh",
+      "album": "P.U.T.A. - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/b4/39/55/b43955c0-458b-7744-a15e-e20688648dc9/artwork.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 145480
+    },
+    {
+      "title": "Pardon",
+      "artistName": "Wegh",
+      "album": "Pardon - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/03/b2/01/03b201f8-fdf3-2092-bf39-f6c905137069/artwork.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 161840
+    },
+    {
+      "title": "Canım İstedi",
+      "artistName": "Wegh",
+      "album": "Canım İstedi - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/1a/74/be/1a74be40-8350-e984-3ced-22e4f9aeca90/artwork.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 154576
+    },
+    {
+      "title": "Depar",
+      "artistName": "Wegh",
+      "album": "Depar - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/41/fc/27/41fc275a-05be-3771-7ac4-163d510fcf30/artwork.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 220235
+    },
+    {
+      "title": "Outro",
+      "artistName": "Wegh",
+      "album": "CURCUNA",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a7/5b/07/a75b07a5-12a0-f1a3-749c-67e5b15b6307/cover.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 73846
+    },
+    {
+      "title": "Halef Selef",
+      "artistName": "Wegh",
+      "album": "CURCUNA",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a7/5b/07/a75b07a5-12a0-f1a3-749c-67e5b15b6307/cover.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 116727
+    },
+    {
+      "title": "Balbiber",
+      "artistName": "Wegh",
+      "album": "CURCUNA",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a7/5b/07/a75b07a5-12a0-f1a3-749c-67e5b15b6307/cover.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 121263
+    },
+    {
+      "title": "Radikal Eşkiya (feat. Şehinşah)",
+      "artistName": "Wegh",
+      "album": "CURCUNA",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a7/5b/07/a75b07a5-12a0-f1a3-749c-67e5b15b6307/cover.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 219786
+    },
+    {
+      "title": "ŞSS",
+      "artistName": "Wegh",
+      "album": "CURCUNA",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a7/5b/07/a75b07a5-12a0-f1a3-749c-67e5b15b6307/cover.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 88649
+    },
+    {
+      "title": "Daha Çok Var",
+      "artistName": "Wegh",
+      "album": "CURCUNA",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a7/5b/07/a75b07a5-12a0-f1a3-749c-67e5b15b6307/cover.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 163902
+    },
+    {
+      "title": "Intro",
+      "artistName": "Wegh",
+      "album": "CURCUNA",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a7/5b/07/a75b07a5-12a0-f1a3-749c-67e5b15b6307/cover.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 96667
+    },
+    {
+      "title": "Aziz Yıldırım",
+      "artistName": "Wegh",
+      "album": "GALACTUS - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/dc/d9/3f/dcd93fe7-2059-8c9f-385e-94ab25f7f216/23UMGIM64314.rgb.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 128143
+    },
+    {
+      "title": "Kiko Gloss",
+      "artistName": "Wegh",
+      "album": "GALACTUS - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/dc/d9/3f/dcd93fe7-2059-8c9f-385e-94ab25f7f216/23UMGIM64314.rgb.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 128438
+    },
+    {
+      "title": "Martı ya da Mercedes",
+      "artistName": "Wegh",
+      "album": "GALACTUS - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/dc/d9/3f/dcd93fe7-2059-8c9f-385e-94ab25f7f216/23UMGIM64314.rgb.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 119625
+    },
+    {
+      "title": "Kapkara",
+      "artistName": "Wegh",
+      "album": "GALACTUS - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/dc/d9/3f/dcd93fe7-2059-8c9f-385e-94ab25f7f216/23UMGIM64314.rgb.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 116938
+    },
+    {
+      "title": "Murabba",
+      "artistName": "Wegh",
+      "album": "Amon Ra - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/0b/c6/40/0bc6407b-a3b4-7e1c-f7b9-b3d500411004/0.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 153722
+    },
+    {
+      "title": "Şefaat",
+      "artistName": "Wegh",
+      "album": "Amon Ra - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/0b/c6/40/0bc6407b-a3b4-7e1c-f7b9-b3d500411004/0.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 154718
+    },
+    {
+      "title": "Tuzlu Kahve",
+      "artistName": "Wegh",
+      "album": "Amon Ra - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/0b/c6/40/0bc6407b-a3b4-7e1c-f7b9-b3d500411004/0.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 131621
+    },
+    {
+      "title": "Koma Freestyle",
+      "artistName": "Wegh",
+      "album": "Amon Ra - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/0b/c6/40/0bc6407b-a3b4-7e1c-f7b9-b3d500411004/0.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 147429
+    },
+    {
+      "title": "kozzy (feat. Wegh) [remix]",
+      "artistName": "Murda",
+      "album": "kozzy (remix) [feat. Wegh] - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/5b/97/6d/5b976ded-2da9-9cbd-dd15-3284d3e0c93a/26UM1IM08432.rgb.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 166226
+    },
+    {
+      "title": "9mm",
+      "artistName": "Cash Flow & Wegh",
+      "album": "9mm - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/b1/3d/2c/b13d2c46-37fc-1ef4-b799-5c767de30333/198846725208.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 197243
+    },
+    {
+      "title": "Yanlışlarla Karşılaştım (feat. Wegh)",
+      "artistName": "MunFor",
+      "album": "Yanlışlarla Karşılaştım (feat. Wegh) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/51/f9/c3/51f9c370-9f65-05b0-cb83-39cdd949d52a/artwork.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 83476
+    },
+    {
+      "title": "Bana Öyle Güldüğün Gün (feat. Wegh)",
+      "artistName": "MunFor",
+      "album": "Bana Öyle Güldüğün Gün (feat. Wegh) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/02/fa/fd/02fafdd9-a75c-395a-6284-06c574232e74/artwork.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 120885
+    },
+    {
+      "title": "Sorun Var",
+      "artistName": "Set & Wegh",
+      "album": "Sorun Var - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/d4/17/52/d41752fa-7f94-13ec-a0c5-f3a6746eb816/197187458646.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 133818
+    },
+    {
+      "title": "salıncak",
+      "artistName": "BEGE, Wegh & Yung Ouzo",
+      "album": "bosphorusboy - EP",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e8/35/1a/e8351a53-e314-7f3b-a9ac-4a18199a7d07/820200442628.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 153000
+    },
+    {
+      "title": "55-53",
+      "artistName": "Keskin & Wegh",
+      "album": "VURGUN",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/10/e1/d4/10e1d4ff-c650-41fb-f051-2011f8740a74/0.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 117750
+    },
+    {
+      "title": "Ağır Ol Abi",
+      "artistName": "Stap & Wegh",
+      "album": "Neşesi̇ne",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/4d/30/22/4d3022ef-7496-782d-874b-99cbc1a44945/0.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 173333
     }
   ],
   "ceza": [
