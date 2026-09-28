@@ -77,13 +77,27 @@
         const age = s.day - sn.startedDay;
         if (age <= 2) sn.momentum += pot * U.rand(0.2, 0.6);           // ilk günler yükseliş
         else sn.momentum *= (0.85 + pot * 0.085) - (pot < 0.5 ? 0.03 : 0);
+        /* v10 — SES ÖMRÜ: trend 2 hafta yükselir, sonra hızla söner.
+           Eski hâlde video sayısı sonsuza kadar büyüyordu; bu, ses trendinin
+           asla bitmemesi demekti. Artık momentum eşiğin altına düşünce trend
+           KAPANIR ve etkisi 20 gün içinde sıfıra iner. */
+        if (age > 45) sn.momentum *= 0.82;
+        if (age > 70) sn.momentum *= 0.75;
         sn.momentum = U.clamp(sn.momentum, 0, 1.6);
+
+        if (sn.momentum < 0.03) sn.ended = true;
+        if (sn.ended) {
+          sn.lastGain = 0;
+          sn.trend = false;
+          sn.decay = Math.max(0, (sn.decay == null ? 1 : sn.decay) - 0.05);
+          return;                                                       // trend bitti → yeni video yok
+        }
         const grow = sn.momentum * U.rand(250, 1000) * (0.6 + pot * 0.6) + (song.viral ? 200 : 0);
         sn.videos = Math.round(sn.videos + grow);
         sn.lastGain = Math.round(grow);
         sn.peak = Math.max(sn.peak, sn.videos);
         sn.trend = sn.momentum > 0.45;
-        if (age > 45) sn.momentum *= 0.85;                             // ses ömrü uzun değil
+        sn.decay = 1;
       });
     },
 
@@ -91,7 +105,8 @@
     boostFor(song) {
       const sn = song && song.sound;
       if (!sn || !sn.videos) return 0;
-      return U.clamp(sn.videos / 20000, 0, 0.9) + (sn.trend ? 0.12 : 0);
+      const decay = sn.decay == null ? 1 : sn.decay;      // trend kapandıysa söner
+      return (U.clamp(sn.videos / 20000, 0, 0.9) + (sn.trend ? 0.12 : 0)) * decay;
     },
 
     /* trend listesi (TikTok uygulaması / kariyer için) */
