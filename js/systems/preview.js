@@ -68,6 +68,27 @@
     return null;
   }
 
+  /* ---------------- gömülebilir YouTube kimliği -------------
+     v10.5 — `listType=search` gömme yöntemi YouTube tarafından
+     bozulduğu için (player “ERROR” dönüyordu) artık her şarkı için
+     önceden çözülmüş GERÇEK video kimliği kullanılıyor. */
+  function ytVideoId(song) {
+    const T = K.REAL_YT;
+    if (!T || !song) return null;
+    const id = song.artistId || (song.id ? String(song.id).split("_")[0] : null);
+    if (id && T[id] && song.title && T[id][song.title]) return T[id][song.title].v;
+    if (song.title) {
+      for (const k in T) if (T[k][song.title]) return T[k][song.title].v;
+    }
+    const n = normTitle(song.title);
+    if (n) {
+      for (const k in T) {
+        for (const t in T[k]) if (normTitle(t) === n) return T[k][t].v;
+      }
+    }
+    return null;
+  }
+
   /* ---------------- 30 sn önizleme sesi ---------------- */
   function audioEl() {
     if (el) return el;
@@ -281,11 +302,18 @@
       ytShow(true);
       mode = "full";
       paint();
+      const vid = ytVideoId(cur);
+      if (!vid) {
+        mode = "preview";
+        ytShow(false);
+        K.toast("ℹ️ Tam sürüm yok", `"${cur.title}" için gömülebilir YouTube kaydı bulunamadı — 30 sn önizleme çalınıyor.`, "warn");
+        return K.preview.play(cur);
+      }
       loadYT().then(() => {
-        if (!yt || !yt.loadPlaylist) throw new Error("oynatıcı hazır değil");
-        yt.loadPlaylist({ listType: "search", list: ytQuery(cur), index: 0 });
+        if (!yt || !yt.loadVideoById) throw new Error("oynatıcı hazır değil");
+        yt.loadVideoById(vid);
         try { if (yt.setVolume && K.audio && K.audio.volume) yt.setVolume(Math.round(K.audio.volume() * 100)); } catch (e) {}
-        yt.playVideo();
+        if (yt.playVideo) yt.playVideo();
         if (K.state && K.state.player) K.state.player.fullPlay = true;
         paint();
       }).catch(err => {
@@ -295,6 +323,10 @@
       });
       return true;
     },
+
+    /* gömülebilir YouTube kimliği (uygulamalar da kullanır) */
+    ytId: ytVideoId,
+    hasFull(song) { return !!ytVideoId(song); },
 
     /* 30 sn önizleme */
     play(song) {
