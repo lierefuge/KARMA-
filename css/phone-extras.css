@@ -16,7 +16,6 @@
   border-top: 1px solid rgba(255, 255, 255, .08);
   border-radius: 0;
   background: rgba(8, 8, 12, .96);
-  backdrop-filter: blur(16px);
 }
 .seg-bottom button {
   flex: 1;
@@ -74,7 +73,7 @@
 .ig-hl span { font-size: 10px; color: var(--text-2); }
 
 /* X profil banner */
-.x-banner { height: 92px; border-radius: 12px; margin: -4px -4px 0; }
+.x-banner { height: 92px; border-radius: var(--radius-s); margin: -4px -4px 0; }
 
 /* X trend detay başlığı */
 .x-trend.big { padding: 14px; margin-bottom: 10px; }
@@ -102,7 +101,7 @@
 }
 .dm-reply-bar {
   display: flex; align-items: center; gap: 6px;
-  margin-top: 10px; padding: 8px 10px; border-radius: 10px;
+  margin-top: 10px; padding: 8px 10px; border-radius: var(--radius-s);
   background: var(--studio-note-dim-bg, rgba(255, 255, 255, .06));
   font-size: 11px;
 }
@@ -113,7 +112,7 @@
 .t-more {
   background: none; border: none; cursor: pointer;
   color: rgba(255, 255, 255, .45); font-size: 17px; font-weight: 800;
-  padding: 1px 6px; border-radius: 8px; flex-shrink: 0; line-height: 1;
+  padding: 1px 6px; border-radius: var(--radius-xs); flex-shrink: 0; line-height: 1;
 }
 .t-more:hover { background: rgba(255, 255, 255, .1); color: #fff; }
 
@@ -123,9 +122,8 @@
   margin: 0 auto 16px;
   width: min(78%, 250px);
   padding: 8px 12px;
-  border-radius: 20px;
+  border-radius: var(--radius-l);
   background: rgba(255, 255, 255, .14);
-  backdrop-filter: blur(8px);
   color: #fff; font-size: 13px; font-weight: 600;
   cursor: pointer;
 }
@@ -174,7 +172,7 @@
   background: rgba(255, 255, 255, .18);
 }
 .fl-mini {
-  width: 100%; height: 100%; border-radius: 6px;
+  width: 100%; height: 100%; border-radius: var(--radius-xs);
   display: grid; place-items: center;
   font-size: 12px; overflow: hidden;
 }
@@ -183,13 +181,13 @@
 .home-editbar {
   display: flex; align-items: center; gap: 8px;
   margin: 0 0 10px; padding: 7px 10px;
-  border-radius: 12px;
+  border-radius: var(--radius-s);
   background: rgba(176, 108, 255, .2);
   color: #fff; font-size: 11px; font-weight: 600;
 }
 .home-editbar button {
   margin-left: auto; padding: 5px 10px;
-  border: none; border-radius: 9px;
+  border: none; border-radius: var(--radius-s);
   background: rgba(255, 255, 255, .18); color: #fff;
   font-size: 11px; font-weight: 700; cursor: pointer;
 }
@@ -202,13 +200,12 @@
   margin: 0 14px 8px;
   display: flex; align-items: center; gap: 10px;
   padding: 8px 10px;
-  border-radius: 14px;
+  border-radius: var(--radius-m);
   background: rgba(20, 20, 26, .82);
-  backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, .12);
   cursor: pointer;
 }
-.mp-art { width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0; }
+.mp-art { width: 34px; height: 34px; border-radius: var(--radius-s); flex-shrink: 0; }
 .mp-title { font-size: 12px; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mp-sub { font-size: 10px; color: rgba(255, 255, 255, .6); }
 .mp-btn {
@@ -222,7 +219,7 @@
 .cc-tile {
   background: rgba(255, 255, 255, .06);
   border: 1px solid rgba(255, 255, 255, .09);
-  border-radius: 14px;
+  border-radius: var(--radius-m);
   padding: 11px;
   display: flex; flex-direction: column; gap: 8px;
 }
@@ -233,9 +230,9 @@
 .cc-np-title { font-size: 12.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cc-np-sub { font-size: 10.5px; color: var(--text-3, #9a9aa5); }
 .cc-np-ctrl { display: flex; gap: 8px; margin-top: 6px; }
-.cc-np-ctrl button { flex: 1; padding: 7px; border-radius: 10px; border: none; background: rgba(255, 255, 255, .1); color: #fff; font-size: 13px; cursor: pointer; }
+.cc-np-ctrl button { flex: 1; padding: 7px; border-radius: var(--radius-s); border: none; background: rgba(255, 255, 255, .1); color: #fff; font-size: 13px; cursor: pointer; }
 .cc-tgl, .cc-wide {
-  width: 100%; text-align: left; padding: 9px 11px; border-radius: 11px;
+  width: 100%; text-align: left; padding: 9px 11px; border-radius: var(--radius-s);
   background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .09);
   color: var(--text-1, #c7cbd8); font-size: 12px; font-weight: 600; cursor: pointer;
 }
@@ -244,18 +241,18 @@
 .cc-bat-row { display: flex; align-items: center; gap: 9px; }
 .cc-bat-val { font-size: 15px; font-weight: 900; }
 .battery.big { width: 34px; height: 16px; border-color: #fff; }
-.battery.big > i { border-radius: 1px; }
+.battery.big > i { border-radius: var(--radius-xs); }
 
 /* ---- spotlight sonuçları ---- */
 .sp-res {
   display: flex; align-items: center; gap: 11px;
-  padding: 10px 11px; border-radius: 12px;
+  padding: 10px 11px; border-radius: var(--radius-s);
   background: rgba(255, 255, 255, .04);
   border: 1px solid rgba(255, 255, 255, .07);
   margin-bottom: 7px; cursor: pointer;
 }
 .sp-res-ic {
-  width: 34px; height: 34px; flex-shrink: 0; border-radius: 10px;
+  width: 34px; height: 34px; flex-shrink: 0; border-radius: var(--radius-s);
   display: flex; align-items: center; justify-content: center;
   font-size: 16px; background: rgba(255, 255, 255, .07);
 }
@@ -265,22 +262,22 @@
 /* ---- telefon ayarları ---- */
 .phset-row {
   display: flex; align-items: center; gap: 11px;
-  padding: 11px; border-radius: 13px;
+  padding: 11px; border-radius: var(--radius-s);
   background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .08);
 }
-.phset-swatch { width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0; }
+.phset-swatch { width: 40px; height: 40px; border-radius: var(--radius-s); flex-shrink: 0; }
 .phset-name { font-size: 12.5px; font-weight: 700; }
 .phset-sub { font-size: 10.5px; color: var(--text-3, #9a9aa5); }
 .phset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; margin: 10px 0 14px; }
 .phset-wall {
-  height: 62px; border-radius: 12px; border: 2px solid transparent;
+  height: 62px; border-radius: var(--radius-s); border: 2px solid transparent;
   display: flex; align-items: flex-end; padding: 6px;
   cursor: pointer; color: #fff; font-size: 9.5px; font-weight: 700; text-shadow: 0 1px 3px rgba(0, 0, 0, .6);
 }
 .phset-wall.on { border-color: #b06cff; }
 .phset-card {
   background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .08);
-  border-radius: 13px; padding: 11px; margin-bottom: 11px;
+  border-radius: var(--radius-s); padding: 11px; margin-bottom: 11px;
 }
 .phset-card input[type="range"] { width: 100%; accent-color: var(--karma, #b06cff); }
 .phset-item {
