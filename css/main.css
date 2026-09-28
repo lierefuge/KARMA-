@@ -36,6 +36,13 @@
   --radius-l: 20px;     /* büyük panel, modal, ekran       */
   --radius-pill: 999px; /* hap biçimli düğme / rozet       */
 
+  /* --- cihaz köşeleri: iç içe geçen radius kuralı ---------------
+     İçteki köşe = dıştaki köşe − çerçeve payı.
+     Telefon gövdesi 54px, çerçeve payı 12px → ekran 42px.
+     Bu ikisi ölçeğe DAHİL DEĞİL; telefon kapsül olmasın diye ayrı tutulur. */
+  --radius-device: 54px;    /* telefon gövdesi (dış)          */
+  --radius-device-in: 42px; /* telefon ekranı (iç)            */
+
   /* --- gölge: 2 kademe, daha sade ve sıkı (v10) --- */
   --shadow-1: 0 2px 10px rgba(0, 0, 0, 0.38);
   --shadow-2: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -332,7 +339,11 @@ body::before {
 
   .career-panel { height: 100%; min-height: 0; }
   .phone-stage { justify-self: center; width: 100%; overflow-y: auto; padding-bottom: 10px; }
-  .phone-frame { width: 100%; max-width: 390px; height: auto; min-height: 640px; max-height: calc(100vh - var(--topbar-h) - 90px); }
+  /* NOT: .phone-frame ölçüsü burada TANIMLANMAZ.
+     Bu dosya (main.css) phone.css'ten ÖNCE yüklendiği için buradaki bir
+     .phone-frame kuralı her zaman eziliyordu — dar ekranda telefonun
+     ezilmesinin sebebi buydu. Telefon ölçüsü artık phone.css'te tek yerde,
+     orantılı biçimde tanımlı (aşağıdaki medya sorgusuna bakın). */
 }
 
 /* Geniş ekran: değiştirici gizli, iki panel birlikte */
