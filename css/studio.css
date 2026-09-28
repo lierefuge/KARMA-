@@ -29,7 +29,7 @@
   max-width: 100%;
   background: var(--studio-card-bg);
   border: 1px solid var(--studio-card-line);
-  border-radius: 14px;
+  border-radius: var(--radius-m);
   padding: 13px 13px 13px 16px;
   margin-bottom: 12px;
   overflow: hidden;
@@ -62,7 +62,7 @@
   margin-top: 11px;
   background: rgba(var(--tone), var(--tone-a));
   box-shadow: inset 2px 0 0 rgba(var(--tone), var(--studio-note-line-a));
-  border-radius: 10px;
+  border-radius: var(--radius-s);
   padding: 9px 11px;
   font-size: 11.5px;
   line-height: 1.55;
@@ -97,13 +97,13 @@
 .studio-bar {
   flex: 1 1 0; min-width: 24px; height: 8px;
   background: var(--studio-track);
-  border-radius: 5px; overflow: hidden;
+  border-radius: var(--radius-xs); overflow: hidden;
 }
 .studio-bar.lg { height: 9px; }
 .studio-bar.block { width: 100%; flex: none; margin-top: 4px; }
 .studio-bar-fill {
   display: block; height: 100%; width: 0;
-  border-radius: 5px;
+  border-radius: var(--radius-xs);
   background: linear-gradient(90deg, var(--studio-accent-hot), #ff8a5c);
 }
 
@@ -114,7 +114,7 @@
 .studio-health-label { font-size: 12px; color: var(--studio-axis); }
 .studio-health-val { font-size: 22px; font-weight: 900; min-width: 0; overflow-wrap: break-word; }
 .studio-health-emoji { font-size: 34px; flex-shrink: 0; }
-.studio-health-bar { margin-top: 10px; height: 10px; background: var(--studio-track); border-radius: 6px; overflow: hidden; }
+.studio-health-bar { margin-top: 10px; height: 10px; background: var(--studio-track); border-radius: var(--radius-xs); overflow: hidden; }
 .studio-health-bar i { display: block; height: 100%; }
 
 /* ============================================================
@@ -126,7 +126,7 @@
    RESPONSIVE — dar ekran (telefon) uyumu
    ============================================================ */
 @media (max-width: 480px) {
-  .studio-card { padding: 11px 10px 11px 14px; border-radius: 12px; }
+  .studio-card { padding: 11px 10px 11px 14px; border-radius: var(--radius-s); }
   .studio-head { gap: 6px; margin-bottom: 8px; }
   .studio-title { font-size: 12.5px; }
   .studio-row { gap: 6px; margin: 6px 0; }
