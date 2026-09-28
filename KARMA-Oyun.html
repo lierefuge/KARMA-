@@ -41,12 +41,16 @@
   --hot: #ff5c7a;
   --gold: #ffcb5c;
 
-  --radius-s: 10px;
-  --radius-m: 16px;
-  --radius-l: 24px;
+  /* --- köşe yuvarlaklığı: TEK ölçek (v10 stabilizasyon) --- */
+  --radius-xs: 6px;     /* küçük etiket, çip, mini kutu   */
+  --radius-s: 10px;     /* satır, giriş, küçük kart        */
+  --radius-m: 14px;     /* kart, panel bloğu               */
+  --radius-l: 20px;     /* büyük panel, modal, ekran       */
+  --radius-pill: 999px; /* hap biçimli düğme / rozet       */
 
-  --shadow-1: 0 4px 20px rgba(0, 0, 0, 0.45);
-  --shadow-2: 0 18px 60px rgba(0, 0, 0, 0.6);
+  /* --- gölge: 2 kademe, daha sade ve sıkı (v10) --- */
+  --shadow-1: 0 2px 10px rgba(0, 0, 0, 0.38);
+  --shadow-2: 0 10px 30px rgba(0, 0, 0, 0.5);
 
   --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
 
@@ -106,7 +110,6 @@ body::before {
   padding: 0 22px;
   background: linear-gradient(180deg, rgba(18, 21, 29, 0.96), rgba(12, 14, 20, 0.92));
   border-bottom: 1px solid var(--stroke);
-  backdrop-filter: blur(18px);
 }
 
 .brand { display: flex; align-items: center; gap: 12px; min-width: 210px; }
@@ -115,7 +118,7 @@ body::before {
   width: 40px; height: 40px;
   display: grid; place-items: center;
   font-weight: 900; font-size: 20px;
-  border-radius: 12px;
+  border-radius: var(--radius-s);
   color: #fff;
   background: linear-gradient(135deg, var(--karma), var(--karma-2));
   box-shadow: 0 0 22px var(--karma-glow);
@@ -147,7 +150,7 @@ body::before {
 .vs-btn {
   font-family: inherit; font-size: 12px; font-weight: 700;
   color: var(--text-2); background: transparent; border: none;
-  border-radius: 7px; padding: 8px 13px; cursor: pointer; white-space: nowrap;
+  border-radius: var(--radius-xs); padding: 8px 13px; cursor: pointer; white-space: nowrap;
   transition: all 0.16s;
 }
 .vs-btn:hover { color: var(--text-0); background: var(--glass); }
@@ -235,7 +238,6 @@ body::before {
 .modal-backdrop {
   position: absolute; inset: 0;
   background: rgba(4, 5, 8, 0.72);
-  backdrop-filter: blur(6px);
   display: grid; place-items: center;
   animation: fade-in 0.2s;
   padding: 24px;
@@ -288,7 +290,7 @@ body::before {
 .pill {
   display: inline-flex; align-items: center; gap: 5px;
   font-size: 10px; font-weight: 700; letter-spacing: 0.4px;
-  padding: 3px 9px; border-radius: 999px;
+  padding: 3px 9px; border-radius: var(--radius-pill);
   background: var(--glass-2); border: 1px solid var(--stroke);
   color: var(--text-1);
 }
@@ -316,12 +318,12 @@ body::before {
   overflow: hidden;
 }
 
-.bar { height: 6px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; }
-.bar > i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--karma), var(--karma-2)); transition: width 0.4s ease; }
+.bar { height: 6px; border-radius: var(--radius-pill); background: rgba(255,255,255,0.08); overflow: hidden; }
+.bar > i { display: block; height: 100%; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--karma), var(--karma-2)); transition: width 0.4s ease; }
 
 /* scrollbars */
 ::-webkit-scrollbar { width: 9px; height: 9px; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: var(--radius-xs); }
 ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 ::-webkit-scrollbar-track { background: transparent; }
 
@@ -369,7 +371,6 @@ body::before {
   border: 1px solid var(--stroke);
   border-radius: var(--radius-l);
   overflow: hidden;
-  backdrop-filter: blur(14px);
 }
 
 .career-tabs {
@@ -472,7 +473,7 @@ body::before {
 .row-item .sub { font-size: 11px; color: var(--text-2); margin-top: 2px; }
 
 .cover {
-  width: 46px; height: 46px; border-radius: 8px; flex: 0 0 auto;
+  width: 46px; height: 46px; border-radius: var(--radius-xs); flex: 0 0 auto;
   display: grid; place-items: center;
   font-weight: 900; font-size: 17px; color: #0b0b12;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
@@ -507,7 +508,7 @@ body::before {
 .stage-chip {
   flex: 1;
   font-size: 9.5px; font-weight: 700; letter-spacing: 0.4px; text-transform: uppercase;
-  padding: 6px 4px; text-align: center; border-radius: 6px;
+  padding: 6px 4px; text-align: center; border-radius: var(--radius-xs);
   background: var(--glass); border: 1px solid var(--stroke); color: var(--text-3);
 }
 .stage-chip.done { background: rgba(92,232,155,0.14); border-color: rgba(92,232,155,0.34); color: #9df3c5; }
@@ -610,7 +611,7 @@ body::before {
   background: var(--glass); border: 1px solid var(--stroke);
 }
 .studio-step .step-no {
-  width: 24px; height: 24px; border-radius: 999px; flex: 0 0 auto;
+  width: 24px; height: 24px; border-radius: var(--radius-pill); flex: 0 0 auto;
   display: grid; place-items: center; font-size: 12px; font-weight: 800;
   background: rgba(176,108,255,.18); color: var(--karma-2);
 }
@@ -643,7 +644,7 @@ body::before {
 .craft-step {
   display: inline-grid; place-items: center;
   min-width: 20px; height: 20px; padding: 0 7px;
-  border-radius: 999px; flex: 0 0 auto;
+  border-radius: var(--radius-pill); flex: 0 0 auto;
   background: rgba(176,108,255,.2); color: var(--karma-2);
   font-size: 11px; font-weight: 800; letter-spacing: .2px;
 }
@@ -660,7 +661,7 @@ body::before {
 .opt-note b { color: var(--text-0); }
 .opt-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .opt-chip {
-  font-size: 10.5px; padding: 3px 9px; border-radius: 999px;
+  font-size: 10.5px; padding: 3px 9px; border-radius: var(--radius-pill);
   background: var(--glass-2); border: 1px solid var(--stroke-2); color: var(--text-2);
 }
 .opt-chip b { color: var(--karma-2); }
@@ -689,7 +690,7 @@ body::before {
 .ag-line.muted { color: var(--text-3); }
 .ag-pills { display: flex; flex-wrap: wrap; gap: 6px; }
 .ag-pill {
-  font-family: inherit; font-size: 10.5px; padding: 4px 9px; border-radius: 999px;
+  font-family: inherit; font-size: 10.5px; padding: 4px 9px; border-radius: var(--radius-pill);
   background: var(--glass-2); border: 1px solid var(--stroke-2); color: var(--text-1);
   cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
 }
@@ -741,7 +742,7 @@ body::before {
   height: 800px;
   max-height: calc(100vh - var(--topbar-h) - 70px);
   aspect-ratio: 390 / 800;
-  border-radius: 54px;
+  border-radius: var(--radius-pill);
   padding: 12px;
   background:
     linear-gradient(150deg, #3a3f4d 0%, #14161d 30%, #0a0b10 60%, #2a2e39 100%);
@@ -760,7 +761,7 @@ body::before {
   position: absolute;
   left: -3px; top: 150px;
   width: 3px; height: 90px;
-  border-radius: 3px 0 0 3px;
+  border-radius: var(--radius-xs) 0 0 3px;
   background: linear-gradient(180deg, #2c313c, #14161c);
   box-shadow: 0 110px 0 0 #232833, 0 200px 0 0 #232833;
 }
@@ -778,7 +779,7 @@ body::before {
   top: 22px; left: 50%;
   transform: translateX(-50%);
   width: 118px; height: 30px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: #000;
   z-index: 40;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
@@ -788,7 +789,7 @@ body::before {
   position: relative;
   width: 100%;
   height: 100%;
-  border-radius: 42px;
+  border-radius: var(--radius-pill);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -816,9 +817,9 @@ body::before {
 .status-island { position: absolute; left: 50%; transform: translateX(-50%); }
 .status-right { display: flex; align-items: center; gap: 6px; font-size: 11px; }
 .sig { letter-spacing: -1px; font-size: 10px; }
-.battery { width: 24px; height: 12px; border: 1.4px solid #fff; border-radius: 3px; position: relative; display: inline-block; }
+.battery { width: 24px; height: 12px; border: 1.4px solid #fff; border-radius: var(--radius-xs); position: relative; display: inline-block; }
 .battery::after { content: ""; position: absolute; right: -4px; top: 3px; width: 2px; height: 4px; background: #fff; border-radius: 0 1px 1px 0; }
-.battery > i { display: block; height: 100%; width: 74%; background: #fff; border-radius: 1px; transition: width 0.3s, background 0.3s; }
+.battery > i { display: block; height: 100%; width: 74%; background: #fff; border-radius: var(--radius-xs); transition: width 0.3s, background 0.3s; }
 .battery > i.low { background: #ff5c7a; }
 
 /* ---------- viewport ---------- */
@@ -835,7 +836,7 @@ body::before {
   bottom: 7px; left: 50%;
   transform: translateX(-50%);
   width: 130px; height: 5px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(255,255,255,0.7);
   z-index: 60;
   cursor: pointer;
@@ -874,10 +875,9 @@ body::before {
 .home-header .full-date { font-size: 25px; font-weight: 300; color: #fff; margin-top: 1px; }
 .home-header .balance-chip {
   display: inline-flex; align-items: center; gap: 6px;
-  margin-top: 9px; padding: 6px 13px; border-radius: 999px;
+  margin-top: 9px; padding: 6px 13px; border-radius: var(--radius-pill);
   background: rgba(255,255,255,0.12);
   border: 1px solid rgba(255,255,255,0.14);
-  backdrop-filter: blur(10px);
   font-size: 12px; font-weight: 800; color: #fff;
 }
 
@@ -899,7 +899,7 @@ body::before {
 
 .app-icon {
   width: 60px; height: 60px;
-  border-radius: 15px;
+  border-radius: var(--radius-m);
   position: relative;
   display: grid; place-items: center;
   font-size: 27px;
@@ -912,7 +912,7 @@ body::before {
 .app-badge {
   position: absolute; top: -3px; right: -3px;
   min-width: 20px; height: 20px; padding: 0 5px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: #ff3b30; color: #fff;
   font-size: 11px; font-weight: 800;
   display: grid; place-items: center;
@@ -934,10 +934,9 @@ body::before {
   position: absolute;
   left: 14px; right: 14px; bottom: 18px;
   padding: 14px 16px;
-  border-radius: 30px;
+  border-radius: var(--radius-l);
   background: rgba(255,255,255,0.1);
   border: 1px solid rgba(255,255,255,0.13);
-  backdrop-filter: blur(22px);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
@@ -956,7 +955,6 @@ body::before {
   align-items: center;
   gap: 10px;
   background: rgba(10,11,16,0.92);
-  backdrop-filter: blur(18px);
   border-bottom: 1px solid rgba(255,255,255,0.07);
   min-height: 62px;
 }
@@ -988,7 +986,7 @@ body::before {
   display: flex;
   gap: 3px;
   padding: 3px;
-  border-radius: 10px;
+  border-radius: var(--radius-s);
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.07);
   overflow-x: auto;
@@ -1000,7 +998,7 @@ body::before {
   flex: 1; white-space: nowrap;
   font-family: inherit; font-size: 11.5px; font-weight: 700;
   color: var(--text-2);
-  background: transparent; border: none; border-radius: 8px;
+  background: transparent; border: none; border-radius: var(--radius-xs);
   padding: 7px 12px; cursor: pointer;
   transition: all 0.15s;
 }
@@ -1010,7 +1008,7 @@ body::before {
 .p-search {
   display: flex; align-items: center; gap: 8px;
   padding: 9px 12px;
-  border-radius: 10px;
+  border-radius: var(--radius-s);
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.08);
 }
@@ -1024,7 +1022,7 @@ body::before {
 .p-row {
   display: flex; align-items: center; gap: 11px;
   padding: 8px 6px;
-  border-radius: 10px;
+  border-radius: var(--radius-s);
   cursor: pointer;
   transition: background 0.14s;
 }
@@ -1033,7 +1031,7 @@ body::before {
 .p-row .p-title { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .p-row .p-sub { font-size: 11px; color: var(--text-2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.p-avatar { width: 46px; height: 46px; border-radius: 8px; display: grid; place-items: center; font-weight: 800; font-size: 15px; flex: 0 0 auto; color: #0b0b12; }
+.p-avatar { width: 46px; height: 46px; border-radius: var(--radius-xs); display: grid; place-items: center; font-weight: 800; font-size: 15px; flex: 0 0 auto; color: #0b0b12; }
 .p-avatar.round { border-radius: 50%; }
 
 .phone-hint { font-size: 11px; color: var(--text-3); letter-spacing: 0.2px; }
@@ -1054,7 +1052,7 @@ body::before {
 
 .sp-hero {
   padding: 18px;
-  border-radius: 16px;
+  border-radius: var(--radius-m);
   background: linear-gradient(150deg, #1ed760, #0a5f27);
   display: flex; align-items: center; gap: 14px;
   box-shadow: 0 12px 30px rgba(30,215,96,0.25);
@@ -1065,26 +1063,26 @@ body::before {
 
 .sp-section-title { font-size: 15px; font-weight: 800; letter-spacing: 0.1px; margin-top: 4px; }
 .sp-playlist {
-  padding: 12px; border-radius: 12px;
+  padding: 12px; border-radius: var(--radius-s);
   background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
   border: 1px solid rgba(255,255,255,0.08);
   display: flex; gap: 12px; align-items: center;
 }
 .sp-pl-cover {
-  width: 58px; height: 58px; border-radius: 8px; flex: 0 0 auto;
+  width: 58px; height: 58px; border-radius: var(--radius-xs); flex: 0 0 auto;
   display: grid; place-items: center; font-size: 22px; font-weight: 900;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  box-shadow: var(--shadow-1);
 }
 .sp-pl-name { font-size: 13.5px; font-weight: 800; }
 .sp-pl-desc { font-size: 11px; color: var(--text-2); margin-top: 3px; line-height: 1.45; }
 
 .sp-track {
   display: flex; align-items: center; gap: 11px;
-  padding: 7px 8px; border-radius: 9px;
+  padding: 7px 8px; border-radius: var(--radius-s);
   cursor: pointer;
 }
 .sp-track:hover { background: rgba(255,255,255,0.06); }
-.sp-track .cover { width: 42px; height: 42px; border-radius: 6px; font-size: 14px; }
+.sp-track .cover { width: 42px; height: 42px; border-radius: var(--radius-xs); font-size: 14px; }
 .sp-track .t-name { font-size: 13px; font-weight: 700; }
 .sp-track .t-artist { font-size: 11px; color: var(--text-2); margin-top: 2px; }
 .sp-track .t-plays { font-size: 10.5px; color: var(--text-3); font-weight: 700; white-space: nowrap; }
@@ -1092,7 +1090,7 @@ body::before {
 
 .sp-stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 .sp-stat {
-  padding: 11px 12px; border-radius: 10px;
+  padding: 11px 12px; border-radius: var(--radius-s);
   background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07);
 }
 .sp-stat .k { font-size: 9.5px; letter-spacing: 0.7px; text-transform: uppercase; color: var(--text-3); font-weight: 700; }
@@ -1105,7 +1103,7 @@ body::before {
 
 .am-hero {
   padding: 20px 18px;
-  border-radius: 16px;
+  border-radius: var(--radius-m);
   background: linear-gradient(150deg, #fb5c74, #8e1731);
   color: #fff;
   box-shadow: 0 12px 30px rgba(251,92,116,0.25);
@@ -1116,7 +1114,7 @@ body::before {
 
 .am-chart-row {
   display: flex; align-items: center; gap: 12px;
-  padding: 9px 10px; border-radius: 10px;
+  padding: 9px 10px; border-radius: var(--radius-s);
   background: rgba(255,255,255,0.045);
   border: 1px solid rgba(255,255,255,0.06);
 }
@@ -1132,7 +1130,7 @@ body::before {
 .app-youtube .app-nav { background: rgba(20,6,6,0.92); }
 
 .yt-channel {
-  padding: 16px; border-radius: 16px;
+  padding: 16px; border-radius: var(--radius-m);
   background: linear-gradient(150deg, #2b0a0a, #100404);
   border: 1px solid rgba(255,80,80,0.18);
   display: flex; flex-direction: column; gap: 12px;
@@ -1144,11 +1142,11 @@ body::before {
 
 .yt-video {
   display: flex; gap: 10px; cursor: pointer;
-  padding: 6px; border-radius: 10px;
+  padding: 6px; border-radius: var(--radius-s);
 }
 .yt-video:hover { background: rgba(255,255,255,0.05); }
 .yt-thumb {
-  width: 118px; height: 66px; border-radius: 8px; flex: 0 0 auto;
+  width: 118px; height: 66px; border-radius: var(--radius-xs); flex: 0 0 auto;
   display: grid; place-items: center; position: relative;
   background: linear-gradient(135deg, #333, #111);
   overflow: hidden;
@@ -1163,7 +1161,7 @@ body::before {
 .yt-thumb .dur {
   position: absolute; right: 5px; bottom: 4px;
   background: rgba(0,0,0,0.8); color: #fff;
-  font-size: 9.5px; font-weight: 700; padding: 1px 4px; border-radius: 3px;
+  font-size: 9.5px; font-weight: 700; padding: 1px 4px; border-radius: var(--radius-xs);
 }
 .yt-video .vt { font-size: 12.5px; font-weight: 700; line-height: 1.35; }
 .yt-video .vm { font-size: 10.5px; color: var(--text-2); margin-top: 5px; }
@@ -1209,7 +1207,7 @@ body::before {
 
 .ig-follow-btn {
   font-family: inherit; font-size: 12px; font-weight: 800;
-  padding: 7px 20px; border-radius: 8px; border: none; cursor: pointer;
+  padding: 7px 20px; border-radius: var(--radius-xs); border: none; cursor: pointer;
   color: #fff;
   background: linear-gradient(135deg, #ee2a7b, #6228d7);
 }
@@ -1220,7 +1218,7 @@ body::before {
 .app-tiktok .app-nav { background: rgba(0,0,0,0.9); }
 
 .tt-song {
-  padding: 14px; border-radius: 14px;
+  padding: 14px; border-radius: var(--radius-m);
   background: linear-gradient(120deg, rgba(37,244,238,0.14), rgba(254,44,85,0.14));
   border: 1px solid rgba(255,255,255,0.1);
   display: flex; align-items: center; gap: 12px;
@@ -1231,7 +1229,7 @@ body::before {
 .tt-videos { font-size: 11px; font-weight: 800; color: #25f4ee; }
 .tt-trend {
   display: inline-flex; align-items: center; gap: 4px;
-  font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 999px;
+  font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: var(--radius-pill);
   background: rgba(254,44,85,0.18); color: #ff7a95;
 }
 .tt-bar-row { display: flex; align-items: center; gap: 9px; }
@@ -1271,7 +1269,7 @@ body::before {
 
 .dm-list-row {
   display: flex; gap: 11px; align-items: center;
-  padding: 10px 6px; cursor: pointer; border-radius: 10px;
+  padding: 10px 6px; cursor: pointer; border-radius: var(--radius-s);
 }
 .dm-list-row:hover { background: rgba(255,255,255,0.05); }
 .dm-list-row .p-avatar { width: 50px; height: 50px; font-size: 17px; border-radius: 50%; }
@@ -1279,7 +1277,7 @@ body::before {
 .dm-list-row .nm { font-size: 13.5px; font-weight: 800; }
 .dm-list-row .last { font-size: 11.5px; color: var(--text-2); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dm-unread {
-  min-width: 21px; height: 21px; padding: 0 6px; border-radius: 999px;
+  min-width: 21px; height: 21px; padding: 0 6px; border-radius: var(--radius-pill);
   background: #2b8fff; color: #fff; font-size: 11px; font-weight: 800;
   display: grid; place-items: center;
 }
@@ -1290,7 +1288,7 @@ body::before {
 .dm-bubble {
   max-width: 78%;
   padding: 9px 13px;
-  border-radius: 18px;
+  border-radius: var(--radius-m);
   font-size: 12.5px;
   line-height: 1.45;
   position: relative;
@@ -1314,13 +1312,13 @@ body::before {
 .dm-system {
   align-self: center;
   font-size: 10.5px; color: var(--text-3); text-align: center;
-  padding: 4px 12px; background: rgba(255,255,255,0.05); border-radius: 999px;
+  padding: 4px 12px; background: rgba(255,255,255,0.05); border-radius: var(--radius-pill);
   max-width: 90%;
 }
 
 .dm-offer {
   align-self: stretch;
-  border-radius: 14px;
+  border-radius: var(--radius-m);
   padding: 13px;
   border: 1px solid rgba(176,108,255,0.35);
   background: linear-gradient(180deg, rgba(176,108,255,0.16), rgba(176,108,255,0.05));
@@ -1355,7 +1353,7 @@ body::before {
 .dm-quick { display: flex; gap: 6px; flex-wrap: wrap; }
 .dm-chip {
   font-family: inherit; font-size: 11px; font-weight: 700;
-  padding: 7px 12px; border-radius: 999px; cursor: pointer;
+  padding: 7px 12px; border-radius: var(--radius-pill); cursor: pointer;
   background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
   color: var(--text-0); transition: all 0.14s;
 }
@@ -1372,7 +1370,7 @@ body::before {
 }
 .dm-composer input {
   flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.09);
-  border-radius: 999px; padding: 10px 15px; color: #fff; font-family: inherit; font-size: 13px; outline: none;
+  border-radius: var(--radius-pill); padding: 10px 15px; color: #fff; font-family: inherit; font-size: 13px; outline: none;
 }
 .dm-composer input:focus { border-color: #2b8fff; }
 .dm-send {
@@ -1382,15 +1380,14 @@ body::before {
 }
 
 /* selectable artist list inside message "new DM" */
-.dm-select-row { display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 10px; cursor: pointer; }
+.dm-select-row { display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: var(--radius-s); cursor: pointer; }
 .dm-select-row:hover { background: rgba(255,255,255,0.06); }
 
 /* phone action sheet */
 .sheet {
   position: absolute; left: 8px; right: 8px; bottom: 8px;
-  border-radius: 18px; overflow: hidden; z-index: 200;
+  border-radius: var(--radius-m); overflow: hidden; z-index: 200;
   background: rgba(30,32,40,0.96);
-  backdrop-filter: blur(24px);
   border: 1px solid rgba(255,255,255,0.12);
   animation: sheet-in 0.26s cubic-bezier(0.2,0.9,0.3,1.1);
   box-shadow: 0 -10px 40px rgba(0,0,0,0.6);
@@ -1420,7 +1417,7 @@ body::before {
 .ui-sec-title { font-size:15px; font-weight:800; letter-spacing:.1px; }
 .muted { font-size:11px; color:var(--text-3); font-weight:700; }
 .mini-empty { font-size:11.5px; color:var(--text-3); padding:10px 4px; line-height:1.5; }
-.mini-btn { font-family:inherit; font-size:12px; font-weight:800; padding:5px 10px; border-radius:8px;
+.mini-btn { font-family:inherit; font-size:12px; font-weight:800; padding:5px 10px; border-radius: var(--radius-xs);
   background:rgba(255,255,255,.09); border:1px solid rgba(255,255,255,.12); color:#fff; cursor:pointer; }
 
 .like-btn { font-family:inherit; font-size:16px; line-height:1; background:none; border:none; cursor:pointer;
@@ -1430,7 +1427,7 @@ body::before {
 
 .filter-chips { display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; flex:0 0 auto; }
 .filter-chips::-webkit-scrollbar { display:none; }
-.fchip { font-family:inherit; font-size:11.5px; font-weight:700; padding:7px 13px; border-radius:999px;
+.fchip { font-family:inherit; font-size:11.5px; font-weight:700; padding:7px 13px; border-radius: var(--radius-pill);
   background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); color:var(--text-2); cursor:pointer; white-space:nowrap; }
 .fchip.active { background:#fff; color:#000; border-color:#fff; }
 
@@ -1438,7 +1435,7 @@ body::before {
 .music-bar { flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:9px 12px;
   background:linear-gradient(180deg, rgba(24,26,34,.98), rgba(14,16,22,.98));
   border-top:1px solid rgba(255,255,255,.1); cursor:pointer; }
-.mb-art { width:38px; height:38px; border-radius:8px; flex:0 0 auto; box-shadow:0 4px 12px rgba(0,0,0,.5); }
+.mb-art { width:38px; height:38px; border-radius: var(--radius-xs); flex:0 0 auto; box-shadow:0 4px 12px rgba(0,0,0,.5); }
 .mb-info { flex:1; min-width:0; }
 .mb-title { font-size:12.5px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .mb-artist { font-size:10.5px; color:var(--text-2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
@@ -1448,66 +1445,66 @@ body::before {
 
 /* ---------------- SPOTIFY ek ---------------- */
 .sp-quick-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.sp-quick { display:flex; align-items:center; gap:9px; padding:7px; border-radius:8px;
+.sp-quick { display:flex; align-items:center; gap:9px; padding:7px; border-radius: var(--radius-xs);
   background:rgba(255,255,255,.09); cursor:pointer; overflow:hidden; }
 .sp-quick:hover { background:rgba(255,255,255,.15); }
-.sq-art { width:34px; height:34px; border-radius:5px; display:grid; place-items:center; font-size:15px; flex:0 0 auto; }
+.sq-art { width:34px; height:34px; border-radius: var(--radius-xs); display:grid; place-items:center; font-size:15px; flex:0 0 auto; }
 .sp-quick span { font-size:11.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
 .sp-pl-scroll { display:flex; gap:10px; overflow-x:auto; padding-bottom:6px; scrollbar-width:none; }
 .sp-pl-scroll::-webkit-scrollbar { display:none; }
 .sp-pl-card { min-width:132px; width:132px; cursor:pointer; }
-.sp-pl-art { width:132px; height:132px; border-radius:10px; display:grid; place-items:center; font-size:38px;
+.sp-pl-art { width:132px; height:132px; border-radius: var(--radius-s); display:grid; place-items:center; font-size:38px;
   box-shadow:0 8px 22px rgba(0,0,0,.5); margin-bottom:7px; }
 .sp-pl-name { font-size:12.5px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .sp-pl-desc { font-size:10.5px; color:var(--text-3); margin-top:2px; line-height:1.4;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
 
-.sp-track.mine { background:rgba(176,108,255,.12); border-radius:9px; }
+.sp-track.mine { background:rgba(176,108,255,.12); border-radius: var(--radius-s); }
 
-.artist-hero-sp { position:relative; border-radius:16px; padding:18px 16px 14px; overflow:hidden; min-height:170px;
+.artist-hero-sp { position:relative; border-radius: var(--radius-m); padding:18px 16px 14px; overflow:hidden; min-height:170px;
   display:flex; flex-direction:column; justify-content:flex-end; }
 .ah-avatar { position:absolute; top:16px; left:16px; }
 .ah-img { width:86px; height:86px; border-radius:50%; box-shadow:0 8px 24px rgba(0,0,0,.6); border:2px solid rgba(255,255,255,.15); }
 .ah-info { margin-top:60px; }
 .ah-verified { font-size:10px; font-weight:800; color:#fff; background:rgba(0,0,0,.4); display:inline-block;
-  padding:2px 8px; border-radius:999px; margin-bottom:5px; }
+  padding:2px 8px; border-radius: var(--radius-pill); margin-bottom:5px; }
 .ah-name { font-size:24px; font-weight:900; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.6); }
 .ah-meta { font-size:11.5px; color:rgba(255,255,255,.85); margin-top:2px; }
 
 .bio-box { font-size:12px; line-height:1.6; color:var(--text-1); background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:12px 13px; margin-top:8px; }
+  border:1px solid rgba(255,255,255,.08); border-radius: var(--radius-s); padding:12px 13px; margin-top:8px; }
 
-.pl-hero { display:flex; align-items:flex-end; gap:14px; padding:16px; border-radius:14px;
+.pl-hero { display:flex; align-items:flex-end; gap:14px; padding:16px; border-radius: var(--radius-m);
   background:linear-gradient(160deg, rgba(255,255,255,.12), rgba(255,255,255,.03)); }
-.pl-art { width:88px; height:88px; border-radius:10px; display:grid; place-items:center; font-size:34px;
+.pl-art { width:88px; height:88px; border-radius: var(--radius-s); display:grid; place-items:center; font-size:34px;
   background:rgba(0,0,0,.3); box-shadow:0 8px 22px rgba(0,0,0,.5); flex:0 0 auto; }
 .pl-name { font-size:20px; font-weight:900; }
 .pl-desc { font-size:11px; color:var(--text-2); margin-top:3px; line-height:1.45; }
 
 /* ---------------- APPLE MUSIC ek ---------------- */
 .am-mood-grid { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
-.am-mood { height:86px; border-radius:12px; padding:11px; display:flex; flex-direction:column; justify-content:space-between;
+.am-mood { height:86px; border-radius: var(--radius-s); padding:11px; display:flex; flex-direction:column; justify-content:space-between;
   cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,.4); }
 .am-mood:hover { transform:translateY(-2px); transition:transform .15s; }
 .m-emoji { font-size:22px; }
 .m-label { font-size:12.5px; font-weight:800; color:#fff; }
 .am-genre-scroll { display:flex; gap:9px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
 .am-genre-scroll::-webkit-scrollbar { display:none; }
-.am-genre { min-width:104px; padding:14px 12px; border-radius:12px; background:rgba(255,255,255,.06);
+.am-genre { min-width:104px; padding:14px 12px; border-radius: var(--radius-s); background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.09); display:flex; flex-direction:column; gap:6px; cursor:pointer; }
 .am-genre:hover { background:rgba(255,255,255,.12); }
 .g-icon { font-size:22px; }
 .am-genre span:last-child { font-size:11.5px; font-weight:700; }
 .am-station { display:flex; align-items:center; gap:12px; padding:10px 4px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,.06); }
 .am-station:hover { background:rgba(255,255,255,.04); }
-.st-icon { width:52px; height:52px; border-radius:10px; display:grid; place-items:center; font-size:22px; flex:0 0 auto; }
+.st-icon { width:52px; height:52px; border-radius: var(--radius-s); display:grid; place-items:center; font-size:22px; flex:0 0 auto; }
 .st-name { font-size:13px; font-weight:800; }
 .st-desc { font-size:11px; color:var(--text-2); margin-top:2px; }
 .st-play { color:var(--text-3); font-size:15px; }
 
 /* ---------------- YOUTUBE ek ---------------- */
-.yt-player { position:relative; width:100%; aspect-ratio:16/9; border-radius:12px; overflow:hidden; display:grid; place-items:center; }
+.yt-player { position:relative; width:100%; aspect-ratio:16/9; border-radius: var(--radius-s); overflow:hidden; display:grid; place-items:center; }
 .yt-player-ov { position:absolute; inset:0; background:rgba(0,0,0,.35); }
 .yt-play-big { position:relative; z-index:2; width:54px; height:54px; border-radius:50%; background:rgba(0,0,0,.55);
   display:grid; place-items:center; font-size:20px; color:#fff; }
@@ -1517,17 +1514,17 @@ body::before {
 .yt-watch-title { font-size:14.5px; font-weight:800; line-height:1.35; }
 .yt-watch-meta { font-size:11px; color:var(--text-2); }
 .yt-watch-actions { display:flex; gap:7px; flex-wrap:wrap; }
-.yt-watch-actions button { font-family:inherit; font-size:11.5px; font-weight:700; padding:8px 14px; border-radius:999px;
+.yt-watch-actions button { font-family:inherit; font-size:11.5px; font-weight:700; padding:8px 14px; border-radius: var(--radius-pill);
   background:rgba(255,255,255,.1); border:none; color:#fff; cursor:pointer; }
 .yt-watch-actions button.on { background:rgba(255,75,75,.25); color:#ff9b9b; }
-.yt-channel-row { display:flex; align-items:center; gap:11px; padding:10px; border-radius:12px;
+.yt-channel-row { display:flex; align-items:center; gap:11px; padding:10px; border-radius: var(--radius-s);
   background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.07); }
 .cr-name { font-size:13px; font-weight:800; }
 .cr-subs { font-size:10.5px; color:var(--text-2); margin-top:2px; }
-.yt-desc { background:rgba(255,255,255,.05); border-radius:12px; padding:12px; font-size:11.5px; line-height:1.6; }
+.yt-desc { background:rgba(255,255,255,.05); border-radius: var(--radius-s); padding:12px; font-size:11.5px; line-height:1.6; }
 .yt-desc p { color:var(--text-1); margin-top:5px; }
 .yt-desc-tags { color:#6ec3ff; font-size:11px; margin-top:7px; }
-.yt-banner { height:92px; border-radius:12px; margin-bottom:-30px; }
+.yt-banner { height:92px; border-radius: var(--radius-s); margin-bottom:-30px; }
 
 .cmt { display:flex; gap:10px; padding:9px 2px; }
 .cmt-user { font-size:10.5px; color:var(--text-3); font-weight:700; }
@@ -1535,8 +1532,8 @@ body::before {
 .cmt-actions { font-size:10.5px; color:var(--text-3); margin-top:5px; }
 .cmt-input { display:flex; gap:8px; margin-top:8px; }
 .cmt-input input { flex:1; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.1);
-  border-radius:999px; padding:10px 14px; color:#fff; font-family:inherit; font-size:12.5px; outline:none; }
-.cmt-input button { font-family:inherit; font-size:12px; font-weight:800; padding:0 16px; border-radius:999px;
+  border-radius: var(--radius-pill); padding:10px 14px; color:#fff; font-family:inherit; font-size:12.5px; outline:none; }
+.cmt-input button { font-family:inherit; font-size:12px; font-weight:800; padding:0 16px; border-radius: var(--radius-pill);
   border:none; background:linear-gradient(135deg,#ff4b4b,#c00); color:#fff; cursor:pointer; }
 
 .shorts-scroll { display:flex; flex-direction:column; gap:12px; margin:-16px; }
@@ -1571,7 +1568,7 @@ body::before {
 .iph-name { font-size:12.5px; font-weight:800; }
 .iph-sub { font-size:10px; color:var(--text-3); margin-top:1px; }
 .iph-more { background:none; border:none; color:var(--text-2); font-size:18px; cursor:pointer; }
-.ig-photo { width:100%; aspect-ratio:1/1; border-radius:12px; display:grid; place-items:center; position:relative; overflow:hidden; cursor:pointer; }
+.ig-photo { width:100%; aspect-ratio:1/1; border-radius: var(--radius-s); display:grid; place-items:center; position:relative; overflow:hidden; cursor:pointer; }
 .ig-photo.big { aspect-ratio:4/5; }
 .ig-photo-icon { font-size:52px; opacity:.35; }
 .ig-photo-label { position:absolute; bottom:12px; left:12px; right:12px; font-size:12px; font-weight:700; color:#fff;
@@ -1598,12 +1595,12 @@ body::before {
 
 .story-view { position:absolute; inset:0; display:flex; flex-direction:column; }
 .story-bars { display:flex; gap:4px; padding:10px 12px 0; }
-.story-bars i { flex:1; height:2.5px; border-radius:2px; background:rgba(255,255,255,.35); }
+.story-bars i { flex:1; height:2.5px; border-radius: var(--radius-xs); background:rgba(255,255,255,.35); }
 .story-bars i.done { background:#fff; }
 .story-head { display:flex; align-items:center; gap:9px; padding:12px 14px; color:#fff; font-size:12.5px; font-weight:700; }
 .story-body { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:24px; }
 .story-text { font-size:22px; font-weight:900; color:#fff; text-align:center; text-shadow:0 3px 16px rgba(0,0,0,.7); }
-.story-link { font-size:12px; font-weight:700; color:#fff; background:rgba(0,0,0,.4); padding:9px 18px; border-radius:999px; cursor:pointer; }
+.story-link { font-size:12px; font-weight:700; color:#fff; background:rgba(0,0,0,.4); padding:9px 18px; border-radius: var(--radius-pill); cursor:pointer; }
 
 /* ---------------- TIKTOK ek ---------------- */
 .tt-feed { display:flex; flex-direction:column; gap:12px; margin:-16px; }
@@ -1651,7 +1648,7 @@ body::before {
   position: relative;
   display: inline-flex; align-items: center; justify-content: center;
   min-width: 36px; height: 34px; padding: 0 10px;
-  border-radius: 10px; cursor: pointer;
+  border-radius: var(--radius-s); cursor: pointer;
   background: rgba(255,255,255,.08);
   border: 1px solid rgba(255,255,255,.12);
   color: #fff; font-family: inherit; font-size: 15px;
@@ -1660,7 +1657,7 @@ body::before {
 .nav-bell b {
   position: absolute; top: -6px; right: -6px;
   min-width: 18px; height: 18px; padding: 0 4px;
-  border-radius: 999px; background: #ff3b30; color: #fff;
+  border-radius: var(--radius-pill); background: #ff3b30; color: #fff;
   font-size: 10px; font-weight: 900;
   display: grid; place-items: center;
   border: 2px solid rgba(10,10,15,.75);
@@ -1692,12 +1689,12 @@ body::before {
 .ni-title { flex: 1; font-size: 12.5px; font-weight: 700; line-height: 1.45; color: var(--text-0); }
 .ni-keywords { display: flex; flex-wrap: wrap; gap: 5px; }
 .ni-keywords span {
-  font-size: 10px; padding: 2px 8px; border-radius: 999px;
+  font-size: 10px; padding: 2px 8px; border-radius: var(--radius-pill);
   background: var(--glass-2); border: 1px solid var(--stroke); color: var(--text-3);
 }
 .news-heat { display: flex; align-items: center; gap: 6px; flex: 0 0 auto; }
-.news-heat .nh-track { width: 42px; height: 6px; border-radius: 3px; background: var(--glass-2); overflow: hidden; }
-.news-heat .nh-track i { display: block; height: 100%; border-radius: 3px; background: var(--karma-2); }
+.news-heat .nh-track { width: 42px; height: 6px; border-radius: var(--radius-xs); background: var(--glass-2); overflow: hidden; }
+.news-heat .nh-track i { display: block; height: 100%; border-radius: var(--radius-xs); background: var(--karma-2); }
 .news-heat span { font-size: 10px; font-weight: 800; color: var(--text-3); min-width: 24px; text-align: right; }
 .news-heat.warm .nh-track i { background: var(--gold); }
 .news-heat.hot .nh-track i { background: var(--hot); }
@@ -1733,7 +1730,7 @@ body::before {
 .slot-row { display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:var(--radius-s);
   background:var(--glass); border:1px solid var(--stroke); margin-bottom:8px; }
 .slot-row.empty { opacity:0.65; }
-.slot-num { width:26px; height:26px; border-radius:8px; display:grid; place-items:center;
+.slot-num { width:26px; height:26px; border-radius: var(--radius-xs); display:grid; place-items:center;
   background:linear-gradient(135deg,var(--karma),#8a4dff); font-weight:900; font-size:12px; flex:0 0 auto; }
 .slot-name { font-size:13px; font-weight:800; }
 .slot-sub { font-size:10.5px; color:var(--text-2); margin-top:2px; }
@@ -1777,7 +1774,7 @@ body::before {
 .award-card { padding:14px; border-radius:var(--radius-m); background:var(--bg-2);
   border:1px solid var(--stroke); margin-bottom:10px; }
 .aw-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:9px; font-size:13px; }
-.aw-row { display:flex; align-items:center; gap:9px; padding:6px 8px; border-radius:8px; font-size:12px; }
+.aw-row { display:flex; align-items:center; gap:9px; padding:6px 8px; border-radius: var(--radius-xs); font-size:12px; }
 .aw-row.won { background:rgba(255,203,92,0.14); }
 .aw-row .muted { margin-left:auto; }
 
@@ -1796,16 +1793,16 @@ body::before {
   background:linear-gradient(180deg, rgba(10,10,14,0.86), rgba(6,6,10,0.96)); }
 .live-top { display:flex; align-items:center; gap:9px; padding:12px 14px; }
 .live-badge { display:inline-flex; align-items:center; gap:6px; font-size:10.5px; font-weight:900;
-  letter-spacing:0.8px; color:#fff; background:#ff3b5c; padding:4px 10px; border-radius:999px; }
+  letter-spacing:0.8px; color:#fff; background:#ff3b5c; padding:4px 10px; border-radius: var(--radius-pill); }
 .live-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:0 14px; }
-.live-stat { padding:10px; border-radius:10px; background:rgba(255,255,255,0.07); text-align:center; }
+.live-stat { padding:10px; border-radius: var(--radius-s); background:rgba(255,255,255,0.07); text-align:center; }
 .live-stat .k { font-size:9px; letter-spacing:0.6px; color:var(--text-3); font-weight:800; text-transform:uppercase; }
 .live-stat .v { font-size:16px; font-weight:900; margin-top:2px; }
 .live-reactions { flex:1; overflow-y:auto; padding:12px 14px; display:flex; flex-direction:column; gap:7px; }
 .live-reaction { display:flex; gap:8px; align-items:center; font-size:12px; animation: bubble-in .3s ease; }
 .live-reaction b { color:var(--karma-2); font-size:11.5px; }
 .live-actions { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:12px 14px 16px; }
-.live-actions button { font-family:inherit; font-size:11.5px; font-weight:800; padding:11px 6px; border-radius:10px;
+.live-actions button { font-family:inherit; font-size:11.5px; font-weight:800; padding:11px 6px; border-radius: var(--radius-s);
   border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.08); color:#fff; cursor:pointer; }
 .live-actions button:hover { background:rgba(255,255,255,0.16); }
 .live-end { margin:0 14px 16px; }
@@ -1870,7 +1867,7 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
   border: 1px solid var(--stroke);
 }
 .tl-idx {
-  width: 22px; height: 22px; border-radius: 7px;
+  width: 22px; height: 22px; border-radius: var(--radius-xs);
   display: grid; place-items: center;
   font-size: 11px; font-weight: 900;
   background: linear-gradient(135deg, var(--karma), #8a4dff);
@@ -1880,11 +1877,11 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 .tl-city span { font-size: 10px; color: var(--text-3); }
 
 .tl-bar {
-  height: 8px; border-radius: 999px;
+  height: 8px; border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.08); overflow: hidden;
 }
 .tl-bar > i {
-  display: block; height: 100%; border-radius: 999px;
+  display: block; height: 100%; border-radius: var(--radius-pill);
   background: linear-gradient(90deg, #5ce89b, #1ed760);
   transition: width 0.4s ease;
 }
@@ -1933,7 +1930,7 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
   font-size: 10px; color: var(--text-3); font-weight: 700;
 }
 .jc-meta > span {
-  padding: 3px 8px; border-radius: 999px;
+  padding: 3px 8px; border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--stroke);
 }
@@ -1999,10 +1996,10 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 
 .ac-cover {
   width: 74px; height: 74px; flex: 0 0 auto;
-  border-radius: 10px;
+  border-radius: var(--radius-s);
   display: grid; place-items: center;
   font-size: 30px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: var(--shadow-1);
 }
 
 .ac-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
@@ -2070,17 +2067,16 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
   position: relative;
   display: inline-flex; align-items: center; gap: 5px;
   padding: 6px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(10px);
   color: #fff; font-family: inherit; font-size: 12px; font-weight: 800;
   cursor: pointer;
 }
 .bell-chip:hover { background: rgba(255, 255, 255, 0.2); }
 .bell-chip b {
   min-width: 17px; height: 17px; padding: 0 4px;
-  border-radius: 999px; background: #ff3b30; color: #fff;
+  border-radius: var(--radius-pill); background: #ff3b30; color: #fff;
   font-size: 10px; font-weight: 900;
   display: grid; place-items: center;
 }
@@ -2088,7 +2084,7 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 /* kariyer paneli alt sekme çubuğu */
 .sub-tabs {
   display: flex; gap: 4px; padding: 3px;
-  border-radius: 10px; background: var(--glass);
+  border-radius: var(--radius-s); background: var(--glass);
   border: 1px solid var(--stroke);
   overflow-x: auto; scrollbar-width: none;
   margin-bottom: 12px;
@@ -2097,7 +2093,7 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 .sub-tabs button {
   font-family: inherit; font-size: 11.5px; font-weight: 700;
   color: var(--text-2); background: transparent; border: none;
-  border-radius: 8px; padding: 7px 13px; cursor: pointer; white-space: nowrap;
+  border-radius: var(--radius-xs); padding: 7px 13px; cursor: pointer; white-space: nowrap;
   transition: all 0.15s;
 }
 .sub-tabs button.active { background: rgba(255, 255, 255, 0.14); color: #fff; }
@@ -2114,14 +2110,14 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 .fans-hero {
   background: linear-gradient(135deg, #2b1147, #4a1a63);
   border: 1px solid rgba(180, 120, 255, .35);
-  border-radius: 16px; padding: 16px; color: #fff;
+  border-radius: var(--radius-m); padding: 16px; color: #fff;
 }
 .fans-hero-title { font-size: 13px; font-weight: 700; opacity: .9; }
 .fans-hero-followers { font-size: 30px; font-weight: 800; margin: 6px 0 10px; }
 .fans-hero-followers span { font-size: 13px; font-weight: 500; opacity: .7; }
 .fans-tier-row { display: flex; gap: 8px; }
 .fans-tier {
-  flex: 1; background: rgba(255,255,255,.08); border-radius: 12px;
+  flex: 1; background: rgba(255,255,255,.08); border-radius: var(--radius-s);
   padding: 8px; text-align: center;
 }
 .fans-tier b { display: block; font-size: 16px; }
@@ -2131,7 +2127,7 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 
 .fans-card {
   background: var(--panel, #17171c); border: 1px solid var(--line, #2a2a32);
-  border-radius: 14px; padding: 13px; display: flex; flex-direction: column; gap: 8px;
+  border-radius: var(--radius-m); padding: 13px; display: flex; flex-direction: column; gap: 8px;
 }
 .fans-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
 .fans-card-title { font-size: 14px; font-weight: 700; color: var(--text-0, #fff); }
@@ -2279,7 +2275,7 @@ body.theme-light {
   max-width: 100%;
   background: var(--studio-card-bg);
   border: 1px solid var(--studio-card-line);
-  border-radius: 14px;
+  border-radius: var(--radius-m);
   padding: 13px 13px 13px 16px;
   margin-bottom: 12px;
   overflow: hidden;
@@ -2312,7 +2308,7 @@ body.theme-light {
   margin-top: 11px;
   background: rgba(var(--tone), var(--tone-a));
   box-shadow: inset 2px 0 0 rgba(var(--tone), var(--studio-note-line-a));
-  border-radius: 10px;
+  border-radius: var(--radius-s);
   padding: 9px 11px;
   font-size: 11.5px;
   line-height: 1.55;
@@ -2347,13 +2343,13 @@ body.theme-light {
 .studio-bar {
   flex: 1 1 0; min-width: 24px; height: 8px;
   background: var(--studio-track);
-  border-radius: 5px; overflow: hidden;
+  border-radius: var(--radius-xs); overflow: hidden;
 }
 .studio-bar.lg { height: 9px; }
 .studio-bar.block { width: 100%; flex: none; margin-top: 4px; }
 .studio-bar-fill {
   display: block; height: 100%; width: 0;
-  border-radius: 5px;
+  border-radius: var(--radius-xs);
   background: linear-gradient(90deg, var(--studio-accent-hot), #ff8a5c);
 }
 
@@ -2364,7 +2360,7 @@ body.theme-light {
 .studio-health-label { font-size: 12px; color: var(--studio-axis); }
 .studio-health-val { font-size: 22px; font-weight: 900; min-width: 0; overflow-wrap: break-word; }
 .studio-health-emoji { font-size: 34px; flex-shrink: 0; }
-.studio-health-bar { margin-top: 10px; height: 10px; background: var(--studio-track); border-radius: 6px; overflow: hidden; }
+.studio-health-bar { margin-top: 10px; height: 10px; background: var(--studio-track); border-radius: var(--radius-xs); overflow: hidden; }
 .studio-health-bar i { display: block; height: 100%; }
 
 /* ============================================================
@@ -2376,7 +2372,7 @@ body.theme-light {
    RESPONSIVE — dar ekran (telefon) uyumu
    ============================================================ */
 @media (max-width: 480px) {
-  .studio-card { padding: 11px 10px 11px 14px; border-radius: 12px; }
+  .studio-card { padding: 11px 10px 11px 14px; border-radius: var(--radius-s); }
   .studio-head { gap: 6px; margin-bottom: 8px; }
   .studio-title { font-size: 12.5px; }
   .studio-row { gap: 6px; margin: 6px 0; }
@@ -2419,7 +2415,7 @@ body.theme-light {
 .trk-row {
   background: var(--studio-card-bg, rgba(255,255,255,.03));
   border: 1px solid var(--studio-card-line, rgba(255,255,255,.08));
-  border-radius: 10px;
+  border-radius: var(--radius-s);
   padding: 8px 9px;
   margin-bottom: 8px;
 }
@@ -2446,7 +2442,7 @@ body.theme-light {
   background: var(--studio-card-bg, rgba(255,255,255,.03));
   border: 1px solid var(--studio-card-line, rgba(255,255,255,.08));
   border-left: 3px solid #1ed760;
-  border-radius: 10px; padding: 9px 11px;
+  border-radius: var(--radius-s); padding: 9px 11px;
 }
 .list-board-row .lb-icon { font-size: 20px; width: 26px; text-align: center; }
 .list-board-row .lb-name { font-size: 12.5px; font-weight: 800; }
@@ -2454,7 +2450,7 @@ body.theme-light {
 
 /* ---------- DM: rol etiketi ---------- */
 .dm-role-badge {
-  display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 999px;
+  display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: var(--radius-pill);
   font-size: 9.5px; font-weight: 700; letter-spacing: .02em;
   background: rgba(176,108,255,.16); color: #c9a4ff; vertical-align: middle;
 }
@@ -2502,11 +2498,11 @@ body.hide-values .brand-sub::after {
 .sl-row .grow { display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; }
 .sl-row .grow b { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sl-row .grow span { font-size: 10.5px; color: var(--text-2); }
-.sl-row .cover { border-radius: 7px; flex: 0 0 auto; }
+.sl-row .cover { border-radius: var(--radius-xs); flex: 0 0 auto; }
 .sl-ic { font-size: 15px; width: 22px; text-align: center; flex: 0 0 auto; }
 .sl-badge {
   flex: 0 0 auto; font-size: 9px; font-weight: 800; letter-spacing: .3px;
-  padding: 2px 7px; border-radius: 999px; text-transform: uppercase;
+  padding: 2px 7px; border-radius: var(--radius-pill); text-transform: uppercase;
   background: var(--glass-2); color: var(--text-3);
 }
 .sl-badge.karma { background: rgba(176,108,255,.18); color: var(--karma-2); }
@@ -2536,13 +2532,13 @@ body.hide-values .brand-sub::after {
   height: 96px; padding: 4px 0;
 }
 .an-chart i {
-  flex: 1 1 0; min-width: 3px; border-radius: 3px 3px 0 0;
+  flex: 1 1 0; min-width: 3px; border-radius: var(--radius-xs) var(--radius-xs) 0 0;
   background: linear-gradient(180deg, var(--karma-2), var(--karma));
   min-height: 3px;
 }
 .an-plat { display: flex; align-items: center; gap: 9px; margin: 7px 0; }
 .an-plat-name { width: 96px; flex: 0 0 auto; font-size: 11px; color: var(--text-2); }
-.an-bar { flex: 1 1 0; height: 8px; border-radius: 5px; background: var(--glass-2); overflow: hidden; }
+.an-bar { flex: 1 1 0; height: 8px; border-radius: var(--radius-xs); background: var(--glass-2); overflow: hidden; }
 .an-bar i { display: block; height: 100%; }
 .an-plat-val { width: 62px; flex: 0 0 auto; text-align: right; font-size: 11px; font-weight: 700; }
 
@@ -2555,7 +2551,7 @@ body.hide-values .brand-sub::after {
   width: 30px; flex: 0 0 auto; text-align: center;
   font-size: 10.5px; font-weight: 700; color: var(--text-3);
 }
-.an-row .cover { border-radius: 8px; flex: 0 0 auto; }
+.an-row .cover { border-radius: var(--radius-xs); flex: 0 0 auto; }
 .an-row .grow { flex: 1 1 auto; min-width: 0; }
 .an-title { font-size: 12.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .an-sub { font-size: 10.5px; color: var(--text-2); }
@@ -2637,7 +2633,7 @@ body.hide-values .brand-sub::after {
 /* ---------- kenar çubuğu: marka + adımlar + özet ---------- */
 .side-head { display: flex; align-items: center; gap: 10px; }
 .side-mark {
-  width: 32px; height: 32px; border-radius: 9px; flex: 0 0 auto;
+  width: 32px; height: 32px; border-radius: var(--radius-s); flex: 0 0 auto;
   display: grid; place-items: center;
   background: linear-gradient(135deg, var(--karma), #6ec3ff);
   color: #0b0912; font-weight: 900; font-size: 15px;
@@ -2649,7 +2645,7 @@ body.hide-values .brand-sub::after {
 .side-steps { display: flex; flex-direction: column; gap: 4px; }
 .side-step {
   display: flex; align-items: center; gap: 10px;
-  padding: 9px 10px; border-radius: 10px;
+  padding: 9px 10px; border-radius: var(--radius-s);
   border: 1px solid transparent; background: transparent;
   cursor: pointer; text-align: left; color: inherit;
   transition: background .18s, border-color .18s, transform .18s;
@@ -2660,7 +2656,7 @@ body.hide-values .brand-sub::after {
   border-color: rgba(176, 108, 255, .35);
 }
 .ss-no {
-  width: 22px; height: 22px; border-radius: 7px; flex: 0 0 auto;
+  width: 22px; height: 22px; border-radius: var(--radius-xs); flex: 0 0 auto;
   display: grid; place-items: center;
   background: var(--glass-2); color: var(--text-2);
   font-size: 11px; font-weight: 800;
@@ -2696,7 +2692,7 @@ body.hide-values .brand-sub::after {
 .main-stepno {
   font-size: 11px; font-weight: 800; color: var(--karma);
   background: rgba(176, 108, 255, .12); border: 1px solid rgba(176, 108, 255, .28);
-  padding: 4px 10px; border-radius: 999px; white-space: nowrap;
+  padding: 4px 10px; border-radius: var(--radius-pill); white-space: nowrap;
 }
 
 /* ---------- gövde + geçiş animasyonu ---------- */
@@ -2720,7 +2716,7 @@ body.hide-values .brand-sub::after {
   background: rgba(255, 255, 255, .02);
 }
 .fb-no {
-  width: 22px; height: 22px; border-radius: 7px; flex: 0 0 auto;
+  width: 22px; height: 22px; border-radius: var(--radius-xs); flex: 0 0 auto;
   display: grid; place-items: center;
   background: rgba(176, 108, 255, .16); color: var(--karma);
   font-size: 11px; font-weight: 800;
@@ -2740,13 +2736,13 @@ body.hide-values .brand-sub::after {
 .form-block > *:last-child:not(.form-block-head):not(.form-grid) { margin-bottom: 14px; }
 
 .readout {
-  padding: 9px 11px; border-radius: 9px;
+  padding: 9px 11px; border-radius: var(--radius-s);
   background: var(--glass); border: 1px solid var(--stroke);
   font-size: 12px; color: var(--text-1);
 }
 .helper { font-size: 11px; color: var(--text-2); line-height: 1.55; }
 .note-line {
-  border-radius: 10px; font-size: 11.5px; line-height: 1.5;
+  border-radius: var(--radius-s); font-size: 11.5px; line-height: 1.5;
   padding: 10px 12px; border: 1px solid var(--stroke); background: var(--glass);
 }
 .note-line.hot { border-color: rgba(255, 92, 122, .35); background: rgba(255, 92, 122, .10); }
@@ -2757,7 +2753,7 @@ body.hide-values .brand-sub::after {
 .type-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .type-card {
   position: relative; text-align: left; cursor: pointer;
-  padding: 13px; border-radius: 12px;
+  padding: 13px; border-radius: var(--radius-s);
   border: 1px solid var(--stroke); background: var(--glass);
   transition: border-color .18s, background .18s, transform .18s;
 }
@@ -2779,7 +2775,7 @@ body.hide-values .brand-sub::after {
 .trk-list { display: flex; flex-direction: column; gap: 6px; }
 .trk-row {
   display: flex; align-items: center; gap: 9px;
-  padding: 8px 10px; border-radius: 10px;
+  padding: 8px 10px; border-radius: var(--radius-s);
   background: var(--glass); border: 1px solid var(--stroke);
 }
 .trk-row .t-rank {
@@ -2797,7 +2793,7 @@ body.hide-values .brand-sub::after {
 /* ---------- parça yükleme kartı ---------- */
 .trk-list { display: flex; flex-direction: column; gap: 8px; }
 .trk-card {
-  border: 1px solid var(--stroke); border-radius: 12px;
+  border: 1px solid var(--stroke); border-radius: var(--radius-s);
   background: var(--glass); overflow: hidden;
   transition: border-color .18s, background .18s;
 }
@@ -2816,7 +2812,7 @@ body.hide-values .brand-sub::after {
 }
 .trk-up select { flex: 0 0 auto; max-width: 168px; }
 .up-bar {
-  flex: 1 1 0; min-width: 40px; height: 6px; border-radius: 4px;
+  flex: 1 1 0; min-width: 40px; height: 6px; border-radius: var(--radius-xs);
   background: var(--glass-2); overflow: hidden;
 }
 .up-bar i { display: block; height: 100%; width: 0; background: var(--money); transition: width .18s linear; }
@@ -2832,7 +2828,7 @@ body.hide-values .brand-sub::after {
 .store-opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
 .store-opt {
   display: flex; align-items: center; gap: 9px; text-align: left; cursor: pointer;
-  padding: 10px 11px; border-radius: 11px;
+  padding: 10px 11px; border-radius: var(--radius-s);
   border: 1px solid var(--stroke); background: var(--glass);
   transition: border-color .16s, background .16s;
 }
@@ -2843,7 +2839,7 @@ body.hide-values .brand-sub::after {
 .store-opt .so-body b { font-size: 12px; color: var(--text-1); }
 .store-opt .so-body span { font-size: 10px; color: var(--text-3); }
 .store-opt .so-check {
-  flex: 0 0 auto; width: 20px; height: 20px; border-radius: 6px;
+  flex: 0 0 auto; width: 20px; height: 20px; border-radius: var(--radius-xs);
   display: grid; place-items: center; font-size: 11px; font-weight: 800;
   background: var(--glass-2); color: var(--text-3);
 }
@@ -2868,24 +2864,24 @@ body.hide-values .brand-sub::after {
 .cv-left { display: flex; flex-direction: column; gap: 12px; }
 .cv-canvas {
   display: flex; justify-content: center;
-  padding: 14px; border-radius: 16px;
+  padding: 14px; border-radius: var(--radius-m);
   border: 1px solid var(--stroke);
   background: rgba(0, 0, 0, .25);
 }
-.cv-canvas .cover { border-radius: 12px; box-shadow: var(--shadow-1); }
+.cv-canvas .cover { border-radius: var(--radius-s); box-shadow: var(--shadow-1); }
 @keyframes cv-pop { 0% { transform: scale(.93); opacity: .55; } 100% { transform: none; opacity: 1; } }
 .cv-pop { animation: cv-pop .22s ease; }
 .cv-actions { display: flex; justify-content: center; }
 
 .cv-store {
-  border: 1px solid var(--stroke); border-radius: 12px;
+  border: 1px solid var(--stroke); border-radius: var(--radius-s);
   padding: 10px; background: var(--glass);
 }
 .store-title { font-size: 10px; text-transform: uppercase; letter-spacing: .4px; color: var(--text-3); margin-bottom: 6px; }
 .store-row { display: flex; align-items: center; gap: 9px; padding: 7px 4px; }
 .store-row + .store-row { border-top: 1px solid var(--stroke); }
 .store-row .st-icon { font-size: 13px; flex: 0 0 auto; }
-.store-row .cover { border-radius: 6px; flex: 0 0 auto; }
+.store-row .cover { border-radius: var(--radius-xs); flex: 0 0 auto; }
 .store-row .grow { display: flex; flex-direction: column; min-width: 0; }
 .store-row .grow b { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .store-row .grow span { font-size: 10.5px; color: var(--text-2); }
@@ -2899,18 +2895,18 @@ body.hide-values .brand-sub::after {
 }
 .cv-styles { display: grid; grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 8px; }
 .cv-style {
-  padding: 7px; border-radius: 10px; cursor: pointer;
+  padding: 7px; border-radius: var(--radius-s); cursor: pointer;
   border: 1px solid var(--stroke); background: var(--glass);
   transition: border-color .15s, transform .15s;
 }
 .cv-style:hover { transform: translateY(-1px); }
 .cv-style.active { border-color: var(--karma); }
-.cv-swatch { display: block; height: 34px; border-radius: 7px; }
+.cv-swatch { display: block; height: 34px; border-radius: var(--radius-xs); }
 .cv-name { display: block; text-align: center; font-size: 10.5px; color: var(--text-2); margin-top: 5px; }
 .cv-style.active .cv-name { color: var(--text-0); }
 .cv-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .cv-chip {
-  padding: 6px 11px; border-radius: 999px; cursor: pointer;
+  padding: 6px 11px; border-radius: var(--radius-pill); cursor: pointer;
   border: 1px solid var(--stroke); background: var(--glass);
   color: var(--text-2); font-size: 11px; font-weight: 600;
   transition: border-color .15s, background .15s, color .15s;
@@ -2921,14 +2917,14 @@ body.hide-values .brand-sub::after {
 /* ---------- dağıtım adımı ---------- */
 .publish-hero {
   display: flex; gap: 16px; align-items: center;
-  padding: 14px; border-radius: 16px;
+  padding: 14px; border-radius: var(--radius-m);
   border: 1px solid var(--stroke);
   background: linear-gradient(135deg, rgba(176, 108, 255, .10), transparent);
 }
-.publish-hero .cover { border-radius: 12px; box-shadow: var(--shadow-1); }
+.publish-hero .cover { border-radius: var(--radius-s); box-shadow: var(--shadow-1); }
 .ph-info { min-width: 0; }
 .ph-badge {
-  display: inline-block; padding: 2px 9px; border-radius: 999px;
+  display: inline-block; padding: 2px 9px; border-radius: var(--radius-pill);
   font-size: 10.5px; font-weight: 800;
   background: rgba(176, 108, 255, .16); color: var(--karma);
 }
@@ -2938,7 +2934,7 @@ body.hide-values .brand-sub::after {
 .store-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .store-chip {
   display: inline-flex; align-items: center; gap: 7px;
-  padding: 8px 12px; border-radius: 10px;
+  padding: 8px 12px; border-radius: var(--radius-s);
   border: 1px solid var(--stroke); background: var(--glass); font-size: 12px;
 }
 .store-chip em { font-style: normal; font-weight: 800; color: var(--money); }
@@ -2998,7 +2994,7 @@ body.hide-values .brand-sub::after {
 .lyr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
 
 .lyr-card {
-  border: 1px solid var(--stroke); border-radius: 12px;
+  border: 1px solid var(--stroke); border-radius: var(--radius-s);
   background: var(--glass); overflow: hidden;
   transition: border-color .18s;
 }
@@ -3029,7 +3025,7 @@ body.hide-values .brand-sub::after {
 .lyr-stat:last-child { border-bottom: none; }
 .lyr-stat b { color: var(--text-0); font-weight: 800; }
 .lyr-feedback {
-  margin-top: 6px; padding: 10px 12px; border-radius: 10px;
+  margin-top: 6px; padding: 10px 12px; border-radius: var(--radius-s);
   background: rgba(176, 108, 255, .08);
   border: 1px solid rgba(176, 108, 255, .22);
   font-size: 12px; line-height: 1.6; color: var(--text-1);
@@ -3055,7 +3051,7 @@ body.hide-values .brand-sub::after {
 .persona-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
 .persona-opt {
   display: flex; flex-direction: column; gap: 5px; text-align: left; cursor: pointer;
-  padding: 13px; border-radius: 12px;
+  padding: 13px; border-radius: var(--radius-s);
   border: 1px solid var(--stroke); background: var(--glass);
   transition: border-color .16s, background .16s, transform .16s;
 }
@@ -3070,7 +3066,7 @@ body.hide-values .brand-sub::after {
 .beat-market { display: flex; flex-direction: column; gap: 6px; }
 .beat-row {
   display: flex; align-items: center; gap: 10px;
-  padding: 9px 10px; border-radius: 10px;
+  padding: 9px 10px; border-radius: var(--radius-s);
   border: 1px solid var(--stroke); background: var(--glass);
 }
 .beat-row .grow { display: flex; flex-direction: column; min-width: 0; flex: 1 1 auto; }
@@ -3162,11 +3158,11 @@ body.hide-values .brand-sub::after {
   font-size: 11.5px; color: var(--text-2);
   background: rgba(176, 108, 255, .10);
   border: 1px solid rgba(176, 108, 255, .28);
-  border-radius: 10px; padding: 9px 11px;
+  border-radius: var(--radius-s); padding: 9px 11px;
 }
 .dev-info b { color: var(--text-0); }
 .dev-sec {
-  border: 1px solid var(--stroke); border-radius: 12px;
+  border: 1px solid var(--stroke); border-radius: var(--radius-s);
   background: rgba(255, 255, 255, .02); padding: 11px;
 }
 .dev-sec > b { display: block; font-size: 12px; margin-bottom: 8px; }
@@ -3179,7 +3175,7 @@ body.hide-values .brand-sub::after {
 .nav-bell b {
   position: absolute; top: -4px; right: -6px;
   min-width: 15px; height: 15px; padding: 0 4px;
-  border-radius: 999px; background: #ff3b5c; color: #fff;
+  border-radius: var(--radius-pill); background: #ff3b5c; color: #fff;
   font-size: 9.5px; font-weight: 800; display: grid; place-items: center;
 }
 
@@ -3200,7 +3196,7 @@ body.hide-values .brand-sub::after {
 /* üst özet şeridi */
 .gl-top {
   background: var(--studio-note-dim-bg);
-  border-radius: 10px;
+  border-radius: var(--radius-s);
   padding: 9px 11px;
   font-size: 12px;
   font-weight: 700;
@@ -3214,7 +3210,7 @@ body.hide-values .brand-sub::after {
   align-items: center;
   gap: 10px;
   padding: 10px 11px;
-  border-radius: 12px;
+  border-radius: var(--radius-s);
   background: var(--studio-note-dim-bg);
   border: 1px solid var(--studio-card-line);
   margin-bottom: 8px;
@@ -3222,7 +3218,7 @@ body.hide-values .brand-sub::after {
 .gl-badge.on { border-color: rgba(74, 222, 128, .38); }
 .gl-badge-ic {
   width: 34px; height: 34px; flex-shrink: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-s);
   display: flex; align-items: center; justify-content: center;
   font-size: 17px;
   background: var(--studio-track);
@@ -3262,7 +3258,6 @@ body.hide-values .brand-sub::after {
   border-top: 1px solid rgba(255, 255, 255, .08);
   border-radius: 0;
   background: rgba(8, 8, 12, .96);
-  backdrop-filter: blur(16px);
 }
 .seg-bottom button {
   flex: 1;
@@ -3320,7 +3315,7 @@ body.hide-values .brand-sub::after {
 .ig-hl span { font-size: 10px; color: var(--text-2); }
 
 /* X profil banner */
-.x-banner { height: 92px; border-radius: 12px; margin: -4px -4px 0; }
+.x-banner { height: 92px; border-radius: var(--radius-s); margin: -4px -4px 0; }
 
 /* X trend detay başlığı */
 .x-trend.big { padding: 14px; margin-bottom: 10px; }
@@ -3348,7 +3343,7 @@ body.hide-values .brand-sub::after {
 }
 .dm-reply-bar {
   display: flex; align-items: center; gap: 6px;
-  margin-top: 10px; padding: 8px 10px; border-radius: 10px;
+  margin-top: 10px; padding: 8px 10px; border-radius: var(--radius-s);
   background: var(--studio-note-dim-bg, rgba(255, 255, 255, .06));
   font-size: 11px;
 }
@@ -3359,7 +3354,7 @@ body.hide-values .brand-sub::after {
 .t-more {
   background: none; border: none; cursor: pointer;
   color: rgba(255, 255, 255, .45); font-size: 17px; font-weight: 800;
-  padding: 1px 6px; border-radius: 8px; flex-shrink: 0; line-height: 1;
+  padding: 1px 6px; border-radius: var(--radius-xs); flex-shrink: 0; line-height: 1;
 }
 .t-more:hover { background: rgba(255, 255, 255, .1); color: #fff; }
 
@@ -3369,9 +3364,8 @@ body.hide-values .brand-sub::after {
   margin: 0 auto 16px;
   width: min(78%, 250px);
   padding: 8px 12px;
-  border-radius: 20px;
+  border-radius: var(--radius-l);
   background: rgba(255, 255, 255, .14);
-  backdrop-filter: blur(8px);
   color: #fff; font-size: 13px; font-weight: 600;
   cursor: pointer;
 }
@@ -3420,7 +3414,7 @@ body.hide-values .brand-sub::after {
   background: rgba(255, 255, 255, .18);
 }
 .fl-mini {
-  width: 100%; height: 100%; border-radius: 6px;
+  width: 100%; height: 100%; border-radius: var(--radius-xs);
   display: grid; place-items: center;
   font-size: 12px; overflow: hidden;
 }
@@ -3429,13 +3423,13 @@ body.hide-values .brand-sub::after {
 .home-editbar {
   display: flex; align-items: center; gap: 8px;
   margin: 0 0 10px; padding: 7px 10px;
-  border-radius: 12px;
+  border-radius: var(--radius-s);
   background: rgba(176, 108, 255, .2);
   color: #fff; font-size: 11px; font-weight: 600;
 }
 .home-editbar button {
   margin-left: auto; padding: 5px 10px;
-  border: none; border-radius: 9px;
+  border: none; border-radius: var(--radius-s);
   background: rgba(255, 255, 255, .18); color: #fff;
   font-size: 11px; font-weight: 700; cursor: pointer;
 }
@@ -3448,13 +3442,12 @@ body.hide-values .brand-sub::after {
   margin: 0 14px 8px;
   display: flex; align-items: center; gap: 10px;
   padding: 8px 10px;
-  border-radius: 14px;
+  border-radius: var(--radius-m);
   background: rgba(20, 20, 26, .82);
-  backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, .12);
   cursor: pointer;
 }
-.mp-art { width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0; }
+.mp-art { width: 34px; height: 34px; border-radius: var(--radius-s); flex-shrink: 0; }
 .mp-title { font-size: 12px; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .mp-sub { font-size: 10px; color: rgba(255, 255, 255, .6); }
 .mp-btn {
@@ -3468,7 +3461,7 @@ body.hide-values .brand-sub::after {
 .cc-tile {
   background: rgba(255, 255, 255, .06);
   border: 1px solid rgba(255, 255, 255, .09);
-  border-radius: 14px;
+  border-radius: var(--radius-m);
   padding: 11px;
   display: flex; flex-direction: column; gap: 8px;
 }
@@ -3479,9 +3472,9 @@ body.hide-values .brand-sub::after {
 .cc-np-title { font-size: 12.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .cc-np-sub { font-size: 10.5px; color: var(--text-3, #9a9aa5); }
 .cc-np-ctrl { display: flex; gap: 8px; margin-top: 6px; }
-.cc-np-ctrl button { flex: 1; padding: 7px; border-radius: 10px; border: none; background: rgba(255, 255, 255, .1); color: #fff; font-size: 13px; cursor: pointer; }
+.cc-np-ctrl button { flex: 1; padding: 7px; border-radius: var(--radius-s); border: none; background: rgba(255, 255, 255, .1); color: #fff; font-size: 13px; cursor: pointer; }
 .cc-tgl, .cc-wide {
-  width: 100%; text-align: left; padding: 9px 11px; border-radius: 11px;
+  width: 100%; text-align: left; padding: 9px 11px; border-radius: var(--radius-s);
   background: rgba(255, 255, 255, .06); border: 1px solid rgba(255, 255, 255, .09);
   color: var(--text-1, #c7cbd8); font-size: 12px; font-weight: 600; cursor: pointer;
 }
@@ -3490,18 +3483,18 @@ body.hide-values .brand-sub::after {
 .cc-bat-row { display: flex; align-items: center; gap: 9px; }
 .cc-bat-val { font-size: 15px; font-weight: 900; }
 .battery.big { width: 34px; height: 16px; border-color: #fff; }
-.battery.big > i { border-radius: 1px; }
+.battery.big > i { border-radius: var(--radius-xs); }
 
 /* ---- spotlight sonuçları ---- */
 .sp-res {
   display: flex; align-items: center; gap: 11px;
-  padding: 10px 11px; border-radius: 12px;
+  padding: 10px 11px; border-radius: var(--radius-s);
   background: rgba(255, 255, 255, .04);
   border: 1px solid rgba(255, 255, 255, .07);
   margin-bottom: 7px; cursor: pointer;
 }
 .sp-res-ic {
-  width: 34px; height: 34px; flex-shrink: 0; border-radius: 10px;
+  width: 34px; height: 34px; flex-shrink: 0; border-radius: var(--radius-s);
   display: flex; align-items: center; justify-content: center;
   font-size: 16px; background: rgba(255, 255, 255, .07);
 }
@@ -3511,22 +3504,22 @@ body.hide-values .brand-sub::after {
 /* ---- telefon ayarları ---- */
 .phset-row {
   display: flex; align-items: center; gap: 11px;
-  padding: 11px; border-radius: 13px;
+  padding: 11px; border-radius: var(--radius-s);
   background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .08);
 }
-.phset-swatch { width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0; }
+.phset-swatch { width: 40px; height: 40px; border-radius: var(--radius-s); flex-shrink: 0; }
 .phset-name { font-size: 12.5px; font-weight: 700; }
 .phset-sub { font-size: 10.5px; color: var(--text-3, #9a9aa5); }
 .phset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 8px; margin: 10px 0 14px; }
 .phset-wall {
-  height: 62px; border-radius: 12px; border: 2px solid transparent;
+  height: 62px; border-radius: var(--radius-s); border: 2px solid transparent;
   display: flex; align-items: flex-end; padding: 6px;
   cursor: pointer; color: #fff; font-size: 9.5px; font-weight: 700; text-shadow: 0 1px 3px rgba(0, 0, 0, .6);
 }
 .phset-wall.on { border-color: #b06cff; }
 .phset-card {
   background: rgba(255, 255, 255, .05); border: 1px solid rgba(255, 255, 255, .08);
-  border-radius: 13px; padding: 11px; margin-bottom: 11px;
+  border-radius: var(--radius-s); padding: 11px; margin-bottom: 11px;
 }
 .phset-card input[type="range"] { width: 100%; accent-color: var(--karma, #b06cff); }
 .phset-item {
@@ -3562,14 +3555,14 @@ body.hide-values .brand-sub::after {
 .mb-prog {
   height: 3px;
   margin-top: 5px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.12);
   overflow: hidden;
 }
 .mb-prog > i {
   display: block; height: 100%;
   background: linear-gradient(90deg, #1ed760, #b06cff);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   transition: width 0.25s linear;
 }
 
@@ -3577,7 +3570,7 @@ body.hide-values .brand-sub::after {
 .pv-art {
   width: 100%;
   aspect-ratio: 1/1;
-  border-radius: 16px;
+  border-radius: var(--radius-m);
   display: grid; place-items: center;
   font-size: 76px; color: rgba(255, 255, 255, 0.75);
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
@@ -3590,13 +3583,13 @@ body.hide-values .brand-sub::after {
 
 .pv-viz {
   width: 100%; height: 96px;
-  border-radius: 12px;
+  border-radius: var(--radius-s);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .pv-prog {
-  height: 5px; border-radius: 999px;
+  height: 5px; border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.12); overflow: hidden;
 }
 .pv-prog > i {
@@ -3632,7 +3625,7 @@ body.hide-values .brand-sub::after {
 /* küçük "dinle" butonu (yayın listelerinde) */
 .play-mini {
   font-family: inherit; font-size: 12px; font-weight: 800;
-  padding: 6px 12px; border-radius: 999px; cursor: pointer;
+  padding: 6px 12px; border-radius: var(--radius-pill); cursor: pointer;
   border: 1px solid rgba(30, 215, 96, 0.4);
   background: rgba(30, 215, 96, 0.14); color: #8cf3b0;
 }
@@ -3658,7 +3651,7 @@ body.hide-values .brand-sub::after {
 
 .yt-prog {
   height: 4px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(255, 255, 255, 0.22);
   overflow: hidden;
   margin-bottom: 5px;
@@ -3699,7 +3692,7 @@ body.hide-values .brand-sub::after {
 
 .yt-chip {
   font-family: inherit; font-size: 11px; font-weight: 800;
-  padding: 6px 11px; border-radius: 999px; cursor: pointer;
+  padding: 6px 11px; border-radius: var(--radius-pill); cursor: pointer;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: var(--text-1);
@@ -3715,12 +3708,12 @@ body.hide-values .brand-sub::after {
   display: flex; flex-direction: column; gap: 2px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  border-radius: var(--radius-s);
   padding: 6px;
 }
 .yc-row {
   display: flex; align-items: center; gap: 10px;
-  padding: 7px 10px; border-radius: 8px;
+  padding: 7px 10px; border-radius: var(--radius-xs);
   font-size: 12px;
   cursor: pointer;
 }
@@ -10008,10 +10001,34 @@ window.K = window.K || {};
     startBalance: 25000,
     startAge: 15,
     royaltyPerStream: 0.0011,     // (eski) — artık platform bazlı aylık ödeme var
-    /* PLATFORM BAZLI DİNLENME ÜCRETİ (₺ / dinlenme) */
-    streamRates: { spotify: 0.005, apple: 0.015, youtube: 0.008 },
+    /* PLATFORM BAZLI DİNLENME ÜCRETİ (₺ / dinlenme) — temel değerler.
+       Gerçek dünyada bunlar USD'dir; oyunda 1 USD = baseFx ₺ kabul edilir ve
+       kur dalgalanması tüm telif gelirini oransal olarak büyütür/küçültür. */
+    streamRates: { spotify: 0.005, apple: 0.015, youtube: 0.008, other: 0.004 },
     payoutPeriodDays: 30,          // her 30 günde bir telif ödemesi
     streamRevenueShare: 0.62,     // sanatçıya kalan (label yoksa 1.0)
+
+    /* ---------- v10 GERÇEKLİK KATMANI: kur · enflasyon · gecikme · vergi ---------- */
+    baseFx: 32,                    // 1 USD = 32 ₺ (oyun başı)
+    fxMonthlyDrift: 0.018,         // aylık ortalama ₺ değer kaybı (%1,8)
+    fxShockChance: 0.07,           // aylık ani kur şoku olasılığı
+    fxShockMin: 0.08,              // şok alt sınırı
+    fxShockMax: 0.30,              // şok üst sınırı
+    inflationMonthly: 0.021,       // aylık enflasyon: maliyet VE telif nominal artışı
+    /* TELİF ÖDEME GECİKMESİ (gün) — mağazalar dinlenmeyi geç raporlar.
+       Dinlenme bu süre dolmadan ödenmez. */
+    payoutLag: { spotify: 60, apple: 45, youtube: 75, other: 55 },
+    /* 30 SANİYE EŞİĞİ: dinlenmenin bir kısmı gelir sayılmaz (atlanan çalma). */
+    skipRateMin: 0.08,             // en iyi durumda bile %8 atlanır
+    skipRateMax: 0.34,             // kötü/uzun girişli şarkıda %34 atlanır
+    /* GELİR VERGİSİ DİLİMLERİ (aylık, kümülatif değil kademeli) */
+    taxBrackets: [
+      { upTo: 15000, rate: 0 },
+      { upTo: 60000, rate: 0.15 },
+      { upTo: 150000, rate: 0.22 },
+      { upTo: Infinity, rate: 0.30 }
+    ],
+    debtPenaltyMonthly: 0.035,     // ödenmeyen borca aylık gecikme faizi
     labelFoundCost: 250000,       // kendi şirketini kurma
     labelFoundMinPop: 45,
     minAdvance: 20000,
@@ -10027,8 +10044,8 @@ window.K = window.K || {};
     costStartPop: 5,          // bu popülaritenin altında sabit gider YOK (aile desteği)
     costStartFollowers: 5000, // bu takipçinin altında sabit gider YOK
     perSongUpkeep: 120,       // her yayınlanmış şarkı için aylık bakım (katalog masrafı)
-    taxRate: 0.14,            // aylık gelir vergisi oranı
-    taxFreeMonthly: 15000,    // bu tutara kadar vergi alınmaz
+    taxRate: 0.14,            // (eski) sabit oran — artık taxBrackets kullanılıyor
+    taxFreeMonthly: 15000,    // (eski) vergisiz taban — taxBrackets[0].upTo ile aynı
     superfanRate: 0.02,       // takipçinin süperfan oranı
     clubPlatformCut: 0.15     // fan kulübü platform komisyonu
   };
@@ -10371,6 +10388,8 @@ window.K = window.K || {};
       K.game.refreshMonthly();
       // ay sonu: platform bazlı telif ödemesi + fan kulübü geliri + gider/vergi
       if (K.ECON.payoutPeriodDays && s.day % K.ECON.payoutPeriodDays === 0) {
+        // v10: önce enflasyon + kur + borç faizi ilerler, sonra tahsilat/gider
+        if (K.econ && K.econ.monthlyTick) K.econ.monthlyTick();
         if (K.economy.settleMonth) K.economy.settleMonth();
         if (K.fans && K.fans.monthly) K.fans.monthly();
         if (K.sponsor && K.sponsor.monthly) K.sponsor.monthly();
@@ -10446,6 +10465,24 @@ window.K = window.K || {};
       p.songs.forEach(song => {
         if (!song.dailyStreams) song.dailyStreams = K.game.initialDaily(song);
 
+        /* v10 GERÇEKLİK DÜZELTMESİ — VİRAL ARTIK SÜRELİ.
+           Eski hâlde song.viral bir kez true olduktan sonra ASLA sönmüyordu;
+           bu da dailyStreams'i her gün %1 büyütüp şarkıyı sonsuza dek
+           şişiriyordu. Gerçekte viral bir pencere 2-5 hafta sürer, sonra
+           şarkı normal seyrine döner. */
+        if (song.viral && song.viralUntil && s.day > song.viralUntil) {
+          song.viral = false;
+          song.viralEndedDay = s.day;
+          if (!song.viralEndNotified) {
+            song.viralEndNotified = true;
+            s.notifications = (s.notifications || []).concat([{
+              title: "📉 Viral dönemi bitti",
+              msg: `"${song.title}" trend penceresini kapattı; dinlenme normal seyrine dönüyor.`,
+              kind: "warn", day: s.day
+            }]).slice(-60);
+          }
+        }
+
         // yaşlanma + promosyon + trend çarpanları
         let mult = 1;
         const ageDays = s.day - (song.publishedDay || s.day);
@@ -10480,18 +10517,32 @@ window.K = window.K || {};
         song.lastDaily = daily;
         song.ageDays = ageDays;
 
-        // platform dağılımı (temsilî)
-        song.platforms = song.platforms || { spotify: 0.5, apple: 0.2, youtube: 0.3 };
+        // platform dağılımı (temsilî) — v10: 4. kalem "diğer mağazalar"
+        // (Deezer/Amazon/TIDAL/SoundCloud/Instagram vb. toplamı)
+        song.platforms = song.platforms || { spotify: 0.46, apple: 0.19, youtube: 0.28, other: 0.07 };
+        if (song.platforms.other == null) {
+          const s0 = song.platforms;
+          const sum = (s0.spotify || 0) + (s0.apple || 0) + (s0.youtube || 0);
+          const k = sum > 0 ? (1 - 0.07) / sum : 1;
+          song.platforms = {
+            spotify: (s0.spotify || 0) * k,
+            apple: (s0.apple || 0) * k,
+            youtube: (s0.youtube || 0) * k,
+            other: 0.07
+          };
+        }
         song.spotifyStreams = Math.round(song.streams * song.platforms.spotify);
         song.appleStreams = Math.round(song.streams * song.platforms.apple);
         song.youtubeViews = Math.round(song.streams * song.platforms.youtube * 1.1);
 
         // AYLIK TELİF: günlük gelir YOK. Platform bazlı biriktirilir,
         // ay sonunda ödenir. Sadece o ayın YENİ dinlenmeleri ödenir.
-        song.month = song.month || { spotify: 0, apple: 0, youtube: 0 };
+        song.month = song.month || { spotify: 0, apple: 0, youtube: 0, other: 0 };
+        if (song.month.other == null) song.month.other = 0;
         song.month.spotify += daily * song.platforms.spotify;
         song.month.apple += daily * song.platforms.apple;
         song.month.youtube += daily * song.platforms.youtube;
+        song.month.other += daily * (song.platforms.other || 0);
 
         p.streams += daily;
 
@@ -10696,13 +10747,30 @@ window.K = window.K || {};
       });
     },
 
+    /* Bir şarkıyı SÜRELİ viral yapar. Süre dolunca viral kendiliğinden
+       söner (accrueStreams içinde kontrol edilir). */
+    markViral(song, title, msg, days) {
+      if (!song) return false;
+      const s = K.state;
+      const dur = days || U.randInt(16, 34);
+      song.viral = true;
+      song.viralUntil = s.day + dur;
+      song.viralStartDay = song.viralStartDay || s.day;
+      song.viralEndNotified = false;
+      if (title) K.toast(title, msg || song.title, "ok");
+      s.notifications = (s.notifications || []).concat([{
+        title: title || "🔥 Viral", msg: (msg || song.title) + ` (${dur} günlük trend penceresi)`,
+        kind: "ok", day: s.day
+      }]).slice(-60);
+      return true;
+    },
+
     tickTrends() {
       const s = K.state;
       // son yayınlanan şarkı viral olabilir
       s.player.songs.forEach(song => {
         if (!song.viral && song.ageDays <= 3 && (song.lastDaily || 0) > 4000 && U.chance((0.06 + song.quality / 1200) * (song.viralBonus || 1))) {
-          song.viral = true;
-          K.toast("📈 Viral oldu!", `"${song.title}" TikTok'ta trend oluyor!`, "ok");
+          K.game.markViral(song, "📈 Viral oldu!", `"${song.title}" TikTok'ta trend oluyor!`);
         }
       });
       // trend listesi (X)
@@ -10761,19 +10829,170 @@ window.K = window.K || {};
   "use strict";
   const U = K.util;
 
+  /* ============================================================
+     K.econ — v10 GERÇEKLİK MOTORU
+     · kur (USD/₺) dalgalanması   → telif geliri kurla ölçeklenir
+     · enflasyon endeksi          → maliyet VE telif nominal artar
+     · platform başına dinlenme ücreti
+     · 30 saniye eşiği            → atlanan çalma gelir sayılmaz
+     · kademeli gelir vergisi
+     · borç gecikme faizi
+     ============================================================ */
+  K.econ = {
+    STORES: ["spotify", "apple", "youtube", "other"],
+
+    ensure() {
+      const s = K.state;
+      s.econ = s.econ || {};
+      const e = s.econ;
+      if (e.fx == null) e.fx = K.ECON.baseFx;
+      if (e.inflationIndex == null) e.inflationIndex = 1;
+      if (e.startDay == null) e.startDay = s.day;
+      return e;
+    },
+
+    /* 1 USD'nin oyun başına göre kaç katı ₺ ettiği */
+    fxFactor() { return K.econ.ensure().fx / K.ECON.baseFx; },
+
+    /* enflasyon endeksi (1.00 = oyun başı) */
+    infl() { return K.econ.ensure().inflationIndex; },
+
+    /* bir mağazanın GÜNCEL ₺/dinlenme ücreti */
+    rate(store) {
+      return (K.ECON.streamRates[store] || 0) * K.econ.fxFactor() * K.econ.infl();
+    },
+
+    /* ---- 30 SANİYE EŞİĞİ ----
+       Dinlenmenin gelir sayılan oranı. Kalite, giriş uzunluğu ve
+       hook gücü belirler; feature'lı şarkı daha az atlanır. */
+    skipRateFor(song) {
+      const q = (song && song.quality != null) ? song.quality : 50;
+      const intro = (song && song.introLength != null) ? song.introLength : 8;
+      const hook = (song && song.hookStrength != null) ? song.hookStrength : (song && song.quality) || 55;
+      let r = K.ECON.skipRateMax
+        - (q / 100) * (K.ECON.skipRateMax - K.ECON.skipRateMin) * 1.35
+        - (hook / 100) * 0.10
+        + Math.max(0, intro - 8) * 0.012
+        - (song && song.featureArtistId ? 0.05 : 0);
+      return U.clamp(r, K.ECON.skipRateMin, K.ECON.skipRateMax);
+    },
+
+    /* gelir sayılan dinlenme çarpanı (1 − atlama) */
+    billable(song) { return 1 - K.econ.skipRateFor(song); },
+
+    /* ---- KADEMELİ GELİR VERGİSİ ---- */
+    taxFor(income) {
+      let left = Math.max(0, income), prev = 0, tax = 0;
+      const br = K.ECON.taxBrackets || [];
+      for (let i = 0; i < br.length; i++) {
+        const span = br[i].upTo - prev;
+        if (span <= 0) { prev = br[i].upTo; continue; }
+        const part = Math.min(left, span);
+        if (part <= 0) break;
+        tax += part * br[i].rate;
+        left -= part;
+        prev = br[i].upTo;
+        if (left <= 0) break;
+      }
+      return Math.round(tax);
+    },
+
+    taxRateFor(income) { return income > 0 ? K.econ.taxFor(income) / income : 0; },
+
+    /* hangi dilimde olduğumuz (muhasebe paneli) */
+    bracketFor(income) {
+      const br = K.ECON.taxBrackets || [];
+      for (let i = 0; i < br.length; i++) if (income <= br[i].upTo) return br[i];
+      return br[br.length - 1] || { upTo: Infinity, rate: 0 };
+    },
+
+    /* ---- AYLIK EKONOMİ ADIMI ----
+       enflasyon ilerler, kur sürüklenir (ara sıra şok), borca faiz işler. */
+    monthlyTick() {
+      const s = K.state, p = s.player, e = K.econ.ensure();
+      e.inflationIndex *= (1 + K.ECON.inflationMonthly);
+      let drift = U.rand(K.ECON.fxMonthlyDrift * 0.35, K.ECON.fxMonthlyDrift * 1.75);
+      let shock = false;
+      if (U.chance(K.ECON.fxShockChance)) {
+        drift += U.rand(K.ECON.fxShockMin, K.ECON.fxShockMax);
+        shock = true;
+      }
+      e.fx *= (1 + drift);
+      e.lastDrift = drift;
+      e.lastShock = shock;
+
+      let interest = 0;
+      if (p.debt > 0) {
+        interest = Math.round(p.debt * K.ECON.debtPenaltyMonthly);
+        p.debt += interest;
+        e.lastDebtInterest = interest;
+        s.notifications = (s.notifications || []).concat([{
+          title: "\u{1F3E6} Borç faizi",
+          msg: `Ödenmeyen borca ${U.money(interest)} gecikme faizi işledi · toplam borç ${U.money(p.debt)}`,
+          kind: "bad", day: s.day
+        }]).slice(-60);
+      } else {
+        e.lastDebtInterest = 0;
+      }
+      return { inflation: K.ECON.inflationMonthly, fxDrift: drift, shock, debtInterest: interest, fx: e.fx };
+    },
+
+    /* ---- KÂR MARJI ----
+       (gelir − gider) / gelir. Negatifse iş zarar ediyor demektir. */
+    margin(income, cost) {
+      if (!income || income <= 0) return cost > 0 ? -1 : 0;
+      return (income - cost) / income;
+    }
+  };
+
   K.economy = {
     canAfford(amount) { return K.state.balance >= amount; },
 
     /* son ayın muhasebe raporu */
     report() { return (K.state.player && K.state.player.lastFinance) || null; },
 
-    /* aylık net akış tahmini (Kariyer sekmesi) */
+    /* aylık net akış tahmini (Kariyer sekmesi)
+       v10: 30 sn eşiği, kur ve enflasyon hesaba katılır. */
     forecast() {
       const p = K.state.player;
-      const monthly = (p.songs || []).reduce((n, x) => n + (x.lastDaily || 0), 0) * 30;
-      const rates = K.ECON.streamRates;
-      const gross = monthly * ((rates.spotify + rates.apple + rates.youtube) / 3);
+      const songs = p.songs || [];
+      let gross = 0;
+      songs.forEach(song => {
+        const bill = K.econ.billable(song);
+        const perDay = (song.lastDaily || 0) * 30 * bill;
+        const pl = song.platforms || { spotify: 0.46, apple: 0.19, youtube: 0.28, other: 0.07 };
+        K.econ.STORES.forEach(st => { gross += perDay * (pl[st] || 0) * K.econ.rate(st); });
+      });
       return Math.round(gross);
+    },
+
+    /* vadesi gelmemiş (rapor bekleyen) telif — "yolda olan para" */
+    pending() {
+      const p = K.state.player;
+      const out = { spotify: 0, apple: 0, youtube: 0, other: 0, value: 0 };
+      (p.royalties || []).forEach(r => {
+        K.econ.STORES.forEach(st => {
+          if (r.paid && r.paid[st]) return;
+          const n = (r.streams && r.streams[st]) || 0;
+          out[st] += n;
+          out.value += n * K.econ.rate(st);
+        });
+      });
+      out.value = Math.round(out.value);
+      out.streams = Math.round(out.spotify + out.apple + out.youtube + out.other);
+      return out;
+    },
+
+    /* kur + enflasyon + borç özeti (muhasebe paneli) */
+    climate() {
+      const e = K.econ.ensure();
+      return {
+        fx: e.fx,
+        fxDrift: e.lastDrift || 0,
+        shock: !!e.lastShock,
+        inflationIndex: e.inflationIndex,
+        debtInterest: e.lastDebtInterest || 0
+      };
     },
 
     spend(amount, reason) {
@@ -10791,43 +11010,89 @@ window.K = window.K || {};
       return true;
     },
 
-    /* ---------------- AYLIK TELİF ÖDEMESİ ----------------
-       Her platformun dinlenme başına ücreti vardır ve ödeme
-       AYLIK yapılır. Sadece O AYIN yeni dinlenmeleri ödenir;
-       geçmiş toplam dinlenmeler tekrar ödenmez. */
+    /* ---------------- AYLIK TELİF ÖDEMESİ (v10 — GECİKMELİ) ----------------
+       Gerçek dünyada mağazalar dinlenmeyi geç raporlar, ödeme gecikir:
+         Spotify 60 gün · Apple 45 gün · YouTube 75 gün · diğer mağazalar 55 gün
+       Bu yüzden dinlenme önce RAPOR KUYRUĞUNA girer; vadesi gelince ödenir.
+       30 SANİYE EŞİĞİ: atlanan çalma gelir sayılmaz (bkz. K.econ.billable). */
     settleMonth() {
       const s = K.state, p = s.player;
-      const rates = K.ECON.streamRates;
       const dm = K.settings ? K.settings.diffMult().income : 1;
+      const lag = K.ECON.payoutLag;
+      K.econ.ensure();
 
-      let sp = 0, ap = 0, yt = 0, artistPool = 0, producerCutTotal = 0, featureCutTotal = 0;
       let labelPct = p.labelId ? ((K.labelById(p.labelId) || {}).royalty || 50) : 0;
-      if (K.team && K.team.bonus) labelPct = Math.max(0, labelPct - K.team.bonus().lawyerCut * 100);   // avukat şirket payını düşürür
-      p.songs.forEach(song => {
-        const m = song.month || { spotify: 0, apple: 0, youtube: 0 };
-        const ssp = m.spotify || 0, sap = m.apple || 0, syt = m.youtube || 0;
-        if (!song.masterSold) {          // satılan katalog master'ı → telif alıcıya gider
-          sp += ssp; ap += sap; yt += syt;
-          const sg = (ssp * rates.spotify + sap * rates.apple + syt * rates.youtube) * dm;
-          let pool = sg * (1 - labelPct / 100);
-          // prodüktör puanı (ör. exclusive beat %3)
-          const pp = (song.producerPoints || 0) / 100;
-          if (pp > 0) { const cut = pool * pp; pool -= cut; producerCutTotal += cut; }
-          // feature / söz paylaşımı (ör. %50 → sanatçı payı yarıya iner)
-          const share = (song.revenueShare != null) ? song.revenueShare : 1;
-          if (share < 1) { const cut = pool * (1 - share); pool -= cut; featureCutTotal += cut; }
-          artistPool += pool;
-        }
-        song.month = { spotify: 0, apple: 0, youtube: 0 };   // sıfırla → birikmez
-        song.monthPayout = 0;
-      });
+      if (K.team && K.team.bonus) labelPct = Math.max(0, labelPct - K.team.bonus().lawyerCut * 100);
 
-      sp = Math.round(sp); ap = Math.round(ap); yt = Math.round(yt);
-      const gross = (sp * rates.spotify + ap * rates.apple + yt * rates.youtube) * dm;
+      /* ---- 1) BU AYIN dinlenmesini rapor kuyruğuna al (henüz para yok) ---- */
+      p.royalties = p.royalties || [];
+      let queued = 0;
+      p.songs.forEach(song => {
+        const m = song.month || {};
+        const single = { spotify: 0, apple: 0, youtube: 0, other: 0 };
+        const bill = K.econ.billable(song);              // 30 sn eşiği
+        K.econ.STORES.forEach(st => { single[st] = (m[st] || 0) * bill; });
+        const total = K.econ.STORES.reduce((n, st) => n + single[st], 0);
+        song.month = { spotify: 0, apple: 0, youtube: 0, other: 0 };   // sıfırla → birikmez
+        song.monthPayout = 0;
+        if (total > 0.5) {
+          queued += total;
+          p.royalties.push({
+            songId: song.id, reportedDay: s.day, streams: single,
+            due: {
+              spotify: s.day + lag.spotify, apple: s.day + lag.apple,
+              youtube: s.day + lag.youtube, other: s.day + lag.other
+            },
+            paid: { spotify: false, apple: false, youtube: false, other: false }
+          });
+        }
+      });
+      if (queued > 0) {
+        s.notifications = (s.notifications || []).concat([{
+          title: "📊 Rapor gönderildi",
+          msg: `${U.fmt(Math.round(queued))} dinlenme mağazalara raporlandı. Ödeme ${lag.spotify}–${lag.youtube} gün içinde yatar.`,
+          kind: "", day: s.day
+        }]).slice(-60);
+      }
+
+      /* ---- 2) VADESİ GELEN raporları tahsil et ---- */
+      const songById = {};
+      p.songs.forEach(x => { songById[x.id] = x; });
+      const paidN = { spotify: 0, apple: 0, youtube: 0, other: 0 };
+      const grossBy = { spotify: 0, apple: 0, youtube: 0, other: 0 };
+      let artistPool = 0, producerCutTotal = 0, featureCutTotal = 0, masterCutTotal = 0, waiting = 0;
+
+      p.royalties.forEach(r => {
+        const song = songById[r.songId];
+        K.econ.STORES.forEach(st => {
+          if (r.paid[st]) return;
+          if (s.day < r.due[st]) { waiting += (r.streams[st] || 0); return; }
+          r.paid[st] = true;
+          const n = r.streams[st] || 0;
+          if (n <= 0) return;
+          paidN[st] += n;
+          const g = n * K.econ.rate(st) * dm;            // kur + enflasyon burada uygulanır
+          grossBy[st] += g;
+          if (song && song.masterSold) { masterCutTotal += g; return; }   // master satıldı → telif alıcının
+          let pool = g * (1 - labelPct / 100);
+          const pp = ((song && song.producerPoints) || 0) / 100;
+          if (pp > 0) { const c = pool * pp; pool -= c; producerCutTotal += c; }
+          const share = (song && song.revenueShare != null) ? song.revenueShare : 1;
+          if (share < 1) { const c = pool * (1 - share); pool -= c; featureCutTotal += c; }
+          artistPool += pool;
+        });
+      });
+      p.royalties = p.royalties.filter(r => K.econ.STORES.some(st => !r.paid[st]));
+      if (p.royalties.length > 500) p.royalties = p.royalties.slice(-500);
+
+      const sp = Math.round(paidN.spotify), ap = Math.round(paidN.apple);
+      const yt = Math.round(paidN.youtube), ot = Math.round(paidN.other);
+      const gross = grossBy.spotify + grossBy.apple + grossBy.youtube + grossBy.other;
       const labelCut = Math.round(gross * labelPct / 100);
       artistPool = Math.round(artistPool);
       producerCutTotal = Math.round(producerCutTotal);
       featureCutTotal = Math.round(featureCutTotal);
+      masterCutTotal = Math.round(masterCutTotal);
 
       /* --- AVANS RECOUP: sanatçıya kalan pay ÖNCE avans borcunu kapatır --- */
       let recoup = 0, recoupedNow = false;
@@ -10858,19 +11123,26 @@ window.K = window.K || {};
         }
       }
 
+      const pend = K.economy.pending();
       const payout = {
         day: s.day, period: K.ECON.payoutPeriodDays,
-        spotify: sp, apple: ap, youtube: yt,
+        spotify: sp, apple: ap, youtube: yt, other: ot,
         gross: Math.round(gross), net, labelCut, recoup, publishing,
         producerCut: producerCutTotal, featureCut: featureCutTotal,
+        masterCut: masterCutTotal,
+        queued: Math.round(queued), waiting: Math.round(waiting),
+        pendingValue: pend.value, pendingStreams: pend.streams,
+        fx: K.econ.ensure().fx, infl: K.econ.infl(),
         recoupLeft: deal ? Math.max(0, deal.advance - (deal.recouped || 0)) : 0
       };
       p.payouts = p.payouts || [];
       p.payouts.unshift(payout);
       p.payouts = p.payouts.slice(0, 24);
 
-      if (sp + ap + yt > 0) {
+      if (sp + ap + yt + ot > 0) {
         K.toast("💰 Telif ödemesi", `Spotify ${U.fmt(sp)} · Apple ${U.fmt(ap)} · YT ${U.fmt(yt)} → net ${U.money(net)}`, net > 0 ? "ok" : "warn");
+      } else if (pend.streams > 0) {
+        K.toast("💰 Telif ödemesi", `Bu ay tahsilat yok — ${U.fmt(pend.streams)} dinlenme rapor bekliyor (${U.money(pend.value)} yolda).`, "warn");
       } else {
         K.toast("💰 Telif ödemesi", "Bu ay dinlenme yok — ödeme yok.", "warn");
       }
@@ -10896,12 +11168,14 @@ window.K = window.K || {};
         0, 10
       );
       const teamSal = (K.team && K.team.salaryTotal) ? K.team.salaryTotal() : 0;
-      const upkeep = Math.round(
-        (K.ECON.monthlyBase + K.ECON.equipmentUpkeep) * (1 + lvl * 0.8)
+      /* v10: tüm gider kalemleri ENFLASYON endeksiyle çarpılır —
+         yıllar geçtikçe aynı hayat daha pahalıya gelir. */
+      const infl = K.econ.infl();
+      const upkeepRaw = (K.ECON.monthlyBase + K.ECON.equipmentUpkeep) * (1 + lvl * 0.8)
         + staffSal
         + teamSal
-        + (p.songs || []).length * K.ECON.perSongUpkeep
-      );
+        + (p.songs || []).length * K.ECON.perSongUpkeep;
+      const upkeep = Math.round(upkeepRaw * infl);
 
       /* önce mevcut borcun yarısını kapat */
       if (p.debt > 0 && s.balance > 0) {
@@ -10923,28 +11197,48 @@ window.K = window.K || {};
       if (s.balance >= upkeep) s.balance -= upkeep;
       else { short = upkeep - s.balance; s.balance = 0; p.debt += short; }
 
-      /* vergi (bu ayın geliri üzerinden) */
+      /* vergi — KADEMELİ DİLİM (v10): gelir arttıkça efektif oran yükselir */
       const inc = p.monthIncome || 0;
-      const taxable = Math.max(0, inc - K.ECON.taxFreeMonthly);
-      const tax = Math.round(taxable * K.ECON.taxRate);
+      const tax = K.econ.taxFor(inc);
+      const effRate = K.econ.taxRateFor(inc);
+      const bracket = K.econ.bracketFor(inc);
       let taxShort = 0;
       if (tax > 0) {
         if (s.balance >= tax) s.balance -= tax;
         else { taxShort = tax - s.balance; s.balance = 0; p.debt += taxShort; }
       }
-      /* MUHASEBE RAPORU (Kariyer sekmesinde görünür) */
-      p.lastFinance = { day: s.day, income: inc, upkeep, tax, net: inc - upkeep - tax, debt: p.debt || 0 };
+
+      /* ---- v10: KÂR MARJI + kur/enflasyon/borç faizi raporu ---- */
+      const climate = K.economy.climate();
+      const cost = upkeep + tax;
+      const margin = K.econ.margin(inc, cost);
+      p.lastFinance = {
+        day: s.day, income: inc, upkeep, tax, net: inc - cost, debt: p.debt || 0,
+        margin, effRate, bracketRate: bracket.rate, bracketUpTo: bracket.upTo,
+        fx: climate.fx, fxDrift: climate.fxDrift, fxShock: climate.shock,
+        infl: climate.inflationIndex, debtInterest: climate.debtInterest,
+        upkeepRaw: Math.round(upkeepRaw)
+      };
       p.monthIncome = 0;
 
       const bad = (short + taxShort) > 0 || p.debt > 0;
       s.notifications = (s.notifications || []).concat([{
         title: "🧾 Aylık gider",
-        msg: `Gider ${U.money(upkeep)} · Vergi ${U.money(tax)}${p.debt > 0 ? " · ⚠️ borç " + U.money(p.debt) : ""}`,
+        msg: `Gider ${U.money(upkeep)} · Vergi ${U.money(tax)} (%${Math.round(effRate * 100)} efektif)`
+           + `${p.debt > 0 ? " · ⚠️ borç " + U.money(p.debt) : ""}`
+           + ` · marj %${Math.round(margin * 100)}`,
         kind: bad ? "bad" : "", day: s.day
       }]).slice(-60);
-      K.toast("🧾 Aylık gider", `Gider ${U.money(upkeep)} · Vergi ${U.money(tax)}`, bad ? "bad" : "warn");
-      K.bus.emit("money", { amount: -(upkeep + tax), reason: "monthly" });
-      return { upkeep, tax, debt: p.debt };
+      if (margin < 0 && inc > 0) {
+        s.notifications = (s.notifications || []).concat([{
+          title: "📉 Zarar ediyorsun",
+          msg: `Bu ay gelirin giderini karşılamadı (marj %${Math.round(margin * 100)}). Gider ${U.money(upkeep)}, gelir ${U.money(inc)}.`,
+          kind: "bad", day: s.day
+        }]).slice(-60);
+      }
+      K.toast("🧾 Aylık gider", `Gider ${U.money(upkeep)} · Vergi ${U.money(tax)} · marj %${Math.round(margin * 100)}`, bad ? "bad" : "warn");
+      K.bus.emit("money", { amount: -cost, reason: "monthly" });
+      return { upkeep, tax, debt: p.debt, margin, effRate, infl };
     },
 
     /* günlük şirket kârı (oyuncunun label'ı varsa) */
@@ -11184,13 +11478,27 @@ window.K = window.K || {};
         const age = s.day - sn.startedDay;
         if (age <= 2) sn.momentum += pot * U.rand(0.2, 0.6);           // ilk günler yükseliş
         else sn.momentum *= (0.85 + pot * 0.085) - (pot < 0.5 ? 0.03 : 0);
+        /* v10 — SES ÖMRÜ: trend 2 hafta yükselir, sonra hızla söner.
+           Eski hâlde video sayısı sonsuza kadar büyüyordu; bu, ses trendinin
+           asla bitmemesi demekti. Artık momentum eşiğin altına düşünce trend
+           KAPANIR ve etkisi 20 gün içinde sıfıra iner. */
+        if (age > 45) sn.momentum *= 0.82;
+        if (age > 70) sn.momentum *= 0.75;
         sn.momentum = U.clamp(sn.momentum, 0, 1.6);
+
+        if (sn.momentum < 0.03) sn.ended = true;
+        if (sn.ended) {
+          sn.lastGain = 0;
+          sn.trend = false;
+          sn.decay = Math.max(0, (sn.decay == null ? 1 : sn.decay) - 0.05);
+          return;                                                       // trend bitti → yeni video yok
+        }
         const grow = sn.momentum * U.rand(250, 1000) * (0.6 + pot * 0.6) + (song.viral ? 200 : 0);
         sn.videos = Math.round(sn.videos + grow);
         sn.lastGain = Math.round(grow);
         sn.peak = Math.max(sn.peak, sn.videos);
         sn.trend = sn.momentum > 0.45;
-        if (age > 45) sn.momentum *= 0.85;                             // ses ömrü uzun değil
+        sn.decay = 1;
       });
     },
 
@@ -11198,7 +11506,8 @@ window.K = window.K || {};
     boostFor(song) {
       const sn = song && song.sound;
       if (!sn || !sn.videos) return 0;
-      return U.clamp(sn.videos / 20000, 0, 0.9) + (sn.trend ? 0.12 : 0);
+      const decay = sn.decay == null ? 1 : sn.decay;      // trend kapandıysa söner
+      return (U.clamp(sn.videos / 20000, 0, 0.9) + (sn.trend ? 0.12 : 0)) * decay;
     },
 
     /* trend listesi (TikTok uygulaması / kariyer için) */
@@ -12031,8 +12340,7 @@ window.K = window.K || {};
       p.popularity = U.clamp((p.popularity || 0) + t.pop, 0, 99);
       p.image = U.clamp((p.image || 50) + 0.8, 0, 100);
       if (U.chance(t.viral + (song.quality || 50) / 1200)) {
-        song.viral = true;
-        K.toast("🔥 Klip patladı!", `"${song.title}" klibi viral oldu.`, "ok");
+        K.game.markViral(song, "🔥 Klip patladı!", `"${song.title}" klibi viral oldu.`);
       }
       if (K.social && K.social.createPost) K.social.createPost("youtube", `"${song.title}" (Official Video) yayında! 🎬`, song.id);
       K.toast(t.icon + " Klip yayında", `"${song.title}" · ${t.name} · ${U.money(t.cost)}`, "ok");
@@ -15236,6 +15544,10 @@ window.K = window.K || {};
     DEFS,
     listById,
 
+    /* v10 — liste etkisinin doyum sınırı: kümülatif ~2,1 → en fazla ~3,1× taban.
+       Tek bir liste şarkıyı efsane yapmaz; gerçekte de yapmıyor. */
+    LIFT_CAP: 2.1,
+
     pull(song) {
       if (!song) return 0;
       const p = K.state.player;
@@ -15368,7 +15680,18 @@ window.K = window.K || {};
     _announce(song, def, rank) {
       const s = K.state;
       const reach = 0.04 + (K.lists.pull(song) / 100) * 0.12;
-      song.dailyStreams = (song.dailyStreams || 0) * (1 + reach);
+      /* v10 GERÇEKLİK DÜZELTMESİ — LİSTE ETKİSİ SINIRLI, AZALAN VERİMLİ.
+         Eski hâlde her liste girişi dailyStreams'i KALICI olarak çarpıyordu;
+         çok listeye giren şarkı üstel biçimde büyüyordu (400 günde 30 kat).
+         Gerçekte liste etkisi doyuma ulaşır: bir playlist şarkıyı 2-3 katına
+         çıkarır, 30 katına değil. Geçici etki ayrıca "boosts" ile sürüyor. */
+      song.listLift = song.listLift || 0;
+      const room = Math.max(0, K.lists.LIFT_CAP - song.listLift);
+      const gain = Math.min(reach, room * 0.45);
+      if (gain > 0.001) {
+        song.listLift += gain;
+        song.dailyStreams = (song.dailyStreams || 0) * (1 + gain);
+      }
       // listedeki başarı DM'e yansır: erişilebilir sanatçılar tebrik eder
       if (K.relations && K.relations.maybeListCongrats) {
         setTimeout(() => { try { K.relations.maybeListCongrats(song, def.name); } catch (e) {} }, 1800);
@@ -17461,8 +17784,7 @@ window.K = window.K || {};
 
       // viral şans
       if (U.chance(promo.viral + song.quality / 900)) {
-        song.viral = true;
-        K.toast("🔥 Viral!", `"${song.title}" ${promo.name}'da patladı!`, "ok");
+        K.game.markViral(song, "🔥 Viral!", `"${song.title}" ${promo.name}'da patladı!`);
       }
 
       // TikTok ise kısa video keşif hunisini besle (ses trendi)
@@ -19449,13 +19771,17 @@ window.K = window.K || {};
       const song = latestSong();
       if (song) {
         song.boosts = song.boosts || {};
-        song.boosts.event = (song.boosts.event || 0) + e.streams;
-        song.dailyStreams = (song.dailyStreams || 0) * (1 + e.streams);
+        /* v10 GERÇEKLİK DÜZELTMESİ — OLAY ETKİSİ GEÇİCİ.
+           Eski hâlde her olay dailyStreams'i KALICI olarak çarpıyordu
+           (ör. +%50). Yüzlerce günde biriken olaylar şarkıyı üstel biçimde
+           şişiriyordu. Gerçekte bir haber/trend dalgası 2-3 haftada söner.
+           Artık etki sönümlenen "boosts" kalemiyle veriliyor (günlük ×0,86). */
+        song.boosts.event = (song.boosts.event || 0) + e.streams * 1.4;
       }
     }
     if (e.viral) {
       const song = latestSong();
-      if (song && U.chance(e.viral)) song.viral = true;
+      if (song && U.chance(e.viral)) K.game.markViral(song, null, null);
     }
     if (e.streamsAll) {
       p.songs.forEach(song => {
@@ -23870,22 +24196,47 @@ window.K = window.K || {};
               <span class="muted">sonraki ödeme: ${K.ECON.payoutPeriodDays - (s.day % K.ECON.payoutPeriodDays)} gün</span>
             </div>
             <div class="pp-rates">
-              <span class="pill">Spotify ${U.money(K.ECON.streamRates.spotify).replace("₺","₺")}/dinlenme</span>
-              <span class="pill">Apple ${U.money(K.ECON.streamRates.apple)}/dinlenme</span>
-              <span class="pill">YouTube ${U.money(K.ECON.streamRates.youtube)}/dinlenme</span>
+              <span class="pill">Spotify ${U.money(K.econ.rate("spotify"))}/dinlenme</span>
+              <span class="pill">Apple ${U.money(K.econ.rate("apple"))}/dinlenme</span>
+              <span class="pill">YouTube ${U.money(K.econ.rate("youtube"))}/dinlenme</span>
+              <span class="pill">diğer mağazalar ${U.money(K.econ.rate("other"))}/dinlenme</span>
               <span class="pill karma">toplam kazanç ${U.money(s.player.totalStreamRevenue || 0)}</span>
             </div>
             ${(() => {
-              const mtd = { spotify: 0, apple: 0, youtube: 0 };
-              (s.player.songs || []).forEach(sg => { const m = sg.month || {}; mtd.spotify += m.spotify || 0; mtd.apple += m.apple || 0; mtd.youtube += m.youtube || 0; });
-              const r = K.ECON.streamRates;
-              const gross = mtd.spotify * r.spotify + mtd.apple * r.apple + mtd.youtube * r.youtube;
+              const cl = K.economy.climate();
+              const pend = K.economy.pending();
+              const fin = s.player.lastFinance || {};
+              const marj = fin.margin;
+              const drift = cl.fxDrift || 0;
+              return `<div class="pp-rates" style="margin-top:6px">
+                <span class="pill">💱 kur ${cl.fx.toFixed(2)} ₺/$
+                  <span class="${drift >= 0 ? "up" : "down"}">${drift >= 0 ? "▲" : "▼"}${Math.abs(Math.round(drift * 100))}%</span>
+                  ${cl.shock ? "⚡ ani şok" : ""}</span>
+                <span class="pill">📈 enflasyon endeksi ${cl.inflationIndex.toFixed(3)} (maliyetler +%${Math.round((cl.inflationIndex - 1) * 100)})</span>
+                <span class="pill">🧾 vergi dilimi %${Math.round((fin.bracketRate || 0) * 100)} · efektif %${Math.round((fin.effRate || 0) * 100)}</span>
+                <span class="pill">📊 kâr marjı ${marj == null ? "—" : (marj < 0 ? "−%" + Math.abs(Math.round(marj * 100)) : "%" + Math.round(marj * 100))}</span>
+              </div>
+              <div class="pp-rates" style="margin-top:6px">
+                <span class="pill">⏳ rapor bekleyen ${U.compact(pend.streams)} dinlenme</span>
+                <span class="pill">💤 yolda olan para ${U.money(pend.value)}</span>
+                <span class="muted">ödeme gecikmesi: Spotify ${K.ECON.payoutLag.spotify}g · Apple ${K.ECON.payoutLag.apple}g · YouTube ${K.ECON.payoutLag.youtube}g · diğer ${K.ECON.payoutLag.other}g</span>
+              </div>`;
+            })()}
+            ${(() => {
+              const mtd = { spotify: 0, apple: 0, youtube: 0, other: 0 };
+              (s.player.songs || []).forEach(sg => {
+                const m = sg.month || {};
+                const bill = K.econ.billable(sg);           // 30 sn eşiği
+                K.econ.STORES.forEach(st => { mtd[st] += (m[st] || 0) * bill; });
+              });
+              const gross = K.econ.STORES.reduce((n, st) => n + mtd[st] * K.econ.rate(st), 0);
               const lblPct = s.player.labelId ? ((K.labelById(s.player.labelId) || {}).royalty || 50) : 0;
               const net = gross * (1 - lblPct / 100);
               return `<div class="stat-grid" style="margin-top:8px">
-                <div class="stat-card"><span class="k">Spotify (bu ay)</span><span class="v">${U.compact(mtd.spotify)}</span><span class="d">≈ ${U.money(mtd.spotify * r.spotify)}</span></div>
-                <div class="stat-card"><span class="k">Apple Music (bu ay)</span><span class="v">${U.compact(mtd.apple)}</span><span class="d">≈ ${U.money(mtd.apple * r.apple)}</span></div>
-                <div class="stat-card"><span class="k">YouTube (bu ay)</span><span class="v">${U.compact(mtd.youtube)}</span><span class="d">≈ ${U.money(mtd.youtube * r.youtube)}</span></div>
+                <div class="stat-card"><span class="k">Spotify (bu ay)</span><span class="v">${U.compact(mtd.spotify)}</span><span class="d">≈ ${U.money(mtd.spotify * K.econ.rate("spotify"))}</span></div>
+                <div class="stat-card"><span class="k">Apple Music (bu ay)</span><span class="v">${U.compact(mtd.apple)}</span><span class="d">≈ ${U.money(mtd.apple * K.econ.rate("apple"))}</span></div>
+                <div class="stat-card"><span class="k">YouTube (bu ay)</span><span class="v">${U.compact(mtd.youtube)}</span><span class="d">≈ ${U.money(mtd.youtube * K.econ.rate("youtube"))}</span></div>
+                <div class="stat-card"><span class="k">Raporlanan (bu ay)</span><span class="v">${U.compact(mtd.spotify + mtd.apple + mtd.youtube + mtd.other)}</span><span class="d">30 sn üstü dinlenme</span></div>
                 <div class="stat-card"><span class="k">Ay Sonu Net</span><span class="v money">${U.money(net)}</span><span class="d">${lblPct ? "şirket payı %" + lblPct : "bağımsız"}</span></div>
               </div>`;
             })()}
@@ -23893,9 +24244,9 @@ window.K = window.K || {};
               <div class="row-item">
                 <div class="cover" style="background:${U.gradientFor("pay" + p.day)}">💰</div>
                 <div class="grow"><div class="title">Gün ${p.day} ödemesi</div>
-                <div class="sub">Spotify ${U.fmt(p.spotify)} · Apple ${U.fmt(p.apple)} · YT ${U.fmt(p.youtube)}${p.labelPct ? " · şirket payı " + U.money(p.labelPct) : ""}</div></div>
+                <div class="sub">Spotify ${U.fmt(p.spotify)} · Apple ${U.fmt(p.apple)} · YT ${U.fmt(p.youtube)}${p.other ? " · diğer " + U.fmt(p.other) : ""}${p.labelPct ? " · şirket payı " + U.money(p.labelPct) : ""}${p.recoup ? " · avans " + U.money(p.recoup) : ""}${p.pendingValue ? " · yolda " + U.money(p.pendingValue) : ""}</div></div>
                 <span class="pill money">+${U.money(p.net)}</span>
-              </div>`).join("")}</div>` : `<div class="mini-empty" style="margin-top:8px">Henüz telif ödemesi almadın. İlk ödeme 30. günde.</div>`}
+              </div>`).join("")}</div>` : `<div class="mini-empty" style="margin-top:8px">Henüz telif tahsilatı yok. Mağazalar dinlenmeyi geç raporlar: ilk ödeme, mağaza türüne göre <b>${K.ECON.payoutLag.apple}–${K.ECON.payoutLag.youtube} gün</b> sonra yatar.</div>`}
           </div>
 
           <div class="chart-grid">
