@@ -13,6 +13,37 @@
   pointer-events: none;
 }
 
+/* ============================================================
+   v10.2 — GERÇEK YOUTUBE OYNATICISI
+   Gerçek bir şarkı açıldığında sentezlenmiş görselleştirici yerine
+   gerçek YouTube oynatıcısı gösterilir. Görselleştirici DOM'da kalır
+   (mevcut JS bozulmasın diye) sadece gizlenir.
+   ============================================================ */
+.yt-player.has-embed {
+  background: #000 !important;
+  background-image: none !important;
+}
+.yt-player.has-embed .yt-viz,
+.yt-player.has-embed .yt-player-ov { display: none; }
+.yt-embed {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  z-index: 1;
+  background: #000;
+}
+.yt-player.has-embed .yt-ctrl { z-index: 3; }
+
+.yt-embed-note {
+  margin: 8px 2px 2px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text-2);
+}
+.yt-embed-note b { color: var(--text-0); }
+
 .yt-prog {
   height: 4px;
   border-radius: var(--radius-pill);
