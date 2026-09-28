@@ -5,7 +5,79 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
-## GÜNCELLEME v10 — Gerçeklik katmanı + görünüm stabilizasyonu (bu sürüm)
+## GÜNCELLEME v10.6 — Sosyal medya + her sanatçının PP'si + tam diskografi (bu sürüm)
+
+### 📸 Sosyal medya görünüm onarımı — kök neden bulundu
+Hikâyelerin yarısı kesik, TikTok/Reels kartları ezik görünüyordu. Sebep tek bir
+CSS kuralıydı: `.app-body` bir flex kolonudur ve çocukları varsayılan
+`flex-shrink:1` ile **dikeyde eziliyordu** (kaydırma kapsayıcılarının içerik
+minimum yüksekliği 0'a düşer). `css/phone.css`'e `.app-body > * { flex: 0 0 auto }`
+eklendi — hikâye şeridi, gönderi kartları ve akış blokları artık sabit.
+Ölçüm: hikâye şeridi 111px, halka 66×66, gönderi medyası 1:1.
+
+### 🟣 Instagram gerçek Instagram gibi yeniden yazıldı (`css/instagram.css` + `apps/instagram.js`)
+- **Üst bar:** serif *Instagram* logosu + kalp (etkinlik, rozetli) + uçak (DM) düğmeleri.
+- **Hikâye şeridi:** gerçek PP'li halkalar, gradyan çerçeve, görülmüş/görülmemiş ayrımı,
+  “Hikâyen” için mavi **+** rozeti. Yatay kaydırma; hiçbir hikâye kesilmez.
+- **Gönderi kartı:** avatarlı başlık, **gerçek albüm kapağı** (şarkıya bağlı gönderilerde),
+  kalp/yorum/gönder/kaydet satırı, beğeni sayısı, açıklama, yorum bağlantısı.
+- **Çift dokunarak beğenme:** medyaya iki kez dokun → kalp patlaması animasyonu.
+- **Alt sekme çubuğu:** gerçek IG'nin SVG ikonları (ev · arama · reels) ve
+  profil sekmesinde **senin profil resmin**.
+- **Profil:** büyük PP'li gradyan halka, istatistikler, bio (aka + tür + şehir),
+  eylem düğmeleri, öne çıkanlar (Müzik/Sahne/Kulis/Fan) ve **sekmeli ızgara**
+  (Gönderiler / Reels / Etiketli).
+- **Keşfet:** arama kutusu + gerçek kapaklı ızgara + sanatçı ızgarası.
+- **Reels:** 9:16 tam ekran, gerçek kapak, yan eylemler, ses bilgisi.
+- **DM gelen kutusu:** çevrimiçi noktası, son mesaj, okunmamış göstergesi;
+  satıra dokununca gerçek DM sohbeti açılır.
+
+### ↔️ Kaydırma hareketleri (istediğin gibi)
+Instagram içinde **sağa kaydır → DM gelen kutusu**, **sola kaydır → canlı yayın**.
+Gerçek görünüm yığını içinde çalışır (uygulamadan çıkmaz). Test ile doğrulanır.
+
+### 🖼️ Her sanatçının GERÇEK profil resmi (`js/data/artist-photos.js`)
+36/36 sanatçı için Deezer açık API'sinden gerçek fotoğraf çekilip oyuna gömüldü
+(`picture_xl`, 500×500). **Neden gömülü?** Deezer CORS başlığı göndermediği için
+tarayıcıdan doğrudan çağrılamaz; gömülü veri hem çevrimdışı çalışır hem anında yüklenir.
+`K.imagery.portrait()` artık sırayla **gömülü PP → Wikipedia → albüm kapağı → gradyan**
+kullanır; PP eksik olsa bile `blanketHydrate()` arka planda tamamlar.
+Renkli avatarlar oyunda her yerde (Spotify, Apple, YouTube, TikTok, X, Mesajlar,
+yorum balonları) aynı gerçek yüzü gösterir.
+Yenilemek için: `node tools/fetch-artist-photos.js`
+
+### 🎵 Şehinşah ve wegh Rumi — TAM diskografi
+| Sanatçı | Şarkı | Kendi | Feature | Önizleme | Kendi yayını |
+|---|---|---|---|---|---|
+| **Şehinşah** | **187** | 105 | 82 | 187/187 | 55 albüm/single |
+| **wegh Rumi** | **48** | 40 | 8 | 48/48 | 28 albüm/single |
+
+Oyun genelinde gerçek şarkı sayısı 278 → **504**'e çıktı. Hepsi 30 saniyelik
+**gerçek ses önizlemesi** ve Apple Music bağlantısı taşır.
+Yenilemek için: `node tools/fetch-artist-discography.js weghrumi "wegh"`
+
+### 🆕 “Tüm şarkılar” görünümü (Spotify + Apple Music)
+Sanatçı profili artık **Popüler (10 / 187)** gösterir ve altında
+**“Tüm şarkıları gör”** satırı bulunur. Açılan görünüm tüm katalogu **yıla göre**
+gruplar (2026 → 2001), arama kutusu içerir ve her satırı çalınabilir.
+Apple Music sayfası 20 satırla sınırlanıp aynı görünüme bağlandı.
+
+### 🐛 Düzeltilen altyapı hataları
+- **`tools/build-single.js` çalışmıyordu:** `?v=10.5` önbellek sorgusunu dosya yolu
+  sanıp `ENOENT` veriyordu. Tek dosya derlemesi artık çalışıyor (`stripQuery`).
+- **Önbellek sürümü 10.5 → 10.6:** tarayıcı eski kopyayı kullanmaz.
+- **Veri üreticileri repoya eklendi** (önceden yoktu, veri “otomatik üretildi”
+  diyordu ama script yoktu): `tools/fetch-artist-discography.js`,
+  `tools/fetch-artist-photos.js`.
+
+### 🧪 Yeni test paketi: `node tools/smoke-social.js`
+48 kontrol: PP kapsamı (36/36), Instagram yapısı ve kaydırma hareketleri,
+çift dokunarak beğenme, DM gelen kutusu, tam diskografi ve önizleme oranları,
+TikTok/X/Mesajlar render + PP kullanımı. Mevcut `smoke-apps.js` de 0 hatayla geçiyor.
+
+---
+
+## GÜNCELLEME v10 — Gerçeklik katmanı + görünüm stabilizasyonu
 
 ### Ekonomi ve endüstri gerçekçiliği
 - **30 saniye eşiği (`K.econ.billable`):** dinlenmenin bir kısmı gelir sayılmaz.
