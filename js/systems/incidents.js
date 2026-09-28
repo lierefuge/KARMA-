@@ -41,13 +41,17 @@
       const song = latestSong();
       if (song) {
         song.boosts = song.boosts || {};
-        song.boosts.event = (song.boosts.event || 0) + e.streams;
-        song.dailyStreams = (song.dailyStreams || 0) * (1 + e.streams);
+        /* v10 GERÇEKLİK DÜZELTMESİ — OLAY ETKİSİ GEÇİCİ.
+           Eski hâlde her olay dailyStreams'i KALICI olarak çarpıyordu
+           (ör. +%50). Yüzlerce günde biriken olaylar şarkıyı üstel biçimde
+           şişiriyordu. Gerçekte bir haber/trend dalgası 2-3 haftada söner.
+           Artık etki sönümlenen "boosts" kalemiyle veriliyor (günlük ×0,86). */
+        song.boosts.event = (song.boosts.event || 0) + e.streams * 1.4;
       }
     }
     if (e.viral) {
       const song = latestSong();
-      if (song && U.chance(e.viral)) song.viral = true;
+      if (song && U.chance(e.viral)) K.game.markViral(song, null, null);
     }
     if (e.streamsAll) {
       p.songs.forEach(song => {
