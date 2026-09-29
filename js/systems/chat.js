@@ -48,11 +48,14 @@
     ]
   };
 
-  function selamPool(gf, prof, stage, short) {
+  function selamPool(gf, prof, stage, short, artist) {
     if (prof && prof.selam && prof.selam[gf] && prof.selam[gf].length) return prof.selam[gf];
     if (gf === "islamic") return short ? SELAM.shortIslamic : SELAM.islamic;
     if (gf === "reply") return SELAM.reply;
-    return basePools("greet", stage);
+    /* DÜZELTME (v10.8): selamlama yolu tür/kıdem katmanını ATLIYORDU,
+       bu yüzden profil olmayan 25 sanatçı yine aynı genel cümleleri
+       kuruyordu. Artık selamlama da sanatçının ses katmanını kullanır. */
+    return poolFor("greet", stage, prof, artist);
   }
 
   /* ------------- niyet sözlüğü ------------- */
@@ -791,8 +794,74 @@
   };
 
   /* profil varsa onun havuzunu, yoksa temel havuzu kullan */
-  function poolFor(intent, S, prof) {
+  /* ============================================================
+     v10.8 GERÇEKLİK DÜZELTMESİ — SES KATMANLARI
+     Eskiden 36 sanatçıdan 25'i (Sıla, Edis, UZI, Blok3, Cakal,
+     Lvbel C5, Hadise dışındakiler…) AYNI genel havuzdan konuşuyordu:
+     1980'lerden gelen bir ekol ile 24 yaşındaki drill sanatçısı
+     birebir aynı cümleyi kuruyordu. Artık kişisel profil yoksa
+     sırayla şu katmanlar devreye girer:
+       1) sanatçının kendi ağızı (PROFILES)
+       2) 40+ yaş → kıdemli tonu
+       3) tür havuzu (trap · drill · rap · pop · rnb · indie)
+       4) genel havuz
+     Böylece 25 sanatçı da birbirinden ayrışır. */
+  const VET_CHAT = {
+    greet: ["Selam, iyi ki yazdın.", "Selam kardeşim, naber?", "Selam, otur anlat."],
+    howareyou: ["İyiyim, yıllardır aynı düzen: stüdyo, ev, sahne. Sen?", "Fena değil, bu iş bitmez. Sen nasılsın?", "İyiyim, gençlerin işlerini dinliyorum. Sen?"]
+  };
+  const GENRE_CHAT = {
+    trap: {
+      greet: ["Selam kanka, naber?", "Lan naber, iyi misin?", "Selam, kayıttaydım."],
+      howareyou: ["İyiyim, gece çalışıyorum sürekli. Sen?", "İdare eder, sesle uğraşıyorum. Sen napıyon?", "İyiyim ya, kayıt bitti sayılır. Sen?"],
+      music: ["Bir şey pişiyor ama acele etmiyorum.", "Sound oturduğunda çıkacak, acele yok.", "Beat seçmek işin yarısı zaten."],
+      career: ["Bol kayıt, az beklenti. Gerisi geliyor.", "Sabır. İlk yıl kimse dinlemiyor, sonra dönüyor.", "Kendi sound'unu bul, gerisi teknik."],
+      market: ["Piyasa hızlı, kimse beklemiyor.", "Algoritma hız istiyor ama kalite yavaş işi.", "Şimdi kısa içerik konuşuluyor, şarkı geride."]
+    },
+    drill: {
+      greet: ["Selam, naber?", "Yo, naber kanka", "Selam kardeşim."],
+      howareyou: ["İyiyim, koşuşturma var. Sen?", "Sağlam, kayıttayım. Sen naber?", "İyiyim, işe gömüldüm. Sen?"],
+      music: ["Akış sert olacak, sözleride düşünüyorum.", "Yeni bir şey var, mix kaldı.", "Beat zaten hazır, üstüne oturuyorum."],
+      career: ["Hızlı çık, kaliteyi düşürme. Zor iş.", "Kitle genç, dikkat süresi kısa.", "Düzenli at, ara verme."],
+      market: ["Piyasa doydu ama yer var.", "Herkes aynı sesi kullanıyor, farklı ol.", "TikTok olmadan olmuyor artık."]
+    },
+    rap: {
+      greet: ["Selam, hoş geldin.", "Selam kardeşim, naber?", "Selam, buyur."],
+      howareyou: ["İyiyim, yazıyorum sürekli. Sen?", "İdare eder, kalem kâğıt işi. Sen nasılsın?", "İyiyim, metin üstünde çalışıyorum. Sen?"],
+      music: ["Söz bitti sayılır, kaydı bekliyor.", "Metin oturmadan kayda girmem.", "Bu parça biraz daha emek istiyor."],
+      career: ["Oku, yaz, kaydet. Formül bu.", "Taklit etme, sesini bul.", "İlk 100 şarkıyı kimse dinlemez, yine de yaz."],
+      market: ["Dinleyici azaldı ama gerçek dinleyici kaldı.", "Söz anlayan kitle küçük ama sadık.", "Piyasa hızlı tüketiyor, sen kalıcı yaz."]
+    },
+    pop: {
+      greet: ["Selamlar, hoş geldin 💫", "Merhaba, iyi ki yazdın.", "Selam, nasılsın?"],
+      howareyou: ["Çok iyiyim, provadayım. Sen nasılsın?", "İyiyim, sahne hazırlığı var. Sen?", "Gayet iyiyim, yoğun ama güzel. Sen?"],
+      music: ["Yeni şarkı çok yakın, çok heyecanlıyım.", "Bu kayıt içime sindi.", "Sahnede söylemek için sabırsızım."],
+      career: ["Sahne tecrübesi her şeyi öğretiyor.", "Sesini koru, düzenli çalış.", "Kitleyi tanı, ona göre iş yap."],
+      market: ["Dinleyici hızlı karar veriyor, ilk 10 saniye önemli.", "Sosyal medya olmadan görünmüyorsun.", "Radyo hâlâ etkili."]
+    },
+    rnb: {
+      greet: ["Selam, hoş geldin 🌙", "Merhaba, iyi ki yazdın.", "Selam, naber?"],
+      howareyou: ["İyiyim, gece çalışıyorum. Sen?", "Sakinim, kayıttaydım. Sen nasılsın?", "İyiyim, yumuşak bir şey üstünde çalışıyorum."],
+      music: ["Gece için yazdım, yumuşak oldu.", "Vokal oturdu, gerisi miks.", "Sessizlikte dinlenecek bir şey."],
+      career: ["Yumuşak olan kalıcı oluyor.", "Acele etme, tonunu bul.", "Kalabalığa değil, kulağa çalış."],
+      market: ["Gece çalma listeleri önemli.", "Dinleyici sadakati burada daha yüksek.", "Trend değişiyor ama ton kalıyor."]
+    },
+    indie: {
+      greet: ["Selam, hoş geldin ✨", "Merhaba, iyi ki yazdın.", "Selam, naber?"],
+      howareyou: ["İyiyim, kendi halimde çalışıyorum. Sen?", "İdare eder, kayıt devam. Sen?", "İyiyim, küçük bir odada büyük bir şey."],
+      music: ["Kendim yapıyorum, acele yok.", "Bu kayıt beni anlatıyor.", "Küçük ama gerçek olacak."],
+      career: ["Bağımsız kalmak zor ama doğru.", "Yavaş büyü, sağlam büyü.", "Kendi kitleni kur, hazır kitleye oynama."],
+      market: ["Bağımsız kalmak artık mümkün.", "Aracı azaldıkça pay artıyor.", "Küçük kitle ama gerçek destek."]
+    }
+  };
+
+  function poolFor(intent, S, prof, artist) {
     if (prof && prof.pool && prof.pool[intent] && prof.pool[intent].length) return prof.pool[intent];
+    if (artist) {
+      if ((artist.age || 30) >= 40 && VET_CHAT[intent]) return VET_CHAT[intent];
+      const g = GENRE_CHAT[artist.genre];
+      if (g && g[intent]) return g[intent];
+    }
     return basePools(intent, S);
   }
   function coldFor(intent, prof) {
@@ -836,7 +905,7 @@
       if (gf) {
         const nt = norm(text);
         const short = (nt === "sa" || nt === "s a" || nt === "as" || nt === "a s");
-        const msg = pickFresh(selamPool(gf, prof, stage, short), chat.recent);
+        const msg = pickFresh(selamPool(gf, prof, stage, short, artist), chat.recent);
         chat.recent.push(msg); if (chat.recent.length > 8) chat.recent.shift();
         chat.lastIntent = "greet";
         chat.turns++;
@@ -871,7 +940,7 @@
       rel._usedSongs = rel._usedSongs || [];
       if (song && song !== "yeni bir iş") rel._usedSongs.push(song);
 
-      let msgs = forcedMsgs || poolFor(intent, stage, prof).map(m => m.replace("{song}", song));
+      let msgs = forcedMsgs || poolFor(intent, stage, prof, artist).map(m => m.replace("{song}", song));
       let chosen = pickFresh(msgs, chat.recent);
 
       // genel mesaja BAĞLAMLI cevap (rastgele kelime yansıtma yok)
