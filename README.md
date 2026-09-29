@@ -5,7 +5,73 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
-## GÜNCELLEME v10.14 — Sanatçı kişilik katmanı + günümüz sahnesi (bu sürüm)
+## GÜNCELLEME v10.15 — Mobil/dokunmatik katman + otomatik önbellek sürümü (bu sürüm)
+
+### 📱 Mobil kırılmalar — yedi kök neden bulundu ve kapatıldı
+
+Mobilde "yerler kırılıyor, yarıda kalıyor, bazı tuşlar çalışmıyor" şikâyetinin
+arkasında tek bir hata değil, birbirini besleyen yedi ayrı hata vardı. Hepsi
+kodda doğrulandı:
+
+| # | Sorun | Neden oluyordu | Çözüm |
+|---|---|---|---|
+| **M-1** | Ekranın altı **kesiliyor** | `#app { height: 100vh }` — mobil tarayıcıda `100vh` adres çubuğunun arkasındaki alanı da sayar; `body { overflow: hidden }` yüzünden ulaşılamayan bir şerit kalır | `100dvh` (+ `100vh` yedeği, `@supports` ile) ve `svh` güvencesi |
+| **M-2** | **Bazı tuşlar çalışmıyor** | iPhone çentiği ve home göstergesi alt barın/dock'un üstüne biniyordu; göstergenin şeridi dokunuşu yiyordu | `viewport-fit=cover` + `env(safe-area-inset-*)` tüm kenarlarda |
+| **M-3** | Odaklanınca **düzen bozuluyor** | Tüm girdiler 13px'ti. iOS, 16px altı girdiye odaklanınca sayfayı kendiliğinden büyütür | Dokunmatik cihazlarda girdiler 16px (`pointer: coarse`) |
+| **M-4** | Aşağı çekince **sayfa yenileniyor** | Pull-to-refresh; kaydedilmemiş ilerleme kayboluyordu | `overscroll-behavior: none` |
+| **M-5** | Dokunuşlar **geç/şımarık** tepki veriyor | 300 ms dokunuş gecikmesi + çift dokunuş zoom'u; `:hover` dokunmatikte güvenilmez | `touch-action: manipulation`, tap-highlight temizliği, `:active` geri bildirimi, 44px dokunma hedefi |
+| **M-6** | Paneller **dikeyde kırpılıyor** | Mobilde `.layout { overflow: hidden }` taşıyordu | Panel içi kaydırma korunur, alt çubuk payı eklenir |
+| **M-7** | Telefon **aşırı daralıyor**, dikey alan boşa gidiyor | Sabit 390:800 oranı küçük ekranda dikey alanı heba ediyordu | ≤620px'te oran bırakılır, sahne doldurulur; çerçeve inceltilir |
+
+### 🧭 Bölüm değiştirici artık **alt gezinme çubuğu**
+
+Dar ekranda "Sanatçı / Kariyer ↔ Telefon" düğmeleri üst bardan alınıp **sabit alt çubuğa**
+(güvenli alanın üstüne, başparmak erişimine) taşındı. Düğüm ve JS aynı kaldı —
+sadece konum değişti. Etiketler iki biçimli: dar ekranda uzun metin yerine kısa metin.
+
+### 🗂️ `css/mobile.css` — mobil kurallar tek dosyada
+
+Önceden mobil kurallar **21 ayrı `@media` bloğuna** dağılmıştı ve hangi kuralın
+kazandığı yükleme sırasına bağlıydı. Artık mobil/dokunmatik katman tek dosyada ve
+**en son** yükleniyor, böylece alttaki 25 CSS dosyasını öngörülebilir biçimde ezer.
+
+### ♻️ B-8 — Önbellek sürümü artık OTOMATİK
+
+`index.html` içindeki **101 yerel referans** `?v=10.14` gibi elle artırılan bir numara
+taşıyordu. Bir güncellemede unutulursa tarayıcı eski JS'i çalıştırır: **kod değişir,
+oyuncuda hiçbir şey değişmez.** Teşhisi zor, etkisi büyük bir hata sınıfı.
+
+Artık sürüm, `css/` ve `js/` dosyalarının içeriğinden üretilen bir hash:
+
+```bash
+node tools/bump-cache.js          # ?v= değerlerini yeni hash ile damgalar
+node tools/bump-cache.js --check  # yalnızca denetle (bayatsa exit 1)
+node tools/build-single.js        # build + entegre önbellek denetimi
+```
+
+İçerik değişmedikçe hash sabit kalır (gereksiz önbellek kaybı yok); tek bir dosya
+değişince hash değişir ve istemci yeni sürümü kesin olarak indirir.
+
+### ✅ Yeni test: `node tools/smoke-mobile.js`
+
+35 kontrol — yedi kırılma sınıfının her biri için kural varlığı, yükleme sırası,
+tek dosya build'e gömülme sırası, `viewport-fit` aktarımı ve önbellek sürümü
+tutarlılığı. Ayrıca **gerçek invaryant**: hiçbir CSS dosyası `100vh`'ı
+`!important` ile sabitleyemez (sabitlemek dvh düzeltmesini ezer). Negatif testle
+doğrulandı — invariant bilerek kırıldığında test hata veriyor.
+
+```bash
+node tools/bump-cache.js && node tools/build-single.js
+node tools/smoke-mobile.js
+node tools/smoke-personality.js
+node tools/smoke-apps.js
+node tools/smoke-social.js
+node tools/sim-balance.js
+```
+
+---
+
+## GÜNCELLEME v10.14 — Sanatçı kişilik katmanı + günümüz sahnesi
 
 ### 🎭 Şehinşah ve wegh Rumi artık KENDİ karakteriyle konuşuyor
 
