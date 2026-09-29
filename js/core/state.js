@@ -46,11 +46,18 @@
   K.ECON = {
     startBalance: 25000,
     startAge: 15,
-    royaltyPerStream: 0.0011,     // (eski) — artık platform bazlı aylık ödeme var
     /* PLATFORM BAZLI DİNLENME ÜCRETİ (₺ / dinlenme) — temel değerler.
        Gerçek dünyada bunlar USD'dir; oyunda 1 USD = baseFx ₺ kabul edilir ve
-       kur dalgalanması tüm telif gelirini oransal olarak büyütür/küçültür. */
+       kur dalgalanması tüm telif gelirini oransal olarak büyütür/küçültür.
+       NOT (v10.24): `royaltyPerStream` (eski sabit 0,0011 ₺) KALDIRILDI.
+       Son kullanıcısı `K.economy.labelDailyNet()` idi ve orada kur/enflasyon
+       uygulanmadığı için şirket gelirini gerçekçi değerin ~1/200'üne
+       düşürüyordu. Artık tüm gelir yolları `streamRates` (+ `econ.avgRate()`)
+       üzerinden hesaplanır. */
     streamRates: { spotify: 0.005, apple: 0.015, youtube: 0.008, other: 0.004 },
+    /* platform karması — gelir dağılımı platform ayrımı yapmayan yollarda
+       (şirket kadrosu, tahmin) ağırlıklı ortalama kur için kullanılır */
+    storeMix: { spotify: 0.46, apple: 0.19, youtube: 0.28, other: 0.07 },
     payoutPeriodDays: 30,          // her 30 günde bir telif ödemesi
 
     /* ==========================================================
@@ -73,7 +80,6 @@
     fatigueStep: 0.17,        // her yayın doygunluğu bu kadar artırır
     fatigueMax: 0.74,         // doygunluk tavanı (yayın başına kazanç en çok %74 kısılır)
     fatigueRecovery: 0.9955,  // günlük doygunluk azalması (yarı ömür ≈ 154 gün)
-    streamRevenueShare: 0.62,     // sanatçıya kalan (label yoksa 1.0)
 
     /* ---------- v10 GERÇEKLİK KATMANI: kur · enflasyon · gecikme · vergi ---------- */
     baseFx: 32,                    // 1 USD = 32 ₺ (oyun başı)
@@ -104,9 +110,19 @@
        biraz sermaye yeterlidir. */
     labelFoundCost: 120000,       // kendi şirketini kurma
     labelFoundMinPop: 28,
+    /* v10.24 — ŞİRKET EKONOMİSİ (gerçekçi kâr/zarar)
+       labelBillableShare: kadro dinlenmesinin gelir sayılan oranı. 30 saniye
+         eşiği şirket kataloğu için de geçerlidir; oyuncunun kendi şarkılarındaki
+         ayrıntılı atlama modelinin kadro (NPC) tarafındaki basitleştirilmiş
+         karşılığıdır.
+       labelOpexShare: tanıtım + kayıt + A&R + dağıtım giderinin BRÜT gelire
+         oranı. Gerçek şirketlerde bu kalem brüt gelirin ~%15-20'sidir; şirket
+         kârı, sözleşme payı ile bu gider arasındaki farktır (indie şirketler
+         ince marjla çalışır). */
+    labelBillableShare: 0.88,
+    labelOpexShare: 0.18,
     minAdvance: 20000,
     defaultRoyalty: 70,
-    messageCooldown: 0,           // aynı gün sınırsız ama günlük limit aşağıda
     dailyMessageLimit: 6,
     hangoutCost: 4500,
     giftCost: 12000,
@@ -117,8 +133,6 @@
     costStartPop: 5,          // bu popülaritenin altında sabit gider YOK (aile desteği)
     costStartFollowers: 5000, // bu takipçinin altında sabit gider YOK
     perSongUpkeep: 120,       // her yayınlanmış şarkı için aylık bakım (katalog masrafı)
-    taxRate: 0.14,            // (eski) sabit oran — artık taxBrackets kullanılıyor
-    taxFreeMonthly: 15000,    // (eski) vergisiz taban — taxBrackets[0].upTo ile aynı
     superfanRate: 0.02,       // takipçinin süperfan oranı
     clubPlatformCut: 0.15,    // fan kulübü platform komisyonu
 
