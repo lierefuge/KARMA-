@@ -79,7 +79,8 @@ ok("M-2 · yan güvenli alanlar kullanılıyor",
 
 /* ---------- M-3: iOS odak zoom'u ---------- */
 ok("M-3 · dokunmatikte 16px girdi kuralı var",
-  /input,\s*select,\s*textarea[\s\S]{0,400}?font-size:\s*16px\s*!important/.test(mobile));
+  /input[^{,]*,[\s\S]{0,500}?font-size:\s*16px\s*!important/.test(mobile) &&
+  /font-size:\s*16px\s*!important/.test(mobile));
 ok("M-3 · metin otomatik büyütme kapatılmış",
   /text-size-adjust:\s*100%/.test(mobile));
 
@@ -104,6 +105,93 @@ ok("M-7 · çerçeve köşe yarıçapı küçültülüyor",
   /--radius-device:\s*2[0-9]px/.test(mobile));
 ok("M-7 · yan fiziksel tuşlar küçük ekranda gizli",
   /\.phone-frame::(before|after)[\s\S]{0,120}display:\s*none/.test(mobile));
+
+/* ============================================================
+   M-8 (v10.17.1) — DOKUNMA ERGONOMİSİ KAPSAMI
+   Dış cihaz ergonomisi (44/48 px hedef, 16 px girdi) SİMÜLE
+   TELEFONUN İÇİNE uygulanmamalı. O arayüz 390×800 minyatür olarak
+   tasarlandı; oraya dış ölçüleri zorlamak mobilde düzeni bozuyordu.
+
+   INVARYANT: dokunmatik blokta 44 px+ hedef veren HER kural
+   KAPSAMLI olmalı (seçicisinde boşluk = torun seçici). Çıplak
+   `.ig-btn { min-height: 44px }` gibi kurallar yasak.
+   ============================================================ */
+{
+  /* YORUMLARI ÇIKAR — aksi hâlde yorum içindeki örnek kod gerçek
+     kural sanılır (ilk denemede tam bu oldu: bir düzeltme yorumunu
+     ihlal olarak işaretledi). */
+  const css = mobile.replace(/\/\*[\s\S]*?\*\//g, "");
+
+  /* yalnızca (pointer: coarse) bloklarını ayıkla */
+  const blocks = [];
+  const re = /@media\s*\(pointer:\s*coarse\)\s*\{/g;
+  let m;
+  while ((m = re.exec(css))) {
+    let i = m.index + m[0].length, depth = 1, j = i;
+    while (j < css.length && depth > 0) {
+      if (css[j] === "{") depth++;
+      else if (css[j] === "}") depth--;
+      j++;
+    }
+    blocks.push(css.slice(i, j - 1));
+  }
+  ok("M-8 · dokunmatik blokları bulundu", blocks.length >= 2, blocks.length + " blok");
+
+  /* Simüle telefon ekranının İÇİNDE kullanılan sınıflar. Bunlar
+     yalnızca bir OYUN KABUĞU kapsamı ile hedeflenebilir. */
+  const innerUI = ["ig-btn", "ig-tab", "ig-cell", "ig-hl", "phone-tab", "p-row", "dm-select-row", "dm-send"];
+  const chromeScopes = [".topbar", ".modal-root", ".career-panel", ".view-switch", ".toast-stack"];
+  const offenders = [];
+
+  blocks.forEach((blk) => {
+    const rules = blk.match(/[^{}]+\{[^{}]*\}/g) || [];
+    rules.forEach((r) => {
+      const sel = r.slice(0, r.indexOf("{")).trim();
+      const body = r.slice(r.indexOf("{"));
+      const big = /min-height:\s*(4[4-9]|[5-9][0-9])px/.test(body) || /width:\s*4[4-9]px/.test(body);
+      if (!big) return;
+
+      /* kural birden çok seçici taşıyabilir (virgüllü) */
+      const sels = sel.split(",").map((s) => s.replace(/\s+/g, " ").trim()).filter(Boolean);
+      sels.forEach((one) => {
+        /* (1) kapsamlı olmalı: torun ilişkisi içermeli */
+        if (one.indexOf(" ") < 0) offenders.push(one + " → kapsamsız hedef");
+        /* (2) iç telefon UI sınıfı hedefliyorsa kabuk kapsamı şart */
+        innerUI.forEach((c) => {
+          if (new RegExp("\\." + c + "\\b").test(one)) {
+            const okScope = chromeScopes.some((s) => one.indexOf(s) === 0);
+            if (!okScope) offenders.push(one + " → iç telefon UI'ını (." + c + ") kabuk kapsamı olmadan hedefliyor");
+          }
+        });
+      });
+    });
+  });
+  ok("M-8 · hedef büyütme kapsamlı ve sadece oyun kabuğunda",
+    offenders.length === 0, offenders.slice(0, 3).join(" | ") || "temiz");
+
+  /* oyun kabuğu hedefleri gerçekten var mı (aşırı geri çekme olmasın) */
+  const coarseAll = blocks.join("\n");
+  ok("M-8 · oyun kabuğu hedefleri korunuyor",
+    /\.topbar \.btn/.test(coarseAll) && /\.view-switch \.vs-btn/.test(coarseAll),
+    "üst bar + alt çubuk kuralları mevcut");
+
+  /* --mobilnav-h tanımı yalnızca :root bloklarında olmalı; başka bir
+     seçicide tanımlanırsa aşağı doğru yayılmaz ve .layout onu okuyamaz. */
+  const navRules = (css.match(/[^{}]+\{[^{}]*\}/g) || [])
+    .filter((r) => /--mobilnav-h:/.test(r))
+    .map((r) => r.slice(0, r.indexOf("{")).trim())
+    .filter((s) => s !== ":root" && s !== "html");
+  ok("M-8 · --mobilnav-h yalnızca :root'ta tanımlı", navRules.length === 0,
+    navRules.join(" | ") || "temiz");
+
+  /* flex'te `stretch` geçersizdir → justify-content'te olmamalı */
+  ok("M-8 · geçersiz `justify-content: stretch` yok",
+    !/justify-content:\s*stretch/.test(css));
+
+  /* kaydırıcı/onay kutusu 16px'e zorlanmamalı */
+  ok("M-8 · 16px kuralı range/checkbox/radio dışında",
+    /input:not\(\[type="range"\]\)/.test(css));
+}
 
 /* ---------- etiketler: kısa/uzun ---------- */
 ok("etiketler: kısa biçim markup'ta", /class="vs-mini"/.test(index));
