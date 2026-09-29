@@ -2,56 +2,825 @@
    KARMA — data/discography.js  (OTOMATİK ÜRETİLDİ)
    Her sanatçının GERÇEK albüm/single listesi + kapak görselleri.
    Kaynak: iTunes Search API (entity=album, country=TR).
-   Güncelleme: 2026-09-25
+   Üretici: node tools/fetch-artist-discography.js
+   Güncelleme: 2026-09-28
    ============================================================ */
 (function (K) {
   "use strict";
   K.DISCOGRAPHY = {
   "sehinsah": [
     {
-      "title": "Pirana - Single",
+      "title": "mavi ay - Single",
       "type": "Single",
-      "year": "2019",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/62/6f/b3/626fb3bb-3878-65d6-0f8a-b9304136f007/cover.jpg/600x600bb.jpg",
-      "tracks": []
+      "year": "2026",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/57/14/f0/5714f055-4ed8-0819-b737-f009549fca0e/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "mavi ay"
+      ]
+    },
+    {
+      "title": "NASINASI? - Single",
+      "type": "Single",
+      "year": "2026",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/c3/d8/c4/c3d8c4b9-7fde-df96-a60e-a6519d24f61f/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "NASINASI?"
+      ]
+    },
+    {
+      "title": "Entropi - EP",
+      "type": "EP",
+      "year": "2026",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/d5/86/f4/d586f460-2e55-ecb2-89df-536a00d819af/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "entropi",
+        "yAllah",
+        "çivi",
+        "bu aşk / haram",
+        "plajda"
+      ]
+    },
+    {
+      "title": "INVIDIA - Single",
+      "type": "Single",
+      "year": "2025",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/47/6e/ec/476eec07-7bc4-f8d7-13cf-4ae95acc08aa/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "INVIDIA"
+      ]
+    },
+    {
+      "title": "Cheval Blanc - Single",
+      "type": "Single",
+      "year": "2025",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/3c/41/4d/3c414d6b-1262-b794-7474-aab9f67bb7e0/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Cheval Blanc"
+      ]
+    },
+    {
+      "title": "FUTAŞK - Single",
+      "type": "Single",
+      "year": "2025",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/0a/8d/d6/0a8dd681-ac33-b060-6d4c-5c7e540583c8/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "FUTAŞK"
+      ]
+    },
+    {
+      "title": "BLACKROCK - Single",
+      "type": "Single",
+      "year": "2025",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/bf/b5/fb/bfb5fb23-fa0a-dda7-e4ba-932a298f9572/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "BLACKROCK"
+      ]
+    },
+    {
+      "title": "KBR - Single",
+      "type": "Single",
+      "year": "2025",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/bd/d5/49/bdd54941-4a65-5020-9a03-284cc652f31e/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "KBR"
+      ]
+    },
+    {
+      "title": "6EP - EP",
+      "type": "EP",
+      "year": "2025",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e7/94/a5/e794a593-56d4-3fbf-4d2b-d2266b19e8f5/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "ESKİ OKUL",
+        "2PAC MI WUTANG MI",
+        "TYGA",
+        "BU GECENİN YILDIZI KİM",
+        "HERKES SAVAŞ İSTİYOR",
+        "YA PARA YA CANIN"
+      ]
+    },
+    {
+      "title": "Daim - Single",
+      "type": "Single",
+      "year": "2024",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/dc/32/87/dc328783-b5a8-13cd-8692-3b90342e42fc/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Daim"
+      ]
+    },
+    {
+      "title": "Ikarus - Single",
+      "type": "Single",
+      "year": "2024",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/48/8c/ed/488ced22-f9f3-12cc-6470-5180e85f99db/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Ikarus"
+      ]
+    },
+    {
+      "title": "Kirlendi Tüm Duygularım - Single",
+      "type": "Single",
+      "year": "2024",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/5a/85/16/5a85169c-b53f-8f71-d95f-0a3592ad4579/198391147029.jpg/600x600bb.jpg",
+      "tracks": [
+        "Kirlendi Tüm Duygularım"
+      ]
+    },
+    {
+      "title": "Meclis-i Ala - Single",
+      "type": "Single",
+      "year": "2024",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/08/9f/60/089f60a4-a413-c232-5140-ec8d13e47702/198846232973.jpg/600x600bb.jpg",
+      "tracks": [
+        "Meclis-i Ala"
+      ]
+    },
+    {
+      "title": "UFUKMANIA - Single",
+      "type": "Single",
+      "year": "2024",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/53/2d/d1/532dd1d5-e7a9-0a21-8815-1fbab6de0842/196872239485.jpg/600x600bb.jpg",
+      "tracks": [
+        "UFUKMANIA"
+      ]
+    },
+    {
+      "title": "IKARUS",
+      "type": "Albüm",
+      "year": "2024",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/7b/b9/557bb9f3-4c23-1b48-03e8-c86d74f6928d/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Suikast Mevsimi",
+        "Yarim Yamalak",
+        "C.Iğerto",
+        "Su",
+        "Kirmizi",
+        "Bana Sen Gerek",
+        "Circus",
+        "Neyin Uğruna/Tavşan",
+        "Dprsyn/Gemiler",
+        "Derin Aşk",
+        "Daadoh",
+        "Nefes Alama",
+        "Babaroblox (feat. Atlas)"
+      ]
+    },
+    {
+      "title": "Galvanize - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/20/cb/97/20cb97fa-d758-34b6-066e-c41c2ac16ea6/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Galvanize"
+      ]
+    },
+    {
+      "title": "KYOTO/GEISHA - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/07/2d/03/072d03b3-6dcc-72f1-64aa-008fd5f133d1/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "KYOTO/GEISHA"
+      ]
+    },
+    {
+      "title": "Fırtına - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/31/5f/9f/315f9f29-bc57-27a7-f84f-86ec47cfa7e1/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Fırtına"
+      ]
+    },
+    {
+      "title": "İST/TAKSÎMİ - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/2c/03/39/2c0339cd-0f5d-049a-439a-afe5b20bc394/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "İST/TAKSÎMİ"
+      ]
+    },
+    {
+      "title": "Hüsran - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/44/ed/d7/44edd70c-5a18-1a67-62d9-430f2704d8d6/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Hüsran"
+      ]
+    },
+    {
+      "title": "CimCimem - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/a7/42/e6/a742e62d-4d8b-6e69-4389-c10b72586295/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "CimCimem"
+      ]
+    },
+    {
+      "title": "Prenses [Remix] - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/1f/2d/17/1f2d175a-6514-c38e-4520-818b6d63e0a7/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Prenses [Remix]"
+      ]
+    },
+    {
+      "title": "Darılmak Yok (Hamam Sessions) - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/66/22/bf/6622bf09-da6b-d759-3496-1ac98818b680/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Darılmak Yok (Hamam Sessions)"
+      ]
+    },
+    {
+      "title": "Canım Babam - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/ce/4f/92/ce4f92d6-ae37-17e6-dbc4-9ee7c1562f25/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Canım Babam"
+      ]
+    },
+    {
+      "title": "Prenses - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/ef/c6/e0/efc6e071-8e8e-7f30-44a6-709efdf9ef7e/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Prenses"
+      ]
+    },
+    {
+      "title": "Dönmedin Ki - Single",
+      "type": "Single",
+      "year": "2022",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/c0/f3/3f/c0f33fc5-1956-1602-1e97-3624678bbe15/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Dönmedin Ki"
+      ]
+    },
+    {
+      "title": "Diabolico - Single",
+      "type": "Single",
+      "year": "2022",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/ae/3c/60/ae3c6019-08ff-f9e9-7122-f2b8646aef79/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Diabolico"
+      ]
+    },
+    {
+      "title": "Ellerinde - Single",
+      "type": "Single",
+      "year": "2022",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/57/6f/ce/576fceaa-b3a0-14b7-31a8-0a7e22cf43be/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Ellerinde"
+      ]
+    },
+    {
+      "title": "Muz Cumhuriyeti - Single",
+      "type": "Single",
+      "year": "2022",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/47/f7/5b/47f75bfc-11ca-1952-38a0-8835a464fbed/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Muz Cumhuriyeti"
+      ]
+    },
+    {
+      "title": "Hadi Yaparsın - Single",
+      "type": "Single",
+      "year": "2022",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/e4/7f/27/e47f278c-d42b-1590-4f4a-d4673bf406e7/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Hadi Yaparsın"
+      ]
+    },
+    {
+      "title": "Tirat",
+      "type": "Single",
+      "year": "2022",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/e4/59/4a/e4594a65-258a-1ef3-2e4a-8081a0061f6f/5054197160257.jpg/600x600bb.jpg",
+      "tracks": [
+        "+28 (Tirat)"
+      ]
+    },
+    {
+      "title": "M.I.Ş - Single",
+      "type": "Single",
+      "year": "2021",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/78/4b/1f/784b1fa5-c061-8736-ca3a-b1454dce8382/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "M.I.Ş"
+      ]
+    },
+    {
+      "title": "The Face Of Vision - Single",
+      "type": "Single",
+      "year": "2021",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/db/fe/22/dbfe22dc-e7a2-47ec-56fe-675a46317880/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "The Face Of Vision"
+      ]
+    },
+    {
+      "title": "Samanyolu - Single",
+      "type": "Single",
+      "year": "2021",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/ef/22/fc/ef22fc29-48af-a7f0-589a-70969708c98c/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Samanyolu"
+      ]
+    },
+    {
+      "title": "Kunteper - Single",
+      "type": "Single",
+      "year": "2020",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/51/d7/b4/51d7b436-f2fc-8d87-4caa-8897c22f630d/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Kunteper"
+      ]
     },
     {
       "title": "Darilmak Yok - Single",
       "type": "Single",
       "year": "2020",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/a5/64/0d/a5640d70-998b-bbd1-dc1a-52f942293868/0.jpg/600x600bb.jpg",
-      "tracks": []
+      "tracks": [
+        "Darilmak Yok"
+      ]
+    },
+    {
+      "title": "Baban - Single",
+      "type": "Single",
+      "year": "2020",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/9d/6b/3d/9d6b3d73-4d7b-4acb-f0d9-4e2834639356/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Baban"
+      ]
+    },
+    {
+      "title": "Ihtan (Groovypedia Live) [feat. DJ Artz] - Single",
+      "type": "Single",
+      "year": "2020",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/8b/5c/71/8b5c7165-abc8-676c-1510-0d0570fd6983/cover_8697420780548.jpg/600x600bb.jpg",
+      "tracks": [
+        "Ihtan (feat. DJ Artz) [Groovypedia Live]"
+      ]
+    },
+    {
+      "title": "Trump - Single",
+      "type": "Single",
+      "year": "2020",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/5f/77/67/5f77670a-c1a0-0ba6-4073-8d883014dce4/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Trump"
+      ]
+    },
+    {
+      "title": "Dön Dünya - Single",
+      "type": "Single",
+      "year": "2020",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/d2/d4/ba/d2d4bacf-aab4-0f5f-9f07-edb9ddbe043d/196874096963.jpg/600x600bb.jpg",
+      "tracks": [
+        "Dön Dünya"
+      ]
+    },
+    {
+      "title": "666",
+      "type": "Albüm",
+      "year": "2020",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/60/8b/d4/608bd4e4-8b68-362b-419c-8cf3e6350c87/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "En Eskiden Beri",
+        "Rehabilite",
+        "Sür Ya da Öl",
+        "Labirent",
+        "Türlü Bela",
+        "Dilemma x Kuytu",
+        "Intro",
+        "Outro",
+        "Sendeliyorum",
+        "Az"
+      ]
+    },
+    {
+      "title": "Pirana - Single",
+      "type": "Single",
+      "year": "2019",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/62/6f/b3/626fb3bb-3878-65d6-0f8a-b9304136f007/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Pirana"
+      ]
+    },
+    {
+      "title": "Yaz Yağmurum (feat. Onur Betin) - Single",
+      "type": "Single",
+      "year": "2019",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/89/a9/63/89a96350-2024-4784-4454-fa07d336ab04/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Yaz Yağmurum (feat. Onur Betin)"
+      ]
     },
     {
       "title": "Aslan Marşı - Single",
       "type": "Single",
       "year": "2019",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/a6/cf/c0/a6cfc08f-87d4-d527-2140-c62d79f78773/cover.jpg/600x600bb.jpg",
-      "tracks": []
+      "tracks": [
+        "Aslan Marşı"
+      ]
+    },
+    {
+      "title": "İmza - Single",
+      "type": "Single",
+      "year": "2019",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/0e/f7/61/0ef76160-fe87-9093-96f6-d35d84f973f1/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "İmza"
+      ]
+    },
+    {
+      "title": "Talep - Arz - Single",
+      "type": "Single",
+      "year": "2019",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/e0/f2/39/e0f2392e-10e5-5aae-f0d9-3a3bbb4ba4bf/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Talep - Arz"
+      ]
+    },
+    {
+      "title": "Çocuk - Single",
+      "type": "Single",
+      "year": "2019",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/ab/65/da/ab65dabb-f210-75ae-7570-c698934c5c56/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Çocuk"
+      ]
     },
     {
       "title": "Yak Yak Yak - Single",
       "type": "Single",
       "year": "2018",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/91/56/3b/91563b26-3452-737c-17aa-aa09b69fef08/cover.jpg/600x600bb.jpg",
-      "tracks": []
+      "tracks": [
+        "Yak Yak Yak"
+      ]
     },
     {
       "title": "Dünya'dan Atlas'a - Single",
       "type": "Single",
       "year": "2018",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/0b/65/a0/0b65a093-b141-f43f-7c16-fcf367bd0916/0.jpg/600x600bb.jpg",
-      "tracks": []
+      "tracks": [
+        "Dünya'dan Atlas'a"
+      ]
     },
     {
-      "title": "Talep - Arz - Single",
-      "type": "EP",
-      "year": "2019",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/e0/f2/39/e0f2392e-10e5-5aae-f0d9-3a3bbb4ba4bf/cover.jpg/600x600bb.jpg",
-      "tracks": []
+      "title": "Milyon - Single",
+      "type": "Single",
+      "year": "2018",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/17/3b/c4/173bc46c-8731-8272-b315-822881b4238b/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Milyon"
+      ]
+    },
+    {
+      "title": "Karma (Groovypedia Live) - Single",
+      "type": "Single",
+      "year": "2018",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/67/ea/40/67ea40c9-385b-df5d-dcb8-aeeed16832d5/cover_4062851773515.jpg/600x600bb.jpg",
+      "tracks": [
+        "Karma (Groovypedia Live)"
+      ]
+    },
+    {
+      "title": "Karma - Single",
+      "type": "Single",
+      "year": "2017",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/9a/4c/13/9a4c136a-572e-da58-5138-108056732e14/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Karma"
+      ]
+    },
+    {
+      "title": "Hayal (Groovypedia Live) - Single",
+      "type": "Single",
+      "year": "2016",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/10/be/fe/10befe09-de85-b255-5b46-d082e9d76da6/cover_4062851773522.jpg/600x600bb.jpg",
+      "tracks": [
+        "Hayal (Groovypedia Live)"
+      ]
+    },
+    {
+      "title": "Uzulme (feat. ARTZ) - Single",
+      "type": "Single",
+      "year": "2016",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/0f/32/8e/0f328eb6-ab36-7212-d5b0-230bb55a9eb9/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Uzulme (feat. ARTZ)"
+      ]
+    },
+    {
+      "title": "DEEV (Deluxe Edition)",
+      "type": "Albüm",
+      "year": "2016",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/f3/4c/63f34c07-123b-5b2d-2085-39b2f660756d/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Plüton (feat. DJ Artz)",
+        "Sayın Türk (feat. DJ Artz)",
+        "Hepsi Benim 2 (feat. DJ Artz)",
+        "Krang (feat. Hidra & DJ Artz)",
+        "Evim (feat. DJ Artz)",
+        "Rec, Play, Pause (feat. DJ Artz, Xir & Sansar Salvo)",
+        "Satın Alıcazzz (feat. DJ Artz)",
+        "Arkadaş (feat. DJ Artz)",
+        "Rec, Play, Pause (feat. Ben Büdü, Xir & Sansar Salvo) [Remix]",
+        "İstiklal (feat. DJ Artz & Bugy)",
+        "Ne Varsa Kafada Var (feat. DJ Artz)",
+        "Skit Baltalayıcısı (Skit)",
+        "U.A.A. (feat. Ezhel & DJ Artz)",
+        "Yerim Rahat (feat. DJ Artz & Emrah Karakuyu)",
+        "Var Arantım (feat. Ben Büdü) [Remix]",
+        "Çok Hızlısın Kanka (Skit)",
+        "U.A.A. (feat. Ben Büdü & Ezhel) [Remix]",
+        "İstiklal (feat. Ben Büdü) [Dub Remix]",
+        "Hadi Görüşürüz (Skit)",
+        "Nergis TV (Skit)",
+        "Var Arantım (feat. DJ Artz)"
+      ]
     }
   ],
-  "weghrumi": [],
+  "weghrumi": [
+    {
+      "title": "TUZAK - Single",
+      "type": "Single",
+      "year": "2026",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a5/cd/94/a5cd9426-487a-13fa-6051-032f9d4ce9cd/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "TUZAK"
+      ]
+    },
+    {
+      "title": "CURCUNA",
+      "type": "Albüm",
+      "year": "2026",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/a7/5b/07/a75b07a5-12a0-f1a3-749c-67e5b15b6307/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Outro",
+        "Halef Selef",
+        "Balbiber",
+        "Radikal Eşkiya (feat. Şehinşah)",
+        "ŞSS",
+        "Daha Çok Var",
+        "Intro"
+      ]
+    },
+    {
+      "title": "Geri Ver - Single",
+      "type": "Single",
+      "year": "2025",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/8f/43/98/8f4398f2-2e6f-fea7-8686-f681a81df1d7/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Geri Ver"
+      ]
+    },
+    {
+      "title": "Güldüğün Gün - Single",
+      "type": "Single",
+      "year": "2025",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/60/e9/45/60e9456c-ffcf-7f02-8683-e77c216cdbc0/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Güldüğün Gün"
+      ]
+    },
+    {
+      "title": "Yanlışlarla Karşılaştım - Single",
+      "type": "Single",
+      "year": "2025",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/9a/b5/bc/9ab5bcb5-a3d7-0ab0-0db0-23bba03ef89a/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Yanlışlarla Karşılaştım"
+      ]
+    },
+    {
+      "title": "16-24 - Single",
+      "type": "Single",
+      "year": "2025",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/8a/14/0f/8a140ff2-fa39-36b7-8d3b-484c6433e91c/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "16-24"
+      ]
+    },
+    {
+      "title": "Göz Ucuyla - Single",
+      "type": "Single",
+      "year": "2025",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/29/d3/f9/29d3f9d4-2db8-a034-4610-3e1d6d77cb6c/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Göz Ucuyla"
+      ]
+    },
+    {
+      "title": "Tütün ve Votka - Single",
+      "type": "Single",
+      "year": "2025",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/b5/d0/c6/b5d0c685-b416-318c-dfcf-9c64a7f1bebc/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Tütün ve Votka"
+      ]
+    },
+    {
+      "title": "Kennedy'i Ben Vurdum - Single",
+      "type": "Single",
+      "year": "2024",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/ec/56/ff/ec56ff22-41b6-0421-5326-d6a32cf80c0d/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Kennedy'i Ben Vurdum"
+      ]
+    },
+    {
+      "title": "Sana Vuruldum (Ulubatlı Hasan) - Single",
+      "type": "Single",
+      "year": "2024",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/00/13/1d/00131d69-7e79-0e02-3727-05f5e43013af/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Sana Vuruldum (Ulubatlı Hasan)"
+      ]
+    },
+    {
+      "title": "Karardı Bulutlar - Single",
+      "type": "Single",
+      "year": "2024",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/a4/36/6c/a4366c58-bd78-bf54-10d6-1c6e9a01ae29/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Karardı Bulutlar"
+      ]
+    },
+    {
+      "title": "Çok İnsan Affettim - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/bb/5c/85/bb5c8526-a30d-86fd-a83c-0a28c2cf8013/23UM1IM12885.rgb.jpg/600x600bb.jpg",
+      "tracks": [
+        "Çok İnsan Affettim"
+      ]
+    },
+    {
+      "title": "RUMİ MADAFAKA - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/a7/e6/7e/a7e67e72-c647-be09-cdfd-3dff2e0131e0/23UM1IM02343.rgb.jpg/600x600bb.jpg",
+      "tracks": [
+        "RUMİ MADAFAKA"
+      ]
+    },
+    {
+      "title": "Yağsın Dünya Üstüme - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/fd/e5/9e/fde59eaa-9e3c-b9cd-962c-97ac63ba205f/23UM1IM55302.rgb.jpg/600x600bb.jpg",
+      "tracks": [
+        "Yağsın Dünya Üstüme"
+      ]
+    },
+    {
+      "title": "Bu Ben Olmamak - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/b6/ac/dc/b6acdcc5-08ba-7462-8b0d-088e2331b986/23UMGIM72198.rgb.jpg/600x600bb.jpg",
+      "tracks": [
+        "Bu Ben Olmamak"
+      ]
+    },
+    {
+      "title": "ÇÖP ŞİŞ - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/5b/ab/1e/5bab1e54-ca41-985e-fa66-fbd985e7fc95/23UM1IM28058.rgb.jpg/600x600bb.jpg",
+      "tracks": [
+        "ÇÖP ŞİŞ"
+      ]
+    },
+    {
+      "title": "Kin - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/e5/3e/6b/e53e6b93-9f1c-4adc-5d6a-e99155eb3c6f/23UMGIM03005.rgb.jpg/600x600bb.jpg",
+      "tracks": [
+        "Kin"
+      ]
+    },
+    {
+      "title": "Maskara - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/10/15/ed/1015ed0b-e476-72d3-31d6-377785c7ab7c/23UMGIM38794.rgb.jpg/600x600bb.jpg",
+      "tracks": [
+        "Maskara"
+      ]
+    },
+    {
+      "title": "Halit Abi - Single",
+      "type": "Single",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/97/be/e0/97bee0d1-624e-8ccf-bd79-ea3af37f0ba3/23UMGIM48201.rgb.jpg/600x600bb.jpg",
+      "tracks": [
+        "Halit Abi"
+      ]
+    },
+    {
+      "title": "GALACTUS - EP",
+      "type": "EP",
+      "year": "2023",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/dc/d9/3f/dcd93fe7-2059-8c9f-385e-94ab25f7f216/23UMGIM64314.rgb.jpg/600x600bb.jpg",
+      "tracks": [
+        "Aziz Yıldırım",
+        "Kiko Gloss",
+        "Martı ya da Mercedes",
+        "Kapkara"
+      ]
+    },
+    {
+      "title": "Senin Olamam - Single",
+      "type": "Single",
+      "year": "2022",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/b7/3e/fe/b73efed5-7cc6-c857-f2a9-c1eef5acde91/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Senin Olamam"
+      ]
+    },
+    {
+      "title": "Pringles - Single",
+      "type": "Single",
+      "year": "2022",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/be/7a/10/be7a1003-acee-8d9c-d97e-18edf1f71d83/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Pringles"
+      ]
+    },
+    {
+      "title": "Toz Duman - Single",
+      "type": "Single",
+      "year": "2022",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/63/05/3f/63053f6a-bf2c-6a80-af74-ea21e1d66312/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Toz Duman"
+      ]
+    },
+    {
+      "title": "Amon Ra - EP",
+      "type": "EP",
+      "year": "2022",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/0b/c6/40/0bc6407b-a3b4-7e1c-f7b9-b3d500411004/0.jpg/600x600bb.jpg",
+      "tracks": [
+        "Murabba",
+        "Şefaat",
+        "Tuzlu Kahve",
+        "Koma Freestyle"
+      ]
+    },
+    {
+      "title": "P.U.T.A. - Single",
+      "type": "Single",
+      "year": "2021",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/b4/39/55/b43955c0-458b-7744-a15e-e20688648dc9/artwork.jpg/600x600bb.jpg",
+      "tracks": [
+        "P.U.T.A."
+      ]
+    },
+    {
+      "title": "Pardon - Single",
+      "type": "Single",
+      "year": "2021",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/03/b2/01/03b201f8-fdf3-2092-bf39-f6c905137069/artwork.jpg/600x600bb.jpg",
+      "tracks": [
+        "Pardon"
+      ]
+    },
+    {
+      "title": "Canım İstedi - Single",
+      "type": "Single",
+      "year": "2021",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/1a/74/be/1a74be40-8350-e984-3ced-22e4f9aeca90/artwork.jpg/600x600bb.jpg",
+      "tracks": [
+        "Canım İstedi"
+      ]
+    },
+    {
+      "title": "Depar - Single",
+      "type": "Single",
+      "year": "2021",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/41/fc/27/41fc275a-05be-3771-7ac4-163d510fcf30/artwork.jpg/600x600bb.jpg",
+      "tracks": [
+        "Depar"
+      ]
+    }
+  ],
   "ceza": [
     {
       "title": "Rapstar",
