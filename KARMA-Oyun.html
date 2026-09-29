@@ -4,11 +4,20 @@
   içerik hash'inden üretilir, yani herhangi bir dosya değişince kendiliğinden
   değişir ve tarayıcı eski kopyayı kullanamaz.
 
-  Yayın adımları:
-    node tools/bump-cache.js      → ?v= değerlerini yeni hash ile damgalar
-    node tools/build-single.js    → tek dosya build + önbellek denetimi
+  YAYIN AKIŞI (tek komut):
+    npm run release -- patch --verify   → sürümü yükselt + damgala + build + doğrula
+    npm run verify                      → yalnızca tam doğrulama (11 adım, ~2 dk)
 
-  Elle takip edilen yayın sürümü (yalnızca changelog/okunabilirlik): 10.15
+  Elle takip edilen yayın sürümü: js/version.js  (K.VERSION)
+  Sürüm numarası önbellek hash'inden BAĞIMSIZDIR: hash makine için
+  (her dosya değişiminde değişir), K.VERSION insan için.
+
+  Yerel önizleme: npm run serve  →  http://localhost:8080
+  (modüler sürümü file:// ile açmak ÇALIŞMAZ; tembel veri katmanı
+   alt kaynak çektiği için http gerekir.)
+
+  Otomatik doğrulama: .github/workflows/tests.yml — her push'ta
+  aynı 11 adımlı zincir koşar.
 -->
 <!DOCTYPE html>
 <html lang="tr">
@@ -5084,6 +5093,28 @@ html, body {
   </div>
 
   <!-- ================= DATA ================= -->
+  <!-- v10.18 — yayın sürümü (K.VERSION). Önbellek hash'inden bağımsız,
+       insan okunur sürüm; tools/release.js tarafından yazılır. -->
+  <script>
+/* ==== js/version.js ==== */
+/* ============================================================
+   KARMA — js/version.js   (v10.18)
+   İNSAN OKUNUR YAYIN SÜRÜMÜ.
+
+   Önbellek sürümü (`?v=<içerik hash'i>`) her dosya değişiminde
+   kendiliğinden değişir — makine için doğru, insan için okunaksız.
+   Bu dosya "canlıda hangi sürüm var?" sorusunun tek satırlık cevabıdır.
+
+   Güncelleme:  node tools/release.js patch|minor|major
+   (release.js bu dosyayı ve package.json'u birlikte yazar.)
+   ============================================================ */
+(function (K) {
+  "use strict";
+  K.VERSION = "10.18.0";
+  K.VERSION_DATE = "2026-09-29";
+})(window.K = window.K || {});
+
+</script>
   <script>
 /* ==== js/data/artists.js ==== */
 /* ============================================================
@@ -12088,10 +12119,21 @@ window.K = window.K || {};
           </div>
         </div>`;
 
+      /* v10.18 — yayın sürümü bilgisi.
+         "Canlıda hangi sürüm var?" sorusunun tek bakışta cevabı.
+         Önbellek hash'i (index.html'deki ?v=…) makine içindir ve
+         okunaksızdır; burada insan okunur sürüm gösterilir. */
+      const vLine = (K.VERSION)
+        ? `<div class="set-section"><div class="set-title">Sürüm</div>` +
+          `<div class="slot-sub">KARMA <b>v${U.escape(K.VERSION)}</b>` +
+          (K.VERSION_DATE ? ` · ${U.escape(K.VERSION_DATE)}` : "") +
+          `</div></div>`
+        : "";
+
       const modal = K.ui.modal({
         title: "⚙️ Ayarlar & Kayıt",
         desc: "Kayıt slotları, zorluk ve tercihler",
-        body,
+        body: body + vLine,
         actions: [{ label: "Kapat" }]
       });
 
@@ -12923,469 +12965,47 @@ window.K = window.K || {};
 })(window.K = window.K || {});
 
 </script>
+  <!-- v10.18 (B-5) — DM ağızları motor dosyasından ayrıldı:
+       data/chat-profiles.js K.CHAT_PROFILES'ı kurar, systems/chat.js
+       onu okur. Sıra önemli: veri, motordan ÖNCE yüklenmeli. -->
   <script>
-/* ==== js/systems/chat.js ==== */
+/* ==== js/data/chat-profiles.js ==== */
 /* ============================================================
-   KARMA — systems/chat.js
-   SERBEST METİN DM MOTORU (genişletilmiş)
-   • Oyuncunun mesajını niyetine (intent) göre analiz eder.
-   • Sanatçının kişiliğine / samimiyet seviyesine göre bağlamsal
-     ve TUTARLI cevap üretir (konuşma hafızası + takip soruları).
-   • Bazı sanatçıların ÖZEL ağzı vardır (ör. Lie Refuge → argo).
-   • Gündemdeki haberlerden söz edilirse ona da bağlanır.
+   KARMA — data/chat-profiles.js   (v10.18 · B-5)
+   SANATÇIYA ÖZEL DM AĞIZLARI (cümle havuzları)
+
+   Neden ayrı dosya?
+   -----------------
+   Bu havuzlar eskiden systems/chat.js içindeydi. chat.js zamanla
+   86 KB'ı aşan tek bir modül oldu: DM motoru + niyet sözlüğü + 12
+   sanatçı profili aynı dosyada. Her yeni profil eklemek 3.000+ satırlık
+   dosyayı düzenlemeyi gerektiriyordu — birleştirme çakışması ve yanlış
+   düzenleme riski yüksekti.
+
+   Artık ayrım net:
+     · systems/chat.js        → MOTOR (niyet analizi, cevap seçimi, kurallar)
+     · data/chat-profiles.js  → VERİ   (sanatçıya özel ağızlar)
+
+   chat.js bu nesneyi `K.CHAT_PROFILES` üzerinden okur. Davranış
+   birebir aynıdır: içerik mekanik olarak taşındı, tek karakter
+   değişmedi (bkz. tools/smoke-personality.js — 263 kontrol).
+
+   Alan açıklaması (bir profil):
+     label    : kısa etiket (ör. "argo", "genc") — bazı ek davranışları seçer
+     selam    : selamlaşma karşılıkları (islamic / shortIslamic / reply)
+     pool     : niyet bazlı cümle havuzları (greet, music, feature…)
+     cold     : tanımadığı kişiye verilen soğuk cevaplar
+     suffix   : cümlenin sonuna nadiren eklenen ton kuyruğu
+     ambient  : sanatçının kendiliğinden yazdığı mesajlar (düşük/orta/yüksek samimiyet)
+     extras   : ek bağlam cümleleri
+     followup : kısa "evet/hayır" cevaplarına bağlamsal karşılık
+     reaction : sosyal medya yorumları (praise / shade / neutral)
+     diss     : diss satırları
    ============================================================ */
 (function (K) {
   "use strict";
 
-  const U = K.util;
-
-  /* ------------- yardımcı ------------- */
-  const norm = s => (s || "").toLocaleLowerCase("tr").replace(/[.,!?;:]/g, " ").replace(/\s+/g, " ").trim();
-  const has = (t, words) => words.some(w => t.includes(w));
-
-  /* ------------- selamlaşma tespiti (özel) -------------
-     "selamün aleyküm" / "sa" → aleyküm selam
-     "aleyküm selam"  / "as" → karşılık
-     Bu mesajlara ulaşılabilirlik ne olursa olsun karşılık verilir. */
-  function greetForm(text) {
-    const t = norm(text);
-    if (!t) return null;
-    if (/^(ve\s+)?aleyk(u|ü)m\s+selam/.test(t) || t === "as" || t === "a s" || t === "a.s") return "reply";
-    if (t.includes("aleyk") || t === "sa" || t === "s a" || t === "s.a" || /^selam\s?un/.test(t)) return "islamic";
-    if (/^(selam|selamlar|merhaba|meraba|merabalar|slm|salam|hey|alo|günayd|iyi akşam|iyi gece|hoş\s?geldin|hosgeldin)\b/.test(t)) return "generic";
-    return null;
-  }
-
-  /* İslami selam ve karşılıkları (profil özel havuzu yoksa kullanılır) */
-  const SELAM = {
-    islamic: [
-      "Aleyküm selam, kardeşim.",
-      "Aleyküm selam, hoş geldin.",
-      "Ve aleyküm selam. Nasılsın bakalım?",
-      "Aleyküm selam, naber?",
-      "Aleyküm selam, iyi ki yazdın."
-    ],
-    shortIslamic: ["as", "as, naber?", "as kardeşim.", "Aleyküm selam."],
-    reply: [
-      "Eyvallah, sağ ol.",
-      "as kardeşim, naber?",
-      "Rica ederim, sen de iyi bak.",
-      "Ne demek, sen de selamettesin."
-    ]
-  };
-
-  function selamPool(gf, prof, stage, short, artist) {
-    if (prof && prof.selam && prof.selam[gf] && prof.selam[gf].length) return prof.selam[gf];
-    if (gf === "islamic") return short ? SELAM.shortIslamic : SELAM.islamic;
-    if (gf === "reply") return SELAM.reply;
-    /* DÜZELTME (v10.8): selamlama yolu tür/kıdem katmanını ATLIYORDU,
-       bu yüzden profil olmayan 25 sanatçı yine aynı genel cümleleri
-       kuruyordu. Artık selamlama da sanatçının ses katmanını kullanır. */
-    return poolFor("greet", stage, prof, artist);
-  }
-
-  /* ------------- niyet sözlüğü ------------- */
-  const INTENTS = [
-    { id: "feature",   words: ["feature", "feat", "düet", "duet", "ortak şarkı", "beraber şarkı", "birlikte şarkı", "collab", "verse", "nakarat oku", "üstüne oku", "ortak iş"] },
-    { id: "hangout",   words: ["takılalım", "takılalım mı", "buluşalım", "görüşelim", "çıkalım", "kahve", "yemek yiyelim", "stüdyoya gel", "müsait misin", "boş musun", "plan yapalım", "dışarı", "buluşma"] },
-    { id: "company",   words: ["şirket", "şirketime", "label", "sözleşme", "kontrat", "imzala", "kadro", "transfer", "imzalamak", "anlaşma", "kayıt al"] },
-    { id: "money",     words: ["para", "bütçe", "avans", "ödeme", "kaç para", "ücret", "fiyat", "para ver", "kazanç", "telif", "royalty"] },
-    { id: "compliment",words: ["harika", "muhteşem", "efsane", "süper", "çok iyi", "bayıldım", "sevdim", "beğendim", "tebrik", "bravo", "güzel olmuş", "helal", "kralsın", "adamsın", "goat", "kral", "saygı", "hayran"] },
-    { id: "critique",  words: ["kötü", "berbat", "sevmedim", "beğenmedim", "vasat", "zayıf", "sıkıcı", "overrated", "abartı", "eskisi gibi", "bozmuş", "hayal kırıklığı"] },
-    { id: "diss",      words: ["diss", "beef", "subliminal", "gönderme", "laf sokma", "rap savaşı", "verse at", "sataşma"] },
-    { id: "music",     words: ["albüm", "şarkı", "single", "ep", "proje", "ne zaman çıkıyor", "yeni iş", "yeni parça", "beat", "kayıt", "stüdyo", "sound", "prodüksiyon", "klip", "konser", "turne", "mix", "master"] },
-    { id: "career",    words: ["nasıl başladın", "tavsiye", "ilham", "kariyer", "tecrübe", "nasıl yaptın", "öğüt", "yol göster", "mentor", "ders", "hedef", "başarı"] },
-    { id: "market",    words: ["piyasa", "sektör", "endüstri", "rap piyasası", "müzik dünyası", "trend", "bu ara ne dinliyor", "dinleyici", "algoritma", "spotify listesi"] },
-    { id: "beef",      words: ["kimse", "piyasa bitmiş", "rap öldü", "sahte", "kopya", "taklit", "çalıntı beat", "iş bitirmiş"] },
-    { id: "health",    words: ["sağlık", "uyku", "yorgun", "stres", "dinlen", "iyi misin", "yaralanma", "sesin"] },
-    { id: "hard",      words: ["yorgunum", "param yok", "moralim bozuk", "moralim", "bunalım", "stres", "sıkıntı", "dert", "zor durumdayım", "kötüyüm", "yalnızım", "mutsuzum", "çöktüm", "dibe vurdum", "bitkin", "yıkıldım", "kafam bozuk", "geçinemiyorum"] },
-    { id: "family",    words: ["aile", "anne", "baba", "kardeş", "çocuk", "evlilik", "eşim", "oğlun", "kızın", "çocuğun", "eşin", "ailen", "baban", "annen", "kardeşin"] },
-    { id: "thanks",    words: ["teşekkür", "sağol", "sağ ol", "eyvallah", "minnettar", "teşekkürler", "thanks"] },
-    { id: "howareyou", words: ["nasılsın", "naber", "ne haber", "iyi misin", "neler yapıyorsun", "napıyorsun", "ne yapıyorsun", "keyifler"] },
-    { id: "greet",     words: ["merhaba", "selam", "hey", "alo", "günaydın", "iyi akşamlar", "iyi geceler", "hosgeldin", "hoş geldin"] },
-    { id: "support",   words: ["paylaştım", "story", "tanıttım", "destek", "reklam", "spotify listeme", "çalma listeme", "ekledim", "rep", "like attım"] },
-    { id: "bye",       words: ["görüşürüz", "bye", "hoşçakal", "kapatıyorum", "gideyim", "iyi geceler", "sonra konuşuruz", "hadi kaçtım"] },
-    { id: "shortyes",  words: ["evet", "tamam", "olur", "tabii", "peki", "anladım", "ok", "okay", "kesin", "neden olmasın", "aynen", "he"] },
-    { id: "shortno",   words: ["hayır", "olmaz", "yok", "yapmam", "istemiyorum", "belki", "sonra", "şimdi değil", "yo", "olmaz kardeş"] },
-    { id: "laugh",     words: ["haha", "hahah", "lol", "şaka", "dalga", "komik", "gül", "koptum", "asdfg", "kahkaha", "komiğime"] },
-    { id: "insult",    words: ["salak", "aptal", "kötüsün", "berbatsın", "saçma", "rezalet", "nefret ediyorum", "beter", "vasıfsız", "kopyacı", "tipsiz", "beceriksiz"] },
-    { id: "flirt",     words: ["seni seviyorum", "aşığım", "yakışıklı", "güzelsin", "evlenelim", "seninle olmak", "kalbim", "çıkma teklifi"] },
-    { id: "personal",  words: ["kaç yaşındasın", "nerelisin", "hangi şehir", "gerçek adın", "ismin ne", "ismin ne anlama", "adın ne", "sahne adı", "sahne adın", "lakabın", "takma adın", "evli misin", "sevgilin", "özel hayatın", "telefonun", "adresin"] },
-    { id: "askmoney",  words: ["borç", "para ver", "ödünç", "maddi", "yardım et para", "faizsiz", "bana para"] },
-    { id: "news",      words: ["haber", "gündem", "siyaset", "ekonomi", "cinayet", "hırsızlık", "zam", "seçim", "sokak olayı"] },
-    { id: "question",  words: ["nasıl", "neden", "niye", "ne zaman", "kim", "nerede", "mi", "mı", "musun", "mısın"] }
-  ];
-
-  /* ------------- soğuk cevaplar (tanımıyorsa) ------------- */
-  const COLD = {
-    generic: ["Kimsin kardeşim?", "Tanıdık gelmiyorsun, kimsin sen?", "Yoğunum, sonra bakarım.", "Şu an herkese cevap veremiyorum, kusura bakma.", "Seni tanımıyorum ama yazmışsın.", "Bir sürü mesaj geliyor, seni ayırt edemedim."],
-    feature: ["Şu an kimseye feature vermiyorum.", "Önce seni bir tanıyalım, öyle konuşalım.", "Feature ciddi iş, sen kimsin?", "Bunun için biraz ün lazım kardeşim."],
-    hangout: ["Şu an müsait değilim.", "Tanımadığım insanlarla takılmıyorum, kusura bakma.", "Programım dolu."],
-    company: ["Sözleşme için önce bir geçmiş lazım.", "Böyle bir teklif için çok erken.", "Önce kendini kanıtla."],
-    flirt: ["Yo, oraya gitmeyelim.", "Saçmalama."],
-    insult: ["Kes sesini, ne diyorsun sen?", "Boş konuşma.", "Kimsin sen ya?"],
-    askmoney: ["Para mı? Yok öyle bir şey.", "Bana para sorma, ben kimseye vermem."],
-    personal: ["Özel hayatım seni ilgilendirmez.", "Bunları sormaya hakkın yok henüz."],
-    laugh: ["Komik misin?", "Ne gülüyorsun?"],
-    thanks: ["Tanımadığım birine teşekkür etmenin anlamı yok ama sağ ol.", "Peki."],
-    question: ["Neden soruyorsun?", "Kimsin sen önce?", "Böyle soruya cevap vermem."]
-  };
-
-  /* ------------- NOT (v10.14 temizliği) -------------
-     Burada eskiden "yansıtıcı cevap" denemesi vardı: REFLECT havuzu,
-     STOP kelime seti ve salientWord() yardımcısı oyuncunun mesajından
-     rastgele bir kelime seçip cümleye geri koyuyordu ("{word} mı?
-     İlginç, devam et."). Bu yaklaşım terk edildi — contextReply()
-     artık anlamlı bağlam kuruyor — ama üç tanım dosyada kalmıştı.
-     Hiçbiri çağrılmıyordu; kaldırıldı. */
-
-  function classify(text) {
-    const t = norm(text);
-    if (!t) return "empty";
-    const isQuestion = /\?/.test(text || "");
-    if (t.length <= 16) {
-      const shorty = INTENTS.find(i => ["shortyes", "shortno"].includes(i.id) && i.words.some(w => t === w || t.startsWith(w + " ")));
-      if (shorty) return shorty.id;
-    }
-    // "yo" / "he" gibi çok kısa onay/ret
-    if (["yo", "yok", "olmaz"].includes(t)) return "shortno";
-    if (["he", "hehe", "aynen", "ok"].includes(t)) return "shortyes";
-
-    let best = null, bestScore = 0;
-    INTENTS.forEach(i => {
-      let sc = 0;
-      i.words.forEach(w => { if (t.includes(w)) sc += w.length > 5 ? 2 : 1; });
-      if (sc > bestScore) { bestScore = sc; best = i.id; }
-    });
-    const PRIORITY = ["insult", "laugh", "flirt", "personal", "hard", "askmoney"];
-    for (const pid of PRIORITY) {
-      const pi = INTENTS.find(x => x.id === pid);
-      if (pi && pi.words.some(w => t.includes(w))) return pid;
-    }
-    if (best) return best;
-    if (isQuestion) return "question";
-    if (t.split(" ").length <= 2) return "shortyes";
-    return "generic";
-  }
-
-  /* ------------- kişilik tonu ------------- */
-  function tone(artist) {
-    const tr = artist.traits;
-    if (tr.ego >= 7) return "ego";
-    if (tr.openness >= 8) return "warm";
-    if (tr.loyalty >= 7) return "guarded";
-    if (tr.work >= 9) return "workaholic";
-    return "neutral";
-  }
-
-  const TONE_SUFFIX = {
-    ego: [" Bu arada bu piyasada benim seviyeme gelen çok az.", " Ben işimi biliyorum kardeşim.", " Konuşmak kolay, icraat lazım.", " Bu sound'u ilk ben yaptım, not al."],
-    warm: [" Seni dinliyorum, devam.", " Samimiyetin güzel, hoşuma gidiyor.", " Senin gibi insanlar lazım bu işe.", " İçten konuşman hoşuma gitti."],
-    guarded: [" Ama her şeye hemen açık değilim, bilirsin.", " Önce güven lazım.", " Temkinliyim, kusura bakma."],
-    workaholic: [" Bu aralar stüdyodan çıkmıyorum.", " Çalışmadan olmuyor bu iş.", " Emeğe saygı duyarım, ben de öyle çalışıyorum.", " Bugün de kayıttaydım, durmak yok."],
-    neutral: ["", "", " Aynen."]
-  };
-
-  /* sanatçının gerçek şarkılarından alıntı */
-  function theirSong(artist, used) {
-    /* v10.16 — tembel veri katmanı (P-1) */
-    const list = K.lazy ? K.lazy.songs(artist.id) : ((K.REAL_SONGS && K.REAL_SONGS[artist.id]) || []);
-    const titles = list.map(s => s.title).filter(Boolean);
-    if (used && used.length) {
-      const rem = titles.filter(t => !used.includes(t));
-      if (rem.length) return U.pick(rem);
-    }
-    return titles.length ? U.pick(titles) : "yeni bir iş";
-  }
-
-  /* =====================================================
-     TEMEL CEVAP HAVUZLARI (zenginleştirildi)
-     ===================================================== */
-  function basePools(intent, S) {
-    const P = {
-      greet: [
-        "Selam, naber? Seni görmek güzel.",
-        "Hey! Hoş geldin, ne var ne yok?",
-        "Selam kardeşim, iyi ki yazdın.",
-        "Oo selam, nasıl gidiyor işler?",
-        "Selam, bu ara yoğunum ama sana vakit var.",
-        "Naber? Yazman iyi oldu, kafamı dağıttım.",
-        "Selam! Yeni bir şey üstünde çalışıyordum, sen geldin.",
-        "Hey, sonunda yazdın. Nasılsın?"
-      ],
-      howareyou: [
-        "İyiyim, stüdyodayım sürekli. Sen nasılsın?",
-        "Fena değil, yeni bir şeyler üstünde çalışıyorum. Sen?",
-        "İdare eder, bu aralar kafam müzikte. Sen ne yapıyorsun?",
-        "Yorgunum ama iyi sayılırım. Üretmeye devam. Sen?",
-        "Sorma, koşuşturma var. Ama iyiyim, sen nasılsın?",
-        "Gayet iyiyim kardeşim, enerjim yüksek. Sen nasılsın?"
-      ],
-      compliment: S >= 3
-        ? ["Sağol kardeşim, çok teşekkür ederim. Bunu senden duymak güzel.",
-           "Adamsın, sağ ol. Senin de işler yükseliyor, takipteyim.",
-           "Eyvallah, bu desteği unutmam.",
-           "Çok sağ ol, motivasyon oldu bu bana.",
-           "Sen böyle deyince bir sonraki işi daha sağlam yapıyorum."]
-        : ["Teşekkürler, sağ ol. Yeni tanışıyoruz ama iyi konuşuyorsun.",
-           "Sağ ol kardeşim, güzel sözler.",
-           "Eyvallah, desteğin için teşekkürler.",
-           "Sağ ol, güzel moral oldu."],
-      critique: S >= 3
-        ? ["Herkes beğenmek zorunda değil, saygı duyuyorum. Ama o işte emek var.",
-           "Tamam, eleştiriyi alıyorum. Beklentin neydi tam olarak?",
-           "Anladım. Ben o sound'u bilerek seçtim, kendimi tekrarlamak istemem.",
-           "Eleştirin değerli ama nedenini anlat, boş laf sevmem."]
-        : ["Yorumun için sağ ol ama henüz birbirimizi tanımıyoruz.",
-           "Herkesin zevki farklı, saygı duyarım.",
-           "Tamam, notunu aldım.",
-           "Dinledim, ama önce kim olduğunu bilmek isterim."],
-      diss: S >= 3
-        ? ["Diss işi kolay değil, adamlığını bilmen lazım.",
-           "Ben sataşmam ama üstüme gelene cevap veririm.",
-           "Subliminal değil direkt söylerim, o yüzden net ol.",
-           "Rap savaşı kültürdür ama seviyeli olacak."]
-        : ["Kimseyle diss'lik işim olmaz, sen bu konulara hiç girme.",
-           "Boş iş, gerçek iş yapalım.",
-           "O işlere girmem."],
-      feature: S >= 4
-        ? ["Onay! Sen beat getir, ben yazarım. Uygun bir zamanda stüdyoda oturalım.",
-           "Varım kardeşim. Ortak bir şey yapalım, güzel olur.",
-           "Ben de düşünüyordum bunu. Şu vibe üzerinden gidelim.",
-           "Tamam, ama iş ciddi olsun. Sağlam bir şey çıkarmalıyız.",
-           "Olur. Sen demo gönder, ben bakayım, sonra oturup yazarız."]
-        : ["Şu an herkese feature vermiyorum, önce birbirimizi tanıyalım derim.",
-           "Fikri sevdim ama şimdi doğru zaman değil. Biraz daha takılalım, sonra konuşuruz.",
-           "Feature ciddi iş, önce güven lazım.",
-           "Güzel teklif ama önce sen kendini göstermelisin."],
-      hangout: S >= 3
-        ? ["Olur, müsait olduğumda haber ederim. Takılalım.",
-           "Varım, bir kahve içeriz, kafa dağıtırız.",
-           "Tamam, stüdyoya gel hem bakarsın hem tanışırız.",
-           "Olur kardeşim, bir gün oturup konuşalım."]
-        : ["Şu an programım dolu, ama belki sonra.",
-           "Yeni tanışıyoruz, biraz daha samimiyet lazım önce.",
-           "Şimdi olmaz ama gelecek var.",
-           "Bakalım, müsait olsam haber ederim."],
-      company: S >= 5
-        ? ["Şirket işi ciddi. Şartları konuşalım ama ciddi düşünüyorum.",
-           "Label konusunda açığım, ama işin arkasında durman lazım.",
-           "Teklifi dinlerim. Doğru ekip olursa neden olmasın.",
-           "Şirket varsa vizyon da olmalı. Anlat bakalım planını."]
-        : ["Şirket işi şu an gündemimde değil, daha yolum var seninle.",
-           "Önce güven, sonra sözleşme. Şimdi erken.",
-           "Sözleşme büyük laf, henüz orada değiliz.",
-           "Şimdilik erken, ama kapıyı kapatmıyorum."],
-      money: [
-        "Para konusu net olur, söz verdiysem yaparım.",
-        "Bu işlerde şartları baştan konuşmak lazım, haklısın.",
-        "Bütçe varsa iş de olur, ama ciddiyet şart.",
-        "Parayı konuşmak ayıp değil, net olmak iyidir.",
-        "Fiyatı net söyle, ona göre bakarız."
-      ],
-      music: [
-        "Şu aralar stüdyodayım, yeni bir şey üstünde çalışıyorum.",
-        "Yeni işler var. \"{song}\" favorim, bak istersen.",
-        "Prodüksiyon üstünde çok çalışıyorum. \"{song}\" bunun güzel bir örneği.",
-        "Sürekli kayıttayım. Bir sonraki single büyük ihtimalle \"{song}\" vibe'ında olacak.",
-        "Beat'i kendim yapıyorum artık, \"{song}\" gibi işler çıkıyor ortaya.",
-        "Mix'i de kendim yapmaya başladım, kontrol bende olsun istiyorum."
-      ],
-      career: [
-        "Tavsiye istiyorsan: her gün yazacaksın, istikrar her şeyi geçer.",
-        "Ben sokaktan geldim, kolay olmadı. Sabır ve üretim.",
-        "Kendini başkalarıyla kıyaslama, kendi sound'unu kur.",
-        "Kimseyi taklit etme; bugün farklı olan kazanıyor.",
-        "Küçük başla ama bitir. Yarım işler seni yorar.",
-        "Kendine bir ses kur, sonra o sesi savun."
-      ],
-      market: [
-        "Piyasa değişti, artık algoritma her şeyi belirliyor.",
-        "Kısa içerik olmadan hit zor. Ama müzik yine de özünde duruyor.",
-        "Sektör acımasız ama dürüst üretim yapan kaybetmiyor.",
-        "Herkes hit peşinde, kimse albüm yapmıyor. Değişecek bu.",
-        "Trend'i takip et ama kendini kaybetme."
-      ],
-      beef: [
-        "Sahtekârlık bitmez bu işte, ama kaliteli iş kendini gösterir.",
-        "Ben laf sokmam, iş koyarım ortaya.",
-        "Piyasada çok gürültü var, sakin olan kazanır.",
-        "Herkes birbirine benziyor, farklı olan kazanacak."
-      ],
-      health: [
-        "Sağlık her şeyin önünde, ne yaptıysam uykuyu düzeltmekle başladı.",
-        "Sesim bazen yoruluyor, ısınma yapmadan kayda girmiyorum.",
-        "Çok çalışıyorum ama dinlenmeyi de öğrendim artık.",
-        "Stres olunca stüdyodan uzaklaşıyorum biraz."
-      ],
-      hard: [
-        "Anlıyorum kardeşim, bu iş kolay değil; o günlerden ben de geçtim.",
-        "Zor günler geçer, yeter ki sen yılma. Buradayım.",
-        "Para ve moral aynı anda gidince ağır oluyor, biliyorum. Bir nefes al.",
-        "Derdini anlat, dinliyorum. Çözüm olmasa da yalnız değilsin.",
-        "İlk yıllarda ben de borçla yaşadım; sabreden kazanıyor.",
-        "Kötü günler işin bir parçası. Kendine iyi bak, ben de buradayım.",
-        "Moralin bozuksa stüdyoya gel, bir şeyler kaydedelim; iyi gelir."
-      ],
-      family: [
-        "Aileme çok şey borçluyum, desteği onlardan aldım.",
-        "Ailemi çok anlatmam, ama onlar arkamda durdu.",
-        "Zor günlerde aile önemlidir, bunu geç öğrendim."
-      ],
-      thanks: [
-        "Rica ederim kardeşim.",
-        "Ne demek, her zaman.",
-        "Eyvallah, sağ ol sen de.",
-        "Estağfurullah, lafı olmaz."
-      ],
-      support: [
-        "Desteğin için sağ ol, unutmam bunu.",
-        "Eyvallah! Sen de bir şey çıkarınca bana yaz, destek olurum.",
-        "Çok teşekkürler, bu işler destekle büyüyor.",
-        "Sağ ol, paylaşım çok önemli bu dönemde."
-      ],
-      bye: [
-        "Görüşürüz, kendine iyi bak.",
-        "Tamam, sonra konuşuruz. İyi çalışmalar.",
-        "Hoşçakal, işlerinde kolay gelsin.",
-        "Hadi, kendine dikkat et."
-      ],
-      shortyes: [
-        "Aynen öyle.",
-        "Tamam o zaman.",
-        "Anlaştık.",
-        "Peki, öyle olsun."
-      ],
-      shortno: [
-        "Tamam, saygı duyarım.",
-        "Anladım, sorun değil.",
-        "Peki, nasıl istersen.",
-        "Tamam kardeşim, baskı yapmam."
-      ],
-      laugh: S >= 3
-        ? ["Hahah iyiydi bu 😄", "Güldürdün kardeşim, sağ ol.", "Şakacısın, sevdim bunu.", "Haha, tamam tamam, aldım."]
-        : ["Haha, tamam.", "Komiksin.", "Güldüm."],
-      insult: S >= 4
-        ? ["Sert konuşuyorsun ama hakkını veriyorsun, tartışmaya açığım.",
-           "Eleştiriye açığım ama saygı çerçevesinde.",
-           "Tamam, sinirlendin. Sebebi ne?"]
-        : ["Kes sesini istersen, ne konuşuyorsun sen?", "Herkes haddini bilecek.", "Boş konuşma.", "Sana bir şey mi yaptım?"],
-      flirt: S >= 4
-        ? ["Yapma ya 😄 Sen iyi bir insan gibisin, öyle kalalım.", "Sağ ol ama kafam müzikte şu an."]
-        : ["Yo, oraya gitmeyelim.", "Saçmalama kardeşim."],
-      personal: S >= 3
-        ? ["Özel hayatımı pek konuşmam ama sormakta ısrarcısın 😄", "Müzik dışında konuşmam genelde. Ama seninle iyiydi."]
-        : ["Bunları sormaya henüz hakkın yok.", "Özel hayatım seni ilgilendirmez."],
-      askmoney: S >= 4
-        ? ["Para işine girmeyelim, aramız bozulmasın.", "Maddi konulara girmem, kusura bakma."]
-        : ["Para mı? Yok öyle bir şey.", "Bana para sorma."],
-      news: [
-        "Gündem karışık, ama rapçinin işi tam burada.",
-        "Haberlere bakıyorum, söze dökecek çok şey var.",
-        "Bu aralar gündem ağır, müzik biraz da kaçış.",
-        "Haberde ne varsa sokakta iki katı var."
-      ],
-      question: S >= 3
-        ? ["İyi soru. Kısa cevap: zamanla öğreniliyor.",
-           "Bunu sana uzun uzun anlatabilirim.",
-           "Neden sorduğunu anladım, cevaplayayım.",
-           "Soruna net cevap: deneyerek bulacaksın."]
-        : ["Neden soruyorsun?", "Soru sormadan önce bir tanışalım.", "Bakalım, ne demek istedin?"],
-      generic: S >= 3
-        ? ["Anladım. Bunu biraz açsana, ne demek istedin?",
-           "İlginç, devam et.",
-           "Haklısın galiba. Ben de benzer şeyler düşünüyorum.",
-           "Bunu konuşmak için doğru kişidesin.",
-           "Senin bakış açını sevdim, devam et."]
-        : ["Anladım, teşekkürler.",
-           "Tamamdır. Seni dinliyorum.",
-           "Peki, ne demek istedin tam olarak?",
-           "İlginç bakış açısı."]
-    };
-    return P[intent] || P.generic;
-  }
-
-  /* =====================================================
-     TAKİP CEVAPLARI (kısa "evet/hayır" için bağlamsal)
-     ===================================================== */
-  const FOLLOWUP = {
-    feature: {
-      yes: ["Süper. O zaman sen beat'i hazırla, bana yolla, ben oturup yazarım.", "Tamam, anlaştık. Müsait bir gün stüdyoda oturalım."],
-      no: ["Tamam kardeşim, zorlamam. Hazır olunca konuşuruz.", "Olur, kendi akışında ilerle."]
-    },
-    hangout: {
-      yes: ["Tamam, ben sana gün veririrm. Kaçırma ama.", "Olur, bu hafta bir şey ayarlarım."],
-      no: ["Anladım, müsait değilsin. Sonra bakarız.", "Tamam, başka zaman."]
-    },
-    company: {
-      yes: ["Peki, şartları getir bakalım. Ciddi konuşalım.", "Tamam, o zaman bir toplantı ayarlayalım."],
-      no: ["Tamam, doğru karar da olabilir. Aceleye gelmez.", "Anladım, süre istiyorsun. Mantıklı."]
-    },
-    money: {
-      yes: ["Tamam, net olalım o zaman. Rakamı ve işi baştan konuşuruz.", "Peki, bütçe varsa iş konuşulur."],
-      no: ["Tamam, para yoksa iş yok, anlayışla karşılarım.", "Anladım, başka zaman."]
-    },
-    music: {
-      yes: ["Tamam, o zaman sana bir şey dinleteyim müsait olunca.", "Peki, demo hazırlayınca atarım."],
-      no: ["Tamam, sana uymuyorsa kendi sound'unu kovala.", "Anladım, herkesin tarzı ayrı."]
-    },
-    career: {
-      yes: ["İşte bu kafa! Sürekli yaz, çalış, bırakma.", "Tamam, o zaman ilk işin bugün bir satır yazmak olsun."],
-      no: ["Tamam, kendi yolunu kendin bul, ben de buradayım.", "Anladım, acele etme. Yolu yürümek önemli."]
-    },
-    laugh: {
-      yes: ["Hahah iyiydi gerçekten 😄", "Güldük biraz, iyi geldi."],
-      no: ["Tamam o zaman, ciddi devam edelim.", "Haha, tamam kestim."]
-    },
-    market: {
-      yes: ["Aynen, trendi doğru okuyorsun. Devam edelim.", "İşte bu! Piyasayı konuşmak lazım."],
-      no: ["Herkesin görüşü farklı, saygı duyarım.", "Tamam, senin bakışın da geçerli."]
-    },
-    news: {
-      yes: ["Öyle, gündem ağır. Bu yüzden söz de ağır olmalı.", "Haklısın, konuşulacak çok şey var."],
-      no: ["Tamam, farklı düşünüyorsun. Anlat o zaman.", "Peki, sen nasıl bakıyorsun?"]
-    },
-    hard: {
-      yes: ["İyi olmana sevindim. Yine de kendine dikkat et.", "Tamam, iyiysen sorun yok. Buradayım."],
-      no: ["Anlat o zaman, dinliyorum. Yalnız değilsin.", "Zor biliyorum. Bir nefes al, konuşalım."]
-    },
-    compliment: {
-      yes: ["Söz, haber veririm. Sen de kendini göster.", "Tamam, iş çıkarınca ilk sana atarım."],
-      no: ["Tamam, zorlamam. Kendi akışında ilerle.", "Olur, sen nasıl istersen."]
-    },
-    generic: {
-      yes: ["Tamam, devam ediyorum o zaman.", "Peki, anlatmaya devam."],
-      no: ["Tamam, konuyu kapatalım.", "Peki, başka bir şeye geçelim."]
-    }
-  };
-
-  /* Sanatçının sohbeti sürdüren takip soruları (tutarlılık) */
-  const QUESTIONS = {
-    music:      ["Yeni bir şey üstünde çalışıyorum, sonra bakar mısın?"],
-    feature:    ["Oturup yazalım mı?", "Beraber bir iş yapalım mı?"],
-    hangout:    ["Bu aralar müsait misin?"],
-    career:     ["Bu tavsiyeyi bir dene."],
-    market:     ["Sence piyasa nereye gidiyor?"],
-    news:       ["Sen bu konuda ne düşünüyorsun?"],
-    hard:       ["Konuşmak ister misin?"],
-    compliment: ["Sen de bir iş çıkarınca bana yaz."],
-    generic:    ["Sen ne düşünüyorsun?"]
-  };
-
-  /* Aynı konu tekrar açıldığında sohbeti bağlayan geçiş cümleleri */
-  const CONTINUITY = {
-    music:   ["Yine müzikten konuşuyoruz, iyi.", "Bu konuyu sevdim, devam."],
-    career:  ["Kariyer konusuna döndük, güzel.", "Bu konuda söyleyeceğim çok şey var."],
-    market:  ["Piyasayı yine konuşuyoruz.", "Bu konu uzun, devam edelim."],
-    news:    ["Gündem yine gündemde.", "Bu mesele büyük."],
-    feature: ["Feature konusunu tekrar açtın, demek ciddisin.", "Tamam, bu işi ciddiye alıyorsun."],
-    hard:    ["Bu konuyu yine açtın, seni dinliyorum.", "Anlat bakalım, aynı dert mi?"]
-  };
-
-  /* =====================================================
-     SANATÇIYA ÖZEL AĞIZLAR (profiller)
-     ===================================================== */
-  const PROFILES = {
+  K.CHAT_PROFILES = {
 
     /* ---- LIE REFUGE → ARGO ---- */
     lierefuge: {
@@ -14134,6 +13754,485 @@ window.K = window.K || {};
       ambient: { low: ["Selam. Pratik yapıyor musun, yoksa geride mi kalıyorsun?"], mid: ["Naber? Yeni bir bar yazdım, kafamı yiyor."], high: ["Bir iş yapalım; teknik olarak birbirimizi iteriz."] }
     }
   };
+})(window.K = window.K || {});
+
+</script>
+  <script>
+/* ==== js/systems/chat.js ==== */
+/* ============================================================
+   KARMA — systems/chat.js
+   SERBEST METİN DM MOTORU (genişletilmiş)
+   • Oyuncunun mesajını niyetine (intent) göre analiz eder.
+   • Sanatçının kişiliğine / samimiyet seviyesine göre bağlamsal
+     ve TUTARLI cevap üretir (konuşma hafızası + takip soruları).
+   • Bazı sanatçıların ÖZEL ağzı vardır (ör. Lie Refuge → argo).
+   • Gündemdeki haberlerden söz edilirse ona da bağlanır.
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  const U = K.util;
+
+  /* ------------- yardımcı ------------- */
+  const norm = s => (s || "").toLocaleLowerCase("tr").replace(/[.,!?;:]/g, " ").replace(/\s+/g, " ").trim();
+  const has = (t, words) => words.some(w => t.includes(w));
+
+  /* ------------- selamlaşma tespiti (özel) -------------
+     "selamün aleyküm" / "sa" → aleyküm selam
+     "aleyküm selam"  / "as" → karşılık
+     Bu mesajlara ulaşılabilirlik ne olursa olsun karşılık verilir. */
+  function greetForm(text) {
+    const t = norm(text);
+    if (!t) return null;
+    if (/^(ve\s+)?aleyk(u|ü)m\s+selam/.test(t) || t === "as" || t === "a s" || t === "a.s") return "reply";
+    if (t.includes("aleyk") || t === "sa" || t === "s a" || t === "s.a" || /^selam\s?un/.test(t)) return "islamic";
+    if (/^(selam|selamlar|merhaba|meraba|merabalar|slm|salam|hey|alo|günayd|iyi akşam|iyi gece|hoş\s?geldin|hosgeldin)\b/.test(t)) return "generic";
+    return null;
+  }
+
+  /* İslami selam ve karşılıkları (profil özel havuzu yoksa kullanılır) */
+  const SELAM = {
+    islamic: [
+      "Aleyküm selam, kardeşim.",
+      "Aleyküm selam, hoş geldin.",
+      "Ve aleyküm selam. Nasılsın bakalım?",
+      "Aleyküm selam, naber?",
+      "Aleyküm selam, iyi ki yazdın."
+    ],
+    shortIslamic: ["as", "as, naber?", "as kardeşim.", "Aleyküm selam."],
+    reply: [
+      "Eyvallah, sağ ol.",
+      "as kardeşim, naber?",
+      "Rica ederim, sen de iyi bak.",
+      "Ne demek, sen de selamettesin."
+    ]
+  };
+
+  function selamPool(gf, prof, stage, short, artist) {
+    if (prof && prof.selam && prof.selam[gf] && prof.selam[gf].length) return prof.selam[gf];
+    if (gf === "islamic") return short ? SELAM.shortIslamic : SELAM.islamic;
+    if (gf === "reply") return SELAM.reply;
+    /* DÜZELTME (v10.8): selamlama yolu tür/kıdem katmanını ATLIYORDU,
+       bu yüzden profil olmayan 25 sanatçı yine aynı genel cümleleri
+       kuruyordu. Artık selamlama da sanatçının ses katmanını kullanır. */
+    return poolFor("greet", stage, prof, artist);
+  }
+
+  /* ------------- niyet sözlüğü ------------- */
+  const INTENTS = [
+    { id: "feature",   words: ["feature", "feat", "düet", "duet", "ortak şarkı", "beraber şarkı", "birlikte şarkı", "collab", "verse", "nakarat oku", "üstüne oku", "ortak iş"] },
+    { id: "hangout",   words: ["takılalım", "takılalım mı", "buluşalım", "görüşelim", "çıkalım", "kahve", "yemek yiyelim", "stüdyoya gel", "müsait misin", "boş musun", "plan yapalım", "dışarı", "buluşma"] },
+    { id: "company",   words: ["şirket", "şirketime", "label", "sözleşme", "kontrat", "imzala", "kadro", "transfer", "imzalamak", "anlaşma", "kayıt al"] },
+    { id: "money",     words: ["para", "bütçe", "avans", "ödeme", "kaç para", "ücret", "fiyat", "para ver", "kazanç", "telif", "royalty"] },
+    { id: "compliment",words: ["harika", "muhteşem", "efsane", "süper", "çok iyi", "bayıldım", "sevdim", "beğendim", "tebrik", "bravo", "güzel olmuş", "helal", "kralsın", "adamsın", "goat", "kral", "saygı", "hayran"] },
+    { id: "critique",  words: ["kötü", "berbat", "sevmedim", "beğenmedim", "vasat", "zayıf", "sıkıcı", "overrated", "abartı", "eskisi gibi", "bozmuş", "hayal kırıklığı"] },
+    { id: "diss",      words: ["diss", "beef", "subliminal", "gönderme", "laf sokma", "rap savaşı", "verse at", "sataşma"] },
+    { id: "music",     words: ["albüm", "şarkı", "single", "ep", "proje", "ne zaman çıkıyor", "yeni iş", "yeni parça", "beat", "kayıt", "stüdyo", "sound", "prodüksiyon", "klip", "konser", "turne", "mix", "master"] },
+    { id: "career",    words: ["nasıl başladın", "tavsiye", "ilham", "kariyer", "tecrübe", "nasıl yaptın", "öğüt", "yol göster", "mentor", "ders", "hedef", "başarı"] },
+    { id: "market",    words: ["piyasa", "sektör", "endüstri", "rap piyasası", "müzik dünyası", "trend", "bu ara ne dinliyor", "dinleyici", "algoritma", "spotify listesi"] },
+    { id: "beef",      words: ["kimse", "piyasa bitmiş", "rap öldü", "sahte", "kopya", "taklit", "çalıntı beat", "iş bitirmiş"] },
+    { id: "health",    words: ["sağlık", "uyku", "yorgun", "stres", "dinlen", "iyi misin", "yaralanma", "sesin"] },
+    { id: "hard",      words: ["yorgunum", "param yok", "moralim bozuk", "moralim", "bunalım", "stres", "sıkıntı", "dert", "zor durumdayım", "kötüyüm", "yalnızım", "mutsuzum", "çöktüm", "dibe vurdum", "bitkin", "yıkıldım", "kafam bozuk", "geçinemiyorum"] },
+    { id: "family",    words: ["aile", "anne", "baba", "kardeş", "çocuk", "evlilik", "eşim", "oğlun", "kızın", "çocuğun", "eşin", "ailen", "baban", "annen", "kardeşin"] },
+    { id: "thanks",    words: ["teşekkür", "sağol", "sağ ol", "eyvallah", "minnettar", "teşekkürler", "thanks"] },
+    { id: "howareyou", words: ["nasılsın", "naber", "ne haber", "iyi misin", "neler yapıyorsun", "napıyorsun", "ne yapıyorsun", "keyifler"] },
+    { id: "greet",     words: ["merhaba", "selam", "hey", "alo", "günaydın", "iyi akşamlar", "iyi geceler", "hosgeldin", "hoş geldin"] },
+    { id: "support",   words: ["paylaştım", "story", "tanıttım", "destek", "reklam", "spotify listeme", "çalma listeme", "ekledim", "rep", "like attım"] },
+    { id: "bye",       words: ["görüşürüz", "bye", "hoşçakal", "kapatıyorum", "gideyim", "iyi geceler", "sonra konuşuruz", "hadi kaçtım"] },
+    { id: "shortyes",  words: ["evet", "tamam", "olur", "tabii", "peki", "anladım", "ok", "okay", "kesin", "neden olmasın", "aynen", "he"] },
+    { id: "shortno",   words: ["hayır", "olmaz", "yok", "yapmam", "istemiyorum", "belki", "sonra", "şimdi değil", "yo", "olmaz kardeş"] },
+    { id: "laugh",     words: ["haha", "hahah", "lol", "şaka", "dalga", "komik", "gül", "koptum", "asdfg", "kahkaha", "komiğime"] },
+    { id: "insult",    words: ["salak", "aptal", "kötüsün", "berbatsın", "saçma", "rezalet", "nefret ediyorum", "beter", "vasıfsız", "kopyacı", "tipsiz", "beceriksiz"] },
+    { id: "flirt",     words: ["seni seviyorum", "aşığım", "yakışıklı", "güzelsin", "evlenelim", "seninle olmak", "kalbim", "çıkma teklifi"] },
+    { id: "personal",  words: ["kaç yaşındasın", "nerelisin", "hangi şehir", "gerçek adın", "ismin ne", "ismin ne anlama", "adın ne", "sahne adı", "sahne adın", "lakabın", "takma adın", "evli misin", "sevgilin", "özel hayatın", "telefonun", "adresin"] },
+    { id: "askmoney",  words: ["borç", "para ver", "ödünç", "maddi", "yardım et para", "faizsiz", "bana para"] },
+    { id: "news",      words: ["haber", "gündem", "siyaset", "ekonomi", "cinayet", "hırsızlık", "zam", "seçim", "sokak olayı"] },
+    { id: "question",  words: ["nasıl", "neden", "niye", "ne zaman", "kim", "nerede", "mi", "mı", "musun", "mısın"] }
+  ];
+
+  /* ------------- soğuk cevaplar (tanımıyorsa) ------------- */
+  const COLD = {
+    generic: ["Kimsin kardeşim?", "Tanıdık gelmiyorsun, kimsin sen?", "Yoğunum, sonra bakarım.", "Şu an herkese cevap veremiyorum, kusura bakma.", "Seni tanımıyorum ama yazmışsın.", "Bir sürü mesaj geliyor, seni ayırt edemedim."],
+    feature: ["Şu an kimseye feature vermiyorum.", "Önce seni bir tanıyalım, öyle konuşalım.", "Feature ciddi iş, sen kimsin?", "Bunun için biraz ün lazım kardeşim."],
+    hangout: ["Şu an müsait değilim.", "Tanımadığım insanlarla takılmıyorum, kusura bakma.", "Programım dolu."],
+    company: ["Sözleşme için önce bir geçmiş lazım.", "Böyle bir teklif için çok erken.", "Önce kendini kanıtla."],
+    flirt: ["Yo, oraya gitmeyelim.", "Saçmalama."],
+    insult: ["Kes sesini, ne diyorsun sen?", "Boş konuşma.", "Kimsin sen ya?"],
+    askmoney: ["Para mı? Yok öyle bir şey.", "Bana para sorma, ben kimseye vermem."],
+    personal: ["Özel hayatım seni ilgilendirmez.", "Bunları sormaya hakkın yok henüz."],
+    laugh: ["Komik misin?", "Ne gülüyorsun?"],
+    thanks: ["Tanımadığım birine teşekkür etmenin anlamı yok ama sağ ol.", "Peki."],
+    question: ["Neden soruyorsun?", "Kimsin sen önce?", "Böyle soruya cevap vermem."]
+  };
+
+  /* ------------- NOT (v10.14 temizliği) -------------
+     Burada eskiden "yansıtıcı cevap" denemesi vardı: REFLECT havuzu,
+     STOP kelime seti ve salientWord() yardımcısı oyuncunun mesajından
+     rastgele bir kelime seçip cümleye geri koyuyordu ("{word} mı?
+     İlginç, devam et."). Bu yaklaşım terk edildi — contextReply()
+     artık anlamlı bağlam kuruyor — ama üç tanım dosyada kalmıştı.
+     Hiçbiri çağrılmıyordu; kaldırıldı. */
+
+  function classify(text) {
+    const t = norm(text);
+    if (!t) return "empty";
+    const isQuestion = /\?/.test(text || "");
+    if (t.length <= 16) {
+      const shorty = INTENTS.find(i => ["shortyes", "shortno"].includes(i.id) && i.words.some(w => t === w || t.startsWith(w + " ")));
+      if (shorty) return shorty.id;
+    }
+    // "yo" / "he" gibi çok kısa onay/ret
+    if (["yo", "yok", "olmaz"].includes(t)) return "shortno";
+    if (["he", "hehe", "aynen", "ok"].includes(t)) return "shortyes";
+
+    let best = null, bestScore = 0;
+    INTENTS.forEach(i => {
+      let sc = 0;
+      i.words.forEach(w => { if (t.includes(w)) sc += w.length > 5 ? 2 : 1; });
+      if (sc > bestScore) { bestScore = sc; best = i.id; }
+    });
+    const PRIORITY = ["insult", "laugh", "flirt", "personal", "hard", "askmoney"];
+    for (const pid of PRIORITY) {
+      const pi = INTENTS.find(x => x.id === pid);
+      if (pi && pi.words.some(w => t.includes(w))) return pid;
+    }
+    if (best) return best;
+    if (isQuestion) return "question";
+    if (t.split(" ").length <= 2) return "shortyes";
+    return "generic";
+  }
+
+  /* ------------- kişilik tonu ------------- */
+  function tone(artist) {
+    const tr = artist.traits;
+    if (tr.ego >= 7) return "ego";
+    if (tr.openness >= 8) return "warm";
+    if (tr.loyalty >= 7) return "guarded";
+    if (tr.work >= 9) return "workaholic";
+    return "neutral";
+  }
+
+  const TONE_SUFFIX = {
+    ego: [" Bu arada bu piyasada benim seviyeme gelen çok az.", " Ben işimi biliyorum kardeşim.", " Konuşmak kolay, icraat lazım.", " Bu sound'u ilk ben yaptım, not al."],
+    warm: [" Seni dinliyorum, devam.", " Samimiyetin güzel, hoşuma gidiyor.", " Senin gibi insanlar lazım bu işe.", " İçten konuşman hoşuma gitti."],
+    guarded: [" Ama her şeye hemen açık değilim, bilirsin.", " Önce güven lazım.", " Temkinliyim, kusura bakma."],
+    workaholic: [" Bu aralar stüdyodan çıkmıyorum.", " Çalışmadan olmuyor bu iş.", " Emeğe saygı duyarım, ben de öyle çalışıyorum.", " Bugün de kayıttaydım, durmak yok."],
+    neutral: ["", "", " Aynen."]
+  };
+
+  /* sanatçının gerçek şarkılarından alıntı */
+  function theirSong(artist, used) {
+    /* v10.16 — tembel veri katmanı (P-1) */
+    const list = K.lazy ? K.lazy.songs(artist.id) : ((K.REAL_SONGS && K.REAL_SONGS[artist.id]) || []);
+    const titles = list.map(s => s.title).filter(Boolean);
+    if (used && used.length) {
+      const rem = titles.filter(t => !used.includes(t));
+      if (rem.length) return U.pick(rem);
+    }
+    return titles.length ? U.pick(titles) : "yeni bir iş";
+  }
+
+  /* =====================================================
+     TEMEL CEVAP HAVUZLARI (zenginleştirildi)
+     ===================================================== */
+  function basePools(intent, S) {
+    const P = {
+      greet: [
+        "Selam, naber? Seni görmek güzel.",
+        "Hey! Hoş geldin, ne var ne yok?",
+        "Selam kardeşim, iyi ki yazdın.",
+        "Oo selam, nasıl gidiyor işler?",
+        "Selam, bu ara yoğunum ama sana vakit var.",
+        "Naber? Yazman iyi oldu, kafamı dağıttım.",
+        "Selam! Yeni bir şey üstünde çalışıyordum, sen geldin.",
+        "Hey, sonunda yazdın. Nasılsın?"
+      ],
+      howareyou: [
+        "İyiyim, stüdyodayım sürekli. Sen nasılsın?",
+        "Fena değil, yeni bir şeyler üstünde çalışıyorum. Sen?",
+        "İdare eder, bu aralar kafam müzikte. Sen ne yapıyorsun?",
+        "Yorgunum ama iyi sayılırım. Üretmeye devam. Sen?",
+        "Sorma, koşuşturma var. Ama iyiyim, sen nasılsın?",
+        "Gayet iyiyim kardeşim, enerjim yüksek. Sen nasılsın?"
+      ],
+      compliment: S >= 3
+        ? ["Sağol kardeşim, çok teşekkür ederim. Bunu senden duymak güzel.",
+           "Adamsın, sağ ol. Senin de işler yükseliyor, takipteyim.",
+           "Eyvallah, bu desteği unutmam.",
+           "Çok sağ ol, motivasyon oldu bu bana.",
+           "Sen böyle deyince bir sonraki işi daha sağlam yapıyorum."]
+        : ["Teşekkürler, sağ ol. Yeni tanışıyoruz ama iyi konuşuyorsun.",
+           "Sağ ol kardeşim, güzel sözler.",
+           "Eyvallah, desteğin için teşekkürler.",
+           "Sağ ol, güzel moral oldu."],
+      critique: S >= 3
+        ? ["Herkes beğenmek zorunda değil, saygı duyuyorum. Ama o işte emek var.",
+           "Tamam, eleştiriyi alıyorum. Beklentin neydi tam olarak?",
+           "Anladım. Ben o sound'u bilerek seçtim, kendimi tekrarlamak istemem.",
+           "Eleştirin değerli ama nedenini anlat, boş laf sevmem."]
+        : ["Yorumun için sağ ol ama henüz birbirimizi tanımıyoruz.",
+           "Herkesin zevki farklı, saygı duyarım.",
+           "Tamam, notunu aldım.",
+           "Dinledim, ama önce kim olduğunu bilmek isterim."],
+      diss: S >= 3
+        ? ["Diss işi kolay değil, adamlığını bilmen lazım.",
+           "Ben sataşmam ama üstüme gelene cevap veririm.",
+           "Subliminal değil direkt söylerim, o yüzden net ol.",
+           "Rap savaşı kültürdür ama seviyeli olacak."]
+        : ["Kimseyle diss'lik işim olmaz, sen bu konulara hiç girme.",
+           "Boş iş, gerçek iş yapalım.",
+           "O işlere girmem."],
+      feature: S >= 4
+        ? ["Onay! Sen beat getir, ben yazarım. Uygun bir zamanda stüdyoda oturalım.",
+           "Varım kardeşim. Ortak bir şey yapalım, güzel olur.",
+           "Ben de düşünüyordum bunu. Şu vibe üzerinden gidelim.",
+           "Tamam, ama iş ciddi olsun. Sağlam bir şey çıkarmalıyız.",
+           "Olur. Sen demo gönder, ben bakayım, sonra oturup yazarız."]
+        : ["Şu an herkese feature vermiyorum, önce birbirimizi tanıyalım derim.",
+           "Fikri sevdim ama şimdi doğru zaman değil. Biraz daha takılalım, sonra konuşuruz.",
+           "Feature ciddi iş, önce güven lazım.",
+           "Güzel teklif ama önce sen kendini göstermelisin."],
+      hangout: S >= 3
+        ? ["Olur, müsait olduğumda haber ederim. Takılalım.",
+           "Varım, bir kahve içeriz, kafa dağıtırız.",
+           "Tamam, stüdyoya gel hem bakarsın hem tanışırız.",
+           "Olur kardeşim, bir gün oturup konuşalım."]
+        : ["Şu an programım dolu, ama belki sonra.",
+           "Yeni tanışıyoruz, biraz daha samimiyet lazım önce.",
+           "Şimdi olmaz ama gelecek var.",
+           "Bakalım, müsait olsam haber ederim."],
+      company: S >= 5
+        ? ["Şirket işi ciddi. Şartları konuşalım ama ciddi düşünüyorum.",
+           "Label konusunda açığım, ama işin arkasında durman lazım.",
+           "Teklifi dinlerim. Doğru ekip olursa neden olmasın.",
+           "Şirket varsa vizyon da olmalı. Anlat bakalım planını."]
+        : ["Şirket işi şu an gündemimde değil, daha yolum var seninle.",
+           "Önce güven, sonra sözleşme. Şimdi erken.",
+           "Sözleşme büyük laf, henüz orada değiliz.",
+           "Şimdilik erken, ama kapıyı kapatmıyorum."],
+      money: [
+        "Para konusu net olur, söz verdiysem yaparım.",
+        "Bu işlerde şartları baştan konuşmak lazım, haklısın.",
+        "Bütçe varsa iş de olur, ama ciddiyet şart.",
+        "Parayı konuşmak ayıp değil, net olmak iyidir.",
+        "Fiyatı net söyle, ona göre bakarız."
+      ],
+      music: [
+        "Şu aralar stüdyodayım, yeni bir şey üstünde çalışıyorum.",
+        "Yeni işler var. \"{song}\" favorim, bak istersen.",
+        "Prodüksiyon üstünde çok çalışıyorum. \"{song}\" bunun güzel bir örneği.",
+        "Sürekli kayıttayım. Bir sonraki single büyük ihtimalle \"{song}\" vibe'ında olacak.",
+        "Beat'i kendim yapıyorum artık, \"{song}\" gibi işler çıkıyor ortaya.",
+        "Mix'i de kendim yapmaya başladım, kontrol bende olsun istiyorum."
+      ],
+      career: [
+        "Tavsiye istiyorsan: her gün yazacaksın, istikrar her şeyi geçer.",
+        "Ben sokaktan geldim, kolay olmadı. Sabır ve üretim.",
+        "Kendini başkalarıyla kıyaslama, kendi sound'unu kur.",
+        "Kimseyi taklit etme; bugün farklı olan kazanıyor.",
+        "Küçük başla ama bitir. Yarım işler seni yorar.",
+        "Kendine bir ses kur, sonra o sesi savun."
+      ],
+      market: [
+        "Piyasa değişti, artık algoritma her şeyi belirliyor.",
+        "Kısa içerik olmadan hit zor. Ama müzik yine de özünde duruyor.",
+        "Sektör acımasız ama dürüst üretim yapan kaybetmiyor.",
+        "Herkes hit peşinde, kimse albüm yapmıyor. Değişecek bu.",
+        "Trend'i takip et ama kendini kaybetme."
+      ],
+      beef: [
+        "Sahtekârlık bitmez bu işte, ama kaliteli iş kendini gösterir.",
+        "Ben laf sokmam, iş koyarım ortaya.",
+        "Piyasada çok gürültü var, sakin olan kazanır.",
+        "Herkes birbirine benziyor, farklı olan kazanacak."
+      ],
+      health: [
+        "Sağlık her şeyin önünde, ne yaptıysam uykuyu düzeltmekle başladı.",
+        "Sesim bazen yoruluyor, ısınma yapmadan kayda girmiyorum.",
+        "Çok çalışıyorum ama dinlenmeyi de öğrendim artık.",
+        "Stres olunca stüdyodan uzaklaşıyorum biraz."
+      ],
+      hard: [
+        "Anlıyorum kardeşim, bu iş kolay değil; o günlerden ben de geçtim.",
+        "Zor günler geçer, yeter ki sen yılma. Buradayım.",
+        "Para ve moral aynı anda gidince ağır oluyor, biliyorum. Bir nefes al.",
+        "Derdini anlat, dinliyorum. Çözüm olmasa da yalnız değilsin.",
+        "İlk yıllarda ben de borçla yaşadım; sabreden kazanıyor.",
+        "Kötü günler işin bir parçası. Kendine iyi bak, ben de buradayım.",
+        "Moralin bozuksa stüdyoya gel, bir şeyler kaydedelim; iyi gelir."
+      ],
+      family: [
+        "Aileme çok şey borçluyum, desteği onlardan aldım.",
+        "Ailemi çok anlatmam, ama onlar arkamda durdu.",
+        "Zor günlerde aile önemlidir, bunu geç öğrendim."
+      ],
+      thanks: [
+        "Rica ederim kardeşim.",
+        "Ne demek, her zaman.",
+        "Eyvallah, sağ ol sen de.",
+        "Estağfurullah, lafı olmaz."
+      ],
+      support: [
+        "Desteğin için sağ ol, unutmam bunu.",
+        "Eyvallah! Sen de bir şey çıkarınca bana yaz, destek olurum.",
+        "Çok teşekkürler, bu işler destekle büyüyor.",
+        "Sağ ol, paylaşım çok önemli bu dönemde."
+      ],
+      bye: [
+        "Görüşürüz, kendine iyi bak.",
+        "Tamam, sonra konuşuruz. İyi çalışmalar.",
+        "Hoşçakal, işlerinde kolay gelsin.",
+        "Hadi, kendine dikkat et."
+      ],
+      shortyes: [
+        "Aynen öyle.",
+        "Tamam o zaman.",
+        "Anlaştık.",
+        "Peki, öyle olsun."
+      ],
+      shortno: [
+        "Tamam, saygı duyarım.",
+        "Anladım, sorun değil.",
+        "Peki, nasıl istersen.",
+        "Tamam kardeşim, baskı yapmam."
+      ],
+      laugh: S >= 3
+        ? ["Hahah iyiydi bu 😄", "Güldürdün kardeşim, sağ ol.", "Şakacısın, sevdim bunu.", "Haha, tamam tamam, aldım."]
+        : ["Haha, tamam.", "Komiksin.", "Güldüm."],
+      insult: S >= 4
+        ? ["Sert konuşuyorsun ama hakkını veriyorsun, tartışmaya açığım.",
+           "Eleştiriye açığım ama saygı çerçevesinde.",
+           "Tamam, sinirlendin. Sebebi ne?"]
+        : ["Kes sesini istersen, ne konuşuyorsun sen?", "Herkes haddini bilecek.", "Boş konuşma.", "Sana bir şey mi yaptım?"],
+      flirt: S >= 4
+        ? ["Yapma ya 😄 Sen iyi bir insan gibisin, öyle kalalım.", "Sağ ol ama kafam müzikte şu an."]
+        : ["Yo, oraya gitmeyelim.", "Saçmalama kardeşim."],
+      personal: S >= 3
+        ? ["Özel hayatımı pek konuşmam ama sormakta ısrarcısın 😄", "Müzik dışında konuşmam genelde. Ama seninle iyiydi."]
+        : ["Bunları sormaya henüz hakkın yok.", "Özel hayatım seni ilgilendirmez."],
+      askmoney: S >= 4
+        ? ["Para işine girmeyelim, aramız bozulmasın.", "Maddi konulara girmem, kusura bakma."]
+        : ["Para mı? Yok öyle bir şey.", "Bana para sorma."],
+      news: [
+        "Gündem karışık, ama rapçinin işi tam burada.",
+        "Haberlere bakıyorum, söze dökecek çok şey var.",
+        "Bu aralar gündem ağır, müzik biraz da kaçış.",
+        "Haberde ne varsa sokakta iki katı var."
+      ],
+      question: S >= 3
+        ? ["İyi soru. Kısa cevap: zamanla öğreniliyor.",
+           "Bunu sana uzun uzun anlatabilirim.",
+           "Neden sorduğunu anladım, cevaplayayım.",
+           "Soruna net cevap: deneyerek bulacaksın."]
+        : ["Neden soruyorsun?", "Soru sormadan önce bir tanışalım.", "Bakalım, ne demek istedin?"],
+      generic: S >= 3
+        ? ["Anladım. Bunu biraz açsana, ne demek istedin?",
+           "İlginç, devam et.",
+           "Haklısın galiba. Ben de benzer şeyler düşünüyorum.",
+           "Bunu konuşmak için doğru kişidesin.",
+           "Senin bakış açını sevdim, devam et."]
+        : ["Anladım, teşekkürler.",
+           "Tamamdır. Seni dinliyorum.",
+           "Peki, ne demek istedin tam olarak?",
+           "İlginç bakış açısı."]
+    };
+    return P[intent] || P.generic;
+  }
+
+  /* =====================================================
+     TAKİP CEVAPLARI (kısa "evet/hayır" için bağlamsal)
+     ===================================================== */
+  const FOLLOWUP = {
+    feature: {
+      yes: ["Süper. O zaman sen beat'i hazırla, bana yolla, ben oturup yazarım.", "Tamam, anlaştık. Müsait bir gün stüdyoda oturalım."],
+      no: ["Tamam kardeşim, zorlamam. Hazır olunca konuşuruz.", "Olur, kendi akışında ilerle."]
+    },
+    hangout: {
+      yes: ["Tamam, ben sana gün veririrm. Kaçırma ama.", "Olur, bu hafta bir şey ayarlarım."],
+      no: ["Anladım, müsait değilsin. Sonra bakarız.", "Tamam, başka zaman."]
+    },
+    company: {
+      yes: ["Peki, şartları getir bakalım. Ciddi konuşalım.", "Tamam, o zaman bir toplantı ayarlayalım."],
+      no: ["Tamam, doğru karar da olabilir. Aceleye gelmez.", "Anladım, süre istiyorsun. Mantıklı."]
+    },
+    money: {
+      yes: ["Tamam, net olalım o zaman. Rakamı ve işi baştan konuşuruz.", "Peki, bütçe varsa iş konuşulur."],
+      no: ["Tamam, para yoksa iş yok, anlayışla karşılarım.", "Anladım, başka zaman."]
+    },
+    music: {
+      yes: ["Tamam, o zaman sana bir şey dinleteyim müsait olunca.", "Peki, demo hazırlayınca atarım."],
+      no: ["Tamam, sana uymuyorsa kendi sound'unu kovala.", "Anladım, herkesin tarzı ayrı."]
+    },
+    career: {
+      yes: ["İşte bu kafa! Sürekli yaz, çalış, bırakma.", "Tamam, o zaman ilk işin bugün bir satır yazmak olsun."],
+      no: ["Tamam, kendi yolunu kendin bul, ben de buradayım.", "Anladım, acele etme. Yolu yürümek önemli."]
+    },
+    laugh: {
+      yes: ["Hahah iyiydi gerçekten 😄", "Güldük biraz, iyi geldi."],
+      no: ["Tamam o zaman, ciddi devam edelim.", "Haha, tamam kestim."]
+    },
+    market: {
+      yes: ["Aynen, trendi doğru okuyorsun. Devam edelim.", "İşte bu! Piyasayı konuşmak lazım."],
+      no: ["Herkesin görüşü farklı, saygı duyarım.", "Tamam, senin bakışın da geçerli."]
+    },
+    news: {
+      yes: ["Öyle, gündem ağır. Bu yüzden söz de ağır olmalı.", "Haklısın, konuşulacak çok şey var."],
+      no: ["Tamam, farklı düşünüyorsun. Anlat o zaman.", "Peki, sen nasıl bakıyorsun?"]
+    },
+    hard: {
+      yes: ["İyi olmana sevindim. Yine de kendine dikkat et.", "Tamam, iyiysen sorun yok. Buradayım."],
+      no: ["Anlat o zaman, dinliyorum. Yalnız değilsin.", "Zor biliyorum. Bir nefes al, konuşalım."]
+    },
+    compliment: {
+      yes: ["Söz, haber veririm. Sen de kendini göster.", "Tamam, iş çıkarınca ilk sana atarım."],
+      no: ["Tamam, zorlamam. Kendi akışında ilerle.", "Olur, sen nasıl istersen."]
+    },
+    generic: {
+      yes: ["Tamam, devam ediyorum o zaman.", "Peki, anlatmaya devam."],
+      no: ["Tamam, konuyu kapatalım.", "Peki, başka bir şeye geçelim."]
+    }
+  };
+
+  /* Sanatçının sohbeti sürdüren takip soruları (tutarlılık) */
+  const QUESTIONS = {
+    music:      ["Yeni bir şey üstünde çalışıyorum, sonra bakar mısın?"],
+    feature:    ["Oturup yazalım mı?", "Beraber bir iş yapalım mı?"],
+    hangout:    ["Bu aralar müsait misin?"],
+    career:     ["Bu tavsiyeyi bir dene."],
+    market:     ["Sence piyasa nereye gidiyor?"],
+    news:       ["Sen bu konuda ne düşünüyorsun?"],
+    hard:       ["Konuşmak ister misin?"],
+    compliment: ["Sen de bir iş çıkarınca bana yaz."],
+    generic:    ["Sen ne düşünüyorsun?"]
+  };
+
+  /* Aynı konu tekrar açıldığında sohbeti bağlayan geçiş cümleleri */
+  const CONTINUITY = {
+    music:   ["Yine müzikten konuşuyoruz, iyi.", "Bu konuyu sevdim, devam."],
+    career:  ["Kariyer konusuna döndük, güzel.", "Bu konuda söyleyeceğim çok şey var."],
+    market:  ["Piyasayı yine konuşuyoruz.", "Bu konu uzun, devam edelim."],
+    news:    ["Gündem yine gündemde.", "Bu mesele büyük."],
+    feature: ["Feature konusunu tekrar açtın, demek ciddisin.", "Tamam, bu işi ciddiye alıyorsun."],
+    hard:    ["Bu konuyu yine açtın, seni dinliyorum.", "Anlat bakalım, aynı dert mi?"]
+  };
+
+  /* =====================================================
+     SANATÇIYA ÖZEL AĞIZLAR (profiller)
+     ===================================================== */
+  /* ============================================================
+     v10.18 (B-5) — PROFİLLER AYRI DOSYAYA TAŞINDI
+     Sanatçıya özel cümle havuzları artık data/chat-profiles.js içinde
+     ve `K.CHAT_PROFILES` olarak yükleniyor. Bu dosya yalnızca MOTORU
+     (niyet analizi, cevap seçimi, kurallar) tutar — 86 KB'lık tek
+     modül yerine veri/motor ayrımı.
+
+     GÜVENLİ GERİ DÜŞÜŞ: profil dosyası yüklenmemişse (eski index.html
+     ile geçiş penceresi) motor boş nesneyle çalışır; sanatçıya özel ağız
+     devreye girmez ve genel/tür havuzları kullanılır — ÇÖKMEZ.
+     Bkz. testsiz davranış doğrulaması: tools/smoke-personality.js
+     (263 kontrol, profilsiz sanatçılarla karşılaştırmalı).
+     ============================================================ */
+  const PROFILES = (K.CHAT_PROFILES || {});
 
   /* profil varsa onun havuzunu, yoksa temel havuzu kullan */
   /* ============================================================
