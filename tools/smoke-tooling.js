@@ -45,6 +45,19 @@ if (pkg) {
     if (m && !exists(m[1])) missing.push(k + " → " + m[1]);
   });
   ok("A · tüm script hedefleri mevcut", missing.length === 0, missing.join(", ") || "temiz");
+
+  /* jsdom sürüm kapısı: eski sürümler uzun simülasyonlarda OOM veriyor
+     (CI'da yaşandı). package.json 30+ istemeli ve harness kapıyı tutmalı. */
+  const jv = String((pkg.devDependencies || {}).jsdom || "");
+  const jmaj = parseInt(jv.replace(/[^0-9.]/g, "").split(".")[0], 10) || 0;
+  ok("A · package.json jsdom >= 30 istiyor", jmaj >= 30, "tanımlı: " + (jv || "yok"));
+  const hn = exists("tools/harness.js") ? read("tools/harness.js") : "";
+  ok("A · harness jsdom sürüm kapısı içeriyor", /MIN_JSDOM/.test(hn) && /jsdomVersion/.test(hn));
+  const vf = exists("tools/verify.js") ? read("tools/verify.js") : "";
+  ok("A · verify.js jsdom sürümünü denetliyor", /jsdomVersion\(\)/.test(vf));
+  ok("A · engines.node jsdom 30 ile uyumlu (>=22.15)",
+    String((pkg.engines || {}).node || "").indexOf("22.15") >= 0,
+    String((pkg.engines || {}).node || "yok"));
 }
 
 /* ============================================================
