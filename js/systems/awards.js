@@ -33,12 +33,23 @@
       const mine = chart.filter(e => e.mine);
       const topArtist = K.artistList().slice().sort((a, b) => b.popularity - a.popularity)[0];
 
+      /* DÜZELTME (v10.9): adaylık eşikleri gülünç derecede düşüktü.
+         `pop >= 15` ile "Yılın Sanatçısı", `songs.length` olması yeterli
+         "Yılın Projesi", ve `feature` kategorisi sabit bir yer tutucu
+         metindi ("Feature iş birliği"). Gerçekte ödül adaylığı için
+         listede olmak, ciddi dinleyici tabanı ve nitelikli iş gerekir. */
       const nom = {};
-      nom.song = mine.length ? mine[0].title : null;
-      nom.artist = p.popularity >= 15 ? p.stageName : null;
-      nom.breakout = (p.popularity >= 20 && p.songs.length <= 12) ? p.stageName : null;
-      nom.project = p.songs.length ? (p.songs[p.songs.length - 1].albumTitle || p.songs[p.songs.length - 1].title) : null;
-      nom.feature = p.songs.some(x => x.featWith) ? "Feature iş birliği" : null;
+      const charting = mine.filter(e => (e.rank || 999) <= 30);   // ilk 30'da olmalı
+      const best = charting[0] || null;
+      nom.song = best ? best.title : null;
+      nom.artist = p.popularity >= 45 ? p.stageName : null;
+      nom.breakout = (p.popularity >= 25 && (p.songs || []).length <= 12) ? p.stageName : null;
+      const lastRel = (p.songs || []).slice().sort((a, b) => (b.publishedDay || 0) - (a.publishedDay || 0))[0];
+      nom.project = (lastRel && (lastRel.quality || 0) >= 60) ? (lastRel.albumTitle || lastRel.title) : null;
+      const featSong = (p.songs || []).find(x => x.featWith);
+      nom.feature = featSong
+        ? featSong.title + " (feat. " + (((K.artistById(featSong.featWith) || {}).stageName) || "sanatçı") + ")"
+        : null;
       return { nom, mine, hasAny: Object.keys(nom).some(k => nom[k]) };
     },
 
@@ -62,15 +73,23 @@
         const isMine = !!noms.nom[cat.id];
         // kazanma şansı: liste performansı + popülerlik
         const chartScore = noms.mine.length ? U.clamp(noms.mine[0].rank ? (52 - noms.mine[0].rank) : 0, 0, 45) : 0;
-        const prob = isMine ? U.clamp(0.12 + p.popularity / 220 + chartScore / 140, 0.05, 0.82) : 0;
+        /* Kazanma şansı: liste performansı + popülerlik farkı.
+           Eskiden `0,12 + pop/220` idi; pop 20 ile %21 şans → ödül dağıtıyordu. */
+        const prob = isMine
+          ? U.clamp(0.05 + Math.max(0, p.popularity - 40) / 180 + chartScore / 200, 0.03, 0.55)
+          : 0;
         const won = isMine && Math.random() < prob;
         if (won) wins++;
 
         let winnerName = "";
         if (won) winnerName = p.stageName;
         else {
-          const list = K.artistList().filter(a => a.id !== "player");
-          const w = U.pickWeighted(list, a => a.popularity);
+          /* Rakipler YALNIZCA ciddi isimlerden seçilir. Eskiden 36
+             sanatçının tamamı eşit şansla havuzdaydı; pop 54 bir isim
+             "Yılın Sanatçısı" alabiliyordu. */
+          let list = K.artistList().filter(a => a.popularity >= 60);
+          if (list.length < 4) list = K.artistList().slice().sort((x, y) => y.popularity - x.popularity).slice(0, 12);
+          const w = U.pickWeighted(list, a => Math.pow(a.popularity, 2));
           winnerName = w.stageName;
         }
         results.push({ cat: cat.name, icon: cat.icon, won, winner: winnerName, nominated: isMine });
@@ -80,7 +99,7 @@
       s.awards.history.unshift({ year: year + 1, day: s.day, wins, results });
 
       if (wins > 0) {
-        p.popularity = U.clamp(p.popularity + wins * 2.2, 0, 99);
+        K.game.addFame(wins * 2.2);
         p.reputation = Math.min(100, p.reputation + wins * 3);
         p.ig += wins * 12000; p.tiktok += wins * 8000;
       } else {
@@ -127,10 +146,10 @@
         p.reputation = Math.min(100, (p.reputation || 0) + 2);
         K.toast("🎤 Tören konuşması", "Alçakgönüllü konuşma beğenildi; imaj +4, itibar +2.", "ok");
       } else if (style === "proud") {
-        p.popularity = U.clamp((p.popularity || 0) + (win ? 2.5 : 1), 0, 99);
+        K.game.addFame(win ? 2.5 : 1);
         K.toast("🎤 Tören konuşması", "Gururlu konuşma dikkat çekti; popülerlik arttı.", "ok");
       } else {
-        p.popularity = U.clamp((p.popularity || 0) + 3.2, 0, 99);
+        K.game.addFame(3.2);
         p.reputation = Math.max(0, (p.reputation || 0) - 3);
         p.image = U.clamp((p.image || 50) - 3, 0, 100);
         s.notifications = (s.notifications || []).concat([{
