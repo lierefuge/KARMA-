@@ -49,6 +49,22 @@
       return (K.ECON.streamRates[store] || 0) * e.fx * K.econ.infl();
     },
 
+    /* ---- AĞIRLIKLI ORTALAMA DİNLENME ÜCRETİ (₺) ----
+       Platform ayrımı OLMAYAN gelir yolları için (şirket kadrosu gibi).
+       Platform karması (`K.ECON.storeMix`) ile `rate()`lerin ağırlıklı
+       ortalamasıdır; böylece tek bir "ortalama ₺/dinlenme" gerçekçi biçimde
+       kur + enflasyonu da içerir. */
+    avgRate() {
+      const mix = K.ECON.storeMix || { spotify: 0.46, apple: 0.19, youtube: 0.28, other: 0.07 };
+      let sum = 0, w = 0;
+      K.econ.STORES.forEach(st => {
+        const m = mix[st] || 0;
+        sum += K.econ.rate(st) * m;
+        w += m;
+      });
+      return w > 0 ? sum / w : 0;
+    },
+
     /* ---- 30 SANİYE EŞİĞİ ----
        Dinlenmenin gelir sayılan oranı. Kalite, giriş uzunluğu ve
        hook gücü belirler; feature'lı şarkı daha az atlanır. */
@@ -147,7 +163,7 @@
       songs.forEach(song => {
         const bill = K.econ.billable(song);
         const perDay = (song.lastDaily || 0) * 30 * bill;
-        const pl = song.platforms || { spotify: 0.46, apple: 0.19, youtube: 0.28, other: 0.07 };
+        const pl = song.platforms || K.ECON.storeMix;
         K.econ.STORES.forEach(st => { gross += perDay * (pl[st] || 0) * K.econ.rate(st); });
       });
       return Math.round(gross);
@@ -446,16 +462,49 @@
       return { upkeep, tax, debt: p.debt, margin, effRate, infl };
     },
 
-    /* günlük şirket kârı (oyuncunun label'ı varsa) */
+    /* ---------------- ŞİRKET GÜNLÜK NET (GERÇEKÇİ KÂR/ZARAR) --------------
+       DÜZELTME (v10.24) — burada İKİ katmanlı bir hata vardı:
+
+       1) GELİR ESKİ SABİT KURLA HESAPLANIYORDU
+          `gross = rosterStreams * K.ECON.royaltyPerStream` (0,0011 ₺) idi.
+          Bu sabit `state.js` içinde zaten "(eski)" diye işaretliydi ve
+          kur dönüşümü, enflasyon, platform karması ve 30 sn eşiği YOKTU.
+          v10.7'de `rate()` için düzeltilen hatanın ("telif tam baseFx katı
+          eksik ödeniyordu") aynısı bu dalda kalmış; şirket geliri gerçekçi
+          değerin kabaca 1/220'si kadardı.
+
+       2) SÖZLEŞME PAYI TERSTİ
+          `share = 1 - royalty/100` şirkete SANATÇININ payını veriyordu.
+          `label.royalty` sözleşmede ŞİRKETİN payıdır (bkz. settleMonth:
+          sanatçı `1 - royalty/100` alır). Yani şirket %30 yerine %70 alıyordu.
+
+       Yeni model, gerçek bir şirket kâr/zarar tablosudur:
+         brüt gelir  = kadro dinlenmesi × ağırlıklı ₺/dinlenme (kur + enflasyon)
+         şirket cirosu = brüt × sözleşme payı × menajer etkisi
+         işletme gideri = brüt × labelOpexShare (tanıtım + kayıt + A&R + dağıtım)
+         net = ciro − gider
+       Böylece düşük paylı (sanatçıya cömert) sözleşme oyuncuya zarar
+       yazdırabilir — gerçekte olduğu gibi. */
     labelDailyNet() {
       const s = K.state;
       if (!s.label) return 0;
-      const rosterStreams = (s.label.monthlyStreams || 0) / 30;
-      const gross = rosterStreams * K.ECON.royaltyPerStream;
-      const share = 1 - (s.label.royalty || 30) / 100;  // şirketin payı
-      const staffMult = 1 + ((s.staff && s.staff.manager) || 0) * 0.12;
-      const costs = (s.label.roster || []).length * 900; // personel/gider
-      return Math.max(0, gross * share * staffMult - costs);
+      const roster = K.label.rosterArtists();
+      if (!roster.length) return 0;
+
+      /* kadro dinlenmesi de 30 sn eşiğine tabidir */
+      const billable = U.clamp(
+        K.ECON.labelBillableShare != null ? K.ECON.labelBillableShare : 0.88, 0.5, 1);
+      const streamsDay = roster.reduce((n, a) => n + (a.monthly || 0), 0) / 30 * billable;
+      const gross = streamsDay * K.econ.avgRate();              // ₺ (kur + enflasyon dahil)
+
+      const cut = U.clamp((s.label.royalty != null ? s.label.royalty : 30) / 100, 0, 1);
+      const managerMult = 1 + K.label.staffLevel("manager") * 0.12;
+      const revenue = gross * cut * managerMult;
+
+      const opexShare = K.ECON.labelOpexShare != null ? K.ECON.labelOpexShare : 0.18;
+      const opex = gross * opexShare;
+
+      return Math.max(0, Math.round(revenue - opex));
     }
   };
 })(window.K);
