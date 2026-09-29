@@ -339,3 +339,39 @@
 }
 .story-react .srb:active { transform: scale(1.18); }
 .story-react .story-link { margin-left: 4px; }
+
+/* ============================================================
+   v10.14 — SANATÇI KİŞİLİK KARTI (profil)
+   Yalnızca derin kişilik profili tanımlı sanatçılarda görünür
+   (şimdilik: Şehinşah, wegh Rumi). Kart, profili oyuncuya
+   okunur kılar: değerler, kırmızı çizgiler ve "kişilik testi"
+   katsayıları.
+   ============================================================ */
+.ig-persona {
+  margin: 10px 12px 4px;
+  padding: 12px 13px;
+  border-radius: var(--radius-m);
+  border: 1px solid rgba(255, 255, 255, .10);
+  background: linear-gradient(160deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02));
+}
+.ig-persona-top { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.ig-persona-code {
+  font-size: 10px; font-weight: 800; letter-spacing: .06em;
+  padding: 3px 7px; border-radius: 999px;
+  background: rgba(176, 108, 255, .20); color: #d9b8ff;
+  border: 1px solid rgba(176, 108, 255, .35);
+}
+.ig-persona-tag { font-size: 11.5px; opacity: .72; margin-top: 6px; line-height: 1.45; }
+.ig-persona-bars { margin: 10px 0 8px; display: grid; gap: 5px; }
+.ig-persona-row { display: grid; grid-template-columns: 96px 1fr 18px; align-items: center; gap: 7px; font-size: 10.5px; }
+.ig-persona-row > span { opacity: .70; }
+.ig-persona-row > i { display: block; height: 5px; border-radius: 999px; background: rgba(255, 255, 255, .10); overflow: hidden; }
+.ig-persona-row > i > b { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #8b5cf6, #ec4899); }
+.ig-persona-row > em { font-style: normal; font-weight: 700; opacity: .60; text-align: right; }
+.ig-persona-foot { font-size: 10.5px; line-height: 1.5; opacity: .78; }
+.ig-persona-foot.red { opacity: .62; }
+.ig-persona-note {
+  margin-top: 8px; padding-top: 8px; font-size: 11px;
+  border-top: 1px dashed rgba(255, 255, 255, .12);
+  opacity: .80; font-weight: 600;
+}
