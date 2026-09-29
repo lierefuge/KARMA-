@@ -130,7 +130,7 @@ const SUITES = [
   { id: "rollout",     script: "tools/smoke-rollout.js",     label: "Çıkış haftası" },
   { id: "certs",       script: "tools/smoke-certifications.js", label: "Plak + Wrapped" },
   { id: "label",       script: "tools/smoke-label.js",       label: "Şirket ekonomisi" },
-  { id: "previews",    script: "tools/smoke-previews.js",    label: "Önizleme verisi + süzgeç" }
+  { id: "previews",    script: "tools/smoke-previews.js",    label: "Önizleme + YouTube verisi" }
 ];
 
 const suiteOut = {};
