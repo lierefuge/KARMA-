@@ -5,10 +5,25 @@
    • kuyruk / kaydet / çalma listesi entegrasyonunu doğrular
    • BOŞ DURUM (yeni oyun) ve DOLU DURUM senaryolarını çalıştırır
 */
-const { JSDOM, VirtualConsole } = require("/home/user/node_modules/jsdom");
 const fs = require("fs");
 const path = require("path");
+const { JSDOM, VirtualConsole } = resolveJsdom();
 const ROOT = path.resolve(__dirname, "..");
+/* jsdom çözümleme: yerel kurulum, /home/user/node_modules veya KARMA_JSDOM */
+function resolveJsdom() {
+  const cands = [
+    process.env.KARMA_JSDOM,
+    "jsdom",
+    path.join(process.env.HOME || "/home/user", "node_modules", "jsdom")
+  ].filter(Boolean);
+  let lastErr;
+  for (const c of cands) {
+    try { return require(c); } catch (e) { lastErr = e; }
+  }
+  console.error("jsdom bulunamadı. Kur: npm install jsdom  (veya KARMA_JSDOM ile yolu ver)");
+  process.exit(1);
+}
+
 const FILE = [path.join(ROOT, "KARMA-Oyun.html"), path.join(ROOT, "..", "files", "KARMA-Oyun.html")].find(f => fs.existsSync(f));
 if (!FILE) { console.error("KARMA-Oyun.html bulunamadı — önce: node tools/build-single.js"); process.exit(1); }
 const html = fs.readFileSync(FILE, "utf8");
