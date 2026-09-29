@@ -134,7 +134,25 @@
     { cat: "muzik", title: "Yeni çıkan albüm listeleri salladı", heat: 78, keywords: ["albüm", "liste", "single", "hit"], line: "Listelerde bir ismim var artık" },
     { cat: "muzik", title: "Rap sahnesinde yeni dalga yükseliyor", heat: 82, keywords: ["rap", "rapçi", "underground", "sahne"], line: "Yeraltından çıktım, sesim yankı" },
     { cat: "muzik", title: "Konser biletleri saniyeler içinde tükendi", heat: 74, keywords: ["konser", "bilet", "sahne"], line: "Biletler bitti, sahnede yer yok" },
-    { cat: "muzik", title: "Festival kadrosu açıklandı", heat: 57, keywords: ["festival", "kadro", "etkinlik"], line: "Festival çadırında bir şarkı doğuyor" }
+    { cat: "muzik", title: "Festival kadrosu açıklandı", heat: 57, keywords: ["festival", "kadro", "etkinlik"], line: "Festival çadırında bir şarkı doğuyor" },
+
+    /* ---- MÜZİK · GÜNCEL SAHNE (v10.14) ----
+       Oyun artık bugünün rap ekonomisini de konuşuyor: kısa video
+       döngüsü, algoritma baskısı, yapay zekâ tartışması, bağımsız
+       üretim ve drill/melodik trap dalgası. Sözler bu başlıklarla
+       örtüşürse etkileşim artıyor (salt eski gündem değil). */
+    { cat: "muzik", title: "Şarkıların ömrü kısaldı: albüm değil tekli dönemi", heat: 84, keywords: ["tekli", "single", "albüm", "döngü", "kısa video"], line: "Bir şarkı çıktı, üç günde tükendi" },
+    { cat: "muzik", title: "Algoritma şarkıyı ilk 10 saniyede yargılıyor", heat: 80, keywords: ["algoritma", "giriş", "hook", "tiktok", "trend"], line: "İlk on saniyede karar veriyor kitle" },
+    { cat: "muzik", title: "Yapay zekâ ile üretilen şarkı tartışması büyüdü", heat: 86, keywords: ["yapay zeka", "ai", "telif", "üretim"], line: "Makine yazıyor ama yaşıyor mu?" },
+    { cat: "muzik", title: "Bağımsız sanatçılar aracısız yayınlamaya geçti", heat: 79, keywords: ["bağımsız", "dağıtım", "aracı", "telif"], line: "Aracıyı çıkardım, kontrol bende" },
+    { cat: "muzik", title: "Melodik trap dalgası listeleri ele geçirdi", heat: 77, keywords: ["melodik", "trap", "dalga", "liste"], line: "Melodi ağır, söz keskin, akış hızlı" },
+    { cat: "muzik", title: "Drill akışı Türkiye'de yerleşti", heat: 75, keywords: ["drill", "akış", "flow", "sokak"], line: "Sokak ritmi değişti, akış sertleşti" },
+    { cat: "muzik", title: "Phonk ve hyperpop genç kitleyi böldü", heat: 68, keywords: ["phonk", "hyperpop", "genç", "sound"], line: "Yeni sound geldi, eski kulak alışmadı" },
+    { cat: "muzik", title: "Rapçiler arasında beat savaşı: aynı sample tartışması", heat: 72, keywords: ["beat", "sample", "çalıntı", "prodüksiyon", "kopya"], line: "Aynı sample, iki şarkı, tek hakikat" },
+    { cat: "muzik", title: "Konser bilet fiyatlarına tepki büyüdü", heat: 74, keywords: ["konser", "bilet", "fiyat", "sahne"], line: "Sahneye bakıyorum, cebime bakıyorum" },
+    { cat: "muzik", title: "Sosyal medyada şarkı challenge'ı viral oldu", heat: 81, keywords: ["challenge", "viral", "akım", "kısa video"], line: "Herkes aynı akışı deniyor, özgün kalan az" },
+    { cat: "muzik", title: "Plak ve kaset satışı gençler arasında geri döndü", heat: 62, keywords: ["plak", "kaset", "fiziksel", "satış"], line: "Dijital dünyada kaset arıyor gençlik" },
+    { cat: "muzik", title: "Müzikte sözün ağırlığı yeniden tartışılıyor", heat: 83, keywords: ["söz", "yazım", "kalem", "içerik"], line: "Sound değişti ama söz hâlâ soruluyor" }
   ];
 
   /* tema ↔ kategori uyumu (küçük bonus) */
