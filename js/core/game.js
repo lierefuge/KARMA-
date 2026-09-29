@@ -354,9 +354,21 @@
       p.monthly = Math.round(Math.max(windowStreams * 0.5, 0) + baseline);
 
       // popülerlik: GÜNCEL dinleyiciye bağlı (birikmez, düşebilir)
+      // ------------------------------------------------------------
+      // DÜZELTME (v10.7): itibar artık TOPLAMSAL değil ÇARPANSAL etki eder.
+      // Eskiden `sqrt(dinleyici) + itibar×0,28` idi; bu yüzden 6,5 bin
+      // aylık dinleyicili bir oyuncu 31, 50 bin dinleyicili bir oyuncu 17
+      // popülerlik alabiliyordu — yani popülerlik gerçek kitleyi değil,
+      // itibarı ölçüyordu. Artık itibar dinleyici tabanını katsayılar:
+      // popülerlik, dinleyicinin HAK ETTİĞİNİN üstüne çıkamaz.
       const topChart = p.songs.filter(s => s.chartRank && s.chartRank <= 20).length;
+      /* Kalibrasyon (NPC ölçeğiyle uyumlu):
+         Şehinşah ≈ 4,2M aylık dinleyici → popülerlik ≈ 88-91 (kayıtlı: 88)
+         1M aylık dinleyici → ≈ 44  (şirket kurma eşiği 45 → hak edilmiş sınır)
+         40 bin dinleyici → ≈ 9 */
+      const byListeners = Math.sqrt(Math.max(0, p.monthly) / 700);
       const target = U.clamp(
-        Math.sqrt(p.monthly / 900) + topChart * 1.1 + p.reputation * 0.28,
+        byListeners * (1 + (p.reputation || 0) / 400) + topChart * 1.1,
         0, 99
       );
       p.popularity = U.clamp(p.popularity + (target - p.popularity) * 0.045 + U.rand(-0.15, 0.18), 0, 99);
