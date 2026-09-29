@@ -161,6 +161,10 @@
         ghost: { hired: false, name: null, exposure: 0, uses: 0 },  // söz yazarı
         albums: [],
         dailyHistory: [],
+        plaques: [],              // v10.23 — Altın/Platin/Elmas plaklar (certifications.js)
+        wrapped: [],              // v10.23 — yıl sonu özetleri (yearwrap.js)
+        plaqueMult: 1,            // plaklardan gelen kalıcı katalog çarpanı
+        plaqueAwardWeight: 0,     // plakların ödül şansına katkısı
         /* v10.17 — dikkat dalgası & doygunluk (yüksel→zirve→düş eğrisi).
            att: 1 = nötr; yayınla yükselir, günlük söner.
            fatigueAtt: yayın başına kazancı kısar → plato/zirve üretir. */
@@ -407,6 +411,13 @@
       if (K.state.player.lastFinance === undefined) K.state.player.lastFinance = null;
       K.state.player.albums = K.state.player.albums || [];
       K.state.player.dailyHistory = K.state.player.dailyHistory || [];
+      /* v10.23 — plak ve yıl özeti alanları (eski kayıtlar için) */
+      K.state.player.plaques = K.state.player.plaques || [];
+      K.state.player.wrapped = K.state.player.wrapped || [];
+      if (K.state.player.plaqueMult == null) K.state.player.plaqueMult = 1;
+      if (K.state.player.plaqueAwardWeight == null) K.state.player.plaqueAwardWeight = 0;
+      (K.state.player.songs || []).forEach(sg => { if (!sg.certifications) sg.certifications = []; });
+      (K.state.player.albums || []).forEach(al => { if (!al.certifications) al.certifications = []; });
       K.state.player.watchHistory = K.state.player.watchHistory || [];
       if (K.state.player.ytAutoplay === undefined) K.state.player.ytAutoplay = true;
       K.state.player.ytReadDay = K.state.player.ytReadDay || 0;
