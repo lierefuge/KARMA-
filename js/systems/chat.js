@@ -84,7 +84,8 @@
     { id: "laugh",     words: ["haha", "hahah", "lol", "şaka", "dalga", "komik", "gül", "koptum", "asdfg", "kahkaha", "komiğime"] },
     { id: "insult",    words: ["salak", "aptal", "kötüsün", "berbatsın", "saçma", "rezalet", "nefret ediyorum", "beter", "vasıfsız", "kopyacı", "tipsiz", "beceriksiz"] },
     { id: "flirt",     words: ["seni seviyorum", "aşığım", "yakışıklı", "güzelsin", "evlenelim", "seninle olmak", "kalbim", "çıkma teklifi"] },
-    { id: "personal",  words: ["kaç yaşındasın", "nerelisin", "hangi şehir", "gerçek adın", "evli misin", "sevgilin", "özel hayatın", "telefonun", "adresin"] },
+    { id: "personal",  words: ["kaç yaşındasın", "nerelisin", "hangi şehir", "gerçek adın", "ismin ne", "ismin ne anlama", "adın ne", "sahne adı", "sahne adın", "lakabın", "takma adın", "evli misin", "sevgilin", "özel hayatın", "telefonun", "adresin"] },
+    { id: "family",    words: ["oğlun", "kızın", "çocuğun", "eşin", "ailen", "baban", "annen", "kardeşin"], },
     { id: "askmoney",  words: ["borç", "para ver", "ödünç", "maddi", "yardım et para", "faizsiz", "bana para"] },
     { id: "news",      words: ["haber", "gündem", "siyaset", "ekonomi", "cinayet", "hırsızlık", "zam", "seçim", "sokak olayı"] },
     { id: "question",  words: ["nasıl", "neden", "niye", "ne zaman", "kim", "nerede", "mi", "mı", "musun", "mısın"] }
@@ -660,20 +661,190 @@
     },
 
     /* ---- ŞEHİNŞAH → şifreli, gece, gizemli ---- */
+    /* ============================================================
+       ŞEHİNŞAH — GERÇEK KİŞİLİK (v10.12)
+       Kaynak: Milliyet/Molatik röportajı (2018) ve Wikipedia.
+       Konuşma tarzı, "gizemli/karanlık" klişesinden UZAK:
+         • SAKİN ve ÖLÇÜLÜ: uzun, düzgün cümleler kurar; küfür etmez.
+           ("durumu ajite ederek basit bir kavgadan prim yapmaya çalıştı")
+         • SAMİMİYET ve ZANAAT vurgusu: "içindeki sıcaklık ve samimiyeti
+           sevmem", "hem teknik hem taktik hem de manevi bir bütünlük"
+         • MEMLEKETSİZ kimlik: savcı çocuğu, tayinler yüzünden
+           Erzincan–Giresun–İzmir–İstanbul; "biraz memleketsiz bir rapçiyim"
+         • BABA: oğlu Atlas — en duygusal olduğu konu
+         • PUNK/METAL + graffiti + b-boy geçmişi, çizgi roman çizerliği
+         • İSMİN ANLAMI: "kralların kralı" — lise edebiyat kitabının
+           arkasındaki sözlükten bulmuş
+         • DURUŞ: "Rap bir karşı duruştur"
+         • GENİŞ BAKIŞ: yaş aldıkça sevmediği müziklerin neden sevildiğini
+           anlamaya başladığını söyler; kendi zevkini dayatmaz
+         • HEDEF: "emeğimin saygı gördüğü yer"
+         • İLETİŞİM: "rap dünyası hiç bu kadar yakın olmadı… daha fazla
+           iletişime ihtiyacımız var"
+         • HAFİF MİZAH: kendini yerebilir ("birazcık da kız tavlamak için")
+       ============================================================ */
     sehinsah: {
-      label: "gizemli",
-      pool: {
-        greet: ["Selamlar. Gece bize yoldaş.", "Gel, otur. Sessizlik de bir sözdür.", "Selam. Işıklar sönünce başlar iş."],
-        howareyou: ["Yaşıyoruz. Karanlıkta yazıyorum, gündüz uyuyorum.", "İdare eder. Kelimelerle saklambaç oynuyorum."],
-        music: ["\"{song}\" bir kapı gibi; herkes geçemez.", "\"{song}\" karanlıkta parlıyor, dikkat et."],
-        career: ["Sessiz büyü, gürültüyle öl.", "Kimse görmezken yaz; görüldüğünde hazır olursun."],
-        compliment: ["Teşekkür. Anlayan az, o yüzden değerli."],
-        insult: ["Öfke de bir enerji. Onu söze çevir."],
-        question: ["Her sorunun cevabı herkese verilmez."],
-        generic: ["Anladım. Bazı sözler kilitlidir; sen açmaya çalışıyorsun."]
+      label: "olgun",
+      selam: {
+        islamic: ["Aleyküm selam. Sağ ol, sen de iyi bak.", "Ve aleyküm selam, iyi ki yazdın.", "Aleyküm selam kardeşim."],
+        shortIslamic: ["as", "Aleyküm selam."],
+        reply: ["Eyvallah, sağ ol.", "Rica ederim.", "Sen de iyi bak."]
       },
-      suffix: [" Bazı sözler kilitlidir.", " Gölge de bir renktir."],
-      ambient: { low: ["Selam. Gece uzun, sen nerelerdesin?"], mid: ["Yeni bir metin var; karanlıkta yazdım."], high: ["Bir iş var kafamda; gizli kalsın, sen gel."] }
+      pool: {
+        greet: [
+          "Selam. Yazman iyi oldu, bu ara kafam müzikte.",
+          "Selam kardeşim. Bugün stüdyoda kaldım, yeni çıktım.",
+          "Selam. Biraz dağınık bir dönem, kusura bakma.",
+          "Selamlar. Sana da vakit ayırırım, buyur."
+        ],
+        howareyou: [
+          "İyiyim. Sabah stüdyo, akşam oğlum. Düzen bu şekilde oturdu.",
+          "Fena değil. Yazıyorum sürekli, kafam kalabalık ama iyi kalabalık.",
+          "İdare eder. Yaş aldıkça bazı şeyleri daha sakin karşılıyorum.",
+          "İyiyim kardeşim. Sen nasılsın, işler nasıl gidiyor?"
+        ],
+        music: [
+          "\"{song}\" üzerinde epey çalıştım. Teknik ve manevi olarak bir bütünlük istiyorum.",
+          "\"{song}\" bir meseleyi anlatıyor. Dinleyen kendinden bir şey bulsun istedim.",
+          "\"{song}\" — sözü yazarken kendi kıstaslarımla ilerledim, hazır hissetmeden çıkarmam.",
+          "Müzikte samimiyetin önemli olduğunu düşünüyorum; \"{song}\" o yüzden bu hâlde."
+        ],
+        career: [
+          "İlk yıllar kimse dinlemiyor, normal. Ben de lisede birkaç kez atıldım, sonra devam ettim.",
+          "Oku ama sokağı da yaşa. Söz sokaktaki dili almazsa kimseye geçmez.",
+          "Taklit etme. Kendi yaşam biçimini anlat, samimi olan kalıyor.",
+          "Rap bir karşı duruştur. Sanat da öyle. Acele etme, oturur."
+        ],
+        compliment: [
+          "Teşekkür ederim. Bunu duymak güzel, gerçekten.",
+          "Sağ ol. İnsanların kendinden bir şey bulması benim için önemli.",
+          "Eyvallah. Elimden geleni yapmaya devam ediyorum."
+        ],
+        critique: [
+          "Anlıyorum. Eleştiri de bir dönüş, kırılmam.",
+          "Haklı olabilirsin. Bazen duymak istemediğim şeyler daha çok işe yarıyor.",
+          "Aldım notumu. Bir sonraki işte bakacağım."
+        ],
+        insult: [
+          "Sakin ol. Ben kimseyle kavgayla konuşmam, sözle konuşurum.",
+          "Öfkeni anlıyorum ama bu şekilde bir şey çıkmaz.",
+          "Gerek yok. Konuşmak istersen konuşuruz."
+        ],
+        diss: [
+          "O işler benden geçti. Ben işime bakarım.",
+          "Ben sataşmam. Söyleyeceğim şey varsa kayıtta söylerim.",
+          "Sahne sırası değil bu. Herkes işini yapsın."
+        ],
+        money: [
+          "Para konusu konuşulur ama önce iş konuşulur. Sırası öyle.",
+          "Maddi taraf dert değil, yeter ki yapılan iş saygı görsün.",
+          "Bu tür konuları menajerle ilerletiyorum ama sana dürüst olurum."
+        ],
+        feature: [
+          "Ortak iş ciddi iş. Önce duyayım, sonra oturur konuşuruz.",
+          "Beraber bir şey yapacaksak ikimizin de içine sinmeli.",
+          "Bir demo gönder, dinleyeyim. Söz vermiyorum ama bakarım."
+        ],
+        hangout: [
+          "Stüdyoda olurum genelde. Müsait bir gün otururuz.",
+          "Olur. Çok kalabalık ortamları sevmiyorum, sakin bir yer olsun.",
+          "Biraz planlı gitmem gerekiyor, oğlumla vakit önemli."
+        ],
+        company: [
+          "Şirket tarafı benim işim değil, işi konuşalım.",
+          "Sözleşme konuşulacaksa şartları açık olsun, ben dürüstlük ararım.",
+          "İmza atmadan önce neden imzaladığımı bilmek isterim."
+        ],
+        family: [
+          "Oğlum Atlas. Ona baktığımda başka hiçbir şey düşünmüyorum.",
+          "Babalık bambaşka bir şey. Kalbimin bir köşesinde duruyor.",
+          "Aileme zaman ayırmak benim için pazarlık konusu değil."
+        ],
+        personal: [
+          "Asıl adım Ufuk Yıkılmaz. Sahne adını lise edebiyat kitabının arkasındaki sözlükten buldum.",
+          "\"Şehinşah\" kralların kralı demek. Anlamı hoşuma gitti.",
+          "Tayinler yüzünden çok şehir gezdim: Erzincan, Giresun, İzmir… biraz memleketsiz bir rapçiyim.",
+          "Özel hayatımı çok açmıyorum ama sorduğun şeyi cevaplarım."
+        ],
+        health: [
+          "Uyku düzenim bozuk, doğru. Gece çalışmak bana iyi geliyor.",
+          "Yorgunum ama iyi yorgunluk. Üretmek böyle bir şey."
+        ],
+        hard: [
+          "Zor dönemler olur. Zor dönemde yaptığın şeyler de sana kalır, dikkat et.",
+          "Bir dönem benim de kontrolü kaybettiğim oldu. Geçiyor ama iz bırakıyor.",
+          "Yazmaya devam et. Kafayı toplamanın en temiz yolu bu."
+        ],
+        market: [
+          "Rap içe dönüktü, şimdi dışa dönük konuşuyor. İnsanlar empati kuruyor.",
+          "Pop kültürüne kayarsa rap de rock gibi elinden alınır. Kendi özünü koruması lazım.",
+          "Yeni nesil işine daha hakim, çünkü bunun içine doğdular. Biz sonradan nail olduk.",
+          "Rapçi topluma, toplum rapçiye birer adım yaklaştı. Bunu kaybetmemek lazım."
+        ],
+        news: [
+          "Gündemi takip ediyorum ama söyleyeceğim şeyi kayıtta söylerim.",
+          "Her şey hakkında konuşmam. Konuşacaksam altyapısı olur."
+        ],
+        beef: [
+          "Yaş aldıkça insanların neden sevdiğini anlamaya başladım. Kimseyi küçümsemiyorum.",
+          "Kendi zevkimi dayatmam. İyi yapıyorsa iyidir.",
+          "Sataşma işi değil bu. Ben işime bakarım."
+        ],
+        askmoney: [
+          "Borç işine girmem, kusura bakma. Ama iş konuşursak otururuz.",
+          "Para meselesi yürümez aramızda. Emeğin karşılığı ayrı şey."
+        ],
+        flirt: [
+          "Öyle bir yer değil burası. İşimize bakalım.",
+          "Teşekkür ederim ama konuyu müzikte tutalım."
+        ],
+ 
+        thanks: ["Rica ederim.", "Eyvallah, sağ ol.", "Ne demek."],
+        laugh: ["Güldüm, iyi geldi.", "Ha, o da ayrı bir mevzu."],
+        question: [
+          "Sorunun cevabı var ama biraz uzun. Kısaltayım.",
+          "Anladım. Şöyle anlatayım…",
+          "İyi soru. Ben de zamanında bunu düşünmüştüm."
+        ],
+        support: [
+          "Teşekkürler. Destek her zaman kıymetli.",
+          "Sağ ol. Bunu hatırlarım."
+        ],
+        bye: ["Görüşürüz. Kendine iyi bak.", "Kolay gelsin kardeşim."],
+        generic: [
+          "Anladım. Düşüneyim, sana dönerim.",
+          "Olabilir. Biraz daha açarsan net konuşurum.",
+          "Peki. Ben söylediklerimi ciddiye alırım, sen de al."
+        ]
+      },
+      suffix: [
+        " Yazmaya devam et.",
+        " Aceleye gelmesin, oturur.",
+        " Samimi olan kalıyor."
+      ],
+      ambient: {
+        low: [
+          "Selam. Bugün stüdyoda kaldım, aklımdan geçenleri yazdım.",
+          "Selam, bir süredir adını görüyorum. Nasıl gidiyor?"
+        ],
+        mid: [
+          "Yeni bir metin üstünde çalışıyorum. Teknik de oturuyor gibi.",
+          "Oğlumla vakit geçirdikten sonra stüdyoya dönmek daha kolay oluyor, iyi geliyor.",
+          "Bazen bir şey yazıyorum, sonra siliyorum. Hazır olmayınca çıkmaz."
+        ],
+        high: [
+          "Bir iş var kafamda, daha kimseye açmadım. Sana söylüyorum çünkü anlarsın.",
+          "Bu parça üzerinde epey düşündüm. Çıktığında konuşuruz."
+        ]
+      },
+      cold: {
+        generic: ["Tanıdık gelmiyorsun. Sen kimsin?", "Yoğunum, sonra bakarım."],
+        feature: ["Ortak iş için önce bir tanışalım, acele etmiyorum.", "Demo gönder, dinleyeyim. Söz vermiyorum."],
+        money: ["Para konuşmadan önce iş konuşulur."],
+        personal: ["Bunları henüz konuşacak seviyede değiliz.", "Bu soru biraz erken."],
+        insult: ["Gerek yok buna."],
+        flirt: ["Öyle bir şey yok."]
+      }
     },
 
     /* ---- NORM ENDER → ilkeli, eleştirel, öğretici ---- */
@@ -857,6 +1028,11 @@
 
   function poolFor(intent, S, prof, artist) {
     if (prof && prof.pool && prof.pool[intent] && prof.pool[intent].length) return prof.pool[intent];
+    /* DÜZELTME (v10.12): kişisel profili olan sanatçının havuzunda
+       o niyet yoksa GENEL havuza düşüyordu — yani Şehinşah bir mesajda
+       kendi sesiyle, başka mesajda herkesle aynı cümleyle konuşuyordu.
+       Artık önce sanatçının KENDİ “generic” satırları denenir. */
+    if (prof && prof.pool && prof.pool.generic && prof.pool.generic.length) return prof.pool.generic;
     if (artist) {
       if ((artist.age || 30) >= 40 && VET_CHAT[intent]) return VET_CHAT[intent];
       const g = GENRE_CHAT[artist.genre];
