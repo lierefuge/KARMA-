@@ -271,15 +271,15 @@
 
       // şöhret / popülerlik / takipçi etkisi
       if (kind === "praise") {
-        p.popularity = U.clamp(p.popularity + 0.5, 0, 99);
+        K.game.addFame(0.5);
         p.ig = Math.round(p.ig + a.popularity * 18 + 500);
         p.tiktok = Math.round(p.tiktok + a.popularity * 12 + 300);
         p.reputation = U.clamp(p.reputation + 0.3, 0, 100);
       } else if (kind === "shade") {
-        p.popularity = U.clamp(p.popularity + 0.3, 0, 99); // tartışma da görünürlük
+        K.game.addFame(0.3); // tartışma da görünürlük
         p.reputation = U.clamp(p.reputation - 0.6, 0, 100);
       } else {
-        p.popularity = U.clamp(p.popularity + 0.15, 0, 99);
+        K.game.addFame(0.15);
       }
       if (K.relations && K.relations.reach(a.id) > 0.15) {
         K.relations.addAffinity(a.id, 0.5, "tepki:" + kind);
