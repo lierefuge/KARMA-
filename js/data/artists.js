@@ -367,7 +367,7 @@
       chartPeak: 38, albums: ["D'ÜNYAM"],
       traits: { openness: 9, loyalty: 5, ego: 4, work: 8 },
       affinityStart: 16,
-      bio: "İzmir doğumlu genç rapçi. 'Majesteleri' mahlasıyla da bilinir. Karanlık ve deneysel sound'uyla kendi kitlesini kurdu; D'ÜNYAM albümüyle dikkat çekti."
+      bio: "İzmir doğumlu genç rapçi. 'Karma' mahlasıyla da bilinir. Karanlık ve deneysel sound'uyla kendi kitlesini kurdu; D'ÜNYAM albümüyle dikkat çekti."
     },
     {
       id: "deryaulug", stageName: "Derya Uluğ", aliases: [],
