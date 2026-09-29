@@ -107,6 +107,7 @@
       if (K.social && K.social.dailyTick) K.social.dailyTick();
       if (K.concerts && K.concerts.tick) K.concerts.tick();
       if (K.festivals && K.festivals.tick) K.festivals.tick();
+      if (K.rollout && K.rollout.tick) K.rollout.tick();
       if (K.awards && K.awards.tick) K.awards.tick();
       if (K.rivalry && K.rivalry.tick) K.rivalry.tick();
       if (K.beef && K.beef.dailyTick) K.beef.dailyTick();
