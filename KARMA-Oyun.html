@@ -2820,6 +2820,71 @@ body.hide-values .brand-sub::after {
   background: linear-gradient(135deg, rgba(176,108,255,.08), transparent), var(--bg-2);
 }
 
+/* ============================================================
+   v10.19 — GÜNCELLEME ŞERİDİ (systems/updater.js)
+   Sayfanın altına yapışır; mobilde güvenli alanı (safe-area) dikkate
+   alır ki iPhone home göstergesinin altında kalmasın.
+   ============================================================ */
+.kub {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(14px + var(--safe-bottom, 0px));
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(560px, calc(100vw - 24px));
+  padding: 11px 12px 11px 14px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(180deg, #241a3a, #1a1329);
+  border: 1px solid rgba(140, 90, 255, 0.45);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  animation: kub-in 0.28s ease-out;
+}
+@keyframes kub-in {
+  from { opacity: 0; transform: translate(-50%, 12px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+.kub-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex: none;
+  background: var(--karma, #b06cff);
+  box-shadow: 0 0 0 3px rgba(176, 108, 255, 0.22);
+}
+.kub-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.kub-text b { font-size: 12.5px; font-weight: 800; }
+.kub-text span { font-size: 11px; color: var(--text-2); line-height: 1.35; }
+.kub-btn {
+  flex: none;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  border: none;
+  font-size: 12px; font-weight: 800;
+  color: #fff;
+  background: linear-gradient(135deg, var(--karma, #b06cff), #7a3dff);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.kub-btn:active { transform: scale(0.97); }
+.kub-x {
+  flex: none;
+  width: 26px; height: 26px;
+  border-radius: var(--radius-s);
+  border: 1px solid var(--stroke);
+  background: transparent;
+  color: var(--text-2);
+  cursor: pointer;
+  font-size: 11px;
+  touch-action: manipulation;
+}
+@media (max-width: 520px) {
+  .kub { left: 10px; right: 10px; transform: none; max-width: none; }
+  @keyframes kub-in {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+}
+
 </style>
 <style>
 /* ==== css/studio-wizard.css ==== */
@@ -4635,6 +4700,86 @@ body.hide-values .brand-sub::after {
 }
 
 </style>
+<style>
+/* ==== css/festivals.css ==== */
+/* ============================================================
+   KARMA — css/festivals.css  (v10.19)
+   Festival devresi: sezon takvimi, slot merdiveni, line-up kartları.
+
+   Tasarım kuralı: kart ÜÇ SÜTUNLU olgunlaşır —
+     [festival bilgisi] [sana verilen slot + sayılar] [aksiyon]
+   Dar ekranda tek sütuna iner; sayılar asla gizlenmez (karar
+   bunlara dayanır), yalnızca açıklama satırı kısalır.
+   ============================================================ */
+
+.fest-list { display: flex; flex-direction: column; gap: 10px; }
+
+.fest-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.15fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 15px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(180deg, var(--bg-3), var(--bg-2));
+  border: 1px solid var(--stroke);
+  position: relative;
+  overflow: hidden;
+}
+/* soldaki ince renk şeridi: line-up'a girdiğin festival yeşil yanar */
+.fest-card::before {
+  content: "";
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: linear-gradient(180deg, var(--karma), #8a4dff);
+  opacity: 0.55;
+}
+.fest-card.booked { border-color: rgba(92, 232, 155, 0.4); }
+.fest-card.booked::before { background: linear-gradient(180deg, #5ce89b, #1ed760); opacity: 1; }
+
+.fest-main { min-width: 0; }
+.fest-name {
+  font-size: 13.5px; font-weight: 800; letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.fest-tier {
+  font-size: 9.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 2px 7px; border-radius: var(--radius-pill);
+  color: var(--ftc, #999);
+  background: color-mix(in srgb, var(--ftc, #999) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ftc, #999) 32%, transparent);
+  white-space: nowrap;
+}
+/* color-mix desteklemeyen tarayıcılar için okunur yedek */
+@supports not (background: color-mix(in srgb, red 10%, transparent)) {
+  .fest-tier { background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.16); }
+}
+.fest-meta { font-size: 11px; color: var(--text-2); margin-top: 3px; }
+.fest-desc { font-size: 11px; color: var(--text-3); margin-top: 5px; line-height: 1.45; }
+
+.fest-slotcol { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.fest-slot { font-size: 12.5px; font-weight: 800; }
+.fest-nums { font-size: 10.5px; color: var(--text-2); line-height: 1.45; }
+.fest-nums .money { font-weight: 900; }
+.fest-chance { font-size: 10px; color: var(--text-3); }
+
+.fest-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.fest-lock { font-size: 10.5px; color: var(--text-3); text-align: right; max-width: 190px; line-height: 1.35; }
+
+.fest-later {
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid var(--stroke);
+  font-size: 10.5px; color: var(--text-3);
+}
+
+/* ---------------- mobil: tek sütun ---------------- */
+@media (max-width: 720px) {
+  .fest-card { grid-template-columns: 1fr; align-items: stretch; gap: 10px; }
+  .fest-actions { flex-direction: row; align-items: center; justify-content: space-between; }
+  .fest-lock { text-align: left; max-width: none; }
+  .fest-desc { display: none; }   /* mobilde kalabalık yapmasın */
+}
+
+</style>
 <!-- mobil/dokunmatik katman: EN SON yüklenir ki altta kalan 25 dosyayı ezebilsin -->
 <style>
 /* ==== css/mobile.css ==== */
@@ -5035,6 +5180,7 @@ html, body {
           <button class="tab" data-tab="charts">Listeler</button>
           <button class="tab" data-tab="analytics">Analiz</button>
           <button class="tab" data-tab="concerts">Konser</button>
+          <button class="tab" data-tab="festivals">Festival</button>
           <button class="tab" data-tab="label">Şirket</button>
           <button class="tab" data-tab="events">Olaylar</button>
         </nav>
@@ -5110,7 +5256,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.18.0";
+  K.VERSION = "10.19.0";
   K.VERSION_DATE = "2026-09-29";
 })(window.K = window.K || {});
 
@@ -6367,6 +6513,101 @@ html, body {
       return `${c.icon} ${c.name} · "${top.title}" konusu yakalandı (×${(1 + top.gain / 100).toFixed(2)} etkileşim).`;
     }
   };
+})(window.K = window.K || {});
+
+</script>
+  <script>
+/* ==== js/data/festivals.js ==== */
+/* ============================================================
+   KARMA — data/festivals.js
+   YAZ FESTİVALLERİ (veri)
+   ------------------------------------------------------------
+   Neden ayrı dosya?
+   Festivaller konser salonlarından farklı bir ekonomiye sahiptir:
+   mekânını sen kiralamazsın, bir LINE-UP'a girmeye çalışırsın.
+   Değeri belirleyen şey KAPASİTE değil SLOT'tur (gündüz sahnesi mi,
+   headliner mı?). Bu yüzden festivaller turne/konser verisinden
+   ayrı tutulur ve kendi eğrisiyle çözülür.
+
+   tier      : local | city | national | flagship
+   month/dom : gerçek takvim ayı ve günü (yaz sezonu Haziran-Eylül)
+   capacity  : toplam alan kapasitesi (tek sahne değil, günün toplamı)
+   mult      : şehir/çekim çarpanı (İstanbul > Trabzon)
+   minPop    : en düşük slota başvurabilmek için gereken popülerlik
+   baseFee   : prime-time slot referans ücreti (₺)
+   prestige  : itibar/şöhret etkisi katsayısı
+   travel    : ekip + ulaşım + teknik gider (₺)
+   multiDay  : kaç gün sürdüğü (line-up günü 1'dir)
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  /* ---- SLOT MERDİVENİ ----
+     Aynı festivalde gündüz sahnesi ile headliner arasındaki fark,
+     oyuncunun kariyer basamağını hissettiren yerdir.
+     - fee     : baseFee çarpanı (para)
+     - draw    : kalabalık çarpanı (kitle)
+     - prestige: itibar/şöhret çarpanı
+     - exposure: keşfedilme çarpanı (yeni hayran başına etki)
+     - backstage: camia ile temas (samimiyet)
+  */
+  K.FESTIVAL_SLOTS = [
+    { id: "opening",   name: "Gündüz Sahnesi",     emoji: "☀️",  short: "Gündüz",
+      fee: 0.30, draw: 0.55, prestige: 0.25, exposure: 1.05, backstage: 0.0,
+      desc: "Öğlen güneşinde yarım dolu alan. Para yok, görünürlük var." },
+    { id: "sunset",    name: "Gün Batımı Sahnesi",  emoji: "🌇",  short: "Sunset",
+      fee: 0.55, draw: 0.78, prestige: 0.60, exposure: 1.00, backstage: 0.1,
+      desc: "Kalabalık toplanmaya başlıyor; momentum kurulur." },
+    { id: "prime",     name: "Prime-Time",          emoji: "🌆",  short: "Prime",
+      fee: 1.00, draw: 1.00, prestige: 1.00, exposure: 0.95, backstage: 0.3,
+      desc: "Festivalin ana akışı. Gerçek ücret burada başlar." },
+    { id: "support",   name: "Ana Sahne Öncesi",    emoji: "🎧",  short: "Support",
+      fee: 1.50, draw: 1.18, prestige: 1.50, exposure: 0.90, backstage: 0.6,
+      desc: "Headliner öncesi doldurulmuş alan. En yüksek kitle devri." },
+    { id: "headliner", name: "Headliner",           emoji: "👑",  short: "Headliner",
+      fee: 2.60, draw: 1.42, prestige: 2.60, exposure: 1.00, backstage: 1.0,
+      desc: "Gecenin kapanışı. Camianın seni zirveye yazdığı yer." }
+  ];
+
+  /* ---- TIER BAŞINA SLOT POPÜLERLİK EŞİKLERİ ----
+     Sırayla: gündüz · sunset · prime · support · headliner.
+     Popülerlik 0-99 arasıdır; flagship headliner'ı 95 ister. */
+  K.FESTIVAL_TIER_POPS = {
+    local:    [4, 9, 16, 28, 42],
+    city:     [14, 24, 36, 52, 70],
+    national: [26, 40, 55, 72, 88],
+    flagship: [45, 62, 76, 88, 95]
+  };
+
+  K.FESTIVAL_TIER_LABEL = {
+    local:    { label: "Yerel",     color: "#7fd1a4" },
+    city:     { label: "Şehir",     color: "#6ec3ff" },
+    national: { label: "Ulusal",    color: "#c79bff" },
+    flagship: { label: "Amiral",    color: "#ffcd6e" }
+  };
+
+  K.FESTIVALS = [
+    { id: "sahne-kenti",      name: "Sahne Kenti",            city: "İstanbul",  tier: "city",     month: 6, dom: 14, capacity: 14000, mult: 1.24, minPop: 14, baseFee: 190000, prestige: 1.7, travel: 45000,  multiDay: 2,
+      desc: "İstanbul'un açılış festivali; line-up'ı her yıl gündemi belirler." },
+    { id: "anadolu-ses",      name: "Anadolu Sesleri",        city: "Ankara",    tier: "national", month: 6, dom: 28, capacity: 26000, mult: 1.06, minPop: 26, baseFee: 430000, prestige: 2.3, travel: 85000,  multiDay: 3,
+      desc: "Başkentin büyük sahnesi; rap line-up'ı en kalabalık gün olur." },
+    { id: "ege-loud",         name: "Ege Loud",               city: "İzmir",     tier: "city",     month: 7, dom: 5,  capacity: 12000, mult: 1.10, minPop: 12, baseFee: 155000, prestige: 1.5, travel: 55000,  multiDay: 2,
+      desc: "Sahil kasabası enerjisi; genç kitle ve yüksek devir." },
+    { id: "fethiye-nights",   name: "Fethiye Nights",         city: "Antalya",   tier: "city",     month: 7, dom: 19, capacity: 9000,  mult: 1.02, minPop: 10, baseFee: 120000, prestige: 1.2, travel: 70000,  multiDay: 2,
+      desc: "Yaz tatili kitlesi; keşfedilme için altın fırsat." },
+    { id: "baskent-hiphop",   name: "Başkent Hiphop Günleri", city: "Ankara",    tier: "city",     month: 7, dom: 26, capacity: 11000, mult: 1.04, minPop: 13, baseFee: 140000, prestige: 1.4, travel: 50000,  multiDay: 2,
+      desc: "Saf hip-hop festivali; camianın tamamı orada olur." },
+    { id: "karadeniz-beat",   name: "Karadeniz Beat",         city: "Trabzon",   tier: "local",    month: 8, dom: 2,  capacity: 6000,  mult: 0.90, minPop: 6,  baseFee: 65000,  prestige: 0.9, travel: 60000,  multiDay: 1,
+      desc: "Bölgesel sahne; yerel kitle çok sadık, alan küçük." },
+    { id: "guney-ritim",      name: "Güney Ritim",            city: "Adana",     tier: "local",    month: 8, dom: 9,  capacity: 7000,  mult: 0.92, minPop: 7,  baseFee: 72000,  prestige: 0.95, travel: 65000, multiDay: 1,
+      desc: "Adana'nın açık hava sahnesi; yaz sıcağında gece konseri." },
+    { id: "buyuk-sahne",      name: "Büyük Sahne",            city: "İstanbul",  tier: "flagship", month: 8, dom: 23, capacity: 55000, mult: 1.30, minPop: 45, baseFee: 1250000, prestige: 3.4, travel: 180000, multiDay: 3,
+      desc: "Türkiye'nin amiral gemisi. Headliner olmak kariyeri değiştirir." },
+    { id: "sonbahar-ses",     name: "Sonbahar Ses",           city: "Bursa",     tier: "city",     month: 9, dom: 12, capacity: 10000, mult: 0.98, minPop: 11, baseFee: 125000, prestige: 1.3, travel: 48000,  multiDay: 1,
+      desc: "Sezon kapanışı; kapalı alan, sıkı ve teknik bir seyirci." },
+    { id: "eskisehir-sahne",  name: "Eskişehir Sahne",        city: "Eskişehir", tier: "local",    month: 9, dom: 20, capacity: 8000,  mult: 0.94, minPop: 8,  baseFee: 85000,  prestige: 1.05, travel: 52000, multiDay: 1,
+      desc: "Öğrenci şehri; küçük alan, yüksek sosyal medya dönüşü." }
+  ];
 })(window.K = window.K || {});
 
 </script>
@@ -8265,6 +8506,7 @@ window.K = window.K || {};
       history: [],
       settings: {},
       concerts: [],
+      festivals: [],          // yaz festivali line-up kayıtları (systems/festivals.js)
       tour: null,
       rivals: [],
       crisis: null,
@@ -8418,6 +8660,7 @@ window.K = window.K || {};
       K.state.history = K.state.history || [];
       K.state.settings = K.state.settings || {};
       K.state.concerts = K.state.concerts || [];
+      K.state.festivals = K.state.festivals || [];
       if (K.state.tour === undefined) K.state.tour = null;
       K.state.rivals = K.state.rivals || [];
       if (K.state.crisis === undefined) K.state.crisis = null;
@@ -8614,6 +8857,7 @@ window.K = window.K || {};
       if (K.label && K.label.playerContractTick) K.label.playerContractTick();
       if (K.social && K.social.dailyTick) K.social.dailyTick();
       if (K.concerts && K.concerts.tick) K.concerts.tick();
+      if (K.festivals && K.festivals.tick) K.festivals.tick();
       if (K.awards && K.awards.tick) K.awards.tick();
       if (K.rivalry && K.rivalry.tick) K.rivalry.tick();
       if (K.beef && K.beef.dailyTick) K.beef.dailyTick();
@@ -18632,6 +18876,365 @@ window.K = window.K || {};
 
 </script>
   <script>
+/* ==== js/systems/festivals.js ==== */
+/* ============================================================
+   KARMA — systems/festivals.js
+   FESTİVAL DEVRESİ (yaz sezonu line-up'ı)
+
+   Konser/turne sisteminden farkı
+   ------------------------------
+   Konserde mekânı sen seçip kiralarsın; festivalde bir LINE-UP'a
+   girmeye çalışırsın ve sana verilen SLOT her şeyi belirler.
+   Gündüz sahnesinde çalmak para kaybettirir ama görünürlük verir;
+   headliner olmak hem büyük para hem kariyer sıçramasıdır.
+
+   Akış
+   ----
+   1. Sezon takvimi: her festivalin yıl içindeki EDİSYONU hesaplanır.
+   2. Başvuru penceresi: edisyondan FEST_OPEN_WINDOW gün önce açılır.
+   3. Başvuruda oyuncunun popülerliğine göre SLOT tahsis edilir
+      (eşikler: K.FESTIVAL_TIER_POPS) ve strateji seçilir:
+        ücret odaklı · dengeli · kitle odaklı
+   4. Kabul; itibar + popülerlik fazlası + menajer + şirket gücüne bağlı.
+   5. Edisyon günü tick() performansı çözer: kitle, ücret, hayran,
+      şöhret, itibar ve ara sıra "sahne anı" / "aksilik".
+   6. Çakışma koruması: aynı gün konser/turne/festival olamaz.
+   ============================================================ */
+(function (K) {
+  "use strict";
+  const U = K.util;
+
+  /* Başvuru penceresi: edisyondan kaç gün önce açılır */
+  const OPEN_WINDOW = 45;
+  /* Başvuru kapanışı: son kaç günde artık başvuru alınmaz */
+  const CLOSE_BEFORE = 3;
+
+  const STANCES = [
+    { id: "fee",      name: "Ücret odaklı", emoji: "💰", feeMul: 1.15, fanMul: 0.80, accept: -0.05,
+      desc: "Promotörden daha yüksek garanti koparır; sahne etkisini biraz geri plana atar." },
+    { id: "balanced", name: "Dengeli",      emoji: "⚖️", feeMul: 1.00, fanMul: 1.00, accept: 0,
+      desc: "Ne para ne kitle; sürdürülebilir ve güvenli tercih." },
+    { id: "exposure", name: "Kitle odaklı", emoji: "📣", feeMul: 0.75, fanMul: 1.35, accept: 0.08,
+      desc: "Düşük ücrete razı olursun; yeni hayran ve viral şansı yükselir." }
+  ];
+
+  function stanceOf(id) { return STANCES.find(x => x.id === id) || STANCES[1]; }
+
+  /* ---- takvim matematiği ---- */
+  function dayForCal(y, m, d) {
+    const sd = U.fromISO(K.state.dateStart || U.todayISO());
+    const a = Date.UTC(sd.y, sd.m - 1, sd.d);
+    const b = Date.UTC(y, m - 1, d);
+    return Math.round((b - a) / 86400000) + 1;
+  }
+
+  function nextEdition(fest) {
+    const s = K.state;
+    const cur = U.dateObjForDay(s.day);
+    for (let y = cur.y; y <= cur.y + 2; y++) {
+      const day = dayForCal(y, fest.month, fest.dom);
+      if (day >= s.day) return { day, year: y, date: U.dateForDay(day) };
+    }
+    return null;
+  }
+
+  function tierPops(fest) {
+    return K.FESTIVAL_TIER_POPS[fest.tier] || K.FESTIVAL_TIER_POPS.city;
+  }
+
+  /* Oyuncunun popülerliğine karşılık gelen slot */
+  function slotIndexFor(fest, pop) {
+    const pops = tierPops(fest);
+    let idx = -1;
+    for (let i = 0; i < pops.length; i++) if (pop >= pops[i]) idx = i;
+    return idx; // -1 → hiçbir slota uygun değil
+  }
+
+  K.festivals = {
+    STANCES,
+    OPEN_WINDOW,
+    stanceOf,
+
+    fest(id) { return K.FESTIVALS.find(f => f.id === id) || null; },
+    slot(id) { return K.FESTIVAL_SLOTS.find(x => x.id === id) || K.FESTIVAL_SLOTS[0]; },
+    slotIndex(slotId) { return K.FESTIVAL_SLOTS.findIndex(x => x.id === slotId); },
+
+    /* oyuncunun potansiyel slotu (başvuru öncesi gösterim) */
+    slotFor(festId, pop) {
+      const f = K.festivals.fest(festId);
+      if (!f) return null;
+      const i = slotIndexFor(f, pop == null ? K.state.player.popularity : pop);
+      return i < 0 ? null : K.FESTIVAL_SLOTS[i];
+    },
+
+    booked() {
+      return (K.state.festivals || []).filter(x => x.status === "booked")
+        .sort((a, b) => a.editionDay - b.editionDay);
+    },
+
+    history() {
+      return (K.state.festivals || []).filter(x => x.status === "played")
+        .sort((a, b) => b.editionDay - a.editionDay);
+    },
+
+    /* --- sezon takvimi: yaklaşan edisyonlar --- */
+    calendar(limitDays) {
+      const s = K.state;
+      const p = s.player;
+      const span = limitDays || 260;
+      const bookedIds = {};
+      K.festivals.booked().forEach(b => { bookedIds[b.festId] = b; });
+
+      return K.FESTIVALS.map(f => {
+        const ed = nextEdition(f);
+        if (!ed) return null;
+        const daysLeft = ed.day - s.day;
+        if (daysLeft > span) return null;
+        const si = slotIndexFor(f, p.popularity || 0);
+        const slot = si < 0 ? null : K.FESTIVAL_SLOTS[si];
+        const booked = bookedIds[f.id] || null;
+        return {
+          fest: f, editionDay: ed.day, date: ed.date, year: ed.year, daysLeft,
+          slot, slotIndex: si, eligible: si >= 0,
+          open: daysLeft <= OPEN_WINDOW && daysLeft >= CLOSE_BEFORE,
+          booked,
+          conflict: K.festivals.conflictDay(ed.day, booked ? booked.festId : f.id)
+        };
+      }).filter(Boolean).sort((a, b) => a.editionDay - b.editionDay);
+    },
+
+    /* --- çakışma: aynı gün (±1) başka bir taahhüt var mı? --- */
+    conflictDay(day, ignoreFestId) {
+      const s = K.state;
+      const near = (d) => Math.abs(d - day) <= 1;
+      for (const cn of (s.concerts || [])) {
+        if (cn.status === "planlandı" && near(cn.day)) return { kind: "konser", label: cn.city + " konseri" };
+      }
+      if (s.tour && s.tour.queue) {
+        for (const stop of s.tour.queue) {
+          if (near(stop.day)) return { kind: "turne", label: stop.city + " turne durağı" };
+        }
+      }
+      for (const f of (s.festivals || [])) {
+        if (f.status === "booked" && f.festId !== ignoreFestId && near(f.editionDay)) {
+          const ff = K.festivals.fest(f.festId);
+          return { kind: "festival", label: (ff ? ff.name : "Festival") };
+        }
+      }
+      return null;
+    },
+
+    /* --- ücret / maliyet tahmini --- */
+    estimate(festId, slotId, stanceId, pop) {
+      const f = K.festivals.fest(festId);
+      if (!f) return null;
+      const slot = K.festivals.slot(slotId);
+      const st = stanceOf(stanceId);
+      const p = K.state.player;
+      const popv = pop == null ? (p.popularity || 0) : pop;
+      const repBonus = 1 + (p.reputation || 0) / 250;
+      const fee = Math.round(f.baseFee * slot.fee * repBonus * st.feeMul);
+      const cost = Math.round(f.travel * (0.75 + slot.prestige * 0.18) * (K.econ ? K.econ.infl() : 1));
+      const crowd = Math.round(f.capacity * slot.draw * f.mult
+        * (0.30 + Math.min(popv, 99) / 120) * st.fanMul);
+      const fans = Math.round(crowd * (0.035 + slot.exposure * 0.020));
+      const fame = +(slot.prestige * f.prestige * 1.5).toFixed(2);
+      const net = fee - cost - ((K.career && K.career.labelCut) ? K.career.labelCut("touring", fee) : 0);
+      return { fest: f, slot, stance: st, fee, cost, net, crowd, fans, fame, backstage: slot.backstage };
+    },
+
+    /* --- kabul olasılığı --- */
+    acceptChance(festId, slotId) {
+      const f = K.festivals.fest(festId);
+      if (!f) return 0;
+      const si = K.festivals.slotIndex(slotId);
+      const pops = tierPops(f);
+      const p = K.state.player;
+      const pop = p.popularity || 0;
+      const over = (pop - pops[Math.max(0, si)]) / 30;          // eşiği ne kadar aştın
+      const rep = (p.reputation || 0) / 100;
+      const mgr = (K.team && K.team.level) ? K.team.level("manager") : 0;
+      const labelPower = (K.state.label && K.state.label.power) ? K.state.label.power / 100 : 0;
+      let c = 0.30 + over * 0.22 + rep * 0.16 + mgr * 0.05 + labelPower * 0.07;
+      return U.clamp(c, 0.05, 0.92);
+    },
+
+    /* --- başvuru --- */
+    apply(festId, stanceId) {
+      const s = K.state, p = s.player;
+      const f = K.festivals.fest(festId);
+      if (!f) return false;
+
+      const ed = nextEdition(f);
+      if (!ed) return false;
+      const daysLeft = ed.day - s.day;
+
+      if (daysLeft < CLOSE_BEFORE) { K.toast("Başvuru kapandı", `${f.name} line-up'ı kilitlendi.`, "warn"); return false; }
+      if (daysLeft > OPEN_WINDOW) { K.toast("Henüz erken", `${f.name} başvuruları ${daysLeft - OPEN_WINDOW} gün sonra açılıyor.`, "warn"); return false; }
+
+      if (K.festivals.booked().some(b => b.festId === festId)) {
+        K.toast("Zaten kayıtlısın", `${f.name} için slotun var.`, "warn"); return false;
+      }
+      const conflict = K.festivals.conflictDay(ed.day, festId);
+      if (conflict) { K.toast("Çakışma", `Aynı tarihte ${conflict.label} var.`, "bad"); return false; }
+
+      const si = slotIndexFor(f, p.popularity || 0);
+      if (si < 0) {
+        K.toast("Seviye yetersiz", `${f.name} için en az ${tierPops(f)[0]} popülerlik gerekli.`, "bad");
+        return false;
+      }
+      const slot = K.FESTIVAL_SLOTS[si];
+      const st = stanceOf(stanceId);
+
+      const chance = U.clamp(K.festivals.acceptChance(festId, slot.id) + st.accept, 0.05, 0.95);
+      const ok = U.chance(chance);
+      const est = K.festivals.estimate(festId, slot.id, st.id, p.popularity);
+
+      if (!ok) {
+        K.toast("❌ Reddedildin", `${f.name} · ${slot.name} başvurusu kabul edilmedi (şans %${Math.round(chance * 100)}).`, "bad");
+        s.festivalAttempts = (s.festivalAttempts || 0) + 1;
+        K.save(); K.refresh();
+        return false;
+      }
+
+      s.festivals = s.festivals || [];
+      s.festivals.push({
+        id: U.uid("fs"), festId: f.id, editionDay: ed.day, year: ed.year,
+        slotId: slot.id, stance: st.id,
+        fee: est.fee, cost: est.cost, crowdTarget: est.crowd,
+        appliedDay: s.day, status: "booked"
+      });
+
+      K.toast("🎪 Line-up'a girdin", `${f.name} · ${slot.name} · Gün ${ed.day} (${ed.date.short})`, "ok");
+      K.save(); K.refresh();
+      return true;
+    },
+
+    cancel(festId) {
+      const s = K.state;
+      const before = (s.festivals || []).length;
+      s.festivals = (s.festivals || []).filter(x => !(x.festId === festId && x.status === "booked"));
+      if (s.festivals.length < before) {
+        K.toast("Festival iptal edildi", "Slot boşa çıktı; promotör not aldı.", "warn");
+        s.festivalCancels = (s.festivalCancels || 0) + 1;
+        K.save(); K.refresh();
+        return true;
+      }
+      return false;
+    },
+
+    /* --- edisyon günü: performansı çöz --- */
+    resolve(entry) {
+      const s = K.state, p = s.player;
+      const f = K.festivals.fest(entry.festId);
+      if (!f) { entry.status = "played"; return; }
+      const slot = K.festivals.slot(entry.slotId);
+      const st = stanceOf(entry.stance);
+
+      const crowd = Math.max(0, Math.round(
+        (entry.crowdTarget || f.capacity * slot.draw) * U.rand(0.85, 1.15)
+      ));
+
+      let fans = Math.round(crowd * (0.035 + slot.exposure * 0.020));
+      let fame = slot.prestige * f.prestige * 1.5;
+      let repDelta = slot.prestige * f.prestige * 0.45;
+
+      /* sahne anı / aksilik */
+      let event = null;
+      const viralP = 0.10 + st.fanMul * 0.03 + (slot.backstage * 0.02);
+      const mishapP = 0.11 - slot.prestige * 0.015;
+      if (U.chance(viralP)) {
+        event = "viral";
+        fans = Math.round(fans * 1.85);
+        fame *= 1.30;
+        repDelta += 0.8;
+      } else if (U.chance(Math.max(0.02, mishapP))) {
+        event = "mishap";
+        fans = Math.round(fans * 0.68);
+        fame *= 0.75;
+        repDelta -= U.rand(1.8, 3.6);
+      }
+
+      const fee = entry.fee || 0;
+      const cost = entry.cost || 0;
+      const cut = (K.career && K.career.labelCut) ? K.career.labelCut("touring", fee) : 0;
+      const net = Math.max(0, fee - cut) - cost;
+
+      if (net >= 0) K.economy.earn(net, "festival");
+      else K.economy.spend(Math.min(K.state.balance, -net), "festival_cost");
+
+      K.game.addFame(fame);
+      p.reputation = U.clamp((p.reputation || 0) + repDelta, 0, 100);
+      p.ig = (p.ig || 0) + Math.round(fans * 0.55);
+      p.tiktok = (p.tiktok || 0) + Math.round(fans * 0.45);
+      p.festivalsPlayed = (p.festivalsPlayed || 0) + 1;
+      if (slot.id === "headliner") {
+        p.headlinerCount = (p.headlinerCount || 0) + 1;
+        if (f.tier === "flagship") p.flagshipHeadliner = true;
+      }
+
+      /* backstage: camia teması */
+      let met = null;
+      if (slot.backstage > 0 && U.chance(0.35 + slot.backstage * 0.3) && K.relations) {
+        const roster = (K.artistList && K.artistList()) || [];
+        const cand = roster.filter(a => a && a.id);
+        if (cand.length) {
+          const a = U.pick(cand);
+          const gain = Math.round(4 + slot.backstage * 8);
+          K.relations.addAffinity(a.id, gain, "festival_backstage", { uncapped: true });
+          met = { id: a.id, name: a.stageName, gain };
+        }
+      }
+
+      entry.status = "played";
+      entry.result = {
+        crowd, capacity: f.capacity, fans, fee, cost, cut, net,
+        fame: +fame.toFixed(2), repDelta: +repDelta.toFixed(2),
+        slot: slot.name, slotId: slot.id, event, met
+      };
+
+      const tag = event === "viral" ? " · 🔥 sahne anı" : event === "mishap" ? " · ⚠️ aksilik" : "";
+      K.toast(`🎪 ${f.name} · ${slot.name}`,
+        `${U.fmt(crowd)} kişi · ${net >= 0 ? "+" : ""}${U.money(net)} · +${U.fmt(fans)} hayran${tag}`, "ok");
+    },
+
+    /* --- günlük tick --- */
+    tick() {
+      const s = K.state;
+      if (!s.festivals || !s.festivals.length) return;
+      s.festivals.forEach(entry => {
+        if (entry.status !== "booked") return;
+        if (s.day >= entry.editionDay) K.festivals.resolve(entry);
+      });
+      /* oynanmış kayıtları arşivde tut; sonsuza dek şişmesin */
+      const played = s.festivals.filter(x => x.status === "played");
+      if (played.length > 40) {
+        const keep = played.sort((a, b) => b.editionDay - a.editionDay).slice(0, 40);
+        const keepIds = {};
+        keep.forEach(k => { keepIds[k.id] = true; });
+        s.festivals = s.festivals.filter(x => x.status !== "played" || keepIds[x.id]);
+      }
+    },
+
+    /* UI için özet */
+    summary() {
+      const b = K.festivals.booked();
+      const h = K.festivals.history();
+      const next = b[0] || null;
+      const f = next ? K.festivals.fest(next.festId) : null;
+      return {
+        bookedCount: b.length,
+        playedCount: h.length,
+        nextLabel: next && f ? `${f.name} · ${K.festivals.slot(next.slotId).name} · ${Math.max(0, next.editionDay - K.state.day)} gün` : "—",
+        headliners: K.state.player.headlinerCount || 0,
+        flagship: !!K.state.player.flagshipHeadliner
+      };
+    }
+  };
+})(window.K);
+
+</script>
+  <script>
 /* ==== js/systems/awards.js ==== */
 /* ============================================================
    KARMA — systems/awards.js
@@ -21453,6 +22056,176 @@ window.K = window.K || {};
 })(window.K = window.K || {});
 
 </script>
+  <script>
+/* ==== js/systems/updater.js ==== */
+/* ============================================================
+   KARMA — systems/updater.js   (v10.19)
+   OYUNCU TARAFINDA GÜNCELLEME AKIŞI
+
+   Sorun
+   -----
+   Önbellek hash'i (?v=…) yalnızca SAYFA YENİLENDİĞİNDE işe yarar.
+   Oyunu açık bırakan bir oyuncu — ki bu simülasyonda normaldir —
+   yeni sürüm çıksa bile eskisini çalıştırmaya devam ediyordu.
+   Sürüm numarası elle takip ediliyordu ve kimse göremiyordu.
+
+   Çözüm (iki katman)
+   ------------------
+   1. Service Worker (sw.js) — dosya tipine göre önbellek stratejisi.
+   2. Bu modül — version.json'u ağdan okuyup çalışan sürümle karşılaştırır,
+      fark varsa oyun içi bir şerit gösterir: "Yeni sürüm hazır → Güncelle".
+      Güncelle = yeni worker'ı devreye al + sayfayı yenile.
+
+   Neden tek dosya build'inde kapanır?
+   -----------------------------------
+   KARMA-Oyun.html her şeyi gömer; orada sunucu/worker yoktur. Modüler
+   sürüm tespit edilmezse bu modül tamamen sessiz kalır (çökmez).
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  const CHECK_INTERVAL_MS = 5 * 60 * 1000;   // 5 dakikada bir yokla
+  const BANNER_ID = "karma-update-banner";
+
+  function doc() { return (K.util && K.util.doc) || (typeof document !== "undefined" ? document : null); }
+
+  /* Modüler sürüm mü? index.html harici script'lere atıfta bulunur.
+     Tek dosya build'inde hiçbir yerel <script src> kalmaz. */
+  function isModular() {
+    const d = doc();
+    if (!d) return false;
+    return !!d.querySelector('script[src*="js/version.js"]') ||
+           !!d.querySelector('script[src*="js/main.js"]');
+  }
+
+  function httpOk() {
+    return typeof location !== "undefined" &&
+      (location.protocol === "http:" || location.protocol === "https:");
+  }
+
+  function swSupported() {
+    return typeof navigator !== "undefined" && "serviceWorker" in navigator && httpOk();
+  }
+
+  let registration = null;
+  let banner = null;
+  let lastCheck = 0;
+
+  function removeBanner() {
+    if (banner && banner.parentNode) banner.parentNode.removeChild(banner);
+    banner = null;
+  }
+
+  function showBanner(info) {
+    const d = doc();
+    if (!d || banner) return;
+    banner = d.createElement("div");
+    banner.id = BANNER_ID;
+    banner.className = "kub";
+    banner.innerHTML =
+      '<span class="kub-dot"></span>' +
+      '<div class="kub-text">' +
+        '<b>Yeni sürüm hazır</b>' +
+        '<span>v' + K.util.escape(String(info.version || "")) +
+        (info.date ? " · " + K.util.escape(String(info.date)) : "") +
+        ' — güncellediğinde kariyerin kaydedilir.</span>' +
+      '</div>' +
+      '<button class="kub-btn" type="button">Güncelle</button>' +
+      '<button class="kub-x" type="button" aria-label="Kapat">✕</button>';
+
+    banner.querySelector(".kub-btn").addEventListener("click", function () {
+      K.updater.apply();
+    });
+    banner.querySelector(".kub-x").addEventListener("click", function () {
+      removeBanner();               /* oyuncu isterse sonra günceller */
+    });
+    d.body.appendChild(banner);
+  }
+
+  K.updater = {
+    get supported() { return isModular() && httpOk(); },
+    get hasWorker() { return !!registration; },
+
+    /* version.json'u ağdan oku; çalışan sürümden farklıysa şerit göster */
+    check(force) {
+      if (!K.updater.supported) return Promise.resolve(null);
+      const now = Date.now();
+      if (!force && now - lastCheck < CHECK_INTERVAL_MS) return Promise.resolve(null);
+      lastCheck = now;
+
+      const url = (K.UPDATE_META_URL || "version.json") + (force ? "?t=" + now : "");
+      if (typeof fetch !== "function") return Promise.resolve(null);
+
+      return fetch(url, { cache: "no-store" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (info) {
+          if (!info || !info.version) return null;
+          if (String(info.version) !== String(K.VERSION)) {
+            showBanner(info);
+            return info;
+          }
+          return null;
+        })
+        .catch(function () { return null; });   /* çevrimdışı: sessiz geç */
+    },
+
+    /* yeni worker'ı devreye al ve sayfayı yenile */
+    apply() {
+      try { if (K.save) K.save(); } catch (e) {}
+      const doReload = function () {
+        try { location.reload(); } catch (e) {}
+      };
+      if (registration && registration.waiting) {
+        const waiting = registration.waiting;
+        let reloaded = false;
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.addEventListener("controllerchange", function () {
+            if (reloaded) return;
+            reloaded = true;
+            doReload();
+          });
+        }
+        waiting.postMessage({ type: "KARMA_SKIP_WAITING" });
+        setTimeout(function () { if (!reloaded) { reloaded = true; doReload(); } }, 1500);
+        return;
+      }
+      doReload();
+    },
+
+    init() {
+      if (!isModular()) return;
+      if (!swSupported()) {
+        /* worker yoksa bile sürüm kontrolü denenebilir */
+        K.updater.check(true);
+        return;
+      }
+
+      try {
+        navigator.serviceWorker.register("sw.js").then(function (reg) {
+          registration = reg;
+          /* yeni worker kurulduğunda şerit göster */
+          reg.addEventListener("updatefound", function () {
+            const nw = reg.installing;
+            if (!nw) return;
+            nw.addEventListener("statechange", function () {
+              if (nw.state === "installed" && navigator.serviceWorker.controller) {
+                K.updater.check(true);
+              }
+            });
+          });
+        }).catch(function () { /* sw yoksa sessiz geç */ });
+      } catch (e) {}
+
+      K.updater.check(true);
+      setInterval(function () { K.updater.check(true); }, CHECK_INTERVAL_MS);
+      document.addEventListener("visibilitychange", function () {
+        if (document.visibilityState === "visible") K.updater.check(false);
+      });
+    }
+  };
+})(window.K = window.K || {});
+
+</script>
 
   <!-- ================= UI ================= -->
   <script>
@@ -22254,7 +23027,7 @@ window.K = window.K || {};
 
   const U = K.util;
   let currentTab = "career";
-  const ui = { tourCities: [] };
+  const ui = { tourCities: [], festStance: "balanced" };
   const subTab = { label: "genel", events: "awards" };
 
   K.careerUI = {
@@ -22289,6 +23062,7 @@ window.K = window.K || {};
         charts: K.careerUI.renderCharts,
         analytics: K.careerUI.renderAnalytics,
         concerts: K.careerUI.renderConcerts,
+        festivals: K.careerUI.renderFestivals,
         label: K.careerUI.renderLabelTab,
         events: K.careerUI.renderEventsTab
       };
@@ -24281,6 +25055,112 @@ window.K = window.K || {};
     },
 
     /* =====================================================
+       FESTİVAL DEVRESİ — yaz sezonu line-up'ı
+       ===================================================== */
+    renderFestivals() {
+      const s = K.state, p = s.player;
+      const sum = K.festivals.summary();
+      const cal = K.festivals.calendar();
+      const booked = K.festivals.booked();
+      const hist = K.festivals.history().slice(0, 8);
+      const stance = K.festivals.stanceOf(ui.festStance);
+
+      const rounds = cal.filter(x => x.daysLeft <= 150);
+      const later = cal.filter(x => x.daysLeft > 150);
+
+      const tierBadge = (f) => {
+        const t = K.FESTIVAL_TIER_LABEL[f.tier] || { label: f.tier, color: "#888" };
+        return `<span class="fest-tier" style="--ftc:${t.color}">${t.label}</span>`;
+      };
+
+      const row = (x) => {
+        const f = x.fest;
+        const est = x.eligible ? K.festivals.estimate(f.id, x.slot.id, ui.festStance) : null;
+        const chance = x.eligible ? Math.round(K.festivals.acceptChance(f.id, x.slot.id) * 100) : 0;
+        let action = "";
+        if (x.booked) {
+          action = `<button class="btn btn-danger btn-sm" data-act="fest-cancel" data-arg="${f.id}">İptal</button>`;
+        } else if (!x.eligible) {
+          const need = (K.FESTIVAL_TIER_POPS[f.tier] || [0])[0];
+          action = `<span class="fest-lock">🔒 ${need}+ pop gerekli</span>`;
+        } else if (x.open && !x.conflict) {
+          action = `<button class="btn btn-primary btn-sm" data-act="fest-apply" data-arg="${f.id}">Başvur</button>`;
+        } else if (x.conflict) {
+          action = `<span class="fest-lock">⚠ ${U.escape(x.conflict.label)} ile çakışıyor</span>`;
+        } else if (x.daysLeft > K.festivals.OPEN_WINDOW) {
+          action = `<span class="fest-lock">Başvuru ${x.daysLeft - K.festivals.OPEN_WINDOW} gün sonra</span>`;
+        } else {
+          action = `<span class="fest-lock">Kapandı</span>`;
+        }
+
+        return `<div class="fest-card ${x.booked ? "booked" : ""}">
+          <div class="fest-main">
+            <div class="fest-name">${U.escape(f.name)} ${tierBadge(f)}</div>
+            <div class="fest-meta">${U.escape(f.city)} · ${U.escape(x.date.label)} · ${U.fmt(f.capacity)} kişi · ${x.daysLeft} gün kaldı</div>
+            <div class="fest-desc">${U.escape(f.desc)}</div>
+          </div>
+          <div class="fest-slotcol">
+            <div class="fest-slot">${x.slot ? x.slot.emoji + " " + x.slot.name : "—"}</div>
+            ${est ? `<div class="fest-nums"><span class="money">${U.money(est.net)}</span> net · ~${U.fmt(est.crowd)} kişilik alan · +${U.fmt(est.fans)} hayran</div>` : `<div class="fest-nums">${x.eligible ? "" : "henüz uygun slot yok"}</div>`}
+            ${x.eligible ? `<div class="fest-chance">kabul şansı ~%${chance}</div>` : ""}
+          </div>
+          <div class="fest-actions">${action}</div>
+        </div>`;
+      };
+
+      return `
+        <div class="c-block">
+          <div class="c-head"><div><h2>🎪 Festival Devresi</h2><div class="sub">Yaz sezonu line-up'ları · slot merdiveni: gündüz sahnesi → headliner</div></div></div>
+          <div class="stat-grid">
+            <div class="stat-card"><span class="k">Kesinleşen</span><span class="v">${sum.bookedCount}</span><span class="d">festival slotu</span></div>
+            <div class="stat-card"><span class="k">Sıradaki</span><span class="v" style="font-size:13px">${U.escape(sum.nextLabel)}</span><span class="d">takvimde</span></div>
+            <div class="stat-card"><span class="k">Headliner</span><span class="v">${sum.headliners}</span><span class="d">${sum.flagship ? "Büyük Sahne headliner'ı" : "kapanış sahnesi sayısı"}</span></div>
+            <div class="stat-card"><span class="k">Toplam</span><span class="v">${sum.playedCount}</span><span class="d">festival performansı</span></div>
+          </div>
+
+          <div class="studio-card">
+            <div class="field"><label>Başvuru stratejisi</label>
+              <div class="filter-chips">
+                ${K.festivals.STANCES.map(st => `<button class="fchip ${ui.festStance === st.id ? "active" : ""}" data-act="fest-stance" data-arg="${st.id}">${st.emoji} ${st.name}</button>`).join("")}
+              </div>
+              <span class="hint">${U.escape(stance.desc)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="c-block">
+          <div class="c-head"><div><h2>Sezon Takvimi</h2><div class="sub">${rounds.length} edisyon yaklaşıyor · başvuru penceresi ${K.festivals.OPEN_WINDOW} gün</div></div></div>
+          ${rounds.length ? `<div class="fest-list">${rounds.map(row).join("")}</div>` : `<div class="empty-note"><b>Bu sezonda edisyon yok</b>Festival sezonu haziran–eylül arasındadır; takvim ilerledikçe açılır.</div>`}
+          ${later.length ? `<div class="fest-later">Daha sonra: ${later.map(x => U.escape(x.fest.name)).join(" · ")}</div>` : ""}
+        </div>
+
+        ${booked.length ? `<div class="c-block">
+          <div class="c-head"><div><h2>Kesinleşen Slotlar</h2><div class="sub">Line-up'ta adın var</div></div></div>
+          <div class="row-list">${booked.map(b => {
+            const f = K.festivals.fest(b.festId);
+            const sl = K.festivals.slot(b.slotId);
+            return `<div class="row-item"><div class="cover" style="background:${U.gradientFor(f ? f.name : "fest")}">🎪</div>
+              <div class="grow"><div class="title">${U.escape(f ? f.name : "Festival")}</div>
+              <div class="sub">${sl.emoji} ${sl.name} · Gün ${b.editionDay} · ücret ${U.money(b.fee)} · maliyet ${U.money(b.cost)}</div></div>
+              <button class="btn btn-ghost btn-sm" data-act="fest-cancel" data-arg="${b.festId}">İptal</button></div>`;
+          }).join("")}</div>
+        </div>` : ""}
+
+        ${hist.length ? `<div class="c-block">
+          <div class="c-head"><div><h2>Festival Geçmişi</h2><div class="sub">Sahne anları ve aksilikler dahil</div></div></div>
+          <div class="row-list">${hist.map(h => {
+            const f = K.festivals.fest(h.festId);
+            const r = h.result || {};
+            const tag = r.event === "viral" ? " · 🔥 sahne anı" : r.event === "mishap" ? " · ⚠️ aksilik" : "";
+            const met = r.met ? ` · backstage: ${U.escape(r.met.name)} +${r.met.gain} samimiyet` : "";
+            return `<div class="row-item"><div class="cover" style="background:${U.gradientFor(f ? f.name : "fest")}">${h.slotId === "headliner" ? "👑" : "🎪"}</div>
+              <div class="grow"><div class="title">${U.escape(f ? f.name : "Festival")} · ${U.escape(r.slot || "")}</div>
+              <div class="sub">${U.fmt(r.crowd || 0)} kişi · ${(r.net || 0) >= 0 ? "+" : ""}${U.money(r.net || 0)} · +${U.fmt(r.fans || 0)} hayran · itibar ${(r.repDelta || 0) >= 0 ? "+" : ""}${r.repDelta || 0}${tag}${met}</div></div></div>`;
+          }).join("")}</div>
+        </div>` : ""}`;
+    },
+
+    /* =====================================================
        YAN İŞLER (harici gelir)
        ===================================================== */
     renderJobs() {
@@ -24693,6 +25573,9 @@ window.K = window.K || {};
         if (K.concerts.startTour(ui.tourCities.slice(), v, price, gap, prod, opener)) ui.tourCities = [];
       }
       else if (act === "cancel-tour") K.concerts.cancelTour();
+      else if (act === "fest-stance") { ui.festStance = btn.dataset.arg || "balanced"; K.careerUI.render(); }
+      else if (act === "fest-apply") K.festivals.apply(btn.dataset.arg, ui.festStance);
+      else if (act === "fest-cancel") K.festivals.cancel(btn.dataset.arg);
       else if (act === "hire-staff") K.label.hireStaff(btn.dataset.arg);
       else if (act === "work-job") K.jobs.work(btn.dataset.arg);
       else if (act === "crisis-choice") K.crisis.resolve(+btn.dataset.arg);
@@ -24901,7 +25784,7 @@ window.K = window.K || {};
 
     /* ---------------- init ---------------- */
     init() {
-      U.on(U.qs("#home-indicator"), "click", () => K.phone.home());
+      U.on(U.qs("#home-indicator"), "click", () => { K.phone.haptic(12); K.phone.home(); });
       U.on(U.qs("#phone-viewport"), "click", K.phone.onClick);
       // durum çubuğuna dokunmak da ana ekrana döndürür (kapan tuzağına karşı emniyet)
       const sb = U.qs(".status-bar");
@@ -24954,6 +25837,58 @@ window.K = window.K || {};
       try {
         vp.addEventListener("pointerdown", start);
         vp.addEventListener("pointerup", end);
+      } catch (e) {}
+
+      /* v10.19 — DİKEY HAREKETLER (telefon gerçekçiliği)
+         Gerçek bir telefonda kenar hareketleri vardır:
+           · alt kenardan yukarı çek  → ana ekran
+           · üst köşeden aşağı çek    → Kontrol Merkezi
+         Yalnızca touch olaylarıyla bağlanır: pointer olayları da
+         bağlanırsa aynı hareket iki kez işlenir ve ekran zıplar. */
+      K.phone.setupVerticalGestures();
+    },
+
+    /* kenar hareketleri: hareket YALNIZCA kenar bölgesinde başlarsa sayılır,
+       aksi hâlde listeyi kaydırmak isteyen oyuncu yanlışlıkla eve dönerdi. */
+    setupVerticalGestures() {
+      const screen = U.qs("#phone-screen");
+      if (!screen || screen._vgBound) return;
+      screen._vgBound = true;
+      const EDGE_BOTTOM = 70, EDGE_TOP = 54;
+      let y0 = 0, x0 = 0, t0 = 0, zone = null;
+      const pt = e => (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
+      const start = e => {
+        const t = pt(e);
+        if (!t || t.clientY == null) return;
+        const r = screen.getBoundingClientRect();
+        y0 = t.clientY; x0 = t.clientX; t0 = Date.now();
+        if (r.bottom - t.clientY <= EDGE_BOTTOM) zone = "bottom";
+        else if (t.clientY - r.top <= EDGE_TOP) zone = "top";
+        else zone = null;
+      };
+      const end = e => {
+        const z = zone; zone = null;
+        if (!z) return;
+        const t = pt(e);
+        if (!t || t.clientY == null) return;
+        if (Date.now() - t0 > 700) return;
+        const dy = t.clientY - y0, dx = t.clientX - x0;
+        if (Math.abs(dy) < 55 || Math.abs(dy) < Math.abs(dx) * 1.4) return;
+        if (z === "bottom" && dy < 0) { K.phone.haptic(12); K.phone.home(); }
+        else if (z === "top" && dy > 0) { K.phone.haptic(10); if (K.cc) K.cc.open(); }
+      };
+      screen.addEventListener("touchstart", start, { passive: true });
+      screen.addEventListener("touchend", end, { passive: true });
+      screen.addEventListener("touchcancel", () => { zone = null; }, { passive: true });
+    },
+
+    /* dokunsal geri bildirim — destekleyen cihazda kısa titretme.
+       Masaüstünde ve desteklemeyen tarayıcılarda sessizce yok sayılır. */
+    haptic(ms) {
+      try {
+        if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+          navigator.vibrate(ms || 10);
+        }
       } catch (e) {}
     },
 
@@ -25128,6 +26063,7 @@ window.K = window.K || {};
       K.phone.openAppId = id;
       K.phone.views = [view];
       K.phone.homeActive = false;
+      K.phone.haptic(8);
       K.phone.render();
     },
 
@@ -30597,6 +31533,10 @@ window.K = window.K || {};
     if (!loaded || !K.state.player.realName) {
       intro();
     }
+
+    /* v10.19 — güncelleme kontrolü: Service Worker + version.json.
+       Modüler sürümde çalışır; tek dosya build'inde kendini kapatır. */
+    if (K.updater && K.updater.init) K.updater.init();
   }
 
   if (document.readyState === "loading") {
