@@ -18,17 +18,8 @@ const path = require("path");
 const vm = require("vm");
 const ROOT = path.resolve(__dirname, "..");
 
-function resolveJsdom() {
-  const cands = [
-    process.env.KARMA_JSDOM,
-    "jsdom",
-    path.join(process.env.HOME || "/home/user", "node_modules", "jsdom")
-  ].filter(Boolean);
-  for (const c of cands) { try { return require(c); } catch (e) {} }
-  console.error("jsdom bulunamadı. Kur: npm install jsdom");
-  process.exit(1);
-}
-const { JSDOM, VirtualConsole } = resolveJsdom();
+const H = require("./harness.js");
+const { JSDOM, VirtualConsole } = H.resolveJsdom();
 
 const pass = [], fail = [];
 const ok = (name, cond, extra) => (cond ? pass : fail).push(name + (extra ? " — " + extra : ""));
@@ -112,56 +103,33 @@ ok("A · test kurgusu: JSON blokları gerçekten çıkarıldı",
   STRIPPED.indexOf('id="karma-lazy-') < 0 && STRIPPED.length < build.length,
   build.length + " → " + STRIPPED.length + " bayt");
 
-const coldErrors = [];
-const coldVC = new VirtualConsole();
-coldVC.on("jsdomError", e => {
-  const m = e.detail ? e.detail.message : e.message;
-  if (!/fonts/.test(m)) coldErrors.push("jsdomError: " + m);
-});
+/* SOĞUK örnek: JSON blokları ÇIKARILMIŞ kopya + zamanlanmış yükleme kapalı
+   → veri hiçbir yoldan gelemez (script enjeksiyonu jsdom'da çekmez). */
+const cold = H.bootDom(STRIPPED, { blockLazy: true });
+const coldErrors = cold.errors;
 
-const cold = new JSDOM(STRIPPED, {
-  url: "https://karma.local/", runScripts: "dangerously", pretendToBeVisual: true,
-  virtualConsole: coldVC,
-  beforeParse(w) {
-    w.fetch = () => Promise.reject(new Error("offline"));
-    /* zamanlanmış yüklemeyi de kapat — tek yol script enjeksiyonu olsun */
-    w.requestIdleCallback = function () { return 0; };
-    w.addEventListener("error", e => {
-      const s = e.error ? (e.error.stack || e.error.message) : e.message;
-      coldErrors.push("onerror: " + s);
-    });
-  }
-});
-
-const HOT_ERRORS = [];
-const hotVC = new VirtualConsole();
-hotVC.on("jsdomError", e => {
-  const m = e.detail ? e.detail.message : e.message;
-  if (!/fonts/.test(m)) HOT_ERRORS.push("jsdomError: " + m);
-});
 /* SICAK örnek: JSON blokları yerinde, ama ZAMANLANMIŞ yükleme kapalı.
    Böylece "boot() veriye dokundu mu?" sorusunu ölçebiliyoruz: veri
    yalnızca uygulama gerçekten isterse yüklenir. */
-const hot = new JSDOM(build, {
-  url: "https://karma.local/", runScripts: "dangerously", pretendToBeVisual: true,
-  virtualConsole: hotVC,
-  beforeParse(w) {
-    w.fetch = () => Promise.reject(new Error("offline"));
-    w.requestIdleCallback = function () { return 0; };
-    w.addEventListener("error", e => {
-      const s = e.error ? (e.error.stack || e.error.message) : e.message;
-      HOT_ERRORS.push("onerror: " + s);
-    });
-  }
-});
+const hot = H.bootDom(build, { blockLazy: true });
+const HOT_ERRORS = hot.errors;
 
-setTimeout(coldPhase, 900);
-setTimeout(hotPhase, 1400);
-setTimeout(finish, 3400);
+/* ============================================================
+   v10.18 (B-7) — SABİT FAZ SÜRELERİ KALDIRILDI
+   Eskiden coldPhase 900 ms, hotPhase 1400 ms, finish 3400 ms'de
+   çağrılıyordu. Artık her faz kendi ÖN KOŞULUNU bekliyor.
+   ============================================================ */
+H.whenReady(cold.dom, { label: "soğuk örnek boot" })
+  .then(() => { coldPhase(); return H.whenReady(hot.dom, { label: "sıcak örnek boot" }); })
+  .then(() => { hotPhase(); finish(); })
+  .catch((err) => {
+    console.error("test çöktü: " + (err && err.message ? err.message : err));
+    process.exitCode = 1;
+  });
 
 /* ---------- A) soğuk: veri yokken her şey render edilebilmeli ---------- */
 function coldPhase() {
-  const K = cold.window.K;
+  const K = cold.dom.window.K;
   ok("A · K.lazy yüklendi", !!(K && K.lazy));
   if (!K || !K.lazy) return;
 
@@ -233,7 +201,7 @@ function coldPhase() {
 
 /* ---------- B) sıcak: veri geldikten sonra kayıpsız mı ---------- */
 function hotPhase() {
-  const K = hot.window.K;
+  const K = hot.dom.window.K;
   if (!K || !K.lazy) { fail.push("B · K.lazy yok"); return; }
 
   /* ÖLÇÜM: boot() tamamlandı. Veri kendiliğinden geldi mi, yoksa
@@ -339,5 +307,5 @@ function finish() {
   }
   if (!fail.length) console.log("\n✅ TEMBEL VERİ KATMANI TAM — soğuk açılış güvenli, dönüşüm kayıpsız");
   else process.exitCode = 1;
-  cold.window.close(); hot.window.close();
+  cold.dom.window.close(); hot.dom.window.close();
 }
