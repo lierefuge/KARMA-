@@ -35,9 +35,18 @@
     /* enflasyon endeksi (1.00 = oyun başı) */
     infl() { return K.econ.ensure().inflationIndex; },
 
-    /* bir mağazanın GÜNCEL ₺/dinlenme ücreti */
+    /* bir mağazanın GÜNCEL ₺/dinlenme ücreti
+       ------------------------------------------------------------
+       DÜZELTME (v10.7): `streamRates` GERÇEK DÜNYA USD değerleridir
+       (Spotify ≈ $0,005 · Apple ≈ $0,015 · YouTube ≈ $0,008). Kur
+       dönüşümü (USD → ₺) eksikti; yalnızca `fxFactor()` (= fx/baseFx,
+       boyutsuz) uygulanıyordu. Bu yüzden telif geliri tam **baseFx
+       (32) katı eksik** ödeniyordu: 1M dinlenme ≈ ₺5.000 yerine
+       gerçekçi ≈ ₺160.000. Artık USD değeri doğrudan güncel kura
+       çarpılır, sonra enflasyonla nominal olarak büyür. */
     rate(store) {
-      return (K.ECON.streamRates[store] || 0) * K.econ.fxFactor() * K.econ.infl();
+      const e = K.econ.ensure();
+      return (K.ECON.streamRates[store] || 0) * e.fx * K.econ.infl();
     },
 
     /* ---- 30 SANİYE EŞİĞİ ----
@@ -349,11 +358,22 @@
       /* v10: tüm gider kalemleri ENFLASYON endeksiyle çarpılır —
          yıllar geçtikçe aynı hayat daha pahalıya gelir. */
       const infl = K.econ.infl();
-      const upkeepRaw = (K.ECON.monthlyBase + K.ECON.equipmentUpkeep) * (1 + lvl * 0.8)
-        + staffSal
-        + teamSal
-        + (p.songs || []).length * K.ECON.perSongUpkeep;
-      const upkeep = Math.round(upkeepRaw * infl);
+      /* KATALOG BAKIMI — DÜZELTME (v10.7)
+         Eskiden `şarkı sayısı × perSongUpkeep` idi: katalog büyüdükçe
+         gider DOĞRUSAL ve SINIRSIZ artıyor, ama şarkı başına telif
+         zamanla düşüyordu. Sonuç: 100 şarkılık bir katalog saf yüke
+         dönüşüp oyuncuyu borç sarmalına sokuyordu (simülasyonda sabit
+         giderler enflasyonun 8-17 katı hızla artıyordu). Artık katalog
+         bakımı o ayın gelirinin %25'ini geçemez; bir taban vardır ki
+         büyük katalog yine de bir şeye mal olsun. */
+      const baseCost = ((K.ECON.monthlyBase + K.ECON.equipmentUpkeep) * (1 + lvl * 0.8)
+        + staffSal + teamSal) * infl;
+      const catalogRaw = (p.songs || []).length * K.ECON.perSongUpkeep * infl;
+      const monthInc = p.monthIncome || 0;
+      const catalogCap = Math.max(K.ECON.catalogUpkeepFloor, monthInc * K.ECON.catalogUpkeepMaxShare);
+      const catalogCost = Math.min(catalogRaw, catalogCap);
+      const upkeepRaw = Math.round(baseCost / infl) + Math.round(catalogRaw / infl);
+      const upkeep = Math.round(baseCost + catalogCost);
 
       /* önce mevcut borcun yarısını kapat */
       if (p.debt > 0 && s.balance > 0) {
@@ -362,9 +382,16 @@
       }
 
       /* ACEMİ KORUMASI: kariyer henüz başlamadıysa sabit gider yok
-         (genç sanatçı ailesiyle yaşar, ekipmanı yoktur). */
+         (genç sanatçı ailesiyle yaşar, ekipmanı yoktur).
+         DÜZELTME (v10.7): koruma artık SÜRELİ.
+         Eskiden koşul yalnızca popülerlik + takipçiydi; bu yüzden hiç
+         ünlenmeyen bir oyuncu 420 gün boyunca HİÇ gider ödemiyordu
+         (simülasyonda 420 günde sadece 32 aylık gider kaydı vardı).
+         Aile desteği erken oyunun kolaylığı olmalı, kalıcı sığınağı
+         değil — artık ilk `beginnerGraceDays` günle sınırlı. */
       const beginner = (p.popularity || 0) < (K.ECON.costStartPop || 5) &&
-        (K.fans ? K.fans.followers() : 0) < (K.ECON.costStartFollowers || 5000);
+        (K.fans ? K.fans.followers() : 0) < (K.ECON.costStartFollowers || 5000) &&
+        (s.day - K.econ.ensure().startDay) < (K.ECON.beginnerGraceDays || 120);
       if (beginner) {
         p.monthIncome = 0;
         return { upkeep: 0, tax: 0, debt: p.debt || 0, beginner: true };
