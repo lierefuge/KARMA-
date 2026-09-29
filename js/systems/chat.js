@@ -15,7 +15,6 @@
   /* ------------- yardımcı ------------- */
   const norm = s => (s || "").toLocaleLowerCase("tr").replace(/[.,!?;:]/g, " ").replace(/\s+/g, " ").trim();
   const has = (t, words) => words.some(w => t.includes(w));
-  const last = arr => arr[arr.length - 1];
 
   /* ------------- selamlaşma tespiti (özel) -------------
      "selamün aleyküm" / "sa" → aleyküm selam
@@ -73,7 +72,7 @@
     { id: "beef",      words: ["kimse", "piyasa bitmiş", "rap öldü", "sahte", "kopya", "taklit", "çalıntı beat", "iş bitirmiş"] },
     { id: "health",    words: ["sağlık", "uyku", "yorgun", "stres", "dinlen", "iyi misin", "yaralanma", "sesin"] },
     { id: "hard",      words: ["yorgunum", "param yok", "moralim bozuk", "moralim", "bunalım", "stres", "sıkıntı", "dert", "zor durumdayım", "kötüyüm", "yalnızım", "mutsuzum", "çöktüm", "dibe vurdum", "bitkin", "yıkıldım", "kafam bozuk", "geçinemiyorum"] },
-    { id: "family",    words: ["aile", "anne", "baba", "kardeş", "çocuk", "evlilik", "eşim"] },
+    { id: "family",    words: ["aile", "anne", "baba", "kardeş", "çocuk", "evlilik", "eşim", "oğlun", "kızın", "çocuğun", "eşin", "ailen", "baban", "annen", "kardeşin"] },
     { id: "thanks",    words: ["teşekkür", "sağol", "sağ ol", "eyvallah", "minnettar", "teşekkürler", "thanks"] },
     { id: "howareyou", words: ["nasılsın", "naber", "ne haber", "iyi misin", "neler yapıyorsun", "napıyorsun", "ne yapıyorsun", "keyifler"] },
     { id: "greet",     words: ["merhaba", "selam", "hey", "alo", "günaydın", "iyi akşamlar", "iyi geceler", "hosgeldin", "hoş geldin"] },
@@ -85,7 +84,6 @@
     { id: "insult",    words: ["salak", "aptal", "kötüsün", "berbatsın", "saçma", "rezalet", "nefret ediyorum", "beter", "vasıfsız", "kopyacı", "tipsiz", "beceriksiz"] },
     { id: "flirt",     words: ["seni seviyorum", "aşığım", "yakışıklı", "güzelsin", "evlenelim", "seninle olmak", "kalbim", "çıkma teklifi"] },
     { id: "personal",  words: ["kaç yaşındasın", "nerelisin", "hangi şehir", "gerçek adın", "ismin ne", "ismin ne anlama", "adın ne", "sahne adı", "sahne adın", "lakabın", "takma adın", "evli misin", "sevgilin", "özel hayatın", "telefonun", "adresin"] },
-    { id: "family",    words: ["oğlun", "kızın", "çocuğun", "eşin", "ailen", "baban", "annen", "kardeşin"], },
     { id: "askmoney",  words: ["borç", "para ver", "ödünç", "maddi", "yardım et para", "faizsiz", "bana para"] },
     { id: "news",      words: ["haber", "gündem", "siyaset", "ekonomi", "cinayet", "hırsızlık", "zam", "seçim", "sokak olayı"] },
     { id: "question",  words: ["nasıl", "neden", "niye", "ne zaman", "kim", "nerede", "mi", "mı", "musun", "mısın"] }
@@ -106,25 +104,13 @@
     question: ["Neden soruyorsun?", "Kimsin sen önce?", "Böyle soruya cevap vermem."]
   };
 
-  /* ------------- anlamayı gösteren yansıtıcı cevaplar ------------- */
-  const REFLECT = [
-    "\"{word}\" derken? Anlat bakalım.",
-    "{word}… bunu biraz açar mısın?",
-    "Hmm, {word} konusunda ne düşünüyorsun?",
-    "{word} mı? İlginç, devam et.",
-    "{word} deyince aklıma bir şey geldi ama önce sen anlat.",
-    "{word}… bu konuda çok şey söylenir aslında.",
-    "Anladım, {word} diyorsun. Biraz daha aç."
-  ];
-
-  const STOP = new Set(["bir","bu","şu","o","ve","ile","için","çok","daha","ama","ki","de","da","mi","mı","ne","ya","yani","ben","sen","biz","siz","onlar","misin","mısın","olur","var","yok","değil","şey","böyle","öyle","işte","tamam","peki","evet","hayır","selam","merhaba","naber","nasılsın","kanka","kardeşim","hocam","bence","sence","aleyküm","aleykum","selamlar","selamün","salam"]);
-  function salientWord(text) {
-    const words = (text || "").toLocaleLowerCase("tr")
-      .replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/)
-      .filter(w => w.length >= 4 && !STOP.has(w));
-    words.sort((a, b) => b.length - a.length);
-    return words[0] || null;
-  }
+  /* ------------- NOT (v10.14 temizliği) -------------
+     Burada eskiden "yansıtıcı cevap" denemesi vardı: REFLECT havuzu,
+     STOP kelime seti ve salientWord() yardımcısı oyuncunun mesajından
+     rastgele bir kelime seçip cümleye geri koyuyordu ("{word} mı?
+     İlginç, devam et."). Bu yaklaşım terk edildi — contextReply()
+     artık anlamlı bağlam kuruyor — ama üç tanım dosyada kalmıştı.
+     Hiçbiri çağrılmıyordu; kaldırıldı. */
 
   function classify(text) {
     const t = norm(text);
@@ -798,8 +784,8 @@
           "Öyle bir yer değil burası. İşimize bakalım.",
           "Teşekkür ederim ama konuyu müzikte tutalım."
         ],
- 
-        thanks: ["Rica ederim.", "Eyvallah, sağ ol.", "Ne demek."],
+
+        thanks: ["Rica ederim. İyi ki yazdın.", "Ne demek, sözün kıymetli.", "Eyvallah. Bunu hatırlarım."],
         laugh: ["Güldüm, iyi geldi.", "Ha, o da ayrı bir mevzu."],
         question: [
           "Sorunun cevabı var ama biraz uzun. Kısaltayım.",
@@ -844,7 +830,264 @@
         personal: ["Bunları henüz konuşacak seviyede değiliz.", "Bu soru biraz erken."],
         insult: ["Gerek yok buna."],
         flirt: ["Öyle bir şey yok."]
-      }
+      },
+      /* v10.14 — kişilik çizgisi: boş övgü ve kibir onu iter, söz emeği çeker */
+      extras: [
+        "Söylediğini düşünüp cevap verdim, öylesine yazmam.",
+        "Bu iş emek istiyor, biliyorsun.",
+        "Yaz, sil, yeniden yaz. Başka yolu yok.",
+        "Ben kelimeyi tartarım, sen de tart."
+      ],
+      followup: {
+        feature: {
+          yes: ["Tamam. O zaman beat'i bana yolla, sözü ben kurarım.", "Peki. Ama iş iyi olacaksa yaparım, acele yok."],
+          no: ["Anladım. Hazır değilsen zorlamayalım.", "Olur. Kendi zamanınca gel."]
+        },
+        music: {
+          yes: ["Peki. Bir şey dinleteceğim, kulak vereceksin.", "Tamam. Bitmiş hâlini duy, öyle konuşalım."],
+          no: ["Olur. Herkesin kendi damarı var.", "Anladım, sen bilirsin."]
+        },
+        career: {
+          yes: ["İyi. Bugün bir satır yaz, yarın bir satır daha.", "Doğru kafa. Sabır bu işin yarısı."],
+          no: ["Peki. Yolu kendin bulacaksan da kapım açık.", "Anladım. Acele etme, oturur."]
+        }
+      },
+      /* sosyal medya yorumu — mistik/ölçülü ton */
+      reaction: {
+        praise: [
+          "\"{s}\" sağlam iş. Söz oturmuş, tebrikler @{p}.",
+          "\"{s}\" dinledim. Kalemin işini görmüş, saygı.",
+          "\"{s}\" üzerinde durulmuş, belli oluyor."
+        ],
+        shade: [
+          "\"{s}\" fena değil ama sözün ağırlığı eksik.",
+          "\"{s}\" güzel kayıt; anlattığı şey daha derin olabilirdi.",
+          "\"{s}\" dinledim. Sound tamam, mesele yarım."
+        ],
+        neutral: [
+          "\"{s}\" yayında. Dinleyin, kararı siz verin.",
+          "@{p} yeni iş çıkarmış, bir kulağınızı verin."
+        ]
+      },
+      /* diss — o kültüre girmez, mesafeden cevap verir */
+      diss: [
+        "@{t} konuşuyor ama sözü yok. Buna cevap harcamam.",
+        "@{t} için kelime yakmam. Kayıtta anlatırım.",
+        "@{t} sahneye çıksın, orada konuşuruz.",
+        "Herkes bağırıyor @{t}; bir satır yazsın, gerisi gelir."
+      ]
+    },
+
+    /* ==========================================================
+       v10.14 — WEGH RUMI (weghrumi)
+       Oyunun iki amiral sanatçısından biri artık KENDİ ağzına
+       sahip. Öncesinde yalnızca `VOICE_BY_ID` içinde 6 gönderi
+       satırı vardı; DM'de ise tamamen tür havuzundan (trap)
+       konuşuyordu — yani UZI ile aynı cümleleri kuruyordu.
+
+       Kişilik: hızlı karar, kısa cümle, üretim takıntısı,
+       bağımsızlık vurgusu, özel hayatta ketumluk.
+       ========================================================== */
+    weghrumi: {
+      label: "genc",
+      selam: {
+        islamic: ["Aleyküm selam. Nabersin?", "Aleyküm selam, iyi ki yazdın.", "Ve aleyküm selam kardeşim."],
+        shortIslamic: ["as", "as, naber?"],
+        reply: ["Eyvallah.", "Sağ ol, sen de iyi bak.", "Ne demek."]
+      },
+      pool: {
+        greet: [
+          "Selam, naber? Kayıttaydım, yeni çıktım.",
+          "Oo selam. İyi ki yazdın, kafam doluydu.",
+          "Selam. Bu aralar mix'le uğraşıyorum, sen naber?",
+          "Naber? Bugün stüdyo uzadı yine."
+        ],
+        howareyou: [
+          "İyiyim, sürekli kayıt. Sen naber?",
+          "Fena değil, gece çalışıyorum. Sen ne yapıyorsun?",
+          "İdare eder, sound oturuyor yavaş yavaş. Sen?",
+          "Şükür. Yoğunum ama iyi yoğunluk."
+        ],
+        music: [
+          "\"{song}\" üstünde çok uğraştım; mix oturmasa çıkmıyor.",
+          "\"{song}\" benim işim; melodiyi de kendim kurdum.",
+          "\"{song}\" için prodüksiyonu baştan aşağı elden geçirdim.",
+          "Yeni bir şey var ama erken konuşmayacağım; \"{song}\" gibi olmasını istemiyorum."
+        ],
+        feature: [
+          "Ortak iş olur, ama sound uyuşacak. Demo yolla.",
+          "Feature veririm, şartı: ikimiz de aynı beat'te rahat olacağız.",
+          "Oturalım. Ben beat'i kurarım, sen sözü getir."
+        ],
+        career: [
+          "Kendi sound'unu kurmadan kimse seni hatırlamıyor.",
+          "Yıl içinde çok şey çıkar; bir tanesi kalır, o seni taşır.",
+          "Bekleme. Kayıt yap, at, tekrar yap.",
+          "Bağımsız kalmak zor ama kontrol sende oluyor."
+        ],
+        market: [
+          "Piyasa hızlı; kısa içerik şarkıyı yiyor.",
+          "Artık sound tek başına yetmiyor, görüntü de iş.",
+          "Yeni kuşak işini kendi kuruyor, aracıya ihtiyaç azaldı.",
+          "Algoritma kısa istiyor; ben yine de bütün şarkı yapıyorum."
+        ],
+        compliment: [
+          "Eyvallah kardeşim, sağ ol.",
+          "Teşekkür ederim, desteği unutmam.",
+          "Sağ ol. Böyle şeyler çalışmaya itiyor."
+        ],
+        critique: [
+          "Tamam, neyini sevmedin? Söyle, bakayım.",
+          "Eleştiri alırım. Somut söylersen daha çok işe yarar.",
+          "Notumu aldım. Bir sonraki işte duyarsın."
+        ],
+        insult: [
+          "Sakin ol. Konuşacaksan konuş, bağıracaksan kapıyı gösteririm.",
+          "Bu tonla bir yere varılmıyor, biliyorsun.",
+          "Sen kimsin de bana bunu yazıyorsun?"
+        ],
+        diss: [
+          "Sataşma işi değil bu. İş yaparsa cevabı kayıtta veririm.",
+          "Diss yazmak isteyen yazsın; ben mix yapıyorum.",
+          "Ben kayıtla konuşuyorum, kulisle değil."
+        ],
+        money: [
+          "Bütçe işin başında konuşulur, sonunda değil.",
+          "Para konuşulur ama iş netse konuşulur.",
+          "Maddi tarafı menajerle yürütürüm ama dürüst olurum."
+        ],
+        hangout: [
+          "Olur, stüdyoda olurum zaten. Gel çal.",
+          "Müsait olursam otururuz. Kalabalık yer sevmiyorum.",
+          "Bu hafta kayıt var; sonraki hafta bakalım."
+        ],
+        company: [
+          "Sözleşme mi? Şartlar netse otururuz.",
+          "Bağımsız kalıyorum ama iyi teklife kapalı değilim.",
+          "Önce ne verdiğini söyle, sonra ne aldığını."
+        ],
+        family: [
+          "Aile tarafını konuşmam. Benim tarafım orası.",
+          "O konu bende kapalı, kusura bakma."
+        ],
+        personal: [
+          "Özel hayatımı açmıyorum. İş konuşalım.",
+          "Bunu sormaya kimsenin hakkı yok, kusura bakma.",
+          "Rize'liyim, 2000 doğumluyum. Gerisi bende kalsın."
+        ],
+        health: [
+          "Gece düzenim bozuk ama ses iyi, idare eder.",
+          "Yorgunum ama iyi yorgunluk; kayıt bitince geçer."
+        ],
+        hard: [
+          "Zor dönemde yazdığın şey en iyi şarkın olur, sıkı dur.",
+          "Bir dönem ben de dibi gördüm. Kayıt kurtardı beni, yaz.",
+          "Yalnız değilsin, bu iş böyle geçiyor."
+        ],
+        news: [
+          "Gündemi takip ediyorum ama her şeye yorum yapmam.",
+          "Sözüm varsa kayıtta söylerim, kulis lafı sevmem."
+        ],
+        beef: [
+          "Bazıları tartışmadan ekmek yiyor, saygı duyarım ama ben o işte yokum.",
+          "İyi yapıyorsa iyidir; kimseye düşman değilim."
+        ],
+        askmoney: [
+          "Borç işine girmem kardeşim. İş konuşursak olur.",
+          "Para meselesi aramızda yürümez."
+        ],
+        flirt: [
+          "Bu tarafa gitmeyelim. Müzik konuşalım.",
+          "Sağ ol ama konuyu işte tutalım."
+        ],
+        thanks: ["Eyvallah kardeşim.", "Ne demek, ben teşekkür ederim.", "Sağ ol, desteği unutmam."],
+        laugh: ["Ha, o iyiydi 😄", "Güldük biraz, iyi geldi."],
+        question: [
+          "Kısa cevap: evet. Uzun cevap istersen anlatırım.",
+          "Sorunun net, cevabı da net olsun.",
+          "İyi soru, bunu ben de düşündüm."
+        ],
+        support: [
+          "Sağ ol, desteği unutmam.",
+          "Eyvallah kardeşim, gerçekten kıymetli."
+        ],
+        bye: ["Görüşürüz.", "Kolay gelsin, kayıtta görüşürüz."],
+        generic: [
+          "Anladım. Net konuşursan net cevap veririm.",
+          "Tamam, devam et. Dinliyorum.",
+          "Bunu bir düşüneyim, sana dönerim."
+        ]
+      },
+      suffix: [
+        " Kayıtta konuşuruz.",
+        " Sound'u kendin kur.",
+        " Acele işe şeytan karışır."
+      ],
+      ambient: {
+        low: [
+          "Selam, kayıttan çıktım. Sen nasılsın?",
+          "Naber? Adını görüyorum bir süredir, işler nasıl?"
+        ],
+        mid: [
+          "Yeni bir şey var, mix aşamasında. Sonra dinletirim.",
+          "Bugün beat'e oturdum, kafamda bir şey var ama erken.",
+          "Rize'den İstanbul'a gelmişim, hâlâ kayıtla uğraşıyorum."
+        ],
+        high: [
+          "Bir iş var; dinleyen ilk kişi sen olacaksın.",
+          "Bu projeyi sana açarım, kafanı seviyorum."
+        ]
+      },
+      cold: {
+        generic: ["Kimsin kardeşim? Bir sürü mesaj geliyor.", "Yoğunum, sonra bakarım."],
+        feature: ["Önce bir demo duyayım, ondan sonra konuşuruz.", "Feature istiyorsun ama ben sound'u tanımadım daha."],
+        money: ["Bütçe netse konuşulur, yoksa erken."],
+        personal: ["Özel hayatı konuşmam, tanımıyorum seni.", "Bu soru erken."],
+        insult: ["Bu ton bana değil, başkasına."],
+        flirt: ["Gerek yok."]
+      },
+      extras: [
+        "Bu arada senin işlerine de bakıyorum, gözüm üstünde.",
+        "İş yaparsan bana yolla, dinlerim.",
+        "Sound'u kendin kur, gerisi gelir.",
+        "Kalabalık ortamlarda takılmam; stüdyoda görüşürüz."
+      ],
+      followup: {
+        feature: {
+          yes: ["Tamam. Demo'yu yolla, beat'i ben kurarım.", "Olur. Aynı odada oturalım, telefonda olmaz."],
+          no: ["Peki, kendi işine bak. Hazır olunca yaz.", "Anladım, zorlamam."]
+        },
+        music: {
+          yes: ["Süper. Mix bitince ilk sana atacağım.", "Tamam, dinleteceğim; kulak kesil."],
+          no: ["Olur, herkesin damarı ayrı.", "Anladım."]
+        },
+        career: {
+          yes: ["İşte bu. Bugün bir kayıt al, at.", "Doğru. Yıl içinde çok şey çıkar, bir tanesi kalır."],
+          no: ["Tamam, kendi yolun.", "Anladım, acele etme."]
+        }
+      },
+      reaction: {
+        praise: [
+          "\"{s}\" sağlam olmuş, mix de oturmuş 🔥",
+          "\"{s}\" iş yapar @{p}, dinleyin.",
+          "\"{s}\" için @{p} sound'u kurmuş, tebrikler."
+        ],
+        shade: [
+          "\"{s}\" olmamış; sound aynı yerde duruyor.",
+          "\"{s}\" dinledim. Kısa içerik için iyi, şarkı için zayıf.",
+          "\"{s}\" için @{p} aynı kalıbı dönüyor; risk alsın."
+        ],
+        neutral: [
+          "\"{s}\" çıktı, dinleyin.",
+          "@{p} yeni iş atmış, bir bakın."
+        ]
+      },
+      diss: [
+        "@{t} sen kimsin? Kayıtta konuş, kulisle değil.",
+        "@{t} flow taklit, sound ödünç. Kendine iş bul.",
+        "@{t} mikrofonu bıraksın, mix öğrensin.",
+        "@{t} için tek satır ayırmam; beat'e yazık."
+      ]
     },
 
     /* ---- NORM ENDER → ilkeli, eleştirel, öğretici ---- */
@@ -1209,6 +1452,10 @@
       let delta = deltas[intent] != null ? deltas[intent] : 0.6;
       delta *= (0.75 + artist.traits.openness * 0.045);
       delta *= 0.55;
+      /* v10.14 — KİŞİLİK AĞIRLIĞI: aynı niyet her sanatçıda aynı puanı
+         getirmemeli. Şehinşah'a boş övgü ile söz eleştirisi, wegh'e
+         taklit tavsiyesi ile üretim sorusu aynı şey değil. */
+      if (K.personality && K.personality.bias) delta += K.personality.bias(artistId, intent);
       if (agendaMsg) delta += 0.4;
 
       /* ---- hafızayı güncelle ---- */
@@ -1235,6 +1482,12 @@
         if (x && msg.indexOf(x) < 0 && picked.indexOf(x) < 0) picked.push(x);
       }
       if (picked.length) msg = msg + " " + picked.join(" ");
+
+      /* ---- kişilik imzası: sanatçının kendi açılış kalıbı (nadir) ---- */
+      if (K.personality && K.personality.opening && !forcedMsgs && intent !== "generic") {
+        const op = K.personality.opening(artistId);
+        if (op && msg.indexOf(op) !== 0 && (op.length + msg.length) < 240) msg = op + msg;
+      }
       return { msgs: [msg], delta, intent, action };
     },
 
@@ -1314,7 +1567,10 @@
       ];
       const prof = PROFILES[artistId];
       let pool = kind === "praise" ? PRAISE : kind === "shade" ? SHADE : NEUTRAL;
-      if (prof && prof.label === "argo") {
+      /* v10.14 — sanatçının kendi yorum havuzu varsa onu kullan */
+      if (prof && prof.reaction && prof.reaction[kind] && prof.reaction[kind].length) {
+        pool = prof.reaction[kind];
+      } else if (prof && prof.label === "argo") {
         pool = kind === "praise"
           ? ["\"{s}\" fena olmuş amına koyim, dinleyin lan.", "@{p} bu işte patlamış lan, alkış."]
           : kind === "shade"
@@ -1339,7 +1595,11 @@
       ];
       const prof = PROFILES[artistId];
       let pool = BASE;
-      if (prof && prof.label === "argo") {
+      /* v10.14 — sanatçının kendi diss havuzu (ör. Şehinşah sataşmaz,
+         mesafeden cevap verir; wegh ise doğrudan üstüne gider). */
+      if (prof && prof.diss && prof.diss.length) {
+        pool = prof.diss;
+      } else if (prof && prof.label === "argo") {
         pool = [
           "@{t} sen kimsin lan, ananı sikim.",
           "@{t} boş yapıyon, mikrofonu bırak.",
