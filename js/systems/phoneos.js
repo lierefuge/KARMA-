@@ -14,7 +14,11 @@
     { id: "aurora",   name: "Kuzey Işıkları",  css: "linear-gradient(160deg,#06202e,#0b3b4a 45%,#061a12)" },
     { id: "sunset",   name: "Gün Batımı",      css: "linear-gradient(160deg,#3a1020,#5a2030 50%,#12060c)" },
     { id: "graphite", name: "Grafit",          css: "linear-gradient(160deg,#1d1d24,#0b0b0f)" },
-    { id: "forest",   name: "Orman",           css: "linear-gradient(160deg,#0d2417,#07140d)" }
+    { id: "forest",   name: "Orman",           css: "linear-gradient(160deg,#0d2417,#07140d)" },
+    /* v10.11 — GERÇEK duvar kağıdı: son yayının GERÇEK albüm kapağı.
+       Eskiden yalnızca 5 gradyan vardı; oysa telefonun kendi içeriğini
+       (kendi şarkının kapağını) duvar kağıdı yapmak en doğal seçenek. */
+    { id: "cover",    name: "Şarkı Kapağı",    dynamic: true }
   ];
 
   /* Kilitli (mağazadan açılan) uygulamalar + koşulları */
@@ -49,14 +53,57 @@
         const scr = document.getElementById("phone-screen");
         if (scr) {
           scr.style.filter = pr.brightness && pr.brightness < 1 ? "brightness(" + pr.brightness + ")" : "";
+          /* v10.11 — açık tema artık GERÇEKTEN uygulanıyor (CSS karşılığı var). */
           scr.setAttribute("data-theme", pr.theme === "light" ? "light" : "dark");
+          /* pil bitti → telefon kapalı ekranı (gerçek bir buton içerir) */
+          let dead = document.getElementById("phone-dead-overlay");
+          if (K.state.player.phoneDead) {
+            if (!dead) {
+              dead = document.createElement("div");
+              dead.id = "phone-dead-overlay";
+              dead.innerHTML = '<div class="pd-in"><div class="pd-ic">🪫</div>'
+                + '<div class="pd-t">Pil bitti</div>'
+                + '<div class="pd-s">Telefon kapandı. Şarja takman gerekiyor.</div>'
+                + '<button class="pd-btn" id="phone-dead-charge">🔌 Şarja tak</button></div>';
+              scr.appendChild(dead);
+              dead.querySelector("#phone-dead-charge").addEventListener("click", (ev) => {
+                ev.stopPropagation();
+                K.phoneOS.charge();
+                if (K.phone) K.phone.reRender();
+              });
+            }
+          } else if (dead && dead.parentNode) {
+            dead.parentNode.removeChild(dead);
+          }
         }
       } catch (e) {}
     },
 
+    /* pil bitti mi? (o gün telefon kullanılamaz) */
+    dead() { return !!K.state.player.phoneDead; },
+
     wallpaper() {
       const pr = K.phoneOS.prefs();
+      if (pr.wallpaper === "cover") {
+        /* son yayının gerçek kapağı; kapak yoksa sona düşer */
+        const songs = (K.state.player.songs || []).filter(s => s.art);
+        const sg = songs[songs.length - 1];
+        if (sg) return { id: "cover", name: sg.title, css: `url('${sg.art}') center/cover no-repeat #0b0b12` };
+        return WALLS[0];
+      }
       return WALLS.find(w => w.id === pr.wallpaper) || WALLS[0];
+    },
+
+    /* özel duvar kağıdı önizlemesi (ayarlar ekranı için) */
+    wallCss(id) {
+      const w = WALLS.find(x => x.id === id);
+      if (!w) return WALLS[0].css;
+      if (w.dynamic) {
+        const songs = (K.state.player.songs || []).filter(s => s.art);
+        const sg = songs[songs.length - 1];
+        return sg ? `url('${sg.art}') center/cover no-repeat #0b0b12` : "linear-gradient(160deg,#1b1030,#0a0a12)";
+      }
+      return w.css;
     },
 
     /* ---------------- pil ---------------- */
@@ -67,8 +114,9 @@
 
     charge() {
       const p = K.state.player;
-      if ((p.battery || 0) >= 99) { K.toast("🔋 Pil dolu", "Şarja gerek yok.", "warn"); return false; }
+      if ((p.battery || 0) >= 99 && !p.phoneDead) { K.toast("🔋 Pil dolu", "Şarja gerek yok.", "warn"); return false; }
       p.battery = 100;
+      p.phoneDead = false;                      // şarj edince telefon açılır
       K.toast("🔌 Şarj edildi", "Pil %100", "ok");
       K.save();
       if (K.phone && K.phone.updateStatus) K.phone.updateStatus();
@@ -135,21 +183,36 @@
     },
 
     /* ---------------- günlük ---------------- */
+    /* v10.11 — PİL ARTIK ANLAMLI.
+       Eskiden pil dekoratifti: %0 olsa bile hiçbir şey olmuyordu ve
+       şarj ücretsiz/anındı, yani oyuncu için hiçbir sonucu yoktu.
+       Gerçek davranış: telefon GECE şarj olur, gün içi kullanım pili
+       tüketir; ağır kullanım (canlı yayın, müzik, yoğun gün) pili
+       bitirirse telefon o gün KAPANIR ve uygulamalar açılmaz. */
     daily() {
       const p = K.state.player;
       if (p.battery == null) p.battery = 100;
       const pr = K.phoneOS.prefs();
-      const heavy = (K.audio && K.audio.isPlaying()) ? 6 : 0;
-      const live = K.state.live ? 8 : 0;
-      let drain = 6 + heavy + live + U.randInt(0, 5);
+      const heavy = (K.audio && K.audio.isPlaying()) ? 9 : 0;
+      const live = K.state.live ? 14 : 0;
+      let drain = 14 + heavy + live + U.randInt(0, 8);
       if (pr.batterySaver) drain *= 0.55;                   // pil tasarrufu
+
       p.battery = U.clamp(Math.round((p.battery - drain) * 10) / 10, 0, 100);
-      K.phoneOS.ensureInstalled();
-      if (p.battery <= 10 && !K.phoneOS._warned) {
+
+      if (p.battery <= 0 && !p.phoneDead) {
+        p.phoneDead = true;
+        K.toast("🪫 Telefon kapandı", "Pil bitti. Kontrol Merkezi'nden şarja takman gerekiyor.", "bad");
+        K.state.notifications = (K.state.notifications || []).concat([{
+          title: "🪫 Telefon kapandı", msg: "Pil bitti — telefon kapandı. Şarja tak.", kind: "bad", day: K.state.day
+        }]).slice(-60);
+      } else if (p.battery <= 20 && p.battery > 0 && !K.phoneOS._warned) {
         K.phoneOS._warned = true;
-        K.toast("🪫 Pil azaldı", "Kontrol Merkezi'nden şarj et.", "warn");
+        K.toast("🪫 Pil azaldı", "%" + Math.round(p.battery) + " — şarja takmayı unutma.", "warn");
       }
-      if (p.battery > 25) K.phoneOS._warned = false;
+      if (p.battery > 35) K.phoneOS._warned = false;
+
+      K.phoneOS.ensureInstalled();
     }
   };
 })(window.K = window.K || {});
