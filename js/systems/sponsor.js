@@ -47,13 +47,20 @@
       const chance = 0.02 + (p.popularity || 0) / 1600 + (p.image || 50) / 4000;
       if (!U.chance(chance)) return;
       const b = U.pick(pool);
+      /* DÜZELTME (v10.9): marka ücretleri SABİTTİ.
+         Pop 20 bir oyuncu aylık 45.000 ₺ sponsorluk alabiliyordu —
+         bu, o seviyedeki telif gelirinin (aylık birkaç bin ₺) katları
+         demekti, yani sponsorluk müziği eziyordu. Artık ücret, oyuncunun
+         gerçek büyüklüğüne göre ölçeklenir. */
+      const scale = U.clamp(0.25 + (p.popularity || 0) / 70, 0.25, 2.0);
+      const fee = Math.round(b.fee * scale);
       s.pendingSponsor = {
         id: U.uid("spo"), brandId: b.id, name: b.name, cat: b.cat, icon: b.icon,
-        fee: b.fee, img: b.img, note: b.note, day: s.day
+        fee, img: b.img, note: b.note, day: s.day
       };
       if (K.toast) K.toast("💼 Sponsorluk teklifi", `${b.name} seninle çalışmak istiyor.`, "ok");
       s.notifications = (s.notifications || []).concat([{
-        title: "💼 Sponsorluk", msg: `${b.name} · aylık ${U.money(b.fee)} · imaj ${b.img >= 0 ? "+" : ""}${b.img}`, kind: "ok", day: s.day
+        title: "💼 Sponsorluk", msg: `${b.name} · aylık ${U.money(fee)} · imaj ${b.img >= 0 ? "+" : ""}${b.img}`, kind: "ok", day: s.day
       }]).slice(-60);
       K.save();
     },
