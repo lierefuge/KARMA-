@@ -14,8 +14,13 @@ const path = require("path");
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.resolve(process.argv[2] || path.join(ROOT, "KARMA-Oyun.html"));
 
+/* ?v=10.5 gibi önbellek sorgularını dosya yolundan ayır */
+function stripQuery(p) {
+  return String(p || "").split("?")[0].split("#")[0];
+}
+
 function read(rel) {
-  return fs.readFileSync(path.join(ROOT, rel), "utf8");
+  return fs.readFileSync(path.join(ROOT, stripQuery(rel)), "utf8");
 }
 
 let html = read("index.html");
@@ -24,14 +29,14 @@ let html = read("index.html");
 html = html.replace(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"[^>]*>/g, (m, href) => {
   if (/^https?:/i.test(href)) return m; // Google Fonts gibi harici linkler kalsın
   const css = read(href);
-  return `<style>\n/* ==== ${href} ==== */\n${css}\n</style>`;
+  return `<style>\n/* ==== ${stripQuery(href)} ==== */\n${css}\n</style>`;
 });
 
 // 2) Yerel <script src> etiketlerini satır içi <script> olarak göm
 html = html.replace(/<script[^>]*src="([^"]+)"[^>]*>\s*<\/script>/g, (m, src) => {
   if (/^https?:/i.test(src)) return m;
   const js = read(src);
-  return `<script>\n/* ==== ${src} ==== */\n${js}\n</script>`;
+  return `<script>\n/* ==== ${stripQuery(src)} ==== */\n${js}\n</script>`;
 });
 
 // 3) Harici CSS/JS kalmadığını doğrula
