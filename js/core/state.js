@@ -186,6 +186,8 @@
       label: null,                 // oyuncunun kurduğu şirket
       relations: {},
       threads: {},
+      dmRequests: {},            // v10.12 — tanımadığından gelen istekler
+      groups: {},                // v10.12 — grup sohbetleri (kadro / ortak proje)
       contacts: [],          // mahalle/semt çevresi (systems/contacts.js)
       offers: [],
       feed: { ig: [], x: [], tiktok: [], yt: [] },
@@ -250,6 +252,74 @@
     return s.threads[artistId];
   };
 
+  /* ---------- v10.12 — DM İSTEKLERİ ve GRUP SOHBETLERİ ----------
+     DM istekleri: seni tanımayan biri (samimiyet düşük / hiç iletişim
+     yok) yazdığında mesaj doğrudan gelen kutusuna düşmez; “İstekler”
+     klasörüne girer. Kabul edersen sohbet açılır, reddedersen silinir —
+     gerçek Instagram/DM davranışı budur. */
+  K.dmRequest = function (artistId) {
+    const s = K.state;
+    s.dmRequests = s.dmRequests || {};
+    if (!s.dmRequests[artistId]) s.dmRequests[artistId] = { messages: [], day: s.day };
+    return s.dmRequests[artistId];
+  };
+
+  K.dmAcceptRequest = function (artistId) {
+    const s = K.state;
+    s.dmRequests = s.dmRequests || {};
+    const req = s.dmRequests[artistId];
+    if (!req) return null;
+    const th = K.thread(artistId);
+    (req.messages || []).forEach(m => th.messages.push(m));
+    th.unread = (th.unread || 0) + (req.messages || []).length;
+    th.lastDay = s.day;
+    delete s.dmRequests[artistId];
+    const rel = K.relation(artistId);
+    if (rel) { rel.met = true; rel.discovered = true; }
+    return th;
+  };
+
+  K.dmDeclineRequest = function (artistId) {
+    const s = K.state;
+    s.dmRequests = s.dmRequests || {};
+    delete s.dmRequests[artistId];
+  };
+
+  /* ---------- GRUP SOHBETLERİ (kadro / ortak proje) ---------- */
+  K.group = function (groupId) {
+    const s = K.state;
+    s.groups = s.groups || {};
+    return s.groups[groupId] || null;
+  };
+
+  K.groupCreate = function (name, memberIds, kind) {
+    const s = K.state;
+    s.groups = s.groups || {};
+    const id = K.util.uid("grp");
+    s.groups[id] = {
+      id, name: name || "Grup", kind: kind || "genel",
+      members: (memberIds || []).filter(Boolean),
+      messages: [], unread: 0, lastDay: s.day, createdDay: s.day
+    };
+    return s.groups[id];
+  };
+
+  K.groupPost = function (groupId, from, text, opts) {
+    const g = K.group(groupId);
+    if (!g) return null;
+    opts = opts || {};
+    const msg = {
+      id: K.util.uid("gm"), from,
+      fromName: opts.fromName || null,
+      text, day: K.state.day, type: opts.type || "chat",
+      kind: opts.kind || "text", reaction: null
+    };
+    g.messages.push(msg);
+    g.lastDay = K.state.day;
+    if (from !== "me") g.unread = (g.unread || 0) + 1;
+    return msg;
+  };
+
   /* ---------- save / load ---------- */
   K.save = function () {
     try {
@@ -282,6 +352,12 @@
       K.state.relations = K.state.relations || {};
       K.state.threads = K.state.threads || {};
       K.state.contacts = K.state.contacts || [];
+      /* v10.12 — DM istekleri, grup sohbetleri, sabitleme/arşiv */
+      K.state.dmRequests = K.state.dmRequests || {};
+      K.state.groups = K.state.groups || {};
+      K.state.player.dmPinned = K.state.player.dmPinned || [];
+      K.state.player.dmArchived = K.state.player.dmArchived || [];
+      K.state.player.dmDemoLog = K.state.player.dmDemoLog || [];
       (K.state.player.songs || []).forEach(sg => { if (!sg.lists) sg.lists = []; });
       // yeni alan varsayılanları (eski kayıtlar için)
       K.state.history = K.state.history || [];
