@@ -236,6 +236,7 @@
       history: [],
       settings: {},
       concerts: [],
+      festivals: [],          // yaz festivali line-up kayıtları (systems/festivals.js)
       tour: null,
       rivals: [],
       crisis: null,
@@ -389,6 +390,7 @@
       K.state.history = K.state.history || [];
       K.state.settings = K.state.settings || {};
       K.state.concerts = K.state.concerts || [];
+      K.state.festivals = K.state.festivals || [];
       if (K.state.tour === undefined) K.state.tour = null;
       K.state.rivals = K.state.rivals || [];
       if (K.state.crisis === undefined) K.state.crisis = null;
