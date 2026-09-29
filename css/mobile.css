@@ -1,0 +1,272 @@
+/* ============================================================
+   KARMA — css/mobile.css   (v10.15)
+   MOBİL / DOKUNMATİK KATMAN
+
+   Neden ayrı dosya?
+   -----------------
+   Bu dosya index.html'de EN SON yüklenir, böylece altındaki 24 CSS
+   dosyasının mobil davranışını tek yerden düzeltebilir. Önceki
+   durumda mobil kurallar 21 ayrı @media bloğuna dağılmıştı; hangi
+   kuralın kazandığı yükleme sırasına bağlıydı ve hata ayıklamak
+   imkânsızdı.
+
+   Düzeltilen somut sorunlar (hepsi kodda doğrulandı):
+   ---------------------------------------------------------------
+   M-1  100vh  → mobil tarayıcının adres çubuğu payı yüzünden
+        ekranın altı KESİLİYORDU ("yarıda kalıyor"). #app yüksekliği
+        100vh idi ve body{overflow:hidden} olduğu için ulaşılamayan
+        bir bölge kalıyordu. Artık 100dvh (dinamik) + 100vh yedeği.
+   M-2  Güvenli alan yok → iPhone çentiği ve home göstergesi alt
+        barı/dock'un ÜSTÜNE biniyordu; göstergenin bulunduğu şerit
+        dokunuşu yiyordu ("bazı tuşlar çalışmıyor"). env(safe-area-*)
+        eklendi (viewport-fit=cover ile birlikte).
+   M-3  iOS GİRİŞ ZOOM'u → tüm girdiler 13px'ti. iOS, 16px altı bir
+        girdiye odaklanınca sayfayı kendiliğinden büyütür ve düzen
+        bozulur. Dokunmatik cihazlarda girdiler 16px.
+   M-4  Pull-to-refresh → aşağı çekince sayfa yenileniyor, kayıtsız
+        ilerleme kayboluyordu. overscroll-behavior: none.
+   M-5  Dokunuş gecikmesi → touch-action: manipulation ile 300ms
+        gecikme ve çift dokunuş zoom'u kaldırıldı; basılı geri
+        bildirim (:active) eklendi.
+   M-6  Yarım kalan paneller → .layout mobilde overflow:hidden
+        taşıyordu; içerik dikeyde taşarsa kırpılıyordu.
+   M-7  Telefon çerçevesi → sabit 390:800 oranı yüzünden küçük
+        ekranda telefon aşırı daralıyor ve dikey alan boşa gidiyordu.
+        Küçük ekranda oran bırakılır, sahne tamamen doldurulur.
+   ============================================================ */
+
+/* ============================================================
+   0) TEMEL: dinamik görünüm yüksekliği + güvenli alan
+   ============================================================ */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  /* mobil alt gezinme çubuğunun toplam yüksekliği (JS/ölçüm için) */
+  --mobilnav-h: 60px;
+}
+
+html, body {
+  /* iOS: odak zoom'u ve metin otomatik büyütmesini kapat (pinch zoom AÇIK kalır) */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* aşağı çekince sayfa yenilenmesin */
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
+  /* yatay kayma kırılmalarına karşı */
+  overflow-x: hidden;
+}
+
+/* Yükseklik: dvh destekleyen tarayıcıda dinamik, desteklemiyorsa 100vh.
+   Satır sırası önemli: önce vh (yaygın destek), sonra dvh (varsa ezer). */
+#app { height: 100vh; }
+@supports (height: 100dvh) {
+  #app { height: 100dvh; }
+}
+@supports (height: 100svh) {
+  /* adres çubuğu DAİMA açıkken de taşma olmasın: en küçük görünüm birimi */
+  html, body { min-height: 100svh; }
+}
+
+/* ============================================================
+   1) DOKUNMATİK: gecikme, vurgu, basılı geri bildirim
+   ============================================================ */
+@media (pointer: coarse) {
+  /* 300 ms dokunuş gecikmesi + çift dokunuş zoom'unu kaldır */
+  .btn, .ig-btn, .vs-btn, .app-icon, .p-row, .ig-cell, .ig-hl,
+  .tab, .phone-tab, button, [data-pact], [data-act], [data-view] {
+    touch-action: manipulation;
+  }
+
+  /* mavi dokunuş dikdörtgenini kaldır, kendi geri bildirimimizi ver */
+  * { -webkit-tap-highlight-color: transparent; }
+
+  /* basılı geri bildirim: dokunmatikte :hover güvenilmez, :active kullan */
+  .btn:active, .ig-btn:active, .vs-btn:active, .app-icon:active,
+  .p-row:active, .ig-cell:active, .ig-hl:active, .tab:active {
+    transform: scale(0.97);
+    filter: brightness(1.12);
+  }
+
+  /* ---- M-3: iOS odak zoom'unu engelle (16px kuralı) ----
+     13px girdiler iOS'ta odaklanınca sayfayı büyütüyordu. */
+  input, select, textarea,
+  .field input, .field select, .field textarea,
+  .dm-composer input, .p-search input, .ig-search input,
+  .cmt-input input, .lyr-card textarea, .studio-craft input[type="text"],
+  .studio-craft select, .studio-craft textarea {
+    font-size: 16px !important;
+  }
+  /* görsel dengeyi korumak için satır yüksekliğini sıkılaştır */
+  input, select, textarea { line-height: 1.35; }
+}
+
+/* ============================================================
+   2) DOKUNMA HEDEFİ: en az 44×44 (Apple HIG / Material)
+   ============================================================ */
+@media (pointer: coarse) {
+  .btn, .ig-btn { min-height: 44px; }
+  .vs-btn { min-height: 44px; padding: 0 16px; }
+  .ig-tab, .phone-tab, .tab { min-height: 44px; }
+  /* gönder gibi yuvarlak ikon butonları */
+  .dm-send { width: 44px; height: 44px; }
+  /* liste satırları: parmakla ıskalanmasın */
+  .p-row, .dm-select-row { min-height: 48px; }
+}
+
+/* ============================================================
+   3) MOBİL DÜZEN (≤1080px): üst bar, güvenli alan, alt gezinme
+   ============================================================ */
+@media (max-width: 1080px) {
+
+  /* ---- üst bar: çentiğin altına in ---- */
+  .topbar {
+    padding-top: calc(12px + var(--safe-top));
+    padding-left: calc(14px + var(--safe-left));
+    padding-right: calc(14px + var(--safe-right));
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  /* ---- M-6: düzen alanı: alt çubuğun payı kadar boşluk + kaydırma ---- */
+  .layout {
+    padding: 12px calc(12px + var(--safe-right))
+             calc(var(--mobilnav-h) + var(--safe-bottom) + 14px)
+             calc(12px + var(--safe-left));
+    /* taşan içerik kırpılmasın: panel içi kaydırma korunur, dış alan esnek */
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .career-panel { height: 100%; min-height: 0; }
+  .phone-stage { height: 100%; min-height: 0; }
+
+  /* ---- M-7: bölüm değiştiriciyi ALT ÇUBUĞA taşı ----
+     #view-switch aynı düğüm: main.js zaten #view-switch içinde
+     .vs-btn tıklamalarını delege ediyor → JS değişikliği gerekmez.
+     Sadece görsel konumu değişir: üst bar → sabit alt çubuk. */
+  .view-switch {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(var(--safe-bottom) + 10px);
+    z-index: 70;
+    width: min(calc(100vw - 28px - var(--safe-left) - var(--safe-right)), 460px);
+    display: flex !important;          /* JS inline display ile çakışmaz */
+    justify-content: center;
+    gap: 6px;
+    padding: 7px;
+    border-radius: var(--radius-pill);
+    background: rgba(14, 16, 23, 0.86);
+    border: 1px solid var(--stroke-2);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    box-shadow: 0 10px 34px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, .04) inset;
+  }
+  .view-switch .vs-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border-radius: var(--radius-pill);
+    font-weight: 700;
+    letter-spacing: .2px;
+  }
+
+  /* üst barda artık yer kaplamasın */
+  .topbar-actions { margin-left: auto; }
+}
+
+/* ============================================================
+   4) KÜÇÜK EKRAN (≤620px): telefon çerçevesini sahneye yay
+   ============================================================ */
+@media (max-width: 620px) {
+  .phone-stage {
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+    overflow: hidden;
+    scrollbar-width: none;
+  }
+
+  .phone-frame {
+    /* M-7: sabit 390:800 oranı bırakılır → kısa/uzun ekranda dikey alan
+       boşa gitmez, içerik kesilmez. */
+    width: 100%;
+    max-width: 560px;
+    height: auto;
+    min-height: 0;
+    flex: 1 1 auto;
+    align-self: center;
+    aspect-ratio: auto;
+    /* ince çerçeve kalsın ama telefon taklidi abartılmasın */
+    padding: 7px;
+    --radius-device: 26px;
+    --radius-device-in: 20px;
+    border-radius: var(--radius-device);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .06), 0 14px 40px rgba(0, 0, 0, .55);
+  }
+  /* yan fiziksel tuşlar küçük ekranda anlamsız + taşma yapıyor */
+  .phone-frame::before,
+  .phone-frame::after { display: none; }
+
+  /* marka bloğu ve istatistik çipleri dar ekranda sıkışıyordu */
+  .topbar { gap: 8px; }
+  .brand-mark { width: 34px; height: 34px; font-size: 17px; border-radius: var(--radius-xs); }
+  .brand-name { font-size: 14px; letter-spacing: 2px; }
+  .topbar-stats { gap: 6px; }
+  .stat { min-width: 78px; padding: 6px 11px; }
+  .stat-value { font-size: 14px; }
+  .stat-label { font-size: 8px; }
+}
+
+/* çok dar ekran (≤380px): daha da küçült */
+@media (max-width: 380px) {
+  .brand { min-width: 0; gap: 8px; }
+  .brand-text { display: none; }
+  .stat { min-width: 70px; padding: 5px 9px; }
+  .stat-value { font-size: 13px; }
+}
+
+/* ============================================================
+   5) YATAY / KISA EKRAN: dikey alanı geri kazan
+   ============================================================ */
+@media (max-height: 520px) and (orientation: landscape) {
+  .topbar {
+    padding-top: calc(6px + var(--safe-top));
+    padding-bottom: 6px;
+  }
+  .brand-sub, .stat-label { display: none; }
+  .layout { padding-top: 6px; }
+  .view-switch { --mobilnav-h: 48px; padding: 4px; }
+  .view-switch .vs-btn { min-height: 38px; padding: 0 12px; }
+}
+
+/* ============================================================
+   6) ALT ÇUBUK ETİKETLERİ: dar ekranda kısa metin
+   ============================================================ */
+/* uzun etiket varsayılan; kısa etiket yalnızca dar ekranda görünür */
+.vs-mini { display: none; }
+
+@media (max-width: 480px) {
+  .vs-long { display: none; }
+  .vs-mini { display: inline; }
+  .vs-btn { font-size: 12.5px; }
+}
+@media (max-width: 340px) {
+  .vs-ico { display: none; }
+  .vs-btn { font-size: 12px; padding: 0 8px; }
+}
+
+/* ============================================================
+   7) YAZDIRMA: mobil katmanı devre dışı
+   ============================================================ */
+@media print {
+  .view-switch, .toast-stack { display: none !important; }
+}
