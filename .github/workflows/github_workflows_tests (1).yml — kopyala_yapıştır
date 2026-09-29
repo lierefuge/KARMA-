@@ -1,0 +1,74 @@
+
+name: Doğrulama
+
+# ============================================================
+#  KARMA — her push'ta tam doğrulama
+#
+#  Neden var?
+#  ----------
+#  2026-09-29'da v10.14 → v10.17.2 arasında doğrulanmamış dört güncelleme
+#  canlıya çıktı: bir mobil menü hatası Ayarlar düğmesini erişilemez kıldı,
+#  tembel veri katmanı bir sürümde gerçek şarkıları kaybettirdi. Hiçbiri
+#  karmaşık hata değildi — hepsi otomatik testle yakalanabilirdi.
+#
+#  Bu iş akışı, yerelde `npm run verify` ile çalışan 12 adımlı zincirin
+#  aynısını her push'ta koşar. Adımlar:
+#    1) önbellek sürümü (?v=) içerik hash'iyle uyumlu mu
+#    2) tek dosya build üretilebiliyor mu
+#    3) depodaki KARMA-Oyun.html kaynaklarla BAYT BAYT aynı mı
+#       (build'i güncellemeyi unutmayı yapısal olarak imkânsız kılar)
+#    4) yedi test paketi: altyapı · mobil · tembel veri · kariyer eğrisi ·
+#       kişilik · uygulamalar · sosyal medya
+#    5) denge simülasyonunda YÜKSEK önem bulgusu var mı
+#    6) süitlerde yakalanmamış runtime hatası var mı
+# ============================================================
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Tam doğrulama
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Kaynağı al
+        uses: actions/checkout@v4
+
+      - name: Node kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Bağımlılıklar (jsdom)
+        run: npm install --no-audit --no-fund
+
+      # NOT: blok skalar (|) kullanılmalı. Düz `run: node -p "'KARMA sürüm: ' …"`
+      # biçiminde metin içindeki ": " YAML tarafından nested mapping sanılır
+      # ve iş akışı ayrıştırma hatası verir (doğrulandı).
+      - name: Yayın sürümü
+        run: |
+          node -p "'KARMA sürüm: ' + require('./package.json').version"
+
+      - name: Tam doğrulama (12 adım)
+        run: npm run verify
+
+      - name: Hata durumunda özet
+        if: failure()
+        run: |
+          echo "### ❌ Doğrulama başarısız" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Yerelde aynı zinciri çalıştırın: \`npm run verify\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Sık görülen nedenler:" >> $GITHUB_STEP_SUMMARY
+          echo "- Önbellek sürümü bayat → \`node tools/bump-cache.js\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Build güncel değil → \`node tools/build-single.js\`" >> $GITHUB_STEP_SUMMARY
