@@ -434,6 +434,32 @@
       }
     },
 
+    /* ---------- ŞÖHRET DENETLEYİCİSİ (v10.9) ----------
+       SORUN: popülerlik İKİ kaynaktan besleniyordu.
+         1) `refreshMonthly` → dinleyiciye bağlı hedef (doğru model)
+         2) olaylar → doğrudan ekleme: konser +5,4 · ödül +2,2 · TV +2,2
+            · röportaj +3,2 · TV dizisi +... 
+       Sonuç: 1.000 aylık dinleyicili bir oyuncu bir TV programıyla
+       pop 30 olabiliyordu; yani popülerlik ile gerçek kitle kopuktu.
+       ÇÖZÜM: tüm şöhret kazanımları bu fonksiyondan geçer ve dinleyicinin
+       HAK ETTİĞİ değerin en fazla `fameHeadroom` puan üstüne çıkabilir.
+       Tek bir hit ya da TV programı seni geçici olarak öne taşır, ama
+       iki yıl boyunca hak etmediğin bir şöhreti taşımaz. */
+    listenerTarget() {
+      const p = K.state.player;
+      const topChart = (p.songs || []).filter(s => s.chartRank && s.chartRank <= 20).length;
+      const byListeners = Math.sqrt(Math.max(0, p.monthly) / 700);
+      return U.clamp(byListeners * (1 + (p.reputation || 0) / 400) + topChart * 1.1, 0, 99);
+    },
+
+    /* şöhret ekle — dinleyicinin izin verdiği tavanla sınırlı */
+    addFame(amount) {
+      if (!amount) return;
+      const p = K.state.player;
+      const cap = Math.min(99, K.game.listenerTarget() + (K.ECON.fameHeadroom || 8));
+      p.popularity = U.clamp(Math.min(cap, (p.popularity || 0) + amount), 0, 99);
+    },
+
     /* ---------- oyuncu aylık dinleyici & popülerlik ---------- */
     refreshMonthly() {
       const p = K.state.player;
@@ -452,16 +478,11 @@
       // popülerlik alabiliyordu — yani popülerlik gerçek kitleyi değil,
       // itibarı ölçüyordu. Artık itibar dinleyici tabanını katsayılar:
       // popülerlik, dinleyicinin HAK ETTİĞİNİN üstüne çıkamaz.
-      const topChart = p.songs.filter(s => s.chartRank && s.chartRank <= 20).length;
       /* Kalibrasyon (NPC ölçeğiyle uyumlu):
          Şehinşah ≈ 4,2M aylık dinleyici → popülerlik ≈ 88-91 (kayıtlı: 88)
          1M aylık dinleyici → ≈ 44  (şirket kurma eşiği 45 → hak edilmiş sınır)
          40 bin dinleyici → ≈ 9 */
-      const byListeners = Math.sqrt(Math.max(0, p.monthly) / 700);
-      const target = U.clamp(
-        byListeners * (1 + (p.reputation || 0) / 400) + topChart * 1.1,
-        0, 99
-      );
+      const target = K.game.listenerTarget();
       p.popularity = U.clamp(p.popularity + (target - p.popularity) * 0.045 + U.rand(-0.15, 0.18), 0, 99);
     },
 
