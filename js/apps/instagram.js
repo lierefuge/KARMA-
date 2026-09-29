@@ -592,18 +592,54 @@
       ]);
     },
 
+    /* ============================================================
+     v10.11 GERÇEKLİK DÜZELTMESİ — HİKÂYE
+     Eskiden 36 sanatçının TAMAMI 6 hazır cümleyi hikâye olarak
+     atıyordu (Sıla ile Blok3 aynı metin) ve hikâyeye tepki vermek
+     mümkün değildi; görüntüleyen sayısı da takipçinin %18'i gibi
+     fahiş bir oranla uyduruluyordu. Artık:
+       • metinler sanatçının TÜRÜNE ve KUŞAĞINA göre
+       • görüntüleyen = takipçinin %5-12'si (gerçek hikâye erişimi)
+       • tepki (emoji) verilebilir → DM'e gerçekten düşer
+       • kendi hikâyende görüntüleyen listesi
+     ============================================================ */
+    /* tür bazlı hikâye metinleri */
+    STORY_BY_GENRE: {
+      trap:   ["Kayıt odasından 🌙", "Bu gece bitmiyor", "Yeni bir şey üstünde çalışıyorum"],
+      drill:  ["Mahalle işi 🔥", "Kayıttayız", "Yakında çıkıyor"],
+      rap:    ["Kalem kâğıt 🖊️", "Sözler üstünde çalışıyorum", "Sahnede görüşürüz 🎤"],
+      pop:    ["Provadan ✨", "Yeni şarkı çok yakın 💫", "Sahne enerjisi 🎤"],
+      rnb:    ["Gece için yazdım 🌙", "Kayıt ışıkları kapalı", "Yumuşak tonda 🎙️"],
+      indie:  ["Küçük bir odada ✨", "Kendi halimde", "Kayıtlar devam 🎸"]
+    },
+    STORY_VET: ["Yıllardır aynı masada 🖊️", "Gençlere yer açıyoruz", "Kayıt bitti, gerisi zaman"],
+    storyLines(artist, isMe) {
+      if (isMe) return ["Yeni iş yolda 🎧", "Stüdyodan selamlar 🎙️", "Snippet test 👀"];
+      const self = K.phone.appById("instagram");
+      if ((artist && artist.age || 30) >= 40) return self.STORY_VET;
+      const g = self.STORY_BY_GENRE[(artist && artist.genre) || "rap"];
+      return g || self.STORY_BY_GENRE.rap;
+    },
+
     /* ---------- hikâye (tam ekran) ---------- */
     openStory(artistId) {
+      const app = K.phone.appById("instagram");
       const isMe = artistId === "player";
       const p = K.platforms.artistProfile(artistId);
       if (!p) return;
-      const texts = U.shuffle([
-        "Yeni iş yolda 🎧", "Stüdyodan selamlar 🎙️", "Bu akşam kayıt var 🔥",
-        "Yakında... ⏳", "Ses seviyesi yüksek 🎚️", "Snippet test 👀"
-      ]).slice(0, 3);
+      const artist = isMe ? null : K.artistById(artistId);
+      const texts = app.storyLines(artist, isMe) || [""];
       K.phone._storySeen = K.phone._storySeen || {};
       K.phone._storySeen[artistId] = (K.phone._storySeen[artistId] || 0) + 1;
       const photo = K.imagery.byArtistId(isMe ? "player" : artistId);
+      /* gerçekçi hikâye erişimi: takipçinin %5-12'si */
+      const viewers = Math.round((p.ig || 0) * (0.05 + Math.random() * 0.07));
+      /* kendi hikâyende en yakın takipçiler "görüntüleyen" olarak listelenir */
+      const seenBy = K.artistList()
+        .filter(a => K.interactions.isFollowed(a.id))
+        .map(a => ({ a, rel: K.relation(a.id) }))
+        .sort((x, y) => (y.rel.affinity || 0) - (x.rel.affinity || 0))
+        .slice(0, 3).map(x => x.a);
 
       K.phone.pushView({
         title: "Hikâye", sub: p.name, shellClass: "app-instagram no-pad",
@@ -613,7 +649,14 @@
             <div class="story-head">${K.ui.artistAvatar(isMe ? "player" : artistId, 34, true)}<span>${U.escape(p.name)}</span><span class="muted">şimdi</span></div>
             <div class="story-body">
               <div class="story-text">${U.escape(texts[0])}</div>
-              <div class="story-link" data-pact="story-dm" data-arg="${isMe ? "player" : artistId}">${isMe ? "👁 Görüntüleyen: " + U.compact(Math.round((p.ig || 0) * 0.18)) : "↩ Yanıtla"}</div>
+              ${isMe
+                ? `<div class="story-viewers">👁 ${U.compact(viewers)} görüntüleyen
+                     ${seenBy.length ? `<div class="sv-row">${seenBy.map(a => `<span class="sv-p">${K.ui.artistAvatar(a.id, 26, true)}</span>`).join("")}<span class="sv-t">${U.escape(seenBy.map(a => a.stageName.split(" ")[0]).join(", "))}</span></div>` : ""}
+                   </div>`
+                : `<div class="story-react">
+                     ${["❤️", "🔥", "😮", "👏"].map(em => `<button class="srb" data-pact="story-react" data-arg="${em}|${artistId}">${em}</button>`).join("")}
+                     <button class="story-link" data-pact="story-dm" data-arg="${artistId}">↩ Yanıtla</button>
+                   </div>`}
             </div>
             <div class="story-tap left" data-pact="story-prev"></div>
             <div class="story-tap right" data-pact="story-next"></div>
@@ -641,6 +684,15 @@
         onAction: (act, el) => {
           if (act === "story-dm") {
             if (el.dataset.arg && el.dataset.arg !== "player") K.phone.pushView(K.phone.appById("instagram").inboxView());
+          } else if (act === "story-react") {
+            /* v10.11 — hikâyeye tepki gerçekten gönderilir ve DM'e düşer */
+            const parts = String(el.dataset.arg || "").split("|");
+            const em = parts[0], id = parts[1];
+            if (!id) return;
+            try {
+              K.relations.sendMessage(id, em);
+              K.toast(em + " Tepki gönderildi", (K.artistById(id) || {}).stageName || "", "ok");
+            } catch (e) { K.toast(em + " Tepki", "Gönderildi.", "ok"); }
           }
         }
       });
