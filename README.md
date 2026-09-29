@@ -5,7 +5,102 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
-## GÜNCELLEME v10.15 — Mobil/dokunmatik katman + otomatik önbellek sürümü (bu sürüm)
+## GÜNCELLEME v10.17 — Tembel veri katmanı + kariyer eğrisi (bu sürüm)
+
+### 📦 P-1 — Ağır veri kritik yoldan çıkarıldı
+
+Gerçek şarkı/önizleme/diskoğrafi verisi (~408 KB) sayfa açılışında hem
+**indiriliyor** hem **çalıştırılıyordu**. Mobilde ilk açılışın en büyük maliyeti buydu.
+
+**Yeni: `js/data/lazy.js` — iki mod, tek arayüz**
+
+| Mod | Davranış |
+|---|---|
+| **Modüler** (GitHub Pages) | Dört veri dosyası açılışta yüklenmez; ihtiyaç anında bir `script` etiketi eklenip ağdan indirilir |
+| **Tek dosya** (`KARMA-Oyun.html`) | Veri `type="application/json"` taşıyan bir blok olarak gömülür. Tarayıcı JSON bloğunu **yorumlamaz**; içerik ihtiyaç anında `JSON.parse` edilir |
+
+`tools/build-single.js` hangi dosyaların tembel olduğunu `lazy.js` kayıt defterinden
+okur ve veriyi `node:vm` içinde gerçekten çalıştırıp `JSON.stringify` ile gömer — böylece
+dönüşüm regex'e bağlı değil, **her zaman geçerli JSON**.
+
+**Ölçülen kazanç** (tek dosya build):
+
+```
+Toplam          1844,6 KB → 1801,0 KB
+Gömülü veri      398,0 KB JS → 337,4 KB JSON  (%15,2 küçülme)
+JS yürütme       ~398 KB için TAMAMEN SIFIR
+```
+
+**Hangi veri gerçekten tembel?** Boot sonrası ölçüm (`smoke-lazy.js` raporluyor):
+
+```
+real-songs=ready   ← çekirdek içerik: ilk ekran şarkı listesi çizer, meşru
+real-previews=idle ← çalma anına kadar yüklenmez
+ discography=idle  ← sanatçı profiline kadar yüklenmez
+real-youtube=idle  ← video oynatılana kadar yüklenmez
+```
+
+> **Dürüst not — P-2 ölçüldü ve BOŞA ÇIKTI:** “kullanılmayan önizleme kayıtlarını
+> at” planı denendiğinde 497 kaydın **tamamı** kullanımda ve boş URL yok. Veri zaten sıkı;
+> bu madde iptal edildi, uydurma bir kazanç yazılmadı.
+>
+> Ayrıca `real-songs` boot'ta yükleniyor — bu bir eksiklik değil: ilk ekran gerçek
+> şarkı listesi çiziyor. Kazanç onun **artık JS olarak çalıştırılmaması** ve JSON
+> biçiminin %15 daha küçük olmasıdır.
+
+**Önizleme alanları gömülmekten çıkarıldı:** `npcSongs()` her şarkı nesnesine
+`preview`/`appleUrl` yazıyordu; bu yüzden şarkı listesi çizen **her** ekran 143 KB'lık
+önizleme verisini çekiyordu. Artık `K.preview.find()` önizlemeyi çalma anında
+`artistId`+`title` ile kendisi arıyor — davranış aynı, veri tembel.
+
+### 📈 Denge — “yüksel → zirve → düş” eğrisi
+
+**Ölçülen sorun:** 30 günde bir yayın yapan sanatçıda aylık dinleyici 420 gün boyunca
+**tek yönlü** artıyordu (172 → 76.490); hiç zirve yapmıyor, hiç düşmüyordu.
+
+**Model — dikkat dalgası + doygunluk (`K.ECON` attention*/fatigue*):**
+her yayın bir **dalga** (attention) ekler, dalga her gün söner (`0.978`); ama her yayın
+**doygunluk** biriktirir ve doygunluk sonraki yayının kazancını kısar. Bu iki zıt kuvvet
+doğal olarak yükseliş → zirve/plato → düşüş üretir ve üstel sınırsız büyümeyi engeller.
+
+**Sonuç (ybkz. `smoke-balance.js`):**
+
+| Senaryo | Başlangıç | Zirve | Son | Düşüş |
+|---|---|---|---|---|
+| 1 yayın + 300 gün sessizlik | 165 | **1323** (gün 47) | 142 | **%89** |
+| 240 gün yayın + 180 gün sessizlik | 165 | **70.376** (gün 257) | 18.567 | **%74** |
+| 420 gün kesintisiz yayın | 165 | 110.856 | 110.856 | büyüme **içbükey** |
+
+`sim-balance.js` artık **0 orta/yüksek bulgu** veriyor (öncesi: 4). Araç da düzeltildi:
+ana koşudan sonra **sessizlik aşaması** eklenir ve düşüş orada ölçülür; ayrıca
+“üstel büyüme” sabit bir eşik yerine **eğrinin içbükeyliği** ile sınanır.
+
+### ✅ İki yeni test
+
+```bash
+node tools/smoke-lazy.js       # 51 kontrol
+node tools/smoke-balance.js    # 24 kontrol
+```
+
+- **`smoke-lazy.js`** — soğuk açılış (JSON blokları çıkarılmış kopyada veri hiç
+gelmezken tüm sekmeler/profiller çökmemeli), JS→JSON **kayıpsız dönüşüm** (kaynakla
+birebir karşılaştırma), modüler `index.html`'in ağır dosyaları eager yüklememesi,
+tek dosya build'inde JS yerine JSON bulunması, `</script>` kaçışı ve **geçiş penceresi
+koruması** (`K.lazy` yokken tüketiciler eski global'e düşmeli).
+- **`smoke-balance.js`** — dalga mekaniği birim testleri (doygunluk kazancı gerçekten
+kısıyor mu, tavanlar aşılıyor mu), üç kontrollü senaryo, NaN/sonsuz sızması ve
+**determinizm** (bağımsız ikinci boot + aynı tohum = aynı eğri).
+
+### 🛡️ Geçiş penceresi koruması
+
+19 dosya ayrı ayrı yayınlandığı için “`K.lazy` henüz yüklenmemiş ama çağrılıyor”
+durumu gerçekten oluşabilir. Tüketicilerin tamamı artık eski global'e düşen bir
+guard taşır (`K.lazy ? K.lazy.songs(id) : ((K.REAL_SONGS && K.REAL_SONGS[id]) || [])`),
+yani yarım uygulanmış bir depo durumu bile oyunu kırmaz.
+
+---
+
+## GÜNCELLEME v10.15 — Mobil/dokunmatik katman + otomatik önbellek sürümü
 
 ### 📱 Mobil kırılmalar — yedi kök neden bulundu ve kapatıldı
 
