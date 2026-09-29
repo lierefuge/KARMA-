@@ -1,0 +1,21 @@
+{
+  "name": "karma-music-game",
+  "version": "10.18.0",
+  "private": true,
+  "description": "KARMA Music Game — Türk müzik endüstrisi simülasyonu (statik site: index.html + js/ + css/)",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "verify": "node tools/verify.js",
+    "test": "node tools/verify.js",
+    "build": "node tools/bump-cache.js && node tools/build-single.js",
+    "release": "node tools/release.js",
+    "release:minor": "node tools/release.js minor --verify",
+    "serve": "node tools/serve.js"
+  },
+  "devDependencies": {
+    "jsdom": "^24.1.3"
+  }
+}
