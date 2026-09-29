@@ -29,6 +29,11 @@ const buildFile = path.join(ROOT, "KARMA-Oyun.html");
 
 const index = fs.readFileSync(indexFile, "utf8");
 const mobile = fs.existsSync(mobileFile) ? fs.readFileSync(mobileFile, "utf8") : "";
+/* YORUMSUZ CSS: yapısal iddialar bunun üzerinde koşar.
+   Aksi hâlde düzeltme açıklamalarındaki örnek kod ("aspetto" yani
+   `aspect-ratio: auto` gibi) gerçek kural sanılır — bu turda tam bu
+   oldu ve 5 iddia yanlış kırmızı verdi. */
+const cssNC = mobile.replace(/\/\*[\s\S]*?\*\//g, "");
 const build = fs.existsSync(buildFile) ? fs.readFileSync(buildFile, "utf8") : "";
 
 /* ---------- 0) dosya var mı ---------- */
@@ -72,8 +77,10 @@ ok("M-2 · --safe-top/--safe-bottom tanımlı",
   /--safe-bottom:\s*env\(safe-area-inset-bottom/.test(mobile));
 ok("M-2 · üst bar güvenli alanına uyuyor",
   /\.topbar\s*\{[^}]*padding-top:\s*calc\([^)]*--safe-top/.test(mobile));
+/* v10.17.2: çubuk akış içinde olduğu için güvenli alan `bottom` ile
+   değil `padding` ile uygulanır — iki biçim de kabul edilir. */
 ok("M-2 · alt çubuk güvenli alanına uyuyor",
-  /\.view-switch\s*\{[^}]*bottom:\s*calc\([^)]*--safe-bottom/.test(mobile));
+  /\.view-switch\s*\{[^}]*--safe-bottom/.test(cssNC));
 ok("M-2 · yan güvenli alanlar kullanılıyor",
   /--safe-left/.test(mobile) && /--safe-right/.test(mobile));
 
@@ -93,16 +100,47 @@ ok("M-5 · tap-highlight temizlenmiş", /-webkit-tap-highlight-color:\s*transpar
 ok("M-5 · :active geri bildirimi var", /\.btn:active[\s\S]{0,200}transform:\s*scale/.test(mobile));
 ok("M-5 · dokunma hedefi 44px kuralı var", /min-height:\s*44px/.test(mobile));
 
-/* ---------- M-6: alt çubuk payı ---------- */
-ok("M-6 · --mobilnav-h tanımlı", /--mobilnav-h:\s*\d+px/.test(mobile));
-ok("M-6 · .layout alt çubuk payını ekliyor",
-  /\.layout\s*\{[^}]*padding[^;]*--mobilnav-h/.test(mobile));
+/* ============================================================
+   M-6b (v10.17.2) — BÖLÜM DEĞİŞTİRİCİ KONUMLANDIRMASI
+   ------------------------------------------------------------
+   GERÇEK HATA (yaşandı): çubuk `position: fixed` ile alt çubuğa
+   çevriliyordu ama DOM'da .topbar içindeydi. .topbar'a eklenen
+   `backdrop-filter: blur()` CSS spec'e göre fixed torunlar için
+   CONTAINING BLOCK yaratır → çubuk viewport'a değil ÜST BARA göre
+   konumlandı: ekranın ortasına düştü ve Ayarlar / Günü Bitir
+   düğmelerini kapatarak oyunu kilitle­di.
+
+   INVARYANT: (1) çubuk fixed olmamalı, (2) index.html'de .topbar'ın
+   DIŞINDA olmalı, (3) çubuk kendi kutusundan taşmamalı.
+   ============================================================ */
+ok("M-6b · alt çubuk `position: fixed` kullanmıyor",
+  !/\.view-switch\s*\{[^}]*position:\s*fixed/.test(mobile));
+{
+  const headEnd = index.indexOf("</header>");
+  const vsPos = index.indexOf('id="view-switch"');
+  ok("M-6b · #view-switch .topbar'ın DIŞINDA",
+    headEnd >= 0 && vsPos > headEnd,
+    "</header>@" + headEnd + " · view-switch@" + vsPos);
+  ok("M-6b · #view-switch #app'in akış çocuğu",
+    /<\/main>[\s\S]*?id="view-switch"/.test(index));
+}
+ok("M-6b · alt çubuk kendi yerini akışta alıyor (flex: 0 0 auto)",
+  /\.view-switch\s*\{[^}]*flex:\s*0 0 auto/.test(mobile));
+/* `.layout` artık çubuk için ekstra boşluk ayırmamalı (çift boşluk) */
+ok("M-6b · .layout çubuk için ayrıca boşluk ayırmıyor",
+  !/\.layout\s*\{[^}]*padding[^;]*--mobilnav-h/.test(mobile));
 
 /* ---------- M-7: küçük ekranda telefon çerçevesi ---------- */
-ok("M-7 · ≤620px'te sabit oran bırakılıyor",
-  /@media\s*\(max-width:\s*620px\)[\s\S]*?\.phone-frame\s*\{[\s\S]{0,600}?aspect-ratio:\s*auto/.test(mobile));
-ok("M-7 · çerçeve köşe yarıçapı küçültülüyor",
-  /--radius-device:\s*2[0-9]px/.test(mobile));
+/* v10.17.2 — oran KORUNMALI: telefonu ekran genişliğine yaymak
+   iç arayüzü geriyordu ("telefon genişlemiş, yazılar bozuk"). */
+ok("M-7 · telefon en-boy oranı 390:800 korunuyor",
+  !/aspect-ratio:\s*auto/.test(cssNC) && /aspect-ratio:\s*390\s*\/\s*800/.test(cssNC));
+ok("M-7 · telefon yükseklikten türetiliyor (genişlik sabitlenmiyor)",
+  /@media\s*\(max-width:\s*620px\)[\s\S]*?\.phone-frame\s*\{[\s\S]{0,700}?height:\s*min\(100%/.test(cssNC));
+ok("M-7 · telefon genişliği orana bırakılmış (width: auto)",
+  /@media\s*\(max-width:\s*620px\)[\s\S]*?\.phone-frame\s*\{[\s\S]{0,400}?width:\s*auto/.test(cssNC));
+ok("M-7 · çerçeve köşe yarıçapı küçültülüyor (54px altı)",
+  (() => { const m = cssNC.match(/--radius-device:\s*(\d+)px/); return m && +m[1] >= 20 && +m[1] < 54; })());
 ok("M-7 · yan fiziksel tuşlar küçük ekranda gizli",
   /\.phone-frame::(before|after)[\s\S]{0,120}display:\s*none/.test(mobile));
 
@@ -175,14 +213,10 @@ ok("M-7 · yan fiziksel tuşlar küçük ekranda gizli",
     /\.topbar \.btn/.test(coarseAll) && /\.view-switch \.vs-btn/.test(coarseAll),
     "üst bar + alt çubuk kuralları mevcut");
 
-  /* --mobilnav-h tanımı yalnızca :root bloklarında olmalı; başka bir
-     seçicide tanımlanırsa aşağı doğru yayılmaz ve .layout onu okuyamaz. */
-  const navRules = (css.match(/[^{}]+\{[^{}]*\}/g) || [])
-    .filter((r) => /--mobilnav-h:/.test(r))
-    .map((r) => r.slice(0, r.indexOf("{")).trim())
-    .filter((s) => s !== ":root" && s !== "html");
-  ok("M-8 · --mobilnav-h yalnızca :root'ta tanımlı", navRules.length === 0,
-    navRules.join(" | ") || "temiz");
+  /* Ölü değişken kalmamalı: v10.17.2'de çubuk akışa alındığı için
+     `--mobilnav-h` tamamen kaldırıldı. Geri sızarsa uyar. */
+  ok("M-8 · ölü `--mobilnav-h` değişkeni yok",
+    !/--mobilnav-h/.test(cssNC));
 
   /* flex'te `stretch` geçersizdir → justify-content'te olmamalı */
   ok("M-8 · geçersiz `justify-content: stretch` yok",
