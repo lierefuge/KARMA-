@@ -1759,11 +1759,16 @@
       const lastW = wl.length ? wl[wl.length - 1] : null;
       const nextWrappedDay = (K.yearwrap.completedYears() + 1) * K.yearwrap.YEAR + 1;
 
-      const tierStat = (t) => {
+      /* kademe madalyonu: sayı + kilit durumu */
+      const tierMedal = (t) => {
         const n = K.certifications.count(t.id);
-        return `<div class="plq-stat" style="--pc:${t.color}">
-          <span class="k">${t.emoji} ${t.short}</span><span class="v">${n}</span>
-          <span class="d">${U.fmt(t.streams)}+ dinlenme</span></div>`;
+        const locked = n === 0;
+        return `<div class="plq-tier ${t.id} ${locked ? "locked" : ""}" style="--pc:${t.color}">
+          <span class="pt-medal">${t.emoji}</span>
+          <span class="pt-n">${n}</span>
+          <span class="pt-lb">${t.short}</span>
+          <span class="pt-th">${U.fmt(t.streams)}+</span>
+        </div>`;
       };
 
       return `
@@ -1771,36 +1776,73 @@
           <div class="c-head"><div><h2>🏅 Plak Vitrini</h2><div class="sub">Altın · Platin · Elmas — kalıcı katalog etkisi</div></div>
             ${lastW ? `<button class="btn btn-primary btn-sm" data-act="open-wrapped">📊 Wrapped</button>` : ""}</div>
 
-          <div class="plq-summary">
-            <div class="plq-stat" style="--pc:#b06cff"><span class="k">Toplam Plak</span><span class="v">${sum.total}</span><span class="d">ödül ağırlığı +${sum.awardWeight}</span></div>
-            ${K.certifications.TIERS.map(tierStat).join("")}
+          <!-- vitrin başlığı: toplam koleksiyon + ödül ağırlığı -->
+          <div class="plq-showcase">
+            <div class="plq-total">
+              <span class="pt-big">${sum.total}</span>
+              <div class="pt-txt">
+                <span class="pt-k">Toplam plak</span>
+                <span class="pt-v">ödül ağırlığı <b>+${sum.awardWeight}</b></span>
+                <span class="pt-v2">${sum.diamond} elmas · ${sum.platinum} platin · ${sum.gold} altın</span>
+              </div>
+            </div>
+            <div class="plq-tiers">${K.certifications.TIERS.map(tierMedal).join("")}</div>
           </div>
 
-          ${top && prog && prog.next ? `<div class="plq-prog">
-            <div class="sub" style="font-size:11px;color:var(--text-2)">Sıradaki plak: <b>${U.escape(top.title)}</b> → ${prog.next.emoji} ${prog.next.name}</div>
-            <div class="bar"><i style="width:${prog.pct}%"></i></div>
-            <div class="lbl">%${prog.pct} · ${U.fmt(prog.remaining)} dinlenme kaldı</div>
+          <!-- sıradaki plak: hedefi görünür kılar -->
+          ${top && prog && prog.next ? `<div class="plq-next" style="--pc:${prog.next.color}">
+            <div class="pn-head">
+              <span class="pn-tag">Sıradaki</span>
+              <span class="pn-song">${U.escape(top.title)}</span>
+              <span class="pn-to">${prog.next.emoji} ${prog.next.name}</span>
+            </div>
+            <div class="pn-bar"><i style="width:${prog.pct}%"></i></div>
+            <div class="pn-foot">
+              <span>%${prog.pct} tamam</span>
+              <span>${U.fmt(top.streams || 0)} / ${U.fmt(prog.next.streams)}</span>
+              <span class="pn-left">${U.fmt(prog.remaining)} kaldı</span>
+            </div>
           </div>` : ""}
 
-          ${wall.length ? `<div class="plq-wall" style="margin-top:12px">${wall.map(pl => {
+          ${wall.length ? `<div class="plq-wall">${wall.map(pl => {
             const t = K.certifications.tier(pl.tier) || {};
+            const sg = (p.songs || []).find(x => x.title === pl.title && pl.kind === "song");
+            const al = (p.albums || []).find(x => x.title === pl.title && pl.kind === "album");
+            const streams = (sg && sg.streams) || (al && al.streams) || 0;
             return `<div class="plq-row" style="--pc:${t.color || "#ffcb5c"}">
-              <span class="plq-badge">${t.emoji || "🏅"}</span>
+              <span class="plq-medal">${t.emoji || "🏅"}</span>
               <div class="grow" style="min-width:0">
                 <div class="tt">${U.escape(pl.title)}</div>
-                <div class="ss">${pl.kind === "album" ? "Albüm" : "Şarkı"} · Gün ${pl.day}</div>
+                <div class="ss">${pl.kind === "album" ? "Albüm" : "Şarkı"} · ${U.fmt(streams)} dinlenme</div>
               </div>
-              <span class="kk">${t.short || ""}</span>
+              <div class="pr-right">
+                <span class="kk">${t.short || ""}</span>
+                <span class="pd">Gün ${pl.day}</span>
+              </div>
             </div>`;
-          }).join("")}</div>` : `<div class="empty-note" style="margin-top:10px"><b>Henüz plak yok</b>Şarkıların 1.000.000 dinlenmeye ulaşınca Altın Plak gelir.</div>`}
+          }).join("")}</div>`
+          : `<div class="plq-empty">
+              <div class="pe-title">Vitrin henüz boş</div>
+              <div class="pe-sub">Şarkıların şu eşiklere ulaşınca plak gelir:</div>
+              <div class="plq-tiers" style="margin-top:10px">${K.certifications.TIERS.map(tierMedal).join("")}</div>
+            </div>`}
         </div>
 
         <div class="c-block">
           <div class="c-head"><div><h2>📊 KARMA Wrapped</h2><div class="sub">Yılda bir otomatik yıl sonu özeti</div></div></div>
           ${lastW ? `<div class="wrapped-hero">
-            <div class="wh-year">${lastW.year}</div>
-            <div class="wh-title">KARMA Wrapped</div>
-            <div class="wh-sub">${U.fmt(lastW.streams)} dinlenme · ${lastW.songsReleased} yayın · ${lastW.shows} sahne</div>
+            <div class="wh-top">
+              <span class="wh-year">${lastW.year}</span>
+              <span class="wh-badge">YIL ÖZETİ</span>
+            </div>
+            <div class="wh-hero-num">${U.fmt(lastW.streams)}</div>
+            <div class="wh-hero-lb">dinlenme</div>
+            <div class="wh-strip">
+              <span><b>${lastW.songsReleased}</b> yayın</span>
+              <span><b>${lastW.shows}</b> sahne</span>
+              <span><b>${lastW.plaques.length}</b> plak</span>
+              <span><b>+${U.compact(lastW.followers)}</b> takipçi</span>
+            </div>
           </div>
           <div class="action-row" style="margin-top:10px">
             <button class="btn btn-primary btn-sm" data-act="open-wrapped">📊 Özeti Aç</button>
