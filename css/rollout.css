@@ -1,0 +1,142 @@
+/* ============================================================
+   KARMA — css/rollout.css   (v10.21)
+   Çıkış Haftası arayüzü: ön kayıt kampanyası · teaser zinciri ·
+   ilk hafta sayacı ve derece kartı.
+
+   Tasarım kuralı: "hazırlık" tek bir yüzdeyle özetlenir (readiness),
+   detaylar altına açılır. Oyuncu bir bakışta "çıkışa hazır mıyım?"
+   sorusunun cevabını görmeli.
+   ============================================================ */
+
+.ro-block { display: flex; flex-direction: column; gap: 12px; }
+
+/* ---------- hazırlık göstergesi ---------- */
+.ro-head {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 14px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(150deg, rgba(176, 108, 255, .12), rgba(110, 195, 255, .06));
+  border: 1px solid rgba(176, 108, 255, .28);
+}
+.ro-ring {
+  --pct: 0;
+  width: 62px; height: 62px; flex: 0 0 auto;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 15px; font-weight: 900; color: #fff;
+  background:
+    conic-gradient(var(--karma) calc(var(--pct) * 1%), rgba(255,255,255,.10) 0),
+    var(--bg-2);
+  position: relative;
+}
+.ro-ring::after {
+  content: ""; position: absolute; inset: 6px;
+  border-radius: 50%; background: var(--bg-2);
+}
+.ro-ring b { position: relative; z-index: 1; }
+.ro-head-txt { flex: 1; min-width: 160px; }
+.ro-head-txt h3 { font-size: 14.5px; font-weight: 800; }
+.ro-head-txt p { font-size: 11.5px; color: var(--text-2); margin-top: 3px; line-height: 1.45; }
+
+/* ---------- teaser aşamaları ---------- */
+.ro-stages { display: flex; gap: 8px; flex-wrap: wrap; }
+.ro-stage {
+  flex: 1 1 150px;
+  padding: 11px 12px;
+  border-radius: var(--radius-s);
+  background: var(--glass);
+  border: 1px solid var(--stroke);
+  display: flex; flex-direction: column; gap: 5px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .12s;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+}
+.ro-stage:hover { background: var(--glass-2); transform: translateY(-1px); }
+.ro-stage.done { border-color: rgba(92, 232, 155, .45); background: rgba(92, 232, 155, .08); cursor: default; }
+.ro-stage.done:hover { transform: none; }
+.ro-stage.off { opacity: .48; cursor: not-allowed; }
+.ro-stage.off:hover { transform: none; }
+.ro-stage .rs-top { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 800; }
+.ro-stage .rs-sub { font-size: 10.5px; color: var(--text-2); line-height: 1.4; }
+.ro-stage .rs-eff { font-size: 10px; font-weight: 700; color: var(--karma-2); }
+.ro-stage .rs-cost { font-size: 10px; color: var(--text-3); }
+.ro-stage.done .rs-eff { color: var(--money); }
+
+/* ---------- ön kayıt kanalları ---------- */
+.ro-chans { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.ro-chan {
+  padding: 10px 11px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+  cursor: pointer; font-family: inherit; color: inherit; text-align: left;
+  display: flex; flex-direction: column; gap: 4px;
+  transition: background .15s, border-color .15s;
+}
+.ro-chan:hover { background: var(--glass-2); }
+.ro-chan.on { border-color: var(--karma); background: rgba(176, 108, 255, .12); }
+.ro-chan.locked { opacity: .45; cursor: not-allowed; }
+.ro-chan .rc-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 12px; font-weight: 800; }
+.ro-chan .rc-desc { font-size: 10px; color: var(--text-3); line-height: 1.35; }
+.ro-chan .rc-meta { font-size: 10px; color: var(--text-2); }
+
+/* ---------- rakam şeridi ---------- */
+.ro-nums {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;
+}
+.ro-num {
+  padding: 10px 12px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.ro-num .k { font-size: 9.5px; letter-spacing: .8px; text-transform: uppercase; color: var(--text-3); font-weight: 700; }
+.ro-num .v { font-size: 16px; font-weight: 900; margin-top: 3px; }
+.ro-num .v.money { color: var(--money); }
+.ro-num .d { font-size: 10px; color: var(--text-2); margin-top: 2px; }
+
+/* ---------- ilk hafta sayacı ---------- */
+.ro-week {
+  padding: 12px 13px; border-radius: var(--radius-s);
+  background: rgba(255, 203, 92, .07);
+  border: 1px solid rgba(255, 203, 92, .22);
+}
+.ro-week-head {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12.5px; font-weight: 800; margin-bottom: 7px;
+}
+.ro-days { display: flex; gap: 5px; margin-top: 8px; }
+.ro-day {
+  flex: 1; height: 34px; border-radius: var(--radius-xs);
+  background: rgba(255,255,255,.07);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1px; font-size: 9.5px; color: var(--text-3);
+  position: relative; overflow: hidden;
+}
+.ro-day > i {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(180deg, rgba(255,203,92,.85), rgba(255,159,67,.7));
+  opacity: .55;
+}
+.ro-day span { position: relative; z-index: 1; font-weight: 700; }
+.ro-day.filled { color: #fff; }
+
+/* ---------- derece kartı ---------- */
+.ro-debut {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.ro-debut .rb-badge {
+  font-size: 12px; font-weight: 900; padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  background: rgba(176,108,255,.16); border: 1px solid rgba(176,108,255,.34);
+  white-space: nowrap;
+}
+.ro-debut.smash .rb-badge { background: rgba(255,92,122,.16); border-color: rgba(255,92,122,.4); }
+.ro-debut.flop .rb-badge { background: rgba(255,255,255,.08); border-color: var(--stroke); color: var(--text-2); }
+
+@media (max-width: 640px) {
+  .ro-head { gap: 11px; padding: 12px; }
+  .ro-ring { width: 54px; height: 54px; font-size: 13.5px; }
+  .ro-stages { flex-direction: column; }
+  .ro-stage { flex: 1 1 auto; }
+}
