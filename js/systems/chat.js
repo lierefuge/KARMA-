@@ -721,7 +721,7 @@
       /* v10.14 — KİŞİLİK AĞIRLIĞI: aynı niyet her sanatçıda aynı puanı
          getirmemeli. Şehinşah'a boş övgü ile söz eleştirisi, wegh'e
          taklit tavsiyesi ile üretim sorusu aynı şey değil. */
-      if (K.personality && K.personality.bias) delta += K.personality.bias(artistId, intent);
+      if (K.npcPersonality && K.npcPersonality.bias) delta += K.npcPersonality.bias(artistId, intent);
       if (agendaMsg) delta += 0.4;
 
       /* ---- hafızayı güncelle ---- */
@@ -750,8 +750,8 @@
       if (picked.length) msg = msg + " " + picked.join(" ");
 
       /* ---- kişilik imzası: sanatçının kendi açılış kalıbı (nadir) ---- */
-      if (K.personality && K.personality.opening && !forcedMsgs && intent !== "generic") {
-        const op = K.personality.opening(artistId);
+      if (K.npcPersonality && K.npcPersonality.opening && !forcedMsgs && intent !== "generic") {
+        const op = K.npcPersonality.opening(artistId);
         if (op && msg.indexOf(op) !== 0 && (op.length + msg.length) < 240) msg = op + msg;
       }
       return { msgs: [msg], delta, intent, action };
