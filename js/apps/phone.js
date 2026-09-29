@@ -24,7 +24,7 @@
 
     /* ---------------- init ---------------- */
     init() {
-      U.on(U.qs("#home-indicator"), "click", () => K.phone.home());
+      U.on(U.qs("#home-indicator"), "click", () => { K.phone.haptic(12); K.phone.home(); });
       U.on(U.qs("#phone-viewport"), "click", K.phone.onClick);
       // durum çubuğuna dokunmak da ana ekrana döndürür (kapan tuzağına karşı emniyet)
       const sb = U.qs(".status-bar");
@@ -77,6 +77,58 @@
       try {
         vp.addEventListener("pointerdown", start);
         vp.addEventListener("pointerup", end);
+      } catch (e) {}
+
+      /* v10.19 — DİKEY HAREKETLER (telefon gerçekçiliği)
+         Gerçek bir telefonda kenar hareketleri vardır:
+           · alt kenardan yukarı çek  → ana ekran
+           · üst köşeden aşağı çek    → Kontrol Merkezi
+         Yalnızca touch olaylarıyla bağlanır: pointer olayları da
+         bağlanırsa aynı hareket iki kez işlenir ve ekran zıplar. */
+      K.phone.setupVerticalGestures();
+    },
+
+    /* kenar hareketleri: hareket YALNIZCA kenar bölgesinde başlarsa sayılır,
+       aksi hâlde listeyi kaydırmak isteyen oyuncu yanlışlıkla eve dönerdi. */
+    setupVerticalGestures() {
+      const screen = U.qs("#phone-screen");
+      if (!screen || screen._vgBound) return;
+      screen._vgBound = true;
+      const EDGE_BOTTOM = 70, EDGE_TOP = 54;
+      let y0 = 0, x0 = 0, t0 = 0, zone = null;
+      const pt = e => (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]) || e;
+      const start = e => {
+        const t = pt(e);
+        if (!t || t.clientY == null) return;
+        const r = screen.getBoundingClientRect();
+        y0 = t.clientY; x0 = t.clientX; t0 = Date.now();
+        if (r.bottom - t.clientY <= EDGE_BOTTOM) zone = "bottom";
+        else if (t.clientY - r.top <= EDGE_TOP) zone = "top";
+        else zone = null;
+      };
+      const end = e => {
+        const z = zone; zone = null;
+        if (!z) return;
+        const t = pt(e);
+        if (!t || t.clientY == null) return;
+        if (Date.now() - t0 > 700) return;
+        const dy = t.clientY - y0, dx = t.clientX - x0;
+        if (Math.abs(dy) < 55 || Math.abs(dy) < Math.abs(dx) * 1.4) return;
+        if (z === "bottom" && dy < 0) { K.phone.haptic(12); K.phone.home(); }
+        else if (z === "top" && dy > 0) { K.phone.haptic(10); if (K.cc) K.cc.open(); }
+      };
+      screen.addEventListener("touchstart", start, { passive: true });
+      screen.addEventListener("touchend", end, { passive: true });
+      screen.addEventListener("touchcancel", () => { zone = null; }, { passive: true });
+    },
+
+    /* dokunsal geri bildirim — destekleyen cihazda kısa titretme.
+       Masaüstünde ve desteklemeyen tarayıcılarda sessizce yok sayılır. */
+    haptic(ms) {
+      try {
+        if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+          navigator.vibrate(ms || 10);
+        }
       } catch (e) {}
     },
 
@@ -251,6 +303,7 @@
       K.phone.openAppId = id;
       K.phone.views = [view];
       K.phone.homeActive = false;
+      K.phone.haptic(8);
       K.phone.render();
     },
 
