@@ -38,7 +38,8 @@
   function normIndex() {
     if (NORM_INDEX) return NORM_INDEX;
     NORM_INDEX = {};
-    const P = K.REAL_PREVIEWS || {};
+    /* v10.16 — tembel veri katmanı (P-1) */
+    const P = K.lazy ? K.lazy.raw("real-previews") : (K.REAL_PREVIEWS || {});
     for (const k in P) for (const title in P[k]) {
       const n = normTitle(title);
       if (n && !NORM_INDEX[n]) NORM_INDEX[n] = P[k][title];
@@ -50,8 +51,8 @@
   function find(song) {
     if (!song) return null;
     if (song.preview) return { p: song.preview, a: song.appleUrl || "" };
-    const P = K.REAL_PREVIEWS;
-    if (!P) return null;
+    const P = K.lazy ? K.lazy.raw("real-previews") : (K.REAL_PREVIEWS || {});
+    if (!P || !Object.keys(P).length) return null;
     const id = song.artistId || (song.id ? String(song.id).split("_")[0] : null);
     if (id && P[id] && song.title && P[id][song.title]) return P[id][song.title];
     if (song.title) {
@@ -73,8 +74,9 @@
      bozulduğu için (player “ERROR” dönüyordu) artık her şarkı için
      önceden çözülmüş GERÇEK video kimliği kullanılıyor. */
   function ytVideoId(song) {
-    const T = K.REAL_YT;
-    if (!T || !song) return null;
+    /* v10.16 — tembel veri katmanı (P-1) */
+    const T = K.lazy ? K.lazy.raw("real-youtube") : (K.REAL_YT || {});
+    if (!song || !Object.keys(T).length) return null;
     const id = song.artistId || (song.id ? String(song.id).split("_")[0] : null);
     if (id && T[id] && song.title && T[id][song.title]) return T[id][song.title].v;
     if (song.title) {
@@ -253,7 +255,7 @@
   K.preview = {
     has(song) { return !!find(song); },
     active() { return !!cur; },
-    available() { return K.REAL_PREVIEWS ? Object.keys(K.REAL_PREVIEWS).length : 0; },
+    available() { return K.lazy ? K.lazy.available("real-previews") : (K.REAL_PREVIEWS ? Object.keys(K.REAL_PREVIEWS).length : 0); },
     links, mount: buildBar,
     mode() { return mode; },
 
@@ -399,6 +401,15 @@
       if (!cur) return false;
       if (mode === "full") { if (K.state && K.state.player) K.state.player.fullPlay = false; toPreview(); return false; }
       return K.preview.playFull(cur);
-    }
+    },
+
+    /* v10.16 — normalleştirilmiş başlık indeksi tembel veriye bağlı;
+       veri sonradan yüklenince geçersiz kılınmalı, yoksa önizleme
+       arama boş indekste takılır. */
+    resetIndex() { NORM_INDEX = null; }
   };
+
+  if (K.lazy && K.lazy.onLoaded) K.lazy.onLoaded(function (e) {
+    if (!e || e.name === "real-previews" || e.name === "real-youtube") K.preview.resetIndex();
+  });
 })(window.K = window.K || {});
