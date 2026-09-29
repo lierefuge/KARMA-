@@ -542,35 +542,87 @@
 
     /* ---------------- ekler: demo / medya / sesli mesaj ---------------- */
     attachSheet(artistId) {
+      const pending = K.relations.demoStatus().filter(x => !x.done).length;
       K.ui.actionSheet("Ne göndermek istersin?", [
         { label: "🎧 Demo gönder", onClick: () => K.phone.appById("messages").demoPicker(artistId) },
+        { label: "📊 Demo takibi" + (pending ? " (" + pending + " bekliyor)" : ""), onClick: () => K.phone.appById("messages").demoTrack() },
         { label: "🖼️ Şarkı/kapak paylaş", onClick: () => K.phone.appById("messages").mediaPicker(artistId) },
         { label: "🎤 Sesli mesaj", onClick: () => K.phone.appById("messages").voicePicker(artistId) }
       ]);
     },
 
     demoPicker(artistId) {
-      const M = K.phone.appById("messages");
       const songs = K.state.player.songs || [];
       if (!songs.length) { K.toast("Şarkın yok", "Önce bir şarkı yayınla.", "warn"); return; }
       const a = K.artistById(artistId) || {};
+      const ear = K.relations.demoEar(artistId);
+      const cold = K.relations.demoCooldown(artistId);
+      const rejects = K.relation(artistId).demoRejects || 0;
+
+      const warn = cold > 0
+        ? `<div class="dm-hint warn">🧊 <b>${U.escape(a.stageName)}</b> şu an demoya kapalı — son redden sonra <b>${cold} gün</b> beklemek istiyor. Yine de gönderebilirsin ama bakma ihtimali çok düşük.</div>`
+        : (rejects > 0 ? `<div class="dm-hint warn">⚠️ Bu sanatçıya <b>${rejects}</b> kez red yedin. Bar yükseldi, bir süre daha temkinli.</div>` : "");
+
       K.phone.pushView({
         title: "Demo gönder", sub: "Kime: " + (a.stageName || ""), shellClass: "app-messages",
-        render: () => `<div class="dm-hint">Sanatçı demoyu birkaç gün içinde dinler. Kalite ve samimiyet ne kadar yüksekse açılma ihtimali o kadar artar — ama garanti yok.</div>`
-          + songs.slice().reverse().map(sg => `<div class="p-row" data-pact="demo-send" data-arg="${sg.id}|${artistId}">
+        render: () => `
+          <div class="dm-hint">🎧 <b>${U.escape(a.stageName)}</b> demoda <b>${U.escape(ear.why)}</b> arıyor. Beğenme barı <b>${ear.bar}/100</b>.</div>
+          ${warn}
+          <div class="dm-sec">Şarkıların — ${U.escape(ear.label)} puanına göre</div>
+          ${songs.slice().reverse().map(sg => {
+            const sc = K.relations.demoScore(sg, ear);
+            const ok = sc >= ear.bar;
+            const tone = sc >= ear.bar + 12 ? "money" : ok ? "gold" : "hot";
+            return `<div class="p-row" data-pact="demo-send" data-arg="${sg.id}|${artistId}">
               ${K.ui.cover(sg.coverSeed || sg.id, "🎧", 46, sg.art)}
               <div class="grow"><div class="p-title">${U.escape(sg.title)}</div>
-              <div class="p-sub">Kalite ${Math.round(sg.quality || 0)}/100 · ${U.escape(sg.genre || "")}</div></div>
+              <div class="p-sub">${U.escape(ear.label)} <b class="pill ${tone}" style="font-size:9px">${sc}</b> / bar ${ear.bar} · genel ${Math.round(sg.quality || 0)}</div></div>
               <span style="color:var(--text-3)">›</span>
-            </div>`).join(""),
+            </div>`;
+          }).join("")}`,
         onAction: (act, el) => {
           if (act !== "demo-send") return;
           const parts = String(el.dataset.arg).split("|");
           const res = K.relations.sendDemo(parts[1], parts[0]);
-          if (!res.ok) { K.toast("Gönderilemedi", "", "warn"); return; }
-          K.toast("🎧 Demo gönderildi", `Dinlenmesi ~${res.days} gün sürebilir.`, "ok");
+          if (!res.ok) {
+            if (res.why === "tekrar") K.toast("Zaten gönderildi", "Aynı şarkıyı 10 gün içinde tekrar gönderemezsin.", "warn");
+            else K.toast("Gönderilemedi", "", "warn");
+            return;
+          }
+          K.toast("🎧 Demo gönderildi",
+            `${res.ear.why} aranacak · dinlenmesi ~${res.days} gün${res.cold ? " · sanatçı soğuk" : ""}`, "ok");
           K.phone.back();
           K.phone.reRender();
+        }
+      });
+    },
+
+    /* ---------------- DEMO TAKİBİ ---------------- */
+    demoTrack() {
+      const list = K.relations.demoStatus();
+      const vLabel = {
+        loved: ["✅", "Beğendi", "money"],
+        mixed: ["🤔", "Kararsız", "gold"],
+        rejected: ["❌", "Reddetti", "hot"],
+        ignored: ["📭", "Açmadı", ""]
+      };
+      K.phone.pushView({
+        title: "Demo takibi", sub: list.filter(x => !x.done).length + " bekleyen", shellClass: "app-messages",
+        render: () => {
+          if (!list.length) return `<div class="empty-note"><b>Demo yok</b>Bir sanatçının sohbetinde ＋ → 🎧 Demo gönder ile başla.</div>`;
+          return `<div class="dm-hint">Her sanatçı demoda farklı şeye bakar. Gönderdiğin şarkının o ölçütteki puanı sonucu belirler.</div>`
+            + list.map(x => {
+              const v = x.verdict ? vLabel[x.verdict] : null;
+              return `<div class="dm-demo-card">
+                <div class="ddc-top">
+                  <div class="grow"><div class="ddc-title">${U.escape(x.title)}</div>
+                  <div class="ddc-sub">${U.escape(x.artistName)} · ${U.escape(x.earWhy)} arıyor (bar ${x.bar})</div></div>
+                  ${x.done && v ? `<span class="pill ${v[2]}">${v[0]} ${v[1]}</span>` : `<span class="pill">⏳ ${x.left} gün</span>`}
+                </div>
+                ${x.score != null ? `<div class="ddc-bar"><i style="width:${U.clamp(x.score, 0, 100)}%"></i><b style="left:${U.clamp(x.bar, 0, 100)}%"></b></div>
+                  <div class="ddc-meta">${U.escape(x.earLabel)} <b>${x.score}</b> / bar ${x.bar}</div>` : `<div class="ddc-meta">Gün ${x.day} gönderildi · dinleniyor</div>`}
+              </div>`;
+            }).join("");
         }
       });
     },
