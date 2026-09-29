@@ -93,7 +93,14 @@
     taxRate: 0.14,            // (eski) sabit oran — artık taxBrackets kullanılıyor
     taxFreeMonthly: 15000,    // (eski) vergisiz taban — taxBrackets[0].upTo ile aynı
     superfanRate: 0.02,       // takipçinin süperfan oranı
-    clubPlatformCut: 0.15     // fan kulübü platform komisyonu
+    clubPlatformCut: 0.15,    // fan kulübü platform komisyonu
+
+    /* v10.7 — KATALOG BAKIM TAVANI (borç sarmalını / sınırsız gider artışını önler) */
+    catalogUpkeepMaxShare: 0.25,   // katalog bakımı o aylık gelirin en fazla %25'i
+    catalogUpkeepFloor: 900,       // ama en az bu kadar (katalog bedava değil)
+
+    /* v10.7 — acemi koruması süresi (gün). Aile desteği geçici. */
+    beginnerGraceDays: 120
   };
 
   /* ---------- new game ---------- */
