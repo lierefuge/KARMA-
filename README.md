@@ -5,7 +5,112 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
-## GÜNCELLEME v10.17 — Tembel veri katmanı + kariyer eğrisi (bu sürüm)
+## GÜNCELLEME v10.18 — Doğrulama, CI ve motor/veri ayrımı (bu sürüm)
+
+Bu sürümde **yeni oyun özelliği yok.** Tamamen *güvenilirlik* ve *bakım*
+üzerine: son dört güncellemede canlıya çıkan hataların sınıfını kapatıyor.
+
+### 🧪 B-7 — Testler artık süre değil KOŞUL bekliyor
+
+Altı test aracı boot için `setTimeout(run, 2600)` kullanıyordu: "herhâlde
+2,6 saniyede hazır olur". Yavaş makinede/CI'da yanlış kırmızı, hızlı
+makinede gereksiz bekleme üretiyordu.
+
+**Yeni: `tools/harness.js`** — ortak test altyapısı. `whenReady()` oyunun
+`K.phone`, `K.career`, `K.game`, `K.state` ile gerçekten boot olduğunu yoklar.
+Testler ayrıca **ihtiyaç duydukları veriyi** bildirir:
+
+```js
+H.whenReady(dom, {
+  label: "tembel veri hazır",
+  ready: K => K.lazy.loaded("real-songs") && K.lazy.loaded("discography")
+}).then(run)
+```
+
+Bu düzeltme hemen kendini kanıtladı: `smoke-social` koşul bildirmediği hâlde
+4 kontrol kırmızı verdi (diskografi "0 yayın") — çünkü boot anında tembel veri
+henüz gelmemişti. Eski sabit bekleme bu sorunu **gizliyordu**.
+
+Sonuç: `apps` 2,6 sn → **2,2 sn** · `social` 2,6 sn → **1,6 sn** · süitler artık
+gerçek bir hazır olma sinyaline bağlı.
+
+### 🔀 B-5 — Motor ve veri ayrıldı
+
+`systems/chat.js` **88,5 KB**'lık tek bir modüldü: DM motoru + niyet sözlüğü +
+12 sanatçı profili iç içe. Her yeni profil 3.000 satırlık dosyayı düzenlemeyi
+gerektiriyordu.
+
+| Dosya | İçerik | Boyut |
+|---|---|---|
+| `js/systems/chat.js` | **Motor** — niyet analizi, cevap seçimi, kurallar | 88,5 → **50,1 KB** |
+| `js/data/chat-profiles.js` | **Veri** — sanatçıya özel ağızlar | **41,1 KB** (yeni) |
+
+Taşıma **kayıpsız** kanıtlandı: çıkarılan nesne literal'inin sha256'sı eski
+`chat.js` içeriğiyle birebir aynı (`6b6173189aef`). Ayrıca geri düşüş var:
+profil dosyası yüklenmezse motor boş nesneyle çalışır ve genel/tür havuzlarına
+düşer — **çökmez**.
+
+### 🤖 CI — her push'ta 11 adımlı doğrulama
+
+**Yeni: `.github/workflows/tests.yml`** + **`tools/verify.js`**
+
+```bash
+npm run verify     # 11 adım · ~100 saniye
+```
+
+| # | Adım | Ne korur |
+|---|---|---|
+| 1 | Önbellek sürümü | `?v=` içerik hash'iyle uyumlu mu |
+| 2 | Tek dosya build | üretilebiliyor mu (geçici dosyaya, ağaç bozulmaz) |
+| 3 | **Build güncel mi** | depodaki `KARMA-Oyun.html` kaynaklarla **bayt bayt** aynı mı |
+| 4 | Altı test paketi | mobil · tembel veri · kariyer eğrisi · kişilik · uygulamalar · sosyal |
+| 5 | Denge simülasyonu | YÜKSEK önem bulgusu var mı |
+| 6 | Runtime sağlığı | süitlerde yakalanmamış hata var mı |
+
+**3. adım bu sürümün en önemli koruması:** build'i güncellemeyi unutmak artık
+yapısal olarak imkânsız — CI yakalar.
+
+### 🚀 `npm run release` — tek komutluk yayın ritüeli
+
+Eskiden üç elle adımdı (damgala → build → commit'le) ve biri unutulabiliyordu.
+
+```bash
+npm run release -- patch --verify    # 10.18.0 → 10.18.1, damgala, build, doğrula
+npm run release -- minor --verify    # 10.18.0 → 10.19.0
+```
+
+Sürüm `package.json` **ve** `js/version.js` içine birlikte yazılır.
+
+### 🏷️ Sürüm artık görünür
+
+`js/version.js` → `K.VERSION` (**10.18.0**). Önbellek hash'i makine içindir
+ve okunaksızdır; sürüm insan içindir. **Ayarlar penceresinin altında**
+görünür — "canlıda hangi sürüm var?" sorusunun tek bakışta cevabı.
+
+### 🖥️ `npm run serve` — yerel önizleme
+
+Modüler sürümü `file://` ile açmak **çalışmaz**: tembel veri katmanı
+ihtiyaç anında alt kaynak çeker, tarayıcılar bunu `file://` altında engeller.
+
+```bash
+npm run serve     # http://localhost:8080
+```
+
+### 📋 Güncelleme disiplini (bu sürümden sonra)
+
+1. Değişikliği yap
+2. `npm run verify` — **11 adım yeşil olmadan devam etme**
+3. `npm run release -- patch --verify`
+4. Commit + tag (`git tag v10.18.0`)
+
+> **Not:** Sürüm etiketi (`git tag`) GitHub connector'ında yazma aracı yok;
+> etiketi GitHub arayüzünden veya bir token'la `git push --follow-tags` ile
+> oluşturman gerekir. Sürüm numarası zaten `package.json` + `K.VERSION`
+> içinde tutuluyor, etiket yalnızca kolaylık.
+
+---
+
+## GÜNCELLEME v10.17 — Tembel veri katmanı + kariyer eğrisi
 
 ### 📦 P-1 — Ağır veri kritik yoldan çıkarıldı
 
