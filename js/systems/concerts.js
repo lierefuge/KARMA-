@@ -33,7 +33,10 @@
       { id: "cinematic", name: "Sinematik Show", emoji: "✨", cost: 300000, draw: 1.45, prestige: 1.2, desc: "Turne düzeyi görsel şölen; prestij patlatır." }
     ],
 
-    BASE_TICKET: 320,
+    /* DÜZELTME (v10.9): 320 ₺ 2026 Türkiye'sinde KULÜP bileti bile
+       değil (gerçek aralık: kulüp 600–1.200 ₺, salon 900–2.500 ₺,
+       arena 1.800–5.000 ₺, stadyum 2.500–7.000 ₺). Taban 850 ₺. */
+    BASE_TICKET: 850,
 
     production(id) { return K.concerts.PRODUCTIONS.find(p => p.id === id) || K.concerts.PRODUCTIONS[0]; },
     venue(id) { return K.concerts.VENUES.find(v => v.id === id) || K.concerts.VENUES[0]; },
@@ -78,9 +81,22 @@
       const opener = openerId ? K.artistById(openerId) : null;
 
       const pop = U.clamp(p.popularity, 0, 99);
-      const demandBase = v.capacity * U.clamp(0.06 + pop / 85, 0.06, 1.18) * c.mult;
+      /* DÜZELTME (v10.9): talep artık POPÜLERLİĞE DEĞİL DİNLEYİCİYE bağlı.
+         Eskiden `kapasite × (0,06 + pop/85)` idi; pop 42 (arena eşiği)
+         bir oyuncu 12.000 kişilik arenada 6.600 bilet satıyordu — ki
+         800 bin dinleyicisi olan bir sanatçı için bile çok iyimser.
+         Artık aylık dinleyiciden türetiliyor (dönüşüm ≈ %3,5 +
+         küçük sanatçıya taban):
+           1 bin dinleyici → ~100 kişi (kulüp)
+           47 bin → ~2.100 kişi (salon)
+           1 milyon → ~37.000 kişi (arena)  */
+      const monthly = Math.max(0, p.monthly || 0);
+      const demandBase = (monthly * 0.035 + Math.sqrt(monthly) * 2) * c.mult;
+      /* Fiyat esnekliği (v10.9): eskiden 2× fiyat katılımı %12'ye
+         düşürüyordu — gerçekte bilet fiyatı iki katına çıkınca katılım
+         %40-50 civarında azalır. Eğri yumuşatıldı. */
       const priceRatio = price / (K.concerts.BASE_TICKET * (1 + pop / 120));
-      const priceFactor = U.clamp(1.35 - priceRatio * 0.85, 0.12, 1.15);
+      const priceFactor = U.clamp(1.3 - priceRatio * 0.5, 0.3, 1.15);
       const openerBoost = opener ? U.clamp(opener.popularity / 260, 0.03, 0.18) : 0;
 
       let attendance = Math.round(demandBase * priceFactor * prod.draw * (1 + openerBoost));
@@ -96,7 +112,9 @@
       const net = revenue - cost;
       const fame = +(attendance / v.capacity * (v.prestige + prod.prestige) * 1.35).toFixed(2);
       const hype = Math.round(attendance / 40 + v.prestige * 6 + prod.prestige * 8);
-      const fans = Math.round(attendance * (0.22 + prod.prestige * 0.05) * c.mult);
+      /* DÜZELTME (v10.9): katılımcıların %22'si takip etmiyordu.
+         Gerçek dönüşüm %5-12 arasıdır; prodüksiyon kalitesi üst uca taşır. */
+      const fans = Math.round(attendance * (0.06 + prod.prestige * 0.03) * c.mult);
 
       return {
         attendance, capacity: v.capacity, revenue, cost, net, fame, hype, fans,
@@ -225,7 +243,7 @@
           const revenue = Math.max(0, grossRev - cut);
           K.economy.earn(revenue, "concert");
           if (cut > 0) K.toast("🏢 360 payı", `Şirket konser gelirinden ${U.money(cut)} aldı.`, "warn");
-          s.player.popularity = U.clamp(s.player.popularity + est.fame, 0, 99);
+          K.game.addFame(est.fame);
           s.player.reputation = Math.min(100, s.player.reputation + est.fame * 0.6);
           const gained = Math.round(est.fans * (attendance / Math.max(1, est.attendance)));
           s.player.ig += Math.round(gained * 0.6);
@@ -255,10 +273,18 @@
         const fans = est.fans;
         K.economy.earn(revenue, "tour");
         s.tour.gross += revenue;
+
+        /* DÜZELTME (v10.9): turne sabit gideri YOKTU.
+           Gerçek turnede ekip, otobüs, konaklama her durak için sabit maliyet
+           doğurur; eskiden sadece ön ödeme vardı ve turne bedava kâr demekti. */
+        const showCost = Math.round((K.concerts.venue(s.tour.venueId).prestige * 22000 + 18000)
+          * (K.econ ? K.econ.infl() : 1));
+        K.economy.spend(Math.min(showCost, K.state.balance), "tour_cost");
+        s.tour.totalCost = (s.tour.totalCost || 0) + showCost;
         s.tour.attendance += est.attendance;
         s.tour.followers = (s.tour.followers || 0) + fans;
         s.tour.shows++;
-        s.player.popularity = U.clamp(s.player.popularity + est.fame, 0, 99);
+        K.game.addFame(est.fame);
         s.player.ig += Math.round(fans * 0.6);
         s.player.tiktok += Math.round(fans * 0.4);
 
