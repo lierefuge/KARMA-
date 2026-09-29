@@ -5,6 +5,73 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.27 — B-6 kapatıldı: oyuncu kimliği ↔ NPC kişiliği ayrıştırıldı
+
+### 🏷️ Sorun: tek harfle ayrılan iki global
+
+```
+data/persona.js       (OYUNCU)  →  K.PERSONAS      · K.personaById · K.identityScore
+data/personality.js   (NPC)     →  K.PERSONALITY   · K.personality
+```
+
+Global'ler **yalnızca tek bir harfle** ayrılıyordu (`K.PERSONAS` ↔ `K.PERSONALITY`).
+Asıl tehlike `K.PERSONAS` (oyuncu *listesi*) ile `K.personality` (NPC *motoru*)
+karışıklığıydı: yanlış olanı yazmak `undefined` döndürür ve hata **sessizce**
+yanlış davranışa dönüşür — hata vermez, sadece çalışmaz.
+
+### 🔀 Çözüm: global'ler açık önekli
+
+| Taraf | Dosya (değişmedi) | Veri | Motor / yardımcılar |
+|---|---|---|---|
+| **Oyuncu** | `data/persona.js` | `K.PLAYER_PERSONAS` | `K.playerPersonaById` · `K.playerPersonaFit` · `K.playerIdentityScore` |
+| **NPC** | `data/personality.js` | `K.NPC_PERSONALITY` | `K.npcPersonality` |
+
+- Tüm çağrı yerleri güncellendi — oyuncu: `career-ui.js`, `career.js` ·
+  NPC: `chat.js`, `instagram.js`, `tools/smoke-personality.js`
+- Her iki dosyanın **başlığı** artık “bu hangi taraf, komşusu hangisi, global'i ne”
+  diye açıkça yazıyor; `index.html`’e de aynı uyarı eklendi
+- `state.js`’teki `player.persona` yorumu NPC katmanıyla ilgisiz olduğunu belirtiyor
+
+**Kayıt uyumluluğu:** oyuncunun seçtiği kimlik `player.persona` alanında saklanıyor;
+bu alan **kasıtlı olarak değiştirilmedi** (eski kayıtlar bozulmasın). Alan zaten
+`player` altında olduğu için belirsizlik taşımıyor.
+
+> **Dürüst not — dosya adları neden değişmedi?**
+> Asıl temiz çözüm dosyaları `player-persona.js` / `npc-personality.js` olarak
+> yeniden adlandırmaktı ve bu **yapıldı, doğrulamadan geçti**. Ancak GitHub'a
+> yazmak için kullanılan entegrasyonda **dosya silme yeteneği yok**
+> (`createOrUpdateFileContents` yalnızca oluşturur/güncelller). Eski adlar
+> uzakta silinemeyeceği için **kalıcı yetim dosyalar** kalacaktı — bu, düzeltmeye
+> çalıştığımız “bayat referans” sorununun ta kendisi. Yarım yeniden adlandırma,
+> açık bir “adlandırmama”dan kötü olduğu için adlar geri alındı ve belirsizlik
+> **kodun dokunduğu yerde** (global adlarında) çözüldü.
+>
+> Dosya adlarını da değiştirmek isterseniz yerel bir terminalde:
+> `git mv js/data/persona.js js/data/player-persona.js` ve
+> `git mv js/data/personality.js js/data/npc-personality.js`, ardından `index.html`
+> ile iki başlığı güncelleyip `node tools/release.js minor --verify`.
+
+### 🧪 Yapısal invariant: `tools/smoke-tooling.js` (51 → 66 kontrol)
+
+Yeni **I) B-6 İNVARYANTI** bloğu ayrımı kalıcı olarak kilitler:
+
+- Eski belirsiz adların **hiçbir kaynakta** geçmediğini tarar (`js/` + `index.html` +
+  `tools/`; yorumlar ayıklanır, negatif bakış ile `K.personality` ↔ `K.npcPersonality`
+  ayrılır, tarayıcı kendi dosyasını atlar)
+- Her tarafın **kendi** global'ini kurduğunu denetler
+- **Çapraz sızma yok:** oyuncu dosyası NPC global'ini (ve tersi) tanımlamamalı
+- Her iki **başlığın komşu dosyayı adıyla gösterdiğini** denetler (belge disiplini)
+- `index.html`’in ikisini de doğru sırayla yüklediğini denetler
+
+**Kilidin kanıtı (mutasyon testi):** iki ayrı mutasyon denendi ve ikisi de yakalandı:
+
+```
+· I · eski belirsiz global adları hiçbir kaynakta yok — js/systems/chat.js → K.personality
+· I · iki taraf BİRBİRİNİN global'ini tanımlamıyor (çapraz sızma yok)
+```
+
+---
+
 ## GÜNCELLEME v10.26 — Önizleme kapsamı %100 · YouTube kapsamı %77,8 · Türkçe harf hatası
 
 ### ✅ Önizlemeler tamamlandı: %99,0 → **%100** (504/504)
@@ -600,7 +667,8 @@ node tools/sim-balance.js
 konuşuyordu; wegh Rumi'nin ise hiç DM profili yoktu — UZI ile aynı trap
 havuzundan cevap veriyordu. Bu sürüm ikisini de kendi karakterine oturttu.
 
-**Yeni dosya: `js/data/personality.js` — derin kişilik katmanı**
+**Yeni dosya: `js/data/personality.js` — derin kişilik katmanı (NPC)**
+*(v10.27'de B-6 gereği global'ler `K.NPC_PERSONALITY` / `K.npcPersonality` oldu)*
 
 `chat.js` içindeki `PROFILES` yalnızca *cümle havuzu* tutuyordu. Eksik olan
 davranış modeliydi: bir sanatçı neyi sever, neye soğur, nerede susar.
@@ -811,7 +879,9 @@ TikTok/X/Mesajlar render + PP kullanımı. Mevcut `smoke-apps.js` de 0 hatayla g
 
 Faz 1 (gerçekçilik listesi):
 
-- **Sanatçı kişiliği (persona) — `js/data/persona.js`:** Sokak / Melankolik / Deneysel /
+- **Sanatçı kimliği (player persona) — `js/data/persona.js`:** Sokak / Melankolik / Deneysel /
+  (v10.27'de B-6 gereği global'ler `K.PLAYER_PERSONAS` / `K.playerPersonaById` oldu)
+  
   Eğlence / Hikâye Anlatıcı. Şarkılar personanla tutarlıysa itibar, sadakat ve ivme artar;
   tutarsızsa **“kimlik uyuşmazlığı”** uyarısı ve itibar kaybı gelir. Kariyer sekmesinde
   kimlik kartı + **tutarlılık yüzdesi**. Yeniden markalama itibarı yorar.
