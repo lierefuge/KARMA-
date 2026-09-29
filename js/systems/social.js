@@ -13,7 +13,8 @@
      v10.8 GERÇEKLİK DÜZELTMESİ — SANATÇI SESİ
      Eskiden 36 sanatçının TAMAMI 6 hazır cümleyi paylaşıyordu
      (Ceza ile Aleyna Tilki aynı satırı atıyordu). Artık her sanatçı
-     türüne + kuşağına göre konuşur; 12 sanatçının kendi ağzı vardır.
+     türüne + kuşağına göre konuşur; VOICE_BY_ID'deki 8 sanatçının
+     kendi ağzı vardır (sayı v10.14'te kodla eşitlendi).
      Üstelik gönderiler GERÇEK şarkıya bağlanır (eskiden songId hep null'dı,
      yani hiçbir sanatçı kendi işini paylaşmıyordu).
      ============================================================ */
@@ -58,9 +59,21 @@
   /* kendi ağzı olan sanatçılar (tür havuzunu geçersiz kılar) */
   const VOICE_BY_ID = {
     sehinsah: {
-      ig: ["Kayıt odasından selam 🖤", "Sesin rengi değişti yine", "Bir şey üstünde çok çalıştım"],
-      x:  ["Kimseye bir şey ispat etme derdim kalmadı, iş konuşsun.", "Aynı masada oturuyorum, acelem yok.", "Bu sound'u zamanla anlatacağım."],
-      tt: ["Bir bölüm kayıttan", "Sesi aç"],
+      ig: [
+        "Kayıt odasından selam 🖤 Kelime tartıyorum yine",
+        "Sesin rengi değişti; bu sefer farklı bir kapı açtım",
+        "Uzun sürdü ama oldu. Sabreden kazanıyor",
+        "Gece çalışmak daha sakin. Söz orada oturuyor",
+        "Yeni bir metin üstünde iki hafta düşündüm. Öyle çıkacak"
+      ],
+      x:  [
+        "Kimseye bir şey ispat etme derdim kalmadı; iş konuşsun.",
+        "Aynı masada oturuyorum, acelem yok. Kelime ağırlığı sayıyla ölçülmüyor.",
+        "Bu sound'u zamanla anlatacağım; acele eden bir şey anlatamaz.",
+        "Eleştiri gelirse oturur dinlerim, ama övgü zorla alınmıyor benden.",
+        "Yıllar geçince anladım: sessizlik de bir cevaptır."
+      ],
+      tt: ["Bir bölüm kayıttan", "Sesi aç, sözü dinle"],
     },
     ceza: {
       ig: ["Kalem elden düşmez 🖊️", "Sahne bizim evimiz", "Gençlere selam"],
@@ -88,9 +101,21 @@
       tt: ["Bu farklı 👀", "Deneme sürümü"],
     },
     weghrumi: {
-      ig: ["Rize'den İstanbul'a 🌙", "Kayıt bitti, mix kaldı", "Bu gece bitmiyor"],
-      x:  ["Bağımsız kalıyorum, daha rahat.", "Sound'u kendim yapıyorum.", "Yeni parça yakında."],
-      tt: ["Bu ses sert 🥶", "Snippet"],
+      ig: [
+        "Rize'den İstanbul'a 🌙 kayıt bitti, mix kaldı",
+        "Bu gece de bitmiyor; mix oturmadan çıkmıyor",
+        "Melodiyi kendim kurdum, davulu da kendim vurdum",
+        "Stüdyo kokusu üstüme sindi, iyi ki sindi",
+        "Bir şey var ama erken konuşmayacağım"
+      ],
+      x:  [
+        "Bağımsız kalıyorum, daha rahat; kontrol bende oluyor.",
+        "Sound'u kendim yapıyorum, dışarıdan hazır beat almam.",
+        "Kısa içerik şarkıyı yiyor ama ben yine bütün şarkı yapıyorum.",
+        "Özel hayatım bende kalsın, iş konuşalım.",
+        "Net söylüyorum: sound'unu kurmazsan başkasının sesi oluyorsun."
+      ],
+      tt: ["Bu ses sert 🥶", "Snippet", "Mix'ten bir parça"],
     },
     lierefuge: {
       ig: ["İzmir'den selam 🌊", "Kayıtta kaldım", "D'ÜNYAM sonrası devam"],
