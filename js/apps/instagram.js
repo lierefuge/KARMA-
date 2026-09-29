@@ -378,6 +378,27 @@
           <div class="dim">${U.compact(p.monthly)} aylık dinleyici · ${U.escape(handle(artistId))}</div>
         </div>
 
+        ${K.personality && K.personality.has(artistId) ? (() => {
+          const c = K.personality.card(artistId);
+          return `<div class="ig-persona">
+            <div class="ig-persona-top">
+              <span class="ig-persona-code">${U.escape(c.code)}</span>
+              <b>${U.escape(c.title)}</b>
+            </div>
+            <div class="ig-persona-tag">${U.escape(c.tagline)}</div>
+            <div class="ig-persona-bars">
+              ${c.rows.map(r => `<div class="ig-persona-row">
+                <span>${U.escape(r.label)}</span>
+                <i><b style="width:${Math.max(0, Math.min(100, r.value * 10))}%"></b></i>
+                <em>${r.value}</em>
+              </div>`).join("")}
+            </div>
+            <div class="ig-persona-foot">⚡ ${U.escape(c.loves.join(" · "))}</div>
+            <div class="ig-persona-foot red">⛔ ${U.escape(c.redLines.join(" · "))}</div>
+            <div class="ig-persona-note">${U.escape(c.note)}</div>
+          </div>`;
+        })() : ""}
+
         <div class="ig-profile-actions">
           ${isMe
             ? `<button class="ig-btn" data-pact="new-post">Gönderi paylaş</button>
