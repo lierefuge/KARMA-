@@ -170,7 +170,10 @@
         jobLog: {},
         jobEarnings: 0,
         skills: { work: 4, studio: 0, music: 6, network: 2 },
-        persona: null,            // sanatçı kimliği (data/persona.js)
+        /* B-6: OYUNCUNUN kimlik id'si (data/player-persona.js → K.PLAYER_PERSONAS).
+           NPC kişilik katmanı (data/npc-personality.js → K.npcPersonality)
+           ile İLGİSİZDİR. Alan adı kayıt uyumluluğu için `persona` kaldı. */
+        persona: null,
         beats: [],                // beat envanteri [{id,name,producer,quality,cost}]
         ghost: { hired: false, name: null, exposure: 0, uses: 0 },  // söz yazarı
         albums: [],
