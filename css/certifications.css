@@ -1,0 +1,115 @@
+/* ============================================================
+   KARMA — css/certifications.css   (v10.23)
+   Plak vitrini (Altın/Platin/Elmas) + KARMA Wrapped özet ekranı
+   ============================================================ */
+
+/* ---------- plak özet şeridi ---------- */
+.plq-summary {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); gap: 10px;
+}
+.plq-stat {
+  padding: 11px 12px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+  position: relative; overflow: hidden;
+}
+.plq-stat::after {
+  content: ""; position: absolute; right: -16px; top: -16px;
+  width: 54px; height: 54px; border-radius: 50%;
+  background: radial-gradient(circle, var(--pc, #ffcb5c), transparent 70%);
+  opacity: .16;
+}
+.plq-stat .k { font-size: 9.5px; letter-spacing: .8px; text-transform: uppercase; color: var(--text-3); font-weight: 700; }
+.plq-stat .v { font-size: 18px; font-weight: 900; margin-top: 3px; }
+.plq-stat .d { font-size: 10px; color: var(--text-2); margin-top: 2px; }
+
+/* ---------- plak duvarı ---------- */
+.plq-wall { display: flex; flex-direction: column; gap: 7px; }
+.plq-row {
+  display: flex; align-items: center; gap: 11px;
+  padding: 9px 11px; border-radius: var(--radius-s);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--pc, #ffcb5c) 12%, transparent), transparent 70%);
+  border: 1px solid color-mix(in srgb, var(--pc, #ffcb5c) 26%, transparent);
+}
+@supports not (background: color-mix(in srgb, red 10%, transparent)) {
+  .plq-row { background: var(--glass); border-color: var(--stroke); }
+}
+.plq-badge {
+  width: 40px; height: 40px; flex: 0 0 auto; border-radius: 50%;
+  display: grid; place-items: center; font-size: 19px;
+  background: radial-gradient(circle at 32% 28%, #fff6, transparent 60%),
+              linear-gradient(150deg, var(--pc, #ffcb5c), #6b4a00);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.28), 0 5px 14px rgba(0,0,0,.4);
+}
+.plq-row .tt { font-size: 12.5px; font-weight: 800; }
+.plq-row .ss { font-size: 10.5px; color: var(--text-2); margin-top: 3px; }
+.plq-row .kk {
+  font-size: 9.5px; font-weight: 900; letter-spacing: .6px;
+  color: var(--pc, #ffcb5c); text-transform: uppercase; white-space: nowrap;
+}
+
+/* şarkı satırında ilerleme (sıradaki plağa ne kadar kaldı) */
+.plq-prog { margin-top: 6px; }
+.plq-prog .bar { height: 5px; }
+.plq-prog .lbl { font-size: 10px; color: var(--text-3); margin-top: 4px; }
+
+/* ---------- WRAPPED ---------- */
+.wrapped-hero {
+  text-align: center; padding: 18px 14px 14px;
+  border-radius: var(--radius-m);
+  background:
+    radial-gradient(500px 240px at 50% -20%, rgba(176,108,255,.30), transparent 65%),
+    linear-gradient(180deg, #1b1428, #0e0b16);
+  border: 1px solid rgba(176,108,255,.28);
+}
+.wrapped-hero .wh-year { font-size: 34px; font-weight: 900; letter-spacing: -1.5px; line-height: 1; }
+.wrapped-hero .wh-title {
+  font-size: 12px; font-weight: 800; letter-spacing: 3px;
+  color: var(--karma); text-transform: uppercase; margin-top: 6px;
+}
+.wrapped-hero .wh-sub { font-size: 11.5px; color: var(--text-2); margin-top: 8px; }
+
+.wrapped-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 10px;
+}
+.wrapped-card {
+  padding: 13px; border-radius: var(--radius-m);
+  background: var(--glass); border: 1px solid var(--stroke);
+  display: flex; flex-direction: column; gap: 3px;
+  min-height: 92px;
+}
+.wrapped-card .wc-icon { font-size: 19px; }
+.wrapped-card .wc-label { font-size: 10px; letter-spacing: .6px; text-transform: uppercase; color: var(--text-3); font-weight: 700; margin-top: 3px; }
+.wrapped-card .wc-value {
+  font-size: 16px; font-weight: 900; letter-spacing: -.3px;
+  line-height: 1.2; word-break: break-word;
+}
+.wrapped-card .wc-sub { font-size: 10.5px; color: var(--text-2); }
+.wrapped-card.karma { border-color: rgba(176,108,255,.34); }
+.wrapped-card.karma .wc-value { color: #d7b8ff; }
+.wrapped-card.blue { border-color: rgba(110,195,255,.30); }
+.wrapped-card.blue .wc-value { color: #a8dcff; }
+.wrapped-card.money { border-color: rgba(92,232,155,.30); }
+.wrapped-card.money .wc-value { color: var(--money); }
+.wrapped-card.hot { border-color: rgba(255,92,122,.30); }
+.wrapped-card.hot .wc-value { color: #ff9db0; }
+.wrapped-card.gold { border-color: rgba(255,203,92,.34); }
+.wrapped-card.gold .wc-value { color: var(--gold); }
+
+.wrapped-plaques { display: flex; flex-wrap: wrap; gap: 7px; }
+.wq-pill {
+  font-size: 10.5px; font-weight: 700;
+  padding: 5px 11px; border-radius: var(--radius-pill);
+  color: var(--pc, #ffcb5c);
+  background: color-mix(in srgb, var(--pc, #ffcb5c) 13%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pc, #ffcb5c) 30%, transparent);
+}
+@supports not (background: color-mix(in srgb, red 10%, transparent)) {
+  .wq-pill { background: var(--glass); border-color: var(--stroke); }
+}
+
+@media (max-width: 640px) {
+  .wrapped-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .wrapped-card { min-height: 84px; padding: 11px; }
+  .wrapped-card .wc-value { font-size: 14px; }
+  .wrapped-hero .wh-year { font-size: 28px; }
+}
