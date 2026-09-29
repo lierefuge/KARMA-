@@ -1,0 +1,76 @@
+/* ============================================================
+   KARMA — css/festivals.css  (v10.19)
+   Festival devresi: sezon takvimi, slot merdiveni, line-up kartları.
+
+   Tasarım kuralı: kart ÜÇ SÜTUNLU olgunlaşır —
+     [festival bilgisi] [sana verilen slot + sayılar] [aksiyon]
+   Dar ekranda tek sütuna iner; sayılar asla gizlenmez (karar
+   bunlara dayanır), yalnızca açıklama satırı kısalır.
+   ============================================================ */
+
+.fest-list { display: flex; flex-direction: column; gap: 10px; }
+
+.fest-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.15fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 15px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(180deg, var(--bg-3), var(--bg-2));
+  border: 1px solid var(--stroke);
+  position: relative;
+  overflow: hidden;
+}
+/* soldaki ince renk şeridi: line-up'a girdiğin festival yeşil yanar */
+.fest-card::before {
+  content: "";
+  position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: linear-gradient(180deg, var(--karma), #8a4dff);
+  opacity: 0.55;
+}
+.fest-card.booked { border-color: rgba(92, 232, 155, 0.4); }
+.fest-card.booked::before { background: linear-gradient(180deg, #5ce89b, #1ed760); opacity: 1; }
+
+.fest-main { min-width: 0; }
+.fest-name {
+  font-size: 13.5px; font-weight: 800; letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.fest-tier {
+  font-size: 9.5px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 2px 7px; border-radius: var(--radius-pill);
+  color: var(--ftc, #999);
+  background: color-mix(in srgb, var(--ftc, #999) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ftc, #999) 32%, transparent);
+  white-space: nowrap;
+}
+/* color-mix desteklemeyen tarayıcılar için okunur yedek */
+@supports not (background: color-mix(in srgb, red 10%, transparent)) {
+  .fest-tier { background: rgba(255, 255, 255, 0.07); border-color: rgba(255, 255, 255, 0.16); }
+}
+.fest-meta { font-size: 11px; color: var(--text-2); margin-top: 3px; }
+.fest-desc { font-size: 11px; color: var(--text-3); margin-top: 5px; line-height: 1.45; }
+
+.fest-slotcol { min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.fest-slot { font-size: 12.5px; font-weight: 800; }
+.fest-nums { font-size: 10.5px; color: var(--text-2); line-height: 1.45; }
+.fest-nums .money { font-weight: 900; }
+.fest-chance { font-size: 10px; color: var(--text-3); }
+
+.fest-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.fest-lock { font-size: 10.5px; color: var(--text-3); text-align: right; max-width: 190px; line-height: 1.35; }
+
+.fest-later {
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid var(--stroke);
+  font-size: 10.5px; color: var(--text-3);
+}
+
+/* ---------------- mobil: tek sütun ---------------- */
+@media (max-width: 720px) {
+  .fest-card { grid-template-columns: 1fr; align-items: stretch; gap: 10px; }
+  .fest-actions { flex-direction: row; align-items: center; justify-content: space-between; }
+  .fest-lock { text-align: left; max-width: none; }
+  .fest-desc { display: none; }   /* mobilde kalabalık yapmasın */
+}
