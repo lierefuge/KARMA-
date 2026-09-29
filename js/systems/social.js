@@ -357,7 +357,8 @@
       let song = null;
       if (opts.song) song = opts.song;
       else if (U.chance(0.38)) {
-        const real = (K.REAL_SONGS && K.REAL_SONGS[a.id]) || [];
+        /* v10.16 — tembel veri katmanı (P-1) */
+        const real = K.lazy ? K.lazy.songs(a.id) : ((K.REAL_SONGS && K.REAL_SONGS[a.id]) || []);
         if (real.length) song = U.pick(real);
       }
       const eng = K.socialEngagement(a.ig || 0);
