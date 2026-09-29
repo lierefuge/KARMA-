@@ -5,6 +5,80 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.25 — P-2 kapatıldı: önizleme süzgeci + kalıcı veri kilidi
+
+### 🎧 P-2 hakkında dürüst durum
+
+Issue #2'deki **P-2** maddesi (*“real-previews.js filtrelenmiyor”*) yeniden ölçüldü.
+Sonuç v10.17'deki notla **aynı**: filtrelenecek kayıt yok.
+
+| Ölçüm | Sonuç |
+|---|---|
+| Önizleme kaydı | **497** |
+| Ses URL'i (`p`) eksik/bozuk olan | **0** |
+| Apple linki (`a`) eksik/bozuk olan | **0** |
+| `real-songs` içinde karşılığı olmayan (boşa düşen) kayıt | **0** |
+
+Yani “kullanılmayan önizlemeleri at” planı **boşa çıkar**; veri zaten sıkı. Uydurma
+bir kazanç yazmak yerine iki gerçek iş yapıldı.
+
+### 🧹 Gerçek hata: oynatılabilirlik süzgeci yoktu — `systems/preview.js`
+
+`find()` kaydı **olduğu gibi** döndürüyordu ve **çağıran taraf oynatılabilirliği
+denetlemiyordu**. Bu yüzden `p` (30 sn ses) eksik/bozuk bir kayıtta:
+
+- `has()` yanlışlıkla **`true`** dönüyordu → arayüzde **ölü bir ▶ düğmesi**,
+- `play()` ise `audio.src = undefined` yazıp **“ses yüklenemedi”** hatası veriyordu.
+
+Bugün veri sağlam olduğu için bu hata görünmüyordu — ama veri bir gün yeniden
+üretildiğinde (`tools/fetch-artist-discography.js`) sessizce kullanıcıya yansırdı.
+Artık oynatılabilirlik **tek bir süzgeçten** geçiyor:
+
+- `validUrl()` — `p` için yalnızca `http(s)` / `data:audio` kabul edilir;
+  `"undefined"`, `null`, boş string ve `javascript:` reddedilir.
+- `playable(entry)` → **30 sn ses şart**; `has()` ve `play()` bunu kullanır.
+- `usable(entry)` → ses **veya** sayfa bağlantısı; normalleştirilmiş başlık indeksi
+  boş/bozuk kayıtları artık **indekslemez**.
+- `links()` geçersiz `a` değerini bağlantıya çevirmez; Apple aramasına düşer.
+
+Bu arada **ölü kod** da düzeltildi: `play()` içindeki “önizleme yoksa tam sürüm
+çal” dalı `K.preview.has(cur)` ile koşuluyordu — `has()` de `find()`'a bağlı olduğu
+ için o dal **hiç çalışamıyordu**. Artık `hasFull()` ile çalışıyor.
+
+### 📉 Ölçülen gerçek durum: 5 şarkının önizlemesi yok
+
+Dürüst kayıt — önizleme **kapsamı** tam değil (hiç olmadı):
+
+```
+real-songs    : 504 şarkı
+real-previews : 497 kayıt   → 5 şarkının önizlemesi YOK
+  · muti       — İlle De Sen           (YouTube tam sürüm var)
+  · lierefuge  — RADİKAL               (YouTube tam sürüm var)
+  · lierefuge  — İnan Bana (feat. …)   (YouTube tam sürüm var)
+  · lierefuge  — CEVHER                (YouTube tam sürüm YOK)
+  · lierefuge  — TEK                   (YouTube tam sürüm YOK)
+```
+
+Bu bir çöküş değil: `audio.js` önizleme bulamazsa **sentezlenmiş döngüye** düşer,
+yani oyun çalınabilir kalır. Kapsam **%98,6**. Test artık bu tabanın altına
+düşmeyi hata sayıyor, ama “kapsam tam” gibi **olmayan bir şeyi iddia etmiyor**.
+
+### 🧪 Yeni test paketi: `tools/smoke-previews.js` (42 kontrol)
+
+- **A · VERİ** — 497 kaydın tamamında geçerli `p` ve `a`; boş kayıt yok; şişme yok
+- **B · TUTARLILIK** — boşa düşen kayıt yok; kapsam ≥ %98; önizlemesiz şarkı **zarif** düşüyor
+  (`has()` false + `play()` çökmüyor → sentez yedeği)
+- **C · SÜZGEÇ** — 6 bozuk kayıt biçimi (`p` yok/boş/`"undefined"`/`null`/kötü şema/boş nesne)
+  için `has()` false; geçerli `p` varken true (**aşırı süzme yok**)
+- **D · BAĞLANTI** — geçersiz `a` bozuk bağlantı üretmiyor; geçerli Apple linki korunuyor
+- **E · GÜVENLİK** — `null`/boş/başlıksız girdiyle çökmüyor, `NaN`/`undefined` sızmıyor
+
+**Kilidin kanıtı (mutasyon testi):** süzgeç geçici olarak kaldırıldığında süit
+**6 kontrolde kırmızı** oluyor ve tam da bozuk kayıt biçimlerini işaret ediyor.
+Yani test süs değil, gerçek bir kilit.
+
+---
+
 ## GÜNCELLEME v10.24 — Şirket ekonomisi gerçekçileştirildi · ölü yapılandırma temizliği
 
 ### 💼 Şirket (label) geliri iki katmanlı hatadan kurtarıldı — `systems/economy.js`
