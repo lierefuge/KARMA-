@@ -106,7 +106,14 @@
     catalogUpkeepFloor: 900,       // ama en az bu kadar (katalog bedava değil)
 
     /* v10.7 — acemi koruması süresi (gün). Aile desteği geçici. */
-    beginnerGraceDays: 120
+    beginnerGraceDays: 120,
+
+    /* v10.9 — ŞÖHRET TAVANI
+       Olaylardan gelen popülerlik kazanımları (konser, ödül, TV, röportaj)
+       dinleyicinin hak ettiği değerin en fazla bu kadar üstüne çıkabilir.
+       Böylece bir TV programı seni geçici olarak öne taşır ama iki yıl
+       boyunca hak etmediğin bir şöhreti taşımazsın. */
+    fameHeadroom: 8
   };
 
   /* ---------- new game ---------- */
