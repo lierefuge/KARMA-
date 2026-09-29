@@ -56,3 +56,25 @@ fs.writeFileSync(OUT, html);
 const kb = (Buffer.byteLength(html) / 1024).toFixed(1);
 console.log(`✅ Tek dosyalık oyun üretildi: ${OUT}`);
 console.log(`   Boyut: ${kb} KB · harici bağımlılık: sadece Google Fonts (opsiyonel)`);
+
+/* ------------------------------------------------------------
+   v10.15 — ÖNBELLEK SÜRÜMÜ DENETİMİ (B-8)
+   Tek dosya build önbellek sürümüne ihtiyaç duymaz (her şey gömülü),
+   ama MODÜLER sürüm (GitHub Pages'in sunduğu index.html) duyar.
+   Burada uyarıyoruz: index.html elle artırılan bir sürüm taşıyorsa
+   ve içerik ondan sonra değişmişse oyuncular eski kodu çalıştırır.
+   ------------------------------------------------------------ */
+try {
+  const { readStampedVersion, computeVersion } = require("./cache-version.js");
+  const stamped = readStampedVersion(read("index.html"));
+  const { version, fileCount } = computeVersion(ROOT);
+  if (stamped !== version) {
+    console.warn("\n⚠️  ÖNBELLEK SÜRÜMÜ BAYAT — modüler sürüm eski kodu servis eder");
+    console.warn(`   index.html ?v=${stamped} · içerik hash'i ?v=${version}  (${fileCount} yerel dosya)`);
+    console.warn("   Düzelt: node tools/bump-cache.js\n");
+  } else {
+    console.log(`   Önbellek sürümü: v=${version} (güncel · ${fileCount} yerel dosya)`);
+  }
+} catch (e) {
+  console.warn("   (önbellek denetimi atlandı: " + e.message + ")");
+}
