@@ -45,11 +45,29 @@
       return true;
     },
 
-    /* beceri ücret çarpanı */
+    /* beceri ücret çarpanı
+       ------------------------------------------------------------
+       DÜZELTME (v10.7): Yan iş ücreti artık ŞÖHRETLE DÜŞER.
+       Simülasyonda çalışkan bir oyuncu tüm gelirinin %84'ünü yan
+       işlerden kazanıyordu (42 şarkılık katalogdan 33× fazla).
+       Gerçekte tanınan bir sanatçı kafede vardiya tutmaz; yan işler
+       erken oyunun can simidi olmalı, kariyerin motoru değil.
+       Ün arttıkça hem ücret düşer hem iş kapıları kapanır. */
+    fameDampen() {
+      const p = K.state.player;
+      const pop = p.popularity || 0;
+      const followers = K.fans ? K.fans.followers() : 0;
+      /* pop 0 → 1.00 · pop 30 → 0.55 · pop 60+ → 0.15 */
+      const byPop = 1 - 0.85 * U.clamp(pop / 60, 0, 1);
+      /* takipçi de etkiler: 250K+ takipçiyle part-time iş olmaz */
+      const byFans = 1 - 0.6 * U.clamp(followers / 250000, 0, 1);
+      return U.clamp(byPop * byFans, 0.08, 1);
+    },
+
     payMult(job) {
       const lvl = K.skillLevel(job.skill);
       const dm = K.settings ? K.settings.diffMult().jobPay : 1;
-      return (1 + lvl / 140) * dm;
+      return (1 + lvl / 140) * dm * K.jobs.fameDampen();
     },
 
     list() {
@@ -66,7 +84,11 @@
           else if (req.network) reason = "Network " + req.network + "+ gerekli";
           else reason = "henüz kilitli";
         } else if (count >= j.perDay) reason = "bugünlük yaptın";
-        return { ...j, count, unlocked, canWork: unlocked && count < j.perDay, reason, effectivePay: Math.round(j.pay * K.jobs.payMult(j)) };
+        return {
+          ...j, count, unlocked, canWork: unlocked && count < j.perDay, reason,
+          effectivePay: Math.round(j.pay * K.jobs.payMult(j)),
+          fameCut: K.jobs.fameDampen()
+        };
       });
     },
 
@@ -77,7 +99,17 @@
       if (!K.jobs.unlocked(job)) { K.toast("Bu iş kilitli", `${job.name} için şartları sağlamıyorsun.`, "warn"); return false; }
       if (K.jobs.todayCount(id) >= job.perDay) { K.toast("Bugünlük yeter", `${job.name} için bugünkü hakkını kullandın.`, "warn"); return false; }
 
-      const pay = Math.round(job.pay * K.jobs.payMult(job) * U.rand(0.9, 1.15));
+      /* GÜN İÇİ AZALAN VERİM — DÜZELTME (v10.7)
+         Simülasyonda oyuncu günde 5 iş yaparak 42 şarkılık katalogdan
+         33 kat fazla kazanıyordu; yan iş "kariyerin motoru" hâline
+         gelmişti. Gerçekte gün içinde üst üste vardiya tutmak verimi
+         düşürür. Günün İLK işi tam ücret, sonrakiler kademeli azalır
+         (×0,75 · ×0,56 · ×0,42 · ×0,32 …). Sabah erken oyun aynı kalır,
+         fabrika gibi iş çevirmek anlamsızlaşır. */
+      const doneToday = Object.keys(K.state.player.jobLog || {})
+        .reduce((n, k) => n + (K.state.player.jobLog[k] || 0), 0);
+      const efficiency = Math.pow(0.75, doneToday);
+      const pay = Math.round(job.pay * K.jobs.payMult(job) * efficiency * U.rand(0.9, 1.15));
       K.economy.earn(pay, "job");
       p.jobEarnings = (p.jobEarnings || 0) + pay;
       p.fatigue = (p.fatigue || 0) + job.fatigue;
@@ -102,7 +134,9 @@
 
       const skillName = K.SKILLS[job.skill] ? K.SKILLS[job.skill].name : job.skill;
       K.toast(job.emoji + " " + job.name,
-        `+${U.money(pay)} · ${skillName} +${job.xp}${leveled ? " · SEVİYE " + after : ""}`, leveled ? "ok" : "");
+        `+${U.money(pay)} · ${skillName} +${job.xp}${leveled ? " · SEVİYE " + after : ""}`
+        + (efficiency < 0.95 ? ` · bugün ${doneToday + 1}. iş (verim %${Math.round(efficiency * 100)})` : ""),
+        leveled ? "ok" : "");
       K.save(); K.refresh();
       return true;
     },
