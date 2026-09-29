@@ -26,7 +26,11 @@
       if (s._npcSongs[key]) return s._npcSongs[key];
 
       const n = count || 5;
-      const real = (K.REAL_SONGS && K.REAL_SONGS[artistId]) || [];
+      /* v10.16 — gerçek şarkılar artık tembel yüklenir (P-1).
+         Yüklenmemişse boş döner ve yüklemeyi tetikler; veri gelince
+         `lazydata:loaded` olayı _npcSongs önbelleğini temizleyip
+         arayüzü tazeler (bkz. js/main.js). */
+      const real = K.lazy ? K.lazy.songs(artistId) : ((K.REAL_SONGS && K.REAL_SONGS[artistId]) || []);
       const out = [];
 
       if (real.length) {
@@ -47,11 +51,13 @@
             duration: sg.ms ? Math.round(sg.ms / 1000) : 150 + (U.hashHue(sg.title) % 90),
             coverSeed: a.id + "_" + i,
             art: sg.art || null,
-            /* v10.2 — GERÇEK SES ÖNİZLEMESİ (iTunes previewUrl) + Apple Music bağlantısı */
-            preview: ((K.REAL_PREVIEWS || {})[artistId] || {})[sg.title] ?
-              K.REAL_PREVIEWS[artistId][sg.title].p : null,
-            appleUrl: ((K.REAL_PREVIEWS || {})[artistId] || {})[sg.title] ?
-              K.REAL_PREVIEWS[artistId][sg.title].a : "",
+            /* v10.16 (P-1) — ÖNİZLEME ALANLARI BURADAN KALDIRILDI.
+               Eskiden `preview` ve `appleUrl` her şarkı nesnesine gömülüyordu;
+               bu, şarkı listesi çizen her ekranın (boot dahil) 143 KB'lık
+               real-previews verisini çekmesine yol açıyordu.
+               Artık K.preview.find() önizlemeyi ÇALMA ANINDA artistId+title
+               ile kendisi arar (bkz. systems/preview.js) — davranış aynı,
+               ama veri yalnızca gerçekten dinlenecekken yüklenir. */
             real: true
           });
         });
