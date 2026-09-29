@@ -87,11 +87,12 @@ console.log("");
 /* ---------- damgala + build ---------- */
 let ok = sh(["tools/bump-cache.js"], "Önbellek sürümü damgalandı");
 ok = sh(["tools/build-single.js"], "Tek dosya build üretildi") && ok;
+ok = sh(["tools/gen-version-json.js"], "Güncelleme noktası (version.json)") && ok;
 
 /* ---------- doğrula ---------- */
 if (DO_VERIFY) {
   console.log("");
-  ok = sh(["tools/verify.js"], "Tam doğrulama (11 adım)") && ok;
+  ok = sh(["tools/verify.js"], "Tam doğrulama") && ok;
 } else {
   console.log("\nℹ  Tam doğrulama için:  node tools/verify.js   (veya --verify ekleyin)");
 }
