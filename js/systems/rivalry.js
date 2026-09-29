@@ -6,13 +6,27 @@
   "use strict";
   const U = K.util;
 
+  /* DÜZELTME (v10.9): 5 diss satırı 36 sanatçı için ortaktı — bir pop
+     sanatçısı da "flow'un taklit" diyordu. Artık tür havuzu var. */
+  const DISS_BY_GENRE = {
+    trap:  ["Konuşuyorsun ama listede yoksun.", "Sound'un tanıdık, kimin beat'i bu?", "Sahnede görürüz, orada konuşuruz."],
+    drill: ["Hız sende var ama söz yok.", "Akışın taklit, üzerine bir şey koymuyorsun.", "Konuşma, çıkar da görsünler."],
+    rap:   ["Söz yazmayı öğren, sonra konuşalım.", "Flow'un vitrin, içi boş.", "Rap zanaattır, sen sadece poz veriyorsun."],
+    pop:   ["Aynı şarkıyı yirmi kere söylüyorsun.", "Kitle var ama iş yok.", "Manşetlerle kariyer kurulmaz."],
+    rnb:   ["Tonu taklit ediyorsun.", "Yumuşaklık zayıflık değil ama sende ikisi de yok.", "Vokalini düz tut, konuşma."],
+    indie: ["Bağımsız görünüp aynı fabrikadan çıkıyorsun.", "Samimiyet satılmaz.", "Kendi sesin yok, kopyalıyorsun."]
+  };
   const DISS_LINES = [
     "Bazıları konuşuyor ama sahnede yok.",
     "Kopya çekenler bir gün hesap verir.",
-    "Senin seviyen benim ısınma turlarım.",
-    "Flow'un taklit, sözlerin boş.",
-    "Rap yapıyorsan bari doğru yap."
+    "Senin seviyen benim ısınma turlarım."
   ];
+  function dissFor(a) {
+    const g = DISS_BY_GENRE[(a && a.genre) || "rap"];
+    if (g && g.length) return U.pick(g);
+    return U.pick(DISS_LINES);
+  }
+
   const CHALLENGE = [
     "Aramızda tatlı bir rekabet olsun, ne dersin?",
     "Listede seninle yarışmak keyifli olur.",
@@ -25,7 +39,27 @@
     ensure() {
       const s = K.state, p = s.player;
       s.rivals = s.rivals || [];
-      if (s.rivals.length >= 3) return;
+      /* DÜZELTME (v10.9): rakipler oyunun İLK GÜNÜNDE seçiliiytor ve bir
+         daha hiç değişmiyordu — oyuncu 2 yıl sonra tamamen farklı bir
+         seviyeye gelse de karşısında hâlâ aynı üç isim vardı.
+         Artık kopan rakipler güncel seviyeye göre yenilenir. */
+      if (s.rivals.length >= 3) {
+        const cur = Math.max(20, p.popularity);
+        s.rivals.forEach((r, i) => {
+          const a = K.artistById(r.artistId);
+          if (!a) return;
+          if (Math.abs(a.popularity - cur) > 32 && s.day - (s.rivalRefreshDay || 0) > 40) {
+            const repl = K.artistList()
+              .filter(x => !s.rivals.some(z => z.artistId === x.id))
+              .sort((x, y) => Math.abs(x.popularity - cur) - Math.abs(y.popularity - cur))[0];
+            if (repl) {
+              s.rivalRefreshDay = s.day;
+              s.rivals[i] = { artistId: repl.id, heat: U.randInt(5, 20), lastMoveDay: s.day, status: "nötr", moves: 0 };
+            }
+          }
+        });
+        return;
+      }
       const pool = K.artistList()
         .filter(a => !s.rivals.some(r => r.artistId === a.id))
         .map(a => ({ a, d: Math.abs(a.popularity - Math.max(20, p.popularity)) }))
@@ -64,7 +98,7 @@
         });
         K.rivalry.addHeat(artistId, 22);
         K.state.player.reputation = Math.max(0, K.state.player.reputation - 1);
-        K.state.player.popularity = U.clamp(K.state.player.popularity + 0.8, 0, 99);
+        K.game.addFame(0.8);
         if (K.social) K.social.createPost("x", `"${a.stageName}" hakkında cevabım yolda. Yakında.`, null);
         K.toast("🔥 Diss kaydın hazırlanıyor", `${a.stageName}'e cevap yayın sırasına girdi.`, "ok");
       }
@@ -106,15 +140,23 @@
         const a = K.artistById(r.artistId);
 
         if (r.heat >= 55 && U.chance(0.55)) {
-          // diss atışı
+          const line = dissFor(a);
           K.rivalry.addHeat(r.artistId, 8);
-          K.social.createPost("x", U.pick(DISS_LINES), null);
-          if (K.social) {
-            const feed = s.feed.x = s.feed.x || [];
-            const idx = feed.findIndex(x => x.mine === false);
-            const post = { id: U.uid("post"), platform: "x", authorId: r.artistId, authorName: a.stageName, text: U.pick(DISS_LINES), day: s.day, likes: Math.round(a.popularity * U.rand(200, 900)), comments: U.randInt(40, 400), shares: U.randInt(20, 200), mine: false };
-            feed.unshift(post);
-          }
+          /* HATA DÜZELTMESİ (v10.9): burada `K.social.createPost("x", ...)`
+             çağrılıyordu — bu fonksiyon gönderiyi OYUNCUNUN hesabından
+             paylaşır. Yani rakip diss atınca oyuncu kendi kendine diss
+             atıyor gibi görünüyordu (feed'de "ben" olarak). Kaldırıldı;
+             gönderi artık yalnızca RAKİBİN adına düşüyor. */
+          const feed = (s.feed.x = s.feed.x || []);
+          const eng = K.socialEngagement(a.ig || 0);
+          feed.unshift({
+            id: U.uid("post"), platform: "x",
+            authorId: r.artistId, authorName: a.stageName,
+            text: line, day: s.day,
+            likes: eng.likes, comments: eng.comments, shares: eng.shares,
+            songId: null, mine: false
+          });
+          s.feed.x = s.feed.x.slice(0, 60);
           K.toast("⚔️ Rakip hamle yaptı", `${a.stageName} seni hedef alan bir gönderi paylaştı.`, "bad");
         } else {
           K.relations.pushArtistMessage(r.artistId, U.pick(CHALLENGE), "chat", { topic: "rivalry" });
