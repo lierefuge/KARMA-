@@ -538,8 +538,11 @@
       // popülerlik, dinleyicinin HAK ETTİĞİNİN üstüne çıkamaz.
       /* Kalibrasyon (NPC ölçeğiyle uyumlu):
          Şehinşah ≈ 4,2M aylık dinleyici → popülerlik ≈ 88-91 (kayıtlı: 88)
-         1M aylık dinleyici → ≈ 44  (şirket kurma eşiği 45 → hak edilmiş sınır)
-         40 bin dinleyici → ≈ 9 */
+         1M aylık dinleyici → ≈ 44
+         550 bin aylık dinleyici → ≈ 28  (şirket kurma eşiği — bkz. labelFoundMinPop)
+         40 bin dinleyici → ≈ 9
+         NOT (v10.24): bu kalibrasyon artık ŞİRKET KADROSU için de tavan
+         olarak kullanılıyor (systems/label.js) — aylık dinleyici ≈ pop²×700. */
       const target = K.game.listenerTarget();
       p.popularity = U.clamp(p.popularity + (target - p.popularity) * 0.045 + U.rand(-0.15, 0.18), 0, 99);
     },
