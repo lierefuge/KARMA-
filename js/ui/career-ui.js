@@ -8,7 +8,7 @@
 
   const U = K.util;
   let currentTab = "career";
-  const ui = { tourCities: [] };
+  const ui = { tourCities: [], festStance: "balanced" };
   const subTab = { label: "genel", events: "awards" };
 
   K.careerUI = {
@@ -43,6 +43,7 @@
         charts: K.careerUI.renderCharts,
         analytics: K.careerUI.renderAnalytics,
         concerts: K.careerUI.renderConcerts,
+        festivals: K.careerUI.renderFestivals,
         label: K.careerUI.renderLabelTab,
         events: K.careerUI.renderEventsTab
       };
@@ -2035,6 +2036,112 @@
     },
 
     /* =====================================================
+       FESTİVAL DEVRESİ — yaz sezonu line-up'ı
+       ===================================================== */
+    renderFestivals() {
+      const s = K.state, p = s.player;
+      const sum = K.festivals.summary();
+      const cal = K.festivals.calendar();
+      const booked = K.festivals.booked();
+      const hist = K.festivals.history().slice(0, 8);
+      const stance = K.festivals.stanceOf(ui.festStance);
+
+      const rounds = cal.filter(x => x.daysLeft <= 150);
+      const later = cal.filter(x => x.daysLeft > 150);
+
+      const tierBadge = (f) => {
+        const t = K.FESTIVAL_TIER_LABEL[f.tier] || { label: f.tier, color: "#888" };
+        return `<span class="fest-tier" style="--ftc:${t.color}">${t.label}</span>`;
+      };
+
+      const row = (x) => {
+        const f = x.fest;
+        const est = x.eligible ? K.festivals.estimate(f.id, x.slot.id, ui.festStance) : null;
+        const chance = x.eligible ? Math.round(K.festivals.acceptChance(f.id, x.slot.id) * 100) : 0;
+        let action = "";
+        if (x.booked) {
+          action = `<button class="btn btn-danger btn-sm" data-act="fest-cancel" data-arg="${f.id}">İptal</button>`;
+        } else if (!x.eligible) {
+          const need = (K.FESTIVAL_TIER_POPS[f.tier] || [0])[0];
+          action = `<span class="fest-lock">🔒 ${need}+ pop gerekli</span>`;
+        } else if (x.open && !x.conflict) {
+          action = `<button class="btn btn-primary btn-sm" data-act="fest-apply" data-arg="${f.id}">Başvur</button>`;
+        } else if (x.conflict) {
+          action = `<span class="fest-lock">⚠ ${U.escape(x.conflict.label)} ile çakışıyor</span>`;
+        } else if (x.daysLeft > K.festivals.OPEN_WINDOW) {
+          action = `<span class="fest-lock">Başvuru ${x.daysLeft - K.festivals.OPEN_WINDOW} gün sonra</span>`;
+        } else {
+          action = `<span class="fest-lock">Kapandı</span>`;
+        }
+
+        return `<div class="fest-card ${x.booked ? "booked" : ""}">
+          <div class="fest-main">
+            <div class="fest-name">${U.escape(f.name)} ${tierBadge(f)}</div>
+            <div class="fest-meta">${U.escape(f.city)} · ${U.escape(x.date.label)} · ${U.fmt(f.capacity)} kişi · ${x.daysLeft} gün kaldı</div>
+            <div class="fest-desc">${U.escape(f.desc)}</div>
+          </div>
+          <div class="fest-slotcol">
+            <div class="fest-slot">${x.slot ? x.slot.emoji + " " + x.slot.name : "—"}</div>
+            ${est ? `<div class="fest-nums"><span class="money">${U.money(est.net)}</span> net · ~${U.fmt(est.crowd)} kişilik alan · +${U.fmt(est.fans)} hayran</div>` : `<div class="fest-nums">${x.eligible ? "" : "henüz uygun slot yok"}</div>`}
+            ${x.eligible ? `<div class="fest-chance">kabul şansı ~%${chance}</div>` : ""}
+          </div>
+          <div class="fest-actions">${action}</div>
+        </div>`;
+      };
+
+      return `
+        <div class="c-block">
+          <div class="c-head"><div><h2>🎪 Festival Devresi</h2><div class="sub">Yaz sezonu line-up'ları · slot merdiveni: gündüz sahnesi → headliner</div></div></div>
+          <div class="stat-grid">
+            <div class="stat-card"><span class="k">Kesinleşen</span><span class="v">${sum.bookedCount}</span><span class="d">festival slotu</span></div>
+            <div class="stat-card"><span class="k">Sıradaki</span><span class="v" style="font-size:13px">${U.escape(sum.nextLabel)}</span><span class="d">takvimde</span></div>
+            <div class="stat-card"><span class="k">Headliner</span><span class="v">${sum.headliners}</span><span class="d">${sum.flagship ? "Büyük Sahne headliner'ı" : "kapanış sahnesi sayısı"}</span></div>
+            <div class="stat-card"><span class="k">Toplam</span><span class="v">${sum.playedCount}</span><span class="d">festival performansı</span></div>
+          </div>
+
+          <div class="studio-card">
+            <div class="field"><label>Başvuru stratejisi</label>
+              <div class="filter-chips">
+                ${K.festivals.STANCES.map(st => `<button class="fchip ${ui.festStance === st.id ? "active" : ""}" data-act="fest-stance" data-arg="${st.id}">${st.emoji} ${st.name}</button>`).join("")}
+              </div>
+              <span class="hint">${U.escape(stance.desc)}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="c-block">
+          <div class="c-head"><div><h2>Sezon Takvimi</h2><div class="sub">${rounds.length} edisyon yaklaşıyor · başvuru penceresi ${K.festivals.OPEN_WINDOW} gün</div></div></div>
+          ${rounds.length ? `<div class="fest-list">${rounds.map(row).join("")}</div>` : `<div class="empty-note"><b>Bu sezonda edisyon yok</b>Festival sezonu haziran–eylül arasındadır; takvim ilerledikçe açılır.</div>`}
+          ${later.length ? `<div class="fest-later">Daha sonra: ${later.map(x => U.escape(x.fest.name)).join(" · ")}</div>` : ""}
+        </div>
+
+        ${booked.length ? `<div class="c-block">
+          <div class="c-head"><div><h2>Kesinleşen Slotlar</h2><div class="sub">Line-up'ta adın var</div></div></div>
+          <div class="row-list">${booked.map(b => {
+            const f = K.festivals.fest(b.festId);
+            const sl = K.festivals.slot(b.slotId);
+            return `<div class="row-item"><div class="cover" style="background:${U.gradientFor(f ? f.name : "fest")}">🎪</div>
+              <div class="grow"><div class="title">${U.escape(f ? f.name : "Festival")}</div>
+              <div class="sub">${sl.emoji} ${sl.name} · Gün ${b.editionDay} · ücret ${U.money(b.fee)} · maliyet ${U.money(b.cost)}</div></div>
+              <button class="btn btn-ghost btn-sm" data-act="fest-cancel" data-arg="${b.festId}">İptal</button></div>`;
+          }).join("")}</div>
+        </div>` : ""}
+
+        ${hist.length ? `<div class="c-block">
+          <div class="c-head"><div><h2>Festival Geçmişi</h2><div class="sub">Sahne anları ve aksilikler dahil</div></div></div>
+          <div class="row-list">${hist.map(h => {
+            const f = K.festivals.fest(h.festId);
+            const r = h.result || {};
+            const tag = r.event === "viral" ? " · 🔥 sahne anı" : r.event === "mishap" ? " · ⚠️ aksilik" : "";
+            const met = r.met ? ` · backstage: ${U.escape(r.met.name)} +${r.met.gain} samimiyet` : "";
+            return `<div class="row-item"><div class="cover" style="background:${U.gradientFor(f ? f.name : "fest")}">${h.slotId === "headliner" ? "👑" : "🎪"}</div>
+              <div class="grow"><div class="title">${U.escape(f ? f.name : "Festival")} · ${U.escape(r.slot || "")}</div>
+              <div class="sub">${U.fmt(r.crowd || 0)} kişi · ${(r.net || 0) >= 0 ? "+" : ""}${U.money(r.net || 0)} · +${U.fmt(r.fans || 0)} hayran · itibar ${(r.repDelta || 0) >= 0 ? "+" : ""}${r.repDelta || 0}${tag}${met}</div></div></div>`;
+          }).join("")}</div>
+        </div>` : ""}`;
+    },
+
+    /* =====================================================
        YAN İŞLER (harici gelir)
        ===================================================== */
     renderJobs() {
@@ -2447,6 +2554,9 @@
         if (K.concerts.startTour(ui.tourCities.slice(), v, price, gap, prod, opener)) ui.tourCities = [];
       }
       else if (act === "cancel-tour") K.concerts.cancelTour();
+      else if (act === "fest-stance") { ui.festStance = btn.dataset.arg || "balanced"; K.careerUI.render(); }
+      else if (act === "fest-apply") K.festivals.apply(btn.dataset.arg, ui.festStance);
+      else if (act === "fest-cancel") K.festivals.cancel(btn.dataset.arg);
       else if (act === "hire-staff") K.label.hireStaff(btn.dataset.arg);
       else if (act === "work-job") K.jobs.work(btn.dataset.arg);
       else if (act === "crisis-choice") K.crisis.resolve(+btn.dataset.arg);
