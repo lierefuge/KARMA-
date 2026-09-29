@@ -3,6 +3,7 @@
    Gerçek şarkılar için GÖMÜLEBİLİR YouTube video kimlikleri.
    v = videoId · t = video başlığı · a = kanal
    Doğrulama: youtube.com/oembed (gömme kapalı videolar elendi)
+   Üretici: node tools/fetch-youtube.js   ·   Güncelleme: 2026-09-29
    ============================================================ */
 (function (K) {
   "use strict";
@@ -1269,6 +1270,501 @@
    "a": "Şehinşah - Topic",
    "t": "Yaz Yağmurum (feat. Onur Betin)",
    "v": "_p_zehTab3o"
+  },
+  "mavi ay": {
+   "a": "Şehinşah - Topic",
+   "t": "mavi ay",
+   "v": "pD-DvWQV6DQ"
+  },
+  "NASINASI?": {
+   "a": "Şehinşah - Topic",
+   "t": "NASINASI?",
+   "v": "dasTR8lPt6M"
+  },
+  "INVIDIA": {
+   "a": "Şehinşah - Topic",
+   "t": "INVIDIA",
+   "v": "AO28NVJT3vQ"
+  },
+  "Cheval Blanc": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah | Cheval Blanc",
+   "v": "yqms_eFFz60"
+  },
+  "FUTAŞK": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah | FUTAŞK",
+   "v": "UHQV4NUHsDU"
+  },
+  "BLACKROCK": {
+   "a": "Şehinşah - Topic",
+   "t": "BLACKROCK",
+   "v": "dXB9TcBEtz4"
+  },
+  "KBR": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - KBR",
+   "v": "yFVVk33HUmw"
+  },
+  "Daim": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah | DAİM",
+   "v": "2O6rtcwWp94"
+  },
+  "Ikarus": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah | IKARUS",
+   "v": "FdJUaHLaSL4"
+  },
+  "Kirlendi Tüm Duygularım": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah & Anıl Piyancı feat Keişan - KİRLENDİ TÜM DUYGULARIM (prod Berkay Duman)",
+   "v": "YDAuI_LusQM"
+  },
+  "Meclis-i Ala": {
+   "a": "Şehinşah - Topic",
+   "t": "Meclis-i Ala",
+   "v": "u8xuH2jEqNs"
+  },
+  "UFUKMANIA": {
+   "a": "Şehinşah - Topic",
+   "t": "UFUKMANIA",
+   "v": "qOR5d_TG6wU"
+  },
+  "KYOTO/GEISHA": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - KYOTO/GEISHA feat. Cotard & Emrah Türken",
+   "v": "DDkAL6VBYJ0"
+  },
+  "Fırtına": {
+   "a": "ŞEHİNŞAH",
+   "t": "''Şehinşah - Fırtına (Feat ERU & COTARD)''",
+   "v": "6ozT_kf6j9Q"
+  },
+  "İST/TAKSÎMİ": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - İST/TAKSÎMi feat Hidra & Emrah Türken",
+   "v": "Prp4oxelyic"
+  },
+  "Hüsran": {
+   "a": "Şehinşah - Topic",
+   "t": "Hüsran",
+   "v": "HjgMIud-cnM"
+  },
+  "CimCimem": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Cimcimem (Prod by Ardadidthis)",
+   "v": "0CKTI4V4bE4"
+  },
+  "Prenses": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Prenses (Prod by COTARD)",
+   "v": "a46J-QhqC2w"
+  },
+  "Darılmak Yok (Hamam Sessions)": {
+   "a": "Şehinşah - Topic",
+   "t": "Darılmak Yok (Hamam Sessions)",
+   "v": "BHM4D24Flj0"
+  },
+  "Canım Babam": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Canım Babam (Prod by Arda Gezer)",
+   "v": "bolu8uhXmU4"
+  },
+  "Dönmedin Ki": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Dönmedin Ki (Prod by Archie)",
+   "v": "BUDeYliEB20"
+  },
+  "Diabolico": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Diabolico (Prod By Arda Gezer)",
+   "v": "JGEaEi_hZao"
+  },
+  "Ellerinde": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Ellerinde (Prod By Archie)",
+   "v": "DSmZZqEf0fI"
+  },
+  "Muz Cumhuriyeti": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Muz Cumhuriyeti (prod: lxa&BSTXN)",
+   "v": "HZFQaE971Ps"
+  },
+  "Hadi Yaparsın": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Hadi Yaparsın (Prod by Arda Gezer)",
+   "v": "MxSivZW8LNM"
+  },
+  "M.I.Ş": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - M.I.Ş (Official Video)",
+   "v": "DBL90ZsxQrY"
+  },
+  "The Face Of Vision": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - The Face of Vision (Official Video)",
+   "v": "GNSzslI2BLM"
+  },
+  "Samanyolu": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah | Samanyolu ''Prod Arda GEZER''",
+   "v": "xBjy7usAdpE"
+  },
+  "Kunteper": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Kunteper (Official Video) ''Prod by Arda GEZER''",
+   "v": "dC16wEIurww"
+  },
+  "Baban": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah   Baban (prod. by Arda Gezer)",
+   "v": "sMr0D3_g2X8"
+  },
+  "Ihtan (feat. DJ Artz) [Groovypedia Live]": {
+   "a": "Şehinşah - Topic",
+   "t": "Ihtan (Groovypedia Live)",
+   "v": "d9SKrQTG2tM"
+  },
+  "Trump": {
+   "a": "ŞEHİNŞAH",
+   "t": "HSNSBBH | TRUMP",
+   "v": "T7KLewomnWM"
+  },
+  "Dön Dünya": {
+   "a": "Şehinşah - Topic",
+   "t": "Dön Dünya",
+   "v": "_z2cHZDpn6A"
+  },
+  "Aslan Marşı": {
+   "a": "Şehinşah - Topic",
+   "t": "Aslan Marşı",
+   "v": "pkpd0-Sj2Z8"
+  },
+  "Talep - Arz": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah | Talep - Arz (Prod by Berkay Duman & Slong)",
+   "v": "0aCgL0nEe_k"
+  },
+  "Çocuk": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah | ÇOCUK (Prod. By OZOYO)",
+   "v": "Dj1vtQcfRyk"
+  },
+  "Milyon": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - MİLYON",
+   "v": "L4C3EfVhXFM"
+  },
+  "Karma (Groovypedia Live)": {
+   "a": "Şehinşah - Topic",
+   "t": "Karma (Groovypedia Live)",
+   "v": "lNCZLS1KVQs"
+  },
+  "Hayal (Groovypedia Live)": {
+   "a": "Şehinşah - Topic",
+   "t": "Hayal (Groovypedia Live)",
+   "v": "kqGEg9h7amw"
+  },
+  "Uzulme (feat. ARTZ)": {
+   "a": "Şehinşah - Topic",
+   "t": "Uzulme",
+   "v": "7H0Liuq6OlY"
+  },
+  "entropi": {
+   "a": "Şehinşah - Topic",
+   "t": "entropi",
+   "v": "L0V6MqRXJiU"
+  },
+  "yAllah": {
+   "a": "ŞEHİNŞAH",
+   "t": "şehinşah - yAllah (Prod by Arda GEZER)",
+   "v": "INidmlP0PnA"
+  },
+  "plajda": {
+   "a": "ŞEHİNŞAH",
+   "t": "şehinşah - plajda (Prod Archie)",
+   "v": "EGfxcmPybgo"
+  },
+  "ESKİ OKUL": {
+   "a": "ŞEHİNŞAH",
+   "t": "ESKİ OKUL",
+   "v": "XUaIrFwNFks"
+  },
+  "2PAC MI WUTANG MI": {
+   "a": "ŞEHİNŞAH",
+   "t": "2PAC MI WUTANG MI",
+   "v": "3hNmqdT-CF0"
+  },
+  "TYGA": {
+   "a": "ŞEHİNŞAH",
+   "t": "TYGA",
+   "v": "B6Io2A243X4"
+  },
+  "BU GECENİN YILDIZI KİM": {
+   "a": "ŞEHİNŞAH",
+   "t": "BU GECENİN YILDIZI KİM",
+   "v": "ay-gaARDbys"
+  },
+  "HERKES SAVAŞ İSTİYOR": {
+   "a": "ŞEHİNŞAH",
+   "t": "HERKES SAVAŞ İSTİYOR",
+   "v": "SoRkw2OT44k"
+  },
+  "YA PARA YA CANIN": {
+   "a": "ŞEHİNŞAH",
+   "t": "YA PARA YA CANIN",
+   "v": "HMexbjH0EVs"
+  },
+  "Suikast Mevsimi": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah & Ati242 | SUİKAST MEVSİMİ",
+   "v": "Cz9h5zXXo-Q"
+  },
+  "Yarim Yamalak": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah | YARIM YAMALAK",
+   "v": "Hryi5gFY9RE"
+  },
+  "C.Iğerto": {
+   "a": "Şehinşah - Topic",
+   "t": "C.IĞERTO",
+   "v": "laY3ieFc1zY"
+  },
+  "Su": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah | SU",
+   "v": "ALoiFxnY8rE"
+  },
+  "Kirmizi": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah | KIRMIZI",
+   "v": "-yxwfCGFn_o"
+  },
+  "Bana Sen Gerek": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah | BANA SEN GEREK",
+   "v": "lRP6mk0ssCA"
+  },
+  "Circus": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah | CIRCUS",
+   "v": "w1lxVWarkwQ"
+  },
+  "Neyin Uğruna/Tavşan": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah | NEYİN UĞRUNA/TAVŞAN",
+   "v": "sFyDIwTbxCo"
+  },
+  "Dprsyn/Gemiler": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah | DPRSYN/GEMİLER",
+   "v": "YtPr3AvGX3o"
+  },
+  "Nefes Alama": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah | NEFES ALAMA",
+   "v": "iRdEJU2vlC4"
+  },
+  "Babaroblox (feat. Atlas)": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah & Atlas | BABAROBLOX",
+   "v": "OwrH36Sgkow"
+  },
+  "En Eskiden Beri": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - En Eskiden Beri ''Prod By Arda GEZER'' REMASTERED",
+   "v": "9V8mXV8ndD4"
+  },
+  "Rehabilite": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Rehabilite ''Prod by Arda GEZER'' REMASTERED",
+   "v": "K7OMxGUQxfQ"
+  },
+  "Sür Ya da Öl": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Sür Ya Da Öl ft Lia Shine ''Prod By Arda GEZER'' REMASTERED",
+   "v": "CCdCMhSQ6lQ"
+  },
+  "Labirent": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Labirent feat: HIDRA ''Prod By Arda GEZER'' REMASTERED",
+   "v": "XqsbRR-b3cU"
+  },
+  "Türlü Bela": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah -Türlü Bela ''Prod By Arda GEZER'' REMASTERED",
+   "v": "Ktn0_Hi0Khs"
+  },
+  "Dilemma x Kuytu": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Dilemma x Kuytu ''Prod By Arda GEZER'' REMASTERED",
+   "v": "z-Jmty3BZy4"
+  },
+  "Intro": {
+   "a": "Şehinşah - Topic",
+   "t": "Intro",
+   "v": "4OWJ-rWQR90"
+  },
+  "Sendeliyorum": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Sendeliyorum ''Prod By Arda GEZER'' REMASTERED",
+   "v": "vhWLr8XlwZY"
+  },
+  "Plüton (feat. DJ Artz)": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Plüton (Produced by DJ Artz)",
+   "v": "CaQWFflNRog"
+  },
+  "Sayın Türk (feat. DJ Artz)": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah | Sayın Türk ''Typography Video''",
+   "v": "2gW0ClSZB-I"
+  },
+  "Hepsi Benim 2 (feat. DJ Artz)": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - HEPSİ BENİM 2 (Produced by DJArtz)",
+   "v": "gwiuCh904WY"
+  },
+  "Evim (feat. DJ Artz)": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Evim (Produced By DJ Artz)",
+   "v": "KJpvGwpQifo"
+  },
+  "Rec, Play, Pause (feat. DJ Artz, Xir & Sansar Salvo)": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Rec, Play , Pause ''feat-Sansar SALVO & Xir GÖKDENİZ'' (Produced By DJ Artz)",
+   "v": "XIZELXszVkc"
+  },
+  "Satın Alıcazzz (feat. DJ Artz)": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - SATIN ALICAZzz ( Prod.By DJ Artz)",
+   "v": "2PwaBKRn_bU"
+  },
+  "Arkadaş (feat. DJ Artz)": {
+   "a": "ŞEHİNŞAH",
+   "t": "DEEV (Şehinşah & DJ Artz)  - Arkadaş",
+   "v": "cebilAOYFvk"
+  },
+  "İstiklal (feat. DJ Artz & Bugy)": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - İstiklal (Produced By DJ Artz & Bugy)",
+   "v": "ptyl5HJlMYM"
+  },
+  "Ne Varsa Kafada Var (feat. DJ Artz)": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Ne Varsa Kafada Var (Produced By DJ Artz)",
+   "v": "acpjTFxT0TQ"
+  },
+  "U.A.A. (feat. Ezhel & DJ Artz)": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - U.A.A ''feat - Ais EZHEL (Produced By DJ Artz)",
+   "v": "8EeJCbWP5MM"
+  },
+  "Var Arantım (feat. DJ Artz)": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Var Arantım (Produced By DJ Artz)",
+   "v": "dVm6JUP1_pY"
+  },
+  "Benim Adım Arda": {
+   "a": "Arda Gezer - Topic",
+   "t": "Benim Adım Arda",
+   "v": "4ZhqdAVzTKo"
+  },
+  "Eskisi Gibi": {
+   "a": "Rollen - Topic",
+   "t": "Eskisi Gibi",
+   "v": "WtDhWC7B0zs"
+  },
+  "Pembe Yalanlar": {
+   "a": "13 Killoki - Topic",
+   "t": "Pembe Yalanlar",
+   "v": "WXdj4HVRJng"
+  },
+  "PEAK POINT": {
+   "a": "Ohash",
+   "t": "OHASH & ŞEHİNŞAH - PEAK POINT (Prod. By Berkay Duman)",
+   "v": "48TzFQ4xMD8"
+  },
+  "BANA NE": {
+   "a": "Zen G",
+   "t": "Zen-G & Şehinşah - BANA NE",
+   "v": "VlgqkvOJ3dw"
+  },
+  "Deliyoo": {
+   "a": "Arda Gezer - Topic",
+   "t": "Deliyoo",
+   "v": "b5n234jdIZM"
+  },
+  "Tanrıyı Kıyamete Zorlama": {
+   "a": "Birand - Topic",
+   "t": "Tanrıyı Kıyamete Zorlama",
+   "v": "MLZ-x6jNShM"
+  },
+  "Maymunlar Cehennemi": {
+   "a": "ŞEHİNŞAH",
+   "t": "Cashflow feat. Şehinşah - Maymunlar Cehennemi (Official Video)",
+   "v": "kV6uvySAJvE"
+  },
+  "High 2": {
+   "a": "Hidra Official",
+   "t": "Hidra ft. Şehinşah - High 2",
+   "v": "ZW3Ot0FK2VI"
+  },
+  "Yaşamak": {
+   "a": "KUM",
+   "t": "Kum - Yaşamak ft. Şehinşah (Official Music Video)",
+   "v": "4sSxwqnPJHY"
+  },
+  "Taktik": {
+   "a": "Ebru Keskin - Topic",
+   "t": "Taktik",
+   "v": "FeyWFhHpjmo"
+  },
+  "Lanet": {
+   "a": "Arda Gezer - Topic",
+   "t": "Lanet",
+   "v": "bhitD2ioIQ0"
+  },
+  "Eksik Olmaz": {
+   "a": "ATİK",
+   "t": "Atik - Eksik Olmaz (ft. Nosta & Şehinşah) official video",
+   "v": "KlCXh0eYw4w"
+  },
+  "Ah Bebek (feat. Şehinşah)": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah ft. Newada - Ah Bebek",
+   "v": "akuCBJIXWcw"
+  },
+  "Bahaneleriniz": {
+   "a": "Muşta - Topic",
+   "t": "Bahaneleriniz",
+   "v": "YcU5mCukXXQ"
+  },
+  "Yeşil": {
+   "a": "Veron Algos - Topic",
+   "t": "Yeşil",
+   "v": "w5RvfNPefic"
+  },
+  "Simülasyon (feat. Şehinşah)": {
+   "a": "Leo Lidran - Topic",
+   "t": "Simülasyon",
+   "v": "AxzBgdMuU24"
+  },
+  "Duygusal Olmaya Gerek Yok (feat. Şehinşah)": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah ft. Sansar Salvo - Duygusal Olmaya Gerek Yok",
+   "v": "4eAQIXcvJ3A"
+  },
+  "Dile Benden Rap Küçük Aptal (feat. Şehinşah)": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah ft. Yunus Emre - Dile Benden Rap Küçük Aptal",
+   "v": "-MlZWrEXH94"
+  },
+  "Kalk! (feat. Şehinşah)": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah ft. Patron - Kalk",
+   "v": "xEgdyN2efBo"
   }
  },
  "sila": {
@@ -1402,6 +1898,146 @@
    "a": "Wegh",
    "t": "Wegh, Critical - Kin | @MambaCrew",
    "v": "X-m1YeCwj10"
+  },
+  "TUZAK": {
+   "a": "Wegh",
+   "t": "Wegh - Tuzak (Official Lyrics Video)",
+   "v": "PeLQfsFqKrs"
+  },
+  "Geri Ver": {
+   "a": "Wegh",
+   "t": "Wegh - Geri Ver (Official Music Video)",
+   "v": "4-6En3bf5TY"
+  },
+  "Güldüğün Gün": {
+   "a": "Wegh",
+   "t": "WEGH - GÜLDÜĞÜN GÜN (Official Lyric Video)",
+   "v": "QAyo86HEaV0"
+  },
+  "Yanlışlarla Karşılaştım": {
+   "a": "Wegh",
+   "t": "Wegh - Yanlışlarla Karşılaştım ft. Keskin (Official Music Video)",
+   "v": "GrA_x3p0RUo"
+  },
+  "16-24": {
+   "a": "Wegh",
+   "t": "WEGH - 16-24 (Official Music Video)",
+   "v": "_6xxK2lYhTc"
+  },
+  "Göz Ucuyla": {
+   "a": "Wegh",
+   "t": "Wegh - Göz Ucuyla ft. Reynmen (Official Music Video)",
+   "v": "iFXhrKF6UP0"
+  },
+  "Tütün ve Votka": {
+   "a": "Wegh",
+   "t": "Wegh - Tütün ve Votka (Official Music Video)",
+   "v": "7LZ5Vsy-gz4"
+  },
+  "Kennedy'i Ben Vurdum": {
+   "a": "Wegh",
+   "t": "WEGH - KENNEDY’İ BEN VURDUM (Official Video)",
+   "v": "KKFDogui-OQ"
+  },
+  "Sana Vuruldum (Ulubatlı Hasan)": {
+   "a": "Wegh",
+   "t": "Wegh -  Sana Vuruldum / Ulubatlı Hasan (Official Music Video)",
+   "v": "l6CkGrd3tcA"
+  },
+  "Karardı Bulutlar": {
+   "a": "Wegh",
+   "t": "WEGH - KARARDI BULUTLAR (Official Video)",
+   "v": "B37H4zvDmtA"
+  },
+  "Çok İnsan Affettim": {
+   "a": "Wegh",
+   "t": "Wegh - Çok İnsan Affettim (Official Music Video) | @MambaCrew",
+   "v": "-1gqFXAd_rk"
+  },
+  "RUMİ MADAFAKA": {
+   "a": "Wegh",
+   "t": "Wegh - RUMI MADAFAKA (Official Music Video) | @MambaCrew",
+   "v": "YSvfxs62IBg"
+  },
+  "Yağsın Dünya Üstüme": {
+   "a": "Wegh",
+   "t": "Wegh - Yağsın Dünya Üstüme (Official Music Video)",
+   "v": "88_fEYBqPsU"
+  },
+  "Bu Ben Olmamak": {
+   "a": "Wegh",
+   "t": "Wegh - Bu Ben Olmamak |  @MambaCrew",
+   "v": "BK4INeTdzOs"
+  },
+  "ÇÖP ŞİŞ": {
+   "a": "Wegh",
+   "t": "Wegh - ÇÖP ŞİŞ (Official Music Video) | @MambaCrew",
+   "v": "jJC8OTQHrGU"
+  },
+  "Maskara": {
+   "a": "Wegh",
+   "t": "Wegh - Maskara | @MambaCrew",
+   "v": "WaGmlw7vmr8"
+  },
+  "Halit Abi": {
+   "a": "Wegh",
+   "t": "Wegh - Halit Abi | @MambaCrew",
+   "v": "bVwW1cslDm8"
+  },
+  "Outro": {
+   "a": "Wegh",
+   "t": "Wegh - Outro (Official Lyric Video)",
+   "v": "t2toyHGUQ_k"
+  },
+  "Halef Selef": {
+   "a": "Wegh",
+   "t": "Wegh - Halef Selef (Official Music Video)",
+   "v": "Vxm666Lk1ms"
+  },
+  "Balbiber": {
+   "a": "Wegh",
+   "t": "Wegh - Balbiber (Official Lyric Video)",
+   "v": "dwJ8M-qU6T8"
+  },
+  "Radikal Eşkiya (feat. Şehinşah)": {
+   "a": "Wegh",
+   "t": "Wegh ft. Şehinşah - Radikal Eşkiya (Official Lyric Video)",
+   "v": "9ZY8U9kg0u8"
+  },
+  "ŞSS": {
+   "a": "Wegh",
+   "t": "Wegh - Şss (Official Lyric Video)",
+   "v": "LIwIs1zWKnI"
+  },
+  "Daha Çok Var": {
+   "a": "Wegh",
+   "t": "Wegh - Daha Çok Var (Official Lyric Video)",
+   "v": "uYBH94LniFU"
+  },
+  "Intro": {
+   "a": "Wegh",
+   "t": "Wegh - Intro (Official Lyric Video)",
+   "v": "fAtzTVR3HTo"
+  },
+  "Aziz Yıldırım": {
+   "a": "Wegh",
+   "t": "Wegh - Aziz Yıldırım | @MambaCrew",
+   "v": "ggUOgoQh_Uk"
+  },
+  "Kiko Gloss": {
+   "a": "Wegh",
+   "t": "Wegh - Kiko Gloss | @MambaCrew",
+   "v": "mesbIgrWgtE"
+  },
+  "Martı ya da Mercedes": {
+   "a": "Wegh",
+   "t": "Wegh - Martı ya da Mercedes | @MambaCrew",
+   "v": "cTo_ItyWBpU"
+  },
+  "Kapkara": {
+   "a": "Wegh",
+   "t": "Wegh - Kapkara | @MambaCrew",
+   "v": "TDW0gTqO9tE"
   }
  }
 };
