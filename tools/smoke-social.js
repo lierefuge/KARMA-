@@ -12,10 +12,25 @@
    3) Diskografi: Şehinşah + wegh Rumi tam şarkı listesi ve önizleme oranı.
    4) TikTok / X / Mesajlar: PP kullanımı ve render hatasızlığı.
 */
-const { JSDOM, VirtualConsole } = require("/home/user/node_modules/jsdom");
 const fs = require("fs");
 const path = require("path");
+const { JSDOM, VirtualConsole } = resolveJsdom();
 const ROOT = path.resolve(__dirname, "..");
+/* jsdom çözümleme: yerel kurulum, /home/user/node_modules veya KARMA_JSDOM */
+function resolveJsdom() {
+  const cands = [
+    process.env.KARMA_JSDOM,
+    "jsdom",
+    path.join(process.env.HOME || "/home/user", "node_modules", "jsdom")
+  ].filter(Boolean);
+  let lastErr;
+  for (const c of cands) {
+    try { return require(c); } catch (e) { lastErr = e; }
+  }
+  console.error("jsdom bulunamadı. Kur: npm install jsdom  (veya KARMA_JSDOM ile yolu ver)");
+  process.exit(1);
+}
+
 const FILE = path.join(ROOT, "KARMA-Oyun.html");
 if (!fs.existsSync(FILE)) { console.error("KARMA-Oyun.html yok — önce: node tools/build-single.js"); process.exit(1); }
 
