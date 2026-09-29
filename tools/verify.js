@@ -50,7 +50,10 @@ function run(args, opts) {
 }
 
 console.log("============================================");
-console.log("KARMA · TAM DOĞRULAMA (13 adım)");
+/* NOT: başlıkta adım SAYISI yazılmaz. Eskiden "11 adım" yazıyordu ama
+   gerçek sayı 13'tü, sonra 15 oldu — sabit sayı her eklemede sürükleniyor.
+   Sayı zaten altta "SONUÇ: n/m" satırında doğru biçimde görünür. */
+console.log("KARMA · TAM DOĞRULAMA");
 console.log("============================================\n");
 
 /* ---------- 0) jsdom sürüm kapısı ----------
@@ -121,7 +124,8 @@ const SUITES = [
   { id: "balance",     script: "tools/smoke-balance.js",     label: "Kariyer eğrisi" },
   { id: "personality", script: "tools/smoke-personality.js", label: "Kişilik katmanı" },
   { id: "apps",        script: "tools/smoke-apps.js",        label: "Uygulamalar" },
-  { id: "social",      script: "tools/smoke-social.js",      label: "Sosyal medya + diskografi" }
+  { id: "social",      script: "tools/smoke-social.js",      label: "Sosyal medya + diskografi" },
+  { id: "festivals",   script: "tools/smoke-festivals.js",   label: "Festival devresi" }
 ];
 
 const suiteOut = {};
@@ -148,7 +152,27 @@ for (const s of SUITES) {
     high + " yüksek · " + med + " orta");
 }
 
-/* ---------- 6) runtime sağlığı ---------- */
+/* ---------- 6) güncelleme noktası: version.json ---------- */
+{
+  const vjPath = path.join(ROOT, "version.json");
+  let vj = null, err = null;
+  try { vj = JSON.parse(fs.readFileSync(vjPath, "utf8")); } catch (e) { err = e; }
+  if (!vj) {
+    record("Güncelleme noktası (version.json)", false,
+      err ? "okunamadı — node tools/gen-version-json.js" : "yok — node tools/gen-version-json.js");
+  } else {
+    const pkgVer = JSON.parse(fs.readFileSync(path.join(ROOT, "package.json"), "utf8")).version;
+    const { computeVersion } = require("./cache-version.js");
+    const cache = computeVersion(ROOT).version;
+    const okV = vj.version === pkgVer;
+    const okC = !vj.cache || vj.cache === cache;
+    record("Güncelleme noktası (version.json)", okV && okC,
+      okV && okC ? "sürüm " + vj.version + " · önbellek " + (vj.cache || "?") :
+        "uyumsuz (sürüm " + vj.version + "≠" + pkgVer + (okC ? "" : ", önbellek " + vj.cache + "≠" + cache) + ") — node tools/gen-version-json.js");
+  }
+}
+
+/* ---------- 7) runtime sağlığı ---------- */
 {
   /* süitlerin hiçbirinde "test çöktü" veya yakalanmamış hata olmamalı */
   const bad = Object.keys(suiteOut).filter((k) => /test çöktü|ReferenceError|TypeError:/.test(suiteOut[k]));
