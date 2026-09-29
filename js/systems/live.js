@@ -78,7 +78,11 @@
     restore() {
       if (store.chart && store.chart.length) K.REAL_CHART = store.chart;
       if (store.songs) {
-        Object.keys(store.songs).forEach(id => { K.REAL_SONGS[id] = store.songs[id]; });
+        /* v10.16 — REAL_SONGS tembel; host() nesneyi garanti eder ve
+           yüklemeyi tetikler. lazy.js yükleme bitince ÜZERİNE YAZMAZ,
+           birleştirir → canlı veri kaybolmaz. */
+        const RS = K.lazy ? K.lazy.host("real-songs") : (K.REAL_SONGS = K.REAL_SONGS || {});
+        Object.keys(store.songs).forEach(id => { RS[id] = store.songs[id]; });
       }
       if (store.art) {
         Object.keys(store.art).forEach(id => { K.REAL_ART[id] = store.art[id]; });
@@ -134,7 +138,7 @@
           art: UP(x.artworkUrl100), year: (x.releaseDate || "").slice(0, 4), ms: x.trackTimeMillis || 0
         }));
         if (!songs.length) return false;
-        K.REAL_SONGS[artistId] = songs;
+        (K.lazy ? K.lazy.host("real-songs") : (K.REAL_SONGS = K.REAL_SONGS || {}))[artistId] = songs;
         store.songs[artistId] = songs;
         if (songs[0].art) { K.REAL_ART[artistId] = songs[0].art; store.art[artistId] = songs[0].art; }
         store.asof = new Date().toISOString().slice(0, 10);
