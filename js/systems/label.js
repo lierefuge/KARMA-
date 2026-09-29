@@ -332,10 +332,27 @@
         s.label.totalRevenue += net;
       }
 
-      // kadro sanatçıları şirket sayesinde büyür
+      /* ŞİRKET DESTEĞİ — DÜZELTME (v10.8)
+         Eskiden kadroya giren sanatçı `dinleyici × rand(1.0,1.012)` ile
+         SOYUT biçimde büyüyordu; şirketin gerçek katkısı (yayın, bütçe,
+         promo) hiç yoktu — yani "kadro" mekanik bir sayıydı.
+         Artık şirket sanatçının YAYIN KADANSINI gerçekten hızlandırır:
+         güç ve ekip arttıkça sanatçı daha sık şarkı çıkarır, o şarkılar
+         listeye ve sanatçı sayfasına düşer, şirket geliri gerçekten
+         kadronun dinlenmesinden gelir. */
       K.label.rosterArtists().forEach(ar => {
-        ar.monthly = Math.round(ar.monthly * U.rand(1.0, 1.012));
-        ar.popularity = U.clamp(ar.popularity + U.rand(0, 0.12), 0, 99);
+        const power = K.label.power();
+        const staffBoost = (K.label.staffLevel("pr") || 0) * 0.10 + (K.label.staffLevel("manager") || 0) * 0.07;
+        /* Şirketin hedef yayın aralığı: güç ve ekip büyüdükçe kısalır.
+           Yeni bir şirket ~50 gün, güçlü bir şirket ~25 gün. */
+        const targetGap = Math.round(U.clamp(60 - power * 0.45 - staffBoost * 25, 22, 80));
+        if (ar._nextRelease && ar._nextRelease > s.day + targetGap) {
+          /* hedefe doğru yumuşak çekme (ani sıçrama yok) */
+          const excess = ar._nextRelease - s.day - targetGap;
+          ar._nextRelease = Math.max(s.day + 8, ar._nextRelease - Math.max(1, Math.round(excess * 0.08)));
+        }
+        ar.monthly = Math.round(ar.monthly * U.rand(1.0, 1.008));
+        ar.popularity = U.clamp(ar.popularity + U.rand(0, 0.09), 0, 99);
       });
 
       // rastgele: kadro sanatçısı promosyon isteyebilir
