@@ -12,6 +12,12 @@
      E) Sürüm tutarlılığı: package.json ↔ js/version.js ↔ index.html
      F) Yerel önizleme sunucusu ve harness mevcut mu?
      G) verify.js "build güncel mi" kontrolünü gerçekten yapıyor mu?
+     H) .gitignore doğru mu?
+     I) B-6 İNVARYANTI: oyuncu kimliği (player-persona) ile NPC kişiliği
+        (npc-personality) isim olarak AYRIŞMIŞ olmalı; eski belirsiz
+        global adları (`K.PERSONAS`, `K.PERSONALITY`, `K.personality`)
+        hiçbir kaynakta kalmamalı. Tek harflik fark yanlış kullanıma
+        açıktı ve `undefined` sessizce yanlış davranışa yol açıyordu.
    jsdom gerektirmez (hızlı, ~50 ms).
 */
 const fs = require("fs");
@@ -206,6 +212,83 @@ if (exists(CI)) {
   ok("H · .gitignore node_modules'ü yok sayıyor", /node_modules\//.test(g));
   ok("H · .gitignore KARMA-Oyun.html'i YOK SAYMIYOR",
     !/^\s*KARMA-Oyun\.html\s*$/m.test(g));
+}
+
+/* ============================================================
+   I) B-6 İNVARYANTI — oyuncu kimliği ↔ NPC kişiliği ayrışması
+   ============================================================ */
+{
+  /* eski (belirsiz) adlar kaynakta GEÇMEMELİ */
+  const OLD = ["K.PERSONAS", "K.PERSONALITY", "K.personality", "K.personaById", "K.personaFit", "K.identityScore"];
+  const files = [];
+  (function walk(dir) {
+    fs.readdirSync(path.join(ROOT, dir)).forEach((f) => {
+      const p = dir + "/" + f;
+      const st = fs.statSync(path.join(ROOT, p));
+      if (st.isDirectory()) { if (!/node_modules|\.git/.test(p)) walk(p); }
+      else if (/\.js$/.test(f)) files.push(p);
+    });
+  })("js");
+  files.push("index.html");
+  /* tools/ de taranır — ANCAK bu dosya hariç: eski adlar burada OLD
+     dizisinde bilerek geçiyor, aksi hâlde kendini ihlal sanardı. */
+  fs.readdirSync(path.join(ROOT, "tools"))
+    .filter((f) => /\.js$/.test(f) && f !== "smoke-tooling.js")
+    .forEach((f) => files.push("tools/" + f));
+
+  const hits = [];
+  files.forEach((f) => {
+    if (!exists(f)) return;
+    const src = stripComments(read(f));
+    OLD.forEach((n) => {
+      /* Sonunda tanımlayıcı karakter gelmemeli: `K.personality` araması
+         `K.npcPersonality` içinde eşleşmesin diye negatif bakış kullanılır. */
+      const re = new RegExp(n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?![A-Za-z0-9_])");
+      if (re.test(src)) hits.push(f + " → " + n);
+    });
+  });
+  ok("I · eski belirsiz global adları hiçbir kaynakta yok", hits.length === 0,
+    hits.slice(0, 4).join(", ") || OLD.length + " ad tarandı, temiz");
+
+  /* Her iki taraf da KENDİ global'ini kurmalı, diğerininkini DEĞİL.
+     (Dosya adları yakın kaldığı için ayrımı yapan şey global adlarıdır.) */
+  const PP_FILE = "js/data/persona.js";       // oyuncu
+  const NP_FILE = "js/data/personality.js";   // NPC
+  ok("I · oyuncu dosyası mevcut: " + PP_FILE, exists(PP_FILE));
+  ok("I · NPC dosyası mevcut: " + NP_FILE, exists(NP_FILE));
+
+  const pp = exists(PP_FILE) ? stripComments(read(PP_FILE)) : "";
+  const np = exists(NP_FILE) ? stripComments(read(NP_FILE)) : "";
+  ok("I · oyuncu tarafı PLAYER önekli global'ler kuruyor",
+    /K\.PLAYER_PERSONAS\s*=/.test(pp) && /K\.playerPersonaById\s*=/.test(pp) &&
+    /K\.playerPersonaFit\s*=/.test(pp) && /K\.playerIdentityScore\s*=/.test(pp));
+  ok("I · NPC tarafı NPC önekli global'ler kuruyor",
+    /K\.NPC_PERSONALITY\s*=/.test(np) && /K\.npcPersonality\s*=/.test(np));
+  ok("I · iki taraf BİRBİRİNİN global'ini tanımlamıyor (çapraz sızma yok)",
+    !/K\.NPC_PERSONALITY/.test(pp) && !/K\.npcPersonality/.test(pp) &&
+    !/K\.PLAYER_PERSONAS/.test(np) && !/K\.playerPersona/.test(np));
+
+  /* her iki başlık da KOMŞU dosyayı adıyla gösterip ayrımı anlatmalı */
+  ok("I · oyuncu dosyası başlığı komşusunu (personality.js) gösteriyor",
+    /personality\.js/.test(read(PP_FILE)));
+  ok("I · NPC dosyası başlığı komşusunu (persona.js) gösteriyor",
+    /persona\.js/.test(read(NP_FILE)));
+
+  /* index.html ikisini de yüklemeli */
+  const idx = read("index.html");
+  ok("I · index.html iki dosyayı da yüklüyor (sıra korunmuş)",
+    idx.indexOf(PP_FILE) >= 0 && idx.indexOf(NP_FILE) >= 0 &&
+    idx.indexOf(PP_FILE) < idx.indexOf(NP_FILE));
+
+  /* tüketici dosyalar yeni API'yi kullanıyor */
+  const consumers = ["js/systems/chat.js", "js/apps/instagram.js", "js/systems/career.js", "js/ui/career-ui.js"];
+  ok("I · NPC tüketicileri K.npcPersonality kullanıyor",
+    /K\.npcPersonality/.test(stripComments(read("js/systems/chat.js"))) &&
+    /K\.npcPersonality/.test(stripComments(read("js/apps/instagram.js"))));
+  ok("I · oyuncu tüketicileri K.playerPersona* kullanıyor",
+    /K\.playerPersona/.test(stripComments(read("js/systems/career.js"))) &&
+    /K\.playerPersona/.test(stripComments(read("js/ui/career-ui.js"))));
+  consumers.forEach((f) => ok("I · mevcut: " + f, exists(f)));
 }
 
 /* ---------- rapor ---------- */
