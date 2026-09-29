@@ -301,8 +301,8 @@
       const kindDef = K.kindById(rel.kind);
       const relThemeId = rel.lyrics ? rel.lyrics.themeId : "street";
       const themeEff = K.lyricThemeById(relThemeId).effect;
-      /* --- PERSONA UYUMU --- */
-      const pfit = (K.personaFit && p.persona) ? K.personaFit(p.persona, rel.genre, relThemeId) : null;
+      /* --- OYUNCU KİMLİK UYUMU (player-persona.js) --- */
+      const pfit = (K.playerPersonaFit && p.persona) ? K.playerPersonaFit(p.persona, rel.genre, relThemeId) : null;
       const persona = pfit ? pfit.persona : null;
       const lyricBoost = 0.85 + ((rel.lyrics ? rel.lyrics.score : 50) / 100) * 0.4;
       const cohesionMult = rel.cohesion != null ? 0.9 + (rel.cohesion / 100) * 0.35 : 1;
