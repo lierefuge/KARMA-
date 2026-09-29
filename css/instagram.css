@@ -313,3 +313,29 @@
   padding: 12px 14px 6px; font-size: 13px; font-weight: 800; color: #fff;
   display: flex; align-items: center; justify-content: space-between;
 }
+
+/* ============================================================
+   v10.11 — HİKÂYE ETKİLEŞİMİ (gerçekçilik eki)
+   Eskiden hikâyeye sadece bakılabiliyordu; tepki vermek mümkün
+   değildi, kendi hikâyende görüntüleyen listesi yoktu ve
+   görüntüleyen sayısı takipçinin %18'i gibi uydurma bir orandı.
+   ============================================================ */
+.story-viewers {
+  font-size: 12px; font-weight: 700; color: #fff;
+  background: rgba(0, 0, 0, .42); padding: 10px 16px;
+  border-radius: var(--radius-m); text-align: center;
+}
+.story-viewers .sv-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 7px; }
+.story-viewers .sv-p { display: inline-flex; }
+.story-viewers .sv-t { font-size: 11px; font-weight: 600; opacity: .85; }
+
+.story-react { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.story-react .srb {
+  font-size: 20px; line-height: 1; cursor: pointer;
+  background: rgba(0, 0, 0, .38); border: none;
+  width: 42px; height: 42px; border-radius: 50%;
+  display: grid; place-items: center;
+  transition: transform .12s;
+}
+.story-react .srb:active { transform: scale(1.18); }
+.story-react .story-link { margin-left: 4px; }
