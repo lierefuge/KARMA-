@@ -127,7 +127,8 @@ const SUITES = [
   { id: "social",      script: "tools/smoke-social.js",      label: "Sosyal medya + diskografi" },
   { id: "festivals",   script: "tools/smoke-festivals.js",   label: "Festival devresi" },
   { id: "rollout",     script: "tools/smoke-rollout.js",     label: "Çıkış haftası" },
-  { id: "certs",       script: "tools/smoke-certifications.js", label: "Plak + Wrapped" }
+  { id: "certs",       script: "tools/smoke-certifications.js", label: "Plak + Wrapped" },
+  { id: "label",       script: "tools/smoke-label.js",       label: "Şirket ekonomisi" }
 ];
 
 const suiteOut = {};
