@@ -75,8 +75,14 @@
       { upTo: Infinity, rate: 0.30 }
     ],
     debtPenaltyMonthly: 0.035,     // ödenmeyen borca aylık gecikme faizi
-    labelFoundCost: 250000,       // kendi şirketini kurma
-    labelFoundMinPop: 45,
+    /* v10.8 — ŞİRKET KURMA EŞİĞİ GERÇEKÇİLEŞTİRİLDİ.
+       Eskiden pop 45 isteniyordu; pop 45 ≈ 1M aylık dinleyici demek.
+       400 günlük simülasyonda oyuncu 10'da kalıyordu → "şirket kur"
+       özelliği pratikte ulaşılamazdı. Gerçekte bir indie label kurmak
+       için süperstar olmak gerekmez; sağlam bir dinleyici tabanı ve
+       biraz sermaye yeterlidir. */
+    labelFoundCost: 120000,       // kendi şirketini kurma
+    labelFoundMinPop: 28,
     minAdvance: 20000,
     defaultRoyalty: 70,
     messageCooldown: 0,           // aynı gün sınırsız ama günlük limit aşağıda
