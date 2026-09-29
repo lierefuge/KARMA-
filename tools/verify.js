@@ -5,6 +5,7 @@
    TEK KOMUTTA TAM DOĞRULAMA.  `npm run verify`
 
    Sırayla şunları yapar ve herhangi biri başarısız olursa 1 döner:
+     0) JSDOM SÜRÜMÜ       : uzun simülasyonlar için jsdom 30+ zorunlu
      1) ÖNBİLEK SÜRÜMÜ      : index.html içindeki ?v= içerik hash'iyle uyumlu mu?
      2) TEK DOSYA BUILD      : geçici dosyaya üretilir (çalışma ağacı bozulmaz)
      3) BUILD GÜNCEL Mİ      : üretilen build, depodaki KARMA-Oyun.html ile
@@ -49,8 +50,27 @@ function run(args, opts) {
 }
 
 console.log("============================================");
-console.log("KARMA · TAM DOĞRULAMA (12 adım)");
+console.log("KARMA · TAM DOĞRULAMA (13 adım)");
 console.log("============================================\n");
+
+/* ---------- 0) jsdom sürüm kapısı ----------
+   Uzun simülasyon süitleri (kariyer eğrisi ~1100 oyun günü) jsdom 24 ve
+   öncesinde heap'i tüketiyordu: "FATAL ERROR: Reached heap limit".
+   Bu, CI'da yaşandı; tek nedeni sürümdü. Erken ve anlaşılır hata ver. */
+{
+  let ver = null;
+  try { ver = require("./harness.js").jsdomVersion(); } catch (e) {}
+  const min = 30;
+  const major = ver ? parseInt(String(ver).split(".")[0], 10) : 0;
+  if (!ver) {
+    record("jsdom sürümü", false, "jsdom bulunamadı — `npm install` çalıştırın");
+  } else {
+    record("jsdom sürümü >= " + min, major >= min,
+      "kurulu: " + ver + (major < min
+        ? " — YÜKSELTİN: `npm install jsdom@^30` (eski sürümler uzun testlerde OOM veriyor)"
+        : ""));
+  }
+}
 
 /* ---------- 1) önbellek sürümü ---------- */
 {
