@@ -12,6 +12,7 @@
                                bayt bayt aynı mı? (Build'i güncellemeyi unutmayı
                                yapısal olarak imkânsız kılar)
      4) TEST PAKETLERİ       : tooling · mobile · lazy · balance · personality · apps · social
+                               · festivals · rollout · certs · label · previews
      5) DENGE SİMÜLASYONU    : YÜKSEK önem bulgusu var mı?
      6) RUNTIME SAĞLIĞI      : süitlerde beklenmedik çıktı var mı?
 
@@ -128,7 +129,8 @@ const SUITES = [
   { id: "festivals",   script: "tools/smoke-festivals.js",   label: "Festival devresi" },
   { id: "rollout",     script: "tools/smoke-rollout.js",     label: "Çıkış haftası" },
   { id: "certs",       script: "tools/smoke-certifications.js", label: "Plak + Wrapped" },
-  { id: "label",       script: "tools/smoke-label.js",       label: "Şirket ekonomisi" }
+  { id: "label",       script: "tools/smoke-label.js",       label: "Şirket ekonomisi" },
+  { id: "previews",    script: "tools/smoke-previews.js",    label: "Önizleme verisi + süzgeç" }
 ];
 
 const suiteOut = {};
