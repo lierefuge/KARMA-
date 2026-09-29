@@ -62,8 +62,8 @@
       const label = p.labelId ? K.labelById(p.labelId) : null;
       const totals = K.platforms.playerTotals();
       const top = p.songs.slice().sort((a, b) => b.streams - a.streams).slice(0, 5);
-      const persona = p.persona ? K.personaById(p.persona) : null;
-      const ident = K.identityScore ? K.identityScore() : 0;
+      const persona = p.persona ? K.playerPersonaById(p.persona) : null;
+      const ident = K.playerIdentityScore ? K.playerIdentityScore() : 0;
 
       return `
         <div class="c-block">
@@ -2828,7 +2828,7 @@
     /* ---------------- SANATÇI KİMLİĞİ (persona) ---------------- */
     openPersonaModal() {
       const p = K.state.player;
-      const body = `<div class="persona-grid">${K.PERSONAS.map(ps => `
+      const body = `<div class="persona-grid">${K.PLAYER_PERSONAS.map(ps => `
         <button class="persona-opt ${p.persona === ps.id ? "active" : ""}" data-act="pick-persona" data-arg="${ps.id}">
           <span class="po-icon">${ps.icon}</span>
           <b>${U.escape(ps.name)}</b>
@@ -2843,13 +2843,13 @@
     setPersona(id) {
       const p = K.state.player;
       const old = p.persona;
-      if (!K.personaById(id)) return;
+      if (!K.playerPersonaById(id)) return;
       p.persona = id;
       if (old && old !== id) p.reputation = Math.max(0, (p.reputation || 0) - 3);
       K.save();
       K.ui.closeModal();
       K.careerUI.render();
-      K.toast("🎭 Kimlik", K.personaById(id).name + " kimliğini seçtin." + (old && old !== id ? " Yeniden markalama itibarı biraz yordu." : ""), "ok");
+      K.toast("🎭 Kimlik", K.playerPersonaById(id).name + " kimliğini seçtin." + (old && old !== id ? " Yeniden markalama itibarı biraz yordu." : ""), "ok");
     },
 
     /* ---------------- kimlik modalı ---------------- */
