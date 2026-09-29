@@ -1,8 +1,24 @@
 /* ============================================================
    KARMA — data/persona.js
-   SANATÇI PERSONASI
-   Oyuncunun kimliği. Şarkılar persona ile tutarlıysa itibar ve
-   sadakat artar; tutarsızsa "kimliksiz" eleştirisi gelir.
+   OYUNCUNUN SANATÇI KİMLİĞİ  ·  PLAYER tarafı
+
+   ⚠️ BURASI NPC KİŞİLİĞİ DEĞİLDİR (B-6). Yan komşu `data/personality.js`
+   NPC kişilik katmanıdır. İki dosyanın adı yakın olduğu için global adları
+   bilinçli olarak AYRI önek taşır:
+
+     BU DOSYA          data/persona.js       (oyuncu)
+                       K.PLAYER_PERSONAS · K.playerPersonaById
+                       K.playerPersonaFit · K.playerIdentityScore
+     KOMŞU DOSYA       data/personality.js   (NPC)
+                       K.NPC_PERSONALITY · K.npcPersonality
+
+   Neden? Eskiden global'ler yalnızca tek bir harfle ayrılıyordu
+   (`K.PERSONAS` ↔ `K.PERSONALITY`). Yanlış olanı yazmak `undefined`
+   döndürüp SESSİZCE yanlış davranışa yol açıyordu. Bu ayrım
+   tools/smoke-tooling.js içindeki B-6 invariant'ı ile kilitlidir.
+
+   Oyuncu kimliği. Şarkılar kimlikle tutarlıysa itibar ve sadakat artar;
+   tutarsızsa "kimliksiz" eleştirisi gelir. (Kayıtlı alan: `player.persona`)
 
    genres : uyumlu türler
    themes : uyumlu söz temaları
@@ -12,7 +28,7 @@
 (function (K) {
   "use strict";
 
-  K.PERSONAS = [
+  K.PLAYER_PERSONAS = [
     {
       id: "sokak", name: "Sokak", icon: "🏙️",
       genres: ["rap", "hiphop", "drill", "boombap", "trap"],
@@ -50,28 +66,28 @@
     }
   ];
 
-  K.personaById = function (id) {
-    return K.PERSONAS.find(p => p.id === id) || null;
+  K.playerPersonaById = function (id) {
+    return K.PLAYER_PERSONAS.find(p => p.id === id) || null;
   };
 
-  /* persona uyumu: 1 = tam uyum, 0 = alakasız */
-  K.personaFit = function (personaId, genre, themeId) {
-    const p = K.personaById(personaId);
+  /* oyuncu kimliği uyumu: 1 = tam uyum, 0 = alakasız */
+  K.playerPersonaFit = function (personaId, genre, themeId) {
+    const p = K.playerPersonaById(personaId);
     if (!p) return null;
     const g = p.genres.indexOf(genre) >= 0;
     const t = p.themes.indexOf(themeId) >= 0;
     return { genre: g, theme: t, score: (g ? 0.5 : 0) + (t ? 0.5 : 0), persona: p };
   };
 
-  /* Son yayınlardan kimlik tutarlılığı (0-100) */
-  K.identityScore = function () {
+  /* Son yayınlardan kimlik tutarlılığı (0-100) — OYUNCU */
+  K.playerIdentityScore = function () {
     const p = K.state && K.state.player;
     if (!p || !p.persona) return 0;
     const songs = (p.songs || []).slice(-8);
     if (!songs.length) return 60;
     let ok = 0;
     songs.forEach(s => {
-      const f = K.personaFit(p.persona, s.genre, s.lyricTheme);
+      const f = K.playerPersonaFit(p.persona, s.genre, s.lyricTheme);
       if (f && f.score >= 0.5) ok++;
     });
     return Math.max(0, Math.min(100, Math.round(40 + (ok / songs.length) * 60)));
