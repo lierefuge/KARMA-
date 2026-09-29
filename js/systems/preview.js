@@ -23,8 +23,22 @@
 
   /* ---------------- başlık normalleştirme ----------------
      YouTube/uygulama başlıkları süsleme taşır: “Pirana (Official Video)”,   */
+  /* TÜRKÇE BÜYÜK/KÜÇÜK HARF TUZAĞI (v10.26)
+     JS'te "KARARDI".toLowerCase() → "karardi", ama şarkının yazımı
+     "Karardı" → "karardı". ı ≠ i olduğu için normalize edilmiş başlık
+     eşleşmesi sessizce düşüyordu (yani önizleme bulunamıyordu).
+     ı/İ/I/i tek harfe katlanır; ayrıca "İ".toLowerCase()'in ürettiği
+     birleşik nokta (U+0307) temizlenir. */
+  function trFold(s) {
+    return String(s || "")
+      .replace(/İ/g, "i").replace(/I/g, "i")
+      .toLowerCase()
+      .replace(/ı/g, "i")
+      .replace(/\u0307/g, "");
+  }
+
   function normTitle(s) {
-    let t = String(s || "").toLowerCase();
+    let t = trFold(s);
     t = t.replace(/[\(\[].*?[\)\]]/g, " ")
          .replace(/#[\wçğıöşü]+/g, " ")
          .replace(/\b(official|video|klip|lyric|lyrics|audio|visualizer|canlı|canli|live|remix|versiyon|version|shorts|müzik|music)\b/g, " ")
