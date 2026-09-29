@@ -241,6 +241,10 @@
     if (!loaded || !K.state.player.realName) {
       intro();
     }
+
+    /* v10.19 — güncelleme kontrolü: Service Worker + version.json.
+       Modüler sürümde çalışır; tek dosya build'inde kendini kapatır. */
+    if (K.updater && K.updater.init) K.updater.init();
   }
 
   if (document.readyState === "loading") {
