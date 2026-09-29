@@ -86,12 +86,22 @@
       const a = K.artistById(artistId);
       const rel = K.relation(artistId);
       if (!a) return 1;
-      const popGap = (p.popularity + 3) / (a.popularity + 10);
-      const streamGap = Math.sqrt((p.streams + 1) / (a.streams + 1));
-      const aff = (rel.affinity || 0) / 260;
+      /* v10.13 — NaN KORUMASI
+         `streams` eksik/bozuksa sqrt NaN üretiyor ve bu değer aşağıdaki
+         TÜM zincire yayılıyordu (cevap şansı, demo dinleme süresi,
+         olasılıklar) — arayüzde “%NaN” görünürdü. Artık sayı olmayan
+         değerler güvenli varsayılana düşer. */
+      const pPop = Number.isFinite(p.popularity) ? p.popularity : 0;
+      const aPop = Number.isFinite(a.popularity) ? a.popularity : 50;
+      const pStr = Number.isFinite(p.streams) ? p.streams : 0;
+      const aStr = Number.isFinite(a.streams) ? a.streams : 0;
+      const popGap = (pPop + 3) / (aPop + 10);
+      const streamGap = Math.sqrt((pStr + 1) / (aStr + 1));
+      const aff = (Number.isFinite(rel.affinity) ? rel.affinity : 0) / 260;
       const metBonus = rel.met ? 0.12 : 0;
-      const rep = (p.reputation || 0) / 400;
-      return U.clamp(popGap * 1.6 + streamGap * 0.8 + aff * 0.25 + metBonus + rep, 0, 1.3);
+      const rep = (Number.isFinite(p.reputation) ? p.reputation : 0) / 400;
+      const out = popGap * 1.6 + streamGap * 0.8 + aff * 0.25 + metBonus + rep;
+      return U.clamp(Number.isFinite(out) ? out : 0, 0, 1.3);
     },
 
     reachLabel(artistId) {
@@ -207,6 +217,80 @@
        Oyuncu kendi şarkısını sanatçıya dinletir. Sanatçı birkaç gün
        sonra dinler ve tepki verir: beğeni / eleştiri / feature teklifi /
        iş birliği. Tanımadığın sanatçıya gönderirsen çoğu zaman açılmaz. */
+    /* ============================================================
+       DEMO KULAĞI (v10.13)
+       Her sanatçı demoda FARKLI ŞEYE bakar. Eskiden tek ölçüt genel
+       `quality` idi; yani sözü mükemmel ama beat'i zayıf bir şarkı
+       Şehinşah'tan da UZI'den de aynı puanı alıyordu. Artık:
+         • lyric → söz / teknik / lirikal derinlik
+         • sound → altyapı + mix / prodüksiyon kalitesi
+         • hook  → nakarat, akılda kalıcılık, vokal tınısı
+       Sanatçının türü, üretim disiplini (work) ve egosu hem
+       NEYE baktığını hem barın ne kadar yüksek olduğunu belirler.
+       ============================================================ */
+    DEMO_EAR_BY_ID: {
+      sehinsah: { key: "lyric", why: "sözü ve tekniği" },
+      ceza: { key: "lyric", why: "lirikal derinliği" },
+      sagopa: { key: "lyric", why: "sözün ağırlığını" },
+      normender: { key: "lyric", why: "tekniği" },
+      joker: { key: "lyric", why: "söz oyunlarını" },
+      contra: { key: "lyric", why: "flow ve tekniği" },
+      hidra: { key: "lyric", why: "anlatıyı" },
+      saniser: { key: "lyric", why: "metni ve derdini" },
+      melekmosso: { key: "lyric", why: "samimiyeti ve sözü" },
+      uzi: { key: "hook", why: "nakaratı ve tınıyı" },
+      blok3: { key: "hook", why: "vuruculuğu ve hook'u" },
+      lvbelc5: { key: "hook", why: "akılda kalıcılığı" },
+      cakal: { key: "hook", why: "melodiyi" },
+      reckol: { key: "hook", why: "hook'u" },
+      ati242: { key: "hook", why: "viral potansiyeli" },
+      ezhel: { key: "sound", why: "sound'u ve prodüksiyonu" },
+      murda: { key: "sound", why: "altyapı kalitesini" },
+      khontkar: { key: "sound", why: "prodüksiyonu" },
+      lilzey: { key: "sound", why: "atmosferi ve mixi" },
+      sila: { key: "hook", why: "melodiyi" },
+      edis: { key: "sound", why: "prodüksiyon parlaklığını" },
+      hadise: { key: "hook", why: "nakaratı" },
+      aleynatilki: { key: "hook", why: "yeniliği ve tınıyı" }
+    },
+
+    demoEar(artistId) {
+      const a = K.artistById(artistId) || {};
+      const ov = K.relations.DEMO_EAR_BY_ID[artistId];
+      let key = (ov && ov.key) || null;
+      if (!key) {
+        const g = a.genre || "rap";
+        if (["rap", "boombap", "cloudrap", "hiphop", "indie"].indexOf(g) >= 0) key = "lyric";
+        else if (["pop", "drill", "phonk", "afrotrap", "euro"].indexOf(g) >= 0) key = "hook";
+        else key = "sound";
+      }
+      const t = a.traits || {};
+      /* bar: ego yüksek → zor beğenir; openness yüksek → iyi niyetli; work disiplinli */
+      const bar = U.clamp(48 + (t.ego || 5) * 2.6 - (t.openness || 5) * 1.4 + (t.work || 5) * 1.1, 34, 82);
+      const label = { lyric: "söz/teknik", sound: "sound/prodüksiyon", hook: "hook/nakarat" }[key];
+      const why = (ov && ov.why) || label;
+      return { key, bar: Math.round(bar), label, why };
+    },
+
+    /* şarkının sanatçının baktığı ölçüte göre puanı */
+    demoScore(song, ear) {
+      const q = song.quality || 50;
+      if (ear.key === "lyric") return Math.round((song.lyricScore != null ? song.lyricScore : q) * 0.72 + q * 0.28);
+      if (ear.key === "sound") {
+        const b = song.beatQuality != null ? song.beatQuality : q;
+        const m = song.mixQuality != null ? song.mixQuality : q;
+        return Math.round(b * 0.45 + m * 0.45 + q * 0.10);
+      }
+      return Math.round((song.hookStrength != null ? song.hookStrength : q) * 0.8 + q * 0.2);
+    },
+
+    /* demoyu bu sanatçıya tekrar gönderebilir miyim? */
+    demoCooldown(artistId) {
+      const rel = K.relation(artistId);
+      const until = rel.demoColdUntil || 0;
+      return Math.max(0, until - K.state.day);
+    },
+
     sendDemo(artistId, songId) {
       const s = K.state, p = s.player;
       const a = K.artistById(artistId);
@@ -215,8 +299,19 @@
 
       const rel = K.relation(artistId);
       const reach = K.relations.reach(artistId);
-      const cost = 0;
       const th = K.thread(artistId);
+
+      /* --- RET SONRASI SOĞUMA ---
+         Eskiden reddedilen demo hiçbir iz bırakmıyordu; aynı sanatçıya
+         sınırsız demo gönderilebiliyordu. Artık ret sayısı birikir,
+         sanatçı bir süre dinlemez ve tonu soğur. */
+      const cold = K.relations.demoCooldown(artistId);
+      const rejects = rel.demoRejects || 0;
+      const ear = K.relations.demoEar(artistId);
+
+      /* aynı şarkıyı aynı sanatçıya 10 gün içinde tekrar göndermek yok */
+      const dup = (p.dmDemoLog || []).some(x => x.artistId === artistId && x.songId === songId && (s.day - x.day) < 10);
+      if (dup) return { ok: false, why: "tekrar", ear };
 
       th.messages.push({
         id: U.uid("m"), from: "me", day: s.day, type: "demo", kind: "demo",
@@ -225,14 +320,23 @@
       });
       th.lastDay = s.day;
 
-      /* dinleme süresi: sanatçı ne kadar tanıyorsa o kadar çabuk açar */
-      const days = Math.max(1, Math.round(4 - reach * 3));
-      p.dmDemoLog = p.dmDemoLog || [];
-      p.dmDemoLog.push({ artistId, songId, title: song.title, day: s.day, dueDay: s.day + days, done: false });
+      /* dinleme süresi: samimiyet + soğuma */
+      const baseDays = Math.max(1, Math.round(4 - reach * 3));
+      const days = baseDays + (cold > 0 ? 4 : 0) + rejects;
 
-      const chance = U.clamp(0.12 + reach * 0.7 + (song.quality || 50) / 220, 0.05, 0.92);
+      const score = K.relations.demoScore(song, ear);
+      p.dmDemoLog = p.dmDemoLog || [];
+      p.dmDemoLog.push({
+        artistId, songId, title: song.title, day: s.day, dueDay: s.day + days,
+        done: false, ear: ear.key, bar: ear.bar, score, cold: cold > 0
+      });
+
+      let chance = U.clamp(0.12 + reach * 0.7 + (song.quality || 50) / 220, 0.05, 0.92);
+      if (cold > 0) chance *= 0.2;                                  // soğuk dönemde neredeyse bakmaz
+      chance *= (1 - Math.min(0.5, rejects * 0.14));                 // her ret güveni düşürür
+
       K.save();
-      return { ok: true, chance, days, cost };
+      return { ok: true, chance, days, cold, rejects, ear, score };
     },
 
     /* demo sonuçlarını işle (günlük) */
@@ -245,14 +349,25 @@
         const a = K.artistById(entry.artistId);
         if (!a) return;
         const song = (p.songs || []).find(x => x.id === entry.songId);
-        const q = (song && song.quality) || 50;
         const rel = K.relation(entry.artistId);
         const reach = K.relations.reach(entry.artistId);
-        const openChance = U.clamp(0.15 + reach * 0.75, 0.05, 0.95);
+        const ear = K.relations.demoEar(entry.artistId);
+        const score = song ? K.relations.demoScore(song, ear) : (entry.score || 50);
+        entry.score = score; entry.bar = ear.bar; entry.ear = ear.key;
 
+        let openChance = U.clamp(0.15 + reach * 0.75, 0.05, 0.95);
+        openChance *= (1 - Math.min(0.5, (rel.demoRejects || 0) * 0.14));
+        if (entry.cold) openChance *= 0.25;
+
+        /* kapalı kaldıysa: soğuma döneminde tonu da soğuk olur */
         if (Math.random() > openChance) {
-          K.relations.pushArtistMessage(entry.artistId,
-            U.pick([
+          entry.verdict = "ignored";
+          const coldLines = [
+            "Demo kutuda kalmış, bakamadım. Bir süre de bakamayacağım galiba.",
+            "Bu ara hiçbir şey dinlemiyorum, kusura bakma."
+          ];
+          K.relations.pushArtistMessage(entry.artistId, U.pick(
+            (rel.demoRejects || 0) > 0 ? coldLines : [
               "Mesajlara çok bakamıyorum, demo kutuda kalmış. Kusura bakma.",
               "Yoğunum, dinleyemedim daha. Sonra bakacağım.",
               "Demo geldi ama sıraya aldım, söz veremem."
@@ -260,40 +375,83 @@
           return;
         }
 
-        /* dinledi: tepki kaliteye ve kişiliğe göre */
-        if (q >= 76) {
-          K.relations.pushArtistMessage(entry.artistId,
-            U.pick([
-              `"${entry.title}" dinledim. Altyapı ile vokal oturmuş, iş var burada.`,
-              `"${entry.title}" sağlam. Özellikle ikinci bölüm hoşuma gitti.`,
-              `"${entry.title}" beklediğimden iyi çıktı. Eline sağlık.`
-            ]), "chat", { topic: "demo" });
-          rel.affinity = U.clamp(rel.affinity + 6, 0, 100);
-          K.game.addFame(0.4);
-          /* yüksek kalite + yeterli samimiyet → feature kapısı açılır */
-          if (q >= 82 && rel.affinity >= 55 && U.chance(0.28)) {
+        /* --- dinledi: sanatçının BAKTIĞI ölçüte göre yargı --- */
+        const gap = score - ear.bar;
+        if (gap >= 12) {
+          entry.verdict = "loved";
+          K.relations.pushArtistMessage(entry.artistId, U.pick([
+            `"${entry.title}" dinledim. ${ear.why.charAt(0).toUpperCase() + ear.why.slice(1)} beğendim, iş var burada.`,
+            `"${entry.title}" sağlam olmuş. ${ear.why.charAt(0).toUpperCase() + ear.why.slice(1)} açık şekilde çalışmış.`,
+            `"${entry.title}" beklediğimden iyi çıktı. Eline sağlık.`
+          ]), "chat", { topic: "demo" });
+          rel.affinity = U.clamp(rel.affinity + 7, 0, 100);
+          rel.demoRejects = Math.max(0, (rel.demoRejects || 0) - 1);   // güveni geri kazandın
+          K.game.addFame(0.5);
+          if (score >= 84 && rel.affinity >= 55 && U.chance(0.32)) {
             K.relations.createIncomingFeatureOffer(entry.artistId);
           }
-        } else if (q >= 55) {
-          K.relations.pushArtistMessage(entry.artistId,
-            U.pick([
-              `"${entry.title}" fena değil. Mix biraz daha açılabilirdi.`,
-              `"${entry.title}" dinledim. Sözler iyi ama altyapı sade kalmış.`,
-              `"${entry.title}" üzerinde çalışılırsa olur. Şimdilik erken.`
-            ]), "chat", { topic: "demo" });
-          rel.affinity = U.clamp(rel.affinity + 2, 0, 100);
-          if (song) song.feedback = "mix";
+        } else if (gap >= -6) {
+          entry.verdict = "mixed";
+          const tip = ear.key === "lyric" ? "Sözler biraz daha oturabilirdi."
+            : ear.key === "sound" ? "Mix ve altyapı daha açılabilirdi."
+            : "Nakarat daha vurucu olabilirdi.";
+          K.relations.pushArtistMessage(entry.artistId, U.pick([
+            `"${entry.title}" fena değil. ${tip}`,
+            `"${entry.title}" dinledim. ${ear.why.charAt(0).toUpperCase() + ear.why.slice(1)} tam gelmemiş.`,
+            `"${entry.title}" üzerinde çalışılırsa olur. Şimdilik erken.`
+          ]), "chat", { topic: "demo" });
+          rel.affinity = U.clamp(rel.affinity + 1.5, 0, 100);
+          if (song) song.feedback = ear.key;
         } else {
-          K.relations.pushArtistMessage(entry.artistId,
-            U.pick([
-              `"${entry.title}" için dürüst olayım: hazır değil.`,
-              `"${entry.title}" dinledim ama bu haliyle olmaz. Kayıt kalitesi düşük.`,
-              `"${entry.title}" erken olmuş. Biraz daha çalış.`
-            ]), "chat", { topic: "demo" });
-          rel.affinity = U.clamp(rel.affinity - 1, 0, 100);
+          entry.verdict = "rejected";
+          const hard = gap <= -20;
+          K.relations.pushArtistMessage(entry.artistId, U.pick([
+            `"${entry.title}" için dürüst olayım: ${ear.why} hazır değil.`,
+            `"${entry.title}" dinledim ama bu haliyle olmaz. ${ear.why.charAt(0).toUpperCase() + ear.why.slice(1)} zayıf.`,
+            `"${entry.title}" erken olmuş. Biraz daha çalış.`
+          ]), "chat", { topic: "demo" });
+          rel.affinity = U.clamp(rel.affinity - (hard ? 3 : 1.5), 0, 100);
+          /* RET SONRASI SOĞUMA: birikimli, sonra yavaşça toparlar */
+          rel.demoRejects = Math.min(4, (rel.demoRejects || 0) + 1);
+          rel.demoColdUntil = s.day + 14 + (rel.demoRejects - 1) * 12;
+          if (rel.demoRejects >= 2) {
+            K.relations.pushArtistMessage(entry.artistId,
+              U.pick([
+                "Bir süre demo gönderme, söz veremem.",
+                "Bir daha demo göndermeden önce üzerinde çalış, ricam."
+              ]), "chat", { topic: "demo" });
+          }
         }
       });
-      p.dmDemoLog = log.filter(x => !x.done || (s.day - x.dueDay) < 10).slice(-40);
+      p.dmDemoLog = log.filter(x => !x.done || (s.day - x.dueDay) < 30).slice(-60);
+
+      /* soğuma süresi dolunca ret sayacı bir kademe iner (ilişki zamanla açılır) */
+      Object.keys(s.relations || {}).forEach(id => {
+        const r = s.relations[id];
+        if (!r || !r.demoColdUntil) return;
+        if (s.day > r.demoColdUntil + 10 && (r.demoRejects || 0) > 0) {
+          r.demoRejects = Math.max(0, r.demoRejects - 1);
+          r.demoColdUntil = s.day + 20;
+        }
+      });
+    },
+
+    /* demo takip listesi (arayüz) */
+    demoStatus() {
+      const s = K.state, p = s.player;
+      return (p.dmDemoLog || []).slice().reverse().map(x => {
+        const a = K.artistById(x.artistId) || {};
+        const ear = K.relations.demoEar(x.artistId);
+        return {
+          artistId: x.artistId, artistName: a.stageName || "?",
+          title: x.title, day: x.day, dueDay: x.dueDay,
+          left: Math.max(0, x.dueDay - s.day),
+          done: !!x.done, verdict: x.verdict || null,
+          score: x.score != null ? x.score : null,
+          bar: x.bar != null ? x.bar : ear.bar,
+          earLabel: ear.label, earWhy: ear.why
+        };
+      });
     },
 
     /* --- DM İSTEKLERİ ---
