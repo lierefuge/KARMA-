@@ -1,7 +1,7 @@
 <!--
-  KARMA — önbellek (cache) sürüm etiketi: 10.10
-  Yerel css/ ve js/ dosyalarının sonunda ?v=10.10 bulunur.
-  Yeni bir güncelleme yayınlarken bu numarayı artırın (ör. ?v=10.10).
+  KARMA — önbellek (cache) sürüm etiketi: 10.11
+  Yerel css/ ve js/ dosyalarının sonunda ?v=10.11 bulunur.
+  Yeni bir güncelleme yayınlarken bu numarayı artırın (ör. ?v=10.11).
   Böylece tarayıcı eski kopyayı kullanmaz; mobilde cache temizlemek gerekmez.
 -->
 <!DOCTYPE html>
@@ -3589,6 +3589,32 @@ body.hide-values .brand-sub::after {
   display: flex; align-items: center; justify-content: space-between;
 }
 
+/* ============================================================
+   v10.11 — HİKÂYE ETKİLEŞİMİ (gerçekçilik eki)
+   Eskiden hikâyeye sadece bakılabiliyordu; tepki vermek mümkün
+   değildi, kendi hikâyende görüntüleyen listesi yoktu ve
+   görüntüleyen sayısı takipçinin %18'i gibi uydurma bir orandı.
+   ============================================================ */
+.story-viewers {
+  font-size: 12px; font-weight: 700; color: #fff;
+  background: rgba(0, 0, 0, .42); padding: 10px 16px;
+  border-radius: var(--radius-m); text-align: center;
+}
+.story-viewers .sv-row { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 7px; }
+.story-viewers .sv-p { display: inline-flex; }
+.story-viewers .sv-t { font-size: 11px; font-weight: 600; opacity: .85; }
+
+.story-react { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.story-react .srb {
+  font-size: 20px; line-height: 1; cursor: pointer;
+  background: rgba(0, 0, 0, .38); border: none;
+  width: 42px; height: 42px; border-radius: 50%;
+  display: grid; place-items: center;
+  transition: transform .12s;
+}
+.story-react .srb:active { transform: scale(1.18); }
+.story-react .story-link { margin-left: 4px; }
+
 </style>
 <style>
 /* ==== css/apps-misc.css ==== */
@@ -3953,6 +3979,109 @@ body.hide-values .brand-sub::after {
   .home-page { padding: 4px 16px 8px; }
   .home-top { padding: 0 16px; }
 }
+
+/* ============================================================
+   v10.11 GERÇEKLİK EKLERİ (telefon)
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   AÇIK TEMA — ESKİ HATA: `K.phoneOS.apply()` ekrana
+   data-theme="light" yazıyordu ama CSS'te hiçbir karşılığı YOKTU
+   (açık tema tanımı yalnızca stüdyo panelleri için vardı) ve
+   ayarlarda geçişi de yoktu → tamamen ÖLÜ bir ayardı.
+   Bu blok sistem yüzeylerini gerçekten açar. Uygulamalar kendi
+   marka temasını korur (gerçek iOS/Android'de de böyle).
+   ------------------------------------------------------------ */
+#phone-screen[data-theme="light"] { background: #e9ebf1; }
+#phone-screen[data-theme="light"] .status-bar { color: #16181d; }
+#phone-screen[data-theme="light"] .status-bar .battery { border-color: rgba(22,24,29,.45); }
+#phone-screen[data-theme="light"] .status-bar .battery i { background: #16181d; }
+
+#phone-screen[data-theme="light"] .app-shell { background: #eef0f5; color: #16181d; }
+#phone-screen[data-theme="light"] .app-shell .app-nav {
+  background: rgba(245,246,250,.94);
+  border-bottom: 1px solid rgba(22,24,29,.10);
+  color: #16181d;
+}
+#phone-screen[data-theme="light"] .app-shell .app-nav-title { color: #16181d; }
+#phone-screen[data-theme="light"] .app-shell .app-nav-sub { color: #6b7180; }
+#phone-screen[data-theme="light"] .app-nav .app-back { color: #16181d; }
+
+/* koyu marka temasını koruyan uygulamalar */
+#phone-screen[data-theme="light"] .app-instagram,
+#phone-screen[data-theme="light"] .app-tiktok,
+#phone-screen[data-theme="light"] .app-x,
+#phone-screen[data-theme="light"] .app-spotify,
+#phone-screen[data-theme="light"] .app-applemusic,
+#phone-screen[data-theme="light"] .app-youtube,
+#phone-screen[data-theme="light"] .app-messages { background: #000; color: #f5f6fa; }
+#phone-screen[data-theme="light"] .app-instagram .app-nav,
+#phone-screen[data-theme="light"] .app-tiktok .app-nav,
+#phone-screen[data-theme="light"] .app-x .app-nav { background: #000; color: #fff; }
+#phone-screen[data-theme="light"] .app-instagram .app-nav-title,
+#phone-screen[data-theme="light"] .app-tiktok .app-nav-title,
+#phone-screen[data-theme="light"] .app-x .app-nav-title { color: #fff; }
+
+#phone-screen[data-theme="light"] .seg { background: rgba(22,24,29,.05); border-color: rgba(22,24,29,.08); }
+#phone-screen[data-theme="light"] .seg button { color: #5b6273; }
+#phone-screen[data-theme="light"] .seg button.active {
+  background: #fff; color: #16181d; box-shadow: 0 2px 8px rgba(22,24,29,.12);
+}
+#phone-screen[data-theme="light"] .app-shell .seg.seg-bottom {
+  background: rgba(245,246,250,.96); border-top: 1px solid rgba(22,24,29,.10);
+}
+
+#phone-screen[data-theme="light"] .home-screen { color: #16181d; }
+#phone-screen[data-theme="light"] .home-screen .app-label { color: #22262f; }
+#phone-screen[data-theme="light"] .home-search,
+#phone-screen[data-theme="light"] .balance-chip,
+#phone-screen[data-theme="light"] .bell-chip {
+  background: rgba(255,255,255,.74); color: #16181d; border-color: rgba(22,24,29,.08);
+}
+#phone-screen[data-theme="light"] .home-dock {
+  background: rgba(255,255,255,.62); border-top: 1px solid rgba(22,24,29,.08);
+}
+#phone-screen[data-theme="light"] .home-indicator { background: rgba(22,24,29,.35); }
+
+#phone-screen[data-theme="light"] .app-cc,
+#phone-screen[data-theme="light"] .app-phset { background: #eef0f5; color: #16181d; }
+#phone-screen[data-theme="light"] .cc-tile,
+#phone-screen[data-theme="light"] .phset-card {
+  background: rgba(255,255,255,.88); border-color: rgba(22,24,29,.08); color: #16181d;
+}
+#phone-screen[data-theme="light"] .cc-tgl { background: rgba(22,24,29,.07); color: #22262f; }
+#phone-screen[data-theme="light"] .cc-tgl.on { background: rgba(92,232,155,.28); color: #0d3a22; }
+#phone-screen[data-theme="light"] .phset-item { background: rgba(22,24,29,.05); color: #22262f; }
+#phone-screen[data-theme="light"] .phset-item.on { background: rgba(92,232,155,.28); color: #0d3a22; }
+#phone-screen[data-theme="light"] .phset-name { color: #16181d; }
+#phone-screen[data-theme="light"] .phset-sub { color: #6b7180; }
+
+/* ------------------------------------------------------------
+   PİL BİTTİ EKRANI — ESKİ HATA: pil %0 olsa bile hiçbir şey
+   olmuyordu; pil tamamen dekoratifti. Artık telefon kapanır ve
+   tek çıkış şarja takmaktır.
+   ------------------------------------------------------------ */
+#phone-dead-overlay {
+  position: absolute; inset: 0; z-index: 90;
+  display: grid; place-items: center;
+  background: #05060a; color: #e8eaf2; text-align: center;
+}
+#phone-dead-overlay .pd-in { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px; }
+#phone-dead-overlay .pd-ic { font-size: 54px; line-height: 1; opacity: .92; }
+#phone-dead-overlay .pd-t { font-size: 19px; font-weight: 800; }
+#phone-dead-overlay .pd-s { font-size: 12.5px; color: #9aa1b4; max-width: 215px; line-height: 1.5; }
+#phone-dead-overlay .pd-btn {
+  margin-top: 8px; font-family: inherit; font-size: 13.5px; font-weight: 800;
+  padding: 11px 22px; border: none; cursor: pointer; border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, #5ce89b, #34b972); color: #04170d;
+}
+
+/* ------------------------------------------------------------
+   ŞARKI KAPAĞI DUVAR KAĞIDI (gerçek albüm kapağı) + TEMA GEÇİŞİ
+   ------------------------------------------------------------ */
+.phset-wall.dyn { display: grid; place-items: center; font-size: 10.5px; font-weight: 800;
+  color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,.75); }
+.phset-item.sub { opacity: .85; font-size: 12px; }
 
 </style>
 <style>
@@ -18303,6 +18432,24 @@ window.K = window.K || {};
   "use strict";
   const U = K.util;
 
+  /* ============================================================
+     v10.11 GERÇEKLİK DÜZELTMESİ — UGC'de "YÜZ" YOKTU
+     Eskiden sadece soğuk bir `videos` sayacı vardı: şarkıyı kimin
+     kullandığı, hangi videoların videoları olduğu belli değildi.
+     Gerçekte kısa video trendi KULLANICILARDAN gelir; bu yüzden
+     sesin etrafında somut yaratıcılar (kullanıcı adları + kitle) ve
+     öne çıkan video başlıkları üretilir. TikTok ses sayfasında,
+     trend listesinde ve Creator Studio'da görünür. */
+  const CREATOR_POOL = [
+    "sokak.kayit", "gece.vlog", "betonmelon", "mix.hesap", "fyp.tr", "kulis.gercek",
+    "rap.arsiv", "yeni.sesler", "danshatti", "sessizseyir", "adam.akli", "tuzak.muzik"
+  ];
+  const UGC_TITLES = [
+    "bu sesi buldum ve kaldım", "gece 3'te bunu dinliyorum", "sokakta çaldı", "part 2 geldi",
+    "bu nakarat kafamda dönüyor", "kulis kaydı", "araba içi ses testi", "dans challenge",
+    "ilk dinleyiş tepkisi", "sesi kısma", "bu flow sert", "3 kişi bunu anlar"
+  ];
+
   K.shortform = {
 
     PLATFORMS: {
@@ -18315,6 +18462,21 @@ window.K = window.K || {};
       if (!song) return null;
       if (!song.sound) song.sound = { videos: 0, momentum: 0, peak: 0, startedDay: null, lastGain: 0, platform: null, trend: false, ever: false };
       return song.sound;
+    },
+
+    /* sesin etrafındaki yaratıcılar (gerçek kullanıcı adları + kitle) */
+    creators(song) {
+      const sn = K.shortform.sound(song);
+      if (!sn || !sn.videos) return [];
+      if (!sn.creators) {
+        const n = Math.min(6, 2 + Math.floor(sn.videos / 8000));
+        sn.creators = U.shuffle(CREATOR_POOL.slice()).slice(0, n).map((h) => ({
+          handle: h.startsWith("@") ? h : "@" + h,
+          share: Math.round((0.25 + Math.random() * 0.6) * 1000) / 10,
+          title: U.pick(UGC_TITLES)
+        })).sort((a, b) => b.share - a.share);
+      }
+      return sn.creators;
     },
 
     /* şarkının "trend olma potansiyeli" (0.1 - 1.6) */
@@ -18392,6 +18554,9 @@ window.K = window.K || {};
         sn.peak = Math.max(sn.peak, sn.videos);
         sn.trend = sn.momentum > 0.45;
         sn.decay = 1;
+        /* yaratıcı kadrosu videolar çoğaldıkça büyür */
+        if (!sn.creators && sn.videos > 3000) K.shortform.creators(song);
+        else if (sn.creators && sn.creators.length < 6 && sn.videos > sn.creators.length * 12000) sn.creators = null;
       });
     },
 
@@ -18407,7 +18572,11 @@ window.K = window.K || {};
     trendList(limit) {
       const list = (K.state.player.songs || [])
         .filter(x => x.sound && x.sound.videos > 0)
-        .map(x => ({ songId: x.id, title: x.title, videos: x.sound.videos, gain: x.sound.lastGain, trend: x.sound.trend, platform: x.sound.platform }))
+        .map(x => ({
+          songId: x.id, title: x.title, videos: x.sound.videos, gain: x.sound.lastGain,
+          trend: x.sound.trend, platform: x.sound.platform,
+          creators: K.shortform.creators(x), art: x.art || null
+        }))
         .sort((a, b) => b.videos - a.videos);
       return list.slice(0, limit || 10);
     }
@@ -19414,7 +19583,11 @@ window.K = window.K || {};
     { id: "aurora",   name: "Kuzey Işıkları",  css: "linear-gradient(160deg,#06202e,#0b3b4a 45%,#061a12)" },
     { id: "sunset",   name: "Gün Batımı",      css: "linear-gradient(160deg,#3a1020,#5a2030 50%,#12060c)" },
     { id: "graphite", name: "Grafit",          css: "linear-gradient(160deg,#1d1d24,#0b0b0f)" },
-    { id: "forest",   name: "Orman",           css: "linear-gradient(160deg,#0d2417,#07140d)" }
+    { id: "forest",   name: "Orman",           css: "linear-gradient(160deg,#0d2417,#07140d)" },
+    /* v10.11 — GERÇEK duvar kağıdı: son yayının GERÇEK albüm kapağı.
+       Eskiden yalnızca 5 gradyan vardı; oysa telefonun kendi içeriğini
+       (kendi şarkının kapağını) duvar kağıdı yapmak en doğal seçenek. */
+    { id: "cover",    name: "Şarkı Kapağı",    dynamic: true }
   ];
 
   /* Kilitli (mağazadan açılan) uygulamalar + koşulları */
@@ -19449,14 +19622,57 @@ window.K = window.K || {};
         const scr = document.getElementById("phone-screen");
         if (scr) {
           scr.style.filter = pr.brightness && pr.brightness < 1 ? "brightness(" + pr.brightness + ")" : "";
+          /* v10.11 — açık tema artık GERÇEKTEN uygulanıyor (CSS karşılığı var). */
           scr.setAttribute("data-theme", pr.theme === "light" ? "light" : "dark");
+          /* pil bitti → telefon kapalı ekranı (gerçek bir buton içerir) */
+          let dead = document.getElementById("phone-dead-overlay");
+          if (K.state.player.phoneDead) {
+            if (!dead) {
+              dead = document.createElement("div");
+              dead.id = "phone-dead-overlay";
+              dead.innerHTML = '<div class="pd-in"><div class="pd-ic">🪫</div>'
+                + '<div class="pd-t">Pil bitti</div>'
+                + '<div class="pd-s">Telefon kapandı. Şarja takman gerekiyor.</div>'
+                + '<button class="pd-btn" id="phone-dead-charge">🔌 Şarja tak</button></div>';
+              scr.appendChild(dead);
+              dead.querySelector("#phone-dead-charge").addEventListener("click", (ev) => {
+                ev.stopPropagation();
+                K.phoneOS.charge();
+                if (K.phone) K.phone.reRender();
+              });
+            }
+          } else if (dead && dead.parentNode) {
+            dead.parentNode.removeChild(dead);
+          }
         }
       } catch (e) {}
     },
 
+    /* pil bitti mi? (o gün telefon kullanılamaz) */
+    dead() { return !!K.state.player.phoneDead; },
+
     wallpaper() {
       const pr = K.phoneOS.prefs();
+      if (pr.wallpaper === "cover") {
+        /* son yayının gerçek kapağı; kapak yoksa sona düşer */
+        const songs = (K.state.player.songs || []).filter(s => s.art);
+        const sg = songs[songs.length - 1];
+        if (sg) return { id: "cover", name: sg.title, css: `url('${sg.art}') center/cover no-repeat #0b0b12` };
+        return WALLS[0];
+      }
       return WALLS.find(w => w.id === pr.wallpaper) || WALLS[0];
+    },
+
+    /* özel duvar kağıdı önizlemesi (ayarlar ekranı için) */
+    wallCss(id) {
+      const w = WALLS.find(x => x.id === id);
+      if (!w) return WALLS[0].css;
+      if (w.dynamic) {
+        const songs = (K.state.player.songs || []).filter(s => s.art);
+        const sg = songs[songs.length - 1];
+        return sg ? `url('${sg.art}') center/cover no-repeat #0b0b12` : "linear-gradient(160deg,#1b1030,#0a0a12)";
+      }
+      return w.css;
     },
 
     /* ---------------- pil ---------------- */
@@ -19467,8 +19683,9 @@ window.K = window.K || {};
 
     charge() {
       const p = K.state.player;
-      if ((p.battery || 0) >= 99) { K.toast("🔋 Pil dolu", "Şarja gerek yok.", "warn"); return false; }
+      if ((p.battery || 0) >= 99 && !p.phoneDead) { K.toast("🔋 Pil dolu", "Şarja gerek yok.", "warn"); return false; }
       p.battery = 100;
+      p.phoneDead = false;                      // şarj edince telefon açılır
       K.toast("🔌 Şarj edildi", "Pil %100", "ok");
       K.save();
       if (K.phone && K.phone.updateStatus) K.phone.updateStatus();
@@ -19535,21 +19752,36 @@ window.K = window.K || {};
     },
 
     /* ---------------- günlük ---------------- */
+    /* v10.11 — PİL ARTIK ANLAMLI.
+       Eskiden pil dekoratifti: %0 olsa bile hiçbir şey olmuyordu ve
+       şarj ücretsiz/anındı, yani oyuncu için hiçbir sonucu yoktu.
+       Gerçek davranış: telefon GECE şarj olur, gün içi kullanım pili
+       tüketir; ağır kullanım (canlı yayın, müzik, yoğun gün) pili
+       bitirirse telefon o gün KAPANIR ve uygulamalar açılmaz. */
     daily() {
       const p = K.state.player;
       if (p.battery == null) p.battery = 100;
       const pr = K.phoneOS.prefs();
-      const heavy = (K.audio && K.audio.isPlaying()) ? 6 : 0;
-      const live = K.state.live ? 8 : 0;
-      let drain = 6 + heavy + live + U.randInt(0, 5);
+      const heavy = (K.audio && K.audio.isPlaying()) ? 9 : 0;
+      const live = K.state.live ? 14 : 0;
+      let drain = 14 + heavy + live + U.randInt(0, 8);
       if (pr.batterySaver) drain *= 0.55;                   // pil tasarrufu
+
       p.battery = U.clamp(Math.round((p.battery - drain) * 10) / 10, 0, 100);
-      K.phoneOS.ensureInstalled();
-      if (p.battery <= 10 && !K.phoneOS._warned) {
+
+      if (p.battery <= 0 && !p.phoneDead) {
+        p.phoneDead = true;
+        K.toast("🪫 Telefon kapandı", "Pil bitti. Kontrol Merkezi'nden şarja takman gerekiyor.", "bad");
+        K.state.notifications = (K.state.notifications || []).concat([{
+          title: "🪫 Telefon kapandı", msg: "Pil bitti — telefon kapandı. Şarja tak.", kind: "bad", day: K.state.day
+        }]).slice(-60);
+      } else if (p.battery <= 20 && p.battery > 0 && !K.phoneOS._warned) {
         K.phoneOS._warned = true;
-        K.toast("🪫 Pil azaldı", "Kontrol Merkezi'nden şarj et.", "warn");
+        K.toast("🪫 Pil azaldı", "%" + Math.round(p.battery) + " — şarja takmayı unutma.", "warn");
       }
-      if (p.battery > 25) K.phoneOS._warned = false;
+      if (p.battery > 35) K.phoneOS._warned = false;
+
+      K.phoneOS.ensureInstalled();
     }
   };
 })(window.K = window.K || {});
@@ -34911,18 +35143,54 @@ window.K = window.K || {};
       ]);
     },
 
+    /* ============================================================
+     v10.11 GERÇEKLİK DÜZELTMESİ — HİKÂYE
+     Eskiden 36 sanatçının TAMAMI 6 hazır cümleyi hikâye olarak
+     atıyordu (Sıla ile Blok3 aynı metin) ve hikâyeye tepki vermek
+     mümkün değildi; görüntüleyen sayısı da takipçinin %18'i gibi
+     fahiş bir oranla uyduruluyordu. Artık:
+       • metinler sanatçının TÜRÜNE ve KUŞAĞINA göre
+       • görüntüleyen = takipçinin %5-12'si (gerçek hikâye erişimi)
+       • tepki (emoji) verilebilir → DM'e gerçekten düşer
+       • kendi hikâyende görüntüleyen listesi
+     ============================================================ */
+    /* tür bazlı hikâye metinleri */
+    STORY_BY_GENRE: {
+      trap:   ["Kayıt odasından 🌙", "Bu gece bitmiyor", "Yeni bir şey üstünde çalışıyorum"],
+      drill:  ["Mahalle işi 🔥", "Kayıttayız", "Yakında çıkıyor"],
+      rap:    ["Kalem kâğıt 🖊️", "Sözler üstünde çalışıyorum", "Sahnede görüşürüz 🎤"],
+      pop:    ["Provadan ✨", "Yeni şarkı çok yakın 💫", "Sahne enerjisi 🎤"],
+      rnb:    ["Gece için yazdım 🌙", "Kayıt ışıkları kapalı", "Yumuşak tonda 🎙️"],
+      indie:  ["Küçük bir odada ✨", "Kendi halimde", "Kayıtlar devam 🎸"]
+    },
+    STORY_VET: ["Yıllardır aynı masada 🖊️", "Gençlere yer açıyoruz", "Kayıt bitti, gerisi zaman"],
+    storyLines(artist, isMe) {
+      if (isMe) return ["Yeni iş yolda 🎧", "Stüdyodan selamlar 🎙️", "Snippet test 👀"];
+      const self = K.phone.appById("instagram");
+      if ((artist && artist.age || 30) >= 40) return self.STORY_VET;
+      const g = self.STORY_BY_GENRE[(artist && artist.genre) || "rap"];
+      return g || self.STORY_BY_GENRE.rap;
+    },
+
     /* ---------- hikâye (tam ekran) ---------- */
     openStory(artistId) {
+      const app = K.phone.appById("instagram");
       const isMe = artistId === "player";
       const p = K.platforms.artistProfile(artistId);
       if (!p) return;
-      const texts = U.shuffle([
-        "Yeni iş yolda 🎧", "Stüdyodan selamlar 🎙️", "Bu akşam kayıt var 🔥",
-        "Yakında... ⏳", "Ses seviyesi yüksek 🎚️", "Snippet test 👀"
-      ]).slice(0, 3);
+      const artist = isMe ? null : K.artistById(artistId);
+      const texts = app.storyLines(artist, isMe) || [""];
       K.phone._storySeen = K.phone._storySeen || {};
       K.phone._storySeen[artistId] = (K.phone._storySeen[artistId] || 0) + 1;
       const photo = K.imagery.byArtistId(isMe ? "player" : artistId);
+      /* gerçekçi hikâye erişimi: takipçinin %5-12'si */
+      const viewers = Math.round((p.ig || 0) * (0.05 + Math.random() * 0.07));
+      /* kendi hikâyende en yakın takipçiler "görüntüleyen" olarak listelenir */
+      const seenBy = K.artistList()
+        .filter(a => K.interactions.isFollowed(a.id))
+        .map(a => ({ a, rel: K.relation(a.id) }))
+        .sort((x, y) => (y.rel.affinity || 0) - (x.rel.affinity || 0))
+        .slice(0, 3).map(x => x.a);
 
       K.phone.pushView({
         title: "Hikâye", sub: p.name, shellClass: "app-instagram no-pad",
@@ -34932,7 +35200,14 @@ window.K = window.K || {};
             <div class="story-head">${K.ui.artistAvatar(isMe ? "player" : artistId, 34, true)}<span>${U.escape(p.name)}</span><span class="muted">şimdi</span></div>
             <div class="story-body">
               <div class="story-text">${U.escape(texts[0])}</div>
-              <div class="story-link" data-pact="story-dm" data-arg="${isMe ? "player" : artistId}">${isMe ? "👁 Görüntüleyen: " + U.compact(Math.round((p.ig || 0) * 0.18)) : "↩ Yanıtla"}</div>
+              ${isMe
+                ? `<div class="story-viewers">👁 ${U.compact(viewers)} görüntüleyen
+                     ${seenBy.length ? `<div class="sv-row">${seenBy.map(a => `<span class="sv-p">${K.ui.artistAvatar(a.id, 26, true)}</span>`).join("")}<span class="sv-t">${U.escape(seenBy.map(a => a.stageName.split(" ")[0]).join(", "))}</span></div>` : ""}
+                   </div>`
+                : `<div class="story-react">
+                     ${["❤️", "🔥", "😮", "👏"].map(em => `<button class="srb" data-pact="story-react" data-arg="${em}|${artistId}">${em}</button>`).join("")}
+                     <button class="story-link" data-pact="story-dm" data-arg="${artistId}">↩ Yanıtla</button>
+                   </div>`}
             </div>
             <div class="story-tap left" data-pact="story-prev"></div>
             <div class="story-tap right" data-pact="story-next"></div>
@@ -34960,6 +35235,15 @@ window.K = window.K || {};
         onAction: (act, el) => {
           if (act === "story-dm") {
             if (el.dataset.arg && el.dataset.arg !== "player") K.phone.pushView(K.phone.appById("instagram").inboxView());
+          } else if (act === "story-react") {
+            /* v10.11 — hikâyeye tepki gerçekten gönderilir ve DM'e düşer */
+            const parts = String(el.dataset.arg || "").split("|");
+            const em = parts[0], id = parts[1];
+            if (!id) return;
+            try {
+              K.relations.sendMessage(id, em);
+              K.toast(em + " Tepki gönderildi", (K.artistById(id) || {}).stageName || "", "ok");
+            } catch (e) { K.toast(em + " Tepki", "Gönderildi.", "ok"); }
           }
         }
       });
@@ -37087,6 +37371,7 @@ window.K = window.K || {};
             </div>
 
             <div class="cc-tile">
+              <button class="cc-tgl ${on(pr.theme === "light")}" data-act="cc-theme">${pr.theme === "light" ? "☀️ Açık tema" : "🌙 Koyu tema"}</button>
               <button class="cc-tgl ${on(K.settings.all().reduceMotion)}" data-act="cc-motion">🌀 Hareketi azalt</button>
               <button class="cc-tgl ${on(K.settings.all().contrast)}" data-act="cc-contrast">◐ Yüksek kontrast</button>
               <button class="cc-tgl ${on(K.state.player.ytAutoplay !== false)}" data-act="cc-autoplay">🔁 Oto sıradaki</button>
@@ -37113,6 +37398,10 @@ window.K = window.K || {};
             if (!t) { const list = K.platforms.searchSongs("").slice(0, 20); t = U.pick(list); }
             K.interactions.play(t); K.phone.reRender();
           } else if (act === "cc-charge") { K.phoneOS.charge(); K.phone.reRender(); }
+          else if (act === "cc-theme") {
+            K.phoneOS.setPref("theme", K.phoneOS.prefs().theme === "light" ? "dark" : "light");
+            K.phone.reRender();
+          }
           else if (act === "cc-motion") { K.settings.set({ reduceMotion: !K.settings.all().reduceMotion }); K.phone.reRender(); }
           else if (act === "cc-contrast") { K.settings.set({ contrast: !K.settings.all().contrast }); K.phone.reRender(); }
           else if (act === "cc-autoplay") { K.state.player.ytAutoplay = !(K.state.player.ytAutoplay !== false); K.save(); K.phone.reRender(); }
@@ -37237,7 +37526,12 @@ window.K = window.K || {};
               <div class="grow"><div class="phset-name">Duvar Kağıdı</div><div class="phset-sub">${U.escape(K.phoneOS.wallpaper().name)}</div></div>
             </div>
             <div class="phset-grid">
-              ${K.phoneOS.WALLS.map(w => `<button class="phset-wall ${pr.wallpaper === w.id ? "on" : ""}" data-pact="ph-wall" data-arg="${w.id}" style="background:${w.css}"><span>${U.escape(w.name)}</span></button>`).join("")}
+              ${K.phoneOS.WALLS.map(w => `<button class="phset-wall ${pr.wallpaper === w.id ? "on" : ""} ${w.dynamic ? "dyn" : ""}" data-pact="ph-wall" data-arg="${w.id}" style="background:${K.phoneOS.wallCss(w.id)}"><span>${U.escape(w.name)}</span></button>`).join("")}
+            </div>
+
+            <div class="phset-card">
+              <button class="phset-item ${pr.theme === "light" ? "on" : ""}" data-pact="ph-theme">${pr.theme === "light" ? "☀️ Açık tema" : "🌙 Koyu tema"} <span>${pr.theme === "light" ? "Açık" : "Koyu"}</span></button>
+              <div class="phset-sub" style="padding:2px 4px 0">Sistem yüzeylerini açar; uygulamalar kendi temasını korur.</div>
             </div>
 
             <div class="phset-card">
@@ -37270,6 +37564,11 @@ window.K = window.K || {};
         },
         onAction: (act, el) => {
           if (act === "ph-wall") { K.phoneOS.setPref("wallpaper", el.dataset.arg); K.phone.reRender(); }
+          else if (act === "ph-theme") {
+            /* v10.11 — açık tema artık gerçekten çalışıyor (CSS karşılığı var) */
+            K.phoneOS.setPref("theme", K.phoneOS.prefs().theme === "light" ? "dark" : "light");
+            K.phone.reRender();
+          }
           else if (act === "ph-charge") { K.phoneOS.charge(); K.phone.reRender(); }
           else if (act === "ph-saver") { K.phoneOS.setPref("batterySaver", !K.phoneOS.prefs().batterySaver); K.phone.reRender(); }
           else if (act === "ph-motion") { K.settings.set({ reduceMotion: !K.settings.all().reduceMotion }); K.phone.reRender(); }
