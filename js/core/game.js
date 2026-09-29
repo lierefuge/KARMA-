@@ -327,20 +327,89 @@
     },
 
     /* ---------------- NPC dünyası ---------------- */
+    /* ---------------- ENDÜSTRİ (NPC sanatçı dünyası) -------------
+       v10.8 GERÇERLİK DÜZELTMESİ — eskiden NPC sanatçıların dinleyicisi
+       günde ±%0,6 RASTGELE sallanıyordu; hiçbiri 420 gün boyunca TEK
+       ŞARKI bile çıkarmıyordu. Ama IG'de "Yeni iş yolda 🎧", DM'de
+       "yeni işim için promo ayarlar mısın" yazıyorlardı — sözleriyle
+       çelişiyorlardı. Artık her sanatçının KENDİ yayın kadansı var:
+         • yayın → GERÇEK diskoğrafiden bir şarkı (K.REAL_SONGS)
+         • dinleyici sıçraması + popülerlik artışı, sonra 3 haftada söner
+         • sosyal medyada gerçekten duyurulur (gerçek kapakla)
+         • takip ediyorsan DM/bildirim gelir
+       Böylece liste de, sanatçı sayfaları da, sosyal akış da canlı kalır. */
     accrueArtistWorld() {
       const s = K.state;
+      s.industry = s.industry || { released: {}, log: [] };
       K.artistList().forEach(a => {
-        // ufak dalgalanma
+        /* temel çizgi + sönümlenen yayın etkisi */
+        a._base = a._base || a.monthly;
+        a._boost = (a._boost || 0) * 0.97;                 // yayın etkisi ~3 haftada söner
+        a._base = a._base * (1 + 0.0004 * (1 + (a.popularity || 50) / 100));  // yavaş kariyer büyümesi
         const drift = U.rand(-0.004, 0.006);
-        a.monthly = Math.max(50000, Math.round(a.monthly * (1 + drift)));
+        a.monthly = Math.max(50000, Math.round(a._base * (1 + a._boost) * (1 + drift)));
         a.streams = Math.round(a.streams + a.monthly / 30 * U.rand(0.6, 1.5));
-        a.popularity = U.clamp(a.popularity + U.rand(-0.15, 0.22), 30, 99);
+        a.popularity = U.clamp(a.popularity + U.rand(-0.15, 0.22) + a._boost * 0.5, 30, 99);
         // sosyal
         a.ig = Math.round(a.ig + a.popularity * U.rand(0.1, 0.5));
         a.tiktok = Math.round(a.tiktok + a.popularity * U.rand(0.1, 0.6));
         a.x = Math.round(a.x + a.popularity * U.rand(0.05, 0.3));
         a.ytSubs = Math.round(a.ytSubs + a.popularity * U.rand(0.05, 0.2));
+
+        /* --- YAYIN KADANSI --- */
+        if (a._nextRelease == null) {
+          /* ilk yayın: oyun başında sanatçı başına dağıtılmış */
+          a._nextRelease = s.day + U.randInt(12, 120);
+        }
+        if (s.day >= a._nextRelease) K.game.npcRelease(a);
       });
+    },
+
+    /* bir NPC sanatçının yeni şarkısı */
+    npcRelease(a) {
+      const s = K.state;
+      s.industry = s.industry || { released: {}, log: [] };
+      const used = (s.industry.released[a.id] = s.industry.released[a.id] || []);
+      const pool = (K.REAL_SONGS && K.REAL_SONGS[a.id]) || [];
+      const next = pool.find(x => used.indexOf(x.title) < 0);
+
+      /* gerçek diskografi bittiyse temsilî bir başlık üret */
+      let song;
+      if (next) {
+        song = { title: next.title, art: next.art, album: next.album, year: next.year };
+      } else {
+        const names = ["Gece Yarısı", "Beton Çiçek", "Sessiz Şehir", "Son Mektup", "Kör Nokta",
+          "Yalnız Değilim", "Ağır Gelir", "Bırakma", "Uzak İhtimal", "Kirli Hava",
+          "Sabaha Karşı", "Kayıp Frekans", "Islak Sokak", "Aynı Yer", "Yeni Bir Gün"];
+        song = { title: U.pick(names) + (U.chance(0.3) ? " (feat. " + U.pick(K.artistList()).stageName + ")" : ""), art: null, album: "Single", year: String(2008 + Math.floor((s.day || 1) / 365)) };
+      }
+      used.push(song.title);
+
+      /* etki: küçük sanatçıda oransal sıçrama büyük, yıldızda küçük */
+      const big = (a.popularity || 50) >= 75;
+      const gain = big ? U.rand(0.04, 0.11) : U.rand(0.10, 0.32);
+      a._boost = Math.min(0.6, (a._boost || 0) + gain);
+      a.popularity = U.clamp((a.popularity || 50) + (big ? U.rand(0.3, 1.1) : U.rand(0.6, 2.4)), 30, 99);
+      a.monthly = Math.round(a.monthly * (1 + gain));
+
+      /* sonraki yayına kadar: popüler sanatçı sık, diğeri seyrek */
+      const gap = Math.round(U.rand(50, 150) * (1.7 - (a.popularity || 50) / 100));
+      a._nextRelease = s.day + gap;
+      a.lastReleaseDay = s.day;
+
+      s.industry.log.unshift({ day: s.day, artistId: a.id, artistName: a.stageName, title: song.title, art: song.art });
+      s.industry.log = s.industry.log.slice(0, 40);
+
+      /* sosyal medyada gerçekten duyur (gerçek kapakla) */
+      if (K.social && K.social.npcReleasePost) K.social.npcReleasePost(a, song);
+
+      /* takip ediyorsan haberdar ol */
+      if (K.interactions && K.interactions.isFollowed && K.interactions.isFollowed(a.id)) {
+        s.notifications = (s.notifications || []).concat([{
+          title: "🎧 Yeni yayın: " + a.stageName,
+          msg: `"${song.title}" çıktı.`, kind: "ok", day: s.day
+        }]).slice(-60);
+      }
     },
 
     /* ---------- oyuncu aylık dinleyici & popülerlik ---------- */
@@ -397,7 +466,11 @@
       (K.REAL_CHART || []).forEach((e, i) => {
         const base = Math.round(640000 * Math.pow(0.952, i));
         const jitter = Math.round(base * 0.02);
-        const daily = Math.max(900, base + U.randInt(-jitter, jitter));
+        let daily = Math.max(900, base + U.randInt(-jitter, jitter));
+        /* v10.8 — NPC sanatçı yeni şarkı çıkardıysa listede YÜKSELİR.
+           Eskiden liste donmuş bir anlık görüntüydü; şimdi endüstri hareket ediyor. */
+        const art = (e.artistName && K.resolveArtistByName) ? K.resolveArtistByName(e.artistName) : null;
+        if (art && art._boost) daily = Math.round(daily * (1 + art._boost));
         entries.push({
           id: "real_" + i,
           title: e.title,
