@@ -5192,6 +5192,126 @@ body.hide-values .brand-sub::after {
 }
 
 </style>
+<!-- v10.23 — plak vitrini + KARMA Wrapped -->
+<style>
+/* ==== css/certifications.css ==== */
+/* ============================================================
+   KARMA — css/certifications.css   (v10.23)
+   Plak vitrini (Altın/Platin/Elmas) + KARMA Wrapped özet ekranı
+   ============================================================ */
+
+/* ---------- plak özet şeridi ---------- */
+.plq-summary {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); gap: 10px;
+}
+.plq-stat {
+  padding: 11px 12px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+  position: relative; overflow: hidden;
+}
+.plq-stat::after {
+  content: ""; position: absolute; right: -16px; top: -16px;
+  width: 54px; height: 54px; border-radius: 50%;
+  background: radial-gradient(circle, var(--pc, #ffcb5c), transparent 70%);
+  opacity: .16;
+}
+.plq-stat .k { font-size: 9.5px; letter-spacing: .8px; text-transform: uppercase; color: var(--text-3); font-weight: 700; }
+.plq-stat .v { font-size: 18px; font-weight: 900; margin-top: 3px; }
+.plq-stat .d { font-size: 10px; color: var(--text-2); margin-top: 2px; }
+
+/* ---------- plak duvarı ---------- */
+.plq-wall { display: flex; flex-direction: column; gap: 7px; }
+.plq-row {
+  display: flex; align-items: center; gap: 11px;
+  padding: 9px 11px; border-radius: var(--radius-s);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--pc, #ffcb5c) 12%, transparent), transparent 70%);
+  border: 1px solid color-mix(in srgb, var(--pc, #ffcb5c) 26%, transparent);
+}
+@supports not (background: color-mix(in srgb, red 10%, transparent)) {
+  .plq-row { background: var(--glass); border-color: var(--stroke); }
+}
+.plq-badge {
+  width: 40px; height: 40px; flex: 0 0 auto; border-radius: 50%;
+  display: grid; place-items: center; font-size: 19px;
+  background: radial-gradient(circle at 32% 28%, #fff6, transparent 60%),
+              linear-gradient(150deg, var(--pc, #ffcb5c), #6b4a00);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.28), 0 5px 14px rgba(0,0,0,.4);
+}
+.plq-row .tt { font-size: 12.5px; font-weight: 800; }
+.plq-row .ss { font-size: 10.5px; color: var(--text-2); margin-top: 3px; }
+.plq-row .kk {
+  font-size: 9.5px; font-weight: 900; letter-spacing: .6px;
+  color: var(--pc, #ffcb5c); text-transform: uppercase; white-space: nowrap;
+}
+
+/* şarkı satırında ilerleme (sıradaki plağa ne kadar kaldı) */
+.plq-prog { margin-top: 6px; }
+.plq-prog .bar { height: 5px; }
+.plq-prog .lbl { font-size: 10px; color: var(--text-3); margin-top: 4px; }
+
+/* ---------- WRAPPED ---------- */
+.wrapped-hero {
+  text-align: center; padding: 18px 14px 14px;
+  border-radius: var(--radius-m);
+  background:
+    radial-gradient(500px 240px at 50% -20%, rgba(176,108,255,.30), transparent 65%),
+    linear-gradient(180deg, #1b1428, #0e0b16);
+  border: 1px solid rgba(176,108,255,.28);
+}
+.wrapped-hero .wh-year { font-size: 34px; font-weight: 900; letter-spacing: -1.5px; line-height: 1; }
+.wrapped-hero .wh-title {
+  font-size: 12px; font-weight: 800; letter-spacing: 3px;
+  color: var(--karma); text-transform: uppercase; margin-top: 6px;
+}
+.wrapped-hero .wh-sub { font-size: 11.5px; color: var(--text-2); margin-top: 8px; }
+
+.wrapped-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 10px;
+}
+.wrapped-card {
+  padding: 13px; border-radius: var(--radius-m);
+  background: var(--glass); border: 1px solid var(--stroke);
+  display: flex; flex-direction: column; gap: 3px;
+  min-height: 92px;
+}
+.wrapped-card .wc-icon { font-size: 19px; }
+.wrapped-card .wc-label { font-size: 10px; letter-spacing: .6px; text-transform: uppercase; color: var(--text-3); font-weight: 700; margin-top: 3px; }
+.wrapped-card .wc-value {
+  font-size: 16px; font-weight: 900; letter-spacing: -.3px;
+  line-height: 1.2; word-break: break-word;
+}
+.wrapped-card .wc-sub { font-size: 10.5px; color: var(--text-2); }
+.wrapped-card.karma { border-color: rgba(176,108,255,.34); }
+.wrapped-card.karma .wc-value { color: #d7b8ff; }
+.wrapped-card.blue { border-color: rgba(110,195,255,.30); }
+.wrapped-card.blue .wc-value { color: #a8dcff; }
+.wrapped-card.money { border-color: rgba(92,232,155,.30); }
+.wrapped-card.money .wc-value { color: var(--money); }
+.wrapped-card.hot { border-color: rgba(255,92,122,.30); }
+.wrapped-card.hot .wc-value { color: #ff9db0; }
+.wrapped-card.gold { border-color: rgba(255,203,92,.34); }
+.wrapped-card.gold .wc-value { color: var(--gold); }
+
+.wrapped-plaques { display: flex; flex-wrap: wrap; gap: 7px; }
+.wq-pill {
+  font-size: 10.5px; font-weight: 700;
+  padding: 5px 11px; border-radius: var(--radius-pill);
+  color: var(--pc, #ffcb5c);
+  background: color-mix(in srgb, var(--pc, #ffcb5c) 13%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pc, #ffcb5c) 30%, transparent);
+}
+@supports not (background: color-mix(in srgb, red 10%, transparent)) {
+  .wq-pill { background: var(--glass); border-color: var(--stroke); }
+}
+
+@media (max-width: 640px) {
+  .wrapped-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .wrapped-card { min-height: 84px; padding: 11px; }
+  .wrapped-card .wc-value { font-size: 14px; }
+  .wrapped-hero .wh-year { font-size: 28px; }
+}
+
+</style>
 <style>
 /* ==== css/rollout.css ==== */
 /* ============================================================
@@ -5814,7 +5934,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.22.0";
+  K.VERSION = "10.23.0";
   K.VERSION_DATE = "2026-09-29";
 })(window.K = window.K || {});
 
@@ -8989,6 +9109,10 @@ window.K = window.K || {};
         ghost: { hired: false, name: null, exposure: 0, uses: 0 },  // söz yazarı
         albums: [],
         dailyHistory: [],
+        plaques: [],              // v10.23 — Altın/Platin/Elmas plaklar (certifications.js)
+        wrapped: [],              // v10.23 — yıl sonu özetleri (yearwrap.js)
+        plaqueMult: 1,            // plaklardan gelen kalıcı katalog çarpanı
+        plaqueAwardWeight: 0,     // plakların ödül şansına katkısı
         /* v10.17 — dikkat dalgası & doygunluk (yüksel→zirve→düş eğrisi).
            att: 1 = nötr; yayınla yükselir, günlük söner.
            fatigueAtt: yayın başına kazancı kısar → plato/zirve üretir. */
@@ -9235,6 +9359,13 @@ window.K = window.K || {};
       if (K.state.player.lastFinance === undefined) K.state.player.lastFinance = null;
       K.state.player.albums = K.state.player.albums || [];
       K.state.player.dailyHistory = K.state.player.dailyHistory || [];
+      /* v10.23 — plak ve yıl özeti alanları (eski kayıtlar için) */
+      K.state.player.plaques = K.state.player.plaques || [];
+      K.state.player.wrapped = K.state.player.wrapped || [];
+      if (K.state.player.plaqueMult == null) K.state.player.plaqueMult = 1;
+      if (K.state.player.plaqueAwardWeight == null) K.state.player.plaqueAwardWeight = 0;
+      (K.state.player.songs || []).forEach(sg => { if (!sg.certifications) sg.certifications = []; });
+      (K.state.player.albums || []).forEach(al => { if (!al.certifications) al.certifications = []; });
       K.state.player.watchHistory = K.state.player.watchHistory || [];
       if (K.state.player.ytAutoplay === undefined) K.state.player.ytAutoplay = true;
       K.state.player.ytReadDay = K.state.player.ytReadDay || 0;
@@ -9417,6 +9548,8 @@ window.K = window.K || {};
       if (K.concerts && K.concerts.tick) K.concerts.tick();
       if (K.festivals && K.festivals.tick) K.festivals.tick();
       if (K.rollout && K.rollout.tick) K.rollout.tick();
+      if (K.certifications && K.certifications.tick) K.certifications.tick();
+      if (K.yearwrap && K.yearwrap.tick) K.yearwrap.tick();
       if (K.awards && K.awards.tick) K.awards.tick();
       if (K.rivalry && K.rivalry.tick) K.rivalry.tick();
       if (K.beef && K.beef.dailyTick) K.beef.dailyTick();
@@ -20153,6 +20286,337 @@ window.K = window.K || {};
 
 </script>
   <script>
+/* ==== js/systems/certifications.js ==== */
+/* ============================================================
+   KARMA — systems/certifications.js   (v10.23)
+   ALTIN · PLATİN · ELMAS PLAK
+
+   Neden gerekli?
+   --------------
+   Oyunda uzun vadeli bir "skor tahtası" yoktu: şarkı milyonlarca
+   dinlenme toplasa bile bunun KALICI bir karşılığı olmuyordu.
+   Gerçek endüstride plak; itibar, katalog değeri ve müzakere gücüdür.
+
+   Nasıl çalışır?
+   --------------
+     · Şarkı kümülatif dinlenmesi eşiği aştığında plak verilir.
+     · Plak KALICI iz bırakır: şarkının günlük dinlenmesine çarpan
+       (katalog klasiği etkisi) + itibar + ödül ağırlığı.
+     · Albümler de toplam dinlenmeden plak alır.
+     · Her plak bir "tören anı" bildirimi üretir.
+
+   Eşikler gerçek RIAA ölçeğinden oyuna uyarlanmıştır (şarkı başına
+   toplam dinlenme).
+   ============================================================ */
+(function (K) {
+  "use strict";
+  const U = K.util;
+
+  const TIERS = [
+    { id: "gold",     name: "Altın Plak",  short: "ALTIN",   emoji: "🥇",
+      streams: 1_000_000,  mult: 0.06, rep: 2.0,  award: 0.05, color: "#ffcb5c" },
+    { id: "platinum", name: "Platin Plak", short: "PLATİN",  emoji: "💿",
+      streams: 5_000_000,  mult: 0.14, rep: 4.0,  award: 0.12, color: "#d8e3ef" },
+    { id: "diamond",  name: "Elmas Plak",  short: "ELMAS",   emoji: "💎",
+      streams: 25_000_000, mult: 0.30, rep: 8.0,  award: 0.22, color: "#6ec3ff" }
+  ];
+
+  function tier(id) { return TIERS.find(t => t.id === id) || null; }
+  function tierIndex(id) { return TIERS.findIndex(t => t.id === id); }
+
+  K.certifications = {
+    TIERS, tier, tierIndex,
+
+    /* oyuncunun tüm plakları */
+    list() {
+      const p = K.state && K.state.player;
+      return (p && p.plaques) ? p.plaques : [];
+    },
+
+    count(tierId) {
+      return K.certifications.list().filter(pl => pl.tier === tierId).length;
+    },
+
+    /* şarkının hak ettiği EN YÜKSEK kademe (henüz verilmemişse farkı döndürür) */
+    earnedFor(streams) {
+      let out = null;
+      TIERS.forEach(t => { if ((streams || 0) >= t.streams) out = t; });
+      return out;
+    },
+
+    /* verilmemiş ama hak edilmiş kademeler */
+    pendingFor(song) {
+      const have = {};
+      ((song && song.certifications) || []).forEach(c => { have[c] = true; });
+      return TIERS.filter(t => (song.streams || 0) >= t.streams && !have[t.id]);
+    },
+
+    /* ---------------- ödül ver ---------------- */
+    award(kind, obj, t) {
+      const s = K.state, p = s.player;
+      p.plaques = p.plaques || [];
+      obj.certifications = obj.certifications || [];
+      obj.certifications.push(t.id);
+
+      /* kalıcı iz: katalog klasiği etkisi (günlük dinlenmeye çarpan) */
+      if (kind === "song") {
+        obj.dailyStreams = Math.max(5, (obj.dailyStreams || 5) * (1 + t.mult));
+        obj.plaqueMult = +(((obj.plaqueMult || 1) * (1 + t.mult))).toFixed(3);
+      }
+      p.plaqueMult = +(((p.plaqueMult || 1) + t.mult * 0.35).toFixed(3));
+      p.plaqueAwardWeight = +(((p.plaqueAwardWeight || 0) + t.award).toFixed(3));
+      p.reputation = U.clamp((p.reputation || 0) + t.rep, 0, 100);
+
+      const rec = {
+        id: U.uid("plq"), kind, tier: t.id, tierName: t.name,
+        title: obj.title, day: s.day, art: obj.art || null, coverSeed: obj.coverSeed || obj.id || obj.title
+      };
+      p.plaques.unshift(rec);
+      if (p.plaques.length > 120) p.plaques = p.plaques.slice(0, 120);
+
+      s.notifications = (s.notifications || []).concat([{
+        title: t.emoji + " " + t.name + "!",
+        msg: `"${obj.title}" ${U.fmt(t.streams)}+ dinlenmeye ulaştı — plak duvara girdi.`,
+        kind: "ok", day: s.day
+      }]).slice(-60);
+
+      K.toast(t.emoji + " " + t.name,
+        `"${obj.title}" · ${U.fmt(obj.streams || 0)} dinlenme · itibar +${t.rep} · kalıcı çarpan ×${(1 + t.mult).toFixed(2)}`, "ok");
+      return rec;
+    },
+
+    /* ---------------- günlük denetim ---------------- */
+    tick() {
+      const s = K.state, p = s.player;
+      if (!p) return;
+
+      /* şarkılar */
+      (p.songs || []).forEach(song => {
+        const pend = K.certifications.pendingFor(song);
+        pend.forEach(t => K.certifications.award("song", song, t));
+      });
+
+      /* albümler */
+      (p.albums || []).forEach(al => {
+        const have = {};
+        (al.certifications || []).forEach(c => { have[c] = true; });
+        TIERS.forEach(t => {
+          const total = al.streams || 0;
+          if (total >= t.streams && !have[t.id]) K.certifications.award("album", al, t);
+        });
+      });
+    },
+
+    /* sıradaki plağa ne kadar kaldı (UI için) */
+    progress(streams) {
+      const s0 = streams || 0;
+      for (const t of TIERS) {
+        if (s0 < t.streams) return { next: t, pct: Math.round((s0 / t.streams) * 100), remaining: t.streams - s0 };
+      }
+      return { next: null, pct: 100, remaining: 0 };
+    },
+
+    summary() {
+      const p = K.state.player || {};
+      const plaques = K.certifications.list();
+      return {
+        total: plaques.length,
+        gold: K.certifications.count("gold"),
+        platinum: K.certifications.count("platinum"),
+        diamond: K.certifications.count("diamond"),
+        awardWeight: +(p.plaqueAwardWeight || 0).toFixed(2),
+        recently: plaques.slice(0, 5)
+      };
+    }
+  };
+})(window.K);
+
+</script>
+  <script>
+/* ==== js/systems/yearwrap.js ==== */
+/* ============================================================
+   KARMA — systems/yearwrap.js   (v10.23)
+   KARMA WRAPPED — yıl sonu özeti
+
+   Neden?
+   -----
+   Oyun 360 günlük yıllara bölünmüş (ödül töreni de bu takvimi
+   kullanıyor) ama yılın SONUNDA oyuncuya bir "geri dönüp bakma"
+   anı yoktu. Wrapped bu boşluğu doldurur: ne yaptın, ne büyüdü,
+   hangi şarkın seni taşıdı.
+
+   Veri nereden geliyor?
+   ---------------------
+   `stats.js` her gün bir anlık görüntü kaydediyor (day, streams,
+   balance, monthly, popularity, songs, followers). Son 400 kayıt
+   tutuluyor — yani bir yıllık pencere tam sığıyor. Ek olarak turne
+   günlüğü, plaklar ve çıkış dereceleri kullanılır.
+
+   Üretim ANI: yıl tamamlandığında (ödül töreniyle aynı gün) bir kez
+   üretilir ve `player.wrapped` içine yazılır; tekrar üretilmez.
+   ============================================================ */
+(function (K) {
+  "use strict";
+  const U = K.util;
+
+  const YEAR = 360;   // awards.js ile aynı takvim
+
+  function fmtDelta(a, b) {
+    const d = (b || 0) - (a || 0);
+    return (d >= 0 ? "+" : "−") + U.compact(Math.abs(d));
+  }
+
+  K.yearwrap = {
+    YEAR,
+
+    completedYears() { return Math.floor((K.state.day - 1) / YEAR); },
+
+    history() { return (K.state.player.wrapped || []); },
+
+    has(year) { return K.yearwrap.history().some(w => w.year === year); },
+
+    latest() { const h = K.yearwrap.history(); return h.length ? h[h.length - 1] : null; },
+
+    /* verilen güne kadarki son anlık görüntü */
+    snapAt(day) {
+      const h = K.state.history || [];
+      let best = null;
+      for (const x of h) if (x.day <= day) best = x;
+      return best;
+    },
+
+    /* ---------------- özeti üret ---------------- */
+    build(year) {
+      const s = K.state, p = s.player;
+      const start = (year - 1) * YEAR + 1;
+      const end = year * YEAR;
+      const a = K.yearwrap.snapAt(start) || K.yearwrap.snapAt(start + 5) || {};
+      const b = K.yearwrap.snapAt(end) || {};
+
+      /* yıl içindeki tepe değerler (history penceresinden) */
+      const win = (s.history || []).filter(x => x.day >= start && x.day <= end);
+      const peakMonthly = win.length ? Math.max.apply(null, win.map(x => x.monthly || 0)) : (p.monthly || 0);
+      const peakPop = win.length ? Math.max.apply(null, win.map(x => x.popularity || 0)) : Math.round(p.popularity || 0);
+
+      /* yıl içinde çıkan şarkılar */
+      const rel = (p.songs || []).filter(sg => (sg.publishedDay || 0) >= start && (sg.publishedDay || 0) <= end);
+      const topSong = rel.slice().sort((x, y) => (y.streams || 0) - (x.streams || 0))[0] || null;
+
+      /* plaklar */
+      const plaques = K.certifications
+        ? K.certifications.list().filter(pl => pl.day >= start && pl.day <= end)
+        : [];
+
+      /* çıkış dereceleri */
+      const debuts = rel.filter(sg => sg.debut).map(sg => ({ title: sg.title, id: sg.debut.id, label: sg.debut.label, total: sg.debut.total }));
+
+      /* turne şehirleri (varsa) */
+      const tour = s.tour && s.tour.log ? s.tour.log : [];
+      const cities = {};
+      tour.forEach(l => { cities[l.city] = (cities[l.city] || 0) + (l.attendance || 0); });
+      const topCity = Object.keys(cities).sort((x, y) => cities[y] - cities[x])[0] || null;
+
+      /* konser/festival toplamı */
+      const concerts = (s.concerts || []).filter(c => c.status === "tamamlandı" && c.day >= start && c.day <= end);
+
+      const out = {
+        year,
+        day: s.day,
+        streams: Math.max(0, (b.streams || 0) - (a.streams || 0)),
+        listeners: peakMonthly,
+        followers: Math.max(0, (b.followers || 0) - (a.followers || 0)),
+        balanceDelta: (b.balance || 0) - (a.balance || 0),
+        popStart: a.popularity || 0,
+        popEnd: b.popularity || p.popularity || 0,
+        peakPop,
+        songsReleased: rel.length,
+        topSong: topSong ? { title: topSong.title, streams: topSong.streams || 0, id: topSong.id } : null,
+        plaques: plaques.slice(0, 12),
+        debuts,
+        topCity,
+        shows: concerts.length + tour.length,
+        builtDay: s.day
+      };
+      p.wrapped = p.wrapped || [];
+      p.wrapped.push(out);
+      if (p.wrapped.length > 20) p.wrapped = p.wrapped.slice(-20);
+      return out;
+    },
+
+    /* ---------------- günlük denetim ---------------- */
+    tick() {
+      const s = K.state;
+      const yp = K.yearwrap.completedYears();
+      if (yp < 1) return;
+      if (K.yearwrap.has(yp)) return;
+      const w = K.yearwrap.build(yp);
+      s.notifications = (s.notifications || []).concat([{
+        title: "📊 KARMA Wrapped hazır",
+        msg: `${w.year}. yıl özetin oluştu — ${U.fmt(w.streams)} dinlenme, ${w.songsReleased} yayın.`,
+        kind: "ok", day: s.day
+      }]).slice(-60);
+      K.toast("📊 KARMA Wrapped", "Yıl sonu özetin hazır! Kariyer sekmesinden aç.", "ok");
+    },
+
+    /* ---------------- sunum: kart verisi ---------------- */
+    cards(w) {
+      if (!w) return [];
+      const out = [
+        { icon: "🎧", label: "Bu yıl dinlendin", value: U.fmt(w.streams), sub: "toplam dinlenme", tone: "karma" },
+        { icon: "👥", label: "Zirve dinleyicin", value: U.compact(w.listeners), sub: "aylık dinleyici", tone: "blue" },
+        { icon: "📈", label: "Takipçi artışın", value: "+" + U.compact(w.followers), sub: "yeni takipçi", tone: "money" },
+        { icon: "🎵", label: "Yayınladığın", value: String(w.songsReleased), sub: "şarkı", tone: "karma" },
+        { icon: "🔥", label: "Popülerlik", value: w.popStart + " → " + w.popEnd, sub: "tepe " + w.peakPop, tone: "hot" },
+        { icon: "💰", label: "Kasa değişimi", value: (w.balanceDelta >= 0 ? "+" : "−") + U.money(Math.abs(w.balanceDelta)), sub: "yıl boyunca", tone: "money" }
+      ];
+      if (w.topSong) out.push({ icon: "👑", label: "Yılın şarkın", value: w.topSong.title, sub: U.fmt(w.topSong.streams) + " dinlenme", tone: "gold" });
+      if (w.topCity) out.push({ icon: "🚌", label: "En çok çaldığın şehir", value: w.topCity, sub: w.shows + " sahne", tone: "blue" });
+      if (w.plaques.length) out.push({ icon: "🏅", label: "Kazandığın plak", value: String(w.plaques.length), sub: w.plaques.map(pl => (K.certifications.tier(pl.tier) || {}).short).filter(Boolean).slice(0, 3).join(" · "), tone: "gold" });
+      if (w.debuts.length) {
+        const best = w.debuts.slice().sort((a, b) => (b.total || 0) - (a.total || 0))[0];
+        out.push({ icon: "📊", label: "En iyi çıkışın", value: best.label, sub: best.title, tone: "hot" });
+      }
+      return out;
+    },
+
+    /* ---------------- modal ---------------- */
+    open(year) {
+      const list = K.yearwrap.history();
+      if (!list.length) {
+        K.toast("Henüz özet yok", "İlk yılın sonunda KARMA Wrapped otomatik oluşur.", "warn");
+        return;
+      }
+      const w = (year != null ? list.find(x => x.year === year) : list[list.length - 1]) || list[list.length - 1];
+      const cards = K.yearwrap.cards(w);
+      const body = `
+        <div class="wrapped-hero">
+          <div class="wh-year">${w.year}</div>
+          <div class="wh-title">KARMA Wrapped</div>
+          <div class="wh-sub">${U.fmt(w.streams)} dinlenme · ${w.songsReleased} yayın · ${w.shows} sahne</div>
+        </div>
+        <div class="wrapped-grid">
+          ${cards.map(c => `<div class="wrapped-card ${c.tone || ""}">
+            <span class="wc-icon">${c.icon}</span>
+            <span class="wc-label">${U.escape(c.label)}</span>
+            <span class="wc-value">${U.escape(String(c.value))}</span>
+            <span class="wc-sub">${U.escape(c.sub || "")}</span>
+          </div>`).join("")}
+        </div>
+        ${w.plaques.length ? `<div class="wrapped-plaques">
+          ${w.plaques.map(pl => {
+            const t = K.certifications.tier(pl.tier) || {};
+            return `<span class="wq-pill" style="--pc:${t.color || "#ffcb5c"}">${t.emoji || "🏅"} ${U.escape(pl.title)} · ${t.short || ""}</span>`;
+          }).join("")}
+        </div>` : ""}
+        ${list.length > 1 ? `<div class="helper">Arşiv: ${list.map(x => x.year + ". yıl").join(" · ")}</div>` : ""}`;
+
+      K.ui.modal({ title: "📊 " + w.year + ". Yıl Özeti", desc: "Yıl boyunca ne yaptın", body, wide: true, actions: [{ label: "Kapat" }] });
+    }
+  };
+})(window.K);
+
+</script>
+  <script>
 /* ==== js/systems/awards.js ==== */
 /* ============================================================
    KARMA — systems/awards.js
@@ -25682,11 +26146,76 @@ window.K = window.K || {};
     /* =====================================================
        ANALİZ — yayın performansı
        ===================================================== */
+    /* =====================================================
+       PLAKLAR + KARMA WRAPPED (v10.23)
+       systems/certifications.js · systems/yearwrap.js
+       ===================================================== */
+    certificationsHTML() {
+      const p = K.state.player;
+      const sum = K.certifications.summary();
+      const wall = K.certifications.list().slice(0, 8);
+      const top = (p.songs || []).slice().sort((a, b) => (b.streams || 0) - (a.streams || 0))[0] || null;
+      const prog = top ? K.certifications.progress(top.streams || 0) : null;
+      const wl = K.yearwrap.history();
+      const lastW = wl.length ? wl[wl.length - 1] : null;
+      const nextWrappedDay = (K.yearwrap.completedYears() + 1) * K.yearwrap.YEAR + 1;
+
+      const tierStat = (t) => {
+        const n = K.certifications.count(t.id);
+        return `<div class="plq-stat" style="--pc:${t.color}">
+          <span class="k">${t.emoji} ${t.short}</span><span class="v">${n}</span>
+          <span class="d">${U.fmt(t.streams)}+ dinlenme</span></div>`;
+      };
+
+      return `
+        <div class="c-block">
+          <div class="c-head"><div><h2>🏅 Plak Vitrini</h2><div class="sub">Altın · Platin · Elmas — kalıcı katalog etkisi</div></div>
+            ${lastW ? `<button class="btn btn-primary btn-sm" data-act="open-wrapped">📊 Wrapped</button>` : ""}</div>
+
+          <div class="plq-summary">
+            <div class="plq-stat" style="--pc:#b06cff"><span class="k">Toplam Plak</span><span class="v">${sum.total}</span><span class="d">ödül ağırlığı +${sum.awardWeight}</span></div>
+            ${K.certifications.TIERS.map(tierStat).join("")}
+          </div>
+
+          ${top && prog && prog.next ? `<div class="plq-prog">
+            <div class="sub" style="font-size:11px;color:var(--text-2)">Sıradaki plak: <b>${U.escape(top.title)}</b> → ${prog.next.emoji} ${prog.next.name}</div>
+            <div class="bar"><i style="width:${prog.pct}%"></i></div>
+            <div class="lbl">%${prog.pct} · ${U.fmt(prog.remaining)} dinlenme kaldı</div>
+          </div>` : ""}
+
+          ${wall.length ? `<div class="plq-wall" style="margin-top:12px">${wall.map(pl => {
+            const t = K.certifications.tier(pl.tier) || {};
+            return `<div class="plq-row" style="--pc:${t.color || "#ffcb5c"}">
+              <span class="plq-badge">${t.emoji || "🏅"}</span>
+              <div class="grow" style="min-width:0">
+                <div class="tt">${U.escape(pl.title)}</div>
+                <div class="ss">${pl.kind === "album" ? "Albüm" : "Şarkı"} · Gün ${pl.day}</div>
+              </div>
+              <span class="kk">${t.short || ""}</span>
+            </div>`;
+          }).join("")}</div>` : `<div class="empty-note" style="margin-top:10px"><b>Henüz plak yok</b>Şarkıların 1.000.000 dinlenmeye ulaşınca Altın Plak gelir.</div>`}
+        </div>
+
+        <div class="c-block">
+          <div class="c-head"><div><h2>📊 KARMA Wrapped</h2><div class="sub">Yılda bir otomatik yıl sonu özeti</div></div></div>
+          ${lastW ? `<div class="wrapped-hero">
+            <div class="wh-year">${lastW.year}</div>
+            <div class="wh-title">KARMA Wrapped</div>
+            <div class="wh-sub">${U.fmt(lastW.streams)} dinlenme · ${lastW.songsReleased} yayın · ${lastW.shows} sahne</div>
+          </div>
+          <div class="action-row" style="margin-top:10px">
+            <button class="btn btn-primary btn-sm" data-act="open-wrapped">📊 Özeti Aç</button>
+            <span class="hint" style="align-self:center">${wl.length} yıllık arşiv</span>
+          </div>`
+          : `<div class="empty-note"><b>Henüz özet yok</b>İlk yılın sonunda (Gün ${nextWrappedDay}) KARMA Wrapped otomatik oluşur — şu an ${Math.max(0, nextWrappedDay - K.state.day)} gün kaldı.</div>`}
+        </div>`;
+    },
+
     renderAnalytics() {
       const s = K.state, p = s.player;
       const hide = K.settings && K.settings.valuesHidden && K.settings.valuesHidden();
       const songs = (p.songs || []).slice().sort((a, b) => (b.publishedDay || 0) - (a.publishedDay || 0));
-      if (!songs.length) return `<div class="empty-note"><b>Analiz için veri yok</b>İlk yayınını çıkarınca dinlenme, liste ve mağaza verileri burada görünür.</div>`;
+      if (!songs.length) return K.careerUI.certificationsHTML() + `<div class="empty-note"><b>Analiz için veri yok</b>İlk yayınını çıkarınca dinlenme, liste ve mağaza verileri burada görünür.</div>`;
 
       const total = U.sum(songs, x => x.streams || 0);
       const activeLists = K.lists ? K.lists.summary().filter(r => !r.exitDay) : [];
@@ -25732,7 +26261,7 @@ window.K = window.K || {};
         </div>`;
       }).join("");
 
-      return `
+      return K.careerUI.certificationsHTML() + `
         <div class="c-block">
           <div class="c-head"><div><h2>Analiz</h2><div class="sub">Yayın performansı, mağaza kırılımı ve liste takibi.</div></div></div>
           <div class="an-cards">
@@ -26637,6 +27166,7 @@ window.K = window.K || {};
         const parts = String(btn.dataset.arg || "").split("|");
         K.rollout.fireTeaser(parts[0], parts[1]);
       }
+      else if (act === "open-wrapped") K.yearwrap.open();
       else if (act === "hire-staff") K.label.hireStaff(btn.dataset.arg);
       else if (act === "work-job") K.jobs.work(btn.dataset.arg);
       else if (act === "crisis-choice") K.crisis.resolve(+btn.dataset.arg);
