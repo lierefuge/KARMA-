@@ -195,10 +195,21 @@
           </div>
         </div>`;
 
+      /* v10.18 — yayın sürümü bilgisi.
+         "Canlıda hangi sürüm var?" sorusunun tek bakışta cevabı.
+         Önbellek hash'i (index.html'deki ?v=…) makine içindir ve
+         okunaksızdır; burada insan okunur sürüm gösterilir. */
+      const vLine = (K.VERSION)
+        ? `<div class="set-section"><div class="set-title">Sürüm</div>` +
+          `<div class="slot-sub">KARMA <b>v${U.escape(K.VERSION)}</b>` +
+          (K.VERSION_DATE ? ` · ${U.escape(K.VERSION_DATE)}` : "") +
+          `</div></div>`
+        : "";
+
       const modal = K.ui.modal({
         title: "⚙️ Ayarlar & Kayıt",
         desc: "Kayıt slotları, zorluk ve tercihler",
-        body,
+        body: body + vLine,
         actions: [{ label: "Kapat" }]
       });
 
