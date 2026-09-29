@@ -4,7 +4,8 @@
    Kaynak: iTunes Search API (country=TR) · previewUrl / trackViewUrl
    p = doğrudan çalınabilir ses (m4a)   a = Apple Music sayfası
    Üretici: node tools/fetch-artist-discography.js
-   Güncelleme: 2026-09-28
+            node tools/fetch-missing-previews.js (eksik tamamlama)
+   Güncelleme: 2026-09-29
    ============================================================ */
 (function (K) {
   "use strict";
@@ -629,6 +630,22 @@
   "ŞANS": {
    "a": "https://music.apple.com/tr/album/%C5%9Fans/1786411934?i=1786412273&uo=4",
    "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/70/1f/ec/701feccc-a59a-cba9-08a9-5d88de2ce011/mzaf_5904017859599679306.plus.aac.p.m4a"
+  },
+  "RADİKAL": {
+   "a": "https://music.apple.com/tr/album/radi-kal/1786411934?i=1786411938&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ff/3b/44/ff3b44d1-1f06-ecb4-931c-28fa587d7fa3/mzaf_1054389475881809976.plus.aac.p.m4a"
+  },
+  "CEVHER": {
+   "a": "https://music.apple.com/tr/album/cevher/1786411934?i=1786412270&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/1d/fc/5e/1dfc5eea-401e-bad3-0bd0-962f85153e28/mzaf_8925116827797151398.plus.aac.p.m4a"
+  },
+  "TEK": {
+   "a": "https://music.apple.com/tr/album/tek/1786411934?i=1786412274&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/90/c1/3d/90c13de7-2081-260d-31bb-dcdd6607960a/mzaf_757621875613665248.plus.aac.p.m4a"
+  },
+  "İnan Bana (feat. Lie Refuge)": {
+   "a": "https://music.apple.com/tr/album/i-nan-bana-feat-lie-refuge/1785380515?i=1785380516&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/f7/09/16/f70916ee-09d3-c9a2-36b7-02b527fd6bc8/mzaf_9316679427516661354.plus.aac.p.m4a"
   }
  },
  "lilzey": {
@@ -851,6 +868,10 @@
   "Yokuş": {
    "a": "https://music.apple.com/tr/album/yoku%C5%9F/1646837421?i=1646837422&uo=4",
    "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/49/1a/1e/491a1ee7-cb27-fa53-d891-33cb02028ee3/mzaf_11698301192961773457.plus.aac.p.m4a"
+  },
+  "İlle De Sen": {
+   "a": "https://music.apple.com/tr/album/i-lle-de-sen/1872400466?i=1872400648&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/88/81/98/888198fe-c686-2e55-fbc2-08b7b6d5dc80/mzaf_17680268218994020737.plus.aac.p.m4a"
   }
  },
  "normender": {
