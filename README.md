@@ -5,6 +5,77 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.19 — Festival devresi · güncelleme altyapısı · iki gerçek hata
+
+### 🎪 Festival devresi — `systems/festivals.js` + `data/festivals.js`
+Konserde mekânı sen kiralarsın; festivalde bir **line-up'a girmeye çalışırsın**.
+Bu yüzden ayrı ve kendi ekonomisi olan bir sistem:
+
+| Slot | Ücret × | Kitle × | Prestij × |
+|---|---|---|---|
+| ☀️ Gündüz Sahnesi | 0.30 | 0.55 | 0.25 |
+| 🌇 Gün Batımı | 0.55 | 0.78 | 0.60 |
+| 🌆 Prime-Time | 1.00 | 1.00 | 1.00 |
+| 🎧 Ana Sahne Öncesi | 1.50 | 1.18 | 1.50 |
+| 👑 Headliner | 2.60 | 1.42 | 2.60 |
+
+- **10 festival · 4 tier** (yerel → şehir → ulusal → amiral), yaz sezonu (Haziran–Eylül)
+- Slot, popülerliğine göre **otomatik tahsis** edilir; tier başına eşikler sabit
+- **Başvuru penceresi** edisyondan 45 gün önce açılır, 3 gün kala kapanır
+- **Strateji seçimi:** ücret odaklı · dengeli · kitle odaklı (ücret ↔ hayran dengesi)
+- **Çakışma koruması:** aynı gün (±1) konser/turne/festival olamaz
+- Performans sonucu: kitle, ücret, hayran, şöhret, itibar + **🔥 sahne anı**
+  (viral) ve **⚠️ aksilik** olasılıkları; yüksek slotlarda **backstage** samimiyeti
+- Amiral festival headliner'ı `player.flagshipHeadliner` olarak işaretlenir
+
+### 🔄 Güncelleme altyapısı — oyuncu artık yeni sürümü görebiliyor
+Önbellek hash'i (`?v=`) yalnızca sayfa **yenilendiğinde** işe yarıyordu; oyunu açık
+bırakan oyuncu eskisini çalıştırmaya devam ediyordu.
+
+| Dosya | Görev |
+|---|---|
+| `sw.js` | Service Worker — HTML **network-first**, `?v=` damgalı varlıklar **cache-first** |
+| `js/systems/updater.js` | `version.json`'u karşılaştırır, **"Yeni sürüm hazır → Güncelle"** şeridi gösterir |
+| `tools/gen-version-json.js` | `version.json` üretir + `sw.js` sürümünü damgalar |
+| `.github/workflows/deploy-pages.yml` | Modüler sürümü **GitHub Pages**'e dağıtır |
+| `.github/workflows/release.yml` | `git tag v*` → **GitHub Release** + tek dosya build |
+| `tools/itch-deploy.js` | itch.io paketi + `butler push` (secret varsa) |
+
+Tek dosya build'inde (`KARMA-Oyun.html`) bu katman **kendini kapatır** — orada
+sunucu yoktur, hata vermez.
+
+**Pages'i açmak için (tek seferlik):** Settings → Pages → Source = GitHub Actions,
+sonra Actions → Variables → `PAGES_ENABLED = true`. Bu tanımlanana kadar deploy
+iş akışı atlanır ve **yeşil kalır**.
+
+### 🐞 İki gerçek hata kapatıldı
+
+**1. CI'da Node sürümü çelişkisi** — `.github/workflows/tests.yml` `node-version: "20"`
+kullanıyordu; `package.json` `engines.node: ">=22.15"` ve jsdom 30 Node 22+ istiyor.
+Her push kırmızı gelmeliydi. → **node 24**.
+
+**2. `tools/sim-balance.js` içinde sabit yerel yol** —
+`require("/home/user/node_modules/jsdom")`. Bu yol yalnızca geliştiricinin
+makinesinde vardı; depo kökünde `npm install` yapan **her** ortamda (CI dâhil)
+denge simülasyonu adımı çöküyordu. → `KARMA_JSDOM` → yerel `node_modules` → ev
+dizini sırasıyla denenir (`harness.js` ile aynı çözümleme).
+
+### 🧪 Yeni test paketi: `tools/smoke-festivals.js` (61 kontrol)
+Veri bütünlüğü · slot monotonluğu · takvim/pencere tutarlılığı ·
+başvuru→kayıt→çözüm uçtan uca · çakışma koruması · şema/kalıcılık.
+
+### 📱 Telefon gerçekçiliği
+- **Alt kenardan yukarı çek → ana ekran**, **üstten aşağı çek → Kontrol Merkezi**
+  (hareket yalnızca kenar bölgesinde başlarsa sayılır; liste kaydırması bozulmaz)
+- **Dokunsal geri bildirim** (`navigator.vibrate`) — uygulama açma, eve dönme
+
+### 🔧 Süreç düzeltmesi
+`tools/verify.js` başlığındaki sabit adım sayısı kaldırıldı: "11 adım" yazıyordu,
+gerçek sayı 13'tü, sonra 15 oldu. Sayı artık yalnızca `SONUÇ: n/m` satırında ve
+**doğru** görünür.
+
+---
+
 ## GÜNCELLEME v10.18 — Doğrulama, CI ve motor/veri ayrımı (bu sürüm)
 
 Bu sürümde **yeni oyun özelliği yok.** Tamamen *güvenilirlik* ve *bakım*
