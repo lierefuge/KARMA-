@@ -387,7 +387,17 @@
 
       /* etki: küçük sanatçıda oransal sıçrama büyük, yıldızda küçük */
       const big = (a.popularity || 50) >= 75;
-      const gain = big ? U.rand(0.04, 0.11) : U.rand(0.10, 0.32);
+      let gain = big ? U.rand(0.04, 0.11) : U.rand(0.10, 0.32);
+
+      /* OYUNCUNUN ŞİRKETİNDEYSE: gerçek destek.
+         Şirket gücü + personel → daha büyük sıçrama; yani "kadroya
+         almak" somut bir getiri sağlar (eskiden sadece rastgele büyüyordu). */
+      const onMyRoster = !!(s.label && a.labelId === "my_label");
+      if (onMyRoster) {
+        const support = 1 + Math.min(0.5, K.label.power() / 250) +
+          (K.label.staffLevel("producer") || 0) * 0.05 + (K.label.staffLevel("pr") || 0) * 0.04;
+        gain *= support;
+      }
       a._boost = Math.min(0.6, (a._boost || 0) + gain);
       a.popularity = U.clamp((a.popularity || 50) + (big ? U.rand(0.3, 1.1) : U.rand(0.6, 2.4)), 30, 99);
       a.monthly = Math.round(a.monthly * (1 + gain));
@@ -396,6 +406,18 @@
       const gap = Math.round(U.rand(50, 150) * (1.7 - (a.popularity || 50) / 100));
       a._nextRelease = s.day + gap;
       a.lastReleaseDay = s.day;
+
+      /* şirket etiketiyle çıktıysa şirket kataloğuna yaz */
+      if (onMyRoster) {
+        s.label.catalog = s.label.catalog || [];
+        s.label.catalog.unshift({ title: song.title, artistId: a.id, day: s.day });
+        s.label.catalog = s.label.catalog.slice(0, 60);
+        s.notifications = (s.notifications || []).concat([{
+          title: "🏢 Şirket yayını",
+          msg: `${a.stageName} — "${song.title}" şirketin etiketiyle çıktı.`,
+          kind: "ok", day: s.day
+        }]).slice(-60);
+      }
 
       s.industry.log.unshift({ day: s.day, artistId: a.id, artistName: a.stageName, title: song.title, art: song.art });
       s.industry.log = s.industry.log.slice(0, 40);
