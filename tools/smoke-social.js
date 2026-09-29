@@ -14,40 +14,34 @@
 */
 const fs = require("fs");
 const path = require("path");
-const { JSDOM, VirtualConsole } = resolveJsdom();
+const H = require("./harness.js");
 const ROOT = path.resolve(__dirname, "..");
-/* jsdom çözümleme: yerel kurulum, /home/user/node_modules veya KARMA_JSDOM */
-function resolveJsdom() {
-  const cands = [
-    process.env.KARMA_JSDOM,
-    "jsdom",
-    path.join(process.env.HOME || "/home/user", "node_modules", "jsdom")
-  ].filter(Boolean);
-  let lastErr;
-  for (const c of cands) {
-    try { return require(c); } catch (e) { lastErr = e; }
-  }
-  console.error("jsdom bulunamadı. Kur: npm install jsdom  (veya KARMA_JSDOM ile yolu ver)");
-  process.exit(1);
-}
 
 const FILE = path.join(ROOT, "KARMA-Oyun.html");
 if (!fs.existsSync(FILE)) { console.error("KARMA-Oyun.html yok — önce: node tools/build-single.js"); process.exit(1); }
 
 const html = fs.readFileSync(FILE, "utf8");
-const errors = [];
-const vc = new VirtualConsole();
-vc.on("jsdomError", (e) => { const m = e.detail ? e.detail.message : e.message; if (!/fonts/.test(m)) errors.push("jsdomError: " + m); });
-
-const dom = new JSDOM(html, {
-  url: "https://karma.local/", runScripts: "dangerously", pretendToBeVisual: true, virtualConsole: vc,
-  beforeParse(w) {
-    w.fetch = () => Promise.reject(new Error("offline"));
-    w.addEventListener("error", (e) => errors.push("onerror: " + (e.error ? e.error.stack : e.message)));
-  }
+/* ============================================================
+   v10.18 (B-7) — SABİT SÜRE BEKLEME KALDIRILDI
+   Eskiden `setTimeout(run, 2600)` ile "herhâlde hazırdır" deniyordu.
+   Yavaş makinede/CI'da yanlış kırmızı, hızlı makinede gereksiz bekleme
+   üretiyordu. Artık oyunun GERÇEKTEN boot olması bekleniyor
+   (bkz. tools/harness.js → whenReady).
+   ============================================================ */
+const TEST_SEED = 20261018;
+const { dom, errors } = H.bootDom(html, { seed: TEST_SEED });
+/* Bu test GERÇEK içeriği doğruluyor (Şehinşah/wegh tam şarkı listesi,
+   diskografi, önizleme kapsamı) → tembel veri katmanının HAZIR OL MASINI
+   beklemek zorunda. Aksi hâlde boot anında veri `idle` olur ve test
+   yanlış kırmızı verir. */
+H.whenReady(dom, {
+  label: "tembel veri (real-songs/discography/real-previews) hazır",
+  ready: (K) => K.lazy && K.lazy.loaded("real-songs") &&
+                 K.lazy.loaded("discography") && K.lazy.loaded("real-previews")
+}).then(run).catch((err) => {
+  console.error("test çöktü: " + (err && err.message ? err.message : err));
+  process.exitCode = 1;
 });
-
-setTimeout(run, 2600);
 
 function run() {
   const win = dom.window, K = win.K;
