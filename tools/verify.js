@@ -125,7 +125,8 @@ const SUITES = [
   { id: "personality", script: "tools/smoke-personality.js", label: "Kişilik katmanı" },
   { id: "apps",        script: "tools/smoke-apps.js",        label: "Uygulamalar" },
   { id: "social",      script: "tools/smoke-social.js",      label: "Sosyal medya + diskografi" },
-  { id: "festivals",   script: "tools/smoke-festivals.js",   label: "Festival devresi" }
+  { id: "festivals",   script: "tools/smoke-festivals.js",   label: "Festival devresi" },
+  { id: "rollout",     script: "tools/smoke-rollout.js",     label: "Çıkış haftası" }
 ];
 
 const suiteOut = {};
