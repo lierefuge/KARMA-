@@ -133,7 +133,8 @@
         { icon: "🔥", label: "Popülerlik", value: w.popStart + " → " + w.popEnd, sub: "tepe " + w.peakPop, tone: "hot" },
         { icon: "💰", label: "Kasa değişimi", value: (w.balanceDelta >= 0 ? "+" : "−") + U.money(Math.abs(w.balanceDelta)), sub: "yıl boyunca", tone: "money" }
       ];
-      if (w.topSong) out.push({ icon: "👑", label: "Yılın şarkın", value: w.topSong.title, sub: U.fmt(w.topSong.streams) + " dinlenme", tone: "gold" });
+      /* Yılın şarkısı ÖNE ÇIKAN kart olur (grid'de değil, geniş kartta) */
+      if (w.topSong) out.push({ icon: "👑", label: "Yılın şarkın", value: w.topSong.title, sub: U.fmt(w.topSong.streams) + " dinlenme", tone: "gold", feature: true });
       if (w.topCity) out.push({ icon: "🚌", label: "En çok çaldığın şehir", value: w.topCity, sub: w.shows + " sahne", tone: "blue" });
       if (w.plaques.length) out.push({ icon: "🏅", label: "Kazandığın plak", value: String(w.plaques.length), sub: w.plaques.map(pl => (K.certifications.tier(pl.tier) || {}).short).filter(Boolean).slice(0, 3).join(" · "), tone: "gold" });
       if (w.debuts.length) {
@@ -151,13 +152,32 @@
         return;
       }
       const w = (year != null ? list.find(x => x.year === year) : list[list.length - 1]) || list[list.length - 1];
-      const cards = K.yearwrap.cards(w);
+      const all = K.yearwrap.cards(w);
+      const feature = all.find(c => c.feature) || null;
+      const cards = all.filter(c => !c.feature);
       const body = `
         <div class="wrapped-hero">
-          <div class="wh-year">${w.year}</div>
-          <div class="wh-title">KARMA Wrapped</div>
-          <div class="wh-sub">${U.fmt(w.streams)} dinlenme · ${w.songsReleased} yayın · ${w.shows} sahne</div>
+          <div class="wh-top">
+            <span class="wh-year">${w.year}</span>
+            <span class="wh-badge">YIL ÖZETİ</span>
+          </div>
+          <div class="wh-hero-num">${U.fmt(w.streams)}</div>
+          <div class="wh-hero-lb">dinlenme</div>
+          <div class="wh-strip">
+            <span><b>${w.songsReleased}</b> yayın</span>
+            <span><b>${w.shows}</b> sahne</span>
+            <span><b>${w.plaques.length}</b> plak</span>
+            <span><b>+${U.compact(w.followers)}</b> takipçi</span>
+          </div>
         </div>
+        ${feature ? `<div class="wrapped-feature">
+          <span class="wf-icon">${feature.icon}</span>
+          <div class="wf-txt">
+            <span class="wf-label">${U.escape(feature.label)}</span>
+            <span class="wf-value">${U.escape(String(feature.value))}</span>
+            <span class="wf-sub">${U.escape(feature.sub || "")}</span>
+          </div>
+        </div>` : ""}
         <div class="wrapped-grid">
           ${cards.map(c => `<div class="wrapped-card ${c.tone || ""}">
             <span class="wc-icon">${c.icon}</span>
