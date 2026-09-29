@@ -276,8 +276,14 @@
       a.popularity = U.clamp(a.popularity + U.rand(0.2, 0.8), 0, 99);
       const bonus = K.label.staffBonus();
       a.popularity = U.clamp(a.popularity + bonus.quality * 0.15, 0, 99);
-      K.label.catalogAdd((opts && opts.title) || (a.stageName + " — yeni single"), artistId);
-      s.label.catalog.push(U.uid("cat"));
+      /* DÜZELTME (v10.24): eskiden katalog kaydı eklendikten sonra buraya
+         YENİ bir rastgele id push ediliyordu (`U.uid("cat")`), yani
+         `label.catalog` içindeki referanslar hiçbir kayda karşılık gelmiyordu
+         (boşa düşen id). Şirket gücü `catalog.length` üzerinden hesaplandığı
+         için bu, katalog bütünlüğünü bozuyordu. Artık GERÇEK kaydın id'si
+         yazılır. */
+      const entry = K.label.catalogAdd((opts && opts.title) || (a.stageName + " — yeni single"), artistId);
+      if (entry && entry.id) s.label.catalog.push(entry.id);
       s.label.monthlyStreams = K.label.rosterArtists().reduce((x, ar) => x + ar.monthly, 0);
       K.toast("📀 Şirket yayını", `${a.stageName} için yeni yayın çıktı.`, "ok");
       K.save(); K.refresh();
@@ -351,7 +357,22 @@
           const excess = ar._nextRelease - s.day - targetGap;
           ar._nextRelease = Math.max(s.day + 8, ar._nextRelease - Math.max(1, Math.round(excess * 0.08)));
         }
-        ar.monthly = Math.round(ar.monthly * U.rand(1.0, 1.008));
+        /* DÜZELTME (v10.24) — KADRO BÜYÜMESİNE GERÇEKÇİ TAVAN
+           Eskiden `monthly *= 1..1,008` idi: günde ortalama %0,4 BİLEŞİK
+           artış ve HİÇBİR üst sınır yok. 520 günlük simülasyonda kadro
+           10M → 70M aylık dinleyiciye çıkıyor, şirket geliri üstel
+           patlıyordu (aylık ~3,5M ₺). Oyuncunun kendi eğrisi bu sorundan
+           v10.17'de kurtarılmıştı (dikkat dalgası: yüksel→zirve→düş) ama
+           kadro NPC'lerine uygulanmamıştı.
+           Tavan, oyunun KENDİ kalibrasyonundan alınır (bkz. core/game.js
+           `listenerTarget`): aylık dinleyici ≈ popülerlik² × 700.
+           Popülerlik 99'da durduğu için tavan da ~6,9M'da durur; sanatçı
+           tavana kadar büyür, sonra platoda dalgalanır — gerçek bir
+           kariyer gibi (sonsuz büyüme yerine zirve + plato). */
+        const ceiling = Math.pow(ar.popularity || 10, 2) * 700;
+        ar.monthly = ar.monthly < ceiling
+          ? Math.round(ar.monthly * U.rand(1.0, 1.008))
+          : Math.round(ar.monthly * U.rand(0.997, 1.002));
         ar.popularity = U.clamp(ar.popularity + U.rand(0, 0.09), 0, 99);
       });
 
