@@ -1,43 +1,51 @@
 <!--
-  KARMA — önbellek (cache) sürüm etiketi: 10.14
-  Yerel css/ ve js/ dosyalarının sonunda ?v=10.14 bulunur.
-  Yeni bir güncelleme yayınlarken bu numarayı artırın (ör. ?v=10.15).
-  Böylece tarayıcı eski kopyayı kullanmaz; mobilde cache temizlemek gerekmez.
+  KARMA — önbellek (cache) sürümü artık OTOMATİK.
+  Yerel css/ ve js/ dosyalarının sonundaki ?v= değeri ELLE ARTIRILMAZ;
+  içerik hash'inden üretilir, yani herhangi bir dosya değişince kendiliğinden
+  değişir ve tarayıcı eski kopyayı kullanamaz.
+
+  Yayın adımları:
+    node tools/bump-cache.js      → ?v= değerlerini yeni hash ile damgalar
+    node tools/build-single.js    → tek dosya build + önbellek denetimi
+
+  Elle takip edilen yayın sürümü (yalnızca changelog/okunabilirlik): 10.15
 -->
 <!DOCTYPE html>
 <html lang="tr">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="robots" content="noindex, nofollow, noarchive" />
 <title>KARMA Music Game — Music Industry Simulator</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/main.css?v=10.14" />
-<link rel="stylesheet" href="css/career.css?v=10.14" />
-<link rel="stylesheet" href="css/phone.css?v=10.14" />
-<link rel="stylesheet" href="css/apps.css?v=10.14" />
-<link rel="stylesheet" href="css/apps-ext.css?v=10.14" />
-<link rel="stylesheet" href="css/ext.css?v=10.14" />
-<link rel="stylesheet" href="css/concerts.css?v=10.14" />
-<link rel="stylesheet" href="css/jobs.css?v=10.14" />
-<link rel="stylesheet" href="css/albums.css?v=10.14" />
-<link rel="stylesheet" href="css/payout.css?v=10.14" />
-<link rel="stylesheet" href="css/artistapps.css?v=10.14" />
-<link rel="stylesheet" href="css/fans.css?v=10.14" />
-<link rel="stylesheet" href="css/studio-theme.css?v=10.14" />
-<link rel="stylesheet" href="css/studio.css?v=10.14" />
-<link rel="stylesheet" href="css/update-v2.css?v=10.14" />
-<link rel="stylesheet" href="css/studio-wizard.css?v=10.14" />
-<link rel="stylesheet" href="css/lyrics-editor.css?v=10.14" />
-<link rel="stylesheet" href="css/social-v2.css?v=10.14" />
-<link rel="stylesheet" href="css/instagram.css?v=10.14" />
-<link rel="stylesheet" href="css/apps-misc.css?v=10.14" />
-<link rel="stylesheet" href="css/phone-extras.css?v=10.14" />
-<link rel="stylesheet" href="css/player.css?v=10.14" />
-<link rel="stylesheet" href="css/fullplay.css?v=10.14" />
-<link rel="stylesheet" href="css/ytplayer.css?v=10.14" />
+<link rel="stylesheet" href="css/main.css?v=78f521ec" />
+<link rel="stylesheet" href="css/career.css?v=78f521ec" />
+<link rel="stylesheet" href="css/phone.css?v=78f521ec" />
+<link rel="stylesheet" href="css/apps.css?v=78f521ec" />
+<link rel="stylesheet" href="css/apps-ext.css?v=78f521ec" />
+<link rel="stylesheet" href="css/ext.css?v=78f521ec" />
+<link rel="stylesheet" href="css/concerts.css?v=78f521ec" />
+<link rel="stylesheet" href="css/jobs.css?v=78f521ec" />
+<link rel="stylesheet" href="css/albums.css?v=78f521ec" />
+<link rel="stylesheet" href="css/payout.css?v=78f521ec" />
+<link rel="stylesheet" href="css/artistapps.css?v=78f521ec" />
+<link rel="stylesheet" href="css/fans.css?v=78f521ec" />
+<link rel="stylesheet" href="css/studio-theme.css?v=78f521ec" />
+<link rel="stylesheet" href="css/studio.css?v=78f521ec" />
+<link rel="stylesheet" href="css/update-v2.css?v=78f521ec" />
+<link rel="stylesheet" href="css/studio-wizard.css?v=78f521ec" />
+<link rel="stylesheet" href="css/lyrics-editor.css?v=78f521ec" />
+<link rel="stylesheet" href="css/social-v2.css?v=78f521ec" />
+<link rel="stylesheet" href="css/instagram.css?v=78f521ec" />
+<link rel="stylesheet" href="css/apps-misc.css?v=78f521ec" />
+<link rel="stylesheet" href="css/phone-extras.css?v=78f521ec" />
+<link rel="stylesheet" href="css/player.css?v=78f521ec" />
+<link rel="stylesheet" href="css/fullplay.css?v=78f521ec" />
+<link rel="stylesheet" href="css/ytplayer.css?v=78f521ec" />
+<!-- mobil/dokunmatik katman: EN SON yüklenir ki altta kalan 25 dosyayı ezebilsin -->
+<link rel="stylesheet" href="css/mobile.css?v=78f521ec" />
 </head>
 <body>
   <div id="app">
@@ -79,9 +87,22 @@
         </div>
       </div>
 
+      <!-- v10.15 — bölüm değiştirici.
+           Dar ekranda css/mobile.css bu bloğu SABİT ALT ÇUBUĞA taşır
+           (başparmak erişimi + alt güvenli alan). Etiketler iki biçimli:
+           "Sanatçı / Kariyer" uzun, "Kariyer" kısa. Hangi metnin
+           görüneceğini medya sorgusu belirler; JS'e dokunulmaz. -->
       <div class="view-switch" id="view-switch">
-        <button class="vs-btn active" data-view="career">🎤 Sanatçı / Kariyer</button>
-        <button class="vs-btn" data-view="phone">📱 Telefon</button>
+        <button class="vs-btn active" data-view="career">
+          <span class="vs-ico">🎤</span>
+          <span class="vs-long">Sanatçı / Kariyer</span>
+          <span class="vs-mini">Kariyer</span>
+        </button>
+        <button class="vs-btn" data-view="phone">
+          <span class="vs-ico">📱</span>
+          <span class="vs-long">Telefon</span>
+          <span class="vs-mini">Telefon</span>
+        </button>
       </div>
 
       <div class="topbar-actions">
@@ -147,91 +168,91 @@
   </div>
 
   <!-- ================= DATA ================= -->
-  <script src="js/data/artists.js?v=10.14"></script>
-  <script src="js/data/artist-photos.js?v=10.14"></script>
-  <script src="js/data/labels.js?v=10.14"></script>
-  <script src="js/data/genres.js?v=10.14"></script>
-  <script src="js/data/creative.js?v=10.14"></script>
-  <script src="js/data/news.js?v=10.14"></script>
-  <script src="js/data/real-songs.js?v=10.14"></script>
-  <script src="js/data/real-previews.js?v=10.14"></script>
-  <script src="js/data/real-youtube.js?v=10.14"></script>
-  <script src="js/data/charts.js?v=10.14"></script>
-  <script src="js/data/discography.js?v=10.14"></script>
-  <script src="js/data/distro.js?v=10.14"></script>
-  <script src="js/data/lyrics.js?v=10.14"></script>
-  <script src="js/data/persona.js?v=10.14"></script>
-  <script src="js/data/personality.js?v=10.14"></script>
+  <script src="js/data/artists.js?v=78f521ec"></script>
+  <script src="js/data/artist-photos.js?v=78f521ec"></script>
+  <script src="js/data/labels.js?v=78f521ec"></script>
+  <script src="js/data/genres.js?v=78f521ec"></script>
+  <script src="js/data/creative.js?v=78f521ec"></script>
+  <script src="js/data/news.js?v=78f521ec"></script>
+  <script src="js/data/real-songs.js?v=78f521ec"></script>
+  <script src="js/data/real-previews.js?v=78f521ec"></script>
+  <script src="js/data/real-youtube.js?v=78f521ec"></script>
+  <script src="js/data/charts.js?v=78f521ec"></script>
+  <script src="js/data/discography.js?v=78f521ec"></script>
+  <script src="js/data/distro.js?v=78f521ec"></script>
+  <script src="js/data/lyrics.js?v=78f521ec"></script>
+  <script src="js/data/persona.js?v=78f521ec"></script>
+  <script src="js/data/personality.js?v=78f521ec"></script>
 
   <!-- ================= CORE ================= -->
-  <script src="js/core/util.js?v=10.14"></script>
-  <script src="js/core/events.js?v=10.14"></script>
-  <script src="js/core/state.js?v=10.14"></script>
-  <script src="js/core/game.js?v=10.14"></script>
+  <script src="js/core/util.js?v=78f521ec"></script>
+  <script src="js/core/events.js?v=78f521ec"></script>
+  <script src="js/core/state.js?v=78f521ec"></script>
+  <script src="js/core/game.js?v=78f521ec"></script>
 
   <!-- ================= SYSTEMS ================= -->
-  <script src="js/systems/economy.js?v=10.14"></script>
-<script src="js/systems/fans.js?v=10.14"></script>
-<script src="js/systems/shortform.js?v=10.14"></script>
-<script src="js/systems/catalog.js?v=10.14"></script>
-<script src="js/systems/press.js?v=10.14"></script>
-<script src="js/systems/ai.js?v=10.14"></script>
-<script src="js/systems/skills.js?v=10.14"></script>
-<script src="js/systems/goals.js?v=10.14"></script>
-<script src="js/systems/team.js?v=10.14"></script>
-<script src="js/systems/video.js?v=10.14"></script>
-<script src="js/systems/sponsor.js?v=10.14"></script>
-<script src="js/systems/phoneos.js?v=10.14"></script>
-<script src="js/systems/phonehome.js?v=10.14"></script>
-<script src="js/systems/playlists.js?v=10.14"></script>
-  <script src="js/systems/jobs.js?v=10.14"></script>
-  <script src="js/systems/stats.js?v=10.14"></script>
-  <script src="js/systems/settings.js?v=10.14"></script>
-  <script src="js/systems/imagery.js?v=10.14"></script>
-  <script src="js/systems/contacts.js?v=10.14"></script>
-  <script src="js/systems/chat.js?v=10.14"></script>
-  <script src="js/systems/lists.js?v=10.14"></script>
-  <script src="js/systems/career.js?v=10.14"></script>
-  <script src="js/systems/label.js?v=10.14"></script>
-  <script src="js/systems/relations.js?v=10.14"></script>
-  <script src="js/systems/platforms.js?v=10.14"></script>
-  <script src="js/systems/social.js?v=10.14"></script>
-  <script src="js/systems/live.js?v=10.14"></script>
-  <script src="js/systems/interactions.js?v=10.14"></script>
-  <script src="js/systems/concerts.js?v=10.14"></script>
-  <script src="js/systems/awards.js?v=10.14"></script>
-  <script src="js/systems/rivalry.js?v=10.14"></script>
-  <script src="js/systems/beef.js?v=10.14"></script>
-  <script src="js/systems/crisis.js?v=10.14"></script>
-  <script src="js/systems/incidents.js?v=10.14"></script>
-  <script src="js/systems/livestream.js?v=10.14"></script>
-  <script src="js/systems/audio.js?v=10.14"></script>
-  <script src="js/systems/preview.js?v=10.14"></script>
-  <script src="js/systems/devtools.js?v=10.14"></script>
+  <script src="js/systems/economy.js?v=78f521ec"></script>
+<script src="js/systems/fans.js?v=78f521ec"></script>
+<script src="js/systems/shortform.js?v=78f521ec"></script>
+<script src="js/systems/catalog.js?v=78f521ec"></script>
+<script src="js/systems/press.js?v=78f521ec"></script>
+<script src="js/systems/ai.js?v=78f521ec"></script>
+<script src="js/systems/skills.js?v=78f521ec"></script>
+<script src="js/systems/goals.js?v=78f521ec"></script>
+<script src="js/systems/team.js?v=78f521ec"></script>
+<script src="js/systems/video.js?v=78f521ec"></script>
+<script src="js/systems/sponsor.js?v=78f521ec"></script>
+<script src="js/systems/phoneos.js?v=78f521ec"></script>
+<script src="js/systems/phonehome.js?v=78f521ec"></script>
+<script src="js/systems/playlists.js?v=78f521ec"></script>
+  <script src="js/systems/jobs.js?v=78f521ec"></script>
+  <script src="js/systems/stats.js?v=78f521ec"></script>
+  <script src="js/systems/settings.js?v=78f521ec"></script>
+  <script src="js/systems/imagery.js?v=78f521ec"></script>
+  <script src="js/systems/contacts.js?v=78f521ec"></script>
+  <script src="js/systems/chat.js?v=78f521ec"></script>
+  <script src="js/systems/lists.js?v=78f521ec"></script>
+  <script src="js/systems/career.js?v=78f521ec"></script>
+  <script src="js/systems/label.js?v=78f521ec"></script>
+  <script src="js/systems/relations.js?v=78f521ec"></script>
+  <script src="js/systems/platforms.js?v=78f521ec"></script>
+  <script src="js/systems/social.js?v=78f521ec"></script>
+  <script src="js/systems/live.js?v=78f521ec"></script>
+  <script src="js/systems/interactions.js?v=78f521ec"></script>
+  <script src="js/systems/concerts.js?v=78f521ec"></script>
+  <script src="js/systems/awards.js?v=78f521ec"></script>
+  <script src="js/systems/rivalry.js?v=78f521ec"></script>
+  <script src="js/systems/beef.js?v=78f521ec"></script>
+  <script src="js/systems/crisis.js?v=78f521ec"></script>
+  <script src="js/systems/incidents.js?v=78f521ec"></script>
+  <script src="js/systems/livestream.js?v=78f521ec"></script>
+  <script src="js/systems/audio.js?v=78f521ec"></script>
+  <script src="js/systems/preview.js?v=78f521ec"></script>
+  <script src="js/systems/devtools.js?v=78f521ec"></script>
 
   <!-- ================= UI ================= -->
-  <script src="js/ui/components.js?v=10.14"></script>
-<script src="js/ui/studio.js?v=10.14"></script>
-  <script src="js/ui/career-ui.js?v=10.14"></script>
+  <script src="js/ui/components.js?v=78f521ec"></script>
+<script src="js/ui/studio.js?v=78f521ec"></script>
+  <script src="js/ui/career-ui.js?v=78f521ec"></script>
 
   <!-- ================= PHONE APPS ================= -->
-  <script src="js/apps/phone.js?v=10.14"></script>
-  <script src="js/apps/spotify.js?v=10.14"></script>
-  <script src="js/apps/applemusic.js?v=10.14"></script>
-  <script src="js/apps/youtube.js?v=10.14"></script>
-  <script src="js/apps/instagram.js?v=10.14"></script>
-  <script src="js/apps/tiktok.js?v=10.14"></script>
-  <script src="js/apps/x.js?v=10.14"></script>
-  <script src="js/apps/news.js?v=10.14"></script>
-  <script src="js/apps/artistapps.js?v=10.14"></script>
-  <script src="js/apps/messages.js?v=10.14"></script>
-<script src="js/apps/fans.js?v=10.14"></script>
-<script src="js/apps/goals.js?v=10.14"></script>
-<script src="js/apps/team.js?v=10.14"></script>
-<script src="js/apps/video.js?v=10.14"></script>
-<script src="js/apps/phoneapps.js?v=10.14"></script>
+  <script src="js/apps/phone.js?v=78f521ec"></script>
+  <script src="js/apps/spotify.js?v=78f521ec"></script>
+  <script src="js/apps/applemusic.js?v=78f521ec"></script>
+  <script src="js/apps/youtube.js?v=78f521ec"></script>
+  <script src="js/apps/instagram.js?v=78f521ec"></script>
+  <script src="js/apps/tiktok.js?v=78f521ec"></script>
+  <script src="js/apps/x.js?v=78f521ec"></script>
+  <script src="js/apps/news.js?v=78f521ec"></script>
+  <script src="js/apps/artistapps.js?v=78f521ec"></script>
+  <script src="js/apps/messages.js?v=78f521ec"></script>
+<script src="js/apps/fans.js?v=78f521ec"></script>
+<script src="js/apps/goals.js?v=78f521ec"></script>
+<script src="js/apps/team.js?v=78f521ec"></script>
+<script src="js/apps/video.js?v=78f521ec"></script>
+<script src="js/apps/phoneapps.js?v=78f521ec"></script>
 
   <!-- ================= BOOT ================= -->
-  <script src="js/main.js?v=10.14"></script>
+  <script src="js/main.js?v=78f521ec"></script>
 </body>
 </html>
