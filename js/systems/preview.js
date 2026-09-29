@@ -34,15 +34,49 @@
     return t;
   }
 
+  /* ---------------- ÖNİZLEME SÜZGECİ (P-2) ----------------
+     `real-previews` kaydı { p, a } biçimindedir:
+       p = doğrudan çalınabilir 30 sn ses (m4a)
+       a = Apple Music sayfası
+
+     SORUN: eskiden `find()` kaydı OLDUĞU GİBİ döndürüyordu ve çağıran
+     taraf oynatılabilirliği DENETLEMİYORDU. `p` eksik/bozuk bir kayıtta
+     `has()` yanlışlıkla `true` dönüyor (arayüzde ölü bir ▶ düğmesi),
+     `play()` ise `audio.src = undefined` yazıp "ses yüklenemedi"
+     hatası veriyordu. Bu, veri bozulduğunda sessizce kullanıcıya
+     yansıyan bir hatadır.
+
+     Artık oynatılabilirlik TEK bir süzgeçten geçer. Not: `a` süzgece
+     girmez — ses olmasa da Apple Music sayfası değerli bir bağlantıdır
+     (bkz. `links()`), o yüzden ayrı doğrulanır. */
+  function validUrl(u, kind) {
+    if (typeof u !== "string") return false;
+    const s = u.trim();
+    if (!s || s === "undefined" || s === "null") return false;
+    if (kind === "audio") return /^https?:\/\//i.test(s) || /^data:audio\//i.test(s);
+    return /^https?:\/\//i.test(s);
+  }
+
+  /* kayıt çalınabilir mi? (geçerli 30 sn ses URL'i şart) */
+  function playable(entry) {
+    return !!(entry && typeof entry === "object" && validUrl(entry.p, "audio"));
+  }
+
+  /* kayıtta kullanılabilir bir bağlantı var mı? (ses || sayfa) */
+  function usable(entry) {
+    return !!(entry && typeof entry === "object" && (validUrl(entry.p, "audio") || validUrl(entry.a, "page")));
+  }
+
   let NORM_INDEX = null;
   function normIndex() {
     if (NORM_INDEX) return NORM_INDEX;
     NORM_INDEX = {};
-    /* v10.16 — tembel veri katmanı (P-1) */
+    /* v10.16 — tembel veri katmanı (P-1)
+       Boş/bozuk kayıtlar indekse GİRMEZ (usable süzgeci). */
     const P = K.lazy ? K.lazy.raw("real-previews") : (K.REAL_PREVIEWS || {});
     for (const k in P) for (const title in P[k]) {
       const n = normTitle(title);
-      if (n && !NORM_INDEX[n]) NORM_INDEX[n] = P[k][title];
+      if (n && !NORM_INDEX[n] && usable(P[k][title])) NORM_INDEX[n] = P[k][title];
     }
     return NORM_INDEX;
   }
@@ -170,8 +204,13 @@
   function links(song) {
     const q = encodeURIComponent(((song && song.artistName) ? song.artistName + " " : "") + ((song && song.title) || ""));
     const f = find(song);
+    /* P-2: geçersiz `a` değeri ("undefined" gibi) bağlantıya dönüşmesin */
+    const apple =
+      (f && validUrl(f.a, "page") && f.a) ||
+      (song && validUrl(song.appleUrl, "page") && song.appleUrl) ||
+      `https://music.apple.com/tr/search?term=${q}`;
     return {
-      apple: (f && f.a) || (song && song.appleUrl) || `https://music.apple.com/tr/search?term=${q}`,
+      apple,
       youtube: `https://www.youtube.com/results?search_query=${q}`,
       spotify: `https://open.spotify.com/search/${q}`
     };
@@ -253,7 +292,12 @@
 
   /* ---------------- genel API ---------------- */
   K.preview = {
-    has(song) { return !!find(song); },
+    /* P-2: `has()` artık YALNIZCA gerçekten çalınabilir kayıtta true döner.
+       (Eskiden kayıt varsa true dönüyordu; `p` boşsa arayüz ölü ▶ gösteriyordu.) */
+    has(song) { return playable(find(song)); },
+    /* test/teşhis için: kayıt süzgeçleri */
+    isPlayable(entry) { return playable(entry); },
+    isUsable(entry) { return usable(entry); },
     active() { return !!cur; },
     available() { return K.lazy ? K.lazy.available("real-previews") : (K.REAL_PREVIEWS ? Object.keys(K.REAL_PREVIEWS).length : 0); },
     links, mount: buildBar,
@@ -334,9 +378,12 @@
     play(song) {
       if (song) { cur = song; link = find(song); }
       const f = link || find(cur);
-      if (!f) {
-        /* önizleme yoksa yine de tam sürüm denenebilir */
-        if (cur && K.preview.has(cur)) return K.preview.playFull(cur);
+      /* P-2: oynatılabilir 30 sn ses YOKSA bozuk src yazma; tam sürüme geç.
+         (Eskiden koşul `K.preview.has(cur)` idi — has() da find()'a bağlı
+         olduğu için bu dal HİÇ çalışamıyordu, yani ölü koddur.) */
+      if (!playable(f)) {
+        if (cur && K.preview.hasFull(cur)) return K.preview.playFull(cur);
+        if (cur) K.toast("ℹ️ Önizleme yok", `"${cur.title}" için 30 sn önizleme bulunamadı.`, "warn");
         return false;
       }
       /* kullanıcı tam sürümü tercih ettiyse doğrudan ona git */
