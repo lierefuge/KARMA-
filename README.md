@@ -5,7 +5,87 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
-## GÜNCELLEME v10.6 — Sosyal medya + her sanatçının PP'si + tam diskografi (bu sürüm)
+## GÜNCELLEME v10.14 — Sanatçı kişilik katmanı + günümüz sahnesi (bu sürüm)
+
+### 🎭 Şehinşah ve wegh Rumi artık KENDİ karakteriyle konuşuyor
+
+Şehinşah'ın DM'de bir kısmı kendi sesiyle, bir kısmı herkesle aynı cümleyle
+konuşuyordu; wegh Rumi'nin ise hiç DM profili yoktu — UZI ile aynı trap
+havuzundan cevap veriyordu. Bu sürüm ikisini de kendi karakterine oturttu.
+
+**Yeni dosya: `js/data/personality.js` — derin kişilik katmanı**
+
+`chat.js` içindeki `PROFILES` yalnızca *cümle havuzu* tutuyordu. Eksik olan
+davranış modeliydi: bir sanatçı neyi sever, neye soğur, nerede susar.
+Artık her iki sanatçı için şunlar tanımlı:
+
+| Alan | İşlev |
+|---|---|
+| `archetype` / `essence` | Karakter özü (ör. Şehinşah → "Mistik Kral") |
+| `loves` / `redLines` | Samimiyeti ne hızlandırır, ne kırar |
+| `speech` | Cümle ritmi, kelime seçimi, kaçındığı ağız |
+| `bias` | Niyet bazlı samimiyet katsayısı (24 niyet) |
+| `openings` / `quote` | Kendine özgü açılış kalıbı |
+| `test` | Oyun içi “kişilik testi” kartı |
+
+**Sonuç:** aynı mesaj artık aynı puanı getirmiyor. Şehinşah'a boş övgü ile
+somut bir söz eleştirisi, wegh'e taklit tavsiyesi ile üretim sorusu ayrı
+karşılanıyor (bkz. `bias`).
+
+### 🗣️ Şehinşah profili yenilendi (ölçülü ton)
+
+- Eksik niyetler eklendi: `feature`, `hangout`, `company`, `diss`, `news`,
+  `question`, `support`, `bye`, `beef`
+- Kendi `extras`, `followup`, `reaction` ve `diss` havuzu geldi
+- Argo ve gürültülü kibir profilden çıkarıldı; ağız tutarlılığı testle
+  korunuyor (`kanka/lan/olm` yasağı)
+- Sataşma kültürüne girmez — mesafeden cevap verir
+
+### 🆕 wegh Rumi profili (ilk kez)
+
+Hızlı, kısa, üretim takıntılı, bağımsızlık vurgulu bir ağız: `kayıt / mix /
+beat / sound` sözlüğü, özel hayatta ketumluk, sahne ile samimi ama kulis
+laflarına kapalı. 24 niyetin tamamı kendi havuzundan karşılanıyor.
+
+### 💬 Sosyal medya yorumları sanatçıya özel
+
+Eskiden yalnızca `label: "argo"` profili özel yorum alıyordu; diğer 35
+sanatçı aynı yorumu paylaşıyordu. Artık `PROFILES[id].reaction` varsa
+(övgü / eleştiri / nötr) kendi ağzıyla yorum yapıyor. Aynı şey `diss`
+için de geçerli.
+
+### 🏷️ Profilde “kişilik testi” kartı
+
+Instagram sanatçı profilinde yalnızca kişilik profili tanımlı sanatçılarda
+görünen bir kart: kod (ŞAH-1 / WGH-2), arketip, katsayı çubukları,
+“işe yarayan” ve “kırmızı çizgi” listesi. CSS: `css/instagram.css`.
+
+### 📰 Günümüz sahnesi gündeme eklendi
+
+Müzik haber havuzuna 12 yeni başlık girdi; oyun artık eski gündemi değil
+bugünün ekonomisini konuşuyor: tekli döngüsü, algoritmanın ilk 10 saniyesi,
+yapay zekâ ve telif tartışması, aracısız yayın, melodik trap, drill'in
+Türkiye'de yerleşmesi, phonk/hyperpop, sample savaşı, kısa video
+challenge'ları, plak–kaset dönüşü.
+
+### ✅ Yeni test: `node tools/smoke-personality.js`
+
+263 kontrol: profil bütünlüğü, “kendi sesiyle konuşuyor mu” (genel havuza
+düşme oranı), iki sanatçının ses ayrımı, ağız tutarlılığı, kişilik
+ağırlığı (övgü > hakaret, müzik > flört), yorum/diss özelliği ve
+şablon artığı (`undefined`, `{song}` vb.) kontrolü.
+
+```bash
+node tools/build-single.js
+node tools/smoke-personality.js
+node tools/smoke-apps.js
+node tools/smoke-social.js
+node tools/sim-balance.js
+```
+
+---
+
+## GÜNCELLEME v10.6 — Sosyal medya + her sanatçının PP'si + tam diskografi
 
 ### 📸 Sosyal medya görünüm onarımı — kök neden bulundu
 Hikâyelerin yarısı kesik, TikTok/Reels kartları ezik görünüyordu. Sebep tek bir
