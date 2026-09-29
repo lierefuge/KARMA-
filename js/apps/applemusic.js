@@ -7,6 +7,29 @@
 
   const U = K.util;
 
+  /* v10.22 — Apple Music kitaplık filtresi (sekme değişince sıfırlanmasın) */
+  let amFilter = "playlists";
+
+  function amxCard(c) {
+    const bg = c.color ? `linear-gradient(135deg,${c.color},#111)` : U.gradientFor(c.seed || c.title);
+    return `<div class="amx-card" data-pact="${c.act}" data-arg="${c.arg}">
+      <div class="art" style="background:${bg}${c.art ? `;background-image:url('${c.art}');background-size:cover` : ""}">${c.art ? "" : (c.letter || "♪")}</div>
+      <div class="tt">${U.escape(c.title)}</div>
+      ${c.sub ? `<div class="ss">${U.escape(c.sub)}</div>` : ""}
+    </div>`;
+  }
+
+  function amxLibRow(r) {
+    const bg = r.color ? `linear-gradient(135deg,${r.color},#111)` : U.gradientFor(r.seed || r.title);
+    return `<div class="amx-librow" data-pact="${r.act}" data-arg="${r.arg}">
+      <div class="art ${r.round ? "round" : ""}" style="background:${bg}${r.art ? `;background-image:url('${r.art}');background-size:cover` : ""}">${r.art ? "" : (r.letter || "♪")}</div>
+      <div class="grow" style="min-width:0">
+        <div class="tt">${U.escape(r.title)}</div>
+        <div class="ss">${U.escape(r.sub || "")}</div>
+      </div>
+      <span style="color:var(--text-3);font-size:15px">›</span></div>`;
+  }
+
   function chartRow(e, i) {
     return `<div class="am-chart-row">
       <span class="num ${i < 3 ? "peak" : ""}">${e.rank || i + 1}</span>
@@ -30,10 +53,10 @@
         shellClass: "app-applemusic", musicBar: true,
         tabPos: "bottom",
         tabs: [
-          { id: "listen", label: "Dinle", icon: "🎧" },
+          { id: "listen", label: "Şimdi Çal", icon: "🎧" },
           { id: "charts", label: "Listeler", icon: "📊" },
           { id: "radio", label: "Radyo", icon: "📻" },
-          { id: "lib", label: "Kütüphane", icon: "📚" }
+          { id: "lib", label: "Kitaplık", icon: "📚" }
         ],
         activeTab: params.tab || "listen",
         render: (tab) => {
@@ -53,6 +76,7 @@
           else if (act === "refresh-live") K.live.refreshChart(false).then(() => { K.phone.reRender(); K.refresh(); });
           else if (act === "station") app.startRadio(el.dataset.arg);
           else if (act === "genre") app.openGenre(el.dataset.arg);
+          else if (act === "am-libfilter") { amFilter = el.dataset.arg || "playlists"; K.phone.reRender(); }
         }
       };
       return view;
@@ -72,24 +96,58 @@
       ];
       const featured = K.platforms.searchSongs("").slice(0, 6);
 
+      /* Gerçek "Şimdi Çal" kurgusu: büyük başlık → BÜYÜK KAPAKLI yatay
+         carousel'ler (En Çok Dinlenen / Çalma Listelerin / Senin için /
+         Yeni Çıkanlar) → ruh hali ve tür şeritleri.
+         Eski "hero kartı + düz satır listesi" kaldırıldı. */
+      const charts = K.platforms.appleCharts(10).map((e, i) => ({ ...e, coverSeed: "am" + i }));
+      const edito = K.platforms.editorialPlaylists ? K.platforms.editorialPlaylists() : [];
+      const userPls = K.playlists.list();
+      const fresh = (p.songs || []).slice().sort((a, b) => (b.publishedDay || 0) - (a.publishedDay || 0)).slice(0, 8);
+
       return `
-        <div class="am-hero">
-          <div class="h-name">Dinle</div>
-          <div class="h-meta">Türkiye · kişiselleştirilmiş</div>
-          <div class="h-listeners">${U.compact(p.monthly)} aylık dinleyici · ${U.compact(K.platforms.playerTotals().apple)} Apple dinlenme</div>
+        <h1 class="amx-h1">Şimdi Çal</h1>
+        <div class="sub" style="font-size:11.5px;color:var(--text-2);margin-bottom:2px">
+          ${U.compact(p.monthly)} aylık dinleyici · ${U.compact(K.platforms.playerTotals().apple)} Apple dinlenme
         </div>
-        ${K.ui.section("Ruh Haline Göre")}
+
+        <div class="amx-sec"><h2>En Çok Dinlenenler</h2><span class="more">Türkiye</span></div>
+        <div class="amx-rail">${charts.map(e => amxCard({
+          act: "play", arg: e.id || e.title, art: e.art || "", seed: e.coverSeed,
+          letter: (e.title || "?")[0], title: e.title, sub: e.artistName
+        })).join("")}</div>
+
+        ${userPls.length ? `<div class="amx-sec"><h2>Çalma Listelerin</h2><span class="more">${userPls.length}</span></div>
+        <div class="amx-rail">${userPls.map(pl => amxCard({
+          act: "open-upl", arg: pl.id, seed: "upl_" + pl.id, letter: "🎵",
+          title: pl.name, sub: pl.tracks.length + " şarkı"
+        })).join("")}</div>` : ""}
+
+        ${edito.length ? `<div class="amx-sec"><h2>Senin için seçtiklerimiz</h2><span class="more">Tümü</span></div>
+        <div class="amx-rail">${edito.slice(0, 8).map(pl => amxCard({
+          act: "open-playlist", arg: pl.id, color: pl.color, letter: "♪",
+          title: pl.name, sub: pl.desc
+        })).join("")}</div>` : ""}
+
+        ${fresh.length ? `<div class="amx-sec"><h2>Yeni Çıkanlar</h2><span class="more">${fresh.length}</span></div>
+        <div class="amx-rail">${fresh.map(sg => amxCard({
+          act: "play", arg: sg.id, art: sg.art || "", seed: sg.coverSeed || sg.id,
+          letter: (sg.title || "?")[0], title: sg.title, sub: p.stageName
+        })).join("")}</div>` : ""}
+
+        <div class="amx-sec"><h2>Ruh Haline Göre</h2></div>
         <div class="am-mood-grid">
           ${moods.map(m => `<div class="am-mood" style="background:linear-gradient(135deg,${m.color},#111)" data-pact="station" data-arg="${U.escape(m.label)}">
             <span class="m-emoji">${m.emoji}</span><span class="m-label">${U.escape(m.label)}</span></div>`).join("")}
         </div>
-        ${K.ui.section("Türe Göre")}
-        <div class="am-genre-scroll">
-          ${genres.map(g => `<div class="am-genre" data-pact="genre" data-arg="${g.id}">
-            <span class="g-icon">${g.icon}</span><span>${U.escape(g.name)}</span></div>`).join("")}
-        </div>
-        ${K.ui.section("Öne Çıkanlar")}
-        ${featured.map((s, i) => chartRow({ ...s, rank: i + 1, streams: s.streams }, i)).join("")}
+
+        <div class="amx-sec"><h2>Türe Göre</h2></div>
+        <div class="amx-rail">${genres.map(g => amxCard({
+          act: "genre", arg: g.id, color: "#2c2c2e", letter: g.icon, title: g.name, sub: "Tür"
+        })).join("")}</div>
+
+        ${featured.length ? `<div class="amx-sec"><h2>Öne Çıkanlar</h2></div>
+        ${featured.map((s, i) => chartRow({ ...s, rank: i + 1, streams: s.streams }, i)).join("")}` : ""}
         ${p.songs.some(s => s.playlists && s.playlists.length) ? `
           ${K.ui.section("Listelerde")}
           ${p.songs.filter(s => s.playlists && s.playlists.length).slice(0, 5).map(s => `<div class="sp-track mine">
@@ -136,43 +194,77 @@
           <div class="h-name">Radyo</div>
           <div class="h-meta">Kesintisiz müzik · canlı yayınlar</div>
         </div>
-        ${stations.map(s => `<div class="am-station" data-pact="station" data-arg="${U.escape(s.name)}">
-          <div class="st-icon" style="background:linear-gradient(135deg,${s.color},#111)">${s.emoji}</div>
-          <div class="grow"><div class="st-name">${U.escape(s.name)}</div><div class="st-desc">${U.escape(s.desc)}</div></div>
-          <span class="st-play">▶</span>
+        ${stations.map(s => `<div class="amx-station" style="margin-bottom:10px" data-pact="station" data-arg="${U.escape(s.name)}">
+          <div class="art" style="background:linear-gradient(135deg,${s.color},#111)">${s.emoji}</div>
+          <div class="grow">
+            <div class="tt">${U.escape(s.name)}</div>
+            <div class="ss">${U.escape(s.desc)}</div>
+            <div class="amx-live"><i></i> Canlı</div>
+          </div>
+          <span style="color:var(--text-3);font-size:15px">▶</span>
         </div>`).join("")}`;
     },
 
-    /* ---------- KÜTÜPHANE ---------- */
+    /* ---------- KİTAPLIK (gerçek Apple Music kurgusu) ----------
+       Filtre çipleri + kapaklı satırlar; profil bilgisi tek satıra indi. */
     libraryHTML() {
       const p = K.state.player;
       const liked = K.interactions.likedSongs();
+      const followed = K.interactions.followedArtists();
+      const userPls = K.playlists.list();
       const chartRank = Math.min(999, ...p.songs.map(s => s.chartRank || 999), 999);
-      return `
-        <div class="am-hero">
-          <div class="h-name">${U.escape(p.stageName)}</div>
-          <div class="h-meta">${U.escape(p.city)} · ${K.genreById(p.genre).name}</div>
-          <div class="h-listeners">${U.compact(p.monthly)} aylık dinleyici</div>
-        </div>
-        <div class="sp-stat-row">
-          <div class="sp-stat" style="background:rgba(251,92,116,0.1)"><div class="k">Güncel Liste</div><div class="v">${chartRank === 999 ? "—" : "#" + chartRank}</div></div>
-          <div class="sp-stat" style="background:rgba(251,92,116,0.1)"><div class="k">Popülerlik</div><div class="v">${Math.round(p.popularity)}</div></div>
-        </div>
-        ${K.ui.section("Çalma Listelerin", `<button class="mini-btn" data-pact="create-playlist">＋ Yeni</button>`)}
-        ${K.playlists.list().length ? K.playlists.list().map(pl => `<div class="p-row" data-pact="open-upl" data-arg="${pl.id}">
-            ${K.ui.cover("upl_" + pl.id, "🎵", 46)}
-            <div class="grow"><div class="p-title">${U.escape(pl.name)}</div><div class="p-sub">${pl.tracks.length} şarkı · Çalma listesi</div></div>
-            <span style="color:var(--text-3)">›</span></div>`).join("") : `<div class="mini-empty">Çalma listesi oluştur.</div>`}
-        ${K.queue.size() ? `<div class="sp-stat" style="padding:9px 12px;margin-top:8px"><div class="k">Çalma Kuyruğu</div><div class="v">${K.queue.size()} şarkı sırada</div></div>` : ""}
+      const f = amFilter;
 
-        ${K.ui.section("Beğenilenler", `<span class="muted">${liked.length}</span>`)}
-        ${liked.length ? liked.slice(0, 8).map((s, i) => chartRow({ ...s, rank: i + 1 }, i)).join("")
-          : `<div class="mini-empty">Şarkıları ♥ ile beğen.</div>`}
-        ${K.ui.section("Şarkıların")}
-        ${p.songs.length ? p.songs.slice().sort((a, b) => b.streams - a.streams).map((s, i) => chartRow({
-          title: s.title, artistName: p.stageName, id: s.id, streams: s.appleStreams, rank: i + 1, art: null
-        }, i)).join("")
-          : `<div class="mini-empty">Henüz şarkın yok.</div>`}`;
+      const chips = [["playlists", "Çalma Listeleri"], ["artists", "Sanatçılar"],
+                     ["albums", "Albümler"], ["songs", "Şarkılar"]];
+
+      let body = "";
+      if (f === "playlists") {
+        body = userPls.length ? userPls.map(pl => amxLibRow({
+          act: "open-upl", arg: pl.id, seed: "upl_" + pl.id, letter: "🎵",
+          title: pl.name, sub: pl.tracks.length + " şarkı"
+        })).join("") : `<div class="mini-empty">Henüz çalma listen yok.</div>`;
+      } else if (f === "artists") {
+        body = followed.length ? followed.map(a => amxLibRow({
+          act: "open-artist", arg: a.id, round: true,
+          art: K.imagery.byArtistId(a.id) !== "__none__" ? K.imagery.byArtistId(a.id) : "",
+          letter: (a.stageName || "?")[0], title: a.stageName, sub: "Sanatçı"
+        })).join("") : `<div class="mini-empty">Sanatçı profillerinden takip et.</div>`;
+      } else if (f === "albums") {
+        const albums = p.albums || [];
+        body = albums.length ? albums.map(al => amxLibRow({
+          /* Apple Music'te oyuncunun kendi albüm detay ekranı yok;
+             satır sanatçı profiline ("player") gider — orada albüm listesi var. */
+          act: "open-artist", arg: "player", art: al.cover || "", seed: al.coverSeed || al.title,
+          letter: "💿", title: al.title, sub: "Albüm · " + (al.trackIds || []).length + " parça"
+        })).join("") : `<div class="mini-empty">Henüz albümün yok.</div>`;
+      } else {
+        const songs = liked.length ? liked : (p.songs || []).slice().sort((a, b) => (b.streams || 0) - (a.streams || 0));
+        body = songs.length ? songs.slice(0, 25).map(sg => amxLibRow({
+          act: "play", arg: sg.id, art: sg.art || "", seed: sg.coverSeed || sg.id,
+          letter: (sg.title || "?")[0], title: sg.title, sub: "Şarkı · " + U.escape(sg.artistName || p.stageName)
+        })).join("") : `<div class="mini-empty">Şarkıları ♥ ile beğen.</div>`;
+      }
+
+      return `
+        <h1 class="amx-h1">Kitaplık</h1>
+        <div class="sub" style="font-size:11.5px;color:var(--text-2);margin-bottom:8px">
+          ${U.escape(p.stageName)} · ${U.escape(p.city)} · ${K.genreById(p.genre).name}
+        </div>
+        <div class="sp-stat-row" style="margin-bottom:10px">
+          <div class="sp-stat" style="background:rgba(250,35,59,0.10)"><div class="k">Güncel Liste</div><div class="v">${chartRank === 999 ? "—" : "#" + chartRank}</div></div>
+          <div class="sp-stat" style="background:rgba(250,35,59,0.10)"><div class="k">Popülerlik</div><div class="v">${Math.round(p.popularity)}</div></div>
+        </div>
+
+        <div class="spx-chips" style="margin-bottom:4px">
+          ${chips.map(([id, label]) => `<button class="spx-chip ${f === id ? "on" : ""}" data-pact="am-libfilter" data-arg="${id}">${label}</button>`).join("")}
+          ${f === "playlists" ? `<button class="spx-chip" data-pact="create-playlist">＋ Yeni</button>` : ""}
+        </div>
+
+        ${body}
+
+        ${K.queue.size() ? `<div class="sp-stat" style="padding:9px 12px;margin-top:10px"><div class="k">Çalma Kuyruğu</div><div class="v">${K.queue.size()} şarkı sırada</div></div>` : ""}
+      `;
     },
 
     /* ---------- tür listesi ---------- */
