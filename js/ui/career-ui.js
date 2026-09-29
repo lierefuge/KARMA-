@@ -8,7 +8,7 @@
 
   const U = K.util;
   let currentTab = "career";
-  const ui = { tourCities: [], festStance: "balanced" };
+  const ui = { tourCities: [], festStance: "balanced", presaveRel: null, presaveChans: [] };
   const subTab = { label: "genel", events: "awards" };
 
   K.careerUI = {
@@ -1399,6 +1399,134 @@
     /* =====================================================
        YAYINLAR — pipeline + yayınlananlar
        ===================================================== */
+    /* =====================================================
+       ÇIKIŞ HAFTASI (v10.21) — systems/rollout.js
+       Ön kayıt kampanyası + teaser zinciri + ilk hafta takibi.
+       ===================================================== */
+    rolloutHTML() {
+      const s = K.state, p = s.player;
+      const pipe = K.rollout.activePipeline();
+      const live = K.rollout.liveFirstWeeks();
+      const recent = (p.songs || []).filter(x => x.debut)
+        .sort((a, b) => (b.publishedDay || 0) - (a.publishedDay || 0)).slice(0, 4);
+      if (!pipe.length && !live.length && !recent.length) return "";
+
+      const sum = K.rollout.summary();
+      const fans = K.fans.followers() || 0;
+
+      const relCards = pipe.map(r => {
+        const d = Math.max(0, r.startDay + r.waitDays - s.day);
+        const ready = K.rollout.readiness(r);
+        const ps = r.presave;
+        const can = K.rollout.canStartPresave(r);
+        const open = ui.presaveRel === r.id;
+        const selected = open ? ui.presaveChans : [];
+
+        const teasers = K.rollout.TEASERS.map(t => {
+          const w = K.rollout.teaserWindow(r, t.id);
+          const done = !!(ps && ps.fired && ps.fired[t.id]);
+          const cls = done ? "done" : w.ok ? "" : "off";
+          const body = done
+            ? `<span class="rs-eff">paylaşıldı</span>`
+            : w.ok
+              ? `<span class="rs-eff">${U.escape(w.why)}</span>`
+              : `<span class="rs-sub">${U.escape(w.why)}</span>`;
+          const tag = w.ok ? ` data-act="ro-teaser" data-arg="${r.id}|${t.id}"` : "";
+          return `<button class="ro-stage ${cls}"${tag} ${w.ok ? "" : "disabled"}>
+            <span class="rs-top">${t.emoji} ${t.name}${done ? " ✓" : ""}</span>
+            <span class="rs-sub">${U.escape(t.desc)}</span>
+            ${body}
+            <span class="rs-cost">${U.money(t.cost)}</span>
+          </button>`;
+        }).join("");
+
+        const chans = K.rollout.CHANNELS.map(c => {
+          const locked = fans < c.minFan;
+          const on = selected.indexOf(c.id) >= 0;
+          const tag = locked ? "" : ` data-act="ro-chan" data-arg="${c.id}"`;
+          return `<button class="ro-chan ${on ? "on" : ""} ${locked ? "locked" : ""}"${tag} ${locked ? "disabled" : ""}>
+            <span class="rc-top"><span>${c.emoji} ${U.escape(c.name)}</span><span>${U.money(c.cost)}</span></span>
+            <span class="rc-desc">${U.escape(locked ? "En az " + U.fmt(c.minFan) + " takipçi gerekli" : c.desc)}</span>
+          </button>`;
+        }).join("");
+
+        const chanCost = U.sum(selected, id => (K.rollout.ch(id) || {}).cost || 0);
+
+        return `<div class="studio-card" style="margin-top:10px">
+          <div class="ro-head">
+            <div class="ro-ring" style="--pct:${ready}"><b>${ready}%</b></div>
+            <div class="ro-head-txt">
+              <h3>${U.escape(r.title)}</h3>
+              <p>${d} gün kaldı · ${K.RELEASE_TYPES[r.type] ? K.RELEASE_TYPES[r.type].name : "Yayın"} · ${r.tracks.length} parça${ps ? ` · <b style="color:var(--money)">${U.fmt(ps.collected)} ön kayıt</b>` : ""}</p>
+            </div>
+          </div>
+
+          <div style="margin-top:14px">
+            <div class="sub" style="margin-bottom:7px">Teaser zinciri — zamanlama verimi belirler</div>
+            <div class="ro-stages">${teasers}</div>
+          </div>
+
+          ${ps ? `<div class="ro-nums" style="margin-top:14px">
+            <div class="ro-num"><span class="k">Toplanan Ön Kayıt</span><span class="v money">${U.fmt(ps.collected)}</span><span class="d">her gün artıyor</span></div>
+            <div class="ro-num"><span class="k">Hype</span><span class="v">${(ps.hype || 0).toFixed(2)}</span><span class="d">teaser'lardan</span></div>
+            <div class="ro-num"><span class="k">Beklenen İvme</span><span class="v">+%${Math.round(Math.min(0.55, ps.collected / 1200) * 100 + Math.min(0.42, (ps.hype || 0) * 0.35) * 100)}</span><span class="d">yayın günü</span></div>
+            <div class="ro-num"><span class="k">Kampanya Gideri</span><span class="v">${U.money(ps.cost || 0)}</span><span class="d">harcandı</span></div>
+          </div>` : ""}
+
+          <div style="margin-top:14px">
+            <div class="sub" style="margin-bottom:7px">Ön kayıt kanalları — çıkışa 5 gün kalana kadar toplanır</div>
+            ${open ? `<div class="ro-chans">${chans}</div>
+              <div class="action-row" style="margin-top:10px">
+                <button class="btn btn-primary btn-sm" data-act="ro-start" ${can.ok && selected.length ? "" : "disabled"}>🎯 Kampanyayı Başlat (${U.money(chanCost)})</button>
+                <button class="btn btn-ghost btn-sm" data-act="ro-close">Kapat</button>
+                <span class="hint" style="align-self:center">${U.escape(selected.length ? selected.length + " kanal seçili" : "kanal seç")}</span>
+              </div>`
+              : `<div class="action-row">
+                <button class="btn ${can.ok ? "btn-primary" : "btn-ghost"} btn-sm" data-act="ro-open" data-arg="${r.id}" ${can.ok ? "" : "disabled"}>${ps ? "Kampanya sürüyor" : "🎯 Ön Kayıt Kampanyası Aç"}</button>
+                <span class="hint" style="align-self:center">${U.escape(ps ? "kanallar seçildi, toplama devam ediyor" : can.why)}</span>
+              </div>`}
+          </div>
+        </div>`;
+      }).join("");
+
+      const liveHTML = live.map(sg => {
+        const fw = sg.firstWeek;
+        const idx = Math.min(K.rollout.FIRST_WEEK_DAYS, s.day - fw.day0);
+        const days = Array.from({ length: K.rollout.FIRST_WEEK_DAYS }, (_, i) => {
+          const v = fw.days[i];
+          const max = Math.max.apply(null, fw.days.filter(d => typeof d === "number").concat([1]));
+          const h = v ? Math.max(8, Math.round(v / max * 100)) : 0;
+          return `<div class="ro-day ${typeof v === "number" ? "filled" : ""}">${v ? `<i style="height:${h}%"></i>` : ""}<span>${i + 1}</span></div>`;
+        }).join("");
+        const total = U.sum(fw.days.filter(x => typeof x === "number"), x => x);
+        return `<div class="ro-week" style="margin-top:10px">
+          <div class="ro-week-head"><span>📊 ${U.escape(sg.title)}</span><span class="money">${U.fmt(total)} dinlenme</span></div>
+          <div class="sub" style="font-size:11px">${idx}. gün / ${K.rollout.FIRST_WEEK_DAYS} · ${fw.presave ? U.fmt(fw.presave) + " ön kayıt ile başladı" : "ön kayıtsız çıkış"}</div>
+          <div class="ro-days">${days}</div>
+        </div>`;
+      }).join("");
+
+      const debutHTML = recent.map(sg => `<div class="ro-debut ${sg.debut.id}" style="margin-top:8px">
+        <span class="rb-badge">${sg.debut.label}</span>
+        <div class="grow">
+          <div class="title" style="font-size:12.5px;font-weight:800">${U.escape(sg.title)}</div>
+          <div class="sub" style="font-size:11px;color:var(--text-2)">ilk hafta ${U.fmt(sg.debut.total)} dinlenme · kalıcı etki ×${(sg.debutMult || 1).toFixed(2)}</div>
+        </div>
+      </div>`).join("");
+
+      return `<div class="c-block">
+        <div class="c-head"><div><h2>🎯 Çıkış Haftası</h2><div class="sub">Ön kayıt topla · teaser paylaş · ilk haftayı kazan</div></div></div>
+        <div class="ro-nums">
+          <div class="ro-num"><span class="k">Aktif Kampanya</span><span class="v">${sum.campaigns}</span><span class="d">${U.fmt(sum.collected)} ön kayıt toplandı</span></div>
+          <div class="ro-num"><span class="k">Süren İlk Hafta</span><span class="v">${sum.liveWeeks}</span><span class="d">çıkış penceresi açık</span></div>
+          <div class="ro-num"><span class="k">En İyi Derece</span><span class="v">${U.escape(sum.best)}</span><span class="d">${(sum.debuts.smash || 0) + (sum.debuts.hit || 0)} hit · ${(sum.debuts.flop || 0)} sessiz</span></div>
+        </div>
+        ${pipe.length ? `<div class="sub" style="margin-top:12px;font-weight:700">Yayın hattındaki projeler</div>${relCards}` : `<div class="empty-note" style="margin-top:12px"><b>Hazırlıkta proje yok</b>Stüdyodan yeni bir yayın oluştur; ön kayıt kampanyası burada açılır.</div>`}
+        ${liveHTML ? `<div class="sub" style="margin-top:16px;font-weight:700">Süren ilk haftalar</div>${liveHTML}` : ""}
+        ${debutHTML ? `<div class="sub" style="margin-top:16px;font-weight:700">Son çıkış dereceleri</div>${debutHTML}` : ""}
+      </div>`;
+    },
+
     renderReleases() {
       const s = K.state;
       const rels = s.player.releases;
@@ -1477,7 +1605,7 @@
           </div>`).join("")}
         </div>` : "";
 
-      return arBlock + `
+      return K.careerUI.rolloutHTML() + arBlock + `
         <div class="c-block">
           <div class="c-head"><div><h2>Yayın Hattı</h2><div class="sub">Hazırlık → Kuyruk → Editoryal → Yayın süreci</div></div></div>
           ${pipelineHTML}
@@ -2557,6 +2685,21 @@
       else if (act === "fest-stance") { ui.festStance = btn.dataset.arg || "balanced"; K.careerUI.render(); }
       else if (act === "fest-apply") K.festivals.apply(btn.dataset.arg, ui.festStance);
       else if (act === "fest-cancel") K.festivals.cancel(btn.dataset.arg);
+      else if (act === "ro-open") { ui.presaveRel = btn.dataset.arg; ui.presaveChans = []; K.careerUI.render(); }
+      else if (act === "ro-close") { ui.presaveRel = null; ui.presaveChans = []; K.careerUI.render(); }
+      else if (act === "ro-chan") {
+        const id = btn.dataset.arg;
+        const i = ui.presaveChans.indexOf(id);
+        if (i >= 0) ui.presaveChans.splice(i, 1); else ui.presaveChans.push(id);
+        K.careerUI.render();
+      }
+      else if (act === "ro-start") {
+        if (K.rollout.startPresave(ui.presaveRel, ui.presaveChans.slice())) { ui.presaveRel = null; ui.presaveChans = []; }
+      }
+      else if (act === "ro-teaser") {
+        const parts = String(btn.dataset.arg || "").split("|");
+        K.rollout.fireTeaser(parts[0], parts[1]);
+      }
       else if (act === "hire-staff") K.label.hireStaff(btn.dataset.arg);
       else if (act === "work-job") K.jobs.work(btn.dataset.arg);
       else if (act === "crisis-choice") K.crisis.resolve(+btn.dataset.arg);
