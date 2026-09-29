@@ -1,322 +1,572 @@
 /* ============================================================
-   KARMA — apps/instagram.js  (kapsamlı)
-   Akış (gönderiler + beğeni/yorum) · Reels · Keşfet · Profil
-   Story görüntüleyici · Gönderi detayı ve yorumlar · Paylaşım
+   KARMA — apps/instagram.js   (v10.6 — GERÇEK INSTAGRAM GÖRÜNÜMÜ)
+
+   Yenilikler:
+   • Üstte serif IG logosu + kalp (etkinlik) + uçak (DM) düğmeleri
+   • Hikâye şeridi: kesilme/ezilme YOK, gerçek sanatçı PP'leri
+   • Gönderide GERÇEK albüm kapağı (şarkıya bağlıysa), çift dokun → beğen
+   • Alt sekme çubuğu: SVG ikonlar, profil sekmesi senin PP'n
+   • Kaydırma: SAĞA → Instagram DM gelen kutusu · SOLA → canlı yayın
+   • Gerçek IG profili: PP, istatistik, bio, öne çıkanlar, sekmeli ızgara
+
+   Diğer modüllerin kullandığı API korunmuştur:
+     feedHTML · reelsHTML · exploreHTML · profileHTML · openProfile
+     openPost · openStory · sharePost · activityView · newPost
+     promotePicker · exploreArtists
    ============================================================ */
 (function (K) {
   "use strict";
 
   const U = K.util;
 
-  function igPost(post) {
-    const liked = K.interactions.isLiked("ig_" + post.id);
-    const saved = K.interactions.isSaved("ig_" + post.id);
-    return `<div class="ig-post">
-      <div class="ig-post-head">
-        <div class="iph-left" data-pact="open-profile" data-arg="${post.authorId}">
-          ${K.ui.artistAvatar(post.authorId, 36, true)}
-          <div><div class="iph-name">${U.escape(post.authorName)}</div>
-          <div class="iph-sub">${post.songId ? "Şarkı tanıtımı" : "Gönderi"} · ${U.ago(post.day, K.state.day)}</div></div>
-        </div>
-        <button class="iph-more" data-pact="post-more" data-arg="${post.id}">⋯</button>
-      </div>
-      <div class="ig-photo" style="background:${U.gradientFor(post.id)}" data-pact="post-open" data-arg="${post.id}">
-        <span class="ig-photo-icon">${post.songId ? "♫" : "◍"}</span>
-        ${post.songId ? `<span class="ig-photo-label">${U.escape(post.text.slice(0, 60))}</span>` : ""}
-      </div>
-      <div class="ig-post-actions">
-        <button class="${liked ? "on" : ""}" data-pact="like" data-arg="ig_${post.id}">${liked ? "♥" : "♡"}</button>
-        <button data-pact="post-open" data-arg="${post.id}">💬</button>
-        <button data-pact="post-share" data-arg="${post.id}">↗</button>
-        <span class="grow"></span>
-        <button class="ig-save ${saved ? "on" : ""}" data-pact="ig-save" data-arg="${post.id}" title="Kaydet">🔖</button>
-      </div>
-      <div class="ig-post-body">
-        <div class="ig-likes">${U.compact(K.interactions.likeCount("ig_" + post.id, post.likes))} beğenme</div>
-        <div class="ig-caption"><b>${U.escape(post.authorName)}</b> ${U.escape(post.text)}</div>
-        <div class="ig-open-cmt" data-pact="post-open" data-arg="${post.id}">${U.compact(post.comments)} yorumun tümünü gör</div>
-      </div>
+  /* ---------- gerçek Instagram simgeleri (SVG) ---------- */
+  const ICO = {
+    home: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 10.2 12 3l9 7.2V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>`,
+    search: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="10.8" cy="10.8" r="7.2"/><path d="m16.2 16.2 4.6 4.6"/></svg>`,
+    reels: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M3.6 8.2h16.8M8.6 3.3l2.6 4.9M15 3.3l2.6 4.9"/><path d="m11 12.4 4.2 2.6-4.2 2.6z" fill="currentColor" stroke="none"/></svg>`,
+    grid: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 3h18v18H3zM9 3v18M15 3v18M3 9h18M3 15h18"/></svg>`,
+    play: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M3.6 8.2h16.8M8.6 3.3l2.6 4.9M15 3.3l2.6 4.9"/><path d="m11 12.4 4.2 2.6-4.2 2.6z" fill="currentColor" stroke="none"/></svg>`,
+    tagged: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 4h18v13H8l-5 4z"/></svg>`
+  };
+
+  /* ---------- yardımcılar ---------- */
+  function igProfileName(id) {
+    if (id === "player") return K.state.player.stageName;
+    const a = K.artistById(id);
+    return a ? a.stageName : "?";
+  }
+
+  function handle(id) {
+    return "@" + String(igProfileName(id)).toLowerCase().replace(/\s+/g, "");
+  }
+
+  /* gönderinin medyası: şarkıya bağlıysa GERÇEK albüm kapağı */
+  function postArt(post) {
+    if (post && post.songId) {
+      const sg = K.platforms.findSong ? K.platforms.findSong(post.songId) : null;
+      if (sg && sg.art) return sg.art;
+      const own = (K.state.player.songs || []).find((x) => x.id === post.songId);
+      if (own && own.art) return own.art;
+    }
+    if (post && post.art) return post.art;
+    return null;
+  }
+
+  function mediaBox(post, cls) {
+    const art = postArt(post);
+    const bg = art
+      ? `background-image:url('${art}')`
+      : `background:${U.gradientFor(post.id || post.authorId || "ig")}`;
+    const tag = post.songId
+      ? `<span class="ig-media-tag">♫ ${U.escape(String(post.text || "").slice(0, 48))}</span>`
+      : "";
+    return `<div class="ig-media ${cls || ""}" style="${bg}" data-ig-dbl="${U.escape(post.id)}" data-pact="post-open" data-arg="${U.escape(post.id)}">
+      ${art ? "" : `<span class="ig-media-icon">◍</span>`}
+      ${tag}
     </div>`;
   }
 
+  function postHTML(post) {
+    const liked = K.interactions.isLiked("ig_" + post.id);
+    const saved = K.interactions.isSaved("ig_" + post.id);
+    const likes = K.interactions.likeCount("ig_" + post.id, post.likes);
+    return `<article class="ig-post">
+      <div class="ig-post-head">
+        <div class="iph-left" data-pact="open-profile" data-arg="${post.authorId}">
+          ${K.ui.artistAvatar(post.authorId, 34, true)}
+          <div style="min-width:0">
+            <div class="iph-name">${U.escape(post.authorName)}</div>
+            <div class="iph-sub">${post.songId ? "Şarkı tanıtımı" : "Gönderi"} · ${U.ago(post.day, K.state.day)}</div>
+          </div>
+        </div>
+        <button class="ig-more" data-pact="post-more" data-arg="${U.escape(post.id)}">⋯</button>
+      </div>
+
+      ${mediaBox(post)}
+
+      <div class="ig-actions">
+        <button class="heart ${liked ? "on" : ""}" data-pact="like" data-arg="ig_${U.escape(post.id)}">${liked ? "♥" : "♡"}</button>
+        <button data-pact="post-open" data-arg="${U.escape(post.id)}">💬</button>
+        <button data-pact="post-share" data-arg="${U.escape(post.id)}">✈︎</button>
+        <span class="grow"></span>
+        <button class="${saved ? "on" : ""}" data-pact="ig-save" data-arg="${U.escape(post.id)}">${saved ? "🔖" : "⚑"}</button>
+      </div>
+
+      <div class="ig-body">
+        <div class="ig-likes">${U.compact(likes)} beğenme</div>
+        <div class="ig-caption"><b>${U.escape(post.authorName)}</b> ${U.escape(post.text)}</div>
+        <div class="ig-cmt-link" data-pact="post-open" data-arg="${U.escape(post.id)}">${U.compact(post.comments)} yorumun tümünü gör</div>
+        <div class="ig-meta">${U.ago(post.day, K.state.day)}</div>
+      </div>
+    </article>`;
+  }
+
+  /* ============================================================ */
   K.phone.register({
     id: "instagram", name: "Instagram", icon: "◍", iconClass: "ic-instagram", dock: true,
 
     render(params) {
+      const app = K.phone.appById("instagram");
+      const myPhoto = K.imagery.byArtistId("player");
+      const navBadge = K.interactions.unreadNotifications("instagram");
+
+      const profileIcon = myPhoto
+        ? `<span class="ig-tab-av" style="background-image:url('${myPhoto}')"></span>`
+        : `<span class="ig-tab-av">${U.escape(U.initials(K.state.player.stageName))}</span>`;
+
       const view = {
-        title: "Instagram", sub: "@" + K.state.player.stageName.toLowerCase().replace(/\s/g, ""),
-        shellClass: "app-instagram snap",
+        title: "Instagram",
+        sub: "",
+        shellClass: "app-instagram",
         tabPos: "bottom",
         tabs: [
-          { id: "feed", label: "Akış", icon: "🏠" },
-          { id: "reels", label: "Reels", icon: "🎬" },
-          { id: "explore", label: "Keşfet", icon: "🔍" },
-          { id: "profile", label: "Profilim", icon: "👤" }
+          { id: "feed", label: "Ana Sayfa", icon: ICO.home },
+          { id: "explore", label: "Keşfet", icon: ICO.search },
+          { id: "reels", label: "Reels", icon: ICO.reels },
+          { id: "profile", label: "Profil", icon: profileIcon }
         ],
         activeTab: params.tab || "feed",
-        navRight: (() => {
-          const n = K.interactions.unreadNotifications("instagram");
-          return `<button class="nav-bell" data-pact="ig-activity">♡${n ? `<b>${Math.min(99, n)}</b>` : ""}</button>`;
-        })(),
-        /* gerçek Instagram gibi: sağa kaydır → DM · sola kaydır → canlı yayın */
+        navRight: `<div class="ig-nav-actions">
+          <button class="ig-icon-btn" data-pact="ig-activity" title="Etkinlik">♡${navBadge ? `<b style="position:absolute;top:-5px;right:-7px;background:#ff3b5c;color:#fff;font-size:9px;font-weight:800;border-radius:999px;padding:1px 4px">${Math.min(99, navBadge)}</b>` : ""}</button>
+          <button class="ig-icon-btn" data-pact="ig-inbox" title="Mesajlar">✈︎</button>
+        </div>`,
+
+        /* gerçek Instagram gibi: SAĞA kaydır → DM · SOLA kaydır → canlı yayın */
         swipe: {
-          right: () => K.phone.openApp("messages"),
+          right: () => K.phone.pushView(K.phone.appById("instagram").inboxView()),
           left: () => { K.livestream.start("instagram"); K.phone.pushView(K.ui.liveView()); }
         },
+
         render: (tab) => {
-          const app = K.phone.appById("instagram");
           if (tab === "reels") return app.reelsHTML();
           if (tab === "explore") return app.exploreHTML();
           if (tab === "profile") return app.profileHTML("player");
           return app.feedHTML();
         },
+
         onMount: (root) => {
-          const inp = U.qs("[data-ig-explore]", root);
-          if (inp) inp.addEventListener("input", () => {
-            const box = root.querySelector("[data-ig-explore-results]");
-            if (box) box.innerHTML = K.phone.appById("instagram").exploreArtists(inp.value);
-          });
+          if (!root) return;
+          app._mountSearch(root);
+          app._mountDoubleTap(root);
         },
+
         onAction: (act, el) => {
-          const app = K.phone.appById("instagram");
-          if (act === "open-profile") app.openProfile(el.dataset.arg);
-          else if (act === "post-open") app.openPost(el.dataset.arg);
-          else if (act === "post-share") app.sharePost(el.dataset.arg);
+          const appR = K.phone.appById("instagram");
+          if (act === "open-profile") appR.openProfile(el.dataset.arg);
+          else if (act === "post-open") appR.openPost(el.dataset.arg);
+          else if (act === "post-share") appR.sharePost(el.dataset.arg);
+          else if (act === "post-more") appR.postSheet(el.dataset.arg);
           else if (act === "ig-save") {
             const on = K.interactions.toggleSave("ig_" + el.dataset.arg);
             K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "Koleksiyonuna eklendi.", "ok");
             K.phone.reRender();
           }
-          else if (act === "ig-activity") { K.interactions.markNotifsRead("instagram"); K.phone.pushView(app.activityView()); }
-          else if (act === "post-more") K.ui.actionSheet("Gönderi", [
-            { label: "↗ Paylaş", onClick: () => K.toast("↗ Paylaşıldı", "Bağlantı kopyalandı.", "ok") },
-            { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") },
-            { label: "🚫 Bildir", cls: "destructive", onClick: () => K.toast("🚫 Bildirildi", "", "warn") }
-          ]);
-          else if (act === "new-post") app.newPost();
-          else if (act === "promote") app.promotePicker();
-          else if (act === "story") app.openStory(el.dataset.arg);
+          else if (act === "ig-activity") { K.interactions.markNotifsRead("instagram"); K.phone.pushView(appR.activityView()); }
+          else if (act === "ig-inbox") K.phone.pushView(appR.inboxView());
+          else if (act === "new-post") appR.newPost();
+          else if (act === "promote") appR.promotePicker();
+          else if (act === "story") appR.openStory(el.dataset.arg);
           else if (act === "go-live") { K.livestream.start("instagram"); K.phone.pushView(K.ui.liveView()); }
         }
       };
       return view;
     },
 
+    /* ---------- etkileşim kurulumları ---------- */
+    _mountSearch(root) {
+      const inp = U.qs("[data-ig-explore]", root);
+      if (!inp) return;
+      inp.addEventListener("input", () => {
+        const box = root.querySelector("[data-ig-explore-results]");
+        if (box) box.innerHTML = K.phone.appById("instagram").exploreArtists(inp.value);
+      });
+    },
+
+    _mountDoubleTap(root) {
+      root.querySelectorAll("[data-ig-dbl]").forEach((el) => {
+        let last = 0;
+        el.addEventListener("click", (e) => {
+          const now = Date.now();
+          if (now - last < 320) {
+            e.preventDefault();
+            e.stopPropagation();
+            last = 0;
+            K.phone.appById("instagram").doubleLike(el.dataset.igDbl, el);
+          } else {
+            last = now;
+          }
+        });
+      });
+    },
+
+    doubleLike(postId, el) {
+      const key = "ig_" + postId;
+      if (!K.interactions.isLiked(key)) K.interactions.toggleLike(key);
+      if (el && !el.querySelector(".ig-heart-burst")) {
+        const heart = document.createElement("div");
+        heart.className = "ig-heart-burst";
+        heart.textContent = "♥";
+        heart.style.color = "#ff3040";
+        el.appendChild(heart);
+        setTimeout(() => { if (heart.parentNode) heart.parentNode.removeChild(heart); }, 650);
+      }
+      K.toast("♥ Beğenildi", "", "ok");
+    },
+
+    /* ---------- AKIŞ ---------- */
     feedHTML() {
-      /* YALNIZCA takip ettiğin hesaplar + kendi gönderilerin */
-      const posts = K.social.feedFor("instagram", { followedOnly: true, limit: 20 });
       const followed = K.interactions.followedArtists();
-      const stories = (followed.length ? followed : K.artistList()).slice(0, 14);
-      const suggested = K.social.suggestedArtists("instagram", 5);
-      const seen = K.phone._storySeen = K.phone._storySeen || {};
+      const posts = K.social.feedFor("instagram", { followedOnly: true, limit: 14 });
+      const stories = (followed.length ? followed : K.artistList()).slice(0, 16);
+      const suggested = K.social.suggestedArtists("instagram", 4);
+      const seen = (K.phone._storySeen = K.phone._storySeen || {});
+      const myPhoto = K.imagery.byArtistId("player");
+      const myGrad = `background:${U.gradientFor(K.state.player.stageName)}`;
+
       return `
         <div class="ig-gesture-hint"><span>← Canlı yayın</span><span>Mesajlar →</span></div>
-        <div class="live-cta" data-pact="go-live">
-          <span class="live-dot"></span>
-          <div class="grow"><b style="font-size:12.5px">Canlı Yayın Başlat</b>
-          <div class="muted" style="font-size:10.5px">Takipçi kazan, bağış topla, popülerliğini artır</div></div>
-          <span style="font-weight:900;color:#ff9db0">🔴 CANLI</span>
-        </div>
 
-        <div class="story-row">
-          <div class="story-item" data-pact="story" data-arg="player">
-            <div class="story-ring mine"><div class="story-av">${U.initials(K.state.player.stageName)}</div></div>
-            <span>Senin</span>
-          </div>
-          ${stories.map(a => {
-            const isSeen = !!seen[a.id];
+        <div class="ig-stories">
+          <button class="ig-story" data-pact="story" data-arg="player">
+            <span class="ig-story-ring mine">
+              <span class="ig-story-img" ${myPhoto ? `style="background-image:url('${myPhoto}')"` : `style="${myGrad}"`}>${myPhoto ? "" : U.escape(U.initials(K.state.player.stageName))}</span>
+            </span>
+            <span class="ig-story-name">Hikâyen</span>
+          </button>
+          ${stories.map((a) => {
             const img = K.imagery.byArtistId(a.id);
-            return `<div class="story-item" data-pact="story" data-arg="${a.id}">
-              <div class="story-ring ${isSeen ? "seen" : ""}"><div class="story-av" ${img ? `style="background-image:url('${img}');background-size:cover"` : `style="background:${U.gradientFor(a.id)}"`}></div></div>
-              <span>${U.escape(a.stageName.split(" ")[0])}</span></div>`;
+            return `<button class="ig-story" data-pact="story" data-arg="${a.id}">
+              <span class="ig-story-ring ${seen[a.id] ? "seen" : ""}">
+                <span class="ig-story-img" ${img ? `style="background-image:url('${img}')"` : `style="background:${U.gradientFor(a.id)}"`}>${img ? "" : U.escape(U.initials(a.stageName))}</span>
+              </span>
+              <span class="ig-story-name">${U.escape(a.stageName)}</span>
+            </button>`;
           }).join("")}
         </div>
 
-        ${posts.length ? posts.map(igPost).join("") : `
-          <div class="empty-note"><b>Akışın boş</b>Kimseyi takip etmiyorsun. Aşağıdaki önerilerden takip et, gönderileri akışında görürsün.</div>`}
+        <div class="ig-livebar" data-pact="go-live">
+          <span class="lb-dot"></span>
+          <div>
+            <div class="lb-t">Canlı yayın başlat</div>
+            <div class="lb-s">Takipçi kazan · bağış topla · popülerliğini artır</div>
+          </div>
+          <span style="margin-left:auto;font-size:10px;font-weight:800;color:#ff9db0">🔴 CANLI</span>
+        </div>
+
+        ${posts.length
+          ? posts.map(postHTML).join("")
+          : `<div class="ig-empty"><b>Akışın boş</b>Kimseyi takip etmiyorsun. Aşağıdaki önerilerden takip et; gönderileri burada görürsün.</div>`}
 
         ${suggested.length ? `
-          ${K.ui.section("Önerilen hesaplar")}
-          ${suggested.map(a => `<div class="ig-suggest">
+          <div class="ig-sec">Önerilen hesaplar<span style="font-size:11px;color:#a8a8a8">Tümünü gör</span></div>
+          ${suggested.map((a) => `<div class="ig-suggest">
             <div class="iph-left" data-pact="open-profile" data-arg="${a.id}">
-              ${K.ui.artistAvatar(a.id, 40, true)}
-              <div><div class="iph-name">${U.escape(a.stageName)}</div>
-              <div class="iph-sub">${U.compact(a.monthly)} aylık dinleyici · ${U.escape(K.genreById(a.genre).name)}</div></div>
+              ${K.ui.artistAvatar(a.id, 44, true)}
+              <div style="min-width:0">
+                <div class="iph-name">${U.escape(a.stageName)}</div>
+                <div class="iph-sub">${U.escape(handle(a.id))} · ${U.compact(a.monthly)} dinleyici</div>
+              </div>
             </div>
             <button class="ig-follow-btn ${K.interactions.isFollowed(a.id) ? "following" : ""}" data-pact="follow" data-arg="${a.id}">${K.interactions.isFollowed(a.id) ? "Takip Ediliyor" : "Takip Et"}</button>
           </div>`).join("")}` : ""}`;
     },
 
+    /* ---------- REELS ---------- */
     reelsHTML() {
       const vids = K.phone.appById("youtube").allVideos().slice(0, 10);
-      return `<div class="reels-scroll">
-        ${vids.map(v => {
-          const mineSong = v.mine ? K.state.player.songs.find(x => x.id === v.id) : null;
+      return `<div class="ig-reels">
+        ${vids.map((v) => {
+          const liked = K.interactions.isLiked("reel_" + v.id);
+          const mineSong = v.mine ? (K.state.player.songs || []).find((x) => x.id === v.id) : null;
           const sn = mineSong && mineSong.sound;
           const soundTxt = (sn && sn.startedDay)
             ? `${U.compact(sn.videos)} video bu sesle · ${sn.trend ? "🔥 trend" : "yükseliyor"}`
-            : "Orijinal ses · " + U.escape(v.channel);
-          return `<div class="reel-card" style="${v.art ? `background-image:url('${v.art}')` : `background:${U.gradientFor(v.id)}`};background-size:cover;background-position:center">
-          <div class="reel-ov"></div>
-          <div class="reel-side">
-            <button class="${K.interactions.isLiked("reel_" + v.id) ? "on" : ""}" data-pact="like" data-arg="reel_${U.escape(v.id)}">${K.interactions.isLiked("reel_" + v.id) ? "♥" : "♡"}</button>
-            <span>${U.compact(Math.round(v.views * 0.06))}</span>
-            <button>💬</button><span>${U.compact(Math.round(v.views * 0.003))}</span>
-            <button>↗</button>
-          </div>
-          <div class="reel-info">
-            <div class="ri-channel">${U.escape(v.channel)}</div>
-            <div class="ri-title">${U.escape(v.title.replace(" (Official Video)", ""))}</div>
-            <div class="ri-sound">♫ ${soundTxt}</div>
-          </div>
-        </div>`;
+            : "Orijinal ses · " + v.channel;
+          const bg = v.art
+            ? `background-image:url('${v.art}')`
+            : `background:${U.gradientFor(v.id)}`;
+          return `<div class="ig-reel" style="${bg}">
+            <div class="r-ov"></div>
+            <div class="r-side">
+              <button class="${liked ? "on" : ""}" data-pact="like" data-arg="reel_${U.escape(v.id)}">${liked ? "♥" : "♡"}</button>
+              <span>${U.compact(Math.round(v.views * 0.06))}</span>
+              <button data-pact="reel-cmt">💬</button>
+              <span>${U.compact(Math.round(v.views * 0.003))}</span>
+              <button data-pact="post-share" data-arg="${U.escape(v.id)}">✈︎</button>
+            </div>
+            <div class="r-info">
+              <div class="r-user" data-pact="open-profile" data-arg="${v.channelId || ""}">
+                ${v.channelId ? K.ui.artistAvatar(v.channelId, 30, true) : U.escape(v.channel)}
+                ${U.escape(v.channel)}
+              </div>
+              <div class="r-cap">${U.escape(v.title.replace(" (Official Video)", ""))} 🔥 #reels #rap</div>
+              <div class="r-sound">♫ ${U.escape(soundTxt)}</div>
+            </div>
+          </div>`;
         }).join("")}
       </div>`;
     },
 
+    /* ---------- KEŞFET ---------- */
     exploreHTML() {
       const app = K.phone.appById("instagram");
       const posts = (K.state.feed.instagram || []).slice(0, 12);
       return `
-        <div class="p-search"><span>🔍</span><input data-ig-explore type="text" placeholder="Instagram'da ara" /></div>
-        ${posts.length ? `${K.ui.section("Keşfet")}<div class="ig-grid">${posts.map(p => `<div class="ig-cell" style="background:${U.gradientFor(p.id)}" data-pact="post-open" data-arg="${p.id}"><span>◍</span><div class="ov">${U.escape((p.text || "").slice(0, 34))}</div></div>`).join("")}</div>` : ""}
-        ${K.ui.section("Sanatçılar")}
+        <div class="ig-search"><input data-ig-explore type="text" placeholder="Instagram'da ara" /></div>
+        <div class="ig-rule"></div>
+        <div class="ig-sec">Keşfet</div>
+        ${posts.length
+          ? `<div class="ig-grid">${posts.map((p) => {
+              const art = postArt(p);
+              return `<button class="ig-cell" style="${art ? `background-image:url('${art}')` : `background:${U.gradientFor(p.id)}`}" data-pact="post-open" data-arg="${U.escape(p.id)}">
+                ${art ? "" : "<span>◍</span>"}
+                <span class="ov">${U.escape(String(p.text || "").slice(0, 34))}</span>
+              </button>`;
+            }).join("")}</div>`
+          : `<div class="ig-empty"><b>Keşfet boş</b>Gönderiler oluştukça burada görünür.</div>`}
+        <div class="ig-sec">Sanatçılar</div>
         <div class="ig-grid" data-ig-explore-results>${app.exploreArtists("")}</div>`;
     },
 
-    profileHTML(artistId) {
+    exploreArtists(q) {
+      const s = String(q || "").toLowerCase();
+      const list = K.artistList().filter((a) => !s || a.stageName.toLowerCase().includes(s)).slice(0, 12);
+      return list.map((a) => {
+        const img = K.imagery.byArtistId(a.id);
+        return `<button class="ig-cell" style="${img ? `background-image:url('${img}')` : `background:${U.gradientFor(a.id)}`}" data-pact="open-profile" data-arg="${a.id}">
+          ${img ? "" : `<span>${U.escape(U.initials(a.stageName))}</span>`}
+          <span class="ov">${U.escape(a.stageName)} · ${U.compact(a.monthly)}</span>
+        </button>`;
+      }).join("");
+    },
+
+    /* ---------- PROFİL ---------- */
+    profileHTML(artistId, tab) {
       const p = K.platforms.artistProfile(artistId);
-      if (!p) return `<div class="empty-note">Profil bulunamadı</div>`;
+      if (!p) return `<div class="ig-empty"><b>Profil bulunamadı</b></div>`;
       const isMe = artistId === "player";
       const followed = K.interactions.isFollowed(artistId);
+      const photo = K.imagery.byArtistId(artistId);
       const posts = isMe
-        ? (K.state.feed.instagram || []).filter(x => x.mine)
-        : (K.state.feed.instagram || []).filter(x => x.authorId === artistId);
-      const cells = posts.length ? posts : [{ id: artistId + "p1", text: "Yakında yeni iş 🎧" }, { id: artistId + "p2", text: "Stüdyo 🔥" }, { id: artistId + "p3", text: "Snippet 👀" }];
+        ? (K.state.feed.instagram || []).filter((x) => x.mine)
+        : (K.state.feed.instagram || []).filter((x) => x.authorId === artistId);
+      const cells = posts.length
+        ? posts
+        : [1, 2, 3].map((i) => ({ id: artistId + "_d" + i, text: "Yakında 🎧", art: null }));
+      const active = tab || "posts";
+
+      const grid = active === "reels"
+        ? K.phone.appById("youtube").allVideos().filter((v) => isMe ? v.mine : v.channelId === artistId).slice(0, 9)
+        : cells;
 
       return `
-        <div class="ig-profile">
-          <div class="ig-avatar-ring"><div class="inner" ${K.imagery.byArtistId(artistId) ? `style="background-image:url('${K.imagery.byArtistId(artistId)}');background-size:cover"` : `style="background:${U.gradientFor(p.name)}"`}>${K.imagery.byArtistId(artistId) ? "" : U.escape(U.initials(p.name))}</div></div>
-          <div style="flex:1">
+        <div class="ig-head">
+          <div class="ig-head-ring"><div class="inner" ${photo ? `style="background-image:url('${photo}')"` : `style="background:${U.gradientFor(p.name)}"`}>${photo ? "" : U.escape(U.initials(p.name))}</div></div>
+          <div style="flex:1;min-width:0">
             <div class="ig-stats">
               <div class="s"><b>${cells.length}</b><span>gönderi</span></div>
               <div class="s"><b>${U.compact(p.ig)}</b><span>takipçi</span></div>
               <div class="s"><b>${U.compact(Math.round(p.ig * 0.12))}</b><span>takip</span></div>
             </div>
-            <div style="margin-top:10px;display:flex;gap:8px">
-              ${isMe
-                ? `<button class="ig-follow-btn" data-pact="new-post">+ Gönderi Paylaş</button>`
-                : `<button class="ig-follow-btn ${followed ? "following" : ""}" data-pact="follow" data-arg="${artistId}">${followed ? "Takip Ediliyor" : "Takip Et"}</button>
-                   <button class="ig-follow-btn" style="background:rgba(255,255,255,0.12)" data-pact="dm2" data-arg="${artistId}">Mesaj</button>`}
-            </div>
           </div>
         </div>
+
         <div class="ig-bio">
-          <b>${U.escape(p.name)}</b>${(p.aliases && p.aliases.length) ? ` <span style="color:var(--text-3)">aka ${U.escape(p.aliases.join(", "))}</span>` : ""}<br>
-          ${K.genreById(p.genre).icon} ${K.genreById(p.genre).name} · ${U.escape(p.city)} · ${U.compact(p.monthly)} aylık dinleyici
+          <div class="nm">${U.escape(p.name)}</div>
+          ${(p.aliases && p.aliases.length) ? `<div class="dim">aka ${U.escape(p.aliases.join(", "))}</div>` : ""}
+          <div>${K.genreById(p.genre).icon} ${U.escape(K.genreById(p.genre).name)} · ${U.escape(p.city)}</div>
+          <div class="dim">${U.compact(p.monthly)} aylık dinleyici · ${U.escape(handle(artistId))}</div>
         </div>
+
+        <div class="ig-profile-actions">
+          ${isMe
+            ? `<button class="ig-btn" data-pact="new-post">Gönderi paylaş</button>
+               <button class="ig-btn" data-pact="promote">Şarkını tanıt</button>`
+            : `<button class="ig-btn ${followed ? "on" : "primary"}" data-pact="follow" data-arg="${artistId}">${followed ? "Takip ediliyor" : "Takip et"}</button>
+               <button class="ig-btn" data-pact="dm2" data-arg="${artistId}">Mesaj</button>`}
+        </div>
+
         <div class="ig-highlights">
-          ${[["🎧", "Müzik"], ["🎤", "Sahne"], ["📸", "Kulis"], ["💜", "Fan"]].map(h => `<div class="ig-hl" data-pact="story" data-arg="${artistId}"><div class="ig-hl-ring">${h[0]}</div><span>${h[1]}</span></div>`).join("")}
+          ${[["🎧", "Müzik"], ["🎤", "Sahne"], ["📸", "Kulis"], ["💜", "Fan"]].map((h, i) => `<button class="ig-hl" data-pact="story" data-arg="${artistId}">
+            <span class="ig-hl-ring" ${i === 0 && photo ? `style="background-image:url('${photo}')"` : ""}>${i === 0 && photo ? "" : h[0]}</span>
+            <span>${h[1]}</span></button>`).join("")}
         </div>
-        ${isMe ? `<button class="btn btn-primary btn-sm" data-pact="promote">📸 Şarkını Tanıt</button>` : ""}
-        <div class="ig-grid">
-          ${cells.map(c => `<div class="ig-cell" style="background:${U.gradientFor(c.id)}" data-pact="post-open" data-arg="${c.id}"><span>♫</span><div class="ov">${U.escape((c.text || "").slice(0, 40))}</div></div>`).join("")}
-        </div>`;
+
+        <div class="ig-tabsrow">
+          <button class="${active === "posts" ? "active" : ""}" data-ig-ptab="posts" data-arg="${artistId}">${ICO.grid}</button>
+          <button class="${active === "reels" ? "active" : ""}" data-ig-ptab="reels" data-arg="${artistId}">${ICO.play}</button>
+          <button class="${active === "tagged" ? "active" : ""}" data-ig-ptab="tagged" data-arg="${artistId}">${ICO.tagged}</button>
+        </div>
+
+        ${grid.length
+          ? `<div class="ig-grid">${grid.map((c) => {
+              const art = c.art || postArt(c);
+              return `<button class="ig-cell" style="${art ? `background-image:url('${art}')` : `background:${U.gradientFor(c.id || c.title)}`}" data-pact="${active === "reels" ? "reel-cmt" : "post-open"}" data-arg="${U.escape(c.id || c.title || "")}">
+                ${art ? "" : "<span>♫</span>"}
+                <span class="ov">${U.escape(String(c.text || c.title || "").replace(" (Official Video)", "").slice(0, 40))}</span>
+              </button>`;
+            }).join("")}</div>`
+          : `<div class="ig-empty"><b>Henüz gönderi yok</b>${isMe ? "İlk gönderini paylaş." : "Bu hesabın gönderisi yok."}</div>`}`;
     },
 
-    /* ---------- paylaş / etkinlik ---------- */
-    sharePost(id) {
-      K.ui.actionSheet("Gönderiyi paylaş", [
-        { label: "📸 Hikayeme ekle", onClick: () => K.toast("📸 Hikayene eklendi", "24 saat görünür.", "ok") },
-        { label: "💬 DM'de paylaş", onClick: () => K.phone.openApp("messages") },
-        { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") },
-        { label: "🚫 Bildir", cls: "destructive", onClick: () => K.toast("🚫 Bildirildi", "", "warn") }
-      ]);
-    },
-
-    activityView() {
-      const list = K.interactions.notifications("instagram");
-      return {
-        title: "Etkinlik", sub: "Instagram", shellClass: "app-instagram",
-        render: () => list.length ? list.map(n => {
-          const a = n.action || {};
-          const followed = a.artistId ? K.interactions.isFollowed(a.artistId) : true;
-          return `<div class="x-notif tap" data-pact="notif-open" data-ntype="${a.type || "info"}" data-artist="${a.artistId || ""}" data-song="${a.songId || ""}" data-post="${a.postId || ""}">
-            <div class="xf-icon ${n.kind}">${n.icon}</div>
-            <div class="grow"><div class="xf-text"><b>${U.escape(n.who)}</b> ${U.escape(n.text)}</div>
-            <div class="xf-day">${U.ago(n.day, K.state.day)}</div></div>
-            ${(a.type === "profile" && a.artistId && !followed)
-              ? `<button class="ig-follow-btn sm" data-pact="notif-follow" data-arg="${a.artistId}">Takip Et</button>`
-              : `<span class="notif-chev">›</span>`}
-          </div>`;
-        }).join("") : `<div class="empty-note"><b>Etkinlik yok</b>Etkileşimler burada görünür.</div>`,
+    openProfile(artistId) {
+      if (artistId === "player") {
+        const v = K.phone.views[K.phone.views.length - 1];
+        if (v) { v.activeTab = "profile"; K.phone.renderTop(); }
+        return;
+      }
+      const a = K.artistById(artistId);
+      if (!a) return;
+      const app = K.phone.appById("instagram");
+      const view = {
+        title: a.stageName,
+        sub: handle(artistId),
+        shellClass: "app-instagram",
+        params: { artistId },
+        render: () => app.profileHTML(artistId, app._profileTabOf(artistId)),
         onAction: (act, el) => {
-          const app = K.phone.appById("instagram");
-          if (act === "notif-follow") {
-            const on = K.interactions.toggleFollow(el.dataset.arg);
-            if (on) K.toast("✅ Takip edildi", (K.artistById(el.dataset.arg) || {}).stageName || "", "ok");
-            K.phone.reRender();
-            return;
-          }
-          if (act !== "notif-open") return;
-          const type = el.dataset.ntype, artist = el.dataset.artist, song = el.dataset.song;
-          if (type === "profile" && artist) app.openProfile(artist);
-          else if (type === "dm") K.phone.openApp("messages", artist ? { artistId: artist } : undefined);
-          else if (type === "song" && song) {
-            const sg = K.platforms.findSong(song);
-            if (sg) K.interactions.play(sg); else K.toast("Şarkı bulunamadı", "", "warn");
-          }
-          else if (type === "post" && el.dataset.post) app.openPost(el.dataset.post);
-          else if (type === "story") K.toast("👁️ Hikaye", "Hikayeni görüntüleyenler listesi yakında.", "");
-          else K.toast("Bilgi", "Bu bildirim için işlem yok.", "");
+          if (act === "dm2" || act === "dm") K.phone.pushView(app.inboxView(artistId));
+          else if (act === "post-open") app.openPost(el.dataset.arg);
+          else if (act === "new-post") app.newPost();
+          else if (act === "promote") app.promotePicker();
+          else if (act === "story") app.openStory(artistId);
+          else if (act === "reel-cmt") app.openReel();
+        },
+        onMount: (root) => {
+          if (!root) return;
+          root.querySelectorAll("[data-ig-ptab]").forEach((b) => {
+            b.addEventListener("click", () => {
+              app._profileTabs = app._profileTabs || {};
+              app._profileTabs[b.dataset.arg] = b.dataset.igPtab;
+              K.phone.reRender();
+            });
+          });
+        }
+      };
+      K.phone.pushView(view);
+    },
+
+    _profileTabOf(artistId) {
+      this._profileTabs = this._profileTabs || {};
+      return this._profileTabs[artistId] || "posts";
+    },
+
+    /* ---------- DM GELEN KUTUSU (sağa kaydırma) ---------- */
+    inboxView() {
+      const app = K.phone.appById("instagram");
+      const s = K.state;
+      const build = () => {
+        const ids = Object.keys(s.threads).filter((id) => ((s.threads[id] || {}).messages || []).length > 0 && K.artistById(id));
+        const sorted = ids.sort((a, b) => {
+          const ta = s.threads[a].messages, tb = s.threads[b].messages;
+          return ((tb[tb.length - 1] || {}).day || 0) - ((ta[ta.length - 1] || {}).day || 0);
+        });
+        const rows = sorted.map((id) => {
+          const a = K.artistById(id);
+          const th = s.threads[id];
+          const last = th.messages[th.messages.length - 1];
+          const preview = last ? (last.from === "me" ? "Sen: " : "") + last.text : "";
+          const online = (a.id.charCodeAt(0) + a.id.length) % 3 === 0;
+          return `<button class="ig-inbox-row" data-pact="ig-thread" data-arg="${id}">
+            <span class="ig-inbox-av">
+              ${K.ui.artistAvatar(id, 52, true)}
+              ${online ? `<span class="dot"></span>` : ""}
+            </span>
+            <span style="flex:1;min-width:0">
+              <span class="nm" style="display:block">${U.escape(a.stageName)}</span>
+              <span class="last" style="display:block">${U.escape(preview).slice(0, 44)}</span>
+            </span>
+            ${th.unread ? `<span class="ig-unread"></span>` : `<span class="t">${U.ago(last ? last.day : s.day, s.day)}</span>`}
+          </button>`;
+        }).join("");
+
+        return `
+          <div class="ig-inbox-head">
+            ${K.ui.artistAvatar("player", 34, true)}
+            <span class="un">${U.escape(K.state.player.stageName)}</span>
+            <button class="ig-icon-btn" style="margin-left:auto" data-pact="ig-newdm">✎</button>
+          </div>
+          ${rows || `<div class="ig-empty"><b>Mesaj yok</b>Sanatçılar sana yazdığında burada görünür. ✎ ile sen başlat.</div>`}
+          <div class="ig-sec" style="border-top:1px solid rgba(255,255,255,.12)">Önerilen</div>
+          ${K.artistList().slice(0, 5).map((a) => `<button class="ig-inbox-row" data-pact="ig-thread" data-arg="${a.id}">
+            ${K.ui.artistAvatar(a.id, 52, true)}
+            <span style="flex:1;min-width:0">
+              <span class="nm" style="display:block">${U.escape(a.stageName)}</span>
+              <span class="last" style="display:block">${U.escape(handle(a.id))} · ${U.compact(a.monthly)} dinleyici</span>
+            </span>
+          </button>`).join("")}`;
+      };
+
+      return {
+        title: "Mesajlar",
+        sub: "",
+        shellClass: "app-instagram",
+        render: build,
+        onAction: (act, el) => {
+          if (act === "ig-thread") K.phone.pushView(K.phone.appById("messages").conversation(el.dataset.arg));
+          else if (act === "ig-newdm") K.phone.openApp("messages", { tab: "new" });
+          else if (act === "open-profile") app.openProfile(el.dataset.arg);
         }
       };
     },
 
+    openReel() {
+      K.toast("🎬 Reels", "Şarkını kısa videoyla tanıtmak için TikTok sekmesini kullan.", "");
+    },
+
     /* ---------- gönderi detayı ---------- */
     openPost(postId) {
+      const app = K.phone.appById("instagram");
       const all = K.state.feed.instagram || [];
-      const post = all.find(p => p.id === postId) || { id: postId, authorId: "player", authorName: K.state.player.stageName, text: "Stüdyo günleri 🎧", day: K.state.day, likes: 120, comments: 14, shares: 3 };
-      const liked = K.interactions.isLiked("ig_" + post.id);
-      const savedPost = K.interactions.isSaved("ig_" + post.id);
-      const comments = K.interactions.commentsFor("ig_" + post.id, 6);
+      const post = all.find((p) => p.id === postId) || {
+        id: postId, authorId: "player", authorName: K.state.player.stageName,
+        text: "Stüdyo günleri 🎧", day: K.state.day, likes: 120, comments: 14, shares: 3
+      };
       K.phone.pushView({
-        title: "Gönderi", sub: post.authorName, shellClass: "app-instagram",
-        render: () => `
-          <div class="ig-post-head">
-            <div class="iph-left" data-pact="open-profile" data-arg="${post.authorId}">
-              ${K.ui.artistAvatar(post.authorId, 36, true)}
-              <div><div class="iph-name">${U.escape(post.authorName)}</div>
-              <div class="iph-sub">${U.ago(post.day, K.state.day)}</div></div>
+        title: "Gönderi", sub: handle(post.authorId), shellClass: "app-instagram",
+        render: () => {
+          const liked = K.interactions.isLiked("ig_" + post.id);
+          const saved = K.interactions.isSaved("ig_" + post.id);
+          const comments = K.interactions.commentsFor("ig_" + post.id, 6);
+          return `
+            <div class="ig-post-head">
+              <div class="iph-left" data-pact="open-profile" data-arg="${post.authorId}">
+                ${K.ui.artistAvatar(post.authorId, 34, true)}
+                <div><div class="iph-name">${U.escape(post.authorName)}</div>
+                <div class="iph-sub">${U.ago(post.day, K.state.day)}</div></div>
+              </div>
             </div>
-          </div>
-          <div class="ig-photo big" style="background:${U.gradientFor(post.id)}"><span class="ig-photo-icon">◍</span></div>
-          <div class="ig-post-actions">
-            <button class="${liked ? "on" : ""}" data-pact="like" data-arg="ig_${post.id}">${liked ? "♥" : "♡"}</button>
-            <button data-pact="focus-cmt">💬</button>
-            <button data-pact="post-share" data-arg="${post.id}">↗</button>
-            <span class="grow"></span>
-            <button class="ig-save ${savedPost ? "on" : ""}" data-pact="ig-save" data-arg="${post.id}">🔖</button>
-          </div>
-          <div class="ig-post-body">
-            <div class="ig-likes">${U.compact(K.interactions.likeCount("ig_" + post.id, post.likes))} beğenme</div>
-            <div class="ig-caption"><b>${U.escape(post.authorName)}</b> ${U.escape(post.text)}</div>
-          </div>
-          ${K.ui.section("Yorumlar")}
-          ${comments.map((c, i) => `<div class="cmt">
-            ${K.ui.avatar(c.user, 32, true)}
-            <div class="grow"><div class="cmt-user">${U.escape(c.user)} · ${U.ago(c.day, K.state.day)}</div>
-            <div class="cmt-text">${U.escape(c.text)}</div>
-            <div class="cmt-actions">♡ ${c.likes} · <span data-pact="ig-reply" data-arg="${U.escape(post.id + '_' + i)}" style="cursor:pointer;color:var(--karma-2);font-weight:700">Yanıtla</span></div></div></div>`).join("")}
-          <div class="cmt-input"><input placeholder="Yorum ekle..." data-ig-cmt /><button data-pact="cmt-send" data-arg="${post.id}">Paylaş</button></div>`,
+            ${mediaBox(post)}
+            <div class="ig-actions">
+              <button class="heart ${liked ? "on" : ""}" data-pact="like" data-arg="ig_${U.escape(post.id)}">${liked ? "♥" : "♡"}</button>
+              <button data-pact="focus-cmt">💬</button>
+              <button data-pact="post-share" data-arg="${U.escape(post.id)}">✈︎</button>
+              <span class="grow"></span>
+              <button class="${saved ? "on" : ""}" data-pact="ig-save" data-arg="${U.escape(post.id)}">${saved ? "🔖" : "⚑"}</button>
+            </div>
+            <div class="ig-body">
+              <div class="ig-likes">${U.compact(K.interactions.likeCount("ig_" + post.id, post.likes))} beğenme</div>
+              <div class="ig-caption"><b>${U.escape(post.authorName)}</b> ${U.escape(post.text)}</div>
+            </div>
+            <div class="ig-sec">Yorumlar</div>
+            ${comments.map((c, i) => `<div class="cmt">
+              ${K.ui.avatar(c.user, 32, true)}
+              <div class="grow"><div class="cmt-user">${U.escape(c.user)} · ${U.ago(c.day, K.state.day)}</div>
+              <div class="cmt-text">${U.escape(c.text)}</div>
+              <div class="cmt-actions">♡ ${c.likes} · <span data-pact="ig-reply" data-arg="${U.escape(post.id + "_" + i)}" style="cursor:pointer;color:var(--karma-2);font-weight:700">Yanıtla</span></div></div></div>`).join("")}
+            <div class="cmt-input"><input placeholder="Yorum ekle..." data-ig-cmt /><button data-pact="cmt-send" data-arg="${U.escape(post.id)}">Paylaş</button></div>`;
+        },
         onAction: (act, el) => {
-          const app = K.phone.appById("instagram");
           if (act === "open-profile") app.openProfile(el.dataset.arg);
           else if (act === "post-share") app.sharePost(el.dataset.arg);
           else if (act === "cmt-send") {
             const inp = U.qs("[data-ig-cmt]");
-            if (inp && inp.value.trim()) { K.interactions.addComment("ig_" + post.id, inp.value.trim()); K.toast("💬 Yorum gönderildi", "", "ok"); inp.value = ""; K.phone.reRender(); }
-            else K.toast("Boş yorum", "", "warn");
+            if (inp && inp.value.trim()) {
+              K.interactions.addComment("ig_" + post.id, inp.value.trim());
+              K.toast("💬 Yorum gönderildi", "", "ok");
+              inp.value = "";
+              K.phone.reRender();
+            } else K.toast("Boş yorum", "", "warn");
           }
           else if (act === "ig-save") { const on = K.interactions.toggleSave("ig_" + post.id); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.phone.reRender(); }
           else if (act === "focus-cmt") { const inp = U.qs("[data-ig-cmt]"); if (inp) inp.focus(); }
@@ -324,7 +574,25 @@
       });
     },
 
-    /* ---------- story ---------- */
+    postSheet(postId) {
+      K.ui.actionSheet("Gönderi", [
+        { label: "✈︎ Paylaş", onClick: () => K.toast("✈︎ Paylaşıldı", "Bağlantı kopyalandı.", "ok") },
+        { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") },
+        { label: "🔖 Kaydet", onClick: () => { K.interactions.toggleSave("ig_" + postId); K.phone.reRender(); } },
+        { label: "🚫 Bildir", cls: "destructive", onClick: () => K.toast("🚫 Bildirildi", "", "warn") }
+      ]);
+    },
+
+    sharePost(id) {
+      K.ui.actionSheet("Gönderiyi paylaş", [
+        { label: "📸 Hikâyeme ekle", onClick: () => K.toast("📸 Hikâyene eklendi", "24 saat görünür.", "ok") },
+        { label: "✈︎ DM'de paylaş", onClick: () => K.phone.pushView(K.phone.appById("instagram").inboxView()) },
+        { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") },
+        { label: "🚫 Bildir", cls: "destructive", onClick: () => K.toast("🚫 Bildirildi", "", "warn") }
+      ]);
+    },
+
+    /* ---------- hikâye (tam ekran) ---------- */
     openStory(artistId) {
       const isMe = artistId === "player";
       const p = K.platforms.artistProfile(artistId);
@@ -335,12 +603,14 @@
       ]).slice(0, 3);
       K.phone._storySeen = K.phone._storySeen || {};
       K.phone._storySeen[artistId] = (K.phone._storySeen[artistId] || 0) + 1;
+      const photo = K.imagery.byArtistId(isMe ? "player" : artistId);
+
       K.phone.pushView({
-        title: "Hikaye", sub: p.name, shellClass: "app-instagram no-pad",
+        title: "Hikâye", sub: p.name, shellClass: "app-instagram no-pad",
         render: () => `
-          <div class="story-view" style="background:${U.gradientFor(p.name)};background-image:${K.imagery.byArtistId(artistId) ? `url('${K.imagery.byArtistId(artistId)}')` : "none"};background-size:cover;background-position:center">
+          <div class="story-view" style="background:${U.gradientFor(p.name)};${photo ? `background-image:url('${photo}');background-size:cover;background-position:center;` : ""}">
             <div class="story-bars"><i class="active"></i><i></i><i></i></div>
-            <div class="story-head">${K.ui.artistAvatar(artistId, 34, true)}<span>${U.escape(p.name)}</span><span class="muted">şimdi</span></div>
+            <div class="story-head">${K.ui.artistAvatar(isMe ? "player" : artistId, 34, true)}<span>${U.escape(p.name)}</span><span class="muted">şimdi</span></div>
             <div class="story-body">
               <div class="story-text">${U.escape(texts[0])}</div>
               <div class="story-link" data-pact="story-dm" data-arg="${isMe ? "player" : artistId}">${isMe ? "👁 Görüntüleyen: " + U.compact(Math.round((p.ig || 0) * 0.18)) : "↩ Yanıtla"}</div>
@@ -349,6 +619,7 @@
             <div class="story-tap right" data-pact="story-next"></div>
           </div>`,
         onMount: (root) => {
+          if (!root) return;
           const bars = root.querySelectorAll(".story-bars i");
           let idx = 0;
           const draw = () => bars.forEach((b, i) => { b.className = i < idx ? "done" : i === idx ? "active" : ""; });
@@ -368,43 +639,60 @@
           if (left) left.addEventListener("click", () => { idx = Math.max(0, idx - 1); draw(); });
         },
         onAction: (act, el) => {
-          if (act === "story-dm") { if (el.dataset.arg && el.dataset.arg !== "player") K.phone.openApp("messages", { artistId: el.dataset.arg }); }
+          if (act === "story-dm") {
+            if (el.dataset.arg && el.dataset.arg !== "player") K.phone.pushView(K.phone.appById("instagram").inboxView());
+          }
         }
       });
     },
 
-    exploreArtists(q) {
-      const cats = K.artistList().filter(a => !q || a.stageName.toLowerCase().includes(String(q).toLowerCase())).slice(0, 12);
-      return cats.map(a => `<div class="ig-cell" style="background:${U.gradientFor(a.id)}" data-pact="open-profile" data-arg="${a.id}"><span>${U.escape(U.initials(a.stageName))}</span><div class="ov">${U.escape(a.stageName)} · ${U.compact(a.monthly)}</div></div>`).join("");
-    },
-
-    openProfile(artistId) {
-      if (artistId === "player") {
-        const v = K.phone.views[K.phone.views.length - 1];
-        v.activeTab = "profile"; K.phone.renderTop(); return;
-      }
-      const a = K.artistById(artistId);
-      if (!a) return;
-      K.phone.pushView({
-        title: "Profil", sub: "@" + a.stageName.toLowerCase().replace(/\s/g, ""),
-        shellClass: "app-instagram",
-        render: () => K.phone.appById("instagram").profileHTML(artistId),
+    /* ---------- etkinlik ---------- */
+    activityView() {
+      const list = K.interactions.notifications("instagram");
+      return {
+        title: "Etkinlik", sub: "Instagram", shellClass: "app-instagram",
+        render: () => list.length ? list.map((n) => {
+          const a = n.action || {};
+          const followed = a.artistId ? K.interactions.isFollowed(a.artistId) : true;
+          return `<div class="x-notif tap" data-pact="notif-open" data-ntype="${a.type || "info"}" data-artist="${a.artistId || ""}" data-song="${a.songId || ""}" data-post="${a.postId || ""}">
+            <div class="xf-icon ${n.kind}">${n.icon}</div>
+            <div class="grow"><div class="xf-text"><b>${U.escape(n.who)}</b> ${U.escape(n.text)}</div>
+            <div class="xf-day">${U.ago(n.day, K.state.day)}</div></div>
+            ${(a.type === "profile" && a.artistId && !followed)
+              ? `<button class="ig-follow-btn sm" data-pact="notif-follow" data-arg="${a.artistId}">Takip Et</button>`
+              : `<span class="notif-chev">›</span>`}
+          </div>`;
+        }).join("") : `<div class="ig-empty"><b>Etkinlik yok</b>Etkileşimler burada görünür.</div>`,
         onAction: (act, el) => {
           const app = K.phone.appById("instagram");
-          if (act === "dm2" || act === "dm") K.phone.openApp("messages", { artistId });
-          else if (act === "post-open") app.openPost(el.dataset.arg);
-          else if (act === "new-post") app.newPost();
-          else if (act === "promote") app.promotePicker();
+          if (act === "notif-follow") {
+            const on = K.interactions.toggleFollow(el.dataset.arg);
+            if (on) K.toast("✅ Takip edildi", (K.artistById(el.dataset.arg) || {}).stageName || "", "ok");
+            K.phone.reRender();
+            return;
+          }
+          if (act !== "notif-open") return;
+          const type = el.dataset.ntype, artist = el.dataset.artist, song = el.dataset.song;
+          if (type === "profile" && artist) app.openProfile(artist);
+          else if (type === "dm") K.phone.pushView(app.inboxView());
+          else if (type === "song" && song) {
+            const sg = K.platforms.findSong(song);
+            if (sg) K.interactions.play(sg); else K.toast("Şarkı bulunamadı", "", "warn");
+          }
+          else if (type === "post" && el.dataset.post) app.openPost(el.dataset.post);
+          else if (type === "story") K.toast("👁️ Hikaye", "Hikâyeni görüntüleyenler listesi yakında.", "");
+          else K.toast("Bilgi", "Bu bildirim için işlem yok.", "");
         }
-      });
+      };
     },
 
+    /* ---------- yeni gönderi ---------- */
     newPost() {
       const body = `
         ${K.ui.field("Gönderi metni", `<textarea id="ig-text" rows="3" placeholder="Ne paylaşmak istiyorsun?">Stüdyodan selamlar 🎧</textarea>`)}
         ${K.ui.field("Şarkı etiketle (opsiyonel)", `<select id="ig-song">
           <option value="">— Yok —</option>
-          ${K.state.player.songs.map(s => `<option value="${s.id}">${U.escape(s.title)}</option>`).join("")}
+          ${K.state.player.songs.map((s) => `<option value="${s.id}">${U.escape(s.title)}</option>`).join("")}
         </select>`)}`;
       K.ui.modal({
         title: "Yeni Gönderi", body,
@@ -430,7 +718,7 @@
       const songs = K.state.player.songs;
       if (!songs.length) { K.toast("Şarkın yok", "Önce bir şarkı yayınla.", "warn"); return; }
       K.ui.actionSheet("Hangi şarkıyı tanıtmak istersin?",
-        songs.map(s => ({ label: s.title, onClick: () => { K.social.promoteSong(s.id, "instagram"); K.phone.reRender(); } })));
+        songs.map((s) => ({ label: s.title, onClick: () => { K.social.promoteSong(s.id, "instagram"); K.phone.reRender(); } })));
     }
   });
 })(window.K);
