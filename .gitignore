@@ -1,0 +1,19 @@
+# --- bağımlılıklar ---
+node_modules/
+package-lock.json
+
+# --- üretilen geçici dosyalar ---
+/tmp/
+*.tmp
+karma-verify-*.html
+
+# --- editör / işletim sistemi ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# NOT: KARMA-Oyun.html BİLEREK ignore edilmez.
+# Tek dosyalık build depoda tutulur (indirilebilir sürüm) ve
+# `npm run verify` onun kaynaklarla bayt bayt uyumlu olmasını zorunlu kılar.
