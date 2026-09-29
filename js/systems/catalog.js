@@ -85,7 +85,7 @@
           song.sync.push({ type: o.typeName, fee: o.fee, day: s.day, exclusive: o.exclusive });
           if (o.exclusive) song.exclusiveSync = true;
         }
-        s.player.popularity = U.clamp(s.player.popularity + (o.exclusive ? 0.8 : 0.4), 0, 99);
+        K.game.addFame(o.exclusive ? 0.8 : 0.4);
         s.player.reputation = U.clamp((s.player.reputation || 0) + 0.4, 0, 100);
         K.toast("🎬 Sync anlaşması", `${o.typeName} · +${U.money(o.fee - cut)}${cut ? " · 360 payı " + U.money(cut) : ""}`, "ok");
       } else {
