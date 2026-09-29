@@ -62,10 +62,18 @@
       const s = K.state;
       if (s.crisis) return;
       const mult = K.settings ? K.settings.diffMult().crisis : 1;
+      /* DÜZELTME (v10.9): kriz art arda gelebiliyor ve aynı senaryo
+         tekrar tekrar seçilebiliyordu. Artık asgari arayı var ve
+         henüz yaşanmamış senaryolar öncelikli. */
+      if (s.day - (s.lastCrisisDay || -999) < 25) return;
       const chance = 0.035 * mult * (1 + s.player.popularity / 60);
       if (!U.chance(chance)) return;
-      const pool = K.crisis.POOL.filter(c => s.player.popularity >= 10 || c.id !== "beef");
-      const evt = U.pick(pool);
+      const base = K.crisis.POOL.filter(c => s.player.popularity >= 10 || c.id !== "beef");
+      const seen = s.crisisSeen = s.crisisSeen || [];
+      const fresh = base.filter(c => seen.indexOf(c.id) < 0);
+      const evt = U.pick(fresh.length ? fresh : base);
+      s.lastCrisisDay = s.day;
+      if (seen.indexOf(evt.id) < 0) seen.push(evt.id);
       s.crisis = {
         id: evt.id, tag: evt.tag, title: evt.title, desc: evt.desc,
         choices: evt.choices, day: s.day
@@ -83,8 +91,19 @@
       const e = ch.effects || {};
       const p = s.player;
       if (e.rep) p.reputation = U.clamp(p.reputation + e.rep, 0, 100);
-      if (e.pop) p.popularity = U.clamp(p.popularity + e.pop, 0, 99);
-      if (e.fans) { p.ig = Math.max(0, p.ig + Math.round(e.fans * 0.6)); p.tiktok = Math.max(0, p.tiktok + Math.round(e.fans * 0.4)); }
+      if (e.pop) K.game.addFame(e.pop);
+      /* DÜZELTME (v10.9): hayran etkisi SABİT SAYIYDI (ör. -12.000).
+         Bu yüzden 5.000 takipçili bir oyuncu için kriz yıkıcı, 2 milyon
+         takipçili bir yıldız için görünmezdi. Artık kariyer büyüklüğüne
+         göre ölçekleniyor (100 bin takipçi = referans). */
+      if (e.fans) {
+        const f = (K.fans && K.fans.followers) ? K.fans.followers()
+          : ((p.ig || 0) + (p.tiktok || 0) + (p.x || 0));
+        const scale = U.clamp(f / 100000, 0.12, 3);
+        const applied = Math.round(e.fans * scale);
+        p.ig = Math.max(0, p.ig + Math.round(applied * 0.6));
+        p.tiktok = Math.max(0, p.tiktok + Math.round(applied * 0.4));
+      }
       if (e.money) {
         if (e.money < 0) K.economy.spend(Math.min(-e.money, s.balance), "crisis");
         else K.economy.earn(e.money, "crisis");
