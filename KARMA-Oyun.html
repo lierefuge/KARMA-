@@ -1,7 +1,7 @@
 <!--
-  KARMA — önbellek (cache) sürüm etiketi: 10.13
-  Yerel css/ ve js/ dosyalarının sonunda ?v=10.13 bulunur.
-  Yeni bir güncelleme yayınlarken bu numarayı artırın (ör. ?v=10.13).
+  KARMA — önbellek (cache) sürüm etiketi: 10.14
+  Yerel css/ ve js/ dosyalarının sonunda ?v=10.14 bulunur.
+  Yeni bir güncelleme yayınlarken bu numarayı artırın (ör. ?v=10.15).
   Böylece tarayıcı eski kopyayı kullanmaz; mobilde cache temizlemek gerekmez.
 -->
 <!DOCTYPE html>
@@ -3748,6 +3748,42 @@ body.hide-values .brand-sub::after {
 .story-react .srb:active { transform: scale(1.18); }
 .story-react .story-link { margin-left: 4px; }
 
+/* ============================================================
+   v10.14 — SANATÇI KİŞİLİK KARTI (profil)
+   Yalnızca derin kişilik profili tanımlı sanatçılarda görünür
+   (şimdilik: Şehinşah, wegh Rumi). Kart, profili oyuncuya
+   okunur kılar: değerler, kırmızı çizgiler ve "kişilik testi"
+   katsayıları.
+   ============================================================ */
+.ig-persona {
+  margin: 10px 12px 4px;
+  padding: 12px 13px;
+  border-radius: var(--radius-m);
+  border: 1px solid rgba(255, 255, 255, .10);
+  background: linear-gradient(160deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02));
+}
+.ig-persona-top { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.ig-persona-code {
+  font-size: 10px; font-weight: 800; letter-spacing: .06em;
+  padding: 3px 7px; border-radius: 999px;
+  background: rgba(176, 108, 255, .20); color: #d9b8ff;
+  border: 1px solid rgba(176, 108, 255, .35);
+}
+.ig-persona-tag { font-size: 11.5px; opacity: .72; margin-top: 6px; line-height: 1.45; }
+.ig-persona-bars { margin: 10px 0 8px; display: grid; gap: 5px; }
+.ig-persona-row { display: grid; grid-template-columns: 96px 1fr 18px; align-items: center; gap: 7px; font-size: 10.5px; }
+.ig-persona-row > span { opacity: .70; }
+.ig-persona-row > i { display: block; height: 5px; border-radius: 999px; background: rgba(255, 255, 255, .10); overflow: hidden; }
+.ig-persona-row > i > b { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #8b5cf6, #ec4899); }
+.ig-persona-row > em { font-style: normal; font-weight: 700; opacity: .60; text-align: right; }
+.ig-persona-foot { font-size: 10.5px; line-height: 1.5; opacity: .78; }
+.ig-persona-foot.red { opacity: .62; }
+.ig-persona-note {
+  margin-top: 8px; padding-top: 8px; font-size: 11px;
+  border-top: 1px dashed rgba(255, 255, 255, .12);
+  opacity: .80; font-weight: 600;
+}
+
 </style>
 <style>
 /* ==== css/apps-misc.css ==== */
@@ -5064,7 +5100,7 @@ body.hide-values .brand-sub::after {
       chartPeak: 38, albums: ["D'ÜNYAM"],
       traits: { openness: 9, loyalty: 5, ego: 4, work: 8 },
       affinityStart: 16,
-      bio: "İzmir doğumlu genç rapçi. 'Majesteleri' mahlasıyla da bilinir. Karanlık ve deneysel sound'uyla kendi kitlesini kurdu; D'ÜNYAM albümüyle dikkat çekti."
+      bio: "İzmir doğumlu genç rapçi. 'Karma' mahlasıyla da bilinir. Karanlık ve deneysel sound'uyla kendi kitlesini kurdu; D'ÜNYAM albümüyle dikkat çekti."
     },
     {
       id: "deryaulug", stageName: "Derya Uluğ", aliases: [],
@@ -5778,7 +5814,25 @@ body.hide-values .brand-sub::after {
     { cat: "muzik", title: "Yeni çıkan albüm listeleri salladı", heat: 78, keywords: ["albüm", "liste", "single", "hit"], line: "Listelerde bir ismim var artık" },
     { cat: "muzik", title: "Rap sahnesinde yeni dalga yükseliyor", heat: 82, keywords: ["rap", "rapçi", "underground", "sahne"], line: "Yeraltından çıktım, sesim yankı" },
     { cat: "muzik", title: "Konser biletleri saniyeler içinde tükendi", heat: 74, keywords: ["konser", "bilet", "sahne"], line: "Biletler bitti, sahnede yer yok" },
-    { cat: "muzik", title: "Festival kadrosu açıklandı", heat: 57, keywords: ["festival", "kadro", "etkinlik"], line: "Festival çadırında bir şarkı doğuyor" }
+    { cat: "muzik", title: "Festival kadrosu açıklandı", heat: 57, keywords: ["festival", "kadro", "etkinlik"], line: "Festival çadırında bir şarkı doğuyor" },
+
+    /* ---- MÜZİK · GÜNCEL SAHNE (v10.14) ----
+       Oyun artık bugünün rap ekonomisini de konuşuyor: kısa video
+       döngüsü, algoritma baskısı, yapay zekâ tartışması, bağımsız
+       üretim ve drill/melodik trap dalgası. Sözler bu başlıklarla
+       örtüşürse etkileşim artıyor (salt eski gündem değil). */
+    { cat: "muzik", title: "Şarkıların ömrü kısaldı: albüm değil tekli dönemi", heat: 84, keywords: ["tekli", "single", "albüm", "döngü", "kısa video"], line: "Bir şarkı çıktı, üç günde tükendi" },
+    { cat: "muzik", title: "Algoritma şarkıyı ilk 10 saniyede yargılıyor", heat: 80, keywords: ["algoritma", "giriş", "hook", "tiktok", "trend"], line: "İlk on saniyede karar veriyor kitle" },
+    { cat: "muzik", title: "Yapay zekâ ile üretilen şarkı tartışması büyüdü", heat: 86, keywords: ["yapay zeka", "ai", "telif", "üretim"], line: "Makine yazıyor ama yaşıyor mu?" },
+    { cat: "muzik", title: "Bağımsız sanatçılar aracısız yayınlamaya geçti", heat: 79, keywords: ["bağımsız", "dağıtım", "aracı", "telif"], line: "Aracıyı çıkardım, kontrol bende" },
+    { cat: "muzik", title: "Melodik trap dalgası listeleri ele geçirdi", heat: 77, keywords: ["melodik", "trap", "dalga", "liste"], line: "Melodi ağır, söz keskin, akış hızlı" },
+    { cat: "muzik", title: "Drill akışı Türkiye'de yerleşti", heat: 75, keywords: ["drill", "akış", "flow", "sokak"], line: "Sokak ritmi değişti, akış sertleşti" },
+    { cat: "muzik", title: "Phonk ve hyperpop genç kitleyi böldü", heat: 68, keywords: ["phonk", "hyperpop", "genç", "sound"], line: "Yeni sound geldi, eski kulak alışmadı" },
+    { cat: "muzik", title: "Rapçiler arasında beat savaşı: aynı sample tartışması", heat: 72, keywords: ["beat", "sample", "çalıntı", "prodüksiyon", "kopya"], line: "Aynı sample, iki şarkı, tek hakikat" },
+    { cat: "muzik", title: "Konser bilet fiyatlarına tepki büyüdü", heat: 74, keywords: ["konser", "bilet", "fiyat", "sahne"], line: "Sahneye bakıyorum, cebime bakıyorum" },
+    { cat: "muzik", title: "Sosyal medyada şarkı challenge'ı viral oldu", heat: 81, keywords: ["challenge", "viral", "akım", "kısa video"], line: "Herkes aynı akışı deniyor, özgün kalan az" },
+    { cat: "muzik", title: "Plak ve kaset satışı gençler arasında geri döndü", heat: 62, keywords: ["plak", "kaset", "fiziksel", "satış"], line: "Dijital dünyada kaset arıyor gençlik" },
+    { cat: "muzik", title: "Müzikte sözün ağırlığı yeniden tartışılıyor", heat: 83, keywords: ["söz", "yazım", "kalem", "içerik"], line: "Sound değişti ama söz hâlâ soruluyor" }
   ];
 
   /* tema ↔ kategori uyumu (küçük bonus) */
@@ -16723,6 +16777,257 @@ body.hide-values .brand-sub::after {
 })(window.K = window.K || {});
 
 </script>
+  <script>
+/* ==== js/data/personality.js ==== */
+/* ============================================================
+   KARMA — data/personality.js
+   SANATÇI KİŞİLİK KATMANI (derin profil)
+
+   Neden ayrı bir katman?
+   ----------------------
+   `chat.js` içindeki PROFILES yalnızca "ne söylüyor"u tanımlar
+   (cümle havuzları). Ama bir sanatçının inandırıcı olması için
+   "neye nasıl tepki veriyor" da bilinmesi gerekir:
+     · neyi sever  → samimiyeti hızlı artar
+     · neyi sevmez → ters tepki verir, soğur
+     · nasıl konuşur → cümle ritmi, kelime seçimi, kaçındığı şeyler
+     · nerede susar → konuşmayacağı konular (özel hayat, para, diss)
+
+   Bu dosya o davranış modelini tutar. DM motoru (`chat.js`) her
+   cevaptan sonra buradaki `bias` değerlerini samimiyet hesabına
+   katar; böylece Şehinşah'a boş bir övgü ile gerçek bir söz
+   eleştirisi AYNI puanı getirmez.
+
+   Kapsam (v10.14): Şehinşah ve wegh Rumi — oyunun iki amiral
+   sanatçısı. Profiller kamuya açık röportaj, biyografi ve
+   diskografi bilgilerinden türetildi; kurgusal cümle uydurulmadı.
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  K.PERSONALITY = {
+
+    /* ==========================================================
+       ŞEHİNŞAH — "Mistik Kral"
+       27 Aralık 1986, Erzincan/Kemah. Asıl adı Ufuk Yıkılmaz.
+       Babası savcı olduğu için çocukluğu şehir şehir geçti.
+       9 yaşında grafitiyle hip hop'a girdi, 1998'de söz yazmaya
+       başladı. Mahlası "kralların kralı"; Hasan Sabbah'tan
+       etkilendiği için HSNSBBH mahlasını da kullanır.
+       2017'de Tolosa-Hunt sendromuyla mücadele etti.
+       En belirgin özellik: geniş kelime haznesi, sözü kılıç gibi
+       kullanan ölçülü bir ton ve mitolojiden beslenen kapalı
+       anlatım.
+       ========================================================== */
+    sehinsah: {
+      id: "sehinsah",
+      name: "Şehinşah",
+      archetype: "Mistik Kral",
+      code: "ŞAH-1",
+      tagline: "Kendi mitolojisini kurmuş, sözü silah gibi bilen bir zanaatkâr.",
+      essence:
+        "Ölçülü, kapalı ve derin. Kolay övülmez, kolay kırılmaz. " +
+        "Karşısındakinin sözünü tartar; samimiyeti kelime seçiminden anlar. " +
+        "Kibirle değil, mesafeyle korur kendini.",
+
+      /* Kamuya açık, doğrulanabilir çerçeve bilgiler */
+      facts: [
+        "1986 Erzincan/Kemah doğumlu, babası savcı olduğu için memleketsiz büyüdü",
+        "Mahlası 'kralların kralı'; ikinci mahlası Hasan Sabbah → HSNSBBH",
+        "2017'de Tolosa-Hunt sendromuyla mücadele ettiğini açıkladı",
+        "Oğlu Atlas; babalığı işinden ayrı tutar",
+        "2017 'Karma' ile trap sahnesinde yükseliş, 2016 'DEEV', 2020 '666', 2024 'İkarus'"
+      ],
+
+      loves: [
+        "samimiyet", "söz zanaatı", "mitoloji ve felsefe",
+        "emek", "sadakat", "bağımsız düşünce", "sabır"
+      ],
+      redLines: [
+        "boş övgü", "taklit", "gürültülü kibir", "ona ders vermeye çalışmak",
+        "özel hayatı zorlamak", "sataşma kültürü", "emeksiz talepler"
+      ],
+
+      speech: {
+        tempo: "ağır, ölçülü, cümle sonunda kısa kapanış",
+        markers: [
+          "cümleyi genelleme ile açar, sonra kendine bağlar",
+          "'bir şey' ile susmayı tercih eder, açık etmez",
+          "fiili değil anlamı konuşturur",
+          "soruyu cevaplarken sınırını söyler"
+        ],
+        avoids: ["argo", "'kanka/lan' gibi samimiyetsiz ağız", "bağırma", "gossip"]
+      },
+
+      /* Niyet bazlı samimiyet katsayısı (delta'ya eklenir) */
+      bias: {
+        compliment: 0.30, feature: 0.20, music: 0.40, career: 0.40,
+        market: 0.35, news: 0.15, beef: 0.20, hard: 0.45, health: 0.30,
+        support: 0.35, thanks: 0.25, question: 0.20, howareyou: 0.10,
+        laugh: 0.10, critique: 0.25, diss: -0.45, insult: -0.55,
+        flirt: -0.60, personal: -0.35, askmoney: -0.60, money: -0.20,
+        hangout: -0.10, company: 0.05, family: -0.15, bye: 0.05,
+        generic: 0.05, shortyes: 0.05, shortno: -0.05
+      },
+
+      /* İmza cümleler — nadiren, tek başına eklenir */
+      openings: [
+        "Bir düşününce…",
+        "Şunu net söyleyeyim:",
+        "Yıllar geçince anladım,",
+        "Bunu kayıtta da söylerim:"
+      ],
+      quote: "Kelime sayısı değil, kelimenin ağırlığı önemli.",
+
+      /* Kişilik testi kartı (oyun içi görünüm) */
+      test: {
+        title: "Mistik Stratejist",
+        rows: [
+          ["Söz zanaatı", 10], ["Mesafe", 9], ["Sabır", 9],
+          ["Sadakat", 8], ["Ego", 7], ["Açıklık", 4]
+        ],
+        note: "Seni tanımadan açılmaz; tanıyınca bırakmaz."
+      }
+    },
+
+    /* ==========================================================
+       WEGH RUMI — "Provokatif Mükemmeliyetçi"
+       2000 Rize doğumlu. Asıl adı Arif Efe Çilli.
+       2020'de profesyonel başladı, 2023 'GALACTUS' EP'siyle
+       kendi sound'unu kurdu. Modern trap ile geleneksel Türk
+       melodilerini birleştirir. Sözlerinde özgüven, sokak
+       kültürü, provokatif anlatım ve toplumsal gönderme var.
+       Prodüksiyonda Bodega Grande ile çalışır. Özel hayatını
+       kapalı tutar, sahne ile dinleyici arasındaki mesafeyi
+       bilinçli olarak kısaltır.
+       ========================================================== */
+      weghrumi: {
+      id: "weghrumi",
+      name: "wegh Rumi",
+      archetype: "Provokatif Mükemmeliyetçi",
+      code: "WGH-2",
+      tagline: "Modern trap ile Anadolu melodisini aynı beat'te eriten genç kuşak.",
+      essence:
+        "Hızlı karar verir, hızlı söyler; ama işin teknik tarafında takıntılıdır. " +
+        "Sahnedeki samimiyeti ile özel hayatındaki ketumluğu bilinçli bir çizgidir. " +
+        "Kendisine 'sen kimsin' diyen tonu hemen sezer ve karşılık verir.",
+
+      facts: [
+        "2000 Rize doğumlu; Karadeniz'in ritimlerini trap'e taşıdı",
+        "2020'de profesyonel olarak müzik üretmeye başladı",
+        "Prodüksiyonda Bodega Grande ile çalışıyor",
+        "2023 'GALACTUS' EP'si ile kendi sound'unu kurdu",
+        "Sözlerinde toplumsal ve politik gönderme var; özel hayatını kapalı tutar"
+      ],
+
+      loves: [
+        "teknik detay", "kendi sound'unu kurmak", "bağımsızlık",
+        "sahne enerjisi", "sosyal medya etkileşimi", "hız", "ürün"
+      ],
+      redLines: [
+        "taklit", "'tarzını bırak' tavsiyesi", "kendini ispat etmeye çalışan ton",
+        "şıklık dersi", "sabırsız talep", "boş iltifat"
+      ],
+
+      speech: {
+        tempo: "hızlı, kısa cümle, tekrar eden vurgu",
+        markers: [
+          "kısa ve net konuşur, uzatmayı sevmez",
+          "'kayıt', 'mix', 'beat' gibi üretim kelimelerini sık kullanır",
+          "soruyu cevaplamadan önce soruyu tekrar eder",
+          "toplumsal konuda provokatif ama kişisel konuda kapalı"
+        ],
+        avoids: ["temkinli bürokratik dil", "kendini küçümseme", "sitemkârlık"]
+      },
+
+      bias: {
+        compliment: 0.20, feature: 0.45, music: 0.50, career: 0.25,
+        market: 0.45, news: 0.30, beef: 0.35, hard: 0.25, health: 0.15,
+        support: 0.50, thanks: 0.30, question: 0.25, howareyou: 0.15,
+        laugh: 0.25, critique: 0.05, diss: 0.15, insult: -0.40,
+        flirt: -0.50, personal: -0.45, askmoney: -0.55, money: -0.05,
+        hangout: 0.20, company: 0.15, family: -0.30, bye: 0.05,
+        generic: 0.05, shortyes: 0.05, shortno: -0.05
+      },
+
+      openings: [
+        "Bak şimdi:",
+        "Kısa keseyim,",
+        "Kayıtta şöyle oluyor:",
+        "Net söylüyorum,"
+      ],
+      quote: "Sound'u kendin kurmazsan, başkasının sesi oluyorsun.",
+
+      test: {
+        title: "Provokatif Mükemmeliyetçi",
+        rows: [
+          ["Üretim takıntısı", 10], ["Hız", 9], ["Bağımsızlık", 9],
+          ["Sahne enerjisi", 8], ["Özel hayat gizliliği", 8], ["Sabır", 5]
+        ],
+        note: "İşe yatırım yapınca açar; lafla değil ürünle ikna olur."
+      }
+    }
+  };
+
+  /* ============================================================
+     MOTOR YARDIMCILARI
+     ============================================================ */
+
+  K.personality = {
+
+    byId(id) { return K.PERSONALITY[id] || null; },
+
+    has(id) { return !!K.PERSONALITY[id]; },
+
+    /* liste (UI için) */
+    list() { return Object.keys(K.PERSONALITY).map(id => K.PERSONALITY[id]); },
+
+    /* samimiyet düzeltmesi: niyet + profil */
+    bias(artistId, intent) {
+      const p = K.PERSONALITY[artistId];
+      if (!p || !p.bias) return 0;
+      const b = p.bias[intent];
+      return b == null ? 0 : b;
+    },
+
+    /* nadir imza açılışı (her zaman değil, %12) */
+    opening(artistId) {
+      const p = K.PERSONALITY[artistId];
+      if (!p || !p.openings || !p.openings.length) return "";
+      if (!K.util || !K.util.chance(0.12)) return "";
+      return K.util.pick(p.openings) + " ";
+    },
+
+    /* oyun içi "kişilik testi" kartı */
+    card(artistId) {
+      const p = K.PERSONALITY[artistId];
+      if (!p) return null;
+      return {
+        code: p.code, title: p.test.title, archetype: p.archetype,
+        tagline: p.tagline, note: p.test.note,
+        rows: p.test.rows.map(r => ({ label: r[0], value: r[1] })),
+        loves: p.loves.slice(0, 4),
+        redLines: p.redLines.slice(0, 3)
+      };
+    },
+
+    /* sesli özet (DM'de "kim bu adam" hissi) */
+    summaryLine(artistId) {
+      const p = K.PERSONALITY[artistId];
+      if (!p) return "";
+      return p.archetype + " · " + p.tagline;
+    },
+
+    /* hard/insult gibi niyetlerde profilin kırmızı çizgisine girip girmediği */
+    isRedLine(artistId, intent) {
+      const p = K.PERSONALITY[artistId];
+      if (!p) return false;
+      return ["insult", "personal", "askmoney", "flirt"].indexOf(intent) >= 0;
+    }
+  };
+})(window.K = window.K || {});
+
+</script>
 
   <!-- ================= CORE ================= -->
   <script>
@@ -21798,7 +22103,6 @@ window.K = window.K || {};
   /* ------------- yardımcı ------------- */
   const norm = s => (s || "").toLocaleLowerCase("tr").replace(/[.,!?;:]/g, " ").replace(/\s+/g, " ").trim();
   const has = (t, words) => words.some(w => t.includes(w));
-  const last = arr => arr[arr.length - 1];
 
   /* ------------- selamlaşma tespiti (özel) -------------
      "selamün aleyküm" / "sa" → aleyküm selam
@@ -21856,7 +22160,7 @@ window.K = window.K || {};
     { id: "beef",      words: ["kimse", "piyasa bitmiş", "rap öldü", "sahte", "kopya", "taklit", "çalıntı beat", "iş bitirmiş"] },
     { id: "health",    words: ["sağlık", "uyku", "yorgun", "stres", "dinlen", "iyi misin", "yaralanma", "sesin"] },
     { id: "hard",      words: ["yorgunum", "param yok", "moralim bozuk", "moralim", "bunalım", "stres", "sıkıntı", "dert", "zor durumdayım", "kötüyüm", "yalnızım", "mutsuzum", "çöktüm", "dibe vurdum", "bitkin", "yıkıldım", "kafam bozuk", "geçinemiyorum"] },
-    { id: "family",    words: ["aile", "anne", "baba", "kardeş", "çocuk", "evlilik", "eşim"] },
+    { id: "family",    words: ["aile", "anne", "baba", "kardeş", "çocuk", "evlilik", "eşim", "oğlun", "kızın", "çocuğun", "eşin", "ailen", "baban", "annen", "kardeşin"] },
     { id: "thanks",    words: ["teşekkür", "sağol", "sağ ol", "eyvallah", "minnettar", "teşekkürler", "thanks"] },
     { id: "howareyou", words: ["nasılsın", "naber", "ne haber", "iyi misin", "neler yapıyorsun", "napıyorsun", "ne yapıyorsun", "keyifler"] },
     { id: "greet",     words: ["merhaba", "selam", "hey", "alo", "günaydın", "iyi akşamlar", "iyi geceler", "hosgeldin", "hoş geldin"] },
@@ -21868,7 +22172,6 @@ window.K = window.K || {};
     { id: "insult",    words: ["salak", "aptal", "kötüsün", "berbatsın", "saçma", "rezalet", "nefret ediyorum", "beter", "vasıfsız", "kopyacı", "tipsiz", "beceriksiz"] },
     { id: "flirt",     words: ["seni seviyorum", "aşığım", "yakışıklı", "güzelsin", "evlenelim", "seninle olmak", "kalbim", "çıkma teklifi"] },
     { id: "personal",  words: ["kaç yaşındasın", "nerelisin", "hangi şehir", "gerçek adın", "ismin ne", "ismin ne anlama", "adın ne", "sahne adı", "sahne adın", "lakabın", "takma adın", "evli misin", "sevgilin", "özel hayatın", "telefonun", "adresin"] },
-    { id: "family",    words: ["oğlun", "kızın", "çocuğun", "eşin", "ailen", "baban", "annen", "kardeşin"], },
     { id: "askmoney",  words: ["borç", "para ver", "ödünç", "maddi", "yardım et para", "faizsiz", "bana para"] },
     { id: "news",      words: ["haber", "gündem", "siyaset", "ekonomi", "cinayet", "hırsızlık", "zam", "seçim", "sokak olayı"] },
     { id: "question",  words: ["nasıl", "neden", "niye", "ne zaman", "kim", "nerede", "mi", "mı", "musun", "mısın"] }
@@ -21889,25 +22192,13 @@ window.K = window.K || {};
     question: ["Neden soruyorsun?", "Kimsin sen önce?", "Böyle soruya cevap vermem."]
   };
 
-  /* ------------- anlamayı gösteren yansıtıcı cevaplar ------------- */
-  const REFLECT = [
-    "\"{word}\" derken? Anlat bakalım.",
-    "{word}… bunu biraz açar mısın?",
-    "Hmm, {word} konusunda ne düşünüyorsun?",
-    "{word} mı? İlginç, devam et.",
-    "{word} deyince aklıma bir şey geldi ama önce sen anlat.",
-    "{word}… bu konuda çok şey söylenir aslında.",
-    "Anladım, {word} diyorsun. Biraz daha aç."
-  ];
-
-  const STOP = new Set(["bir","bu","şu","o","ve","ile","için","çok","daha","ama","ki","de","da","mi","mı","ne","ya","yani","ben","sen","biz","siz","onlar","misin","mısın","olur","var","yok","değil","şey","böyle","öyle","işte","tamam","peki","evet","hayır","selam","merhaba","naber","nasılsın","kanka","kardeşim","hocam","bence","sence","aleyküm","aleykum","selamlar","selamün","salam"]);
-  function salientWord(text) {
-    const words = (text || "").toLocaleLowerCase("tr")
-      .replace(/[^\p{L}\p{N}\s]/gu, " ").split(/\s+/)
-      .filter(w => w.length >= 4 && !STOP.has(w));
-    words.sort((a, b) => b.length - a.length);
-    return words[0] || null;
-  }
+  /* ------------- NOT (v10.14 temizliği) -------------
+     Burada eskiden "yansıtıcı cevap" denemesi vardı: REFLECT havuzu,
+     STOP kelime seti ve salientWord() yardımcısı oyuncunun mesajından
+     rastgele bir kelime seçip cümleye geri koyuyordu ("{word} mı?
+     İlginç, devam et."). Bu yaklaşım terk edildi — contextReply()
+     artık anlamlı bağlam kuruyor — ama üç tanım dosyada kalmıştı.
+     Hiçbiri çağrılmıyordu; kaldırıldı. */
 
   function classify(text) {
     const t = norm(text);
@@ -22581,8 +22872,8 @@ window.K = window.K || {};
           "Öyle bir yer değil burası. İşimize bakalım.",
           "Teşekkür ederim ama konuyu müzikte tutalım."
         ],
- 
-        thanks: ["Rica ederim.", "Eyvallah, sağ ol.", "Ne demek."],
+
+        thanks: ["Rica ederim. İyi ki yazdın.", "Ne demek, sözün kıymetli.", "Eyvallah. Bunu hatırlarım."],
         laugh: ["Güldüm, iyi geldi.", "Ha, o da ayrı bir mevzu."],
         question: [
           "Sorunun cevabı var ama biraz uzun. Kısaltayım.",
@@ -22627,7 +22918,264 @@ window.K = window.K || {};
         personal: ["Bunları henüz konuşacak seviyede değiliz.", "Bu soru biraz erken."],
         insult: ["Gerek yok buna."],
         flirt: ["Öyle bir şey yok."]
-      }
+      },
+      /* v10.14 — kişilik çizgisi: boş övgü ve kibir onu iter, söz emeği çeker */
+      extras: [
+        "Söylediğini düşünüp cevap verdim, öylesine yazmam.",
+        "Bu iş emek istiyor, biliyorsun.",
+        "Yaz, sil, yeniden yaz. Başka yolu yok.",
+        "Ben kelimeyi tartarım, sen de tart."
+      ],
+      followup: {
+        feature: {
+          yes: ["Tamam. O zaman beat'i bana yolla, sözü ben kurarım.", "Peki. Ama iş iyi olacaksa yaparım, acele yok."],
+          no: ["Anladım. Hazır değilsen zorlamayalım.", "Olur. Kendi zamanınca gel."]
+        },
+        music: {
+          yes: ["Peki. Bir şey dinleteceğim, kulak vereceksin.", "Tamam. Bitmiş hâlini duy, öyle konuşalım."],
+          no: ["Olur. Herkesin kendi damarı var.", "Anladım, sen bilirsin."]
+        },
+        career: {
+          yes: ["İyi. Bugün bir satır yaz, yarın bir satır daha.", "Doğru kafa. Sabır bu işin yarısı."],
+          no: ["Peki. Yolu kendin bulacaksan da kapım açık.", "Anladım. Acele etme, oturur."]
+        }
+      },
+      /* sosyal medya yorumu — mistik/ölçülü ton */
+      reaction: {
+        praise: [
+          "\"{s}\" sağlam iş. Söz oturmuş, tebrikler @{p}.",
+          "\"{s}\" dinledim. Kalemin işini görmüş, saygı.",
+          "\"{s}\" üzerinde durulmuş, belli oluyor."
+        ],
+        shade: [
+          "\"{s}\" fena değil ama sözün ağırlığı eksik.",
+          "\"{s}\" güzel kayıt; anlattığı şey daha derin olabilirdi.",
+          "\"{s}\" dinledim. Sound tamam, mesele yarım."
+        ],
+        neutral: [
+          "\"{s}\" yayında. Dinleyin, kararı siz verin.",
+          "@{p} yeni iş çıkarmış, bir kulağınızı verin."
+        ]
+      },
+      /* diss — o kültüre girmez, mesafeden cevap verir */
+      diss: [
+        "@{t} konuşuyor ama sözü yok. Buna cevap harcamam.",
+        "@{t} için kelime yakmam. Kayıtta anlatırım.",
+        "@{t} sahneye çıksın, orada konuşuruz.",
+        "Herkes bağırıyor @{t}; bir satır yazsın, gerisi gelir."
+      ]
+    },
+
+    /* ==========================================================
+       v10.14 — WEGH RUMI (weghrumi)
+       Oyunun iki amiral sanatçısından biri artık KENDİ ağzına
+       sahip. Öncesinde yalnızca `VOICE_BY_ID` içinde 6 gönderi
+       satırı vardı; DM'de ise tamamen tür havuzundan (trap)
+       konuşuyordu — yani UZI ile aynı cümleleri kuruyordu.
+
+       Kişilik: hızlı karar, kısa cümle, üretim takıntısı,
+       bağımsızlık vurgusu, özel hayatta ketumluk.
+       ========================================================== */
+    weghrumi: {
+      label: "genc",
+      selam: {
+        islamic: ["Aleyküm selam. Nabersin?", "Aleyküm selam, iyi ki yazdın.", "Ve aleyküm selam kardeşim."],
+        shortIslamic: ["as", "as, naber?"],
+        reply: ["Eyvallah.", "Sağ ol, sen de iyi bak.", "Ne demek."]
+      },
+      pool: {
+        greet: [
+          "Selam, naber? Kayıttaydım, yeni çıktım.",
+          "Oo selam. İyi ki yazdın, kafam doluydu.",
+          "Selam. Bu aralar mix'le uğraşıyorum, sen naber?",
+          "Naber? Bugün stüdyo uzadı yine."
+        ],
+        howareyou: [
+          "İyiyim, sürekli kayıt. Sen naber?",
+          "Fena değil, gece çalışıyorum. Sen ne yapıyorsun?",
+          "İdare eder, sound oturuyor yavaş yavaş. Sen?",
+          "Şükür. Yoğunum ama iyi yoğunluk."
+        ],
+        music: [
+          "\"{song}\" üstünde çok uğraştım; mix oturmasa çıkmıyor.",
+          "\"{song}\" benim işim; melodiyi de kendim kurdum.",
+          "\"{song}\" için prodüksiyonu baştan aşağı elden geçirdim.",
+          "Yeni bir şey var ama erken konuşmayacağım; \"{song}\" gibi olmasını istemiyorum."
+        ],
+        feature: [
+          "Ortak iş olur, ama sound uyuşacak. Demo yolla.",
+          "Feature veririm, şartı: ikimiz de aynı beat'te rahat olacağız.",
+          "Oturalım. Ben beat'i kurarım, sen sözü getir."
+        ],
+        career: [
+          "Kendi sound'unu kurmadan kimse seni hatırlamıyor.",
+          "Yıl içinde çok şey çıkar; bir tanesi kalır, o seni taşır.",
+          "Bekleme. Kayıt yap, at, tekrar yap.",
+          "Bağımsız kalmak zor ama kontrol sende oluyor."
+        ],
+        market: [
+          "Piyasa hızlı; kısa içerik şarkıyı yiyor.",
+          "Artık sound tek başına yetmiyor, görüntü de iş.",
+          "Yeni kuşak işini kendi kuruyor, aracıya ihtiyaç azaldı.",
+          "Algoritma kısa istiyor; ben yine de bütün şarkı yapıyorum."
+        ],
+        compliment: [
+          "Eyvallah kardeşim, sağ ol.",
+          "Teşekkür ederim, desteği unutmam.",
+          "Sağ ol. Böyle şeyler çalışmaya itiyor."
+        ],
+        critique: [
+          "Tamam, neyini sevmedin? Söyle, bakayım.",
+          "Eleştiri alırım. Somut söylersen daha çok işe yarar.",
+          "Notumu aldım. Bir sonraki işte duyarsın."
+        ],
+        insult: [
+          "Sakin ol. Konuşacaksan konuş, bağıracaksan kapıyı gösteririm.",
+          "Bu tonla bir yere varılmıyor, biliyorsun.",
+          "Sen kimsin de bana bunu yazıyorsun?"
+        ],
+        diss: [
+          "Sataşma işi değil bu. İş yaparsa cevabı kayıtta veririm.",
+          "Diss yazmak isteyen yazsın; ben mix yapıyorum.",
+          "Ben kayıtla konuşuyorum, kulisle değil."
+        ],
+        money: [
+          "Bütçe işin başında konuşulur, sonunda değil.",
+          "Para konuşulur ama iş netse konuşulur.",
+          "Maddi tarafı menajerle yürütürüm ama dürüst olurum."
+        ],
+        hangout: [
+          "Olur, stüdyoda olurum zaten. Gel çal.",
+          "Müsait olursam otururuz. Kalabalık yer sevmiyorum.",
+          "Bu hafta kayıt var; sonraki hafta bakalım."
+        ],
+        company: [
+          "Sözleşme mi? Şartlar netse otururuz.",
+          "Bağımsız kalıyorum ama iyi teklife kapalı değilim.",
+          "Önce ne verdiğini söyle, sonra ne aldığını."
+        ],
+        family: [
+          "Aile tarafını konuşmam. Benim tarafım orası.",
+          "O konu bende kapalı, kusura bakma."
+        ],
+        personal: [
+          "Özel hayatımı açmıyorum. İş konuşalım.",
+          "Bunu sormaya kimsenin hakkı yok, kusura bakma.",
+          "Rize'liyim, 2000 doğumluyum. Gerisi bende kalsın."
+        ],
+        health: [
+          "Gece düzenim bozuk ama ses iyi, idare eder.",
+          "Yorgunum ama iyi yorgunluk; kayıt bitince geçer."
+        ],
+        hard: [
+          "Zor dönemde yazdığın şey en iyi şarkın olur, sıkı dur.",
+          "Bir dönem ben de dibi gördüm. Kayıt kurtardı beni, yaz.",
+          "Yalnız değilsin, bu iş böyle geçiyor."
+        ],
+        news: [
+          "Gündemi takip ediyorum ama her şeye yorum yapmam.",
+          "Sözüm varsa kayıtta söylerim, kulis lafı sevmem."
+        ],
+        beef: [
+          "Bazıları tartışmadan ekmek yiyor, saygı duyarım ama ben o işte yokum.",
+          "İyi yapıyorsa iyidir; kimseye düşman değilim."
+        ],
+        askmoney: [
+          "Borç işine girmem kardeşim. İş konuşursak olur.",
+          "Para meselesi aramızda yürümez."
+        ],
+        flirt: [
+          "Bu tarafa gitmeyelim. Müzik konuşalım.",
+          "Sağ ol ama konuyu işte tutalım."
+        ],
+        thanks: ["Eyvallah kardeşim.", "Ne demek, ben teşekkür ederim.", "Sağ ol, desteği unutmam."],
+        laugh: ["Ha, o iyiydi 😄", "Güldük biraz, iyi geldi."],
+        question: [
+          "Kısa cevap: evet. Uzun cevap istersen anlatırım.",
+          "Sorunun net, cevabı da net olsun.",
+          "İyi soru, bunu ben de düşündüm."
+        ],
+        support: [
+          "Sağ ol, desteği unutmam.",
+          "Eyvallah kardeşim, gerçekten kıymetli."
+        ],
+        bye: ["Görüşürüz.", "Kolay gelsin, kayıtta görüşürüz."],
+        generic: [
+          "Anladım. Net konuşursan net cevap veririm.",
+          "Tamam, devam et. Dinliyorum.",
+          "Bunu bir düşüneyim, sana dönerim."
+        ]
+      },
+      suffix: [
+        " Kayıtta konuşuruz.",
+        " Sound'u kendin kur.",
+        " Acele işe şeytan karışır."
+      ],
+      ambient: {
+        low: [
+          "Selam, kayıttan çıktım. Sen nasılsın?",
+          "Naber? Adını görüyorum bir süredir, işler nasıl?"
+        ],
+        mid: [
+          "Yeni bir şey var, mix aşamasında. Sonra dinletirim.",
+          "Bugün beat'e oturdum, kafamda bir şey var ama erken.",
+          "Rize'den İstanbul'a gelmişim, hâlâ kayıtla uğraşıyorum."
+        ],
+        high: [
+          "Bir iş var; dinleyen ilk kişi sen olacaksın.",
+          "Bu projeyi sana açarım, kafanı seviyorum."
+        ]
+      },
+      cold: {
+        generic: ["Kimsin kardeşim? Bir sürü mesaj geliyor.", "Yoğunum, sonra bakarım."],
+        feature: ["Önce bir demo duyayım, ondan sonra konuşuruz.", "Feature istiyorsun ama ben sound'u tanımadım daha."],
+        money: ["Bütçe netse konuşulur, yoksa erken."],
+        personal: ["Özel hayatı konuşmam, tanımıyorum seni.", "Bu soru erken."],
+        insult: ["Bu ton bana değil, başkasına."],
+        flirt: ["Gerek yok."]
+      },
+      extras: [
+        "Bu arada senin işlerine de bakıyorum, gözüm üstünde.",
+        "İş yaparsan bana yolla, dinlerim.",
+        "Sound'u kendin kur, gerisi gelir.",
+        "Kalabalık ortamlarda takılmam; stüdyoda görüşürüz."
+      ],
+      followup: {
+        feature: {
+          yes: ["Tamam. Demo'yu yolla, beat'i ben kurarım.", "Olur. Aynı odada oturalım, telefonda olmaz."],
+          no: ["Peki, kendi işine bak. Hazır olunca yaz.", "Anladım, zorlamam."]
+        },
+        music: {
+          yes: ["Süper. Mix bitince ilk sana atacağım.", "Tamam, dinleteceğim; kulak kesil."],
+          no: ["Olur, herkesin damarı ayrı.", "Anladım."]
+        },
+        career: {
+          yes: ["İşte bu. Bugün bir kayıt al, at.", "Doğru. Yıl içinde çok şey çıkar, bir tanesi kalır."],
+          no: ["Tamam, kendi yolun.", "Anladım, acele etme."]
+        }
+      },
+      reaction: {
+        praise: [
+          "\"{s}\" sağlam olmuş, mix de oturmuş 🔥",
+          "\"{s}\" iş yapar @{p}, dinleyin.",
+          "\"{s}\" için @{p} sound'u kurmuş, tebrikler."
+        ],
+        shade: [
+          "\"{s}\" olmamış; sound aynı yerde duruyor.",
+          "\"{s}\" dinledim. Kısa içerik için iyi, şarkı için zayıf.",
+          "\"{s}\" için @{p} aynı kalıbı dönüyor; risk alsın."
+        ],
+        neutral: [
+          "\"{s}\" çıktı, dinleyin.",
+          "@{p} yeni iş atmış, bir bakın."
+        ]
+      },
+      diss: [
+        "@{t} sen kimsin? Kayıtta konuş, kulisle değil.",
+        "@{t} flow taklit, sound ödünç. Kendine iş bul.",
+        "@{t} mikrofonu bıraksın, mix öğrensin.",
+        "@{t} için tek satır ayırmam; beat'e yazık."
+      ]
     },
 
     /* ---- NORM ENDER → ilkeli, eleştirel, öğretici ---- */
@@ -22992,6 +23540,10 @@ window.K = window.K || {};
       let delta = deltas[intent] != null ? deltas[intent] : 0.6;
       delta *= (0.75 + artist.traits.openness * 0.045);
       delta *= 0.55;
+      /* v10.14 — KİŞİLİK AĞIRLIĞI: aynı niyet her sanatçıda aynı puanı
+         getirmemeli. Şehinşah'a boş övgü ile söz eleştirisi, wegh'e
+         taklit tavsiyesi ile üretim sorusu aynı şey değil. */
+      if (K.personality && K.personality.bias) delta += K.personality.bias(artistId, intent);
       if (agendaMsg) delta += 0.4;
 
       /* ---- hafızayı güncelle ---- */
@@ -23018,6 +23570,12 @@ window.K = window.K || {};
         if (x && msg.indexOf(x) < 0 && picked.indexOf(x) < 0) picked.push(x);
       }
       if (picked.length) msg = msg + " " + picked.join(" ");
+
+      /* ---- kişilik imzası: sanatçının kendi açılış kalıbı (nadir) ---- */
+      if (K.personality && K.personality.opening && !forcedMsgs && intent !== "generic") {
+        const op = K.personality.opening(artistId);
+        if (op && msg.indexOf(op) !== 0 && (op.length + msg.length) < 240) msg = op + msg;
+      }
       return { msgs: [msg], delta, intent, action };
     },
 
@@ -23097,7 +23655,10 @@ window.K = window.K || {};
       ];
       const prof = PROFILES[artistId];
       let pool = kind === "praise" ? PRAISE : kind === "shade" ? SHADE : NEUTRAL;
-      if (prof && prof.label === "argo") {
+      /* v10.14 — sanatçının kendi yorum havuzu varsa onu kullan */
+      if (prof && prof.reaction && prof.reaction[kind] && prof.reaction[kind].length) {
+        pool = prof.reaction[kind];
+      } else if (prof && prof.label === "argo") {
         pool = kind === "praise"
           ? ["\"{s}\" fena olmuş amına koyim, dinleyin lan.", "@{p} bu işte patlamış lan, alkış."]
           : kind === "shade"
@@ -23122,7 +23683,11 @@ window.K = window.K || {};
       ];
       const prof = PROFILES[artistId];
       let pool = BASE;
-      if (prof && prof.label === "argo") {
+      /* v10.14 — sanatçının kendi diss havuzu (ör. Şehinşah sataşmaz,
+         mesafeden cevap verir; wegh ise doğrudan üstüne gider). */
+      if (prof && prof.diss && prof.diss.length) {
+        pool = prof.diss;
+      } else if (prof && prof.label === "argo") {
         pool = [
           "@{t} sen kimsin lan, ananı sikim.",
           "@{t} boş yapıyon, mikrofonu bırak.",
@@ -25851,7 +26416,8 @@ window.K = window.K || {};
      v10.8 GERÇEKLİK DÜZELTMESİ — SANATÇI SESİ
      Eskiden 36 sanatçının TAMAMI 6 hazır cümleyi paylaşıyordu
      (Ceza ile Aleyna Tilki aynı satırı atıyordu). Artık her sanatçı
-     türüne + kuşağına göre konuşur; 12 sanatçının kendi ağzı vardır.
+     türüne + kuşağına göre konuşur; VOICE_BY_ID'deki 8 sanatçının
+     kendi ağzı vardır (sayı v10.14'te kodla eşitlendi).
      Üstelik gönderiler GERÇEK şarkıya bağlanır (eskiden songId hep null'dı,
      yani hiçbir sanatçı kendi işini paylaşmıyordu).
      ============================================================ */
@@ -25896,9 +26462,21 @@ window.K = window.K || {};
   /* kendi ağzı olan sanatçılar (tür havuzunu geçersiz kılar) */
   const VOICE_BY_ID = {
     sehinsah: {
-      ig: ["Kayıt odasından selam 🖤", "Sesin rengi değişti yine", "Bir şey üstünde çok çalıştım"],
-      x:  ["Kimseye bir şey ispat etme derdim kalmadı, iş konuşsun.", "Aynı masada oturuyorum, acelem yok.", "Bu sound'u zamanla anlatacağım."],
-      tt: ["Bir bölüm kayıttan", "Sesi aç"],
+      ig: [
+        "Kayıt odasından selam 🖤 Kelime tartıyorum yine",
+        "Sesin rengi değişti; bu sefer farklı bir kapı açtım",
+        "Uzun sürdü ama oldu. Sabreden kazanıyor",
+        "Gece çalışmak daha sakin. Söz orada oturuyor",
+        "Yeni bir metin üstünde iki hafta düşündüm. Öyle çıkacak"
+      ],
+      x:  [
+        "Kimseye bir şey ispat etme derdim kalmadı; iş konuşsun.",
+        "Aynı masada oturuyorum, acelem yok. Kelime ağırlığı sayıyla ölçülmüyor.",
+        "Bu sound'u zamanla anlatacağım; acele eden bir şey anlatamaz.",
+        "Eleştiri gelirse oturur dinlerim, ama övgü zorla alınmıyor benden.",
+        "Yıllar geçince anladım: sessizlik de bir cevaptır."
+      ],
+      tt: ["Bir bölüm kayıttan", "Sesi aç, sözü dinle"],
     },
     ceza: {
       ig: ["Kalem elden düşmez 🖊️", "Sahne bizim evimiz", "Gençlere selam"],
@@ -25926,9 +26504,21 @@ window.K = window.K || {};
       tt: ["Bu farklı 👀", "Deneme sürümü"],
     },
     weghrumi: {
-      ig: ["Rize'den İstanbul'a 🌙", "Kayıt bitti, mix kaldı", "Bu gece bitmiyor"],
-      x:  ["Bağımsız kalıyorum, daha rahat.", "Sound'u kendim yapıyorum.", "Yeni parça yakında."],
-      tt: ["Bu ses sert 🥶", "Snippet"],
+      ig: [
+        "Rize'den İstanbul'a 🌙 kayıt bitti, mix kaldı",
+        "Bu gece de bitmiyor; mix oturmadan çıkmıyor",
+        "Melodiyi kendim kurdum, davulu da kendim vurdum",
+        "Stüdyo kokusu üstüme sindi, iyi ki sindi",
+        "Bir şey var ama erken konuşmayacağım"
+      ],
+      x:  [
+        "Bağımsız kalıyorum, daha rahat; kontrol bende oluyor.",
+        "Sound'u kendim yapıyorum, dışarıdan hazır beat almam.",
+        "Kısa içerik şarkıyı yiyor ama ben yine bütün şarkı yapıyorum.",
+        "Özel hayatım bende kalsın, iş konuşalım.",
+        "Net söylüyorum: sound'unu kurmazsan başkasının sesi oluyorsun."
+      ],
+      tt: ["Bu ses sert 🥶", "Snippet", "Mix'ten bir parça"],
     },
     lierefuge: {
       ig: ["İzmir'den selam 🌊", "Kayıtta kaldım", "D'ÜNYAM sonrası devam"],
@@ -35742,6 +36332,27 @@ window.K = window.K || {};
           <div>${K.genreById(p.genre).icon} ${U.escape(K.genreById(p.genre).name)} · ${U.escape(p.city)}</div>
           <div class="dim">${U.compact(p.monthly)} aylık dinleyici · ${U.escape(handle(artistId))}</div>
         </div>
+
+        ${K.personality && K.personality.has(artistId) ? (() => {
+          const c = K.personality.card(artistId);
+          return `<div class="ig-persona">
+            <div class="ig-persona-top">
+              <span class="ig-persona-code">${U.escape(c.code)}</span>
+              <b>${U.escape(c.title)}</b>
+            </div>
+            <div class="ig-persona-tag">${U.escape(c.tagline)}</div>
+            <div class="ig-persona-bars">
+              ${c.rows.map(r => `<div class="ig-persona-row">
+                <span>${U.escape(r.label)}</span>
+                <i><b style="width:${Math.max(0, Math.min(100, r.value * 10))}%"></b></i>
+                <em>${r.value}</em>
+              </div>`).join("")}
+            </div>
+            <div class="ig-persona-foot">⚡ ${U.escape(c.loves.join(" · "))}</div>
+            <div class="ig-persona-foot red">⛔ ${U.escape(c.redLines.join(" · "))}</div>
+            <div class="ig-persona-note">${U.escape(c.note)}</div>
+          </div>`;
+        })() : ""}
 
         <div class="ig-profile-actions">
           ${isMe
