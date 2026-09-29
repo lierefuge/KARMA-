@@ -301,3 +301,106 @@
   .home-page { padding: 4px 16px 8px; }
   .home-top { padding: 0 16px; }
 }
+
+/* ============================================================
+   v10.11 GERÇEKLİK EKLERİ (telefon)
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   AÇIK TEMA — ESKİ HATA: `K.phoneOS.apply()` ekrana
+   data-theme="light" yazıyordu ama CSS'te hiçbir karşılığı YOKTU
+   (açık tema tanımı yalnızca stüdyo panelleri için vardı) ve
+   ayarlarda geçişi de yoktu → tamamen ÖLÜ bir ayardı.
+   Bu blok sistem yüzeylerini gerçekten açar. Uygulamalar kendi
+   marka temasını korur (gerçek iOS/Android'de de böyle).
+   ------------------------------------------------------------ */
+#phone-screen[data-theme="light"] { background: #e9ebf1; }
+#phone-screen[data-theme="light"] .status-bar { color: #16181d; }
+#phone-screen[data-theme="light"] .status-bar .battery { border-color: rgba(22,24,29,.45); }
+#phone-screen[data-theme="light"] .status-bar .battery i { background: #16181d; }
+
+#phone-screen[data-theme="light"] .app-shell { background: #eef0f5; color: #16181d; }
+#phone-screen[data-theme="light"] .app-shell .app-nav {
+  background: rgba(245,246,250,.94);
+  border-bottom: 1px solid rgba(22,24,29,.10);
+  color: #16181d;
+}
+#phone-screen[data-theme="light"] .app-shell .app-nav-title { color: #16181d; }
+#phone-screen[data-theme="light"] .app-shell .app-nav-sub { color: #6b7180; }
+#phone-screen[data-theme="light"] .app-nav .app-back { color: #16181d; }
+
+/* koyu marka temasını koruyan uygulamalar */
+#phone-screen[data-theme="light"] .app-instagram,
+#phone-screen[data-theme="light"] .app-tiktok,
+#phone-screen[data-theme="light"] .app-x,
+#phone-screen[data-theme="light"] .app-spotify,
+#phone-screen[data-theme="light"] .app-applemusic,
+#phone-screen[data-theme="light"] .app-youtube,
+#phone-screen[data-theme="light"] .app-messages { background: #000; color: #f5f6fa; }
+#phone-screen[data-theme="light"] .app-instagram .app-nav,
+#phone-screen[data-theme="light"] .app-tiktok .app-nav,
+#phone-screen[data-theme="light"] .app-x .app-nav { background: #000; color: #fff; }
+#phone-screen[data-theme="light"] .app-instagram .app-nav-title,
+#phone-screen[data-theme="light"] .app-tiktok .app-nav-title,
+#phone-screen[data-theme="light"] .app-x .app-nav-title { color: #fff; }
+
+#phone-screen[data-theme="light"] .seg { background: rgba(22,24,29,.05); border-color: rgba(22,24,29,.08); }
+#phone-screen[data-theme="light"] .seg button { color: #5b6273; }
+#phone-screen[data-theme="light"] .seg button.active {
+  background: #fff; color: #16181d; box-shadow: 0 2px 8px rgba(22,24,29,.12);
+}
+#phone-screen[data-theme="light"] .app-shell .seg.seg-bottom {
+  background: rgba(245,246,250,.96); border-top: 1px solid rgba(22,24,29,.10);
+}
+
+#phone-screen[data-theme="light"] .home-screen { color: #16181d; }
+#phone-screen[data-theme="light"] .home-screen .app-label { color: #22262f; }
+#phone-screen[data-theme="light"] .home-search,
+#phone-screen[data-theme="light"] .balance-chip,
+#phone-screen[data-theme="light"] .bell-chip {
+  background: rgba(255,255,255,.74); color: #16181d; border-color: rgba(22,24,29,.08);
+}
+#phone-screen[data-theme="light"] .home-dock {
+  background: rgba(255,255,255,.62); border-top: 1px solid rgba(22,24,29,.08);
+}
+#phone-screen[data-theme="light"] .home-indicator { background: rgba(22,24,29,.35); }
+
+#phone-screen[data-theme="light"] .app-cc,
+#phone-screen[data-theme="light"] .app-phset { background: #eef0f5; color: #16181d; }
+#phone-screen[data-theme="light"] .cc-tile,
+#phone-screen[data-theme="light"] .phset-card {
+  background: rgba(255,255,255,.88); border-color: rgba(22,24,29,.08); color: #16181d;
+}
+#phone-screen[data-theme="light"] .cc-tgl { background: rgba(22,24,29,.07); color: #22262f; }
+#phone-screen[data-theme="light"] .cc-tgl.on { background: rgba(92,232,155,.28); color: #0d3a22; }
+#phone-screen[data-theme="light"] .phset-item { background: rgba(22,24,29,.05); color: #22262f; }
+#phone-screen[data-theme="light"] .phset-item.on { background: rgba(92,232,155,.28); color: #0d3a22; }
+#phone-screen[data-theme="light"] .phset-name { color: #16181d; }
+#phone-screen[data-theme="light"] .phset-sub { color: #6b7180; }
+
+/* ------------------------------------------------------------
+   PİL BİTTİ EKRANI — ESKİ HATA: pil %0 olsa bile hiçbir şey
+   olmuyordu; pil tamamen dekoratifti. Artık telefon kapanır ve
+   tek çıkış şarja takmaktır.
+   ------------------------------------------------------------ */
+#phone-dead-overlay {
+  position: absolute; inset: 0; z-index: 90;
+  display: grid; place-items: center;
+  background: #05060a; color: #e8eaf2; text-align: center;
+}
+#phone-dead-overlay .pd-in { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px; }
+#phone-dead-overlay .pd-ic { font-size: 54px; line-height: 1; opacity: .92; }
+#phone-dead-overlay .pd-t { font-size: 19px; font-weight: 800; }
+#phone-dead-overlay .pd-s { font-size: 12.5px; color: #9aa1b4; max-width: 215px; line-height: 1.5; }
+#phone-dead-overlay .pd-btn {
+  margin-top: 8px; font-family: inherit; font-size: 13.5px; font-weight: 800;
+  padding: 11px 22px; border: none; cursor: pointer; border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, #5ce89b, #34b972); color: #04170d;
+}
+
+/* ------------------------------------------------------------
+   ŞARKI KAPAĞI DUVAR KAĞIDI (gerçek albüm kapağı) + TEMA GEÇİŞİ
+   ------------------------------------------------------------ */
+.phset-wall.dyn { display: grid; place-items: center; font-size: 10.5px; font-weight: 800;
+  color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,.75); }
+.phset-item.sub { opacity: .85; font-size: 12px; }
