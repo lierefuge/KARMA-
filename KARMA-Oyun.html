@@ -5196,119 +5196,318 @@ body.hide-values .brand-sub::after {
 <style>
 /* ==== css/certifications.css ==== */
 /* ============================================================
-   KARMA — css/certifications.css   (v10.23)
-   Plak vitrini (Altın/Platin/Elmas) + KARMA Wrapped özet ekranı
+   KARMA — css/certifications.css   (v10.23.1 · gözden geçirme)
+
+   Tasarım kararları (neden değişti)
+   ---------------------------------
+   1) ESKİ: 4 özdeş düz kart (Toplam/Altın/Platin/Elmas) → hiyerarşi yoktu,
+      hepsi aynı ağırlıkta görünüyordu.
+      YENİ: "vitrin başlığı" (büyük toplam sayı) + 3 METALİK MADALYON.
+      Kullanıcı bir bakışta koleksiyonun toplamını ve kademe dağılımını görür.
+   2) ESKİ: plaklar düz daire + yazıydı.
+      YENİ: madalyonlar gerçek metal hissi verir (conic + radial katman).
+   3) ESKİ: "sıradaki plak" sadece ince bir çubuktu.
+      YENİ: kendi kartı var — hedef görünür (kalan dinlenme + mevcut/toplam).
+   4) ESKİ: Wrapped kartları tek tip ve düz.
+      YENİ: yılın şarkısı GENİŞ ÖNE ÇIKAN kart; diğerleri ızgarada.
+      Hero'da büyük dinlenme sayısı ve özet şerit var.
+   5) ÖLÇEK: tüm boşluklar/yuvarlaklıklar tasarım token'larından geliyor;
+      mobilde ızgara 2 sütuna iner ve madalyonlar küçülür.
    ============================================================ */
 
-/* ---------- plak özet şeridi ---------- */
-.plq-summary {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); gap: 10px;
+/* ============================================================
+   1) PLAK VİTRİNİ — başlık
+   ============================================================ */
+.plq-showcase {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  gap: 12px;
+  align-items: stretch;
 }
-.plq-stat {
-  padding: 11px 12px; border-radius: var(--radius-s);
-  background: var(--glass); border: 1px solid var(--stroke);
-  position: relative; overflow: hidden;
-}
-.plq-stat::after {
-  content: ""; position: absolute; right: -16px; top: -16px;
-  width: 54px; height: 54px; border-radius: 50%;
-  background: radial-gradient(circle, var(--pc, #ffcb5c), transparent 70%);
-  opacity: .16;
-}
-.plq-stat .k { font-size: 9.5px; letter-spacing: .8px; text-transform: uppercase; color: var(--text-3); font-weight: 700; }
-.plq-stat .v { font-size: 18px; font-weight: 900; margin-top: 3px; }
-.plq-stat .d { font-size: 10px; color: var(--text-2); margin-top: 2px; }
 
-/* ---------- plak duvarı ---------- */
-.plq-wall { display: flex; flex-direction: column; gap: 7px; }
-.plq-row {
-  display: flex; align-items: center; gap: 11px;
-  padding: 9px 11px; border-radius: var(--radius-s);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--pc, #ffcb5c) 12%, transparent), transparent 70%);
+.plq-total {
+  display: flex; align-items: center; gap: 13px;
+  padding: 14px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(150deg, rgba(176,108,255,.14), rgba(110,195,255,.05));
+  border: 1px solid rgba(176,108,255,.26);
+}
+.plq-total .pt-big {
+  font-size: 36px; font-weight: 900; letter-spacing: -2px;
+  line-height: 1; color: #fff;
+}
+.plq-total .pt-txt { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.plq-total .pt-k {
+  font-size: 9.5px; letter-spacing: .9px; text-transform: uppercase;
+  color: var(--text-3); font-weight: 800;
+}
+.plq-total .pt-v { font-size: 11.5px; color: var(--text-1); }
+.plq-total .pt-v b { color: var(--karma); font-weight: 900; }
+.plq-total .pt-v2 { font-size: 10.5px; color: var(--text-3); }
+
+/* --- 3 kademe madalyonu --- */
+.plq-tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.plq-tier {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 11px 8px;
+  border-radius: var(--radius-s);
+  background: var(--glass);
+  border: 1px solid var(--stroke);
+  transition: border-color .18s, background .18s;
+}
+.plq-tier.gold     { --pc: #ffcb5c; --pc2: #8a5600; }
+.plq-tier.platinum { --pc: #e8eff7; --pc2: #7d8b9c; }
+.plq-tier.diamond  { --pc: #8fe3ff; --pc2: #22598c; }
+
+.plq-tier .pt-medal,
+.plq-medal {
+  display: grid; place-items: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 26%, rgba(255,255,255,.55), transparent 58%),
+    conic-gradient(from 210deg, var(--pc, #ffcb5c), var(--pc2, #8a5600), var(--pc, #ffcb5c), var(--pc2, #8a5600), var(--pc, #ffcb5c));
+  box-shadow:
+    inset 0 0 0 1.5px rgba(255,255,255,.30),
+    inset 0 0 8px rgba(0,0,0,.35),
+    0 5px 14px rgba(0,0,0,.45);
+}
+.plq-tier .pt-medal { width: 40px; height: 40px; font-size: 19px; }
+.plq-tier .pt-n { font-size: 19px; font-weight: 900; letter-spacing: -.5px; }
+.plq-tier .pt-lb {
+  font-size: 9.5px; font-weight: 900; letter-spacing: .8px;
+  text-transform: uppercase; color: var(--pc, #ffcb5c);
+}
+.plq-tier .pt-th { font-size: 9.5px; color: var(--text-3); }
+.plq-tier:not(.locked) { border-color: color-mix(in srgb, var(--pc) 34%, transparent); }
+@supports not (background: color-mix(in srgb, red 10%, transparent)) {
+  .plq-tier:not(.locked) { border-color: var(--stroke-2); }
+}
+/* kazanılmamış kademe soluk ama GÖRÜNÜR: hedefi hatırlatır */
+.plq-tier.locked { opacity: .42; }
+.plq-tier.locked .pt-medal { filter: grayscale(.75); }
+
+/* ============================================================
+   2) SIRADAKİ PLAK — hedef kartı
+   ============================================================ */
+.plq-next {
+  margin-top: 12px;
+  padding: 12px 13px;
+  border-radius: var(--radius-s);
+  background: color-mix(in srgb, var(--pc, #ffcb5c) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--pc, #ffcb5c) 26%, transparent);
 }
 @supports not (background: color-mix(in srgb, red 10%, transparent)) {
-  .plq-row { background: var(--glass); border-color: var(--stroke); }
+  .plq-next { background: var(--glass); border-color: var(--stroke); }
 }
-.plq-badge {
-  width: 40px; height: 40px; flex: 0 0 auto; border-radius: 50%;
-  display: grid; place-items: center; font-size: 19px;
-  background: radial-gradient(circle at 32% 28%, #fff6, transparent 60%),
-              linear-gradient(150deg, var(--pc, #ffcb5c), #6b4a00);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.28), 0 5px 14px rgba(0,0,0,.4);
+.plq-next .pn-head {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 12px; margin-bottom: 8px;
 }
-.plq-row .tt { font-size: 12.5px; font-weight: 800; }
-.plq-row .ss { font-size: 10.5px; color: var(--text-2); margin-top: 3px; }
+.plq-next .pn-tag {
+  font-size: 9px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase;
+  padding: 2px 7px; border-radius: var(--radius-pill);
+  color: #0d0d12; background: var(--pc, #ffcb5c);
+}
+.plq-next .pn-song { font-weight: 800; }
+.plq-next .pn-to { color: var(--text-2); margin-left: auto; }
+.plq-next .pn-bar {
+  height: 7px; border-radius: var(--radius-pill);
+  background: rgba(255,255,255,.09); overflow: hidden;
+}
+.plq-next .pn-bar > i {
+  display: block; height: 100%; border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--pc, #ffcb5c), #fff8);
+  transition: width .45s ease;
+}
+.plq-next .pn-foot {
+  display: flex; justify-content: space-between; gap: 8px;
+  font-size: 10px; color: var(--text-3); margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.plq-next .pn-left { color: var(--text-1); font-weight: 800; }
+
+/* ============================================================
+   3) PLAK DUVARI
+   ============================================================ */
+.plq-wall { display: flex; flex-direction: column; gap: 7px; margin-top: 12px; }
+.plq-row {
+  display: flex; align-items: center; gap: 11px;
+  padding: 9px 12px 9px 10px;
+  border-radius: var(--radius-s);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--pc, #ffcb5c) 11%, transparent), transparent 72%);
+  border: 1px solid color-mix(in srgb, var(--pc, #ffcb5c) 24%, transparent);
+  border-left: 3px solid var(--pc, #ffcb5c);
+}
+@supports not (background: color-mix(in srgb, red 10%, transparent)) {
+  .plq-row { background: var(--glass); border-color: var(--stroke); border-left-color: var(--pc, #ffcb5c); }
+}
+.plq-row .plq-medal { width: 42px; height: 42px; font-size: 20px; flex: 0 0 auto; }
+.plq-row .tt { font-size: 12.5px; font-weight: 800; line-height: 1.25; }
+.plq-row .ss { font-size: 10.5px; color: var(--text-2); margin-top: 3px; font-variant-numeric: tabular-nums; }
+.plq-row .pr-right {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+  flex: 0 0 auto; text-align: right;
+}
 .plq-row .kk {
-  font-size: 9.5px; font-weight: 900; letter-spacing: .6px;
-  color: var(--pc, #ffcb5c); text-transform: uppercase; white-space: nowrap;
+  font-size: 9px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase;
+  padding: 2px 7px; border-radius: var(--radius-pill);
+  color: #0d0d12; background: var(--pc, #ffcb5c); white-space: nowrap;
 }
+.plq-row .pd { font-size: 9.5px; color: var(--text-3); }
 
-/* şarkı satırında ilerleme (sıradaki plağa ne kadar kaldı) */
-.plq-prog { margin-top: 6px; }
-.plq-prog .bar { height: 5px; }
-.plq-prog .lbl { font-size: 10px; color: var(--text-3); margin-top: 4px; }
+/* boş vitrin — kilitli kademelerle hedefi gösterir */
+.plq-empty {
+  margin-top: 12px; padding: 16px;
+  border-radius: var(--radius-m);
+  border: 1px dashed var(--stroke);
+  text-align: center;
+}
+.plq-empty .pe-title { font-size: 13px; font-weight: 800; }
+.plq-empty .pe-sub { font-size: 11px; color: var(--text-3); margin-top: 4px; }
 
-/* ---------- WRAPPED ---------- */
+/* ============================================================
+   4) KARMA WRAPPED
+   ============================================================ */
 .wrapped-hero {
-  text-align: center; padding: 18px 14px 14px;
+  padding: 18px 16px 15px;
   border-radius: var(--radius-m);
   background:
-    radial-gradient(500px 240px at 50% -20%, rgba(176,108,255,.30), transparent 65%),
-    linear-gradient(180deg, #1b1428, #0e0b16);
-  border: 1px solid rgba(176,108,255,.28);
+    radial-gradient(520px 260px at 50% -25%, rgba(176,108,255,.34), transparent 66%),
+    linear-gradient(180deg, #1c1530, #0d0b15);
+  border: 1px solid rgba(176,108,255,.30);
+  text-align: center;
 }
-.wrapped-hero .wh-year { font-size: 34px; font-weight: 900; letter-spacing: -1.5px; line-height: 1; }
-.wrapped-hero .wh-title {
-  font-size: 12px; font-weight: 800; letter-spacing: 3px;
-  color: var(--karma); text-transform: uppercase; margin-top: 6px;
+.wrapped-hero .wh-top {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
 }
-.wrapped-hero .wh-sub { font-size: 11.5px; color: var(--text-2); margin-top: 8px; }
+.wrapped-hero .wh-year {
+  font-size: 30px; font-weight: 900; letter-spacing: -1.6px; line-height: 1;
+}
+.wrapped-hero .wh-badge {
+  font-size: 8.5px; font-weight: 900; letter-spacing: 1.6px;
+  padding: 3px 8px; border-radius: var(--radius-pill);
+  color: #d7b8ff; background: rgba(176,108,255,.18);
+  border: 1px solid rgba(176,108,255,.34);
+}
+.wrapped-hero .wh-hero-num {
+  font-size: 40px; font-weight: 900; letter-spacing: -2px;
+  line-height: 1.05; margin-top: 10px;
+  background: linear-gradient(180deg, #fff, #b9a6ff);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.wrapped-hero .wh-hero-lb {
+  font-size: 10px; letter-spacing: 2.4px; text-transform: uppercase;
+  color: var(--text-3); font-weight: 800; margin-top: 1px;
+}
+.wrapped-hero .wh-strip {
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 14px;
+  margin-top: 13px; padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.09);
+}
+.wrapped-hero .wh-strip span { font-size: 10.5px; color: var(--text-2); }
+.wrapped-hero .wh-strip b { color: #fff; font-weight: 900; }
 
+/* öne çıkan kart: yılın şarkısı */
+.wrapped-feature {
+  display: flex; align-items: center; gap: 14px;
+  margin-top: 12px; padding: 15px 16px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(120deg, rgba(255,203,92,.16), rgba(176,108,255,.07));
+  border: 1px solid rgba(255,203,92,.34);
+}
+.wrapped-feature .wf-icon { font-size: 30px; flex: 0 0 auto; }
+.wrapped-feature .wf-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.wrapped-feature .wf-label {
+  font-size: 9.5px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--gold); font-weight: 900;
+}
+.wrapped-feature .wf-value {
+  font-size: 19px; font-weight: 900; letter-spacing: -.5px; line-height: 1.15;
+  word-break: break-word;
+}
+.wrapped-feature .wf-sub { font-size: 11px; color: var(--text-2); }
+
+/* ızgara */
 .wrapped-grid {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 10px;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(152px, 1fr));
+  gap: 10px; margin-top: 10px;
 }
 .wrapped-card {
-  padding: 13px; border-radius: var(--radius-m);
+  position: relative; overflow: hidden;
+  padding: 13px 13px 14px;
+  border-radius: var(--radius-m);
   background: var(--glass); border: 1px solid var(--stroke);
-  display: flex; flex-direction: column; gap: 3px;
-  min-height: 92px;
+  display: flex; flex-direction: column; gap: 2px;
+  min-height: 96px;
 }
-.wrapped-card .wc-icon { font-size: 19px; }
-.wrapped-card .wc-label { font-size: 10px; letter-spacing: .6px; text-transform: uppercase; color: var(--text-3); font-weight: 700; margin-top: 3px; }
+/* ton aksanı: sol kenar çizgisi (tam çerçeve yerine daha sakin) */
+.wrapped-card::before {
+  content: ""; position: absolute; left: 0; top: 12px; bottom: 12px;
+  width: 3px; border-radius: 0 3px 3px 0;
+  background: var(--tc, var(--karma));
+}
+.wrapped-card .wc-icon { font-size: 18px; margin-left: 4px; }
+.wrapped-card .wc-label {
+  font-size: 9.5px; letter-spacing: .7px; text-transform: uppercase;
+  color: var(--text-3); font-weight: 800; margin-top: 3px; margin-left: 4px;
+}
 .wrapped-card .wc-value {
-  font-size: 16px; font-weight: 900; letter-spacing: -.3px;
-  line-height: 1.2; word-break: break-word;
+  font-size: 17px; font-weight: 900; letter-spacing: -.4px;
+  line-height: 1.2; word-break: break-word; margin-left: 4px;
+  color: var(--tc, #fff);
 }
-.wrapped-card .wc-sub { font-size: 10.5px; color: var(--text-2); }
-.wrapped-card.karma { border-color: rgba(176,108,255,.34); }
-.wrapped-card.karma .wc-value { color: #d7b8ff; }
-.wrapped-card.blue { border-color: rgba(110,195,255,.30); }
-.wrapped-card.blue .wc-value { color: #a8dcff; }
-.wrapped-card.money { border-color: rgba(92,232,155,.30); }
-.wrapped-card.money .wc-value { color: var(--money); }
-.wrapped-card.hot { border-color: rgba(255,92,122,.30); }
-.wrapped-card.hot .wc-value { color: #ff9db0; }
-.wrapped-card.gold { border-color: rgba(255,203,92,.34); }
-.wrapped-card.gold .wc-value { color: var(--gold); }
+.wrapped-card .wc-sub { font-size: 10.5px; color: var(--text-2); margin-left: 4px; }
 
-.wrapped-plaques { display: flex; flex-wrap: wrap; gap: 7px; }
+.wrapped-card.karma   { --tc: #c9a6ff; }
+.wrapped-card.blue    { --tc: #a8dcff; }
+.wrapped-card.money   { --tc: var(--money); }
+.wrapped-card.hot     { --tc: #ff9db0; }
+.wrapped-card.gold    { --tc: var(--gold); }
+.wrapped-card.karma   { border-color: rgba(176,108,255,.26); }
+.wrapped-card.blue    { border-color: rgba(110,195,255,.26); }
+.wrapped-card.money   { border-color: rgba(92,232,155,.26); }
+.wrapped-card.hot     { border-color: rgba(255,92,122,.26); }
+.wrapped-card.gold    { border-color: rgba(255,203,92,.28); }
+
+/* plak rozetleri (modal altı) */
+.wrapped-plaques { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 4px; }
 .wq-pill {
-  font-size: 10.5px; font-weight: 700;
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10.5px; font-weight: 800;
   padding: 5px 11px; border-radius: var(--radius-pill);
   color: var(--pc, #ffcb5c);
-  background: color-mix(in srgb, var(--pc, #ffcb5c) 13%, transparent);
+  background: color-mix(in srgb, var(--pc, #ffcb5c) 12%, transparent);
   border: 1px solid color-mix(in srgb, var(--pc, #ffcb5c) 30%, transparent);
 }
 @supports not (background: color-mix(in srgb, red 10%, transparent)) {
   .wq-pill { background: var(--glass); border-color: var(--stroke); }
 }
 
+/* ============================================================
+   5) DAR EKRAN
+   ============================================================ */
+@media (max-width: 760px) {
+  .plq-showcase { grid-template-columns: 1fr; }
+  .plq-total { padding: 12px; }
+  .plq-total .pt-big { font-size: 30px; }
+}
 @media (max-width: 640px) {
+  .plq-tier .pt-medal { width: 34px; height: 34px; font-size: 16px; }
+  .plq-tier .pt-n { font-size: 16px; }
+  .plq-tier .pt-th { display: none; }          /* dar ekranda eşik yazısı kalabalık */
+  .plq-row .plq-medal { width: 36px; height: 36px; font-size: 17px; }
   .wrapped-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-  .wrapped-card { min-height: 84px; padding: 11px; }
-  .wrapped-card .wc-value { font-size: 14px; }
-  .wrapped-hero .wh-year { font-size: 28px; }
+  .wrapped-card { min-height: 88px; padding: 11px; }
+  .wrapped-card .wc-value { font-size: 14.5px; }
+  .wrapped-hero .wh-hero-num { font-size: 32px; }
+  .wrapped-hero .wh-year { font-size: 25px; }
+  .wrapped-feature { padding: 13px; gap: 11px; }
+  .wrapped-feature .wf-value { font-size: 16px; }
+  .wrapped-feature .wf-icon { font-size: 25px; }
+}
+@container phone (max-width: 360px) {
+  .wrapped-grid { grid-template-columns: 1fr; }
 }
 
 </style>
@@ -5934,7 +6133,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.23.0";
+  K.VERSION = "10.23.1";
   K.VERSION_DATE = "2026-09-29";
 })(window.K = window.K || {});
 
@@ -20569,7 +20768,8 @@ window.K = window.K || {};
         { icon: "🔥", label: "Popülerlik", value: w.popStart + " → " + w.popEnd, sub: "tepe " + w.peakPop, tone: "hot" },
         { icon: "💰", label: "Kasa değişimi", value: (w.balanceDelta >= 0 ? "+" : "−") + U.money(Math.abs(w.balanceDelta)), sub: "yıl boyunca", tone: "money" }
       ];
-      if (w.topSong) out.push({ icon: "👑", label: "Yılın şarkın", value: w.topSong.title, sub: U.fmt(w.topSong.streams) + " dinlenme", tone: "gold" });
+      /* Yılın şarkısı ÖNE ÇIKAN kart olur (grid'de değil, geniş kartta) */
+      if (w.topSong) out.push({ icon: "👑", label: "Yılın şarkın", value: w.topSong.title, sub: U.fmt(w.topSong.streams) + " dinlenme", tone: "gold", feature: true });
       if (w.topCity) out.push({ icon: "🚌", label: "En çok çaldığın şehir", value: w.topCity, sub: w.shows + " sahne", tone: "blue" });
       if (w.plaques.length) out.push({ icon: "🏅", label: "Kazandığın plak", value: String(w.plaques.length), sub: w.plaques.map(pl => (K.certifications.tier(pl.tier) || {}).short).filter(Boolean).slice(0, 3).join(" · "), tone: "gold" });
       if (w.debuts.length) {
@@ -20587,13 +20787,32 @@ window.K = window.K || {};
         return;
       }
       const w = (year != null ? list.find(x => x.year === year) : list[list.length - 1]) || list[list.length - 1];
-      const cards = K.yearwrap.cards(w);
+      const all = K.yearwrap.cards(w);
+      const feature = all.find(c => c.feature) || null;
+      const cards = all.filter(c => !c.feature);
       const body = `
         <div class="wrapped-hero">
-          <div class="wh-year">${w.year}</div>
-          <div class="wh-title">KARMA Wrapped</div>
-          <div class="wh-sub">${U.fmt(w.streams)} dinlenme · ${w.songsReleased} yayın · ${w.shows} sahne</div>
+          <div class="wh-top">
+            <span class="wh-year">${w.year}</span>
+            <span class="wh-badge">YIL ÖZETİ</span>
+          </div>
+          <div class="wh-hero-num">${U.fmt(w.streams)}</div>
+          <div class="wh-hero-lb">dinlenme</div>
+          <div class="wh-strip">
+            <span><b>${w.songsReleased}</b> yayın</span>
+            <span><b>${w.shows}</b> sahne</span>
+            <span><b>${w.plaques.length}</b> plak</span>
+            <span><b>+${U.compact(w.followers)}</b> takipçi</span>
+          </div>
         </div>
+        ${feature ? `<div class="wrapped-feature">
+          <span class="wf-icon">${feature.icon}</span>
+          <div class="wf-txt">
+            <span class="wf-label">${U.escape(feature.label)}</span>
+            <span class="wf-value">${U.escape(String(feature.value))}</span>
+            <span class="wf-sub">${U.escape(feature.sub || "")}</span>
+          </div>
+        </div>` : ""}
         <div class="wrapped-grid">
           ${cards.map(c => `<div class="wrapped-card ${c.tone || ""}">
             <span class="wc-icon">${c.icon}</span>
@@ -26160,11 +26379,16 @@ window.K = window.K || {};
       const lastW = wl.length ? wl[wl.length - 1] : null;
       const nextWrappedDay = (K.yearwrap.completedYears() + 1) * K.yearwrap.YEAR + 1;
 
-      const tierStat = (t) => {
+      /* kademe madalyonu: sayı + kilit durumu */
+      const tierMedal = (t) => {
         const n = K.certifications.count(t.id);
-        return `<div class="plq-stat" style="--pc:${t.color}">
-          <span class="k">${t.emoji} ${t.short}</span><span class="v">${n}</span>
-          <span class="d">${U.fmt(t.streams)}+ dinlenme</span></div>`;
+        const locked = n === 0;
+        return `<div class="plq-tier ${t.id} ${locked ? "locked" : ""}" style="--pc:${t.color}">
+          <span class="pt-medal">${t.emoji}</span>
+          <span class="pt-n">${n}</span>
+          <span class="pt-lb">${t.short}</span>
+          <span class="pt-th">${U.fmt(t.streams)}+</span>
+        </div>`;
       };
 
       return `
@@ -26172,36 +26396,73 @@ window.K = window.K || {};
           <div class="c-head"><div><h2>🏅 Plak Vitrini</h2><div class="sub">Altın · Platin · Elmas — kalıcı katalog etkisi</div></div>
             ${lastW ? `<button class="btn btn-primary btn-sm" data-act="open-wrapped">📊 Wrapped</button>` : ""}</div>
 
-          <div class="plq-summary">
-            <div class="plq-stat" style="--pc:#b06cff"><span class="k">Toplam Plak</span><span class="v">${sum.total}</span><span class="d">ödül ağırlığı +${sum.awardWeight}</span></div>
-            ${K.certifications.TIERS.map(tierStat).join("")}
+          <!-- vitrin başlığı: toplam koleksiyon + ödül ağırlığı -->
+          <div class="plq-showcase">
+            <div class="plq-total">
+              <span class="pt-big">${sum.total}</span>
+              <div class="pt-txt">
+                <span class="pt-k">Toplam plak</span>
+                <span class="pt-v">ödül ağırlığı <b>+${sum.awardWeight}</b></span>
+                <span class="pt-v2">${sum.diamond} elmas · ${sum.platinum} platin · ${sum.gold} altın</span>
+              </div>
+            </div>
+            <div class="plq-tiers">${K.certifications.TIERS.map(tierMedal).join("")}</div>
           </div>
 
-          ${top && prog && prog.next ? `<div class="plq-prog">
-            <div class="sub" style="font-size:11px;color:var(--text-2)">Sıradaki plak: <b>${U.escape(top.title)}</b> → ${prog.next.emoji} ${prog.next.name}</div>
-            <div class="bar"><i style="width:${prog.pct}%"></i></div>
-            <div class="lbl">%${prog.pct} · ${U.fmt(prog.remaining)} dinlenme kaldı</div>
+          <!-- sıradaki plak: hedefi görünür kılar -->
+          ${top && prog && prog.next ? `<div class="plq-next" style="--pc:${prog.next.color}">
+            <div class="pn-head">
+              <span class="pn-tag">Sıradaki</span>
+              <span class="pn-song">${U.escape(top.title)}</span>
+              <span class="pn-to">${prog.next.emoji} ${prog.next.name}</span>
+            </div>
+            <div class="pn-bar"><i style="width:${prog.pct}%"></i></div>
+            <div class="pn-foot">
+              <span>%${prog.pct} tamam</span>
+              <span>${U.fmt(top.streams || 0)} / ${U.fmt(prog.next.streams)}</span>
+              <span class="pn-left">${U.fmt(prog.remaining)} kaldı</span>
+            </div>
           </div>` : ""}
 
-          ${wall.length ? `<div class="plq-wall" style="margin-top:12px">${wall.map(pl => {
+          ${wall.length ? `<div class="plq-wall">${wall.map(pl => {
             const t = K.certifications.tier(pl.tier) || {};
+            const sg = (p.songs || []).find(x => x.title === pl.title && pl.kind === "song");
+            const al = (p.albums || []).find(x => x.title === pl.title && pl.kind === "album");
+            const streams = (sg && sg.streams) || (al && al.streams) || 0;
             return `<div class="plq-row" style="--pc:${t.color || "#ffcb5c"}">
-              <span class="plq-badge">${t.emoji || "🏅"}</span>
+              <span class="plq-medal">${t.emoji || "🏅"}</span>
               <div class="grow" style="min-width:0">
                 <div class="tt">${U.escape(pl.title)}</div>
-                <div class="ss">${pl.kind === "album" ? "Albüm" : "Şarkı"} · Gün ${pl.day}</div>
+                <div class="ss">${pl.kind === "album" ? "Albüm" : "Şarkı"} · ${U.fmt(streams)} dinlenme</div>
               </div>
-              <span class="kk">${t.short || ""}</span>
+              <div class="pr-right">
+                <span class="kk">${t.short || ""}</span>
+                <span class="pd">Gün ${pl.day}</span>
+              </div>
             </div>`;
-          }).join("")}</div>` : `<div class="empty-note" style="margin-top:10px"><b>Henüz plak yok</b>Şarkıların 1.000.000 dinlenmeye ulaşınca Altın Plak gelir.</div>`}
+          }).join("")}</div>`
+          : `<div class="plq-empty">
+              <div class="pe-title">Vitrin henüz boş</div>
+              <div class="pe-sub">Şarkıların şu eşiklere ulaşınca plak gelir:</div>
+              <div class="plq-tiers" style="margin-top:10px">${K.certifications.TIERS.map(tierMedal).join("")}</div>
+            </div>`}
         </div>
 
         <div class="c-block">
           <div class="c-head"><div><h2>📊 KARMA Wrapped</h2><div class="sub">Yılda bir otomatik yıl sonu özeti</div></div></div>
           ${lastW ? `<div class="wrapped-hero">
-            <div class="wh-year">${lastW.year}</div>
-            <div class="wh-title">KARMA Wrapped</div>
-            <div class="wh-sub">${U.fmt(lastW.streams)} dinlenme · ${lastW.songsReleased} yayın · ${lastW.shows} sahne</div>
+            <div class="wh-top">
+              <span class="wh-year">${lastW.year}</span>
+              <span class="wh-badge">YIL ÖZETİ</span>
+            </div>
+            <div class="wh-hero-num">${U.fmt(lastW.streams)}</div>
+            <div class="wh-hero-lb">dinlenme</div>
+            <div class="wh-strip">
+              <span><b>${lastW.songsReleased}</b> yayın</span>
+              <span><b>${lastW.shows}</b> sahne</span>
+              <span><b>${lastW.plaques.length}</b> plak</span>
+              <span><b>+${U.compact(lastW.followers)}</b> takipçi</span>
+            </div>
           </div>
           <div class="action-row" style="margin-top:10px">
             <button class="btn btn-primary btn-sm" data-act="open-wrapped">📊 Özeti Aç</button>
