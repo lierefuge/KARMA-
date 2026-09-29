@@ -52,6 +52,27 @@
        kur dalgalanması tüm telif gelirini oransal olarak büyütür/küçültür. */
     streamRates: { spotify: 0.005, apple: 0.015, youtube: 0.008, other: 0.004 },
     payoutPeriodDays: 30,          // her 30 günde bir telif ödemesi
+
+    /* ==========================================================
+       v10.17 — DİKKAT DALGASI ("yüksel → zirve → düş" eğrisi)
+
+       Ölçülen sorun: 30 günde bir yayın yapan sanatçıda aylık
+       dinleyici 420 gün boyunca TEK YÖNLÜ artıyordu (172 → 76.490);
+       hiç zirve yapmıyor, hiç düşmüyordu. Yayını bırakınca düşüş
+       vardı ama yükselişin bir TAVANI yoktu.
+
+       Model: her yayın bir "dikkat dalgası" (attention) ekler; dalga
+       her gün söner. Ama her yayın DOYGUNLUK (fatigue) da biriktirir ve
+       doygunluk sonraki yayının kazancını kısar. Bu iki zıt kuvvet
+       doğal olarak: hızlı yükseliş → zirve/plato → (yayın yavaşlarsa)
+       düşüş eğrisini üretir. Üstel sınırsız büyümeyi de engeller.
+       ========================================================== */
+    attentionGain: 0.62,      // tam güçte yayın başına dalga kazancı
+    attentionMax: 2.30,       // dalga tavanı (katalog dinlenmesini en çok 2,3× besler)
+    attentionDecay: 0.978,    // günlük sönüm — fazlalığın yarı ömrü ≈ 31 gün
+    fatigueStep: 0.17,        // her yayın doygunluğu bu kadar artırır
+    fatigueMax: 0.74,         // doygunluk tavanı (yayın başına kazanç en çok %74 kısılır)
+    fatigueRecovery: 0.9955,  // günlük doygunluk azalması (yarı ömür ≈ 154 gün)
     streamRevenueShare: 0.62,     // sanatçıya kalan (label yoksa 1.0)
 
     /* ---------- v10 GERÇEKLİK KATMANI: kur · enflasyon · gecikme · vergi ---------- */
@@ -140,6 +161,11 @@
         ghost: { hired: false, name: null, exposure: 0, uses: 0 },  // söz yazarı
         albums: [],
         dailyHistory: [],
+        /* v10.17 — dikkat dalgası & doygunluk (yüksel→zirve→düş eğrisi).
+           att: 1 = nötr; yayınla yükselir, günlük söner.
+           fatigueAtt: yayın başına kazancı kısar → plato/zirve üretir. */
+        att: 1,
+        fatigueAtt: 0,
         watchHistory: [],
         ytAutoplay: true,
         ytReadDay: 0,
