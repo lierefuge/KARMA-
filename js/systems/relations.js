@@ -186,6 +186,251 @@
       }
     },
 
+    /* ============================================================
+       v10.12 — YENİ DM MEKANİKLERİ
+       ============================================================ */
+
+    /* --- MESAJ TEPKİSİ (emoji) ---
+       Gerçek DM'lerin temel parçasıydı ama hiç yoktu. Hem oyuncu
+       sanatçının mesajına tepki verebilir, hem sanatçı oyuncunun
+       mesajına tepki verir. */
+    reactToMessage(artistId, msgId, emoji) {
+      const th = K.thread(artistId);
+      const m = th.messages.find(x => x.id === msgId);
+      if (!m) return false;
+      m.reaction = (m.reaction === emoji) ? null : emoji;
+      K.save();
+      return true;
+    },
+
+    /* --- DEMO GÖNDERİMİ ---
+       Oyuncu kendi şarkısını sanatçıya dinletir. Sanatçı birkaç gün
+       sonra dinler ve tepki verir: beğeni / eleştiri / feature teklifi /
+       iş birliği. Tanımadığın sanatçıya gönderirsen çoğu zaman açılmaz. */
+    sendDemo(artistId, songId) {
+      const s = K.state, p = s.player;
+      const a = K.artistById(artistId);
+      const song = (p.songs || []).find(x => x.id === songId);
+      if (!a || !song) return { ok: false, why: "yok" };
+
+      const rel = K.relation(artistId);
+      const reach = K.relations.reach(artistId);
+      const cost = 0;
+      const th = K.thread(artistId);
+
+      th.messages.push({
+        id: U.uid("m"), from: "me", day: s.day, type: "demo", kind: "demo",
+        text: `Demo: "${song.title}"`, songId: song.id, songTitle: song.title, art: song.art || null,
+        seen: false, reaction: null
+      });
+      th.lastDay = s.day;
+
+      /* dinleme süresi: sanatçı ne kadar tanıyorsa o kadar çabuk açar */
+      const days = Math.max(1, Math.round(4 - reach * 3));
+      p.dmDemoLog = p.dmDemoLog || [];
+      p.dmDemoLog.push({ artistId, songId, title: song.title, day: s.day, dueDay: s.day + days, done: false });
+
+      const chance = U.clamp(0.12 + reach * 0.7 + (song.quality || 50) / 220, 0.05, 0.92);
+      K.save();
+      return { ok: true, chance, days, cost };
+    },
+
+    /* demo sonuçlarını işle (günlük) */
+    _demoTick() {
+      const s = K.state, p = s.player;
+      const log = p.dmDemoLog || [];
+      log.forEach(entry => {
+        if (entry.done || s.day < entry.dueDay) return;
+        entry.done = true;
+        const a = K.artistById(entry.artistId);
+        if (!a) return;
+        const song = (p.songs || []).find(x => x.id === entry.songId);
+        const q = (song && song.quality) || 50;
+        const rel = K.relation(entry.artistId);
+        const reach = K.relations.reach(entry.artistId);
+        const openChance = U.clamp(0.15 + reach * 0.75, 0.05, 0.95);
+
+        if (Math.random() > openChance) {
+          K.relations.pushArtistMessage(entry.artistId,
+            U.pick([
+              "Mesajlara çok bakamıyorum, demo kutuda kalmış. Kusura bakma.",
+              "Yoğunum, dinleyemedim daha. Sonra bakacağım.",
+              "Demo geldi ama sıraya aldım, söz veremem."
+            ]), "chat", { topic: "demo" });
+          return;
+        }
+
+        /* dinledi: tepki kaliteye ve kişiliğe göre */
+        if (q >= 76) {
+          K.relations.pushArtistMessage(entry.artistId,
+            U.pick([
+              `"${entry.title}" dinledim. Altyapı ile vokal oturmuş, iş var burada.`,
+              `"${entry.title}" sağlam. Özellikle ikinci bölüm hoşuma gitti.`,
+              `"${entry.title}" beklediğimden iyi çıktı. Eline sağlık.`
+            ]), "chat", { topic: "demo" });
+          rel.affinity = U.clamp(rel.affinity + 6, 0, 100);
+          K.game.addFame(0.4);
+          /* yüksek kalite + yeterli samimiyet → feature kapısı açılır */
+          if (q >= 82 && rel.affinity >= 55 && U.chance(0.28)) {
+            K.relations.createIncomingFeatureOffer(entry.artistId);
+          }
+        } else if (q >= 55) {
+          K.relations.pushArtistMessage(entry.artistId,
+            U.pick([
+              `"${entry.title}" fena değil. Mix biraz daha açılabilirdi.`,
+              `"${entry.title}" dinledim. Sözler iyi ama altyapı sade kalmış.`,
+              `"${entry.title}" üzerinde çalışılırsa olur. Şimdilik erken.`
+            ]), "chat", { topic: "demo" });
+          rel.affinity = U.clamp(rel.affinity + 2, 0, 100);
+          if (song) song.feedback = "mix";
+        } else {
+          K.relations.pushArtistMessage(entry.artistId,
+            U.pick([
+              `"${entry.title}" için dürüst olayım: hazır değil.`,
+              `"${entry.title}" dinledim ama bu haliyle olmaz. Kayıt kalitesi düşük.`,
+              `"${entry.title}" erken olmuş. Biraz daha çalış.`
+            ]), "chat", { topic: "demo" });
+          rel.affinity = U.clamp(rel.affinity - 1, 0, 100);
+        }
+      });
+      p.dmDemoLog = log.filter(x => !x.done || (s.day - x.dueDay) < 10).slice(-40);
+    },
+
+    /* --- DM İSTEKLERİ ---
+       Tanımadığın bir sanatçı yazarsa doğrudan gelen kutusuna değil
+       “İstekler” klasörüne düşer. */
+    _requestTick() {
+      const s = K.state, p = s.player;
+      /* sadece henüz iletişim kurulmamış sanatçılar; popülerlik arttıkça sıklaşır */
+      if (!U.chance(0.02 + (p.popularity || 0) / 2200)) return;
+      const cands = K.artistList().filter(a => {
+        const rel = s.relations[a.id];
+        if (rel && (rel.met || rel.discovered)) return false;
+        if ((s.dmRequests || {})[a.id]) return false;
+        return true;
+      });
+      if (!cands.length) return;
+      const sorted = cands.slice().sort((x, y) =>
+        Math.abs(x.popularity - (p.popularity || 0)) - Math.abs(y.popularity - (p.popularity || 0)));
+      const a = U.pick(sorted.slice(0, 12));
+      if (!a) return;
+      const pool = [
+        "Selam, profilini gördüm. İşlerine baktım, fena değil.",
+        "Selam, bir süredir adını görüyorum. Tanışalım.",
+        "Yeni bir iş üstünde çalışıyorum, bir ara konuşalım.",
+        "Selam, birlikte bir şey yapabilir miyiz diye düşündüm.",
+        "Sesin dikkatimi çekti. Nasıl gidiyor?"
+      ];
+      K.relations.pushRequest(a.id, U.pick(pool));
+    },
+
+    pushRequest(artistId, text) {
+      const req = K.dmRequest(artistId);
+      req.messages.push({
+        id: U.uid("m"), from: "them", text, day: K.state.day,
+        type: "chat", kind: "text", reaction: null
+      });
+      req.day = K.state.day;
+      K.state.notifications = (K.state.notifications || []).concat([{
+        title: "📥 DM isteği",
+        msg: (K.artistById(artistId) || {}).stageName + " sana mesaj isteği gönderdi.",
+        kind: "ok", day: K.state.day
+      }]).slice(-60);
+      K.save();
+    },
+
+    /* --- GRUP SOHBETLERİ ---
+       Şirket kadrosu ve ortak projeler için gerçek grup DM'i. */
+    ensureGroups() {
+      const s = K.state;
+      s.groups = s.groups || {};
+      const has = (kind) => Object.values(s.groups).some(g => g.kind === kind);
+      if (s.label && (s.label.roster || []).length && !has("label")) {
+        K.groupCreate(s.label.name + " · Kadro", s.label.roster.slice(0, 8), "label");
+      }
+      return s.groups;
+    },
+
+    groupLine(artist) {
+      const g = (artist && artist.genre) || "rap";
+      const pools = {
+        label: ["Bu ay için bir plan var mı?", "Stüdyo takvimi doldu, sıraya girelim.", "Yeni iş çıkınca haber verin.", "Şirket olarak destek olalım bu parçaya."],
+        collab: ["Beat'i ben hazırlarım, siz yazın.", "Kayıt gününü sabitleyelim.", "Mix'i kim yapıyor?", "Parçanın adı ne olacak?"],
+        genel: ["Selam millet.", "Ne var ne yok?", "Bir şey paylaşacaktım.", "Toplantı ne zaman?"]
+      };
+      const p = pools[g === "rap" ? "genel" : "genel"] || pools.genel;
+      return U.pick(p);
+    },
+
+    groupTick() {
+      const s = K.state;
+      s.groups = s.groups || {};
+      K.relations.ensureGroups();
+      Object.values(s.groups).forEach(g => {
+        if (s.day - (g.lastDay || 0) < 2) return;
+        if (!U.chance(0.22)) return;
+        const members = (g.members || []).filter(id => K.artistById(id));
+        if (!members.length) return;
+        const who = U.pick(members);
+        const a = K.artistById(who);
+        K.groupPost(g.id, who, K.relations.groupLine(a), { fromName: a.stageName });
+      });
+    },
+
+    /* --- sabitleme / arşivleme yardımcıları --- */
+    togglePin(artistId) {
+      const p = K.state.player;
+      p.dmPinned = p.dmPinned || [];
+      const i = p.dmPinned.indexOf(artistId);
+      if (i >= 0) p.dmPinned.splice(i, 1); else p.dmPinned.push(artistId);
+      K.save();
+      return i < 0;
+    },
+
+    toggleArchive(artistId) {
+      const p = K.state.player;
+      p.dmArchived = p.dmArchived || [];
+      const i = p.dmArchived.indexOf(artistId);
+      if (i >= 0) p.dmArchived.splice(i, 1); else p.dmArchived.push(artistId);
+      K.save();
+      return i < 0;
+    },
+
+    isPinned(artistId) { return (K.state.player.dmPinned || []).indexOf(artistId) >= 0; },
+    isArchived(artistId) { return (K.state.player.dmArchived || []).indexOf(artistId) >= 0; },
+
+    /* --- SESLİ MESAJ ve MEDYA ---
+       Sesli mesaj metne dökülür (transkript) ve sanatçı ona göre cevap verir;
+       medya olarak kendi şarkını/kapağını gönderirsin. */
+    sendVoice(artistId, seconds, transcript) {
+      const th = K.thread(artistId);
+      th.messages.push({
+        id: U.uid("m"), from: "me", day: K.state.day, type: "chat", kind: "voice",
+        text: transcript, voiceSeconds: seconds, seen: false, reaction: null
+      });
+      th.lastDay = K.state.day;
+      /* sesli mesaj daha samimi/etkili: samimiyet biraz daha hızlı artar */
+      const rel = K.relation(artistId);
+      rel.affinity = U.clamp(rel.affinity + 0.6, 0, 100);
+      K.save();
+      return true;
+    },
+
+    sendMedia(artistId, songId) {
+      const s = K.state, p = s.player;
+      const song = (p.songs || []).find(x => x.id === songId);
+      if (!song) return false;
+      const th = K.thread(artistId);
+      th.messages.push({
+        id: U.uid("m"), from: "me", day: s.day, type: "chat", kind: "media",
+        text: song.title, songId: song.id, songTitle: song.title, art: song.art || null,
+        seen: false, reaction: null
+      });
+      th.lastDay = s.day;
+      K.save();
+      return true;
+    },
+
     /* ---------------- sanatçıdan mesaj ---------------- */
     pushArtistMessage(artistId, text, type, opts) {
       const th = K.thread(artistId);
@@ -590,6 +835,11 @@
     /* ---------------- günlük tick: sanatçılar kendiliğinden yazar ---------------- */
     dailyTick() {
       const s = K.state;
+
+      /* v10.12 — yeni DM katmanları */
+      try { K.relations._demoTick(); } catch (e) {}      // demo dinleme sonuçları
+      try { K.relations.groupTick(); } catch (e) {}      // grup sohbeti canlılığı
+      try { K.relations._requestTick(); } catch (e) {}   // tanımadığından gelen istekler
 
       // 1) Mevcut ilişkilerden mesaj — SADECE gerçekten samimi olduklarında
       //    (sanatçılar tanımadıkları birine kendiliğinden yazmaz)
