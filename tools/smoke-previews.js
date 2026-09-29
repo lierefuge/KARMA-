@@ -19,7 +19,9 @@
 
    A) VERİ     : kapsam, geçerli ses/sayfa URL'i, boş kayıt yok
    B) TUTARLILIK: her önizlemenin real-songs karşılığı var mı (boşa düşen yok),
-                  kapsam tabanı (>=%98) ve önizlemesiz şarkının ZARİF düşmesi
+                  TAM kapsam (%100) ve önizlemesiz şarkının ZARİF düşmesi
+   F) YOUTUBE  : kayıtlar gerçek şarkıya mı bağlı, kapsam tabanı
+   G) TÜRKÇE   : ı/İ/I/i katlaması (KARARDI ↔ Karardı eşleşmesi)
    C) SÜZGEÇ   : oynatılabilirlik denetimi (has/isPlayable/isUsable) doğru mu
    D) BAĞLANTI : geçersiz `a` bozuk bağlantıya dönüşmüyor, arama linkine düşüyor
    E) GÜVENLİK : eksik/bozuk veriyle çökmüyor, "undefined" üretmiyor
@@ -130,24 +132,31 @@ function run() {
       });
     });
     const songTotal = Object.values(S).reduce((a, b) => a + b.length, 0);
-    const coverage = songTotal ? (songTotal - uncovered) / songTotal : 0;
-    ok("B · önizleme kapsamı >= %98 (toplu kayıp yok)", coverage >= 0.98,
-      "%" + (coverage * 100).toFixed(1) + " (" + uncovered + " eksik: " + uncoveredSample + ")");
-    ok("B · önizlemesiz şarkı sayısı sınırlı (<=15)", uncovered <= 15, uncovered + " şarkı");
+    /* v10.26 — TAM KAPSAM. Eksik çıkarsa iki olasılık var:
+         a) veri gerilemesi  → `node tools/fetch-missing-previews.js`
+         b) gerçekten önizlemesi olmayan parça → araç raporlar, README güncellenir
+       İkisi de bilinçli karar gerektirdiği için eşitlik aranır. */
+    ok("B · önizleme kapsamı TAM (%100)", uncovered === 0,
+      uncovered ? uncovered + " eksik · ör: " + uncoveredSample
+                : songTotal + "/" + songTotal + " şarkı");
 
-    /* ÖNİZLEMESİZ şarkılar ZARİF düşmeli: has() false + play() çökmemeli.
-       (Yedek: sentezlenmiş döngü — oyun çalınabilir kalır.) */
+    /* ÖNİZLEMESİZ şarkı ZARİF düşmeli: has() false + play() çökmemeli.
+       (Yedek: sentezlenmiş döngü — oyun çalınabilir kalır.)
+       Gerçek veri artık tam olduğu için SENETİK kayıtla denenir. */
     {
+      const FAKE = "__graceful__";
+      K.REAL_PREVIEWS[FAKE] = { "onsuz parca": { a: "https://music.apple.com/tr/album/x/1" } };
+      K.preview.resetIndex();
       let graceful = true, detail = "";
-      missing.forEach((m) => {
-        const track = { id: m.id + "_x", artistId: m.id, title: m.title, artistName: "Test" };
-        try {
-          if (K.preview.has(track) !== false) { graceful = false; if (!detail) detail = m.id + " :: " + m.title + " (has true)"; }
-          K.audio.play(track);            // fırlatmamalı; sentez yoluna düşer
-        } catch (e) { graceful = false; if (!detail) detail = m.id + " :: " + m.title + " (" + e.message + ")"; }
-      });
-      ok("B · önizlemesiz şarkılar zarif düşüyor (has false + play çökmüyor)", graceful,
-        detail || uncovered + " şarkı sentez yedeğine düştü");
+      const track = { id: FAKE + "_x", artistId: FAKE, title: "onsuz parca", artistName: "Test" };
+      try {
+        if (K.preview.has(track) !== false) { graceful = false; detail = "has() true döndü"; }
+        K.audio.play(track);            // fırlatmamalı; sentez yoluna düşer
+      } catch (e) { graceful = false; detail = e.message; }
+      delete K.REAL_PREVIEWS[FAKE];
+      K.preview.resetIndex();
+      ok("B · önizlemesiz şarkı zarif düşüyor (has false + play çökmüyor)", graceful,
+        detail || "sentez yedeğine düştü");
     }
   }
 
@@ -251,6 +260,60 @@ function run() {
       K.preview.isPlayable("abc") === false);
     ok("E · tüm gerçek kayıtlar NaN/undefined içermiyor",
       !/NaN|undefined/.test(JSON.stringify(P)));
+  }
+
+  /* =========================================================
+     F) YOUTUBE TAM SÜRÜM VERİSİ
+     ========================================================= */
+  {
+    const Y = K.REAL_YT || {};
+    let total = 0, dangling = 0, noV = 0, notEmbeddableShape = 0;
+    const danglingSamples = [];
+    Object.keys(Y).forEach((slug) => {
+      const titles = new Set(((S[slug]) || []).map((s) => s.title));
+      Object.keys(Y[slug] || {}).forEach((t) => {
+        total++;
+        if (!titles.has(t)) { dangling++; if (danglingSamples.length < 4) danglingSamples.push(slug + " :: " + t); }
+        const e = Y[slug][t];
+        if (!e || typeof e.v !== "string" || !/^[\w-]{11}$/.test(e.v)) noV++;
+        if (!e || typeof e.t !== "string" || !e.t) notEmbeddableShape++;
+      });
+    });
+    const songTotal = Object.values(S).reduce((a, b) => a + b.length, 0);
+    const cov = songTotal ? total / songTotal : 0;
+    ok("F · her YouTube kaydı GERÇEK bir şarkıya bağlı (boşa düşen yok)", dangling === 0,
+      dangling ? dangling + " boşa düşen · ör: " + danglingSamples[0] : total + " kayıt temiz");
+    ok("F · her kayıtta geçerli 11 karakterlik videoId", noV === 0, noV + " bozuk");
+    ok("F · her kayıtta doğrulanmış video başlığı (oembed)", notEmbeddableShape === 0, notEmbeddableShape + " eksik");
+    ok("F · YouTube kapsamı >= %70 (gerileme tabanı)", cov >= 0.70,
+      "%" + (cov * 100).toFixed(1) + " (" + total + "/" + songTotal + ")");
+    /* v10.26'da tamamlanan amiral sanatçı kapsamı — gerileme kilidi */
+    ok("F · Şehinşah YouTube kapsamı >= 100 kayıt", Object.keys(Y.sehinsah || {}).length >= 100,
+      Object.keys(Y.sehinsah || {}).length + " kayıt");
+    ok("F · wegh Rumi YouTube kapsamı >= 25 kayıt", Object.keys(Y.weghrumi || {}).length >= 25,
+      Object.keys(Y.weghrumi || {}).length + " kayıt");
+  }
+
+  /* =========================================================
+     G) TÜRKÇE BÜYÜK/KÜÇÜK HARF KATLAMASI
+     ========================================================= */
+  {
+    /* "KARARDI".toLowerCase() → "karardi" ama şarkı "Karardı" → "karardı".
+       Katlama olmasaydı normalleştirilmiş başlık eşleşmesi düşerdi. */
+    const cases = [];
+    Object.keys(S).forEach((slug) => {
+      (S[slug] || []).forEach((s) => { if (/[ıiIİ]/.test(s.title)) cases.push({ slug, title: s.title }); });
+    });
+    const pick = cases.find((c) => /ı/.test(c.title)) || cases[0];
+    ok("G · ı/i içeren şarkı bulundu", !!pick, pick ? pick.slug + " :: " + pick.title : "yok");
+    if (pick) {
+      const upper = pick.title.toUpperCase();   // JS: "Karardı" → "KARARDI"
+      ok("G · BÜYÜK harfli başlıkla önizleme bulunuyor (ı↔i katlaması)",
+        K.preview.has({ artistId: pick.slug, title: upper }) === true,
+        '"' + pick.title + '" ↔ "' + upper + '"');
+      ok("G · ı ve i karışık yazımla da bulunuyor",
+        K.preview.has({ artistId: pick.slug, title: pick.title.replace(/ı/g, "i").replace(/I/g, "ı") }) === true);
+    }
   }
 
   /* ---- rapor ---- */
