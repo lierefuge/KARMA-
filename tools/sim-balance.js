@@ -32,6 +32,9 @@ const DAYS = parseInt(argOf("days", "420"), 10);
 const ONLY = argOf("profile", null);
 const AS_JSON = argv.includes("--json");
 const SEED = parseInt(argOf("seed", "20260928"), 10);
+/* v10.17 — ana koşudan sonra yayınsız geçen gün sayısı. "Zirveden sonra
+   düşüş" ancak yayın bırakılınca görünür; bu aşama onu ölçer. */
+const SILENCE = parseInt(argOf("silence", "120"), 10);
 
 /* ---------------- oyuncu profilleri ---------------- */
 const PROFILES = {
@@ -206,15 +209,41 @@ function runProfile(K, prof, days) {
     K.game.nextDay();
     promoteNewSongs(K, prof, s.day - (prof.waitDays + 3));
 
-    /* --- ölçüm --- */
-    const daily = (p.songs || []).reduce((n, x) => n + (x.dailyStreams || 0), 0);
-    const cum = p.streams || 0;
-    const followers = (p.ig || 0) + (p.tiktok || 0) + (p.x || 0);
-    const top = (p.songs || []).slice().sort((a, b) => (b.dailyStreams || 0) - (a.dailyStreams || 0))[0] || null;
-    const lf = p.lastFinance || null;
-    const payout = (p.payouts || [])[0] || null;
+    rows.push(snap(K, prevCum));
+    prevCum = K.state.player.streams || 0;
+    if (rows[rows.length - 1].monthly > peak.monthly) { peak.monthly = rows[rows.length - 1].monthly; peak.day = s.day; }
+    if (rows[rows.length - 1].dailyStreams > peak.daily) { peak.daily = rows[rows.length - 1].dailyStreams; peak.dailyDay = s.day; }
+    if (p.lastFinance && p.lastFinance.net < 0) bankruptMonths++;
+    if ((p.debt || 0) > 0) debtMonths++;
+  }
 
-    rows.push({
+  /* ---- SESSİZLİK AŞAMASI (v10.17) ----
+     Sürekli yayın yapan bir sanatçının zirvesi zaten koşunun SONUNDA
+     olur; “zirveden sonra düşüş” ancak yayın bırakılınca görünür.
+     Bu yüzden ana koşunun ardından SILENCE gün boyunca hiç yayın
+     yapılmaz ve eğrinin gerileyip gerilemediği ölçülür. */
+  const silenceStart = rows.length;
+  for (let d = 0; d < SILENCE; d++) {
+    const s = K.state, p = s.player;
+    if (p.debt > 0 || s.balance < 45000) doJobs(K, prof.jobsWhenBroke ? 5 : 2);
+    K.game.nextDay();
+    rows.push(snap(K, prevCum));
+    prevCum = p.streams || 0;
+  }
+
+  return { rows, peak, bankruptMonths, debtMonths, ledger, silenceStart };
+}
+
+/* günün anlık görüntüsü — hem aktif hem sessizlik aşaması kullanır */
+function snap(K, prevCum) {
+  const s = K.state, p = s.player;
+  const daily = (p.songs || []).reduce((n, x) => n + (x.dailyStreams || 0), 0);
+  const cum = p.streams || 0;
+  const followers = (p.ig || 0) + (p.tiktok || 0) + (p.x || 0);
+  const top = (p.songs || []).slice().sort((a, b) => (b.dailyStreams || 0) - (a.dailyStreams || 0))[0] || null;
+  const lf = p.lastFinance || null;
+  const payout = (p.payouts || [])[0] || null;
+  return {
       day: s.day,
       balance: Math.round(s.balance),
       debt: Math.round(p.debt || 0),
@@ -239,16 +268,7 @@ function runProfile(K, prof, days) {
         ? Math.round((p.songs || []).reduce((n, x) => n + (x.quality || 0), 0) / p.songs.length) : 0,
       finance: lf ? { income: lf.income, upkeep: lf.upkeep, tax: lf.tax, net: lf.net, margin: lf.margin } : null,
       payout: payout ? { day: payout.day, gross: payout.gross, net: payout.net, streams: payout.spotify + payout.apple + payout.youtube + payout.other, waiting: payout.waiting } : null
-    });
-    prevCum = cum;
-
-    if (rows[rows.length - 1].monthly > peak.monthly) { peak.monthly = rows[rows.length - 1].monthly; peak.day = s.day; }
-    if (rows[rows.length - 1].dailyStreams > peak.daily) { peak.daily = rows[rows.length - 1].dailyStreams; peak.dailyDay = s.day; }
-    if (lf && lf.net < 0) bankruptMonths++;
-    if ((p.debt || 0) > 0) debtMonths++;
-  }
-
-  return { rows, peak, bankruptMonths, debtMonths, ledger };
+  };
 }
 
 /* ---------------- analiz ---------------- */
@@ -292,6 +312,9 @@ function analyze(run) {
 
   return {
     last,
+    /* sessizlik aşamasının başlangıç satırı — "zirveden sonra düşüş"
+       bulgusu bu pencere üzerinden ölçülür (v10.17) */
+    silenceStart: run.silenceStart,
     ledgerIn, ledgerOut, ledger: L,
     totalIncome, totalUpkeep, totalTax,
     firstMonthIncome, lastMonthIncome,
@@ -319,15 +342,43 @@ function findings(name, a, rows) {
   if (a.debtMonths > a.months * 0.5) add("YÜKSEK", `Kariyerin %${Math.round(a.debtMonths / Math.max(1, a.months) * 100)}'inde borç var — gider yapısı geliri aşıyor.`);
   if (a.bankruptMonths > a.months * 0.4) add("YÜKSEK", `${a.bankruptMonths}/${a.months} ay zarar (net < 0).`);
 
-  /* 2) sonsuz büyüme */
-  if (a.secondHalfStreams > a.firstHalfStreams * 2.2) add("ORTA", `Dinlenme ikinci yarıda ${(a.secondHalfStreams / Math.max(1, a.firstHalfStreams)).toFixed(1)}× arttı — doğrusal değil, üstel büyüme eğilimi.`);
+  /* 2) sonsuz büyüme — EĞRİNİN ŞEKLİ ölçülür.
+     Sabit bir "2,2×" eşiği yerine içbükeylik (konkavlık) sınanır:
+     sağlıklı bir kariyer eğrisinde büyüme ÇOĞALTMA katsayısı zamanla
+     düşer (yükseliş → yavaşlama). Dışbükeyse doygunluk/sönüm zayıftır. */
+  {
+    const act = rows.slice(0, a.silenceStart || rows.length);
+    if (act.length > 120) {
+      const f = Math.max(1, act[0].monthly);
+      const m = Math.max(1, act[Math.floor(act.length / 2)].monthly);
+      const l = act[act.length - 1].monthly;
+      const r1 = m / f, r2 = l / m;
+      if (r2 > r1)
+        add("ORTA", `Dinleyici eğrisi dışbükey: 1. dönem ×${r1.toFixed(1)} → 2. dönem ×${r2.toFixed(2)} — büyüme hızlanıyor, doygunluk zayıf.`);
+      else
+        add("BİLGİ", `Dinleyici eğrisi içbükey (sağlıklı): 1. dönem ×${r1.toFixed(1)} → 2. dönem ×${r2.toFixed(2)} — büyüme yavaşlıyor.`);
+    }
+  }
   if (a.maxRise > 120) add("YÜKSEK", `Günlük dinlenme ${a.maxRise} gün boyunca hiç düşmedi — düşüş (decay) mekanizması yeterince çalışmıyor.`);
 
-  /* 3) tepe sonrası düşüş var mı */
-  const peakIdx = rows.findIndex((r) => r.monthly === Math.max(...rows.map((x) => x.monthly)));
-  const afterPeak = rows.slice(peakIdx);
-  const decline = afterPeak.length > 60 && afterPeak[afterPeak.length - 1].monthly < afterPeak[0].monthly * 0.8;
-  if (!decline && rows.length > 200) add("ORTA", `Dinleyici sayısı tepeden sonra anlamlı düşmüyor — "yüksel → zirve → düş" döngüsü zayıf.`);
+  /* 3) TEPE SONRASI DÜŞÜŞ — sessizlik aşamasında ölçülür.
+     Yayın sürerken zirvenin koşu sonunda olması normaldir; döngünün
+     varlığı ancak yayın bırakılınca sınanabilir. */
+  const ss = a.silenceStart || rows.length;
+  const sil = rows.slice(ss);
+  if (sil.length >= 60) {
+    const sFirst = sil[0].monthly, sLast = sil[sil.length - 1].monthly;
+    const drop = sFirst > 0 ? 1 - sLast / sFirst : 0;
+    if (drop < 0.25)
+      add("ORTA", `${sil.length} gün yayınsız kalındı ama aylık dinleyici yalnızca %${Math.round(drop * 100)} geriledi — düşüş zayıf.`);
+    else
+      add("BİLGİ", `Yayınsız ${sil.length} günde aylık dinleyici %${Math.round(drop * 100)} geriledi (yüksel → zirve → düş çalışıyor).`);
+  } else {
+    const peakIdx = rows.findIndex((r) => r.monthly === Math.max(...rows.map((x) => x.monthly)));
+    const afterPeak = rows.slice(peakIdx);
+    const decline = afterPeak.length > 60 && afterPeak[afterPeak.length - 1].monthly < afterPeak[0].monthly * 0.8;
+    if (!decline && rows.length > 200) add("ORTA", `Dinleyici sayısı tepeden sonra anlamlı düşmüyor — "yüksel → zirve → düş" döngüsü zayıf.`);
+  }
 
   /* 4) gelir/gider makası */
   if (a.lastMonthIncome > a.firstMonthIncome * 30 && a.firstMonthIncome > 0) add("ORTA", `Gelir ${(a.lastMonthIncome / a.firstMonthIncome).toFixed(0)}× büyüdü — ölçeklenme çok hızlı.`);
