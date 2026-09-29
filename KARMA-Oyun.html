@@ -6133,7 +6133,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.23.1";
+  K.VERSION = "10.24.0";
   K.VERSION_DATE = "2026-09-29";
 })(window.K = window.K || {});
 
@@ -9193,11 +9193,18 @@ window.K = window.K || {};
   K.ECON = {
     startBalance: 25000,
     startAge: 15,
-    royaltyPerStream: 0.0011,     // (eski) — artık platform bazlı aylık ödeme var
     /* PLATFORM BAZLI DİNLENME ÜCRETİ (₺ / dinlenme) — temel değerler.
        Gerçek dünyada bunlar USD'dir; oyunda 1 USD = baseFx ₺ kabul edilir ve
-       kur dalgalanması tüm telif gelirini oransal olarak büyütür/küçültür. */
+       kur dalgalanması tüm telif gelirini oransal olarak büyütür/küçültür.
+       NOT (v10.24): `royaltyPerStream` (eski sabit 0,0011 ₺) KALDIRILDI.
+       Son kullanıcısı `K.economy.labelDailyNet()` idi ve orada kur/enflasyon
+       uygulanmadığı için şirket gelirini gerçekçi değerin ~1/200'üne
+       düşürüyordu. Artık tüm gelir yolları `streamRates` (+ `econ.avgRate()`)
+       üzerinden hesaplanır. */
     streamRates: { spotify: 0.005, apple: 0.015, youtube: 0.008, other: 0.004 },
+    /* platform karması — gelir dağılımı platform ayrımı yapmayan yollarda
+       (şirket kadrosu, tahmin) ağırlıklı ortalama kur için kullanılır */
+    storeMix: { spotify: 0.46, apple: 0.19, youtube: 0.28, other: 0.07 },
     payoutPeriodDays: 30,          // her 30 günde bir telif ödemesi
 
     /* ==========================================================
@@ -9220,7 +9227,6 @@ window.K = window.K || {};
     fatigueStep: 0.17,        // her yayın doygunluğu bu kadar artırır
     fatigueMax: 0.74,         // doygunluk tavanı (yayın başına kazanç en çok %74 kısılır)
     fatigueRecovery: 0.9955,  // günlük doygunluk azalması (yarı ömür ≈ 154 gün)
-    streamRevenueShare: 0.62,     // sanatçıya kalan (label yoksa 1.0)
 
     /* ---------- v10 GERÇEKLİK KATMANI: kur · enflasyon · gecikme · vergi ---------- */
     baseFx: 32,                    // 1 USD = 32 ₺ (oyun başı)
@@ -9251,9 +9257,19 @@ window.K = window.K || {};
        biraz sermaye yeterlidir. */
     labelFoundCost: 120000,       // kendi şirketini kurma
     labelFoundMinPop: 28,
+    /* v10.24 — ŞİRKET EKONOMİSİ (gerçekçi kâr/zarar)
+       labelBillableShare: kadro dinlenmesinin gelir sayılan oranı. 30 saniye
+         eşiği şirket kataloğu için de geçerlidir; oyuncunun kendi şarkılarındaki
+         ayrıntılı atlama modelinin kadro (NPC) tarafındaki basitleştirilmiş
+         karşılığıdır.
+       labelOpexShare: tanıtım + kayıt + A&R + dağıtım giderinin BRÜT gelire
+         oranı. Gerçek şirketlerde bu kalem brüt gelirin ~%15-20'sidir; şirket
+         kârı, sözleşme payı ile bu gider arasındaki farktır (indie şirketler
+         ince marjla çalışır). */
+    labelBillableShare: 0.88,
+    labelOpexShare: 0.18,
     minAdvance: 20000,
     defaultRoyalty: 70,
-    messageCooldown: 0,           // aynı gün sınırsız ama günlük limit aşağıda
     dailyMessageLimit: 6,
     hangoutCost: 4500,
     giftCost: 12000,
@@ -9264,8 +9280,6 @@ window.K = window.K || {};
     costStartPop: 5,          // bu popülaritenin altında sabit gider YOK (aile desteği)
     costStartFollowers: 5000, // bu takipçinin altında sabit gider YOK
     perSongUpkeep: 120,       // her yayınlanmış şarkı için aylık bakım (katalog masrafı)
-    taxRate: 0.14,            // (eski) sabit oran — artık taxBrackets kullanılıyor
-    taxFreeMonthly: 15000,    // (eski) vergisiz taban — taxBrackets[0].upTo ile aynı
     superfanRate: 0.02,       // takipçinin süperfan oranı
     clubPlatformCut: 0.15,    // fan kulübü platform komisyonu
 
@@ -10177,8 +10191,11 @@ window.K = window.K || {};
       // popülerlik, dinleyicinin HAK ETTİĞİNİN üstüne çıkamaz.
       /* Kalibrasyon (NPC ölçeğiyle uyumlu):
          Şehinşah ≈ 4,2M aylık dinleyici → popülerlik ≈ 88-91 (kayıtlı: 88)
-         1M aylık dinleyici → ≈ 44  (şirket kurma eşiği 45 → hak edilmiş sınır)
-         40 bin dinleyici → ≈ 9 */
+         1M aylık dinleyici → ≈ 44
+         550 bin aylık dinleyici → ≈ 28  (şirket kurma eşiği — bkz. labelFoundMinPop)
+         40 bin dinleyici → ≈ 9
+         NOT (v10.24): bu kalibrasyon artık ŞİRKET KADROSU için de tavan
+         olarak kullanılıyor (systems/label.js) — aylık dinleyici ≈ pop²×700. */
       const target = K.game.listenerTarget();
       p.popularity = U.clamp(p.popularity + (target - p.popularity) * 0.045 + U.rand(-0.15, 0.18), 0, 99);
     },
@@ -10385,6 +10402,22 @@ window.K = window.K || {};
       return (K.ECON.streamRates[store] || 0) * e.fx * K.econ.infl();
     },
 
+    /* ---- AĞIRLIKLI ORTALAMA DİNLENME ÜCRETİ (₺) ----
+       Platform ayrımı OLMAYAN gelir yolları için (şirket kadrosu gibi).
+       Platform karması (`K.ECON.storeMix`) ile `rate()`lerin ağırlıklı
+       ortalamasıdır; böylece tek bir "ortalama ₺/dinlenme" gerçekçi biçimde
+       kur + enflasyonu da içerir. */
+    avgRate() {
+      const mix = K.ECON.storeMix || { spotify: 0.46, apple: 0.19, youtube: 0.28, other: 0.07 };
+      let sum = 0, w = 0;
+      K.econ.STORES.forEach(st => {
+        const m = mix[st] || 0;
+        sum += K.econ.rate(st) * m;
+        w += m;
+      });
+      return w > 0 ? sum / w : 0;
+    },
+
     /* ---- 30 SANİYE EŞİĞİ ----
        Dinlenmenin gelir sayılan oranı. Kalite, giriş uzunluğu ve
        hook gücü belirler; feature'lı şarkı daha az atlanır. */
@@ -10483,7 +10516,7 @@ window.K = window.K || {};
       songs.forEach(song => {
         const bill = K.econ.billable(song);
         const perDay = (song.lastDaily || 0) * 30 * bill;
-        const pl = song.platforms || { spotify: 0.46, apple: 0.19, youtube: 0.28, other: 0.07 };
+        const pl = song.platforms || K.ECON.storeMix;
         K.econ.STORES.forEach(st => { gross += perDay * (pl[st] || 0) * K.econ.rate(st); });
       });
       return Math.round(gross);
@@ -10782,16 +10815,49 @@ window.K = window.K || {};
       return { upkeep, tax, debt: p.debt, margin, effRate, infl };
     },
 
-    /* günlük şirket kârı (oyuncunun label'ı varsa) */
+    /* ---------------- ŞİRKET GÜNLÜK NET (GERÇEKÇİ KÂR/ZARAR) --------------
+       DÜZELTME (v10.24) — burada İKİ katmanlı bir hata vardı:
+
+       1) GELİR ESKİ SABİT KURLA HESAPLANIYORDU
+          `gross = rosterStreams * K.ECON.royaltyPerStream` (0,0011 ₺) idi.
+          Bu sabit `state.js` içinde zaten "(eski)" diye işaretliydi ve
+          kur dönüşümü, enflasyon, platform karması ve 30 sn eşiği YOKTU.
+          v10.7'de `rate()` için düzeltilen hatanın ("telif tam baseFx katı
+          eksik ödeniyordu") aynısı bu dalda kalmış; şirket geliri gerçekçi
+          değerin kabaca 1/220'si kadardı.
+
+       2) SÖZLEŞME PAYI TERSTİ
+          `share = 1 - royalty/100` şirkete SANATÇININ payını veriyordu.
+          `label.royalty` sözleşmede ŞİRKETİN payıdır (bkz. settleMonth:
+          sanatçı `1 - royalty/100` alır). Yani şirket %30 yerine %70 alıyordu.
+
+       Yeni model, gerçek bir şirket kâr/zarar tablosudur:
+         brüt gelir  = kadro dinlenmesi × ağırlıklı ₺/dinlenme (kur + enflasyon)
+         şirket cirosu = brüt × sözleşme payı × menajer etkisi
+         işletme gideri = brüt × labelOpexShare (tanıtım + kayıt + A&R + dağıtım)
+         net = ciro − gider
+       Böylece düşük paylı (sanatçıya cömert) sözleşme oyuncuya zarar
+       yazdırabilir — gerçekte olduğu gibi. */
     labelDailyNet() {
       const s = K.state;
       if (!s.label) return 0;
-      const rosterStreams = (s.label.monthlyStreams || 0) / 30;
-      const gross = rosterStreams * K.ECON.royaltyPerStream;
-      const share = 1 - (s.label.royalty || 30) / 100;  // şirketin payı
-      const staffMult = 1 + ((s.staff && s.staff.manager) || 0) * 0.12;
-      const costs = (s.label.roster || []).length * 900; // personel/gider
-      return Math.max(0, gross * share * staffMult - costs);
+      const roster = K.label.rosterArtists();
+      if (!roster.length) return 0;
+
+      /* kadro dinlenmesi de 30 sn eşiğine tabidir */
+      const billable = U.clamp(
+        K.ECON.labelBillableShare != null ? K.ECON.labelBillableShare : 0.88, 0.5, 1);
+      const streamsDay = roster.reduce((n, a) => n + (a.monthly || 0), 0) / 30 * billable;
+      const gross = streamsDay * K.econ.avgRate();              // ₺ (kur + enflasyon dahil)
+
+      const cut = U.clamp((s.label.royalty != null ? s.label.royalty : 30) / 100, 0, 1);
+      const managerMult = 1 + K.label.staffLevel("manager") * 0.12;
+      const revenue = gross * cut * managerMult;
+
+      const opexShare = K.ECON.labelOpexShare != null ? K.ECON.labelOpexShare : 0.18;
+      const opex = gross * opexShare;
+
+      return Math.max(0, Math.round(revenue - opex));
     }
   };
 })(window.K);
@@ -17017,8 +17083,14 @@ window.K = window.K || {};
       a.popularity = U.clamp(a.popularity + U.rand(0.2, 0.8), 0, 99);
       const bonus = K.label.staffBonus();
       a.popularity = U.clamp(a.popularity + bonus.quality * 0.15, 0, 99);
-      K.label.catalogAdd((opts && opts.title) || (a.stageName + " — yeni single"), artistId);
-      s.label.catalog.push(U.uid("cat"));
+      /* DÜZELTME (v10.24): eskiden katalog kaydı eklendikten sonra buraya
+         YENİ bir rastgele id push ediliyordu (`U.uid("cat")`), yani
+         `label.catalog` içindeki referanslar hiçbir kayda karşılık gelmiyordu
+         (boşa düşen id). Şirket gücü `catalog.length` üzerinden hesaplandığı
+         için bu, katalog bütünlüğünü bozuyordu. Artık GERÇEK kaydın id'si
+         yazılır. */
+      const entry = K.label.catalogAdd((opts && opts.title) || (a.stageName + " — yeni single"), artistId);
+      if (entry && entry.id) s.label.catalog.push(entry.id);
       s.label.monthlyStreams = K.label.rosterArtists().reduce((x, ar) => x + ar.monthly, 0);
       K.toast("📀 Şirket yayını", `${a.stageName} için yeni yayın çıktı.`, "ok");
       K.save(); K.refresh();
@@ -17092,7 +17164,22 @@ window.K = window.K || {};
           const excess = ar._nextRelease - s.day - targetGap;
           ar._nextRelease = Math.max(s.day + 8, ar._nextRelease - Math.max(1, Math.round(excess * 0.08)));
         }
-        ar.monthly = Math.round(ar.monthly * U.rand(1.0, 1.008));
+        /* DÜZELTME (v10.24) — KADRO BÜYÜMESİNE GERÇEKÇİ TAVAN
+           Eskiden `monthly *= 1..1,008` idi: günde ortalama %0,4 BİLEŞİK
+           artış ve HİÇBİR üst sınır yok. 520 günlük simülasyonda kadro
+           10M → 70M aylık dinleyiciye çıkıyor, şirket geliri üstel
+           patlıyordu (aylık ~3,5M ₺). Oyuncunun kendi eğrisi bu sorundan
+           v10.17'de kurtarılmıştı (dikkat dalgası: yüksel→zirve→düş) ama
+           kadro NPC'lerine uygulanmamıştı.
+           Tavan, oyunun KENDİ kalibrasyonundan alınır (bkz. core/game.js
+           `listenerTarget`): aylık dinleyici ≈ popülerlik² × 700.
+           Popülerlik 99'da durduğu için tavan da ~6,9M'da durur; sanatçı
+           tavana kadar büyür, sonra platoda dalgalanır — gerçek bir
+           kariyer gibi (sonsuz büyüme yerine zirve + plato). */
+        const ceiling = Math.pow(ar.popularity || 10, 2) * 700;
+        ar.monthly = ar.monthly < ceiling
+          ? Math.round(ar.monthly * U.rand(1.0, 1.008))
+          : Math.round(ar.monthly * U.rand(0.997, 1.002));
         ar.popularity = U.clamp(ar.popularity + U.rand(0, 0.09), 0, 99);
       });
 
