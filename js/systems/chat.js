@@ -161,7 +161,8 @@
 
   /* sanatçının gerçek şarkılarından alıntı */
   function theirSong(artist, used) {
-    const list = (K.REAL_SONGS && K.REAL_SONGS[artist.id]) || [];
+    /* v10.16 — tembel veri katmanı (P-1) */
+    const list = K.lazy ? K.lazy.songs(artist.id) : ((K.REAL_SONGS && K.REAL_SONGS[artist.id]) || []);
     const titles = list.map(s => s.title).filter(Boolean);
     if (used && used.length) {
       const rem = titles.filter(t => !used.includes(t));
