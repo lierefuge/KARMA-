@@ -61,6 +61,7 @@
             </div>
 
             <div class="cc-tile">
+              <button class="cc-tgl ${on(pr.theme === "light")}" data-act="cc-theme">${pr.theme === "light" ? "☀️ Açık tema" : "🌙 Koyu tema"}</button>
               <button class="cc-tgl ${on(K.settings.all().reduceMotion)}" data-act="cc-motion">🌀 Hareketi azalt</button>
               <button class="cc-tgl ${on(K.settings.all().contrast)}" data-act="cc-contrast">◐ Yüksek kontrast</button>
               <button class="cc-tgl ${on(K.state.player.ytAutoplay !== false)}" data-act="cc-autoplay">🔁 Oto sıradaki</button>
@@ -87,6 +88,10 @@
             if (!t) { const list = K.platforms.searchSongs("").slice(0, 20); t = U.pick(list); }
             K.interactions.play(t); K.phone.reRender();
           } else if (act === "cc-charge") { K.phoneOS.charge(); K.phone.reRender(); }
+          else if (act === "cc-theme") {
+            K.phoneOS.setPref("theme", K.phoneOS.prefs().theme === "light" ? "dark" : "light");
+            K.phone.reRender();
+          }
           else if (act === "cc-motion") { K.settings.set({ reduceMotion: !K.settings.all().reduceMotion }); K.phone.reRender(); }
           else if (act === "cc-contrast") { K.settings.set({ contrast: !K.settings.all().contrast }); K.phone.reRender(); }
           else if (act === "cc-autoplay") { K.state.player.ytAutoplay = !(K.state.player.ytAutoplay !== false); K.save(); K.phone.reRender(); }
@@ -211,7 +216,12 @@
               <div class="grow"><div class="phset-name">Duvar Kağıdı</div><div class="phset-sub">${U.escape(K.phoneOS.wallpaper().name)}</div></div>
             </div>
             <div class="phset-grid">
-              ${K.phoneOS.WALLS.map(w => `<button class="phset-wall ${pr.wallpaper === w.id ? "on" : ""}" data-pact="ph-wall" data-arg="${w.id}" style="background:${w.css}"><span>${U.escape(w.name)}</span></button>`).join("")}
+              ${K.phoneOS.WALLS.map(w => `<button class="phset-wall ${pr.wallpaper === w.id ? "on" : ""} ${w.dynamic ? "dyn" : ""}" data-pact="ph-wall" data-arg="${w.id}" style="background:${K.phoneOS.wallCss(w.id)}"><span>${U.escape(w.name)}</span></button>`).join("")}
+            </div>
+
+            <div class="phset-card">
+              <button class="phset-item ${pr.theme === "light" ? "on" : ""}" data-pact="ph-theme">${pr.theme === "light" ? "☀️ Açık tema" : "🌙 Koyu tema"} <span>${pr.theme === "light" ? "Açık" : "Koyu"}</span></button>
+              <div class="phset-sub" style="padding:2px 4px 0">Sistem yüzeylerini açar; uygulamalar kendi temasını korur.</div>
             </div>
 
             <div class="phset-card">
@@ -244,6 +254,11 @@
         },
         onAction: (act, el) => {
           if (act === "ph-wall") { K.phoneOS.setPref("wallpaper", el.dataset.arg); K.phone.reRender(); }
+          else if (act === "ph-theme") {
+            /* v10.11 — açık tema artık gerçekten çalışıyor (CSS karşılığı var) */
+            K.phoneOS.setPref("theme", K.phoneOS.prefs().theme === "light" ? "dark" : "light");
+            K.phone.reRender();
+          }
           else if (act === "ph-charge") { K.phoneOS.charge(); K.phone.reRender(); }
           else if (act === "ph-saver") { K.phoneOS.setPref("batterySaver", !K.phoneOS.prefs().batterySaver); K.phone.reRender(); }
           else if (act === "ph-motion") { K.settings.set({ reduceMotion: !K.settings.all().reduceMotion }); K.phone.reRender(); }
