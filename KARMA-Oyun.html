@@ -1,7 +1,7 @@
 <!--
-  KARMA — önbellek (cache) sürüm etiketi: 10.9
-  Yerel css/ ve js/ dosyalarının sonunda ?v=10.9 bulunur.
-  Yeni bir güncelleme yayınlarken bu numarayı artırın (ör. ?v=10.9).
+  KARMA — önbellek (cache) sürüm etiketi: 10.10
+  Yerel css/ ve js/ dosyalarının sonunda ?v=10.10 bulunur.
+  Yeni bir güncelleme yayınlarken bu numarayı artırın (ör. ?v=10.10).
   Böylece tarayıcı eski kopyayı kullanmaz; mobilde cache temizlemek gerekmez.
 -->
 <!DOCTYPE html>
@@ -16778,7 +16778,14 @@ window.K = window.K || {};
     catalogUpkeepFloor: 900,       // ama en az bu kadar (katalog bedava değil)
 
     /* v10.7 — acemi koruması süresi (gün). Aile desteği geçici. */
-    beginnerGraceDays: 120
+    beginnerGraceDays: 120,
+
+    /* v10.9 — ŞÖHRET TAVANI
+       Olaylardan gelen popülerlik kazanımları (konser, ödül, TV, röportaj)
+       dinleyicinin hak ettiği değerin en fazla bu kadar üstüne çıkabilir.
+       Böylece bir TV programı seni geçici olarak öne taşır ama iki yıl
+       boyunca hak etmediğin bir şöhreti taşımazsın. */
+    fameHeadroom: 8
   };
 
   /* ---------- new game ---------- */
@@ -17476,6 +17483,32 @@ window.K = window.K || {};
       }
     },
 
+    /* ---------- ŞÖHRET DENETLEYİCİSİ (v10.9) ----------
+       SORUN: popülerlik İKİ kaynaktan besleniyordu.
+         1) `refreshMonthly` → dinleyiciye bağlı hedef (doğru model)
+         2) olaylar → doğrudan ekleme: konser +5,4 · ödül +2,2 · TV +2,2
+            · röportaj +3,2 · TV dizisi +... 
+       Sonuç: 1.000 aylık dinleyicili bir oyuncu bir TV programıyla
+       pop 30 olabiliyordu; yani popülerlik ile gerçek kitle kopuktu.
+       ÇÖZÜM: tüm şöhret kazanımları bu fonksiyondan geçer ve dinleyicinin
+       HAK ETTİĞİ değerin en fazla `fameHeadroom` puan üstüne çıkabilir.
+       Tek bir hit ya da TV programı seni geçici olarak öne taşır, ama
+       iki yıl boyunca hak etmediğin bir şöhreti taşımaz. */
+    listenerTarget() {
+      const p = K.state.player;
+      const topChart = (p.songs || []).filter(s => s.chartRank && s.chartRank <= 20).length;
+      const byListeners = Math.sqrt(Math.max(0, p.monthly) / 700);
+      return U.clamp(byListeners * (1 + (p.reputation || 0) / 400) + topChart * 1.1, 0, 99);
+    },
+
+    /* şöhret ekle — dinleyicinin izin verdiği tavanla sınırlı */
+    addFame(amount) {
+      if (!amount) return;
+      const p = K.state.player;
+      const cap = Math.min(99, K.game.listenerTarget() + (K.ECON.fameHeadroom || 8));
+      p.popularity = U.clamp(Math.min(cap, (p.popularity || 0) + amount), 0, 99);
+    },
+
     /* ---------- oyuncu aylık dinleyici & popülerlik ---------- */
     refreshMonthly() {
       const p = K.state.player;
@@ -17494,16 +17527,11 @@ window.K = window.K || {};
       // popülerlik alabiliyordu — yani popülerlik gerçek kitleyi değil,
       // itibarı ölçüyordu. Artık itibar dinleyici tabanını katsayılar:
       // popülerlik, dinleyicinin HAK ETTİĞİNİN üstüne çıkamaz.
-      const topChart = p.songs.filter(s => s.chartRank && s.chartRank <= 20).length;
       /* Kalibrasyon (NPC ölçeğiyle uyumlu):
          Şehinşah ≈ 4,2M aylık dinleyici → popülerlik ≈ 88-91 (kayıtlı: 88)
          1M aylık dinleyici → ≈ 44  (şirket kurma eşiği 45 → hak edilmiş sınır)
          40 bin dinleyici → ≈ 9 */
-      const byListeners = Math.sqrt(Math.max(0, p.monthly) / 700);
-      const target = U.clamp(
-        byListeners * (1 + (p.reputation || 0) / 400) + topChart * 1.1,
-        0, 99
-      );
+      const target = K.game.listenerTarget();
       p.popularity = U.clamp(p.popularity + (target - p.popularity) * 0.045 + U.rand(-0.15, 0.18), 0, 99);
     },
 
@@ -18476,7 +18504,7 @@ window.K = window.K || {};
           song.sync.push({ type: o.typeName, fee: o.fee, day: s.day, exclusive: o.exclusive });
           if (o.exclusive) song.exclusiveSync = true;
         }
-        s.player.popularity = U.clamp(s.player.popularity + (o.exclusive ? 0.8 : 0.4), 0, 99);
+        K.game.addFame(o.exclusive ? 0.8 : 0.4);
         s.player.reputation = U.clamp((s.player.reputation || 0) + 0.4, 0, 100);
         K.toast("🎬 Sync anlaşması", `${o.typeName} · +${U.money(o.fee - cut)}${cut ? " · 360 payı " + U.money(cut) : ""}`, "ok");
       } else {
@@ -18640,7 +18668,9 @@ window.K = window.K || {};
         if (o.fee) K.economy.earn(o.fee, "press");
         p.image = U.clamp((p.image || 50) + o.img, 0, 100);
         p.reputation = U.clamp((p.reputation || 0) + o.rep, 0, 100);
-        p.popularity = U.clamp((p.popularity || 0) + o.pop, 0, 99);
+        /* DÜZELTME (v10.9): popülerlik doğrudan ekleniyordu; artık
+           dinleyicinin hak ettiği tavanla sınırlı şöhret denetleyicisinden geçer. */
+        K.game.addFame(o.pop);
         K.toast("📰 " + o.name, `Yayınlandı · imaj ${Math.round(p.image)}/100`, o.img >= 0 ? "ok" : "warn");
       } else {
         K.toast("Reddedildi", o.name + " teklifi reddedildi.", "warn");
@@ -18693,7 +18723,7 @@ window.K = window.K || {};
       const r = R[styleId] || { rep: 0, img: 0, pop: 0 };
       p.reputation = U.clamp((p.reputation || 0) + r.rep, 0, 100);
       p.image = U.clamp((p.image || 50) + r.img, 0, 100);
-      p.popularity = U.clamp((p.popularity || 0) + r.pop, 0, 99);
+      K.game.addFame(r.pop);
       let msg = "Röportaj yayınlandı.";
       if (styleId === "provocative" && U.chance(0.4)) {
         p.reputation = Math.max(0, p.reputation - 3);
@@ -19278,13 +19308,20 @@ window.K = window.K || {};
       const chance = 0.02 + (p.popularity || 0) / 1600 + (p.image || 50) / 4000;
       if (!U.chance(chance)) return;
       const b = U.pick(pool);
+      /* DÜZELTME (v10.9): marka ücretleri SABİTTİ.
+         Pop 20 bir oyuncu aylık 45.000 ₺ sponsorluk alabiliyordu —
+         bu, o seviyedeki telif gelirinin (aylık birkaç bin ₺) katları
+         demekti, yani sponsorluk müziği eziyordu. Artık ücret, oyuncunun
+         gerçek büyüklüğüne göre ölçeklenir. */
+      const scale = U.clamp(0.25 + (p.popularity || 0) / 70, 0.25, 2.0);
+      const fee = Math.round(b.fee * scale);
       s.pendingSponsor = {
         id: U.uid("spo"), brandId: b.id, name: b.name, cat: b.cat, icon: b.icon,
-        fee: b.fee, img: b.img, note: b.note, day: s.day
+        fee, img: b.img, note: b.note, day: s.day
       };
       if (K.toast) K.toast("💼 Sponsorluk teklifi", `${b.name} seninle çalışmak istiyor.`, "ok");
       s.notifications = (s.notifications || []).concat([{
-        title: "💼 Sponsorluk", msg: `${b.name} · aylık ${U.money(b.fee)} · imaj ${b.img >= 0 ? "+" : ""}${b.img}`, kind: "ok", day: s.day
+        title: "💼 Sponsorluk", msg: `${b.name} · aylık ${U.money(fee)} · imaj ${b.img >= 0 ? "+" : ""}${b.img}`, kind: "ok", day: s.day
       }]).slice(-60);
       K.save();
     },
@@ -25026,15 +25063,15 @@ window.K = window.K || {};
 
       // şöhret / popülerlik / takipçi etkisi
       if (kind === "praise") {
-        p.popularity = U.clamp(p.popularity + 0.5, 0, 99);
+        K.game.addFame(0.5);
         p.ig = Math.round(p.ig + a.popularity * 18 + 500);
         p.tiktok = Math.round(p.tiktok + a.popularity * 12 + 300);
         p.reputation = U.clamp(p.reputation + 0.3, 0, 100);
       } else if (kind === "shade") {
-        p.popularity = U.clamp(p.popularity + 0.3, 0, 99); // tartışma da görünürlük
+        K.game.addFame(0.3); // tartışma da görünürlük
         p.reputation = U.clamp(p.reputation - 0.6, 0, 100);
       } else {
-        p.popularity = U.clamp(p.popularity + 0.15, 0, 99);
+        K.game.addFame(0.15);
       }
       if (K.relations && K.relations.reach(a.id) > 0.15) {
         K.relations.addAffinity(a.id, 0.5, "tepki:" + kind);
@@ -25707,7 +25744,10 @@ window.K = window.K || {};
       { id: "cinematic", name: "Sinematik Show", emoji: "✨", cost: 300000, draw: 1.45, prestige: 1.2, desc: "Turne düzeyi görsel şölen; prestij patlatır." }
     ],
 
-    BASE_TICKET: 320,
+    /* DÜZELTME (v10.9): 320 ₺ 2026 Türkiye'sinde KULÜP bileti bile
+       değil (gerçek aralık: kulüp 600–1.200 ₺, salon 900–2.500 ₺,
+       arena 1.800–5.000 ₺, stadyum 2.500–7.000 ₺). Taban 850 ₺. */
+    BASE_TICKET: 850,
 
     production(id) { return K.concerts.PRODUCTIONS.find(p => p.id === id) || K.concerts.PRODUCTIONS[0]; },
     venue(id) { return K.concerts.VENUES.find(v => v.id === id) || K.concerts.VENUES[0]; },
@@ -25752,9 +25792,22 @@ window.K = window.K || {};
       const opener = openerId ? K.artistById(openerId) : null;
 
       const pop = U.clamp(p.popularity, 0, 99);
-      const demandBase = v.capacity * U.clamp(0.06 + pop / 85, 0.06, 1.18) * c.mult;
+      /* DÜZELTME (v10.9): talep artık POPÜLERLİĞE DEĞİL DİNLEYİCİYE bağlı.
+         Eskiden `kapasite × (0,06 + pop/85)` idi; pop 42 (arena eşiği)
+         bir oyuncu 12.000 kişilik arenada 6.600 bilet satıyordu — ki
+         800 bin dinleyicisi olan bir sanatçı için bile çok iyimser.
+         Artık aylık dinleyiciden türetiliyor (dönüşüm ≈ %3,5 +
+         küçük sanatçıya taban):
+           1 bin dinleyici → ~100 kişi (kulüp)
+           47 bin → ~2.100 kişi (salon)
+           1 milyon → ~37.000 kişi (arena)  */
+      const monthly = Math.max(0, p.monthly || 0);
+      const demandBase = (monthly * 0.035 + Math.sqrt(monthly) * 2) * c.mult;
+      /* Fiyat esnekliği (v10.9): eskiden 2× fiyat katılımı %12'ye
+         düşürüyordu — gerçekte bilet fiyatı iki katına çıkınca katılım
+         %40-50 civarında azalır. Eğri yumuşatıldı. */
       const priceRatio = price / (K.concerts.BASE_TICKET * (1 + pop / 120));
-      const priceFactor = U.clamp(1.35 - priceRatio * 0.85, 0.12, 1.15);
+      const priceFactor = U.clamp(1.3 - priceRatio * 0.5, 0.3, 1.15);
       const openerBoost = opener ? U.clamp(opener.popularity / 260, 0.03, 0.18) : 0;
 
       let attendance = Math.round(demandBase * priceFactor * prod.draw * (1 + openerBoost));
@@ -25770,7 +25823,9 @@ window.K = window.K || {};
       const net = revenue - cost;
       const fame = +(attendance / v.capacity * (v.prestige + prod.prestige) * 1.35).toFixed(2);
       const hype = Math.round(attendance / 40 + v.prestige * 6 + prod.prestige * 8);
-      const fans = Math.round(attendance * (0.22 + prod.prestige * 0.05) * c.mult);
+      /* DÜZELTME (v10.9): katılımcıların %22'si takip etmiyordu.
+         Gerçek dönüşüm %5-12 arasıdır; prodüksiyon kalitesi üst uca taşır. */
+      const fans = Math.round(attendance * (0.06 + prod.prestige * 0.03) * c.mult);
 
       return {
         attendance, capacity: v.capacity, revenue, cost, net, fame, hype, fans,
@@ -25899,7 +25954,7 @@ window.K = window.K || {};
           const revenue = Math.max(0, grossRev - cut);
           K.economy.earn(revenue, "concert");
           if (cut > 0) K.toast("🏢 360 payı", `Şirket konser gelirinden ${U.money(cut)} aldı.`, "warn");
-          s.player.popularity = U.clamp(s.player.popularity + est.fame, 0, 99);
+          K.game.addFame(est.fame);
           s.player.reputation = Math.min(100, s.player.reputation + est.fame * 0.6);
           const gained = Math.round(est.fans * (attendance / Math.max(1, est.attendance)));
           s.player.ig += Math.round(gained * 0.6);
@@ -25929,10 +25984,18 @@ window.K = window.K || {};
         const fans = est.fans;
         K.economy.earn(revenue, "tour");
         s.tour.gross += revenue;
+
+        /* DÜZELTME (v10.9): turne sabit gideri YOKTU.
+           Gerçek turnede ekip, otobüs, konaklama her durak için sabit maliyet
+           doğurur; eskiden sadece ön ödeme vardı ve turne bedava kâr demekti. */
+        const showCost = Math.round((K.concerts.venue(s.tour.venueId).prestige * 22000 + 18000)
+          * (K.econ ? K.econ.infl() : 1));
+        K.economy.spend(Math.min(showCost, K.state.balance), "tour_cost");
+        s.tour.totalCost = (s.tour.totalCost || 0) + showCost;
         s.tour.attendance += est.attendance;
         s.tour.followers = (s.tour.followers || 0) + fans;
         s.tour.shows++;
-        s.player.popularity = U.clamp(s.player.popularity + est.fame, 0, 99);
+        K.game.addFame(est.fame);
         s.player.ig += Math.round(fans * 0.6);
         s.player.tiktok += Math.round(fans * 0.4);
 
@@ -26008,12 +26071,23 @@ window.K = window.K || {};
       const mine = chart.filter(e => e.mine);
       const topArtist = K.artistList().slice().sort((a, b) => b.popularity - a.popularity)[0];
 
+      /* DÜZELTME (v10.9): adaylık eşikleri gülünç derecede düşüktü.
+         `pop >= 15` ile "Yılın Sanatçısı", `songs.length` olması yeterli
+         "Yılın Projesi", ve `feature` kategorisi sabit bir yer tutucu
+         metindi ("Feature iş birliği"). Gerçekte ödül adaylığı için
+         listede olmak, ciddi dinleyici tabanı ve nitelikli iş gerekir. */
       const nom = {};
-      nom.song = mine.length ? mine[0].title : null;
-      nom.artist = p.popularity >= 15 ? p.stageName : null;
-      nom.breakout = (p.popularity >= 20 && p.songs.length <= 12) ? p.stageName : null;
-      nom.project = p.songs.length ? (p.songs[p.songs.length - 1].albumTitle || p.songs[p.songs.length - 1].title) : null;
-      nom.feature = p.songs.some(x => x.featWith) ? "Feature iş birliği" : null;
+      const charting = mine.filter(e => (e.rank || 999) <= 30);   // ilk 30'da olmalı
+      const best = charting[0] || null;
+      nom.song = best ? best.title : null;
+      nom.artist = p.popularity >= 45 ? p.stageName : null;
+      nom.breakout = (p.popularity >= 25 && (p.songs || []).length <= 12) ? p.stageName : null;
+      const lastRel = (p.songs || []).slice().sort((a, b) => (b.publishedDay || 0) - (a.publishedDay || 0))[0];
+      nom.project = (lastRel && (lastRel.quality || 0) >= 60) ? (lastRel.albumTitle || lastRel.title) : null;
+      const featSong = (p.songs || []).find(x => x.featWith);
+      nom.feature = featSong
+        ? featSong.title + " (feat. " + (((K.artistById(featSong.featWith) || {}).stageName) || "sanatçı") + ")"
+        : null;
       return { nom, mine, hasAny: Object.keys(nom).some(k => nom[k]) };
     },
 
@@ -26037,15 +26111,23 @@ window.K = window.K || {};
         const isMine = !!noms.nom[cat.id];
         // kazanma şansı: liste performansı + popülerlik
         const chartScore = noms.mine.length ? U.clamp(noms.mine[0].rank ? (52 - noms.mine[0].rank) : 0, 0, 45) : 0;
-        const prob = isMine ? U.clamp(0.12 + p.popularity / 220 + chartScore / 140, 0.05, 0.82) : 0;
+        /* Kazanma şansı: liste performansı + popülerlik farkı.
+           Eskiden `0,12 + pop/220` idi; pop 20 ile %21 şans → ödül dağıtıyordu. */
+        const prob = isMine
+          ? U.clamp(0.05 + Math.max(0, p.popularity - 40) / 180 + chartScore / 200, 0.03, 0.55)
+          : 0;
         const won = isMine && Math.random() < prob;
         if (won) wins++;
 
         let winnerName = "";
         if (won) winnerName = p.stageName;
         else {
-          const list = K.artistList().filter(a => a.id !== "player");
-          const w = U.pickWeighted(list, a => a.popularity);
+          /* Rakipler YALNIZCA ciddi isimlerden seçilir. Eskiden 36
+             sanatçının tamamı eşit şansla havuzdaydı; pop 54 bir isim
+             "Yılın Sanatçısı" alabiliyordu. */
+          let list = K.artistList().filter(a => a.popularity >= 60);
+          if (list.length < 4) list = K.artistList().slice().sort((x, y) => y.popularity - x.popularity).slice(0, 12);
+          const w = U.pickWeighted(list, a => Math.pow(a.popularity, 2));
           winnerName = w.stageName;
         }
         results.push({ cat: cat.name, icon: cat.icon, won, winner: winnerName, nominated: isMine });
@@ -26055,7 +26137,7 @@ window.K = window.K || {};
       s.awards.history.unshift({ year: year + 1, day: s.day, wins, results });
 
       if (wins > 0) {
-        p.popularity = U.clamp(p.popularity + wins * 2.2, 0, 99);
+        K.game.addFame(wins * 2.2);
         p.reputation = Math.min(100, p.reputation + wins * 3);
         p.ig += wins * 12000; p.tiktok += wins * 8000;
       } else {
@@ -26102,10 +26184,10 @@ window.K = window.K || {};
         p.reputation = Math.min(100, (p.reputation || 0) + 2);
         K.toast("🎤 Tören konuşması", "Alçakgönüllü konuşma beğenildi; imaj +4, itibar +2.", "ok");
       } else if (style === "proud") {
-        p.popularity = U.clamp((p.popularity || 0) + (win ? 2.5 : 1), 0, 99);
+        K.game.addFame(win ? 2.5 : 1);
         K.toast("🎤 Tören konuşması", "Gururlu konuşma dikkat çekti; popülerlik arttı.", "ok");
       } else {
-        p.popularity = U.clamp((p.popularity || 0) + 3.2, 0, 99);
+        K.game.addFame(3.2);
         p.reputation = Math.max(0, (p.reputation || 0) - 3);
         p.image = U.clamp((p.image || 50) - 3, 0, 100);
         s.notifications = (s.notifications || []).concat([{
@@ -26140,13 +26222,27 @@ window.K = window.K || {};
   "use strict";
   const U = K.util;
 
+  /* DÜZELTME (v10.9): 5 diss satırı 36 sanatçı için ortaktı — bir pop
+     sanatçısı da "flow'un taklit" diyordu. Artık tür havuzu var. */
+  const DISS_BY_GENRE = {
+    trap:  ["Konuşuyorsun ama listede yoksun.", "Sound'un tanıdık, kimin beat'i bu?", "Sahnede görürüz, orada konuşuruz."],
+    drill: ["Hız sende var ama söz yok.", "Akışın taklit, üzerine bir şey koymuyorsun.", "Konuşma, çıkar da görsünler."],
+    rap:   ["Söz yazmayı öğren, sonra konuşalım.", "Flow'un vitrin, içi boş.", "Rap zanaattır, sen sadece poz veriyorsun."],
+    pop:   ["Aynı şarkıyı yirmi kere söylüyorsun.", "Kitle var ama iş yok.", "Manşetlerle kariyer kurulmaz."],
+    rnb:   ["Tonu taklit ediyorsun.", "Yumuşaklık zayıflık değil ama sende ikisi de yok.", "Vokalini düz tut, konuşma."],
+    indie: ["Bağımsız görünüp aynı fabrikadan çıkıyorsun.", "Samimiyet satılmaz.", "Kendi sesin yok, kopyalıyorsun."]
+  };
   const DISS_LINES = [
     "Bazıları konuşuyor ama sahnede yok.",
     "Kopya çekenler bir gün hesap verir.",
-    "Senin seviyen benim ısınma turlarım.",
-    "Flow'un taklit, sözlerin boş.",
-    "Rap yapıyorsan bari doğru yap."
+    "Senin seviyen benim ısınma turlarım."
   ];
+  function dissFor(a) {
+    const g = DISS_BY_GENRE[(a && a.genre) || "rap"];
+    if (g && g.length) return U.pick(g);
+    return U.pick(DISS_LINES);
+  }
+
   const CHALLENGE = [
     "Aramızda tatlı bir rekabet olsun, ne dersin?",
     "Listede seninle yarışmak keyifli olur.",
@@ -26159,7 +26255,27 @@ window.K = window.K || {};
     ensure() {
       const s = K.state, p = s.player;
       s.rivals = s.rivals || [];
-      if (s.rivals.length >= 3) return;
+      /* DÜZELTME (v10.9): rakipler oyunun İLK GÜNÜNDE seçiliiytor ve bir
+         daha hiç değişmiyordu — oyuncu 2 yıl sonra tamamen farklı bir
+         seviyeye gelse de karşısında hâlâ aynı üç isim vardı.
+         Artık kopan rakipler güncel seviyeye göre yenilenir. */
+      if (s.rivals.length >= 3) {
+        const cur = Math.max(20, p.popularity);
+        s.rivals.forEach((r, i) => {
+          const a = K.artistById(r.artistId);
+          if (!a) return;
+          if (Math.abs(a.popularity - cur) > 32 && s.day - (s.rivalRefreshDay || 0) > 40) {
+            const repl = K.artistList()
+              .filter(x => !s.rivals.some(z => z.artistId === x.id))
+              .sort((x, y) => Math.abs(x.popularity - cur) - Math.abs(y.popularity - cur))[0];
+            if (repl) {
+              s.rivalRefreshDay = s.day;
+              s.rivals[i] = { artistId: repl.id, heat: U.randInt(5, 20), lastMoveDay: s.day, status: "nötr", moves: 0 };
+            }
+          }
+        });
+        return;
+      }
       const pool = K.artistList()
         .filter(a => !s.rivals.some(r => r.artistId === a.id))
         .map(a => ({ a, d: Math.abs(a.popularity - Math.max(20, p.popularity)) }))
@@ -26198,7 +26314,7 @@ window.K = window.K || {};
         });
         K.rivalry.addHeat(artistId, 22);
         K.state.player.reputation = Math.max(0, K.state.player.reputation - 1);
-        K.state.player.popularity = U.clamp(K.state.player.popularity + 0.8, 0, 99);
+        K.game.addFame(0.8);
         if (K.social) K.social.createPost("x", `"${a.stageName}" hakkında cevabım yolda. Yakında.`, null);
         K.toast("🔥 Diss kaydın hazırlanıyor", `${a.stageName}'e cevap yayın sırasına girdi.`, "ok");
       }
@@ -26240,15 +26356,23 @@ window.K = window.K || {};
         const a = K.artistById(r.artistId);
 
         if (r.heat >= 55 && U.chance(0.55)) {
-          // diss atışı
+          const line = dissFor(a);
           K.rivalry.addHeat(r.artistId, 8);
-          K.social.createPost("x", U.pick(DISS_LINES), null);
-          if (K.social) {
-            const feed = s.feed.x = s.feed.x || [];
-            const idx = feed.findIndex(x => x.mine === false);
-            const post = { id: U.uid("post"), platform: "x", authorId: r.artistId, authorName: a.stageName, text: U.pick(DISS_LINES), day: s.day, likes: Math.round(a.popularity * U.rand(200, 900)), comments: U.randInt(40, 400), shares: U.randInt(20, 200), mine: false };
-            feed.unshift(post);
-          }
+          /* HATA DÜZELTMESİ (v10.9): burada `K.social.createPost("x", ...)`
+             çağrılıyordu — bu fonksiyon gönderiyi OYUNCUNUN hesabından
+             paylaşır. Yani rakip diss atınca oyuncu kendi kendine diss
+             atıyor gibi görünüyordu (feed'de "ben" olarak). Kaldırıldı;
+             gönderi artık yalnızca RAKİBİN adına düşüyor. */
+          const feed = (s.feed.x = s.feed.x || []);
+          const eng = K.socialEngagement(a.ig || 0);
+          feed.unshift({
+            id: U.uid("post"), platform: "x",
+            authorId: r.artistId, authorName: a.stageName,
+            text: line, day: s.day,
+            likes: eng.likes, comments: eng.comments, shares: eng.shares,
+            songId: null, mine: false
+          });
+          s.feed.x = s.feed.x.slice(0, 60);
           K.toast("⚔️ Rakip hamle yaptı", `${a.stageName} seni hedef alan bir gönderi paylaştı.`, "bad");
         } else {
           K.relations.pushArtistMessage(r.artistId, U.pick(CHALLENGE), "chat", { topic: "rivalry" });
@@ -26855,10 +26979,18 @@ window.K = window.K || {};
       const s = K.state;
       if (s.crisis) return;
       const mult = K.settings ? K.settings.diffMult().crisis : 1;
+      /* DÜZELTME (v10.9): kriz art arda gelebiliyor ve aynı senaryo
+         tekrar tekrar seçilebiliyordu. Artık asgari arayı var ve
+         henüz yaşanmamış senaryolar öncelikli. */
+      if (s.day - (s.lastCrisisDay || -999) < 25) return;
       const chance = 0.035 * mult * (1 + s.player.popularity / 60);
       if (!U.chance(chance)) return;
-      const pool = K.crisis.POOL.filter(c => s.player.popularity >= 10 || c.id !== "beef");
-      const evt = U.pick(pool);
+      const base = K.crisis.POOL.filter(c => s.player.popularity >= 10 || c.id !== "beef");
+      const seen = s.crisisSeen = s.crisisSeen || [];
+      const fresh = base.filter(c => seen.indexOf(c.id) < 0);
+      const evt = U.pick(fresh.length ? fresh : base);
+      s.lastCrisisDay = s.day;
+      if (seen.indexOf(evt.id) < 0) seen.push(evt.id);
       s.crisis = {
         id: evt.id, tag: evt.tag, title: evt.title, desc: evt.desc,
         choices: evt.choices, day: s.day
@@ -26876,8 +27008,19 @@ window.K = window.K || {};
       const e = ch.effects || {};
       const p = s.player;
       if (e.rep) p.reputation = U.clamp(p.reputation + e.rep, 0, 100);
-      if (e.pop) p.popularity = U.clamp(p.popularity + e.pop, 0, 99);
-      if (e.fans) { p.ig = Math.max(0, p.ig + Math.round(e.fans * 0.6)); p.tiktok = Math.max(0, p.tiktok + Math.round(e.fans * 0.4)); }
+      if (e.pop) K.game.addFame(e.pop);
+      /* DÜZELTME (v10.9): hayran etkisi SABİT SAYIYDI (ör. -12.000).
+         Bu yüzden 5.000 takipçili bir oyuncu için kriz yıkıcı, 2 milyon
+         takipçili bir yıldız için görünmezdi. Artık kariyer büyüklüğüne
+         göre ölçekleniyor (100 bin takipçi = referans). */
+      if (e.fans) {
+        const f = (K.fans && K.fans.followers) ? K.fans.followers()
+          : ((p.ig || 0) + (p.tiktok || 0) + (p.x || 0));
+        const scale = U.clamp(f / 100000, 0.12, 3);
+        const applied = Math.round(e.fans * scale);
+        p.ig = Math.max(0, p.ig + Math.round(applied * 0.6));
+        p.tiktok = Math.max(0, p.tiktok + Math.round(applied * 0.4));
+      }
       if (e.money) {
         if (e.money < 0) K.economy.spend(Math.min(-e.money, s.balance), "crisis");
         else K.economy.earn(e.money, "crisis");
@@ -27409,7 +27552,7 @@ window.K = window.K || {};
       const followers = Math.round(L.followers);
       p.ig += Math.round(followers * (L.platform === "instagram" ? 0.6 : 0.15));
       p.tiktok += Math.round(followers * (L.platform === "tiktok" ? 0.6 : 0.15));
-      p.popularity = U.clamp(p.popularity + Math.min(3, L.peak / 4000), 0, 99);
+      K.game.addFame(Math.min(3, L.peak / 4000));
       K.economy.earn(donations, "live");
       s.live = null;
       K.bus.emit("live:ended", { peak: L.peak, followers, donations, seconds: L.seconds });
@@ -27423,7 +27566,7 @@ window.K = window.K || {};
       const L = K.state;
       const p = L.player;
       const gain = U.rand(0.1, 0.5);
-      p.popularity = U.clamp(p.popularity + gain, 0, 99);
+      K.game.addFame(gain);
       p.ig += U.randInt(20, 160);
       p.reputation = Math.min(100, p.reputation + 0.2);
       K.toast("💬 Yorum yanıtlandı", "Hayran etkileşimi arttı.", "ok");
