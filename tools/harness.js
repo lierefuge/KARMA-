@@ -43,6 +43,38 @@ function resolveJsdom() {
   process.exit(1);
 }
 
+/* ------------------------------------------------------------
+   v10.18.1 — JSDOM SÜRÜM KAPISI
+   Neden? jsdom 24 (ve öncesi) uzun simülasyonlarda DOM düğümlerini ve
+   zamanlayıcıları yeterince bırakmıyor; ~1000 oyun günü koşan kariyer
+   eğrisi süiti heap'i tüketip şu hatayı veriyordu:
+
+     FATAL ERROR: Reached heap limit — JavaScript heap out of memory
+
+   Bu, CI'da bizzat yaşandı ve tek nedeni jsdom sürümüydü (30.1.1 ile
+   aynı süit 24/24 geçiyor). Sessizce tekrarlanmasın diye sürüm burada
+   kapıdan geçirilir; tools/verify.js de bunu ayrı bir adım olarak denetler.
+   ------------------------------------------------------------ */
+const MIN_JSDOM = 30;
+function jsdomVersion() {
+  /* resolveJsdom() ile AYNI sıra: KARMA_JSDOM → yerel → ev dizini.
+     (Aksi hâlde KARMA_JSDOM ile eski sürüm verilse bile kapı yanlış
+     sürümü raporlar ve koruma işe yaramaz.) */
+  const cands = [
+    process.env.KARMA_JSDOM,
+    "jsdom",
+    path.join(process.env.HOME || os.homedir() || "/home/user", "node_modules", "jsdom")
+  ].filter(Boolean);
+  for (const c of cands) {
+    try {
+      const pkgPath = /jsdom$/.test(c) ? path.join(c, "package.json") : "jsdom/package.json";
+      const m = require(pkgPath);
+      if (m && m.version) return m.version;
+    } catch (e) {}
+  }
+  return null;
+}
+
 let JSDOM = null, VirtualConsole = null;
 function jsdomLibs() {
   if (!JSDOM) { const m = resolveJsdom(); JSDOM = m.JSDOM; VirtualConsole = m.VirtualConsole; }
@@ -195,4 +227,4 @@ function makeReport(title) {
   };
 }
 
-module.exports = { resolveJsdom, bootDom, whenReady, until, makeReport, seededRandom };
+module.exports = { resolveJsdom, bootDom, whenReady, until, makeReport, seededRandom, jsdomVersion, MIN_JSDOM };
