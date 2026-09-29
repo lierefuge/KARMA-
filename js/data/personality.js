@@ -1,6 +1,20 @@
 /* ============================================================
    KARMA — data/personality.js
-   SANATÇI KİŞİLİK KATMANI (derin profil)
+   NPC SANATÇI KİŞİLİK KATMANI (derin profil)
+
+   ⚠️ BURASI OYUNCUNUN KİMLİĞİ DEĞİLDİR (B-6). Yan komşu `data/persona.js`
+   oyuncunun sanatçı kimliğidir. İki dosyanın adı yakın olduğu için global
+   adları bilinçli olarak AYRI önek taşır:
+
+     BU DOSYA          data/personality.js  (NPC)
+                       K.NPC_PERSONALITY (veri) · K.npcPersonality (motor)
+     KOMŞU DOSYA       data/persona.js      (oyuncu)
+                       K.PLAYER_PERSONAS · K.playerPersonaById
+
+   Neden? Eskiden global'ler yalnızca tek bir harfle ayrılıyordu
+   (`K.PERSONALITY` ↔ `K.PERSONAS`). Yanlış olanı yazmak `undefined`
+   döndürüp SESSİZCE yanlış davranışa yol açıyordu. Bu ayrım
+   tools/smoke-tooling.js içindeki B-6 invariant'ı ile kilitlidir.
 
    Neden ayrı bir katman?
    ----------------------
@@ -24,7 +38,7 @@
 (function (K) {
   "use strict";
 
-  K.PERSONALITY = {
+  K.NPC_PERSONALITY = {
 
     /* ==========================================================
        ŞEHİNŞAH — "Mistik Kral"
@@ -192,18 +206,18 @@
      MOTOR YARDIMCILARI
      ============================================================ */
 
-  K.personality = {
+  K.npcPersonality = {
 
-    byId(id) { return K.PERSONALITY[id] || null; },
+    byId(id) { return K.NPC_PERSONALITY[id] || null; },
 
-    has(id) { return !!K.PERSONALITY[id]; },
+    has(id) { return !!K.NPC_PERSONALITY[id]; },
 
     /* liste (UI için) */
-    list() { return Object.keys(K.PERSONALITY).map(id => K.PERSONALITY[id]); },
+    list() { return Object.keys(K.NPC_PERSONALITY).map(id => K.NPC_PERSONALITY[id]); },
 
     /* samimiyet düzeltmesi: niyet + profil */
     bias(artistId, intent) {
-      const p = K.PERSONALITY[artistId];
+      const p = K.NPC_PERSONALITY[artistId];
       if (!p || !p.bias) return 0;
       const b = p.bias[intent];
       return b == null ? 0 : b;
@@ -211,7 +225,7 @@
 
     /* nadir imza açılışı (her zaman değil, %12) */
     opening(artistId) {
-      const p = K.PERSONALITY[artistId];
+      const p = K.NPC_PERSONALITY[artistId];
       if (!p || !p.openings || !p.openings.length) return "";
       if (!K.util || !K.util.chance(0.12)) return "";
       return K.util.pick(p.openings) + " ";
@@ -219,7 +233,7 @@
 
     /* oyun içi "kişilik testi" kartı */
     card(artistId) {
-      const p = K.PERSONALITY[artistId];
+      const p = K.NPC_PERSONALITY[artistId];
       if (!p) return null;
       return {
         code: p.code, title: p.test.title, archetype: p.archetype,
@@ -232,14 +246,14 @@
 
     /* sesli özet (DM'de "kim bu adam" hissi) */
     summaryLine(artistId) {
-      const p = K.PERSONALITY[artistId];
+      const p = K.NPC_PERSONALITY[artistId];
       if (!p) return "";
       return p.archetype + " · " + p.tagline;
     },
 
     /* hard/insult gibi niyetlerde profilin kırmızı çizgisine girip girmediği */
     isRedLine(artistId, intent) {
-      const p = K.PERSONALITY[artistId];
+      const p = K.NPC_PERSONALITY[artistId];
       if (!p) return false;
       return ["insult", "personal", "askmoney", "flirt"].indexOf(intent) >= 0;
     }
