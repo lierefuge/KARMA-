@@ -8,18 +8,33 @@
 
   const U = K.util;
 
+  /* v10.20 — GERÇEK YOUTUBE YERLEŞİMİ
+     Eskiden bu bir YATAY SATIRDI (solda 118×66 küçük görsel, sağda metin).
+     Gerçek YouTube mobilde akış dikeydir: kenardan kenara 16:9 görsel,
+     ALTINDA kanal avatarı + başlık + meta (kanal · görüntülenme · zaman).
+     Yapısal değişiklik CSS'te (css/apps-identity.css), burada yalnızca
+     avatar ve metin sarmalayıcısı eklenir. */
   function videoRow(v, channelName, channelId) {
     const bg = v.art ? `background-image:url('${v.art}');background-size:cover;background-position:center` : `background:${U.gradientFor(v.coverSeed || v.title)}`;
+    const initial = String(channelName || "?").trim().charAt(0).toUpperCase() || "?";
+    const av = channelId
+      ? K.ui.artistAvatar(channelId, 36, true)
+      : `<span class="yt-av" style="background:${U.gradientFor(channelName || "yt")}">${U.escape(initial)}</span>`;
+    const mins = Math.floor((v.duration || 180) / 60);
+    const secs = String((v.duration || 180) % 60).padStart(2, "0");
     return `<div class="yt-video" data-pact="watch" data-arg="${U.escape(v.id || v.title)}|${U.escape(channelName)}|${channelId || ""}|${v.views}">
       <div class="yt-thumb" style="${bg}">
         <div class="play-tri"></div>
-        <span class="dur">${Math.floor((v.duration || 180) / 60)}:${String((v.duration || 180) % 60).padStart(2, "0")}</span>
+        <span class="dur">${mins}:${secs}</span>
       </div>
-      <div class="grow" style="min-width:0">
-        <div class="vt">${U.escape(v.title)}</div>
-        <div class="vm">${U.escape(channelName)} · ${U.views(v.views)} · ${v.day ? U.ago(v.day, K.state.day) : "yakın zamanda"}</div>
+      <div class="grow">
+        ${av}
+        <div class="yt-txt">
+          <div class="vt">${U.escape(v.title)}</div>
+          <div class="vm">${U.escape(channelName)} · ${U.views(v.views)} · ${v.day ? U.ago(v.day, K.state.day) : "yakın zamanda"}</div>
+        </div>
+        <button class="t-more" data-pact="yt-more" data-arg="${U.escape(v.id)}|${U.escape(channelId || "")}" title="Diğer">⋯</button>
       </div>
-      <button class="t-more" data-pact="yt-more" data-arg="${U.escape(v.id)}|${U.escape(channelId || "")}" title="Diğer">⋯</button>
     </div>`;
   }
 
