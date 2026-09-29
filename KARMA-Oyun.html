@@ -1,7 +1,7 @@
 <!--
-  KARMA — önbellek (cache) sürüm etiketi: 10.11
-  Yerel css/ ve js/ dosyalarının sonunda ?v=10.11 bulunur.
-  Yeni bir güncelleme yayınlarken bu numarayı artırın (ör. ?v=10.11).
+  KARMA — önbellek (cache) sürüm etiketi: 10.12
+  Yerel css/ ve js/ dosyalarının sonunda ?v=10.12 bulunur.
+  Yeni bir güncelleme yayınlarken bu numarayı artırın (ör. ?v=10.12).
   Böylece tarayıcı eski kopyayı kullanmaz; mobilde cache temizlemek gerekmez.
 -->
 <!DOCTYPE html>
@@ -1493,6 +1493,107 @@ body::before {
 .sheet button:hover { background: rgba(255,255,255,0.06); }
 .sheet button.destructive { color: #ff5c7a; }
 .sheet button.cancel { color: var(--text-0); font-weight: 800; border-bottom: none; }
+
+/* ============================================================
+   v10.12 — DM GENİŞLETMESİ
+   Mesaj tepkileri · sesli mesaj · medya/demo kartı · DM istekleri ·
+   grup sohbetleri · arama · sabitleme/arşivleme
+   ============================================================ */
+
+/* --- arama / arşiv satırı / sabitleme --- */
+.dm-arch-row {
+  font-size: 11.5px; font-weight: 700; color: var(--text-2);
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
+  border-radius: var(--radius-s); padding: 9px 12px; margin-bottom: 6px; cursor: pointer;
+}
+.dm-list-row { position: relative; }
+.dm-pin { position: absolute; top: 6px; right: 34px; font-size: 11px; opacity: .85; }
+.dm-row-more {
+  background: none; border: none; color: var(--text-3); font-size: 17px;
+  cursor: pointer; padding: 0 2px 0 8px; line-height: 1; align-self: center;
+}
+.dm-row-more:active { color: var(--text-0); }
+
+/* --- mesaj tepkisi (emoji) --- */
+.dm-bubble { position: relative; }
+.dm-react {
+  position: absolute; bottom: -9px; right: 6px;
+  background: #1b1f2a; border: 1px solid rgba(255,255,255,.14);
+  border-radius: var(--radius-pill); padding: 1px 5px; font-size: 11.5px; line-height: 1.5;
+}
+.dm-bubble.me .dm-react { right: auto; left: 6px; }
+
+/* --- sesli mesaj --- */
+.dm-bubble.voice { padding: 10px 12px; }
+.dm-voice { display: flex; align-items: center; gap: 9px; }
+.dm-voice .dvv {
+  width: 26px; height: 26px; border-radius: 50%; flex: 0 0 auto;
+  display: grid; place-items: center; font-size: 11px; font-style: normal;
+  background: rgba(255,255,255,.18); color: #fff;
+}
+.dm-voice .dvv-bars { display: flex; align-items: center; gap: 2px; }
+.dm-voice .dvv-bars b { width: 2.5px; border-radius: 2px; background: rgba(255,255,255,.55); display: block; }
+.dm-voice .dvv-t { font-size: 10.5px; opacity: .75; font-variant-numeric: tabular-nums; }
+.dvv-tx { display: block; font-size: 11.5px; opacity: .72; margin-top: 6px; font-style: italic; }
+
+/* --- medya / demo kartı --- */
+.dm-bubble.media, .dm-bubble.demo { padding: 8px; }
+.dm-media { display: flex; align-items: center; gap: 10px; }
+.dm-media .dmm-art {
+  width: 46px; height: 46px; border-radius: var(--radius-xs); flex: 0 0 auto;
+  background-size: cover; background-position: center; background-color: #222;
+  display: grid; place-items: center; font-size: 18px;
+}
+.dm-media .dmm-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.dm-media .dmm-info b { font-size: 12.5px; font-weight: 800; }
+.dm-media .dmm-info i { font-size: 10.5px; font-style: normal; opacity: .7; }
+
+/* --- ekleme butonu --- */
+.dm-attach {
+  width: 34px; height: 34px; border-radius: 50%; flex: 0 0 auto;
+  background: rgba(255,255,255,.1); border: none; color: #fff;
+  font-size: 18px; line-height: 1; cursor: pointer; display: grid; place-items: center;
+}
+.dm-attach:active { background: rgba(255,255,255,.18); }
+
+/* --- DM istekleri --- */
+.dm-req-note {
+  font-size: 11px; color: var(--text-2); line-height: 1.5;
+  background: rgba(110,195,255,.08); border: 1px solid rgba(110,195,255,.22);
+  border-radius: var(--radius-s); padding: 9px 11px; margin-bottom: 8px;
+}
+.dm-req {
+  border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.03);
+  border-radius: var(--radius-m); padding: 11px; margin-bottom: 8px;
+}
+.dm-req-head { display: flex; align-items: center; gap: 10px; }
+.dm-req-head .grow { flex: 1; min-width: 0; }
+.dm-req-head .nm { font-size: 13px; font-weight: 800; }
+.dm-req-head .last { font-size: 11.5px; color: var(--text-2); margin-top: 2px; line-height: 1.45; }
+.dm-req-actions { display: flex; gap: 8px; margin-top: 10px; }
+.dm-req-actions .btn { flex: 1; }
+
+/* --- grup sohbetleri --- */
+.dm-grp-ic {
+  width: 50px; height: 50px; border-radius: 50%; flex: 0 0 auto;
+  display: grid; place-items: center; font-size: 20px;
+  background: linear-gradient(135deg, rgba(176,108,255,.35), rgba(110,195,255,.28));
+  border: 1px solid rgba(255,255,255,.1);
+}
+.dm-grp-new { margin-top: 10px; }
+.dm-grp-members {
+  font-size: 11px; color: var(--text-2); line-height: 1.5;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
+  border-radius: var(--radius-s); padding: 8px 11px; margin-bottom: 10px;
+}
+.dm-grp-who { display: block; font-size: 10.5px; font-weight: 800; color: var(--karma-2); margin-bottom: 3px; }
+
+/* --- ekran ipucu --- */
+.dm-hint {
+  font-size: 11.5px; color: var(--text-2); line-height: 1.6;
+  background: rgba(176,108,255,.08); border: 1px solid rgba(176,108,255,.22);
+  border-radius: var(--radius-s); padding: 10px 12px; margin-bottom: 10px;
+}
 
 </style>
 <style>
@@ -16987,6 +17088,8 @@ window.K = window.K || {};
       label: null,                 // oyuncunun kurduğu şirket
       relations: {},
       threads: {},
+      dmRequests: {},            // v10.12 — tanımadığından gelen istekler
+      groups: {},                // v10.12 — grup sohbetleri (kadro / ortak proje)
       contacts: [],          // mahalle/semt çevresi (systems/contacts.js)
       offers: [],
       feed: { ig: [], x: [], tiktok: [], yt: [] },
@@ -17051,6 +17154,74 @@ window.K = window.K || {};
     return s.threads[artistId];
   };
 
+  /* ---------- v10.12 — DM İSTEKLERİ ve GRUP SOHBETLERİ ----------
+     DM istekleri: seni tanımayan biri (samimiyet düşük / hiç iletişim
+     yok) yazdığında mesaj doğrudan gelen kutusuna düşmez; “İstekler”
+     klasörüne girer. Kabul edersen sohbet açılır, reddedersen silinir —
+     gerçek Instagram/DM davranışı budur. */
+  K.dmRequest = function (artistId) {
+    const s = K.state;
+    s.dmRequests = s.dmRequests || {};
+    if (!s.dmRequests[artistId]) s.dmRequests[artistId] = { messages: [], day: s.day };
+    return s.dmRequests[artistId];
+  };
+
+  K.dmAcceptRequest = function (artistId) {
+    const s = K.state;
+    s.dmRequests = s.dmRequests || {};
+    const req = s.dmRequests[artistId];
+    if (!req) return null;
+    const th = K.thread(artistId);
+    (req.messages || []).forEach(m => th.messages.push(m));
+    th.unread = (th.unread || 0) + (req.messages || []).length;
+    th.lastDay = s.day;
+    delete s.dmRequests[artistId];
+    const rel = K.relation(artistId);
+    if (rel) { rel.met = true; rel.discovered = true; }
+    return th;
+  };
+
+  K.dmDeclineRequest = function (artistId) {
+    const s = K.state;
+    s.dmRequests = s.dmRequests || {};
+    delete s.dmRequests[artistId];
+  };
+
+  /* ---------- GRUP SOHBETLERİ (kadro / ortak proje) ---------- */
+  K.group = function (groupId) {
+    const s = K.state;
+    s.groups = s.groups || {};
+    return s.groups[groupId] || null;
+  };
+
+  K.groupCreate = function (name, memberIds, kind) {
+    const s = K.state;
+    s.groups = s.groups || {};
+    const id = K.util.uid("grp");
+    s.groups[id] = {
+      id, name: name || "Grup", kind: kind || "genel",
+      members: (memberIds || []).filter(Boolean),
+      messages: [], unread: 0, lastDay: s.day, createdDay: s.day
+    };
+    return s.groups[id];
+  };
+
+  K.groupPost = function (groupId, from, text, opts) {
+    const g = K.group(groupId);
+    if (!g) return null;
+    opts = opts || {};
+    const msg = {
+      id: K.util.uid("gm"), from,
+      fromName: opts.fromName || null,
+      text, day: K.state.day, type: opts.type || "chat",
+      kind: opts.kind || "text", reaction: null
+    };
+    g.messages.push(msg);
+    g.lastDay = K.state.day;
+    if (from !== "me") g.unread = (g.unread || 0) + 1;
+    return msg;
+  };
+
   /* ---------- save / load ---------- */
   K.save = function () {
     try {
@@ -17083,6 +17254,12 @@ window.K = window.K || {};
       K.state.relations = K.state.relations || {};
       K.state.threads = K.state.threads || {};
       K.state.contacts = K.state.contacts || [];
+      /* v10.12 — DM istekleri, grup sohbetleri, sabitleme/arşiv */
+      K.state.dmRequests = K.state.dmRequests || {};
+      K.state.groups = K.state.groups || {};
+      K.state.player.dmPinned = K.state.player.dmPinned || [];
+      K.state.player.dmArchived = K.state.player.dmArchived || [];
+      K.state.player.dmDemoLog = K.state.player.dmDemoLog || [];
       (K.state.player.songs || []).forEach(sg => { if (!sg.lists) sg.lists = []; });
       // yeni alan varsayılanları (eski kayıtlar için)
       K.state.history = K.state.history || [];
@@ -21658,7 +21835,8 @@ window.K = window.K || {};
     { id: "laugh",     words: ["haha", "hahah", "lol", "şaka", "dalga", "komik", "gül", "koptum", "asdfg", "kahkaha", "komiğime"] },
     { id: "insult",    words: ["salak", "aptal", "kötüsün", "berbatsın", "saçma", "rezalet", "nefret ediyorum", "beter", "vasıfsız", "kopyacı", "tipsiz", "beceriksiz"] },
     { id: "flirt",     words: ["seni seviyorum", "aşığım", "yakışıklı", "güzelsin", "evlenelim", "seninle olmak", "kalbim", "çıkma teklifi"] },
-    { id: "personal",  words: ["kaç yaşındasın", "nerelisin", "hangi şehir", "gerçek adın", "evli misin", "sevgilin", "özel hayatın", "telefonun", "adresin"] },
+    { id: "personal",  words: ["kaç yaşındasın", "nerelisin", "hangi şehir", "gerçek adın", "ismin ne", "ismin ne anlama", "adın ne", "sahne adı", "sahne adın", "lakabın", "takma adın", "evli misin", "sevgilin", "özel hayatın", "telefonun", "adresin"] },
+    { id: "family",    words: ["oğlun", "kızın", "çocuğun", "eşin", "ailen", "baban", "annen", "kardeşin"], },
     { id: "askmoney",  words: ["borç", "para ver", "ödünç", "maddi", "yardım et para", "faizsiz", "bana para"] },
     { id: "news",      words: ["haber", "gündem", "siyaset", "ekonomi", "cinayet", "hırsızlık", "zam", "seçim", "sokak olayı"] },
     { id: "question",  words: ["nasıl", "neden", "niye", "ne zaman", "kim", "nerede", "mi", "mı", "musun", "mısın"] }
@@ -22234,20 +22412,190 @@ window.K = window.K || {};
     },
 
     /* ---- ŞEHİNŞAH → şifreli, gece, gizemli ---- */
+    /* ============================================================
+       ŞEHİNŞAH — GERÇEK KİŞİLİK (v10.12)
+       Kaynak: Milliyet/Molatik röportajı (2018) ve Wikipedia.
+       Konuşma tarzı, "gizemli/karanlık" klişesinden UZAK:
+         • SAKİN ve ÖLÇÜLÜ: uzun, düzgün cümleler kurar; küfür etmez.
+           ("durumu ajite ederek basit bir kavgadan prim yapmaya çalıştı")
+         • SAMİMİYET ve ZANAAT vurgusu: "içindeki sıcaklık ve samimiyeti
+           sevmem", "hem teknik hem taktik hem de manevi bir bütünlük"
+         • MEMLEKETSİZ kimlik: savcı çocuğu, tayinler yüzünden
+           Erzincan–Giresun–İzmir–İstanbul; "biraz memleketsiz bir rapçiyim"
+         • BABA: oğlu Atlas — en duygusal olduğu konu
+         • PUNK/METAL + graffiti + b-boy geçmişi, çizgi roman çizerliği
+         • İSMİN ANLAMI: "kralların kralı" — lise edebiyat kitabının
+           arkasındaki sözlükten bulmuş
+         • DURUŞ: "Rap bir karşı duruştur"
+         • GENİŞ BAKIŞ: yaş aldıkça sevmediği müziklerin neden sevildiğini
+           anlamaya başladığını söyler; kendi zevkini dayatmaz
+         • HEDEF: "emeğimin saygı gördüğü yer"
+         • İLETİŞİM: "rap dünyası hiç bu kadar yakın olmadı… daha fazla
+           iletişime ihtiyacımız var"
+         • HAFİF MİZAH: kendini yerebilir ("birazcık da kız tavlamak için")
+       ============================================================ */
     sehinsah: {
-      label: "gizemli",
-      pool: {
-        greet: ["Selamlar. Gece bize yoldaş.", "Gel, otur. Sessizlik de bir sözdür.", "Selam. Işıklar sönünce başlar iş."],
-        howareyou: ["Yaşıyoruz. Karanlıkta yazıyorum, gündüz uyuyorum.", "İdare eder. Kelimelerle saklambaç oynuyorum."],
-        music: ["\"{song}\" bir kapı gibi; herkes geçemez.", "\"{song}\" karanlıkta parlıyor, dikkat et."],
-        career: ["Sessiz büyü, gürültüyle öl.", "Kimse görmezken yaz; görüldüğünde hazır olursun."],
-        compliment: ["Teşekkür. Anlayan az, o yüzden değerli."],
-        insult: ["Öfke de bir enerji. Onu söze çevir."],
-        question: ["Her sorunun cevabı herkese verilmez."],
-        generic: ["Anladım. Bazı sözler kilitlidir; sen açmaya çalışıyorsun."]
+      label: "olgun",
+      selam: {
+        islamic: ["Aleyküm selam. Sağ ol, sen de iyi bak.", "Ve aleyküm selam, iyi ki yazdın.", "Aleyküm selam kardeşim."],
+        shortIslamic: ["as", "Aleyküm selam."],
+        reply: ["Eyvallah, sağ ol.", "Rica ederim.", "Sen de iyi bak."]
       },
-      suffix: [" Bazı sözler kilitlidir.", " Gölge de bir renktir."],
-      ambient: { low: ["Selam. Gece uzun, sen nerelerdesin?"], mid: ["Yeni bir metin var; karanlıkta yazdım."], high: ["Bir iş var kafamda; gizli kalsın, sen gel."] }
+      pool: {
+        greet: [
+          "Selam. Yazman iyi oldu, bu ara kafam müzikte.",
+          "Selam kardeşim. Bugün stüdyoda kaldım, yeni çıktım.",
+          "Selam. Biraz dağınık bir dönem, kusura bakma.",
+          "Selamlar. Sana da vakit ayırırım, buyur."
+        ],
+        howareyou: [
+          "İyiyim. Sabah stüdyo, akşam oğlum. Düzen bu şekilde oturdu.",
+          "Fena değil. Yazıyorum sürekli, kafam kalabalık ama iyi kalabalık.",
+          "İdare eder. Yaş aldıkça bazı şeyleri daha sakin karşılıyorum.",
+          "İyiyim kardeşim. Sen nasılsın, işler nasıl gidiyor?"
+        ],
+        music: [
+          "\"{song}\" üzerinde epey çalıştım. Teknik ve manevi olarak bir bütünlük istiyorum.",
+          "\"{song}\" bir meseleyi anlatıyor. Dinleyen kendinden bir şey bulsun istedim.",
+          "\"{song}\" — sözü yazarken kendi kıstaslarımla ilerledim, hazır hissetmeden çıkarmam.",
+          "Müzikte samimiyetin önemli olduğunu düşünüyorum; \"{song}\" o yüzden bu hâlde."
+        ],
+        career: [
+          "İlk yıllar kimse dinlemiyor, normal. Ben de lisede birkaç kez atıldım, sonra devam ettim.",
+          "Oku ama sokağı da yaşa. Söz sokaktaki dili almazsa kimseye geçmez.",
+          "Taklit etme. Kendi yaşam biçimini anlat, samimi olan kalıyor.",
+          "Rap bir karşı duruştur. Sanat da öyle. Acele etme, oturur."
+        ],
+        compliment: [
+          "Teşekkür ederim. Bunu duymak güzel, gerçekten.",
+          "Sağ ol. İnsanların kendinden bir şey bulması benim için önemli.",
+          "Eyvallah. Elimden geleni yapmaya devam ediyorum."
+        ],
+        critique: [
+          "Anlıyorum. Eleştiri de bir dönüş, kırılmam.",
+          "Haklı olabilirsin. Bazen duymak istemediğim şeyler daha çok işe yarıyor.",
+          "Aldım notumu. Bir sonraki işte bakacağım."
+        ],
+        insult: [
+          "Sakin ol. Ben kimseyle kavgayla konuşmam, sözle konuşurum.",
+          "Öfkeni anlıyorum ama bu şekilde bir şey çıkmaz.",
+          "Gerek yok. Konuşmak istersen konuşuruz."
+        ],
+        diss: [
+          "O işler benden geçti. Ben işime bakarım.",
+          "Ben sataşmam. Söyleyeceğim şey varsa kayıtta söylerim.",
+          "Sahne sırası değil bu. Herkes işini yapsın."
+        ],
+        money: [
+          "Para konusu konuşulur ama önce iş konuşulur. Sırası öyle.",
+          "Maddi taraf dert değil, yeter ki yapılan iş saygı görsün.",
+          "Bu tür konuları menajerle ilerletiyorum ama sana dürüst olurum."
+        ],
+        feature: [
+          "Ortak iş ciddi iş. Önce duyayım, sonra oturur konuşuruz.",
+          "Beraber bir şey yapacaksak ikimizin de içine sinmeli.",
+          "Bir demo gönder, dinleyeyim. Söz vermiyorum ama bakarım."
+        ],
+        hangout: [
+          "Stüdyoda olurum genelde. Müsait bir gün otururuz.",
+          "Olur. Çok kalabalık ortamları sevmiyorum, sakin bir yer olsun.",
+          "Biraz planlı gitmem gerekiyor, oğlumla vakit önemli."
+        ],
+        company: [
+          "Şirket tarafı benim işim değil, işi konuşalım.",
+          "Sözleşme konuşulacaksa şartları açık olsun, ben dürüstlük ararım.",
+          "İmza atmadan önce neden imzaladığımı bilmek isterim."
+        ],
+        family: [
+          "Oğlum Atlas. Ona baktığımda başka hiçbir şey düşünmüyorum.",
+          "Babalık bambaşka bir şey. Kalbimin bir köşesinde duruyor.",
+          "Aileme zaman ayırmak benim için pazarlık konusu değil."
+        ],
+        personal: [
+          "Asıl adım Ufuk Yıkılmaz. Sahne adını lise edebiyat kitabının arkasındaki sözlükten buldum.",
+          "\"Şehinşah\" kralların kralı demek. Anlamı hoşuma gitti.",
+          "Tayinler yüzünden çok şehir gezdim: Erzincan, Giresun, İzmir… biraz memleketsiz bir rapçiyim.",
+          "Özel hayatımı çok açmıyorum ama sorduğun şeyi cevaplarım."
+        ],
+        health: [
+          "Uyku düzenim bozuk, doğru. Gece çalışmak bana iyi geliyor.",
+          "Yorgunum ama iyi yorgunluk. Üretmek böyle bir şey."
+        ],
+        hard: [
+          "Zor dönemler olur. Zor dönemde yaptığın şeyler de sana kalır, dikkat et.",
+          "Bir dönem benim de kontrolü kaybettiğim oldu. Geçiyor ama iz bırakıyor.",
+          "Yazmaya devam et. Kafayı toplamanın en temiz yolu bu."
+        ],
+        market: [
+          "Rap içe dönüktü, şimdi dışa dönük konuşuyor. İnsanlar empati kuruyor.",
+          "Pop kültürüne kayarsa rap de rock gibi elinden alınır. Kendi özünü koruması lazım.",
+          "Yeni nesil işine daha hakim, çünkü bunun içine doğdular. Biz sonradan nail olduk.",
+          "Rapçi topluma, toplum rapçiye birer adım yaklaştı. Bunu kaybetmemek lazım."
+        ],
+        news: [
+          "Gündemi takip ediyorum ama söyleyeceğim şeyi kayıtta söylerim.",
+          "Her şey hakkında konuşmam. Konuşacaksam altyapısı olur."
+        ],
+        beef: [
+          "Yaş aldıkça insanların neden sevdiğini anlamaya başladım. Kimseyi küçümsemiyorum.",
+          "Kendi zevkimi dayatmam. İyi yapıyorsa iyidir.",
+          "Sataşma işi değil bu. Ben işime bakarım."
+        ],
+        askmoney: [
+          "Borç işine girmem, kusura bakma. Ama iş konuşursak otururuz.",
+          "Para meselesi yürümez aramızda. Emeğin karşılığı ayrı şey."
+        ],
+        flirt: [
+          "Öyle bir yer değil burası. İşimize bakalım.",
+          "Teşekkür ederim ama konuyu müzikte tutalım."
+        ],
+ 
+        thanks: ["Rica ederim.", "Eyvallah, sağ ol.", "Ne demek."],
+        laugh: ["Güldüm, iyi geldi.", "Ha, o da ayrı bir mevzu."],
+        question: [
+          "Sorunun cevabı var ama biraz uzun. Kısaltayım.",
+          "Anladım. Şöyle anlatayım…",
+          "İyi soru. Ben de zamanında bunu düşünmüştüm."
+        ],
+        support: [
+          "Teşekkürler. Destek her zaman kıymetli.",
+          "Sağ ol. Bunu hatırlarım."
+        ],
+        bye: ["Görüşürüz. Kendine iyi bak.", "Kolay gelsin kardeşim."],
+        generic: [
+          "Anladım. Düşüneyim, sana dönerim.",
+          "Olabilir. Biraz daha açarsan net konuşurum.",
+          "Peki. Ben söylediklerimi ciddiye alırım, sen de al."
+        ]
+      },
+      suffix: [
+        " Yazmaya devam et.",
+        " Aceleye gelmesin, oturur.",
+        " Samimi olan kalıyor."
+      ],
+      ambient: {
+        low: [
+          "Selam. Bugün stüdyoda kaldım, aklımdan geçenleri yazdım.",
+          "Selam, bir süredir adını görüyorum. Nasıl gidiyor?"
+        ],
+        mid: [
+          "Yeni bir metin üstünde çalışıyorum. Teknik de oturuyor gibi.",
+          "Oğlumla vakit geçirdikten sonra stüdyoya dönmek daha kolay oluyor, iyi geliyor.",
+          "Bazen bir şey yazıyorum, sonra siliyorum. Hazır olmayınca çıkmaz."
+        ],
+        high: [
+          "Bir iş var kafamda, daha kimseye açmadım. Sana söylüyorum çünkü anlarsın.",
+          "Bu parça üzerinde epey düşündüm. Çıktığında konuşuruz."
+        ]
+      },
+      cold: {
+        generic: ["Tanıdık gelmiyorsun. Sen kimsin?", "Yoğunum, sonra bakarım."],
+        feature: ["Ortak iş için önce bir tanışalım, acele etmiyorum.", "Demo gönder, dinleyeyim. Söz vermiyorum."],
+        money: ["Para konuşmadan önce iş konuşulur."],
+        personal: ["Bunları henüz konuşacak seviyede değiliz.", "Bu soru biraz erken."],
+        insult: ["Gerek yok buna."],
+        flirt: ["Öyle bir şey yok."]
+      }
     },
 
     /* ---- NORM ENDER → ilkeli, eleştirel, öğretici ---- */
@@ -22431,6 +22779,11 @@ window.K = window.K || {};
 
   function poolFor(intent, S, prof, artist) {
     if (prof && prof.pool && prof.pool[intent] && prof.pool[intent].length) return prof.pool[intent];
+    /* DÜZELTME (v10.12): kişisel profili olan sanatçının havuzunda
+       o niyet yoksa GENEL havuza düşüyordu — yani Şehinşah bir mesajda
+       kendi sesiyle, başka mesajda herkesle aynı cümleyle konuşuyordu.
+       Artık önce sanatçının KENDİ “generic” satırları denenir. */
+    if (prof && prof.pool && prof.pool.generic && prof.pool.generic.length) return prof.pool.generic;
     if (artist) {
       if ((artist.age || 30) >= 40 && VET_CHAT[intent]) return VET_CHAT[intent];
       const g = GENRE_CHAT[artist.genre];
@@ -24244,6 +24597,251 @@ window.K = window.K || {};
       }
     },
 
+    /* ============================================================
+       v10.12 — YENİ DM MEKANİKLERİ
+       ============================================================ */
+
+    /* --- MESAJ TEPKİSİ (emoji) ---
+       Gerçek DM'lerin temel parçasıydı ama hiç yoktu. Hem oyuncu
+       sanatçının mesajına tepki verebilir, hem sanatçı oyuncunun
+       mesajına tepki verir. */
+    reactToMessage(artistId, msgId, emoji) {
+      const th = K.thread(artistId);
+      const m = th.messages.find(x => x.id === msgId);
+      if (!m) return false;
+      m.reaction = (m.reaction === emoji) ? null : emoji;
+      K.save();
+      return true;
+    },
+
+    /* --- DEMO GÖNDERİMİ ---
+       Oyuncu kendi şarkısını sanatçıya dinletir. Sanatçı birkaç gün
+       sonra dinler ve tepki verir: beğeni / eleştiri / feature teklifi /
+       iş birliği. Tanımadığın sanatçıya gönderirsen çoğu zaman açılmaz. */
+    sendDemo(artistId, songId) {
+      const s = K.state, p = s.player;
+      const a = K.artistById(artistId);
+      const song = (p.songs || []).find(x => x.id === songId);
+      if (!a || !song) return { ok: false, why: "yok" };
+
+      const rel = K.relation(artistId);
+      const reach = K.relations.reach(artistId);
+      const cost = 0;
+      const th = K.thread(artistId);
+
+      th.messages.push({
+        id: U.uid("m"), from: "me", day: s.day, type: "demo", kind: "demo",
+        text: `Demo: "${song.title}"`, songId: song.id, songTitle: song.title, art: song.art || null,
+        seen: false, reaction: null
+      });
+      th.lastDay = s.day;
+
+      /* dinleme süresi: sanatçı ne kadar tanıyorsa o kadar çabuk açar */
+      const days = Math.max(1, Math.round(4 - reach * 3));
+      p.dmDemoLog = p.dmDemoLog || [];
+      p.dmDemoLog.push({ artistId, songId, title: song.title, day: s.day, dueDay: s.day + days, done: false });
+
+      const chance = U.clamp(0.12 + reach * 0.7 + (song.quality || 50) / 220, 0.05, 0.92);
+      K.save();
+      return { ok: true, chance, days, cost };
+    },
+
+    /* demo sonuçlarını işle (günlük) */
+    _demoTick() {
+      const s = K.state, p = s.player;
+      const log = p.dmDemoLog || [];
+      log.forEach(entry => {
+        if (entry.done || s.day < entry.dueDay) return;
+        entry.done = true;
+        const a = K.artistById(entry.artistId);
+        if (!a) return;
+        const song = (p.songs || []).find(x => x.id === entry.songId);
+        const q = (song && song.quality) || 50;
+        const rel = K.relation(entry.artistId);
+        const reach = K.relations.reach(entry.artistId);
+        const openChance = U.clamp(0.15 + reach * 0.75, 0.05, 0.95);
+
+        if (Math.random() > openChance) {
+          K.relations.pushArtistMessage(entry.artistId,
+            U.pick([
+              "Mesajlara çok bakamıyorum, demo kutuda kalmış. Kusura bakma.",
+              "Yoğunum, dinleyemedim daha. Sonra bakacağım.",
+              "Demo geldi ama sıraya aldım, söz veremem."
+            ]), "chat", { topic: "demo" });
+          return;
+        }
+
+        /* dinledi: tepki kaliteye ve kişiliğe göre */
+        if (q >= 76) {
+          K.relations.pushArtistMessage(entry.artistId,
+            U.pick([
+              `"${entry.title}" dinledim. Altyapı ile vokal oturmuş, iş var burada.`,
+              `"${entry.title}" sağlam. Özellikle ikinci bölüm hoşuma gitti.`,
+              `"${entry.title}" beklediğimden iyi çıktı. Eline sağlık.`
+            ]), "chat", { topic: "demo" });
+          rel.affinity = U.clamp(rel.affinity + 6, 0, 100);
+          K.game.addFame(0.4);
+          /* yüksek kalite + yeterli samimiyet → feature kapısı açılır */
+          if (q >= 82 && rel.affinity >= 55 && U.chance(0.28)) {
+            K.relations.createIncomingFeatureOffer(entry.artistId);
+          }
+        } else if (q >= 55) {
+          K.relations.pushArtistMessage(entry.artistId,
+            U.pick([
+              `"${entry.title}" fena değil. Mix biraz daha açılabilirdi.`,
+              `"${entry.title}" dinledim. Sözler iyi ama altyapı sade kalmış.`,
+              `"${entry.title}" üzerinde çalışılırsa olur. Şimdilik erken.`
+            ]), "chat", { topic: "demo" });
+          rel.affinity = U.clamp(rel.affinity + 2, 0, 100);
+          if (song) song.feedback = "mix";
+        } else {
+          K.relations.pushArtistMessage(entry.artistId,
+            U.pick([
+              `"${entry.title}" için dürüst olayım: hazır değil.`,
+              `"${entry.title}" dinledim ama bu haliyle olmaz. Kayıt kalitesi düşük.`,
+              `"${entry.title}" erken olmuş. Biraz daha çalış.`
+            ]), "chat", { topic: "demo" });
+          rel.affinity = U.clamp(rel.affinity - 1, 0, 100);
+        }
+      });
+      p.dmDemoLog = log.filter(x => !x.done || (s.day - x.dueDay) < 10).slice(-40);
+    },
+
+    /* --- DM İSTEKLERİ ---
+       Tanımadığın bir sanatçı yazarsa doğrudan gelen kutusuna değil
+       “İstekler” klasörüne düşer. */
+    _requestTick() {
+      const s = K.state, p = s.player;
+      /* sadece henüz iletişim kurulmamış sanatçılar; popülerlik arttıkça sıklaşır */
+      if (!U.chance(0.02 + (p.popularity || 0) / 2200)) return;
+      const cands = K.artistList().filter(a => {
+        const rel = s.relations[a.id];
+        if (rel && (rel.met || rel.discovered)) return false;
+        if ((s.dmRequests || {})[a.id]) return false;
+        return true;
+      });
+      if (!cands.length) return;
+      const sorted = cands.slice().sort((x, y) =>
+        Math.abs(x.popularity - (p.popularity || 0)) - Math.abs(y.popularity - (p.popularity || 0)));
+      const a = U.pick(sorted.slice(0, 12));
+      if (!a) return;
+      const pool = [
+        "Selam, profilini gördüm. İşlerine baktım, fena değil.",
+        "Selam, bir süredir adını görüyorum. Tanışalım.",
+        "Yeni bir iş üstünde çalışıyorum, bir ara konuşalım.",
+        "Selam, birlikte bir şey yapabilir miyiz diye düşündüm.",
+        "Sesin dikkatimi çekti. Nasıl gidiyor?"
+      ];
+      K.relations.pushRequest(a.id, U.pick(pool));
+    },
+
+    pushRequest(artistId, text) {
+      const req = K.dmRequest(artistId);
+      req.messages.push({
+        id: U.uid("m"), from: "them", text, day: K.state.day,
+        type: "chat", kind: "text", reaction: null
+      });
+      req.day = K.state.day;
+      K.state.notifications = (K.state.notifications || []).concat([{
+        title: "📥 DM isteği",
+        msg: (K.artistById(artistId) || {}).stageName + " sana mesaj isteği gönderdi.",
+        kind: "ok", day: K.state.day
+      }]).slice(-60);
+      K.save();
+    },
+
+    /* --- GRUP SOHBETLERİ ---
+       Şirket kadrosu ve ortak projeler için gerçek grup DM'i. */
+    ensureGroups() {
+      const s = K.state;
+      s.groups = s.groups || {};
+      const has = (kind) => Object.values(s.groups).some(g => g.kind === kind);
+      if (s.label && (s.label.roster || []).length && !has("label")) {
+        K.groupCreate(s.label.name + " · Kadro", s.label.roster.slice(0, 8), "label");
+      }
+      return s.groups;
+    },
+
+    groupLine(artist) {
+      const g = (artist && artist.genre) || "rap";
+      const pools = {
+        label: ["Bu ay için bir plan var mı?", "Stüdyo takvimi doldu, sıraya girelim.", "Yeni iş çıkınca haber verin.", "Şirket olarak destek olalım bu parçaya."],
+        collab: ["Beat'i ben hazırlarım, siz yazın.", "Kayıt gününü sabitleyelim.", "Mix'i kim yapıyor?", "Parçanın adı ne olacak?"],
+        genel: ["Selam millet.", "Ne var ne yok?", "Bir şey paylaşacaktım.", "Toplantı ne zaman?"]
+      };
+      const p = pools[g === "rap" ? "genel" : "genel"] || pools.genel;
+      return U.pick(p);
+    },
+
+    groupTick() {
+      const s = K.state;
+      s.groups = s.groups || {};
+      K.relations.ensureGroups();
+      Object.values(s.groups).forEach(g => {
+        if (s.day - (g.lastDay || 0) < 2) return;
+        if (!U.chance(0.22)) return;
+        const members = (g.members || []).filter(id => K.artistById(id));
+        if (!members.length) return;
+        const who = U.pick(members);
+        const a = K.artistById(who);
+        K.groupPost(g.id, who, K.relations.groupLine(a), { fromName: a.stageName });
+      });
+    },
+
+    /* --- sabitleme / arşivleme yardımcıları --- */
+    togglePin(artistId) {
+      const p = K.state.player;
+      p.dmPinned = p.dmPinned || [];
+      const i = p.dmPinned.indexOf(artistId);
+      if (i >= 0) p.dmPinned.splice(i, 1); else p.dmPinned.push(artistId);
+      K.save();
+      return i < 0;
+    },
+
+    toggleArchive(artistId) {
+      const p = K.state.player;
+      p.dmArchived = p.dmArchived || [];
+      const i = p.dmArchived.indexOf(artistId);
+      if (i >= 0) p.dmArchived.splice(i, 1); else p.dmArchived.push(artistId);
+      K.save();
+      return i < 0;
+    },
+
+    isPinned(artistId) { return (K.state.player.dmPinned || []).indexOf(artistId) >= 0; },
+    isArchived(artistId) { return (K.state.player.dmArchived || []).indexOf(artistId) >= 0; },
+
+    /* --- SESLİ MESAJ ve MEDYA ---
+       Sesli mesaj metne dökülür (transkript) ve sanatçı ona göre cevap verir;
+       medya olarak kendi şarkını/kapağını gönderirsin. */
+    sendVoice(artistId, seconds, transcript) {
+      const th = K.thread(artistId);
+      th.messages.push({
+        id: U.uid("m"), from: "me", day: K.state.day, type: "chat", kind: "voice",
+        text: transcript, voiceSeconds: seconds, seen: false, reaction: null
+      });
+      th.lastDay = K.state.day;
+      /* sesli mesaj daha samimi/etkili: samimiyet biraz daha hızlı artar */
+      const rel = K.relation(artistId);
+      rel.affinity = U.clamp(rel.affinity + 0.6, 0, 100);
+      K.save();
+      return true;
+    },
+
+    sendMedia(artistId, songId) {
+      const s = K.state, p = s.player;
+      const song = (p.songs || []).find(x => x.id === songId);
+      if (!song) return false;
+      const th = K.thread(artistId);
+      th.messages.push({
+        id: U.uid("m"), from: "me", day: s.day, type: "chat", kind: "media",
+        text: song.title, songId: song.id, songTitle: song.title, art: song.art || null,
+        seen: false, reaction: null
+      });
+      th.lastDay = s.day;
+      K.save();
+      return true;
+    },
+
     /* ---------------- sanatçıdan mesaj ---------------- */
     pushArtistMessage(artistId, text, type, opts) {
       const th = K.thread(artistId);
@@ -24648,6 +25246,11 @@ window.K = window.K || {};
     /* ---------------- günlük tick: sanatçılar kendiliğinden yazar ---------------- */
     dailyTick() {
       const s = K.state;
+
+      /* v10.12 — yeni DM katmanları */
+      try { K.relations._demoTick(); } catch (e) {}      // demo dinleme sonuçları
+      try { K.relations.groupTick(); } catch (e) {}      // grup sohbeti canlılığı
+      try { K.relations._requestTick(); } catch (e) {}   // tanımadığından gelen istekler
 
       // 1) Mevcut ilişkilerden mesaj — SADECE gerçekten samimi olduklarında
       //    (sanatçılar tanımadıkları birine kendiliğinden yazmaz)
@@ -36611,17 +37214,65 @@ window.K = window.K || {};
         tabPos: "bottom",
         tabs: [
           { id: "all", label: "Tümü", icon: "💬" },
+          { id: "groups", label: "Gruplar", icon: "👥" },
+          { id: "requests", label: (() => { const n = Object.keys(K.state.dmRequests || {}).length; return n ? ("İstekler (" + n + ")") : "İstekler"; })(), icon: "📥" },
           { id: "offers", label: (() => { const n = K.state.offers.filter(o => o.status === "pending").length; return n ? ("Teklifler (" + n + ")") : "Teklifler"; })(), icon: "📨" },
           { id: "new", label: "Yeni DM", icon: "✏️" }
         ],
         activeTab: params.tab || "all",
         render: (tab) => {
-          if (tab === "all") return K.phone.appById("messages").listHTML();
-          if (tab === "offers") return K.phone.appById("messages").offersHTML();
-          return K.phone.appById("messages").newDMHTML();
+          const M = K.phone.appById("messages");
+          if (tab === "all") return M.listHTML();
+          if (tab === "groups") return M.groupsHTML();
+          if (tab === "requests") return M.requestsHTML();
+          if (tab === "offers") return M.offersHTML();
+          return M.newDMHTML();
+        },
+        onMount: (root) => {
+          const inp = U.qs("[data-dm-search]", root);
+          if (inp) {
+            const box = U.qs("[data-dm-list]", root);
+            const app2 = K.phone.appById("messages");
+            const draw = () => { if (box) box.innerHTML = app2.listRows(inp.value); };
+            inp.addEventListener("input", draw);
+            draw();
+          }
         },
         onAction: (act, el) => {
-          if (act === "open-thread") K.phone.pushView(K.phone.appById("messages").conversation(el.dataset.arg));
+          const M = K.phone.appById("messages");
+          if (act === "open-thread") K.phone.pushView(M.conversation(el.dataset.arg));
+          else if (act === "open-group") K.phone.pushView(M.groupView(el.dataset.arg));
+          else if (act === "req-accept") {
+            K.dmAcceptRequest(el.dataset.arg);
+            K.toast("✅ Kabul edildi", (K.artistById(el.dataset.arg) || {}).stageName + " artık sohbetlerinde.", "ok");
+            K.phone.reRender();
+          }
+          else if (act === "req-decline") {
+            K.dmDeclineRequest(el.dataset.arg);
+            K.toast("🗑️ İstek silindi", "", "warn");
+            K.phone.reRender();
+          }
+          else if (act === "thread-more") M.threadSheet(el.dataset.arg);
+          else if (act === "show-archived") {
+            M._showArchived = !M._showArchived;
+            K.toast(M._showArchived ? "📦 Arşiv gösteriliyor" : "📂 Arşiv gizlendi", "", "");
+            K.phone.reRender();
+          }
+          else if (act === "grp-create-roster") {
+            const roster = (K.state.label && K.state.label.roster) || [];
+            const met = K.artistList().filter(a => {
+              const rel = K.state.relations[a.id];
+              return rel && rel.met && (rel.affinity || 0) >= 55;
+            }).map(a => a.id);
+            const members = (roster.length ? roster : met).slice(0, 8);
+            if (!members.length) {
+              K.toast("Kadro yok", "Şirket kur ya da samimiyet 55+ sanatçı edin.", "warn");
+            } else {
+              const g = K.groupCreate("Kadro Grubu", members, "label");
+              K.toast("👥 Grup kuruldu", members.length + " üye", "ok");
+              K.phone.pushView(M.groupView(g.id));
+            }
+          }
           else if (act === "offer-accept") { K.relations.respondOffer(el.dataset.arg, true); K.phone.reRender(); }
           else if (act === "offer-decline") { K.relations.respondOffer(el.dataset.arg, false); K.phone.reRender(); }
         }
@@ -36631,16 +37282,47 @@ window.K = window.K || {};
 
     /* ---------------- sohbet listesi ---------------- */
     listHTML() {
+      return `<div class="p-search"><span>🔎</span><input data-dm-search type="text" placeholder="Sohbette ara" /></div>
+        <div data-dm-list>${K.phone.appById("messages").listRows("")}</div>`;
+    },
+
+    /* arama + sabitlenmiş + arşiv kurallarıyla satır üretimi */
+    listRows(q) {
       const s = K.state;
+      const ql = String(q || "").toLocaleLowerCase("tr").trim();
       const ids = Object.keys(s.threads).filter(id => (s.threads[id].messages || []).length > 0);
       if (!ids.length) return `<div class="empty-note"><b>Mesaj yok</b>Mahalle çevren ve sanatçılar sana yazdığında burada görünür. "Yeni DM" ile sen de başlatabilirsin.</div>`;
 
-      const sorted = ids.sort((a, b) => {
-        const ta = s.threads[a], tb = s.threads[b];
-        return (tb.messages[tb.messages.length - 1]?.day || 0) - (ta.messages[ta.messages.length - 1]?.day || 0);
+      const showArch = !!K.phone.appById("messages")._showArchived;
+      let sorted = ids.filter(id => {
+        /* arşivlenenler listede görünmez (arama veya arşiv modu hariç) */
+        if (!ql && !showArch && K.relations.isArchived(id)) return false;
+        if (!ql) return true;
+        const a = K.artistById(id);
+        const name = a ? a.stageName.toLocaleLowerCase("tr") : "";
+        if (name.includes(ql)) return true;
+        return (s.threads[id].messages || []).some(m => String(m.text || "").toLocaleLowerCase("tr").includes(ql));
       });
 
-      return sorted.map(id => {
+      sorted.sort((a, b) => {
+        const pa = K.relations.isPinned(a) ? 1 : 0, pb = K.relations.isPinned(b) ? 1 : 0;
+        if (pa !== pb) return pb - pa;                       // sabitlenenler üstte
+        const ta = s.threads[a], tb = s.threads[b];
+        return ((tb.messages[tb.messages.length - 1] || {}).day || 0) - ((ta.messages[ta.messages.length - 1] || {}).day || 0);
+      });
+
+      const archivedCount = (s.player.dmArchived || []).length;
+      const archRow = archCountRow(archivedCount);
+      function archCountRow(n) {
+        if (!n || ql) return "";
+        return `<div class="dm-arch-row" data-pact="show-archived">📦 ${n} arşivlenmiş sohbet</div>`;
+      }
+
+      if (!sorted.length) {
+        return archRow + `<div class="empty-note"><b>Sonuç yok</b>“${U.escape(q)}” için arama sonucu çıkmadı.</div>`;
+      }
+
+      return archRow + sorted.map(id => {
         const a = K.artistById(id);
         if (!a) return "";
         const th = s.threads[id];
@@ -36648,19 +37330,156 @@ window.K = window.K || {};
         const rel = K.relation(id);
         const stage = K.stageFor(rel.affinity);
         const preview = last ? (last.from === "me" ? "Sen: " : "") + last.text : "";
+        const pinned = K.relations.isPinned(id);
+        const icon = last && last.kind === "voice" ? "🎤 " : last && last.kind === "demo" ? "🎧 " : last && last.kind === "media" ? "🖼️ " : "";
         return `<div class="dm-list-row" data-pact="open-thread" data-arg="${id}">
+          ${pinned ? `<span class="dm-pin" title="Sabitlenmiş">📌</span>` : ""}
           ${K.ui.avatar(a.stageName, 50, true)}
           <div class="grow">
             <div class="nm">${U.escape(a.stageName)}</div>
-            <div class="last">${U.escape(preview).slice(0, 46)}</div>
+            <div class="last">${icon}${U.escape(preview).slice(0, 46)}</div>
             <div style="font-size:10px;color:var(--karma-2);margin-top:2px">${U.escape(stage.label)} · ${Math.round(rel.affinity)}</div>
           </div>
           <div style="text-align:right">
             <div class="dm-time">${last ? U.ago(last.day, s.day) : ""}</div>
             ${th.unread ? `<div class="dm-unread" style="margin-top:4px">${th.unread}</div>` : ""}
           </div>
+          <button class="dm-row-more" data-pact="thread-more" data-arg="${id}" title="Seçenekler">⋯</button>
         </div>`;
       }).join("");
+    },
+
+    /* satır seçenekleri: sabitle / arşivle */
+    threadSheet(artistId) {
+      const a = K.artistById(artistId);
+      if (!a) return;
+      const pinned = K.relations.isPinned(artistId);
+      const arch = K.relations.isArchived(artistId);
+      K.ui.actionSheet(a.stageName, [
+        { label: pinned ? "📌 Sabitlemeyi kaldır" : "📌 Sabitle", onClick: () => {
+          const on = K.relations.togglePin(artistId);
+          K.toast(on ? "📌 Sabitlendi" : "Sabitleme kaldırıldı", a.stageName, "ok");
+          K.phone.reRender();
+        } },
+        { label: arch ? "📂 Arşivden çıkar" : "📦 Arşivle", onClick: () => {
+          const on = K.relations.toggleArchive(artistId);
+          K.toast(on ? "📦 Arşivlendi" : "📂 Arşivden çıkarıldı", a.stageName, "ok");
+          K.phone.reRender();
+        } },
+        { label: "🗑️ Sohbeti temizle", cls: "destructive", onClick: () => {
+          const th = K.thread(artistId);
+          th.messages = []; th.unread = 0;
+          K.save(); K.toast("🗑️ Temizlendi", a.stageName, "warn"); K.phone.reRender();
+        } }
+      ]);
+    },
+
+    /* ---------------- DM İSTEKLERİ ---------------- */
+    requestsHTML() {
+      const reqs = K.state.dmRequests || {};
+      const ids = Object.keys(reqs).filter(id => K.artistById(id));
+      if (!ids.length) {
+        return `<div class="empty-note"><b>İstek yok</b>Seni tanımayan bir sanatçı yazdığında mesaj burada görünür — kabul edersen sohbet açılır.</div>`;
+      }
+      return `<div class="dm-req-note">Tanımadığın hesaplar doğrudan sohbetlerine düşmez. Kabul edersen sohbet açılır.</div>`
+        + ids.sort((a, b) => (reqs[b].day || 0) - (reqs[a].day || 0)).map(id => {
+          const a = K.artistById(id);
+          const last = reqs[id].messages[reqs[id].messages.length - 1] || {};
+          return `<div class="dm-req">
+            <div class="dm-req-head">${K.ui.avatar(a.stageName, 44, true)}
+              <div class="grow"><div class="nm">${U.escape(a.stageName)}</div>
+              <div class="last">${U.escape(String(last.text || "").slice(0, 70))}</div></div>
+            </div>
+            <div class="dm-req-actions">
+              <button class="btn btn-sm btn-primary" data-pact="req-accept" data-arg="${id}">Kabul et</button>
+              <button class="btn btn-sm btn-ghost" data-pact="req-decline" data-arg="${id}">Sil</button>
+            </div>
+          </div>`;
+        }).join("");
+    },
+
+    /* ---------------- GRUP SOHBETLERİ ---------------- */
+    groupsHTML() {
+      const s = K.state;
+      K.relations.ensureGroups();
+      const list = Object.values(s.groups || {}).sort((a, b) => (b.lastDay || 0) - (a.lastDay || 0));
+      const body = list.length
+        ? list.map(g => {
+            const last = g.messages[g.messages.length - 1];
+            const names = (g.members || []).map(id => (K.artistById(id) || {}).stageName).filter(Boolean);
+            return `<div class="dm-list-row" data-pact="open-group" data-arg="${g.id}">
+              <div class="dm-grp-ic">👥</div>
+              <div class="grow">
+                <div class="nm">${U.escape(g.name)}</div>
+                <div class="last">${last ? U.escape((last.from === "me" ? "Sen: " : (last.fromName ? last.fromName + ": " : "")) + String(last.text || "").slice(0, 40)) : (names.length + " üye")}</div>
+              </div>
+              ${g.unread ? `<div class="dm-unread">${g.unread}</div>` : ""}
+            </div>`;
+          }).join("")
+        : `<div class="empty-note"><b>Grup yok</b>Şirket kurduğunda kadro grubu otomatik açılır; ortak projede de grup oluşur.</div>`;
+
+      return body + `<div class="dm-grp-new">
+        <button class="btn btn-sm btn-ghost" data-pact="grp-create-roster">👥 Kadro grubu oluştur</button>
+      </div>`;
+    },
+
+    groupView(groupId) {
+      const M = K.phone.appById("messages");
+      const g = K.group(groupId);
+      if (!g) return { title: "Grup", render: () => "<div class='empty-note'>Grup bulunamadı.</div>" };
+      g.unread = 0;
+      return {
+        title: g.name, sub: (g.members || []).length + " üye", shellClass: "app-messages",
+        params: { groupId },
+        composer: `<div class="dm-composer"><input type="text" data-grp-input placeholder="Gruba yaz..." /><button class="dm-send" data-pact="grp-send">↑</button></div>`,
+        render: () => {
+          const names = (g.members || []).map(id => (K.artistById(id) || {}).stageName).filter(Boolean).join(" · ");
+          return `<div class="dm-grp-members">👥 ${U.escape(names || "üye yok")}</div>`
+            + `<div class="dm-thread">${(g.messages || []).map(m => {
+              const mine = m.from === "me";
+              const who = K.artistById(m.from);
+              return `<div class="dm-bubble ${mine ? "me" : "them"}">
+                ${!mine ? `<span class="dm-grp-who">${U.escape((who || {}).stageName || m.fromName || "?")}</span>` : ""}
+                ${U.escape(m.text)}
+                <span class="dm-day">Gün ${m.day}</span>
+              </div>`;
+            }).join("") || `<div class="dm-system">Grup boş. Bir şey yaz.</div>`}</div>`;
+        },
+        onMount: (vp) => {
+          const inp = U.qs("[data-grp-input]", vp);
+          if (inp) {
+            inp.addEventListener("keydown", (e) => {
+              if (e.key === "Enter") { M._grpSend(groupId, inp.value); inp.value = ""; }
+            });
+          }
+          const body = U.qs(".app-body", vp);
+          if (body) setTimeout(() => { body.scrollTop = body.scrollHeight; }, 50);
+        },
+        onAction: (act) => {
+          if (act === "grp-send") {
+            const inp = U.qs("[data-grp-input]");
+            if (inp) { M._grpSend(groupId, inp.value); inp.value = ""; }
+          }
+        }
+      };
+    },
+
+    _grpSend(groupId, text) {
+      text = String(text || "").trim();
+      if (!text) return;
+      K.groupPost(groupId, "me", text);
+      K.phone.reRender();
+      /* bir üye kısa süre sonra cevap verebilir */
+      const g = K.group(groupId);
+      const members = (g.members || []).filter(id => K.artistById(id));
+      if (members.length && Math.random() < 0.45) {
+        const who = members[Math.floor(Math.random() * members.length)];
+        const a = K.artistById(who);
+        setTimeout(() => {
+          K.groupPost(groupId, who, K.relations.groupLine(a), { fromName: a.stageName });
+          if (K.phone.appById("messages")) K.phone.reRender();
+        }, 900 + Math.random() * 1200);
+      }
     },
 
     /* ---------------- teklifler ---------------- */
@@ -36741,6 +37560,7 @@ window.K = window.K || {};
         noAutoRefresh: true,   // sohbet kendi izleyicisiyle güncellenir (zıplama/titreme yok)
         params: { artistId },
         composer: `<div class="dm-composer">
+          <button class="dm-attach" data-pact="attach" title="Ekler">＋</button>
           <input type="text" data-dm-input placeholder="Mesaj yaz..." />
           <button class="dm-send" data-pact="send">↑</button>
         </div>`,
@@ -36748,17 +37568,32 @@ window.K = window.K || {};
           const appR = K.phone.appById("messages");
           const th = K.thread(artistId);
           const offers = K.state.offers.filter(o => o.artistId === artistId && (o.status === "pending" || (K.state.day - o.day < 4)));
+          /* v10.12 — mesaj türleri (sesli / medya / demo) + emoji tepkisi */
           const msgs = th.messages.map(m => {
             if (m.type === "system") return `<div class="dm-system">${U.escape(m.text)}</div>`;
             const status = m.from === "me"
               ? `<span class="dm-status ${m.seen ? "seen" : ""}">${m.seen ? "✓✓ Görüldü" : "✓ İletildi"}</span>`
               : "";
             const quote = m.replyTo ? `<div class="dm-reply-quote">↩ ${U.escape(m.replyTo)}</div>` : "";
-            const tap = m.from === "them" ? ` data-pact="msg-actions" data-arg="${m.id}"` : "";
-            return `<div class="dm-bubble ${m.from === "me" ? "me" : "them"}"${tap}>
-              ${quote}
-              ${U.escape(m.text)}
-              <span class="dm-day">${status} Gün ${m.day}</span>
+            const tap = ` data-pact="msg-actions" data-arg="${m.id}"`;
+
+            let inner = U.escape(m.text);
+            if (m.kind === "voice") {
+              const sec = m.voiceSeconds || 0;
+              inner = `<span class="dm-voice"><i class="dvv">▶</i>`
+                + `<span class="dvv-bars">${Array.from({ length: 14 }, () => `<b style="height:${4 + Math.round(Math.random() * 12)}px"></b>`).join("")}</span>`
+                + `<span class="dvv-t">${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}</span></span>`
+                + `<span class="dvv-tx">${U.escape(m.text)}</span>`;
+            } else if (m.kind === "media" || m.kind === "demo") {
+              inner = `<span class="dm-media">`
+                + (m.art ? `<span class="dmm-art" style="background-image:url('${m.art}')"></span>` : `<span class="dmm-art dmm-ph">🎵</span>`)
+                + `<span class="dmm-info"><b>${U.escape(m.songTitle || m.text || "")}</b>`
+                + `<i>${m.kind === "demo" ? "Demo gönderildi" : "Şarkı paylaşıldı"}</i></span></span>`;
+            }
+
+            const react = m.reaction ? `<span class="dm-react">${m.reaction}</span>` : "";
+            return `<div class="dm-bubble ${m.from === "me" ? "me" : "them"} ${m.kind || ""}"${tap}>
+              ${quote}${inner}<span class="dm-day">${status} Gün ${m.day}</span>${react}
             </div>`;
           }).join("");
           const typing = rel._typing ? `<div class="dm-bubble them typing"><i></i><i></i><i></i></div>` : "";
@@ -36830,17 +37665,102 @@ window.K = window.K || {};
           else if (act === "msg-actions") {
             const m = K.thread(artistId).messages.find(x => x.id === el.dataset.arg);
             if (!m) return;
-            K.ui.actionSheet("Mesaj", [
-              { label: "↩ Yanıtla", onClick: () => { app._reply = { artistId, msgId: m.id, text: m.text }; K.phone.reRender(); } },
-              { label: "📋 Kopyala", onClick: () => K.toast("📋 Kopyalandı", "", "ok") },
-              { label: "✕ Kapat", onClick: () => {} }
-            ]);
+            const REACTS = ["❤️", "🔥", "😂", "👍", "😮"];
+            K.ui.actionSheet("Mesaj", []
+              .concat(REACTS.map(em => ({
+                label: em + " Tepki ver",
+                onClick: () => { K.relations.reactToMessage(artistId, m.id, em); K.phone.reRender(); }
+              })))
+              .concat([
+                { label: "↩ Yanıtla", onClick: () => { app._reply = { artistId, msgId: m.id, text: m.text }; K.phone.reRender(); } },
+                { label: "📋 Kopyala", onClick: () => K.toast("📋 Kopyalandı", "", "ok") }
+              ]));
           }
+          else if (act === "attach") app.attachSheet(artistId);
+          else if (act === "send-demo") app.demoPicker(artistId);
+          else if (act === "send-media") app.mediaPicker(artistId);
+          else if (act === "send-voice") app.voicePicker(artistId);
           else if (act === "reply-cancel") { app._reply = null; K.phone.reRender(); }
           else if (act === "offer-accept") { K.relations.respondOffer(el.dataset.arg, true); K.phone.reRender(); }
           else if (act === "offer-decline") { K.relations.respondOffer(el.dataset.arg, false); K.phone.reRender(); }
         }
       };
+    },
+
+    /* ---------------- ekler: demo / medya / sesli mesaj ---------------- */
+    attachSheet(artistId) {
+      K.ui.actionSheet("Ne göndermek istersin?", [
+        { label: "🎧 Demo gönder", onClick: () => K.phone.appById("messages").demoPicker(artistId) },
+        { label: "🖼️ Şarkı/kapak paylaş", onClick: () => K.phone.appById("messages").mediaPicker(artistId) },
+        { label: "🎤 Sesli mesaj", onClick: () => K.phone.appById("messages").voicePicker(artistId) }
+      ]);
+    },
+
+    demoPicker(artistId) {
+      const M = K.phone.appById("messages");
+      const songs = K.state.player.songs || [];
+      if (!songs.length) { K.toast("Şarkın yok", "Önce bir şarkı yayınla.", "warn"); return; }
+      const a = K.artistById(artistId) || {};
+      K.phone.pushView({
+        title: "Demo gönder", sub: "Kime: " + (a.stageName || ""), shellClass: "app-messages",
+        render: () => `<div class="dm-hint">Sanatçı demoyu birkaç gün içinde dinler. Kalite ve samimiyet ne kadar yüksekse açılma ihtimali o kadar artar — ama garanti yok.</div>`
+          + songs.slice().reverse().map(sg => `<div class="p-row" data-pact="demo-send" data-arg="${sg.id}|${artistId}">
+              ${K.ui.cover(sg.coverSeed || sg.id, "🎧", 46, sg.art)}
+              <div class="grow"><div class="p-title">${U.escape(sg.title)}</div>
+              <div class="p-sub">Kalite ${Math.round(sg.quality || 0)}/100 · ${U.escape(sg.genre || "")}</div></div>
+              <span style="color:var(--text-3)">›</span>
+            </div>`).join(""),
+        onAction: (act, el) => {
+          if (act !== "demo-send") return;
+          const parts = String(el.dataset.arg).split("|");
+          const res = K.relations.sendDemo(parts[1], parts[0]);
+          if (!res.ok) { K.toast("Gönderilemedi", "", "warn"); return; }
+          K.toast("🎧 Demo gönderildi", `Dinlenmesi ~${res.days} gün sürebilir.`, "ok");
+          K.phone.back();
+          K.phone.reRender();
+        }
+      });
+    },
+
+    mediaPicker(artistId) {
+      const songs = (K.state.player.songs || []).filter(s => s.art);
+      if (!songs.length) { K.toast("Kapak yok", "Kapağı olan bir şarkın yok.", "warn"); return; }
+      K.phone.pushView({
+        title: "Şarkı paylaş", sub: "Kapağıyla birlikte gider", shellClass: "app-messages",
+        render: () => songs.slice().reverse().slice(0, 12).map(sg => `<div class="p-row" data-pact="media-send" data-arg="${sg.id}|${artistId}">
+            ${K.ui.cover(sg.coverSeed || sg.id, "🖼️", 46, sg.art)}
+            <div class="grow"><div class="p-title">${U.escape(sg.title)}</div>
+            <div class="p-sub">Albüm kapağıyla gönder</div></div>
+            <span style="color:var(--text-3)">›</span>
+          </div>`).join(""),
+        onAction: (act, el) => {
+          if (act !== "media-send") return;
+          const parts = String(el.dataset.arg).split("|");
+          if (K.relations.sendMedia(parts[1], parts[0])) {
+            K.toast("🖼️ Paylaşıldı", "", "ok");
+            K.phone.back(); K.phone.reRender();
+          }
+        }
+      });
+    },
+
+    voicePicker(artistId) {
+      /* sesli mesaj metne dökülür; sanatçı ona göre cevap verir */
+      K.ui.modal({
+        title: "🎤 Sesli mesaj", desc: "Kayıt metne dökülür ve gönderilir.",
+        body: K.ui.field("Söyleyeceklerin", `<textarea id="dm-voice-tx" rows="3" placeholder="Kısaca ne söylüyorsun?">Selam, sesli not bırakıyorum. Yeni iş üstünde çalışıyorum, bir ara konuşalım.</textarea>`),
+        actions: [
+          { label: "Vazgeç" },
+          { label: "Gönder", cls: "btn-primary", onClick: () => {
+            const tx = (U.qs("#dm-voice-tx") || {}).value || "";
+            if (!tx.trim()) { K.toast("Boş mesaj", "", "warn"); return; }
+            const sec = Math.max(4, Math.min(60, Math.round(tx.length / 12) + 3));
+            K.relations.sendVoice(artistId, sec, tx.trim());
+            K.toast("🎤 Sesli mesaj", sec + " sn gönderildi.", "ok");
+            K.phone.reRender();
+          } }
+        ]
+      });
     },
 
     send(artistId, text) {
