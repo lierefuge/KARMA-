@@ -524,6 +524,11 @@
          Doygunluk biriktikçe aynı güçteki yayın daha az dalga üretir:
          bu yüzden sürekli yayın yapan sanatçı bir noktada PLATO yapar,
          ara veren ise düşer. ("yüksel → zirve → düş") */
+      /* v10.21 — ÇIKIŞ HAFTASI: ön kayıt + teaser hype'ı yayın anında
+         dinlenme ivmesine dönüşür ve şarkıda İLK HAFTA penceresi açılır.
+         (systems/rollout.js — modele ekleme yapar, mevcut akışı bozmaz.) */
+      if (K.rollout && K.rollout.onPublish) K.rollout.onPublish(rel, songs);
+
       const avgQ = songs.length ? U.sum(songs, x => x.quality || 50) / songs.length : 50;
       K.game.bumpAttention(U.clamp(
         0.28 + avgQ / 200 + (rel.marketing || 0) / 420000 + (rel.agenda && rel.agenda.score ? 0.12 : 0),
