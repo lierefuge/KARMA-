@@ -4780,6 +4780,200 @@ body.hide-values .brand-sub::after {
 }
 
 </style>
+<!-- v10.20 — uygulama kimlikleri (Spotify/Apple/YouTube marka dili + YouTube dikey akış) -->
+<style>
+/* ==== css/apps-identity.css ==== */
+/* ============================================================
+   KARMA — css/apps-identity.css   (v10.20)
+   UYGULAMA KİMLİKLERİ: Spotify · Apple Music · YouTube
+
+   Neden ayrı dosya?
+   -----------------
+   Uygulamalar işlevsel olarak doluydu ama hepsi AYNI genel telefon
+   kalıbını kullanıyordu: aynı koyu gradyan, aynı kart ölçüsü, aynı
+   tipografi. Gerçek uygulamaları ayırt eden şey "kimlik"tir:
+   renk rampası, yüzey tonu, kart biçimi, tipografi ağırlığı.
+
+   Bu dosya her uygulamanın GERÇEK kimliğini uygular:
+     Spotify      → #121212 zemin · #1DB954 yeşil · #181818 kart
+                    (yeşil YALNIZCA çalma/ilerleme; sekme aktifken beyaz)
+     Apple Music  → #000 zemin · #FA233B kırmızı · #1C1C1E kart
+     YouTube      → #0F0F0F zemin · #FF0000 kırmızı · #272727 çip
+                    ve EN ÖNEMLİSİ: video kartları TAM GENİŞLİK 16:9
+
+   YouTube yapısal düzeltmesi
+   --------------------------
+   Eski hâlde .yt-video bir YATAY SATIRDI: solda 118×66 küçük thumbnail,
+   sağda metin. Gerçek YouTube mobilde ise akış tamamen farklıdır:
+   kenardan kenara 16:9 görsel, ALTINDA kanal avatarı + başlık + meta.
+   Bu tek değişiklik uygulamayı "YouTube gibi" hissettiren en büyük fark.
+   ============================================================ */
+
+/* ============================================================
+   1) ORTAK: alt sekme çubuğu (her uygulama kendi aktif rengini verir)
+   ============================================================ */
+.seg-bottom {
+  background: rgba(8, 8, 10, .97);
+  padding: 8px 4px 12px;
+}
+.seg-bottom button { font-size: 10px; font-weight: 700; letter-spacing: .1px; }
+.seg-bottom .tb-ic { font-size: 20px; }
+
+/* ============================================================
+   2) YOUTUBE  —  #0F0F0F · #FF0000 · tam genişlik 16:9
+   ============================================================ */
+.app-youtube { background: #0f0f0f; }
+.app-youtube .app-nav { background: rgba(15, 15, 15, .98); border-bottom-color: rgba(255,255,255,.08); }
+.app-youtube .app-body { padding: 0 0 12px; gap: 0; }
+
+/* --- video kartı: DİKEY, tam genişlik --- */
+.app-youtube .yt-video {
+  display: block;
+  padding: 0;
+  margin: 0 0 16px;
+  border-radius: 0;
+  gap: 0;
+  background: none;
+}
+.app-youtube .yt-video:hover,
+.app-youtube .yt-video:active { background: none; }
+
+.app-youtube .yt-thumb {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 0;              /* akışta kenardan kenara */
+  flex: none;
+}
+/* gerçek YouTube akışında thumbnail üstünde oynat üçgeni YOKTUR */
+.app-youtube .yt-thumb .play-tri { display: none; }
+.app-youtube .yt-thumb .dur {
+  right: 8px; bottom: 8px;
+  background: rgba(0, 0, 0, .82);
+  font-size: 11px; font-weight: 700;
+  padding: 2px 5px; border-radius: 4px;
+  letter-spacing: .2px;
+}
+
+/* --- metin bloğu: avatar + başlık + meta --- */
+.app-youtube .yt-video .grow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px 0;
+}
+.app-youtube .yt-av {
+  width: 36px; height: 36px; border-radius: 50%;
+  flex: 0 0 auto; overflow: hidden;
+  display: grid; place-items: center;
+  font-size: 14px; font-weight: 800; color: #0b0b0e;
+}
+.app-youtube .yt-txt { flex: 1; min-width: 0; }
+/* gerçek YouTube başlıkları 500 ağırlıktır, 700 değil */
+.app-youtube .yt-video .vt {
+  font-size: 14px; font-weight: 500; line-height: 1.35;
+  letter-spacing: -.1px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.app-youtube .yt-video .vm {
+  font-size: 12px; color: #aaa; margin-top: 5px;
+  letter-spacing: .1px;
+}
+.app-youtube .yt-video .t-more { align-self: flex-start; color: #aaa; }
+
+/* --- filtre çipleri: koyu gri hap, aktif = beyaz zemin --- */
+.app-youtube .fchip {
+  background: #272727; border-color: transparent;
+  color: #f1f1f1; font-weight: 600;
+  padding: 7px 13px; border-radius: 8px;
+}
+.app-youtube .fchip.active { background: #f1f1f1; color: #0f0f0f; border-color: transparent; }
+
+/* --- arama alanı --- */
+.app-youtube .p-search { background: rgba(255,255,255,.10); border-color: transparent; border-radius: 999px; }
+
+/* --- alt sekme: aktif sekme BEYAZ (kırmızı yalnızca marka canlı rozeti) --- */
+.app-youtube .seg-bottom button.active { color: #fff; }
+
+/* ============================================================
+   3) SPOTIFY  —  #121212 · #1DB954 · #181818
+   ============================================================ */
+.app-spotify { background: #121212; }
+.app-spotify .app-nav { background: rgba(18, 18, 18, .96); border-bottom-color: rgba(255,255,255,.06); }
+/* gerçek Spotify'da yeşil YALNIZCA çalma ve ilerlemede kullanılır */
+.app-spotify .seg-bottom button.active { color: #fff; }
+
+/* hero: ağır gradyan yerine sade yüzey + yeşil selamlama */
+.app-spotify .sp-hero {
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, .05);
+  border-radius: 10px;
+  padding: 16px;
+}
+.app-spotify .sp-hero .h-title { font-weight: 800; letter-spacing: -.3px; }
+
+/* hızlı erişim: gerçek Spotify 2 sütunlu küçük kutucuk ızgarası kullanır */
+.app-spotify .sp-quick-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.app-spotify .sp-quick {
+  background: #2a2a2a;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.app-spotify .sp-quick:hover { background: #333; }
+
+/* kartlar */
+.app-spotify .sp-pl-card { background: #181818; border-radius: 8px; padding: 12px; }
+.app-spotify .sp-pl-card:hover { background: #282828; }
+.app-spotify .sp-pl-art { border-radius: 6px; }
+.app-spotify .sp-pl-name { font-weight: 700; letter-spacing: -.2px; }
+.app-spotify .sp-pl-desc { color: #a7a7a7; }
+
+/* satırlar: gerçek Spotify satır yüksekliği ve gri ikincil metin */
+.app-spotify .sp-track { border-radius: 6px; padding: 6px; }
+.app-spotify .sp-track:hover { background: rgba(255, 255, 255, .06); }
+.app-spotify .sp-track .t-name { font-weight: 600; }
+.app-spotify .sp-track .t-artist { color: #a7a7a7; }
+.app-spotify .sp-track .t-plays { color: #a7a7a7; font-variant-numeric: tabular-nums; }
+.app-spotify .sp-section-title { font-weight: 800; letter-spacing: -.3px; }
+
+/* ============================================================
+   4) APPLE MUSIC  —  #000 · #FA233B · #1C1C1E
+   ============================================================ */
+.app-applemusic { background: #000; }
+.app-applemusic .app-nav { background: rgba(0, 0, 0, .94); border-bottom-color: rgba(255,255,255,.08); }
+.app-applemusic .seg-bottom button.active { color: #fa233b; }
+
+.app-applemusic .am-hero {
+  background: linear-gradient(160deg, #2a2a2e, #131316);
+  border: 1px solid rgba(255, 255, 255, .07);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+}
+.app-applemusic .am-mood,
+.app-applemusic .am-station,
+.app-applemusic .am-genre { background: #1c1c1e; border-radius: 10px; }
+.app-applemusic .am-mood:hover,
+.app-applemusic .am-station:hover { background: #2c2c2e; }
+.app-applemusic .am-mood-grid { gap: 10px; }
+.app-applemusic .am-section-title { font-weight: 800; letter-spacing: -.3px; }
+
+/* Apple Music'in imzası: büyük, yumuşak gölgeli albüm kapağı */
+.app-applemusic .sp-track { border-radius: 8px; }
+.app-applemusic .sp-track:hover { background: rgba(255, 255, 255, .06); }
+
+/* ============================================================
+   5) MOBİL: tam genişlik görsellerde çentik/güvenli alan payı
+   ============================================================ */
+@container phone (max-width: 360px) {
+  .app-youtube .yt-video .grow { gap: 10px; padding: 10px 11px 0; }
+  .app-youtube .yt-av { width: 32px; height: 32px; font-size: 13px; }
+  .app-youtube .yt-video .vt { font-size: 13px; }
+  .app-youtube .yt-video .vm { font-size: 11px; }
+  .app-spotify .sp-quick-grid { gap: 7px; }
+}
+
+</style>
 <!-- mobil/dokunmatik katman: EN SON yüklenir ki altta kalan 25 dosyayı ezebilsin -->
 <style>
 /* ==== css/mobile.css ==== */
@@ -5256,7 +5450,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.19.0";
+  K.VERSION = "10.20.0";
   K.VERSION_DATE = "2026-09-29";
 })(window.K = window.K || {});
 
@@ -27039,18 +27233,33 @@ window.K = window.K || {};
 
   const U = K.util;
 
+  /* v10.20 — GERÇEK YOUTUBE YERLEŞİMİ
+     Eskiden bu bir YATAY SATIRDI (solda 118×66 küçük görsel, sağda metin).
+     Gerçek YouTube mobilde akış dikeydir: kenardan kenara 16:9 görsel,
+     ALTINDA kanal avatarı + başlık + meta (kanal · görüntülenme · zaman).
+     Yapısal değişiklik CSS'te (css/apps-identity.css), burada yalnızca
+     avatar ve metin sarmalayıcısı eklenir. */
   function videoRow(v, channelName, channelId) {
     const bg = v.art ? `background-image:url('${v.art}');background-size:cover;background-position:center` : `background:${U.gradientFor(v.coverSeed || v.title)}`;
+    const initial = String(channelName || "?").trim().charAt(0).toUpperCase() || "?";
+    const av = channelId
+      ? K.ui.artistAvatar(channelId, 36, true)
+      : `<span class="yt-av" style="background:${U.gradientFor(channelName || "yt")}">${U.escape(initial)}</span>`;
+    const mins = Math.floor((v.duration || 180) / 60);
+    const secs = String((v.duration || 180) % 60).padStart(2, "0");
     return `<div class="yt-video" data-pact="watch" data-arg="${U.escape(v.id || v.title)}|${U.escape(channelName)}|${channelId || ""}|${v.views}">
       <div class="yt-thumb" style="${bg}">
         <div class="play-tri"></div>
-        <span class="dur">${Math.floor((v.duration || 180) / 60)}:${String((v.duration || 180) % 60).padStart(2, "0")}</span>
+        <span class="dur">${mins}:${secs}</span>
       </div>
-      <div class="grow" style="min-width:0">
-        <div class="vt">${U.escape(v.title)}</div>
-        <div class="vm">${U.escape(channelName)} · ${U.views(v.views)} · ${v.day ? U.ago(v.day, K.state.day) : "yakın zamanda"}</div>
+      <div class="grow">
+        ${av}
+        <div class="yt-txt">
+          <div class="vt">${U.escape(v.title)}</div>
+          <div class="vm">${U.escape(channelName)} · ${U.views(v.views)} · ${v.day ? U.ago(v.day, K.state.day) : "yakın zamanda"}</div>
+        </div>
+        <button class="t-more" data-pact="yt-more" data-arg="${U.escape(v.id)}|${U.escape(channelId || "")}" title="Diğer">⋯</button>
       </div>
-      <button class="t-more" data-pact="yt-more" data-arg="${U.escape(v.id)}|${U.escape(channelId || "")}" title="Diğer">⋯</button>
     </div>`;
   }
 
