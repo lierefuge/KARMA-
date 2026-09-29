@@ -1,0 +1,150 @@
+#!/usr/bin/env node
+/* ============================================================
+   KARMA — tools/verify.js   (v10.18)
+
+   TEK KOMUTTA TAM DOĞRULAMA.  `npm run verify`
+
+   Sırayla şunları yapar ve herhangi biri başarısız olursa 1 döner:
+     1) ÖNBİLEK SÜRÜMÜ      : index.html içindeki ?v= içerik hash'iyle uyumlu mu?
+     2) TEK DOSYA BUILD      : geçici dosyaya üretilir (çalışma ağacı bozulmaz)
+     3) BUILD GÜNCEL Mİ      : üretilen build, depodaki KARMA-Oyun.html ile
+                               bayt bayt aynı mı? (Build'i güncellemeyi unutmayı
+                               yapısal olarak imkânsız kılar)
+     4) TEST PAKETLERİ       : tooling · mobile · lazy · balance · personality · apps · social
+     5) DENGE SİMÜLASYONU    : YÜKSEK önem bulgusu var mı?
+     6) RUNTIME SAĞLIĞI      : süitlerde beklenmedik çıktı var mı?
+
+   Neden ayrı bir araç?
+   --------------------
+   Bu projede doğrulanmamış bir güncelleme dört kez canlıya çıktı (v10.14–v10.17
+   arasında). Sorun güncelleme sayısı değil, DOĞRULANMAMIŞ güncellemeydi. Bu
+   araç yerelde tek komuta, CI'da ise her push'ta aynı zinciri çalıştırır.
+   ============================================================ */
+const { spawnSync } = require("child_process");
+const fs = require("fs");
+const path = require("path");
+const os = require("os");
+
+const ROOT = path.resolve(__dirname, "..");
+const node = process.execPath;
+
+const results = [];
+function record(name, ok, detail) {
+  results.push({ name, ok, detail: detail || "" });
+  const mark = ok ? "✅" : "❌";
+  console.log(mark + " " + name + (detail ? "  — " + detail : ""));
+}
+
+function run(args, opts) {
+  const o = opts || {};
+  const r = spawnSync(node, args, {
+    cwd: ROOT, encoding: "utf8",
+    maxBuffer: 64 * 1024 * 1024,
+    env: process.env
+  });
+  return {
+    code: r.status == null ? 1 : r.status,
+    out: (r.stdout || "") + (r.stderr || "")
+  };
+}
+
+console.log("============================================");
+console.log("KARMA · TAM DOĞRULAMA (12 adım)");
+console.log("============================================\n");
+
+/* ---------- 1) önbellek sürümü ---------- */
+{
+  const r = run(["tools/bump-cache.js", "--check"]);
+  const line = r.out.trim().split("\n").filter(Boolean).pop() || "";
+  record("Önbellek sürümü güncel", r.code === 0, line.replace(/^[✅❌]\s*/, ""));
+  if (r.code !== 0) {
+    console.log("   ⚠️  Düzeltme: node tools/bump-cache.js\n");
+  }
+}
+
+/* ---------- 2) build (geçici dosyaya) ---------- */
+const tmpOut = path.join(os.tmpdir ? os.tmpdir() : "/tmp", "karma-verify-" + process.pid + ".html");
+let built = false;
+{
+  const r = run(["tools/build-single.js", tmpOut]);
+  built = r.code === 0 && fs.existsSync(tmpOut);
+  const size = built ? (fs.statSync(tmpOut).size / 1024).toFixed(1) + " KB" : "";
+  record("Tek dosya build üretildi", built, size);
+  if (!built) console.log(r.out.trim().split("\n").slice(-6).join("\n"));
+}
+
+/* ---------- 3) build güncel mi ---------- */
+{
+  const committed = path.join(ROOT, "KARMA-Oyun.html");
+  if (!built) {
+    record("Build güncel (bayt bayt aynı)", false, "build üretilemedi");
+  } else if (!fs.existsSync(committed)) {
+    record("Build güncel (bayt bayt aynı)", false, "KARMA-Oyun.html yok");
+  } else {
+    const a = fs.readFileSync(tmpOut);
+    const b = fs.readFileSync(committed);
+    const same = a.length === b.length && a.equals(b);
+    record("Build güncel (bayt bayt aynı)", same,
+      same ? (a.length / 1024).toFixed(1) + " KB"
+           : "DEPODAKİ BUILD BAYAT — `node tools/build-single.js` çalıştırın");
+  }
+  try { fs.unlinkSync(tmpOut); } catch (e) {}
+}
+
+/* ---------- 4) test paketleri ---------- */
+const SUITES = [
+  /* altyapı en önce: CI/sürüm/motor-veri ayrımı bozuksa diğer adımların
+     sonucu da anlamsızlaşır (hızlıdır, ~50 ms) */
+  { id: "tooling",     script: "tools/smoke-tooling.js",     label: "Geliştirme altyapısı" },
+  { id: "mobile",      script: "tools/smoke-mobile.js",      label: "Mobil katman" },
+  { id: "lazy",        script: "tools/smoke-lazy.js",        label: "Tembel veri katmanı" },
+  { id: "balance",     script: "tools/smoke-balance.js",     label: "Kariyer eğrisi" },
+  { id: "personality", script: "tools/smoke-personality.js", label: "Kişilik katmanı" },
+  { id: "apps",        script: "tools/smoke-apps.js",        label: "Uygulamalar" },
+  { id: "social",      script: "tools/smoke-social.js",      label: "Sosyal medya + diskografi" }
+];
+
+const suiteOut = {};
+for (const s of SUITES) {
+  const r = run([s.script]);
+  suiteOut[s.id] = r.out;
+  /* "Geçen: 41 · Kalan: 0" veya "Hata sayısı: 0" satırını özetle */
+  const m = r.out.match(/Geçen:\s*(\d+)\s*·\s*Kalan:\s*(\d+)/);
+  const m2 = r.out.match(/Hata sayısı:\s*(\d+)/);
+  let detail = "";
+  if (m) detail = m[1] + " geçti" + (m[2] !== "0" ? " · " + m[2] + " KALDI" : "");
+  else if (m2) detail = "0 hata" + "";
+  else detail = "özet okunamadı";
+  if (r.code !== 0 && !detail.includes("KALDI")) detail += " (çıkış kodu " + r.code + ")";
+  record(s.label, r.code === 0, detail);
+}
+
+/* ---------- 5) denge simülasyonu ---------- */
+{
+  const r = run(["tools/sim-balance.js"]);
+  const high = (r.out.match(/🔴/g) || []).length;
+  const med = (r.out.match(/🟠/g) || []).length;
+  record("Denge simülasyonu (YÜKSEK bulgu yok)", r.code === 0 && high === 0,
+    high + " yüksek · " + med + " orta");
+}
+
+/* ---------- 6) runtime sağlığı ---------- */
+{
+  /* süitlerin hiçbirinde "test çöktü" veya yakalanmamış hata olmamalı */
+  const bad = Object.keys(suiteOut).filter((k) => /test çöktü|ReferenceError|TypeError:/.test(suiteOut[k]));
+  record("Süitlerde yakalanmamış hata yok", bad.length === 0,
+    bad.length ? bad.join(", ") : "temiz");
+}
+
+/* ---------- özet ---------- */
+const failed = results.filter((r) => !r.ok);
+console.log("\n============================================");
+console.log("SONUÇ: " + (results.length - failed.length) + "/" + results.length + " adım geçti");
+if (failed.length) {
+  console.log("BAŞARISIZ ADIMLAR:");
+  failed.forEach((f) => console.log("   · " + f.name + (f.detail ? " — " + f.detail : "")));
+  console.log("============================================");
+  process.exit(1);
+}
+console.log("✅ HER ŞEY TEMİZ — yayına hazır");
+console.log("============================================");
