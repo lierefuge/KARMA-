@@ -249,7 +249,7 @@
         licenseId: license.id, licensePoints: license.points, exclusiveBeat: license.exclusive,
         sampleClearance: (beatId === "sample"),
         featureShare: opts.featWith ? U.clamp(opts.featureShare != null ? +opts.featureShare : 50, 10, 100) : 100,
-        beatQuality, vocalQuality, mixQuality,
+        beatQuality, vocalQuality, mixQuality, beatBoost,
         conceptId, cohesion, dissTarget,
         agenda: { score: agenda.score, hits: agenda.hits.map(h => ({ id: h.id, cat: h.cat, title: h.title, heat: h.heat, gain: h.gain })) },
         lyrics: {
@@ -339,6 +339,27 @@
           trackNo: i + 1,
           budget: (rel.trackBudgets && rel.trackBudgets[i] != null) ? rel.trackBudgets[i] : rel.budget,
           trackBudgets: rel.trackBudgets || null,
+          /* v10.13 — ALT PUANLAR ARTIK SAKLANIYOR
+             Eskiden şarkı yalnızca tek bir `quality` taşıyordu; beat /
+             vokal / mix puanları ve hook gücü kaydedilmiyordu. İki sonucu
+             vardı: (1) demo gönderiminde sanatçı neye baktığına göre
+             değerlendirme yapamıyordu, (2) `K.econ.skipRateFor()` bu
+             alanları okuduğu için 30 sn atlama oranı hep VARSAYILAN
+             değerlerle hesaplanıyordu. Artık gerçek üretim parametreleri
+             şarkıya yazılıyor. */
+          beatQuality: U.clamp((rel.beatQuality != null ? rel.beatQuality : 50) + (rel.beatBoost || 0), 0, 100),
+          vocalQuality: U.clamp(rel.vocalQuality != null ? rel.vocalQuality : 50, 0, 100),
+          mixQuality: U.clamp(rel.mixQuality != null ? rel.mixQuality : 50, 0, 100),
+          /* hook gücü: vokal tarzı + parça türü + genel kalite karışımı */
+          hookStrength: U.clamp(
+            K.vocalById(rel.vocalId).mass * 38
+            + kindDef.mass * 30
+            + quality * 0.34
+            + (K.vocalById(rel.vocalId).qAdd > 0 ? 5 : 0), 0, 100),
+          /* giriş uzunluğu (saniye): türe göre değişir */
+          introLength: ({
+            freestyle: 3, diss: 4, normal: 8, remix: 6, live: 6, acoustic: 11
+          })[rel.kind || "normal"] || 8,
           marketing: rel.marketing,
           producerPoints: rel.licensePoints || 0,
           revenueShare: (rel.featureShare != null ? rel.featureShare / 100 : 1),
