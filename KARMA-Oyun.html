@@ -1,7 +1,7 @@
 <!--
-  KARMA — önbellek (cache) sürüm etiketi: 10.6
-  Yerel css/ ve js/ dosyalarının sonunda ?v=10.6 bulunur.
-  Yeni bir güncelleme yayınlarken bu numarayı artırın (ör. ?v=10.6).
+  KARMA — önbellek (cache) sürüm etiketi: 10.9
+  Yerel css/ ve js/ dosyalarının sonunda ?v=10.9 bulunur.
+  Yeni bir güncelleme yayınlarken bu numarayı artırın (ör. ?v=10.9).
   Böylece tarayıcı eski kopyayı kullanmaz; mobilde cache temizlemek gerekmez.
 -->
 <!DOCTYPE html>
@@ -17429,7 +17429,17 @@ window.K = window.K || {};
 
       /* etki: küçük sanatçıda oransal sıçrama büyük, yıldızda küçük */
       const big = (a.popularity || 50) >= 75;
-      const gain = big ? U.rand(0.04, 0.11) : U.rand(0.10, 0.32);
+      let gain = big ? U.rand(0.04, 0.11) : U.rand(0.10, 0.32);
+
+      /* OYUNCUNUN ŞİRKETİNDEYSE: gerçek destek.
+         Şirket gücü + personel → daha büyük sıçrama; yani "kadroya
+         almak" somut bir getiri sağlar (eskiden sadece rastgele büyüyordu). */
+      const onMyRoster = !!(s.label && a.labelId === "my_label");
+      if (onMyRoster) {
+        const support = 1 + Math.min(0.5, K.label.power() / 250) +
+          (K.label.staffLevel("producer") || 0) * 0.05 + (K.label.staffLevel("pr") || 0) * 0.04;
+        gain *= support;
+      }
       a._boost = Math.min(0.6, (a._boost || 0) + gain);
       a.popularity = U.clamp((a.popularity || 50) + (big ? U.rand(0.3, 1.1) : U.rand(0.6, 2.4)), 30, 99);
       a.monthly = Math.round(a.monthly * (1 + gain));
@@ -17438,6 +17448,18 @@ window.K = window.K || {};
       const gap = Math.round(U.rand(50, 150) * (1.7 - (a.popularity || 50) / 100));
       a._nextRelease = s.day + gap;
       a.lastReleaseDay = s.day;
+
+      /* şirket etiketiyle çıktıysa şirket kataloğuna yaz */
+      if (onMyRoster) {
+        s.label.catalog = s.label.catalog || [];
+        s.label.catalog.unshift({ title: song.title, artistId: a.id, day: s.day });
+        s.label.catalog = s.label.catalog.slice(0, 60);
+        s.notifications = (s.notifications || []).concat([{
+          title: "🏢 Şirket yayını",
+          msg: `${a.stageName} — "${song.title}" şirketin etiketiyle çıktı.`,
+          kind: "ok", day: s.day
+        }]).slice(-60);
+      }
 
       s.industry.log.unshift({ day: s.day, artistId: a.id, artistName: a.stageName, title: song.title, art: song.art });
       s.industry.log = s.industry.log.slice(0, 40);
@@ -21331,11 +21353,14 @@ window.K = window.K || {};
     ]
   };
 
-  function selamPool(gf, prof, stage, short) {
+  function selamPool(gf, prof, stage, short, artist) {
     if (prof && prof.selam && prof.selam[gf] && prof.selam[gf].length) return prof.selam[gf];
     if (gf === "islamic") return short ? SELAM.shortIslamic : SELAM.islamic;
     if (gf === "reply") return SELAM.reply;
-    return basePools("greet", stage);
+    /* DÜZELTME (v10.8): selamlama yolu tür/kıdem katmanını ATLIYORDU,
+       bu yüzden profil olmayan 25 sanatçı yine aynı genel cümleleri
+       kuruyordu. Artık selamlama da sanatçının ses katmanını kullanır. */
+    return poolFor("greet", stage, prof, artist);
   }
 
   /* ------------- niyet sözlüğü ------------- */
@@ -22074,8 +22099,74 @@ window.K = window.K || {};
   };
 
   /* profil varsa onun havuzunu, yoksa temel havuzu kullan */
-  function poolFor(intent, S, prof) {
+  /* ============================================================
+     v10.8 GERÇEKLİK DÜZELTMESİ — SES KATMANLARI
+     Eskiden 36 sanatçıdan 25'i (Sıla, Edis, UZI, Blok3, Cakal,
+     Lvbel C5, Hadise dışındakiler…) AYNI genel havuzdan konuşuyordu:
+     1980'lerden gelen bir ekol ile 24 yaşındaki drill sanatçısı
+     birebir aynı cümleyi kuruyordu. Artık kişisel profil yoksa
+     sırayla şu katmanlar devreye girer:
+       1) sanatçının kendi ağızı (PROFILES)
+       2) 40+ yaş → kıdemli tonu
+       3) tür havuzu (trap · drill · rap · pop · rnb · indie)
+       4) genel havuz
+     Böylece 25 sanatçı da birbirinden ayrışır. */
+  const VET_CHAT = {
+    greet: ["Selam, iyi ki yazdın.", "Selam kardeşim, naber?", "Selam, otur anlat."],
+    howareyou: ["İyiyim, yıllardır aynı düzen: stüdyo, ev, sahne. Sen?", "Fena değil, bu iş bitmez. Sen nasılsın?", "İyiyim, gençlerin işlerini dinliyorum. Sen?"]
+  };
+  const GENRE_CHAT = {
+    trap: {
+      greet: ["Selam kanka, naber?", "Lan naber, iyi misin?", "Selam, kayıttaydım."],
+      howareyou: ["İyiyim, gece çalışıyorum sürekli. Sen?", "İdare eder, sesle uğraşıyorum. Sen napıyon?", "İyiyim ya, kayıt bitti sayılır. Sen?"],
+      music: ["Bir şey pişiyor ama acele etmiyorum.", "Sound oturduğunda çıkacak, acele yok.", "Beat seçmek işin yarısı zaten."],
+      career: ["Bol kayıt, az beklenti. Gerisi geliyor.", "Sabır. İlk yıl kimse dinlemiyor, sonra dönüyor.", "Kendi sound'unu bul, gerisi teknik."],
+      market: ["Piyasa hızlı, kimse beklemiyor.", "Algoritma hız istiyor ama kalite yavaş işi.", "Şimdi kısa içerik konuşuluyor, şarkı geride."]
+    },
+    drill: {
+      greet: ["Selam, naber?", "Yo, naber kanka", "Selam kardeşim."],
+      howareyou: ["İyiyim, koşuşturma var. Sen?", "Sağlam, kayıttayım. Sen naber?", "İyiyim, işe gömüldüm. Sen?"],
+      music: ["Akış sert olacak, sözleride düşünüyorum.", "Yeni bir şey var, mix kaldı.", "Beat zaten hazır, üstüne oturuyorum."],
+      career: ["Hızlı çık, kaliteyi düşürme. Zor iş.", "Kitle genç, dikkat süresi kısa.", "Düzenli at, ara verme."],
+      market: ["Piyasa doydu ama yer var.", "Herkes aynı sesi kullanıyor, farklı ol.", "TikTok olmadan olmuyor artık."]
+    },
+    rap: {
+      greet: ["Selam, hoş geldin.", "Selam kardeşim, naber?", "Selam, buyur."],
+      howareyou: ["İyiyim, yazıyorum sürekli. Sen?", "İdare eder, kalem kâğıt işi. Sen nasılsın?", "İyiyim, metin üstünde çalışıyorum. Sen?"],
+      music: ["Söz bitti sayılır, kaydı bekliyor.", "Metin oturmadan kayda girmem.", "Bu parça biraz daha emek istiyor."],
+      career: ["Oku, yaz, kaydet. Formül bu.", "Taklit etme, sesini bul.", "İlk 100 şarkıyı kimse dinlemez, yine de yaz."],
+      market: ["Dinleyici azaldı ama gerçek dinleyici kaldı.", "Söz anlayan kitle küçük ama sadık.", "Piyasa hızlı tüketiyor, sen kalıcı yaz."]
+    },
+    pop: {
+      greet: ["Selamlar, hoş geldin 💫", "Merhaba, iyi ki yazdın.", "Selam, nasılsın?"],
+      howareyou: ["Çok iyiyim, provadayım. Sen nasılsın?", "İyiyim, sahne hazırlığı var. Sen?", "Gayet iyiyim, yoğun ama güzel. Sen?"],
+      music: ["Yeni şarkı çok yakın, çok heyecanlıyım.", "Bu kayıt içime sindi.", "Sahnede söylemek için sabırsızım."],
+      career: ["Sahne tecrübesi her şeyi öğretiyor.", "Sesini koru, düzenli çalış.", "Kitleyi tanı, ona göre iş yap."],
+      market: ["Dinleyici hızlı karar veriyor, ilk 10 saniye önemli.", "Sosyal medya olmadan görünmüyorsun.", "Radyo hâlâ etkili."]
+    },
+    rnb: {
+      greet: ["Selam, hoş geldin 🌙", "Merhaba, iyi ki yazdın.", "Selam, naber?"],
+      howareyou: ["İyiyim, gece çalışıyorum. Sen?", "Sakinim, kayıttaydım. Sen nasılsın?", "İyiyim, yumuşak bir şey üstünde çalışıyorum."],
+      music: ["Gece için yazdım, yumuşak oldu.", "Vokal oturdu, gerisi miks.", "Sessizlikte dinlenecek bir şey."],
+      career: ["Yumuşak olan kalıcı oluyor.", "Acele etme, tonunu bul.", "Kalabalığa değil, kulağa çalış."],
+      market: ["Gece çalma listeleri önemli.", "Dinleyici sadakati burada daha yüksek.", "Trend değişiyor ama ton kalıyor."]
+    },
+    indie: {
+      greet: ["Selam, hoş geldin ✨", "Merhaba, iyi ki yazdın.", "Selam, naber?"],
+      howareyou: ["İyiyim, kendi halimde çalışıyorum. Sen?", "İdare eder, kayıt devam. Sen?", "İyiyim, küçük bir odada büyük bir şey."],
+      music: ["Kendim yapıyorum, acele yok.", "Bu kayıt beni anlatıyor.", "Küçük ama gerçek olacak."],
+      career: ["Bağımsız kalmak zor ama doğru.", "Yavaş büyü, sağlam büyü.", "Kendi kitleni kur, hazır kitleye oynama."],
+      market: ["Bağımsız kalmak artık mümkün.", "Aracı azaldıkça pay artıyor.", "Küçük kitle ama gerçek destek."]
+    }
+  };
+
+  function poolFor(intent, S, prof, artist) {
     if (prof && prof.pool && prof.pool[intent] && prof.pool[intent].length) return prof.pool[intent];
+    if (artist) {
+      if ((artist.age || 30) >= 40 && VET_CHAT[intent]) return VET_CHAT[intent];
+      const g = GENRE_CHAT[artist.genre];
+      if (g && g[intent]) return g[intent];
+    }
     return basePools(intent, S);
   }
   function coldFor(intent, prof) {
@@ -22119,7 +22210,7 @@ window.K = window.K || {};
       if (gf) {
         const nt = norm(text);
         const short = (nt === "sa" || nt === "s a" || nt === "as" || nt === "a s");
-        const msg = pickFresh(selamPool(gf, prof, stage, short), chat.recent);
+        const msg = pickFresh(selamPool(gf, prof, stage, short, artist), chat.recent);
         chat.recent.push(msg); if (chat.recent.length > 8) chat.recent.shift();
         chat.lastIntent = "greet";
         chat.turns++;
@@ -22154,7 +22245,7 @@ window.K = window.K || {};
       rel._usedSongs = rel._usedSongs || [];
       if (song && song !== "yeni bir iş") rel._usedSongs.push(song);
 
-      let msgs = forcedMsgs || poolFor(intent, stage, prof).map(m => m.replace("{song}", song));
+      let msgs = forcedMsgs || poolFor(intent, stage, prof, artist).map(m => m.replace("{song}", song));
       let chosen = pickFresh(msgs, chat.recent);
 
       // genel mesaja BAĞLAMLI cevap (rastgele kelime yansıtma yok)
@@ -23652,10 +23743,27 @@ window.K = window.K || {};
         s.label.totalRevenue += net;
       }
 
-      // kadro sanatçıları şirket sayesinde büyür
+      /* ŞİRKET DESTEĞİ — DÜZELTME (v10.8)
+         Eskiden kadroya giren sanatçı `dinleyici × rand(1.0,1.012)` ile
+         SOYUT biçimde büyüyordu; şirketin gerçek katkısı (yayın, bütçe,
+         promo) hiç yoktu — yani "kadro" mekanik bir sayıydı.
+         Artık şirket sanatçının YAYIN KADANSINI gerçekten hızlandırır:
+         güç ve ekip arttıkça sanatçı daha sık şarkı çıkarır, o şarkılar
+         listeye ve sanatçı sayfasına düşer, şirket geliri gerçekten
+         kadronun dinlenmesinden gelir. */
       K.label.rosterArtists().forEach(ar => {
-        ar.monthly = Math.round(ar.monthly * U.rand(1.0, 1.012));
-        ar.popularity = U.clamp(ar.popularity + U.rand(0, 0.12), 0, 99);
+        const power = K.label.power();
+        const staffBoost = (K.label.staffLevel("pr") || 0) * 0.10 + (K.label.staffLevel("manager") || 0) * 0.07;
+        /* Şirketin hedef yayın aralığı: güç ve ekip büyüdükçe kısalır.
+           Yeni bir şirket ~50 gün, güçlü bir şirket ~25 gün. */
+        const targetGap = Math.round(U.clamp(60 - power * 0.45 - staffBoost * 25, 22, 80));
+        if (ar._nextRelease && ar._nextRelease > s.day + targetGap) {
+          /* hedefe doğru yumuşak çekme (ani sıçrama yok) */
+          const excess = ar._nextRelease - s.day - targetGap;
+          ar._nextRelease = Math.max(s.day + 8, ar._nextRelease - Math.max(1, Math.round(excess * 0.08)));
+        }
+        ar.monthly = Math.round(ar.monthly * U.rand(1.0, 1.008));
+        ar.popularity = U.clamp(ar.popularity + U.rand(0, 0.09), 0, 99);
       });
 
       // rastgele: kadro sanatçısı promosyon isteyebilir
