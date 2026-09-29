@@ -20,7 +20,7 @@
      activate → eski önbellekler silinir, sayfa yenilenir.
    ============================================================ */
 
-const VERSION = "10.19.0"; /* tools/gen-version-json.js ile aynı kaynaktan gelir */
+const VERSION = "10.20.0"; /* tools/gen-version-json.js ile aynı kaynaktan gelir */
 const CACHE = "karma-" + VERSION;
 const CORE = ["./", "./index.html", "./js/version.js"];
 
