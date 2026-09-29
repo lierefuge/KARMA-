@@ -87,7 +87,7 @@
       const followers = Math.round(L.followers);
       p.ig += Math.round(followers * (L.platform === "instagram" ? 0.6 : 0.15));
       p.tiktok += Math.round(followers * (L.platform === "tiktok" ? 0.6 : 0.15));
-      p.popularity = U.clamp(p.popularity + Math.min(3, L.peak / 4000), 0, 99);
+      K.game.addFame(Math.min(3, L.peak / 4000));
       K.economy.earn(donations, "live");
       s.live = null;
       K.bus.emit("live:ended", { peak: L.peak, followers, donations, seconds: L.seconds });
@@ -101,7 +101,7 @@
       const L = K.state;
       const p = L.player;
       const gain = U.rand(0.1, 0.5);
-      p.popularity = U.clamp(p.popularity + gain, 0, 99);
+      K.game.addFame(gain);
       p.ig += U.randInt(20, 160);
       p.reputation = Math.min(100, p.reputation + 0.2);
       K.toast("💬 Yorum yanıtlandı", "Hayran etkileşimi arttı.", "ok");
