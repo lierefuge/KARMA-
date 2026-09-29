@@ -80,7 +80,9 @@
         if (o.fee) K.economy.earn(o.fee, "press");
         p.image = U.clamp((p.image || 50) + o.img, 0, 100);
         p.reputation = U.clamp((p.reputation || 0) + o.rep, 0, 100);
-        p.popularity = U.clamp((p.popularity || 0) + o.pop, 0, 99);
+        /* DÜZELTME (v10.9): popülerlik doğrudan ekleniyordu; artık
+           dinleyicinin hak ettiği tavanla sınırlı şöhret denetleyicisinden geçer. */
+        K.game.addFame(o.pop);
         K.toast("📰 " + o.name, `Yayınlandı · imaj ${Math.round(p.image)}/100`, o.img >= 0 ? "ok" : "warn");
       } else {
         K.toast("Reddedildi", o.name + " teklifi reddedildi.", "warn");
@@ -133,7 +135,7 @@
       const r = R[styleId] || { rep: 0, img: 0, pop: 0 };
       p.reputation = U.clamp((p.reputation || 0) + r.rep, 0, 100);
       p.image = U.clamp((p.image || 50) + r.img, 0, 100);
-      p.popularity = U.clamp((p.popularity || 0) + r.pop, 0, 99);
+      K.game.addFame(r.pop);
       let msg = "Röportaj yayınlandı.";
       if (styleId === "provocative" && U.chance(0.4)) {
         p.reputation = Math.max(0, p.reputation - 3);
