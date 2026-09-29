@@ -4974,6 +4974,152 @@ body.hide-values .brand-sub::after {
 }
 
 </style>
+<style>
+/* ==== css/rollout.css ==== */
+/* ============================================================
+   KARMA — css/rollout.css   (v10.21)
+   Çıkış Haftası arayüzü: ön kayıt kampanyası · teaser zinciri ·
+   ilk hafta sayacı ve derece kartı.
+
+   Tasarım kuralı: "hazırlık" tek bir yüzdeyle özetlenir (readiness),
+   detaylar altına açılır. Oyuncu bir bakışta "çıkışa hazır mıyım?"
+   sorusunun cevabını görmeli.
+   ============================================================ */
+
+.ro-block { display: flex; flex-direction: column; gap: 12px; }
+
+/* ---------- hazırlık göstergesi ---------- */
+.ro-head {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 14px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(150deg, rgba(176, 108, 255, .12), rgba(110, 195, 255, .06));
+  border: 1px solid rgba(176, 108, 255, .28);
+}
+.ro-ring {
+  --pct: 0;
+  width: 62px; height: 62px; flex: 0 0 auto;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 15px; font-weight: 900; color: #fff;
+  background:
+    conic-gradient(var(--karma) calc(var(--pct) * 1%), rgba(255,255,255,.10) 0),
+    var(--bg-2);
+  position: relative;
+}
+.ro-ring::after {
+  content: ""; position: absolute; inset: 6px;
+  border-radius: 50%; background: var(--bg-2);
+}
+.ro-ring b { position: relative; z-index: 1; }
+.ro-head-txt { flex: 1; min-width: 160px; }
+.ro-head-txt h3 { font-size: 14.5px; font-weight: 800; }
+.ro-head-txt p { font-size: 11.5px; color: var(--text-2); margin-top: 3px; line-height: 1.45; }
+
+/* ---------- teaser aşamaları ---------- */
+.ro-stages { display: flex; gap: 8px; flex-wrap: wrap; }
+.ro-stage {
+  flex: 1 1 150px;
+  padding: 11px 12px;
+  border-radius: var(--radius-s);
+  background: var(--glass);
+  border: 1px solid var(--stroke);
+  display: flex; flex-direction: column; gap: 5px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, transform .12s;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+}
+.ro-stage:hover { background: var(--glass-2); transform: translateY(-1px); }
+.ro-stage.done { border-color: rgba(92, 232, 155, .45); background: rgba(92, 232, 155, .08); cursor: default; }
+.ro-stage.done:hover { transform: none; }
+.ro-stage.off { opacity: .48; cursor: not-allowed; }
+.ro-stage.off:hover { transform: none; }
+.ro-stage .rs-top { display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 800; }
+.ro-stage .rs-sub { font-size: 10.5px; color: var(--text-2); line-height: 1.4; }
+.ro-stage .rs-eff { font-size: 10px; font-weight: 700; color: var(--karma-2); }
+.ro-stage .rs-cost { font-size: 10px; color: var(--text-3); }
+.ro-stage.done .rs-eff { color: var(--money); }
+
+/* ---------- ön kayıt kanalları ---------- */
+.ro-chans { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.ro-chan {
+  padding: 10px 11px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+  cursor: pointer; font-family: inherit; color: inherit; text-align: left;
+  display: flex; flex-direction: column; gap: 4px;
+  transition: background .15s, border-color .15s;
+}
+.ro-chan:hover { background: var(--glass-2); }
+.ro-chan.on { border-color: var(--karma); background: rgba(176, 108, 255, .12); }
+.ro-chan.locked { opacity: .45; cursor: not-allowed; }
+.ro-chan .rc-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 12px; font-weight: 800; }
+.ro-chan .rc-desc { font-size: 10px; color: var(--text-3); line-height: 1.35; }
+.ro-chan .rc-meta { font-size: 10px; color: var(--text-2); }
+
+/* ---------- rakam şeridi ---------- */
+.ro-nums {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;
+}
+.ro-num {
+  padding: 10px 12px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.ro-num .k { font-size: 9.5px; letter-spacing: .8px; text-transform: uppercase; color: var(--text-3); font-weight: 700; }
+.ro-num .v { font-size: 16px; font-weight: 900; margin-top: 3px; }
+.ro-num .v.money { color: var(--money); }
+.ro-num .d { font-size: 10px; color: var(--text-2); margin-top: 2px; }
+
+/* ---------- ilk hafta sayacı ---------- */
+.ro-week {
+  padding: 12px 13px; border-radius: var(--radius-s);
+  background: rgba(255, 203, 92, .07);
+  border: 1px solid rgba(255, 203, 92, .22);
+}
+.ro-week-head {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 12.5px; font-weight: 800; margin-bottom: 7px;
+}
+.ro-days { display: flex; gap: 5px; margin-top: 8px; }
+.ro-day {
+  flex: 1; height: 34px; border-radius: var(--radius-xs);
+  background: rgba(255,255,255,.07);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1px; font-size: 9.5px; color: var(--text-3);
+  position: relative; overflow: hidden;
+}
+.ro-day > i {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(180deg, rgba(255,203,92,.85), rgba(255,159,67,.7));
+  opacity: .55;
+}
+.ro-day span { position: relative; z-index: 1; font-weight: 700; }
+.ro-day.filled { color: #fff; }
+
+/* ---------- derece kartı ---------- */
+.ro-debut {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.ro-debut .rb-badge {
+  font-size: 12px; font-weight: 900; padding: 5px 11px;
+  border-radius: var(--radius-pill);
+  background: rgba(176,108,255,.16); border: 1px solid rgba(176,108,255,.34);
+  white-space: nowrap;
+}
+.ro-debut.smash .rb-badge { background: rgba(255,92,122,.16); border-color: rgba(255,92,122,.4); }
+.ro-debut.flop .rb-badge { background: rgba(255,255,255,.08); border-color: var(--stroke); color: var(--text-2); }
+
+@media (max-width: 640px) {
+  .ro-head { gap: 11px; padding: 12px; }
+  .ro-ring { width: 54px; height: 54px; font-size: 13.5px; }
+  .ro-stages { flex-direction: column; }
+  .ro-stage { flex: 1 1 auto; }
+}
+
+</style>
 <!-- mobil/dokunmatik katman: EN SON yüklenir ki altta kalan 25 dosyayı ezebilsin -->
 <style>
 /* ==== css/mobile.css ==== */
@@ -5450,7 +5596,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.20.0";
+  K.VERSION = "10.21.0";
   K.VERSION_DATE = "2026-09-29";
 })(window.K = window.K || {});
 
@@ -9052,6 +9198,7 @@ window.K = window.K || {};
       if (K.social && K.social.dailyTick) K.social.dailyTick();
       if (K.concerts && K.concerts.tick) K.concerts.tick();
       if (K.festivals && K.festivals.tick) K.festivals.tick();
+      if (K.rollout && K.rollout.tick) K.rollout.tick();
       if (K.awards && K.awards.tick) K.awards.tick();
       if (K.rivalry && K.rivalry.tick) K.rivalry.tick();
       if (K.beef && K.beef.dailyTick) K.beef.dailyTick();
@@ -15865,6 +16012,11 @@ window.K = window.K || {};
          Doygunluk biriktikçe aynı güçteki yayın daha az dalga üretir:
          bu yüzden sürekli yayın yapan sanatçı bir noktada PLATO yapar,
          ara veren ise düşer. ("yüksel → zirve → düş") */
+      /* v10.21 — ÇIKIŞ HAFTASI: ön kayıt + teaser hype'ı yayın anında
+         dinlenme ivmesine dönüşür ve şarkıda İLK HAFTA penceresi açılır.
+         (systems/rollout.js — modele ekleme yapar, mevcut akışı bozmaz.) */
+      if (K.rollout && K.rollout.onPublish) K.rollout.onPublish(rel, songs);
+
       const avgQ = songs.length ? U.sum(songs, x => x.quality || 50) / songs.length : 50;
       K.game.bumpAttention(U.clamp(
         0.28 + avgQ / 200 + (rel.marketing || 0) / 420000 + (rel.agenda && rel.agenda.score ? 0.12 : 0),
@@ -19425,6 +19577,360 @@ window.K = window.K || {};
       };
     }
   };
+})(window.K);
+
+</script>
+  <script>
+/* ==== js/systems/rollout.js ==== */
+/* ============================================================
+   KARMA — systems/rollout.js   (v10.21)
+   ÇIKIŞ HAFTASI: ön kayıt · teaser zinciri · ilk hafta
+
+   Neden ayrı sistem?
+   ------------------
+   Oyunun yayın hattı "bekle → çıkar" mantığındaydı. Günümüz rapinde
+   ise kariyerin tamamı ÇIKIŞ etrafında döner:
+     duyuru → teaser → ön kayıt (pre-save) → çıkış gecesi → İLK HAFTA
+   İlk hafta sayıları sanatçının bir sonraki yılını belirler.
+
+   Üç alt sistem
+   -------------
+   1. ÖN KAYIT — yayın hattındaki bir proje için kampanya açılır; her gün
+      seçilen kanallardan ön kayıt toplanır. Yayın günü bu sayı ilk 24
+      saatin ivmesine dönüşür (gerçekte de böyle çalışır).
+   2. TEASER ZİNCİRİ — üç aşama (duyuru · snippet · kapak/tracklist).
+      Zamanlama kritiktir: çok erken paylaşırsan heyecan söner, çok geç
+      kalırsan yayılamaz. Hype 0-1 arası birikir.
+   3. İLK HAFTA — yayından sonraki 7 gün kaydedilir; hafta sonunda
+      ÇIKIŞ DERECESİ hesaplanır ve şarkıya kalıcı bir iz bırakır
+      (güçlü hafta → şarkı uzun yaşar, zayıf hafta → hızla söner).
+
+   Mevcut modele bağlanışı: dikkat dalgası (attention) ve günlük dinlenme
+   çürümesi (dailyStreams) zaten var. Bu modül onları BESLER, değiştirmez.
+   ============================================================ */
+(function (K) {
+  "use strict";
+  const U = K.util;
+
+  /* ---------- 1) ÖN KAYIT KANALLARI ----------
+     yield  : kanalın toplam toplama kapasitesi (kitleye göre ölçeklenir)
+     cost   : kampanya başına sabit gider
+     minFan : gereken en düşük takipçi (kanalın işlemesi için) */
+  const CHANNELS = [
+    { id: "igstory", name: "Instagram Hikâye", emoji: "📸", cost: 6000,  yield: 0.85, minFan: 800,   desc: "Bağlantı sticker'ı; en yüksek dönüşüm." },
+    { id: "tiktok",  name: "TikTok Snippet",   emoji: "🎬", cost: 9000,  yield: 1.15, minFan: 2500,  desc: "Ses trendine girebilir; en oynak kanal." },
+    { id: "x",       name: "X Duyurusu",       emoji: "🐦", cost: 4000,  yield: 0.55, minFan: 500,   desc: "Ucuz ama dönüşümü düşük." },
+    { id: "shorts",  name: "YouTube Shorts",   emoji: "▶️", cost: 7500,  yield: 0.95, minFan: 1500,  desc: "Uzun kuyruklu görüntülenme getirir." },
+    { id: "mail",    name: "E-posta Listesi",  emoji: "✉️", cost: 3000,  yield: 0.70, minFan: 0,     desc: "Küçük ama sadık; her zaman işler." }
+  ];
+
+  /* ---------- 2) TEASER AŞAMALARI ----------
+     ideal: yayına kaç gün kala paylaşılırsa tam verim alınır
+     loose: bu kadar gün dışına çıkınca verim düşer (çok erken = söner,
+            çok geç = yayılamaz) */
+  const TEASERS = [
+    { id: "announce", name: "Duyuru",           emoji: "📢", cost: 5000,  hype: 0.30, ideal: 20, loose: 12,
+      desc: "Tarihi açıkla. Erken heyecan başlatır." },
+    { id: "snippet",  name: "Snippet Paylaş",   emoji: "🎧", cost: 12000, hype: 0.45, ideal: 10, loose: 7,
+      desc: "En vurucu 15 saniyeyi yayınla; hype'ın bel kemiği." },
+    { id: "reveal",   name: "Kapak & Tracklist",emoji: "🖼️", cost: 8000,  hype: 0.25, ideal: 4,  loose: 4,
+      desc: "Çıkıştan hemen önce son dürtme." }
+  ];
+
+  /* ilk hafta dereceleri: eşikler TOPLAM ilk hafta dinlenmesine göre */
+  const DEBUTS = [
+    { id: "smash",   min: 4_000_000, label: "💥 PATLAMA",     mult: 1.55, rep: 5.0,
+      msg: "Çıkış haftası patladı — liste üst sıralarından girdin." },
+    { id: "hit",     min: 1_200_000, label: "🔥 HİT",         mult: 1.30, rep: 3.0,
+      msg: "Güçlü bir çıkış haftası; şarkı ana akışa oturdu." },
+    { id: "solid",   min: 350_000,   label: "✅ SAĞLAM",      mult: 1.12, rep: 1.4,
+      msg: "Sağlam bir ilk hafta; katalogda yerini aldı." },
+    { id: "soft",    min: 90_000,    label: "😐 SÖNÜK",       mult: 0.92, rep: 0.0,
+      msg: "İlk hafta beklenenin altında kaldı; şarkı hızla soğuyor." },
+    { id: "flop",    min: 0,         label: "📉 SESSİZ ÇIKIŞ", mult: 0.72, rep: -1.5,
+      msg: "Çıkış kimsenin dikkatini çekmedi." }
+  ];
+
+  const PRESAVE_CLOSE_BEFORE = 5;   // çıkışa bu kadar gün kalınca kampanya kapanır
+  const FIRST_WEEK_DAYS = 7;
+
+  function ch(id) { return CHANNELS.find(c => c.id === id) || null; }
+  function teaser(id) { return TEASERS.find(t => t.id === id) || null; }
+
+  /* ---------------- yardımcılar ---------------- */
+  function relById(id) {
+    const p = K.state && K.state.player;
+    return p && p.releases ? p.releases.find(r => r.id === id) : null;
+  }
+
+  /* yayına kalan gün (negatifse çıkmış) */
+  function daysToRelease(rel) {
+    const s = K.state;
+    if (!rel) return 0;
+    return (rel.startDay + rel.waitDays) - s.day;
+  }
+
+  function audience() {
+    return (K.fans && K.fans.followers) ? K.fans.followers() : 0;
+  }
+
+  K.rollout = {
+    CHANNELS, TEASERS, DEBUTS, FIRST_WEEK_DAYS,
+    ch, teaser,
+
+    /* =====================================================
+       ÖN KAYIT
+       ===================================================== */
+
+    /* kampanya açılabilir mi? */
+    canStartPresave(rel) {
+      const s = K.state;
+      if (!rel) return { ok: false, why: "Yayın bulunamadı" };
+      if (rel.presave) return { ok: false, why: "Kampanya zaten açık" };
+      const d = daysToRelease(rel);
+      if (d <= PRESAVE_CLOSE_BEFORE) return { ok: false, why: `Çıkışa ${Math.max(0, d)} gün kaldı — pencere kapandı` };
+      if (d > 60) return { ok: false, why: `Çıkışa ${d} gün var — çok erken` };
+      return { ok: true, why: `Çıkışa ${d} gün · kampanya açılabilir` };
+    },
+
+    startPresave(relId, channelIds) {
+      const rel = relById(relId);
+      const check = K.rollout.canStartPresave(rel);
+      if (!check.ok) { K.toast("Ön kayıt açılamadı", check.why, "warn"); return false; }
+      const ids = (channelIds || []).filter(id => ch(id));
+      if (!ids.length) { K.toast("Kanal seç", "En az bir tanıtım kanalı seç.", "warn"); return false; }
+
+      const fans = audience();
+      const blocked = ids.filter(id => fans < ch(id).minFan);
+      if (blocked.length) {
+        K.toast("Kitle yetersiz",
+          blocked.map(id => `${ch(id).name} (en az ${U.fmt(ch(id).minFan)} takipçi)`).join(" · "), "bad");
+        return false;
+      }
+
+      const cost = U.sum(ids, id => ch(id).cost);
+      if (!K.economy.canAfford(cost)) { K.toast("Yetersiz bakiye", `${U.money(cost)} gerekiyor.`, "bad"); return false; }
+      K.economy.spend(cost, "presave");
+
+      rel.presave = {
+        channels: ids, cost, startedDay: K.state.day,
+        collected: 0, history: [], hype: 0, fired: {}
+      };
+      K.toast("🎯 Ön kayıt kampanyası açıldı",
+        `${ids.length} kanal · ${U.money(cost)} · çıkışa ${Math.max(0, daysToRelease(rel))} gün`, "ok");
+      K.save(); K.refresh();
+      return true;
+    },
+
+    /* günlük ön kayıt toplama */
+    collectPresaves() {
+      const s = K.state, p = s.player;
+      (p.releases || []).forEach(rel => {
+        const ps = rel.presave;
+        if (!ps) return;
+        const d = daysToRelease(rel);
+        if (d <= 0) return;                       // çıkış oldu, toplama biter
+        if (d <= PRESAVE_CLOSE_BEFORE) return;    // pencere kapandı
+
+        const fans = audience();
+        /* kitleye bağlı günlük taban; kanallar çarpan verir */
+        const base = Math.max(1, fans * 0.0016 + (p.popularity || 0) * 0.9);
+        const mul = U.sum(ps.channels, id => ch(id).yield);
+        const noise = U.rand(0.75, 1.25);
+        /* çıkış yaklaştıkça ilgi artar (rampa) */
+        const ramp = 1 + U.clamp((30 - d) / 30, 0, 1) * 0.6;
+        const gain = Math.max(0, Math.round(base * mul * noise * ramp));
+
+        ps.collected += gain;
+        ps.history.push(gain);
+        ps.hype = U.clamp(ps.hype + gain / 4000, 0, 1);
+      });
+    },
+
+    /* =====================================================
+       TEASER ZİNCİRİ
+       ===================================================== */
+
+    /* bu aşama şimdi paylaşılabilir mi? verim ne olur? */
+    teaserWindow(rel, teaserId) {
+      const t = teaser(teaserId);
+      if (!rel || !t) return { ok: false, why: "—", eff: 0 };
+      if (rel.presave && rel.presave.fired && rel.presave.fired[teaserId]) {
+        return { ok: false, why: "Zaten paylaşıldı", eff: 0 };
+      }
+      const d = daysToRelease(rel);
+      if (d <= 0) return { ok: false, why: "Yayın çıktı", eff: 0 };
+      /* ideale göre sapma → verim */
+      const off = Math.abs(d - t.ideal);
+      const eff = U.clamp(1 - off / t.loose, 0, 1);
+      if (eff <= 0.05) {
+        return { ok: false, eff: 0, days: d,
+          why: d > t.ideal ? `Çok erken (ideal ${t.ideal} gün kala)` : `Çok geç (ideal ${t.ideal} gün kala)` };
+      }
+      return { ok: true, eff, days: d, why: `Verim %${Math.round(eff * 100)}` };
+    },
+
+    fireTeaser(relId, teaserId) {
+      const rel = relById(relId);
+      const t = teaser(teaserId);
+      const win = K.rollout.teaserWindow(rel, teaserId);
+      if (!t) return false;
+      if (!win.ok) { K.toast("Teaser paylaşılamaz", win.why, "warn"); return false; }
+      if (!K.economy.canAfford(t.cost)) { K.toast("Yetersiz bakiye", `${U.money(t.cost)} gerekiyor.`, "bad"); return false; }
+      K.economy.spend(t.cost, "teaser");
+
+      /* kampanya yoksa hype için geçici kap kur */
+      if (!rel.presave) rel.presave = { channels: [], cost: 0, startedDay: K.state.day, collected: 0, history: [], hype: 0, fired: {} };
+      if (!rel.presave.fired) rel.presave.fired = {};
+      rel.presave.fired[teaserId] = K.state.day;
+      rel.presave.hype = U.clamp(rel.presave.hype + t.hype * win.eff, 0, 1.2);
+
+      /* organik yan etki: küçük takipçi/etkileşim artışı */
+      const fans = audience();
+      const organic = Math.round(fans * 0.006 * win.eff + (K.state.player.popularity || 0) * 1.2 * win.eff);
+      K.state.player.ig = (K.state.player.ig || 0) + Math.round(organic * 0.6);
+      K.state.player.tiktok = (K.state.player.tiktok || 0) + Math.round(organic * 0.4);
+
+      const flag = win.eff >= 0.75 ? "ok" : win.eff >= 0.4 ? "" : "warn";
+      K.toast(`${t.emoji} ${t.name}`,
+        `${win.why} · hype +${(t.hype * win.eff).toFixed(2)} · +${U.fmt(organic)} etkileşim`, flag);
+      K.save(); K.refresh();
+      return true;
+    },
+
+    /* =====================================================
+       YAYIN ANI — ön kayıt + hype dinlenmeye dönüşür
+       ===================================================== */
+    onPublish(rel, songs) {
+      if (!rel || !songs || !songs.length) return;
+      const ps = rel.presave;
+      const hype = ps ? (ps.hype || 0) : 0;
+      const collected = ps ? (ps.collected || 0) : 0;
+
+      /* gerçek karşılık: 1.200 ön kayıt ≈ %55 ivme tavanı */
+      const presaveFactor = U.clamp(collected / 1200, 0, 0.55);
+      const hypeFactor = U.clamp(hype * 0.35, 0, 0.42);
+      const bonus = 1 + presaveFactor + hypeFactor;
+
+      songs.forEach(song => {
+        song.dailyStreams = (song.dailyStreams || 0) * bonus;
+        song.presaveCount = collected;
+        song.presaveBoost = both(presaveFactor, hypeFactor);
+        /* İLK HAFTA penceresi başlar */
+        song.firstWeek = {
+          day0: K.state.day, total: 0, days: [], done: false,
+          presave: collected, hype: +hype.toFixed(2)
+        };
+      });
+
+      if (collected > 0 || hype > 0) {
+        K.toast("🎯 Ön kayıt ivmesi",
+          `${U.fmt(collected)} ön kayıt · hype ${hype.toFixed(2)} → çıkış ivmesi +%${Math.round((bonus - 1) * 100)}`, "ok");
+      }
+      rel.presave = null;   // kampanya tükendi
+      rel.rollout = { presave: collected, hype: +hype.toFixed(2), bonus: +bonus.toFixed(3) };
+    },
+
+    /* =====================================================
+       İLK HAFTA — 7 gün toplanır, sonda derece verilir
+       ===================================================== */
+    tickFirstWeek() {
+      const s = K.state, p = s.player;
+      (p.songs || []).forEach(song => {
+        const fw = song.firstWeek;
+        if (!fw || fw.done) return;
+        const dayIdx = s.day - fw.day0;                  // 0 = çıkış günü
+        if (dayIdx < 0) return;
+
+        /* bugünkü dinlenmeyi haftaya yaz */
+        const today = Math.max(0, Math.round(song.dailyStreams || 0));
+        if (fw.days.length <= dayIdx) fw.days[dayIdx] = today;
+        else fw.days[dayIdx] = today;
+        fw.total = U.sum(fw.days.filter(d => typeof d === "number"), x => x);
+
+        if (dayIdx >= FIRST_WEEK_DAYS - 1) {
+          fw.done = true;
+          K.rollout.settleFirstWeek(song);
+        }
+      });
+    },
+
+    settleFirstWeek(song) {
+      const fw = song.firstWeek;
+      const tier = DEBUTS.find(d => fw.total >= d.min) || DEBUTS[DEBUTS.length - 1];
+      song.debut = { id: tier.id, label: tier.label, total: fw.total, day: fw.total };
+      /* kalıcı iz: güçlü hafta şarkıyı uzun yaşatır, zayıf hafta söndürür */
+      song.dailyStreams = Math.max(5, (song.dailyStreams || 5) * tier.mult);
+      song.debutMult = tier.mult;
+      if (song.boosts) song.boosts.debut = (song.boosts.debut || 0) + (tier.mult - 1);
+
+      const p = K.state.player;
+      p.reputation = U.clamp((p.reputation || 0) + tier.rep, 0, 100);
+      p.debuts = p.debuts || {};
+      p.debuts[tier.id] = (p.debuts[tier.id] || 0) + 1;
+
+      K.state.notifications = (K.state.notifications || []).concat([{
+        title: "📊 İlk hafta sonucu",
+        msg: `"${song.title}" · ${U.fmt(fw.total)} dinlenme · ${tier.label} — ${tier.msg}`,
+        kind: tier.id === "flop" || tier.id === "soft" ? "warn" : "ok",
+        day: K.state.day
+      }]).slice(-60);
+
+      K.toast(`📊 İlk hafta: ${tier.label}`,
+        `"${song.title}" · ${U.fmt(fw.total)} dinlenme · itibar ${tier.rep >= 0 ? "+" : ""}${tier.rep}`, "ok");
+    },
+
+    /* =====================================================
+       günlük tick
+       ===================================================== */
+    tick() {
+      K.rollout.collectPresaves();
+      K.rollout.tickFirstWeek();
+    },
+
+    /* =====================================================
+       UI yardımcıları
+       ===================================================== */
+    /* yayın hattındaki, hâlâ çıkışı gelmemiş projeler */
+    activePipeline() {
+      const p = K.state.player;
+      return (p.releases || [])
+        .filter(r => daysToRelease(r) > 0)
+        .sort((a, b) => daysToRelease(a) - daysToRelease(b));
+    },
+
+    /* bir projenin çıkış hazırlık özeti (0-100) */
+    readiness(rel) {
+      const ps = rel.presave;
+      if (!ps) return 0;
+      const fired = ps.fired || {};
+      const teaserScore = U.sum(TEASERS, t => fired[t.id] ? 1 : 0) / TEASERS.length;
+      const presaveScore = U.clamp(ps.collected / 1200, 0, 1);
+      const hypeScore = U.clamp((ps.hype || 0) / 1.1, 0, 1);
+      return Math.round((teaserScore * 0.35 + presaveScore * 0.40 + hypeScore * 0.25) * 100);
+    },
+
+    /* ilk haftası süren şarkılar */
+    liveFirstWeeks() {
+      return (K.state.player.songs || []).filter(s => s.firstWeek && !s.firstWeek.done);
+    },
+
+    summary() {
+      const p = K.state.player;
+      const camps = K.rollout.activePipeline().filter(r => r.presave);
+      const live = K.rollout.liveFirstWeeks();
+      const debuts = p.debuts || {};
+      return {
+        campaigns: camps.length,
+        collected: U.sum(camps, r => (r.presave && r.presave.collected) || 0),
+        liveWeeks: live.length,
+        debuts,
+        best: debuts.smash ? "PATLAMA" : debuts.hit ? "HİT" : debuts.solid ? "SAĞLAM" : "—"
+      };
+    }
+  };
+
+  function both(a, b) { return +(a + b).toFixed(3); }
 })(window.K);
 
 </script>
@@ -23221,7 +23727,7 @@ window.K = window.K || {};
 
   const U = K.util;
   let currentTab = "career";
-  const ui = { tourCities: [], festStance: "balanced" };
+  const ui = { tourCities: [], festStance: "balanced", presaveRel: null, presaveChans: [] };
   const subTab = { label: "genel", events: "awards" };
 
   K.careerUI = {
@@ -24612,6 +25118,134 @@ window.K = window.K || {};
     /* =====================================================
        YAYINLAR — pipeline + yayınlananlar
        ===================================================== */
+    /* =====================================================
+       ÇIKIŞ HAFTASI (v10.21) — systems/rollout.js
+       Ön kayıt kampanyası + teaser zinciri + ilk hafta takibi.
+       ===================================================== */
+    rolloutHTML() {
+      const s = K.state, p = s.player;
+      const pipe = K.rollout.activePipeline();
+      const live = K.rollout.liveFirstWeeks();
+      const recent = (p.songs || []).filter(x => x.debut)
+        .sort((a, b) => (b.publishedDay || 0) - (a.publishedDay || 0)).slice(0, 4);
+      if (!pipe.length && !live.length && !recent.length) return "";
+
+      const sum = K.rollout.summary();
+      const fans = K.fans.followers() || 0;
+
+      const relCards = pipe.map(r => {
+        const d = Math.max(0, r.startDay + r.waitDays - s.day);
+        const ready = K.rollout.readiness(r);
+        const ps = r.presave;
+        const can = K.rollout.canStartPresave(r);
+        const open = ui.presaveRel === r.id;
+        const selected = open ? ui.presaveChans : [];
+
+        const teasers = K.rollout.TEASERS.map(t => {
+          const w = K.rollout.teaserWindow(r, t.id);
+          const done = !!(ps && ps.fired && ps.fired[t.id]);
+          const cls = done ? "done" : w.ok ? "" : "off";
+          const body = done
+            ? `<span class="rs-eff">paylaşıldı</span>`
+            : w.ok
+              ? `<span class="rs-eff">${U.escape(w.why)}</span>`
+              : `<span class="rs-sub">${U.escape(w.why)}</span>`;
+          const tag = w.ok ? ` data-act="ro-teaser" data-arg="${r.id}|${t.id}"` : "";
+          return `<button class="ro-stage ${cls}"${tag} ${w.ok ? "" : "disabled"}>
+            <span class="rs-top">${t.emoji} ${t.name}${done ? " ✓" : ""}</span>
+            <span class="rs-sub">${U.escape(t.desc)}</span>
+            ${body}
+            <span class="rs-cost">${U.money(t.cost)}</span>
+          </button>`;
+        }).join("");
+
+        const chans = K.rollout.CHANNELS.map(c => {
+          const locked = fans < c.minFan;
+          const on = selected.indexOf(c.id) >= 0;
+          const tag = locked ? "" : ` data-act="ro-chan" data-arg="${c.id}"`;
+          return `<button class="ro-chan ${on ? "on" : ""} ${locked ? "locked" : ""}"${tag} ${locked ? "disabled" : ""}>
+            <span class="rc-top"><span>${c.emoji} ${U.escape(c.name)}</span><span>${U.money(c.cost)}</span></span>
+            <span class="rc-desc">${U.escape(locked ? "En az " + U.fmt(c.minFan) + " takipçi gerekli" : c.desc)}</span>
+          </button>`;
+        }).join("");
+
+        const chanCost = U.sum(selected, id => (K.rollout.ch(id) || {}).cost || 0);
+
+        return `<div class="studio-card" style="margin-top:10px">
+          <div class="ro-head">
+            <div class="ro-ring" style="--pct:${ready}"><b>${ready}%</b></div>
+            <div class="ro-head-txt">
+              <h3>${U.escape(r.title)}</h3>
+              <p>${d} gün kaldı · ${K.RELEASE_TYPES[r.type] ? K.RELEASE_TYPES[r.type].name : "Yayın"} · ${r.tracks.length} parça${ps ? ` · <b style="color:var(--money)">${U.fmt(ps.collected)} ön kayıt</b>` : ""}</p>
+            </div>
+          </div>
+
+          <div style="margin-top:14px">
+            <div class="sub" style="margin-bottom:7px">Teaser zinciri — zamanlama verimi belirler</div>
+            <div class="ro-stages">${teasers}</div>
+          </div>
+
+          ${ps ? `<div class="ro-nums" style="margin-top:14px">
+            <div class="ro-num"><span class="k">Toplanan Ön Kayıt</span><span class="v money">${U.fmt(ps.collected)}</span><span class="d">her gün artıyor</span></div>
+            <div class="ro-num"><span class="k">Hype</span><span class="v">${(ps.hype || 0).toFixed(2)}</span><span class="d">teaser'lardan</span></div>
+            <div class="ro-num"><span class="k">Beklenen İvme</span><span class="v">+%${Math.round(Math.min(0.55, ps.collected / 1200) * 100 + Math.min(0.42, (ps.hype || 0) * 0.35) * 100)}</span><span class="d">yayın günü</span></div>
+            <div class="ro-num"><span class="k">Kampanya Gideri</span><span class="v">${U.money(ps.cost || 0)}</span><span class="d">harcandı</span></div>
+          </div>` : ""}
+
+          <div style="margin-top:14px">
+            <div class="sub" style="margin-bottom:7px">Ön kayıt kanalları — çıkışa 5 gün kalana kadar toplanır</div>
+            ${open ? `<div class="ro-chans">${chans}</div>
+              <div class="action-row" style="margin-top:10px">
+                <button class="btn btn-primary btn-sm" data-act="ro-start" ${can.ok && selected.length ? "" : "disabled"}>🎯 Kampanyayı Başlat (${U.money(chanCost)})</button>
+                <button class="btn btn-ghost btn-sm" data-act="ro-close">Kapat</button>
+                <span class="hint" style="align-self:center">${U.escape(selected.length ? selected.length + " kanal seçili" : "kanal seç")}</span>
+              </div>`
+              : `<div class="action-row">
+                <button class="btn ${can.ok ? "btn-primary" : "btn-ghost"} btn-sm" data-act="ro-open" data-arg="${r.id}" ${can.ok ? "" : "disabled"}>${ps ? "Kampanya sürüyor" : "🎯 Ön Kayıt Kampanyası Aç"}</button>
+                <span class="hint" style="align-self:center">${U.escape(ps ? "kanallar seçildi, toplama devam ediyor" : can.why)}</span>
+              </div>`}
+          </div>
+        </div>`;
+      }).join("");
+
+      const liveHTML = live.map(sg => {
+        const fw = sg.firstWeek;
+        const idx = Math.min(K.rollout.FIRST_WEEK_DAYS, s.day - fw.day0);
+        const days = Array.from({ length: K.rollout.FIRST_WEEK_DAYS }, (_, i) => {
+          const v = fw.days[i];
+          const max = Math.max.apply(null, fw.days.filter(d => typeof d === "number").concat([1]));
+          const h = v ? Math.max(8, Math.round(v / max * 100)) : 0;
+          return `<div class="ro-day ${typeof v === "number" ? "filled" : ""}">${v ? `<i style="height:${h}%"></i>` : ""}<span>${i + 1}</span></div>`;
+        }).join("");
+        const total = U.sum(fw.days.filter(x => typeof x === "number"), x => x);
+        return `<div class="ro-week" style="margin-top:10px">
+          <div class="ro-week-head"><span>📊 ${U.escape(sg.title)}</span><span class="money">${U.fmt(total)} dinlenme</span></div>
+          <div class="sub" style="font-size:11px">${idx}. gün / ${K.rollout.FIRST_WEEK_DAYS} · ${fw.presave ? U.fmt(fw.presave) + " ön kayıt ile başladı" : "ön kayıtsız çıkış"}</div>
+          <div class="ro-days">${days}</div>
+        </div>`;
+      }).join("");
+
+      const debutHTML = recent.map(sg => `<div class="ro-debut ${sg.debut.id}" style="margin-top:8px">
+        <span class="rb-badge">${sg.debut.label}</span>
+        <div class="grow">
+          <div class="title" style="font-size:12.5px;font-weight:800">${U.escape(sg.title)}</div>
+          <div class="sub" style="font-size:11px;color:var(--text-2)">ilk hafta ${U.fmt(sg.debut.total)} dinlenme · kalıcı etki ×${(sg.debutMult || 1).toFixed(2)}</div>
+        </div>
+      </div>`).join("");
+
+      return `<div class="c-block">
+        <div class="c-head"><div><h2>🎯 Çıkış Haftası</h2><div class="sub">Ön kayıt topla · teaser paylaş · ilk haftayı kazan</div></div></div>
+        <div class="ro-nums">
+          <div class="ro-num"><span class="k">Aktif Kampanya</span><span class="v">${sum.campaigns}</span><span class="d">${U.fmt(sum.collected)} ön kayıt toplandı</span></div>
+          <div class="ro-num"><span class="k">Süren İlk Hafta</span><span class="v">${sum.liveWeeks}</span><span class="d">çıkış penceresi açık</span></div>
+          <div class="ro-num"><span class="k">En İyi Derece</span><span class="v">${U.escape(sum.best)}</span><span class="d">${(sum.debuts.smash || 0) + (sum.debuts.hit || 0)} hit · ${(sum.debuts.flop || 0)} sessiz</span></div>
+        </div>
+        ${pipe.length ? `<div class="sub" style="margin-top:12px;font-weight:700">Yayın hattındaki projeler</div>${relCards}` : `<div class="empty-note" style="margin-top:12px"><b>Hazırlıkta proje yok</b>Stüdyodan yeni bir yayın oluştur; ön kayıt kampanyası burada açılır.</div>`}
+        ${liveHTML ? `<div class="sub" style="margin-top:16px;font-weight:700">Süren ilk haftalar</div>${liveHTML}` : ""}
+        ${debutHTML ? `<div class="sub" style="margin-top:16px;font-weight:700">Son çıkış dereceleri</div>${debutHTML}` : ""}
+      </div>`;
+    },
+
     renderReleases() {
       const s = K.state;
       const rels = s.player.releases;
@@ -24690,7 +25324,7 @@ window.K = window.K || {};
           </div>`).join("")}
         </div>` : "";
 
-      return arBlock + `
+      return K.careerUI.rolloutHTML() + arBlock + `
         <div class="c-block">
           <div class="c-head"><div><h2>Yayın Hattı</h2><div class="sub">Hazırlık → Kuyruk → Editoryal → Yayın süreci</div></div></div>
           ${pipelineHTML}
@@ -25770,6 +26404,21 @@ window.K = window.K || {};
       else if (act === "fest-stance") { ui.festStance = btn.dataset.arg || "balanced"; K.careerUI.render(); }
       else if (act === "fest-apply") K.festivals.apply(btn.dataset.arg, ui.festStance);
       else if (act === "fest-cancel") K.festivals.cancel(btn.dataset.arg);
+      else if (act === "ro-open") { ui.presaveRel = btn.dataset.arg; ui.presaveChans = []; K.careerUI.render(); }
+      else if (act === "ro-close") { ui.presaveRel = null; ui.presaveChans = []; K.careerUI.render(); }
+      else if (act === "ro-chan") {
+        const id = btn.dataset.arg;
+        const i = ui.presaveChans.indexOf(id);
+        if (i >= 0) ui.presaveChans.splice(i, 1); else ui.presaveChans.push(id);
+        K.careerUI.render();
+      }
+      else if (act === "ro-start") {
+        if (K.rollout.startPresave(ui.presaveRel, ui.presaveChans.slice())) { ui.presaveRel = null; ui.presaveChans = []; }
+      }
+      else if (act === "ro-teaser") {
+        const parts = String(btn.dataset.arg || "").split("|");
+        K.rollout.fireTeaser(parts[0], parts[1]);
+      }
       else if (act === "hire-staff") K.label.hireStaff(btn.dataset.arg);
       else if (act === "work-job") K.jobs.work(btn.dataset.arg);
       else if (act === "crisis-choice") K.crisis.resolve(+btn.dataset.arg);
