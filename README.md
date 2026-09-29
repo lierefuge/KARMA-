@@ -5,6 +5,81 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.24 — Şirket ekonomisi gerçekçileştirildi · ölü yapılandırma temizliği
+
+### 💼 Şirket (label) geliri iki katmanlı hatadan kurtarıldı — `systems/economy.js`
+Oyuncunun kendi şirketi, oyunun **tek gelir yoluydu ki kur/enflasyon uygulanmıyordu**.
+`labelDailyNet()` iki ayrı hata taşıyordu:
+
+1. **Eski sabit kur.** `gross = rosterStreams × K.ECON.royaltyPerStream` (0,0011 ₺)
+   kullanılıyordu. Bu sabit `state.js` içinde zaten *“(eski)”* diye işaretliydi ve
+   **kur dönüşümü, enflasyon, platform karması ve 30 sn eşiği yoktu**. v10.7'de
+   `rate()` için düzeltilen hatanın (*“telif tam baseFx katı eksik ödeniyordu”*)
+   aynısı bu dalda kalmıştı — şirket geliri gerçekçi değerin kabaca **1/220'si** kadardı.
+2. **Sözleşme payı tersti.** `share = 1 − royalty/100` şirkete **sanatçının** payını
+   veriyordu. `label.royalty` sözleşmede *şirketin* payıdır (bkz. `settleMonth`:
+   sanatçı `1 − royalty/100` alır). Yani şirket %30 yerine %70 alıyordu.
+
+Yeni model gerçek bir kâr/zarar tablosudur:
+
+| Kalem | Hesap |
+|---|---|
+| Brüt gelir | kadro dinlenmesi × `econ.avgRate()` (ağırlıklı **kur + enflasyon**) |
+| Şirket cirosu | brüt × sözleşme payı × menajer etkisi |
+| İşletme gideri | brüt × `labelOpexShare` (tanıtım + kayıt + A&R + dağıtım) |
+| **Net** | ciro − gider |
+
+- Yeni sabitler: `storeMix` · `labelBillableShare: 0.88` · `labelOpexShare: 0.18`
+- Yeni yardımcı: `K.econ.avgRate()` — platform ayrımı olmayan gelirler için ağırlıklı ₺/dinlenme
+- Ölçüm (1. yıl, 1M dinleyici/ay): **~25.900 ₺/ay** — eskiden ~770 ₺/ay idi
+- Düşük paylı (sanatçıya cömert) sözleşme artık oyuncuya **zarar yazdırabiliyor** — gerçekte olduğu gibi
+- `label.royalty` artışı geliri **artırıyor** (eskiden azaltıyordu)
+
+### 📈 Kadro büyümesine gerçekçi tavan — `systems/label.js`
+Kadro sanatçısının dinleyicisi `monthly *= 1..1,008` ile büyüyordu: günde ortalama
+**%0,4 bileşik** artış ve **hiçbir üst sınır yok**. 520 günlük simülasyonda kadro
+10M → **70M** aylık dinleyiciye çıkıyor, yeni gelir formülüyle birlikte şirket aylık
+**~3,5M ₺** üretiyordu — yani düzeltilen formülün altında üstel bir taban vardı.
+
+Oyuncunun kendi eğrisi bu sorundan **v10.17'de** kurtarılmıştı (dikkat dalgası:
+yüksel→zirve→düş), ama kadro NPC'lerine uygulanmamıştı. Artık tavan oyunun
+**kendi kalibrasyonundan** gelir (`core/game.js` `listenerTarget`):
+
+> aylık dinleyici ≈ **popülerlik² × 700**
+
+Popülerlik 99'da durduğu için tavan da ~6,9M'da durur; sanatçı tavana kadar büyür,
+sonra **platoda dalgalanır** — gerçek bir kariyer gibi. Aynı senaryonun sonucu:
+kadro 20M'da platoya oturur, aylık gelir ~1,2M ₺'de dengelenir (üstel değil,
+**kur + enflasyon** kaynaklı ılımlı artış).
+
+### 🔗 Katalog bütünlüğü hatası — `systems/label.js`
+`releaseForArtist()` katalog kaydını ekledikten sonra `label.catalog`'a **yeni bir rastgele
+id** push ediyordu (`U.uid("cat")`), yani şirket kataloğundaki referansların hiçbiri gerçek
+bir kayda karşılık gelmiyordu. Şirket gücü `catalog.length` üzerinden hesaplandığı için bu,
+**boşa düşen id'lerle** şişiyordu. Artık `catalogAdd()`'in döndürdüğü **gerçek kaydın id'si** yazılır.
+
+### 🧹 Ölü yapılandırma kaldırıldı — `core/state.js`
+Hiçbir yerde kullanılmayan ve "eski" diye işaretli sabitler silindi:
+`royaltyPerStream` · `taxRate` · `taxFreeMonthly` · `streamRevenueShare` · `messageCooldown`.
+Bunlar "ayar varmış" gibi görünüp yanlış yere bağlanabildiği için (v10.7'deki
+`royaltyPerStream` hatası tam olarak böyle doğdu) kaldırıldı.
+
+### 🧪 Yeni test paketi: `tools/smoke-label.js` (37 kontrol)
+Şirket ekonomisini ve hataların sessizce geri dönmesini engeller:
+veri · kur · sıfır durumu · gelir · **pay yönü** · gerçekçilik bandı · kur/enflasyon ölçekleme ·
+menajer etkisi · katalog bütünlüğü · güvenlik · **kadro tavanı**. `verify.js` zincirine eklendi.
+
+### 📝 Bayat yorum düzeltmeleri
+`core/game.js` içindeki kalibrasyon notu hâlâ *“şirket kurma eşiği 45”* diyordu;
+`labelFoundMinPop` v10.8'den beri **28** (≈ 550 bin aylık dinleyici). Not güncellendi.
+
+### ♻️ Önbellek damgası bayat kalmıştı
+`index.html` içindeki tüm `?v=` referansları `aa2d881b` iken içerik hash'i `5ec13ef1` idi —
+yani oyuncular eski JS/CSS'i önbellekten okuyordu. Bu, `verify.js` zincirinde **iki adımı**
+(önbellek + mobil katman) birden düşürüyordu; damga yenilendi.
+
+---
+
 ## GÜNCELLEME v10.19 — Festival devresi · güncelleme altyapısı · iki gerçek hata
 
 ### 🎪 Festival devresi — `systems/festivals.js` + `data/festivals.js`
