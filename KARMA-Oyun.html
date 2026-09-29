@@ -6133,7 +6133,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.26.0";
+  K.VERSION = "10.27.0";
   K.VERSION_DATE = "2026-09-29";
 })(window.K = window.K || {});
 
@@ -8602,13 +8602,34 @@ html, body {
 })(window.K = window.K || {});
 
 </script>
+  <!-- B-6: dosya adları yakın (`persona` / `personality`) ama anlamları AYRI:
+         persona.js      → OYUNCUNUN sanatçı kimliği   (K.PLAYER_PERSONAS)
+         personality.js  → NPC kişilik katmanı          (K.npcPersonality)
+       Yanlış olanı yazmak `undefined` döndürüp SESSİZCE bozulmasın diye
+       global adları artık açık `PLAYER_` / `npc` önekli. -->
   <script>
 /* ==== js/data/persona.js ==== */
 /* ============================================================
    KARMA — data/persona.js
-   SANATÇI PERSONASI
-   Oyuncunun kimliği. Şarkılar persona ile tutarlıysa itibar ve
-   sadakat artar; tutarsızsa "kimliksiz" eleştirisi gelir.
+   OYUNCUNUN SANATÇI KİMLİĞİ  ·  PLAYER tarafı
+
+   ⚠️ BURASI NPC KİŞİLİĞİ DEĞİLDİR (B-6). Yan komşu `data/personality.js`
+   NPC kişilik katmanıdır. İki dosyanın adı yakın olduğu için global adları
+   bilinçli olarak AYRI önek taşır:
+
+     BU DOSYA          data/persona.js       (oyuncu)
+                       K.PLAYER_PERSONAS · K.playerPersonaById
+                       K.playerPersonaFit · K.playerIdentityScore
+     KOMŞU DOSYA       data/personality.js   (NPC)
+                       K.NPC_PERSONALITY · K.npcPersonality
+
+   Neden? Eskiden global'ler yalnızca tek bir harfle ayrılıyordu
+   (`K.PERSONAS` ↔ `K.PERSONALITY`). Yanlış olanı yazmak `undefined`
+   döndürüp SESSİZCE yanlış davranışa yol açıyordu. Bu ayrım
+   tools/smoke-tooling.js içindeki B-6 invariant'ı ile kilitlidir.
+
+   Oyuncu kimliği. Şarkılar kimlikle tutarlıysa itibar ve sadakat artar;
+   tutarsızsa "kimliksiz" eleştirisi gelir. (Kayıtlı alan: `player.persona`)
 
    genres : uyumlu türler
    themes : uyumlu söz temaları
@@ -8618,7 +8639,7 @@ html, body {
 (function (K) {
   "use strict";
 
-  K.PERSONAS = [
+  K.PLAYER_PERSONAS = [
     {
       id: "sokak", name: "Sokak", icon: "🏙️",
       genres: ["rap", "hiphop", "drill", "boombap", "trap"],
@@ -8656,28 +8677,28 @@ html, body {
     }
   ];
 
-  K.personaById = function (id) {
-    return K.PERSONAS.find(p => p.id === id) || null;
+  K.playerPersonaById = function (id) {
+    return K.PLAYER_PERSONAS.find(p => p.id === id) || null;
   };
 
-  /* persona uyumu: 1 = tam uyum, 0 = alakasız */
-  K.personaFit = function (personaId, genre, themeId) {
-    const p = K.personaById(personaId);
+  /* oyuncu kimliği uyumu: 1 = tam uyum, 0 = alakasız */
+  K.playerPersonaFit = function (personaId, genre, themeId) {
+    const p = K.playerPersonaById(personaId);
     if (!p) return null;
     const g = p.genres.indexOf(genre) >= 0;
     const t = p.themes.indexOf(themeId) >= 0;
     return { genre: g, theme: t, score: (g ? 0.5 : 0) + (t ? 0.5 : 0), persona: p };
   };
 
-  /* Son yayınlardan kimlik tutarlılığı (0-100) */
-  K.identityScore = function () {
+  /* Son yayınlardan kimlik tutarlılığı (0-100) — OYUNCU */
+  K.playerIdentityScore = function () {
     const p = K.state && K.state.player;
     if (!p || !p.persona) return 0;
     const songs = (p.songs || []).slice(-8);
     if (!songs.length) return 60;
     let ok = 0;
     songs.forEach(s => {
-      const f = K.personaFit(p.persona, s.genre, s.lyricTheme);
+      const f = K.playerPersonaFit(p.persona, s.genre, s.lyricTheme);
       if (f && f.score >= 0.5) ok++;
     });
     return Math.max(0, Math.min(100, Math.round(40 + (ok / songs.length) * 60)));
@@ -8689,7 +8710,21 @@ html, body {
 /* ==== js/data/personality.js ==== */
 /* ============================================================
    KARMA — data/personality.js
-   SANATÇI KİŞİLİK KATMANI (derin profil)
+   NPC SANATÇI KİŞİLİK KATMANI (derin profil)
+
+   ⚠️ BURASI OYUNCUNUN KİMLİĞİ DEĞİLDİR (B-6). Yan komşu `data/persona.js`
+   oyuncunun sanatçı kimliğidir. İki dosyanın adı yakın olduğu için global
+   adları bilinçli olarak AYRI önek taşır:
+
+     BU DOSYA          data/personality.js  (NPC)
+                       K.NPC_PERSONALITY (veri) · K.npcPersonality (motor)
+     KOMŞU DOSYA       data/persona.js      (oyuncu)
+                       K.PLAYER_PERSONAS · K.playerPersonaById
+
+   Neden? Eskiden global'ler yalnızca tek bir harfle ayrılıyordu
+   (`K.PERSONALITY` ↔ `K.PERSONAS`). Yanlış olanı yazmak `undefined`
+   döndürüp SESSİZCE yanlış davranışa yol açıyordu. Bu ayrım
+   tools/smoke-tooling.js içindeki B-6 invariant'ı ile kilitlidir.
 
    Neden ayrı bir katman?
    ----------------------
@@ -8713,7 +8748,7 @@ html, body {
 (function (K) {
   "use strict";
 
-  K.PERSONALITY = {
+  K.NPC_PERSONALITY = {
 
     /* ==========================================================
        ŞEHİNŞAH — "Mistik Kral"
@@ -8881,18 +8916,18 @@ html, body {
      MOTOR YARDIMCILARI
      ============================================================ */
 
-  K.personality = {
+  K.npcPersonality = {
 
-    byId(id) { return K.PERSONALITY[id] || null; },
+    byId(id) { return K.NPC_PERSONALITY[id] || null; },
 
-    has(id) { return !!K.PERSONALITY[id]; },
+    has(id) { return !!K.NPC_PERSONALITY[id]; },
 
     /* liste (UI için) */
-    list() { return Object.keys(K.PERSONALITY).map(id => K.PERSONALITY[id]); },
+    list() { return Object.keys(K.NPC_PERSONALITY).map(id => K.NPC_PERSONALITY[id]); },
 
     /* samimiyet düzeltmesi: niyet + profil */
     bias(artistId, intent) {
-      const p = K.PERSONALITY[artistId];
+      const p = K.NPC_PERSONALITY[artistId];
       if (!p || !p.bias) return 0;
       const b = p.bias[intent];
       return b == null ? 0 : b;
@@ -8900,7 +8935,7 @@ html, body {
 
     /* nadir imza açılışı (her zaman değil, %12) */
     opening(artistId) {
-      const p = K.PERSONALITY[artistId];
+      const p = K.NPC_PERSONALITY[artistId];
       if (!p || !p.openings || !p.openings.length) return "";
       if (!K.util || !K.util.chance(0.12)) return "";
       return K.util.pick(p.openings) + " ";
@@ -8908,7 +8943,7 @@ html, body {
 
     /* oyun içi "kişilik testi" kartı */
     card(artistId) {
-      const p = K.PERSONALITY[artistId];
+      const p = K.NPC_PERSONALITY[artistId];
       if (!p) return null;
       return {
         code: p.code, title: p.test.title, archetype: p.archetype,
@@ -8921,14 +8956,14 @@ html, body {
 
     /* sesli özet (DM'de "kim bu adam" hissi) */
     summaryLine(artistId) {
-      const p = K.PERSONALITY[artistId];
+      const p = K.NPC_PERSONALITY[artistId];
       if (!p) return "";
       return p.archetype + " · " + p.tagline;
     },
 
     /* hard/insult gibi niyetlerde profilin kırmızı çizgisine girip girmediği */
     isRedLine(artistId, intent) {
-      const p = K.PERSONALITY[artistId];
+      const p = K.NPC_PERSONALITY[artistId];
       if (!p) return false;
       return ["insult", "personal", "askmoney", "flirt"].indexOf(intent) >= 0;
     }
@@ -9317,7 +9352,10 @@ window.K = window.K || {};
         jobLog: {},
         jobEarnings: 0,
         skills: { work: 4, studio: 0, music: 6, network: 2 },
-        persona: null,            // sanatçı kimliği (data/persona.js)
+        /* B-6: OYUNCUNUN kimlik id'si (data/player-persona.js → K.PLAYER_PERSONAS).
+           NPC kişilik katmanı (data/npc-personality.js → K.npcPersonality)
+           ile İLGİSİZDİR. Alan adı kayıt uyumluluğu için `persona` kaldı. */
+        persona: null,
         beats: [],                // beat envanteri [{id,name,producer,quality,cost}]
         ghost: { hired: false, name: null, exposure: 0, uses: 0 },  // söz yazarı
         albums: [],
@@ -15683,7 +15721,7 @@ window.K = window.K || {};
       /* v10.14 — KİŞİLİK AĞIRLIĞI: aynı niyet her sanatçıda aynı puanı
          getirmemeli. Şehinşah'a boş övgü ile söz eleştirisi, wegh'e
          taklit tavsiyesi ile üretim sorusu aynı şey değil. */
-      if (K.personality && K.personality.bias) delta += K.personality.bias(artistId, intent);
+      if (K.npcPersonality && K.npcPersonality.bias) delta += K.npcPersonality.bias(artistId, intent);
       if (agendaMsg) delta += 0.4;
 
       /* ---- hafızayı güncelle ---- */
@@ -15712,8 +15750,8 @@ window.K = window.K || {};
       if (picked.length) msg = msg + " " + picked.join(" ");
 
       /* ---- kişilik imzası: sanatçının kendi açılış kalıbı (nadir) ---- */
-      if (K.personality && K.personality.opening && !forcedMsgs && intent !== "generic") {
-        const op = K.personality.opening(artistId);
+      if (K.npcPersonality && K.npcPersonality.opening && !forcedMsgs && intent !== "generic") {
+        const op = K.npcPersonality.opening(artistId);
         if (op && msg.indexOf(op) !== 0 && (op.length + msg.length) < 240) msg = op + msg;
       }
       return { msgs: [msg], delta, intent, action };
@@ -16405,8 +16443,8 @@ window.K = window.K || {};
       const kindDef = K.kindById(rel.kind);
       const relThemeId = rel.lyrics ? rel.lyrics.themeId : "street";
       const themeEff = K.lyricThemeById(relThemeId).effect;
-      /* --- PERSONA UYUMU --- */
-      const pfit = (K.personaFit && p.persona) ? K.personaFit(p.persona, rel.genre, relThemeId) : null;
+      /* --- OYUNCU KİMLİK UYUMU (player-persona.js) --- */
+      const pfit = (K.playerPersonaFit && p.persona) ? K.playerPersonaFit(p.persona, rel.genre, relThemeId) : null;
       const persona = pfit ? pfit.persona : null;
       const lyricBoost = 0.85 + ((rel.lyrics ? rel.lyrics.score : 50) / 100) * 0.4;
       const cohesionMult = rel.cohesion != null ? 0.9 + (rel.cohesion / 100) * 0.35 : 1;
@@ -24830,8 +24868,8 @@ window.K = window.K || {};
       const label = p.labelId ? K.labelById(p.labelId) : null;
       const totals = K.platforms.playerTotals();
       const top = p.songs.slice().sort((a, b) => b.streams - a.streams).slice(0, 5);
-      const persona = p.persona ? K.personaById(p.persona) : null;
-      const ident = K.identityScore ? K.identityScore() : 0;
+      const persona = p.persona ? K.playerPersonaById(p.persona) : null;
+      const ident = K.playerIdentityScore ? K.playerIdentityScore() : 0;
 
       return `
         <div class="c-block">
@@ -27596,7 +27634,7 @@ window.K = window.K || {};
     /* ---------------- SANATÇI KİMLİĞİ (persona) ---------------- */
     openPersonaModal() {
       const p = K.state.player;
-      const body = `<div class="persona-grid">${K.PERSONAS.map(ps => `
+      const body = `<div class="persona-grid">${K.PLAYER_PERSONAS.map(ps => `
         <button class="persona-opt ${p.persona === ps.id ? "active" : ""}" data-act="pick-persona" data-arg="${ps.id}">
           <span class="po-icon">${ps.icon}</span>
           <b>${U.escape(ps.name)}</b>
@@ -27611,13 +27649,13 @@ window.K = window.K || {};
     setPersona(id) {
       const p = K.state.player;
       const old = p.persona;
-      if (!K.personaById(id)) return;
+      if (!K.playerPersonaById(id)) return;
       p.persona = id;
       if (old && old !== id) p.reputation = Math.max(0, (p.reputation || 0) - 3);
       K.save();
       K.ui.closeModal();
       K.careerUI.render();
-      K.toast("🎭 Kimlik", K.personaById(id).name + " kimliğini seçtin." + (old && old !== id ? " Yeniden markalama itibarı biraz yordu." : ""), "ok");
+      K.toast("🎭 Kimlik", K.playerPersonaById(id).name + " kimliğini seçtin." + (old && old !== id ? " Yeniden markalama itibarı biraz yordu." : ""), "ok");
     },
 
     /* ---------------- kimlik modalı ---------------- */
@@ -30433,8 +30471,8 @@ window.K = window.K || {};
           <div class="dim">${U.compact(p.monthly)} aylık dinleyici · ${U.escape(handle(artistId))}</div>
         </div>
 
-        ${K.personality && K.personality.has(artistId) ? (() => {
-          const c = K.personality.card(artistId);
+        ${K.npcPersonality && K.npcPersonality.has(artistId) ? (() => {
+          const c = K.npcPersonality.card(artistId);
           return `<div class="ig-persona">
             <div class="ig-persona-top">
               <span class="ig-persona-code">${U.escape(c.code)}</span>
