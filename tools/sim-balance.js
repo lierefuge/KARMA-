@@ -16,9 +16,28 @@
    Determinizm: Math.random tohumlanır (seed), böylece aynı kod aynı
    sonucu verir; iki sürümü karşılaştırmak mümkün olur.
    ============================================================ */
-const { JSDOM, VirtualConsole } = require("/home/user/node_modules/jsdom");
 const fs = require("fs");
 const path = require("path");
+
+/* jsdom çözümlemesi — tools/harness.js ile AYNI sıra.
+   DÜZELTME (v10.19): burada sabit bir yerel yol vardı:
+     require("/home/user/node_modules/jsdom")
+   Bu yol yalnızca geliştiricinin makinesinde vardı; depo kökünde
+   `npm install` yapan HER ortamda (CI dâhil) modül bulunamıyor ve
+   denge simülasyonu adımı kırılıyordu. Artık sırayla denenir:
+     KARMA_JSDOM → yerel node_modules → ev dizini node_modules */
+function resolveJsdom() {
+  const os = require("os");
+  const cands = [
+    process.env.KARMA_JSDOM,
+    "jsdom",
+    path.join(process.env.HOME || os.homedir() || "/home/user", "node_modules", "jsdom")
+  ].filter(Boolean);
+  for (const c of cands) { try { return require(c); } catch (e) {} }
+  console.error("jsdom bulunamadı. Kur: npm install  (veya KARMA_JSDOM ile yolu ver)");
+  process.exit(1);
+}
+const { JSDOM, VirtualConsole } = resolveJsdom();
 
 const ROOT = path.resolve(__dirname, "..");
 const FILE = path.join(ROOT, "KARMA-Oyun.html");
