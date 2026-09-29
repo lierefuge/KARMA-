@@ -277,6 +277,16 @@
   gap: 14px;
 }
 
+/* ------------------------------------------------------------------
+   v10.6 EZİLME (SHRINK) DÜZELTMESİ
+   .app-body bir flex kolonudur; çocukları varsayılan flex-shrink:1
+   ile EZİLİYORDU. Sonucu: hikâye şeridinin yarısı kesiliyor,
+   TikTok/Reels kartları alçalıp bozuk görünüyor, uzun listeler
+   sıkışıyordu. Tüm doğrudan çocuklar sabitlenir; büyümesi gereken
+   bileşenler kendi kurallarında flex belirtir (ör. .dm-thread,
+   .ig-reels) ve bu kuralı geçersiz kılar. */
+.app-body > * { flex: 0 0 auto; }
+
 /* phone app segmented tabs */
 .seg {
   display: flex;
