@@ -5,6 +5,79 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.26 — Önizleme kapsamı %100 · YouTube kapsamı %77,8 · Türkçe harf hatası
+
+### ✅ Önizlemeler tamamlandı: %99,0 → **%100** (504/504)
+
+Eksik olan **5 şarkının 5'i de** iTunes'da bulundu ve her biri **HEAD isteğiyle
+HTTP 200** doğrulandı:
+
+| Şarkı | Canlı kayıt |
+|---|---|
+| `muti` — İlle De Sen | Muti & Azer Bülbül |
+| `lierefuge` — RADİKAL | Lie Refuge |
+| `lierefuge` — CEVHER | Lie Refuge |
+| `lierefuge` — TEK | Lie Refuge |
+| `lierefuge` — İnan Bana (feat. Lie Refuge) | Lil deez |
+
+**Neden `fetch-artist-discography.js` kullanılmadı?** O araç bir sanatçının TÜM
+bloğunu canlı veriyle **yeniden yazar** ve küratörlü veriyi bozar:
+
+- “Muti” bloğunu **Heijan'ın** artistId'siyle çekmek 8 küratörlü ortak çalışmayı
+  **68 Heijan şarkısıyla** değiştirirdi (iTunes'da “Muti” adında 3 farklı sanatçı var)
+- Lierefuge bloğundaki konuk parçalar (*Yol (feat. Lie Refuge)*, *İnan Bana (feat. Lie Refuge)*)
+  canlı listede yok → **silinirdi**
+
+Bu yüzden yeni ve **hedefli** bir araç yazıldı: `tools/fetch-missing-previews.js`.
+Yalnızca eksik önizlemeyi ekler; mevcut kayıtların hiçbirine dokunmaz.
+İki strateji kullanır: (1) başlık+sanatçı araması, (2) **sanatçı katalog taraması**
+(başlık araması niş sanatçıda boş dönerken katalog şarkıyı bulur — Lierefuge'ün üç
+şarkısı tam olarak böyle bulundu).
+
+### 🎬 YouTube kapsamı %52,6 → **%77,8** (+127 kayıt)
+
+Ölçüm açığın tamamının **amiral sanatçılarda** olduğunu gösterdi (Şehinşah 8/187,
+wegh Rumi 1/48). `real-youtube.js` elle üretilmişti ve **yeniden üretilemiyordu**.
+Yeni araç `tools/fetch-youtube.js` bunu üretilebilir kılıyor:
+
+- Yetkili kanalların **tüm yüklemeleri sayfalanır** (innertube continuation):
+  Şehinşah resmî 233 + Topic 84, wegh Rumi 33 video
+- Her video **oembed** ile doğrulanır (gömülemeyen videolar elenir)
+- Eşleşme **katı**: şarkı adı başlıkta **kelime öbeği** olmalı
+- **Yanlış bağlamayı önleyen üç kural** — hepsi gerçek bir hatadan doğdu:
+  1. **Şarkı olmayan videolar elenir.** `Kunteper` yanlışlıkla *“Kunteper (Teaser)”*
+     videosuna bağlanıyordu: `norm()` parantez içeriğini sildiği için “Teaser”
+     işareti kayboluyordu. Artık işaret **ham başlıkta** aranır.
+  2. **Çakışma çözümü.** `Prenses` ve `Prenses [Remix]` normalleşince aynı oluyor ve
+     özgün şarkının videosu **remix'e** bağlanıyordu. Artık *kesinlik*
+     (ortak kelime ÷ şarkı kelime sayısı) karşılaştırılır: 1/1 > 1/2.
+  3. **Kısa/genel adlar** fazladan kelime kabul etmez → “Yalan” şarkısı
+     “Yalan Dünya” videosuna bağlanmaz.
+
+Sonuç: **Şehinşah 107** (+99) ve **wegh Rumi 29** (+28) kayıt. Kalan eksikler
+(Şehinşah 80, wegh 19, Lierefuge 11) **gerçekten YouTube'da yok**: sanatçının tüm
+kanal envanteri ve başlık bazlı 11 ayrı arama ile doğrulandı. “Wegh - Topic”
+kanalı mevcut değil; yalnızca fan kanalları var ve onlar **bilinçli olarak
+kullanılmadı** (yanlış bağlama riski).
+
+### 🇹🇷 Türkçe büyük/küçük harf hatası (gerçek hata)
+
+`"KARARDI".toLowerCase()` → `"karardi"`, ama şarkının yazımı `"Karardı"` → `"karardı"`.
+Türkçe'de `I` harfinin küçüğü `ı` olduğu için JS bunu `i` yapar ve eşleşme **sessizce
+düşer**. Bu hata hem YouTube eşleştirmesinde (wegh Rumi'nin *Karardı Bulutlar* şarkısı
+bulunamıyordu) hem de `systems/preview.js`'teki normalleştirilmiş başlık aramasında
+vardı. Artık `ı/İ/I/i` tek harfe katlanır (`trFold`) ve `"İ".toLowerCase()`'in ürettiği
+birleşik nokta (U+0307) temizlenir.
+
+### 🧪 Test paketi genişletildi: `tools/smoke-previews.js` (50 kontrol)
+
+Yeni bloklar: **F · YouTube** (her kayıt gerçek şarkıya bağlı mı, geçerli videoId,
+başlık doğrulanmış, kapsam ≥ %70, Şehinşah ≥ 100 / wegh ≥ 25 gerileme kilidi) ve
+**G · Türkçe katlama** (büyük harfli ve karışık ı/i yazımla önizleme bulunuyor mu).
+Ayrıca önizleme kapsamı artık **%100** olarak kilitli.
+
+---
+
 ## GÜNCELLEME v10.25 — P-2 kapatıldı: önizleme süzgeci + kalıcı veri kilidi
 
 ### 🎧 P-2 hakkında dürüst durum
