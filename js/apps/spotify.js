@@ -101,7 +101,9 @@
       const p = K.state.player;
       const pls = K.platforms.editorialPlaylists().slice(0, 6);
       const trend = (K.state.chart || []).slice(0, 8);
-      const recent = (K.REAL_SONGS && Object.keys(K.REAL_SONGS).length)
+      /* v10.16 — tembel veri katmanı (P-1): yüklenmemişse bölüm atlanır,
+         veri gelince lazydata:loaded ile arayüz tazelenir */
+      const recent = (K.lazy ? K.lazy.loaded("real-songs") : !!(K.REAL_SONGS && Object.keys(K.REAL_SONGS).length))
         ? K.artistList().slice(0, 5).flatMap(a => K.platforms.npcSongs(a.id, 2)).slice(0, 6) : [];
       const hour = new Date().getHours();
       const greet = hour < 6 ? "İyi geceler" : hour < 12 ? "Günaydın" : hour < 18 ? "İyi günler" : "İyi akşamlar";
