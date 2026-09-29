@@ -186,6 +186,29 @@
 
     renderAll();
 
+    /* ============================================================
+       v10.16 (P-1) — AĞIR VERİ: ilk boyamadan SONRA çek.
+       real-songs + real-previews + real-youtube + discography (~408 KB)
+       açılışta indirilip çalıştırılıyordu; artık arka planda gelir.
+       Veri gelince:
+         · _npcSongs önbelleği temizlenir (aksi hâlde sentetik şarkılar
+           kalıcı olarak önbellekte kalırdı)
+         · arayüz yeniden çizilir
+       Birden çok veri arka arkaya gelirse tek tazeleme yapılır (debounce).
+       ============================================================ */
+    let lazyTimer = null;
+    if (K.lazy) {
+      K.lazy.onLoaded(() => {
+        if (lazyTimer) return;
+        lazyTimer = setTimeout(() => {
+          lazyTimer = null;
+          if (K.state) K.state._npcSongs = {};
+          renderAll();
+        }, 120);
+      });
+      K.lazy.schedule(K.lazy.names, 0);
+    }
+
     // gerçek sanatçı portrelerini arka planda çek
     if (K.imagery && K.imagery.hydratePortraits) K.imagery.hydratePortraits();
 
