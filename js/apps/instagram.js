@@ -378,8 +378,8 @@
           <div class="dim">${U.compact(p.monthly)} aylık dinleyici · ${U.escape(handle(artistId))}</div>
         </div>
 
-        ${K.personality && K.personality.has(artistId) ? (() => {
-          const c = K.personality.card(artistId);
+        ${K.npcPersonality && K.npcPersonality.has(artistId) ? (() => {
+          const c = K.npcPersonality.card(artistId);
           return `<div class="ig-persona">
             <div class="ig-persona-top">
               <span class="ig-persona-code">${U.escape(c.code)}</span>
