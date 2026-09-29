@@ -519,6 +519,17 @@
         K.beef.noteDissTrack(rel.dissTarget, songs[0]);
       }
 
+      /* v10.17 — DİKKAT DALGASI: yayın dalgayı besler.
+         Güç = kalite + tanıtım bütçesi + gündem uyumu.
+         Doygunluk biriktikçe aynı güçteki yayın daha az dalga üretir:
+         bu yüzden sürekli yayın yapan sanatçı bir noktada PLATO yapar,
+         ara veren ise düşer. ("yüksel → zirve → düş") */
+      const avgQ = songs.length ? U.sum(songs, x => x.quality || 50) / songs.length : 50;
+      K.game.bumpAttention(U.clamp(
+        0.28 + avgQ / 200 + (rel.marketing || 0) / 420000 + (rel.agenda && rel.agenda.score ? 0.12 : 0),
+        0, 1.4
+      ));
+
       // ilk şarkıyı döndür (game.js çoklu yayını ayrıca işler)
       songs.slice(1).forEach(p2 => p.songs.push(p2));
       return songs[0];
