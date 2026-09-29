@@ -9,6 +9,24 @@
   "use strict";
   const U = K.util;
 
+  /* ============================================================
+     v10.11 GERÇEKLİK DÜZELTMESİ — UGC'de "YÜZ" YOKTU
+     Eskiden sadece soğuk bir `videos` sayacı vardı: şarkıyı kimin
+     kullandığı, hangi videoların videoları olduğu belli değildi.
+     Gerçekte kısa video trendi KULLANICILARDAN gelir; bu yüzden
+     sesin etrafında somut yaratıcılar (kullanıcı adları + kitle) ve
+     öne çıkan video başlıkları üretilir. TikTok ses sayfasında,
+     trend listesinde ve Creator Studio'da görünür. */
+  const CREATOR_POOL = [
+    "sokak.kayit", "gece.vlog", "betonmelon", "mix.hesap", "fyp.tr", "kulis.gercek",
+    "rap.arsiv", "yeni.sesler", "danshatti", "sessizseyir", "adam.akli", "tuzak.muzik"
+  ];
+  const UGC_TITLES = [
+    "bu sesi buldum ve kaldım", "gece 3'te bunu dinliyorum", "sokakta çaldı", "part 2 geldi",
+    "bu nakarat kafamda dönüyor", "kulis kaydı", "araba içi ses testi", "dans challenge",
+    "ilk dinleyiş tepkisi", "sesi kısma", "bu flow sert", "3 kişi bunu anlar"
+  ];
+
   K.shortform = {
 
     PLATFORMS: {
@@ -21,6 +39,21 @@
       if (!song) return null;
       if (!song.sound) song.sound = { videos: 0, momentum: 0, peak: 0, startedDay: null, lastGain: 0, platform: null, trend: false, ever: false };
       return song.sound;
+    },
+
+    /* sesin etrafındaki yaratıcılar (gerçek kullanıcı adları + kitle) */
+    creators(song) {
+      const sn = K.shortform.sound(song);
+      if (!sn || !sn.videos) return [];
+      if (!sn.creators) {
+        const n = Math.min(6, 2 + Math.floor(sn.videos / 8000));
+        sn.creators = U.shuffle(CREATOR_POOL.slice()).slice(0, n).map((h) => ({
+          handle: h.startsWith("@") ? h : "@" + h,
+          share: Math.round((0.25 + Math.random() * 0.6) * 1000) / 10,
+          title: U.pick(UGC_TITLES)
+        })).sort((a, b) => b.share - a.share);
+      }
+      return sn.creators;
     },
 
     /* şarkının "trend olma potansiyeli" (0.1 - 1.6) */
@@ -98,6 +131,9 @@
         sn.peak = Math.max(sn.peak, sn.videos);
         sn.trend = sn.momentum > 0.45;
         sn.decay = 1;
+        /* yaratıcı kadrosu videolar çoğaldıkça büyür */
+        if (!sn.creators && sn.videos > 3000) K.shortform.creators(song);
+        else if (sn.creators && sn.creators.length < 6 && sn.videos > sn.creators.length * 12000) sn.creators = null;
       });
     },
 
@@ -113,7 +149,11 @@
     trendList(limit) {
       const list = (K.state.player.songs || [])
         .filter(x => x.sound && x.sound.videos > 0)
-        .map(x => ({ songId: x.id, title: x.title, videos: x.sound.videos, gain: x.sound.lastGain, trend: x.sound.trend, platform: x.sound.platform }))
+        .map(x => ({
+          songId: x.id, title: x.title, videos: x.sound.videos, gain: x.sound.lastGain,
+          trend: x.sound.trend, platform: x.sound.platform,
+          creators: K.shortform.creators(x), art: x.art || null
+        }))
         .sort((a, b) => b.videos - a.videos);
       return list.slice(0, limit || 10);
     }
