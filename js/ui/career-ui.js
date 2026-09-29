@@ -1745,11 +1745,76 @@
     /* =====================================================
        ANALİZ — yayın performansı
        ===================================================== */
+    /* =====================================================
+       PLAKLAR + KARMA WRAPPED (v10.23)
+       systems/certifications.js · systems/yearwrap.js
+       ===================================================== */
+    certificationsHTML() {
+      const p = K.state.player;
+      const sum = K.certifications.summary();
+      const wall = K.certifications.list().slice(0, 8);
+      const top = (p.songs || []).slice().sort((a, b) => (b.streams || 0) - (a.streams || 0))[0] || null;
+      const prog = top ? K.certifications.progress(top.streams || 0) : null;
+      const wl = K.yearwrap.history();
+      const lastW = wl.length ? wl[wl.length - 1] : null;
+      const nextWrappedDay = (K.yearwrap.completedYears() + 1) * K.yearwrap.YEAR + 1;
+
+      const tierStat = (t) => {
+        const n = K.certifications.count(t.id);
+        return `<div class="plq-stat" style="--pc:${t.color}">
+          <span class="k">${t.emoji} ${t.short}</span><span class="v">${n}</span>
+          <span class="d">${U.fmt(t.streams)}+ dinlenme</span></div>`;
+      };
+
+      return `
+        <div class="c-block">
+          <div class="c-head"><div><h2>🏅 Plak Vitrini</h2><div class="sub">Altın · Platin · Elmas — kalıcı katalog etkisi</div></div>
+            ${lastW ? `<button class="btn btn-primary btn-sm" data-act="open-wrapped">📊 Wrapped</button>` : ""}</div>
+
+          <div class="plq-summary">
+            <div class="plq-stat" style="--pc:#b06cff"><span class="k">Toplam Plak</span><span class="v">${sum.total}</span><span class="d">ödül ağırlığı +${sum.awardWeight}</span></div>
+            ${K.certifications.TIERS.map(tierStat).join("")}
+          </div>
+
+          ${top && prog && prog.next ? `<div class="plq-prog">
+            <div class="sub" style="font-size:11px;color:var(--text-2)">Sıradaki plak: <b>${U.escape(top.title)}</b> → ${prog.next.emoji} ${prog.next.name}</div>
+            <div class="bar"><i style="width:${prog.pct}%"></i></div>
+            <div class="lbl">%${prog.pct} · ${U.fmt(prog.remaining)} dinlenme kaldı</div>
+          </div>` : ""}
+
+          ${wall.length ? `<div class="plq-wall" style="margin-top:12px">${wall.map(pl => {
+            const t = K.certifications.tier(pl.tier) || {};
+            return `<div class="plq-row" style="--pc:${t.color || "#ffcb5c"}">
+              <span class="plq-badge">${t.emoji || "🏅"}</span>
+              <div class="grow" style="min-width:0">
+                <div class="tt">${U.escape(pl.title)}</div>
+                <div class="ss">${pl.kind === "album" ? "Albüm" : "Şarkı"} · Gün ${pl.day}</div>
+              </div>
+              <span class="kk">${t.short || ""}</span>
+            </div>`;
+          }).join("")}</div>` : `<div class="empty-note" style="margin-top:10px"><b>Henüz plak yok</b>Şarkıların 1.000.000 dinlenmeye ulaşınca Altın Plak gelir.</div>`}
+        </div>
+
+        <div class="c-block">
+          <div class="c-head"><div><h2>📊 KARMA Wrapped</h2><div class="sub">Yılda bir otomatik yıl sonu özeti</div></div></div>
+          ${lastW ? `<div class="wrapped-hero">
+            <div class="wh-year">${lastW.year}</div>
+            <div class="wh-title">KARMA Wrapped</div>
+            <div class="wh-sub">${U.fmt(lastW.streams)} dinlenme · ${lastW.songsReleased} yayın · ${lastW.shows} sahne</div>
+          </div>
+          <div class="action-row" style="margin-top:10px">
+            <button class="btn btn-primary btn-sm" data-act="open-wrapped">📊 Özeti Aç</button>
+            <span class="hint" style="align-self:center">${wl.length} yıllık arşiv</span>
+          </div>`
+          : `<div class="empty-note"><b>Henüz özet yok</b>İlk yılın sonunda (Gün ${nextWrappedDay}) KARMA Wrapped otomatik oluşur — şu an ${Math.max(0, nextWrappedDay - K.state.day)} gün kaldı.</div>`}
+        </div>`;
+    },
+
     renderAnalytics() {
       const s = K.state, p = s.player;
       const hide = K.settings && K.settings.valuesHidden && K.settings.valuesHidden();
       const songs = (p.songs || []).slice().sort((a, b) => (b.publishedDay || 0) - (a.publishedDay || 0));
-      if (!songs.length) return `<div class="empty-note"><b>Analiz için veri yok</b>İlk yayınını çıkarınca dinlenme, liste ve mağaza verileri burada görünür.</div>`;
+      if (!songs.length) return K.careerUI.certificationsHTML() + `<div class="empty-note"><b>Analiz için veri yok</b>İlk yayınını çıkarınca dinlenme, liste ve mağaza verileri burada görünür.</div>`;
 
       const total = U.sum(songs, x => x.streams || 0);
       const activeLists = K.lists ? K.lists.summary().filter(r => !r.exitDay) : [];
@@ -1795,7 +1860,7 @@
         </div>`;
       }).join("");
 
-      return `
+      return K.careerUI.certificationsHTML() + `
         <div class="c-block">
           <div class="c-head"><div><h2>Analiz</h2><div class="sub">Yayın performansı, mağaza kırılımı ve liste takibi.</div></div></div>
           <div class="an-cards">
@@ -2700,6 +2765,7 @@
         const parts = String(btn.dataset.arg || "").split("|");
         K.rollout.fireTeaser(parts[0], parts[1]);
       }
+      else if (act === "open-wrapped") K.yearwrap.open();
       else if (act === "hire-staff") K.label.hireStaff(btn.dataset.arg);
       else if (act === "work-job") K.jobs.work(btn.dataset.arg);
       else if (act === "crisis-choice") K.crisis.resolve(+btn.dataset.arg);
