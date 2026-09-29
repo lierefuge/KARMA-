@@ -50,6 +50,34 @@ Taşıma **kayıpsız** kanıtlandı: çıkarılan nesne literal'inin sha256'sı
 profil dosyası yüklenmezse motor boş nesneyle çalışır ve genel/tür havuzlarına
 düşer — **çökmez**.
 
+### ⚠️ v10.18.1 — CI kırmızısının nedeni: jsdom sürümü
+
+v10.18.0 yayınında CI'nın "Tam doğrulama" adımı **kırmızı** geldi.
+Teşhis (yerelde yeniden üretildi):
+
+| jsdom | Kariyer eğrisi süiti (~1.100 oyun günü) |
+|---|---|
+| **24.1.3** (o gün kullanılan) | ❌ `FATAL ERROR: Reached heap limit — JavaScript heap out of memory` |
+| **30.1.1** | ✅ 24/24 |
+
+Yani hata oyun kodunda değil, **test bağımlılığının sürümündeydi**: eski jsdom
+uzun simülasyonlarda DOM düğümlerini ve zamanlayıcıları yeterince bırakmıyor,
+heap tükeniyor. Yerelde jsdom 30 kurulu olduğu için sorun görünmüyordu —
+bu yüzden CI'ya kadar fark edilmedi.
+
+**Düzeltme:**
+- `package.json` → `jsdom: "^30.1.1"`, `engines.node: ">=22.15"`
+  (jsdom 30 Node `^22.22.2 || ^24.15.0 || >=26` ister)
+- CI iş akışı → `node-version: "24"`
+- **Sürüm kapısı:** `tools/harness.js` → `jsdomVersion()` + `MIN_JSDOM = 30`;
+  `tools/verify.js` artık **0. adımda** jsdom sürümünü denetler ve eski sürümde
+  net bir mesajla durur:
+  ```
+  ❌ jsdom sürümü >= 30 — kurulu: 24.1.3
+     YÜKSELTİN: `npm install jsdom@^30` (eski sürümler uzun testlerde OOM veriyor)
+  ```
+  Böylece aynı hata sessizce tekrarlanamaz.
+
 ### 🤖 CI — her push'ta 11 adımlı doğrulama
 
 **Yeni: `.github/workflows/tests.yml`** + **`tools/verify.js`**
