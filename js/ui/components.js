@@ -470,7 +470,8 @@
 
     /* ---------------- diskografi bölümü ---------------- */
     discographySection(artistId, pactName) {
-      const disc = (K.DISCOGRAPHY && K.DISCOGRAPHY[artistId]) || [];
+      /* v10.16 — tembel veri katmanı (P-1) */
+      const disc = K.lazy ? K.lazy.discography(artistId) : ((K.DISCOGRAPHY && K.DISCOGRAPHY[artistId]) || []);
       if (!disc.length) return "";
       return K.ui.section("Diskografi", `<span class="muted">${disc.length} yayın</span>`) +
         disc.map(al => `<div class="p-row" data-pact="${pactName}" data-arg="${U.escape(al.title)}">
