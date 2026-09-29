@@ -345,8 +345,17 @@
               : `<div class="mini-empty">Benzer sanatçı bulunamadı.</div>`);
           }
 
-          return head + K.ui.section("Popüler", `<span class="muted">${songs.length}</span>`)
+          const total = (prof.songs || []).length;
+          return head + K.ui.section("Popüler", `<span class="muted">${songs.length} / ${total}</span>`)
             + songs.map((s, i) => trackRow({ ...s, artistName: prof.name }, { index: i })).join("")
+            + (total > songs.length
+              ? `<div class="p-row" data-pact="all-songs" data-arg="${artistId}">
+                   <span style="font-size:18px">≡</span>
+                   <div class="grow"><div class="p-title">Tüm şarkıları gör</div>
+                   <div class="p-sub">${total} şarkı · tam diskografi</div></div>
+                   <span style="color:var(--text-3)">›</span>
+                 </div>`
+              : "")
             + K.ui.discographySection(artistId, "open-album")
             + (prof.bio ? `<div class="bio-box">${U.escape(prof.bio)}</div>` : "")
             + (artistId !== "player" ? `<button class="btn btn-ghost btn-sm" data-pact="dm" data-arg="${artistId}" style="align-self:flex-start">💬 DM Gönder</button>` : "");
@@ -355,9 +364,61 @@
           const app = K.phone.appById("spotify");
           if (act === "play") app.playById(el.dataset.arg);
           else if (act === "open-artist") app.openArtist(el.dataset.arg);
+          else if (act === "all-songs") app.openAllSongs(el.dataset.arg);
           else if (act === "open-album") app.openAlbum(el.dataset.arg);
           else if (act === "dm" && el.dataset.arg !== "player") K.phone.openApp("messages", { artistId: el.dataset.arg });
           else if (act === "refresh-live") K.live.refreshChart(false).then(() => K.phone.reRender());
+        }
+      });
+    },
+
+    /* ---------------- TÜM ŞARKILAR (tam diskografi) --------------
+       Şehinşah 187 · wegh Rumi 48 şarkı gibi büyük kataloglar için
+       ayrı görünüm. Yıl başlıkları altında gruplanır, arama kutusu vardır.
+       shellClass verilirse Apple Music kabuğuyla da çalışır. */
+    openAllSongs(artistId, opts) {
+      opts = opts || {};
+      const prof = K.platforms.artistProfile(artistId);
+      if (!prof) return;
+      const all = (prof.songs || []).slice();
+      const shell = opts.shellClass || "app-spotify";
+
+      const body = (q) => {
+        const s = String(q || "").toLowerCase();
+        const list = all.filter((x) => !s || x.title.toLowerCase().includes(s))
+          .sort((a, b) => (parseInt(b.year, 10) || 0) - (parseInt(a.year, 10) || 0));
+
+        if (!list.length) return `<div class="mini-empty">Şarkı bulunamadı.</div>`;
+
+        const groups = [];
+        list.forEach((x) => {
+          const y = x.year || "—";
+          let g = groups.find((z) => z.year === y);
+          if (!g) { g = { year: y, songs: [] }; groups.push(g); }
+          g.songs.push(x);
+        });
+
+        return groups.map((g) => `
+          ${K.ui.section(g.year, `<span class="muted">${g.songs.length} şarkı</span>`)}
+          ${g.songs.map((song, i) => trackRow({ ...song, artistName: song.artistName || prof.name }, { index: i })).join("")}
+        `).join("");
+      };
+
+      K.phone.pushView({
+        title: "Tüm şarkılar", sub: prof.name + " · " + all.length + " şarkı",
+        shellClass: shell, musicBar: true,
+        params: { artistId },
+        render: () => `<div class="p-search"><span>🔍</span><input data-all-q type="text" placeholder="Şarkı ara..." /></div>
+          <div data-all-list>${body("")}</div>`,
+        onMount: (root) => {
+          if (!root) return;
+          const inp = U.qs("[data-all-q]", root);
+          const box = U.qs("[data-all-list]", root);
+          if (inp && box) inp.addEventListener("input", () => { box.innerHTML = body(inp.value); });
+        },
+        onAction: (act, el) => {
+          if (act === "play") K.phone.appById("spotify").playById(el.dataset.arg);
+          else if (act === "row-more") K.tracks.actionSheet(el.dataset.arg);
         }
       });
     },
