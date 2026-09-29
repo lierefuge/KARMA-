@@ -9,21 +9,120 @@
 
   const U = K.util;
 
-  const IG_CAPTIONS = [
-    "Yeni iş yolda 🎧", "Stüdyo günleri 🎙️", "Bu akşam kayıt var 🔥",
-    "Sabırla çalışıyoruz 💜", "Yakında... ⏳", "Ses seviyesi yüksek 🎚️"
-  ];
-  const X_POSTS = [
-    "Yeni bir şey üzerinde çalışıyorum, iyi geliyor.",
-    "Bu sektörde sağlam kalmak zor ama müzik her şeyi anlatıyor.",
-    "Yakında sürpriz var. Takipte kalın.",
-    "Stüdyodan çıktım, kulaklarım hâlâ çınlıyor.",
-    "Beat seçmek de bir sanat, anlayan anlar."
-  ];
-  const TT_CAPTIONS = [
-    "Bu ses kafanı kırar 🔥", "Part 2 geliyor 🎬", "Snippet test 🎧",
-    "Trend olacak gibi 👀", "Yorumlara bekliyorum 💬"
-  ];
+  /* ============================================================
+     v10.8 GERÇEKLİK DÜZELTMESİ — SANATÇI SESİ
+     Eskiden 36 sanatçının TAMAMI 6 hazır cümleyi paylaşıyordu
+     (Ceza ile Aleyna Tilki aynı satırı atıyordu). Artık her sanatçı
+     türüne + kuşağına göre konuşur; 12 sanatçının kendi ağzı vardır.
+     Üstelik gönderiler GERÇEK şarkıya bağlanır (eskiden songId hep null'dı,
+     yani hiçbir sanatçı kendi işini paylaşmıyordu).
+     ============================================================ */
+  const VOICE = {
+    trap: {
+      ig: ["Kayıtta kaldık yine 🌙", "Sesi açın, gerisi gelir 🎚️", "Bu gece bitmiyor gibi", "Stüdyo kokusu üstüme sindi", "Yarın değil, şimdi 🖤", "Bir şey hazır, acele etmiyorum"],
+      x:  ["Yeni bir şeyi bitirdim, karar vermek zor.", "Bu iş aceleye gelmiyor, sindire sindire.", "Sound oturdu, kayıt bitti sayılır.", "Bir gün çıkacak, o gün herkes anlar.", "Gece çalışmak daha kolay."],
+      tt: ["Bu ses kafanı kırar 🔥", "Snippet test 👀", "Part 2 yolda 🎬", "Trend olacak gibi", "Kayıttan bir parça"]
+    },
+    drill: {
+      ig: ["Mahalle işi, gerisi teferruat", "Sokak bize öğretti 🔥", "Hızlı yaşıyoruz", "Kayıt odasından 🎙️", "Durmak yok"],
+      x:  ["Bazı şeyleri anlatmak için kelime yetmiyor.", "Bu sound İstanbul'da büyüdü.", "Yeni parça yakında.", "Söz bitti, gerisi teknik."],
+      tt: ["Part 2 🔥", "Bu akış sert 🥶", "Snippet 👀", "Trend 🎬", "Sesi kısma"]
+    },
+    rap: {
+      ig: ["Kalem kâğıt, klasik 🖊️", "Sözler yolda", "Sahnede görüşürüz 🎤", "Kayıtta olgunlaşıyor", "Sabırla yazıyorum"],
+      x:  ["Bu iş yazmakla oluyor, kalanı vitrin.", "Rap bir zanaat, acele kabul etmiyor.", "Yeni bir metin üstünde çalışıyorum.", "Sahnede anlatmak daha kolay.", "Sözü olmayan müzik bana yetmiyor."],
+      tt: ["Sözleri dinle 🎤", "Kayıttan bir bölüm", "Yakında 🎧", "Bu akış klasik", "Sahne özeti"]
+    },
+    pop: {
+      ig: ["Yeni şarkım çok yakında 💫", "Sahneler çok güzel geçiyor ✨", "Provadan 🎤", "Kulis anları 💛", "Sevgiyle hazırlıyorum"],
+      x:  ["Yeni şarkı için çok heyecanlıyım.", "Sahne enerjisi başka bir şey.", "Bu kayıt içime sindi.", "Yakında sizinle.", "Bu şarkı çok emek istedi."],
+      tt: ["Bu melodi kafanda kalır 🎶", "Sahnede dans et 🎤", "Yakında 💫", "Kulis 🥰", "Söyleyince belli oluyor"]
+    },
+    rnb: {
+      ig: ["Gece için yazdım 🌙", "Yumuşak tonda 🎙️", "Sessizlikte dinle", "Kayıt ışıkları kapalı"],
+      x:  ["Bu kayıt gece için.", "Yumuşak olan kalıcı oluyor.", "Yeni bir şey üstünde çalışıyorum.", "Sessizlikte iyi gidiyor."],
+      tt: ["Gece sesi 🌙", "Kulaklıkla dinle", "Yakında 🎧", "Yeni bölüm"]
+    },
+    indie: {
+      ig: ["Küçük bir odada büyük bir şey", "Gitarla akşam", "Kendi halimde ✨", "Kayıtlar devam"],
+      x:  ["Bağımsız kalmak zor ama doğru.", "Kendi müziğimi kendim yapıyorum.", "Bu kayıt beni anlatıyor.", "Yakında çıkar."],
+      tt: ["Akustik akşam 🎸", "Küçük ama gerçek", "Yakında ✨"]
+    }
+  };
+  /* kıdemli (35+ yaş) sanatçı ağzı — tecrübe tonu */
+  const VETERAN = {
+    ig: ["Yıllardır aynı masada 🖊️", "Gençlere yer açıyoruz", "Kayıt bitti, gerisi zaman", "Bu iş bitmez, öğrenilir"],
+    x:  ["Bu sektörde kalmak ayrı bir beceri.", "Yıllar geçti, hâlâ yazıyorum.", "Yeni kuşak iyi iş çıkarıyor.", "Vitrin değişti, zanaat aynı."],
+    tt: ["Klasikler bitmez", "Yılların kaydı", "Yeni kuşağa selam"]
+  };
+  /* kendi ağzı olan sanatçılar (tür havuzunu geçersiz kılar) */
+  const VOICE_BY_ID = {
+    sehinsah: {
+      ig: ["Kayıt odasından selam 🖤", "Sesin rengi değişti yine", "Bir şey üstünde çok çalıştım"],
+      x:  ["Kimseye bir şey ispat etme derdim kalmadı, iş konuşsun.", "Aynı masada oturuyorum, acelem yok.", "Bu sound'u zamanla anlatacağım."],
+      tt: ["Bir bölüm kayıttan", "Sesi aç"],
+    },
+    ceza: {
+      ig: ["Kalem elden düşmez 🖊️", "Sahne bizim evimiz", "Gençlere selam"],
+      x:  ["Rap bir dildir; onu konuşan çok, anlayan az.", "Sahnede anlatmadığın söz yarım kalır.", "Ustayım diye sustum, kayıt anlatır."],
+      tt: ["Klasik akış", "Sahneden"],
+    },
+    sagopa: {
+      ig: ["Gece, sessizlik, kalem 🌙", "Notlarım bitmiyor", "Sükûnet içinde"],
+      x:  ["Sözün ağırlığı ritimden fazladır.", "Yalnızlık en iyi stüdyo.", "Kelimeler üstünde çalışıyorum."],
+      tt: ["Sessizlikte dinle", "Yeni mısra"],
+    },
+    hadise: {
+      ig: ["Sahne ışıkları hazır ✨", "Provada son rötuş", "Sizi görünce mutlu oluyorum 💛"],
+      x:  ["Sahne enerjisi her şeyi unutturuyor.", "Yeni şarkı yolda, heyecanlıyım.", "Seyircimle aram başka."],
+      tt: ["Sahne özeti 🎤", "Yakında💫"],
+    },
+    edis: {
+      ig: ["Kayıt odasından 💫", "Yeni iş çok yakın", "Stüdyoda akşam"],
+      x:  ["Bu şarkı üstünde uzun çalıştım.", "Sahnede söylemek için sabırsızım.", "Yakında sizinle."],
+      tt: ["Yakında 💫", "Bu bölümü dinle"],
+    },
+    aleynatilki: {
+      ig: ["Farklı bir şey deniyorum ✨", "Provadan hızlı bir bakış", "Yakında görürsünüz"],
+      x:  ["Ben kalıba girmiyorum.", "Denemekten korkmuyorum.", "Yeni şey yolda."],
+      tt: ["Bu farklı 👀", "Deneme sürümü"],
+    },
+    weghrumi: {
+      ig: ["Rize'den İstanbul'a 🌙", "Kayıt bitti, mix kaldı", "Bu gece bitmiyor"],
+      x:  ["Bağımsız kalıyorum, daha rahat.", "Sound'u kendim yapıyorum.", "Yeni parça yakında."],
+      tt: ["Bu ses sert 🥶", "Snippet"],
+    },
+    lierefuge: {
+      ig: ["İzmir'den selam 🌊", "Kayıtta kaldım", "D'ÜNYAM sonrası devam"],
+      x:  ["Kendi işimi kendim yapıyorum.", "Sözler ağır, beat hafif olsun.", "Yeni bir şey geliyor."],
+      tt: ["Bu akış sert", "Snippet 👀"],
+    }
+  };
+
+  /* sanatçının ses (gönderi) havuzu */
+  function voiceFor(a, platform) {
+    const p = platform === "x" ? "x" : platform === "tiktok" ? "tt" : "ig";
+    const ov = VOICE_BY_ID[a.id];
+    if (ov && ov[p] && ov[p].length) return ov[p];
+    if ((a.age || 30) >= 38) return VETERAN[p] || VETERAN.ig;
+    const g = VOICE[a.genre] || VOICE.rap;
+    return g[p] || g.ig;
+  }
+
+  /* AYNI etkileşim formülü hem NPC hem oyuncu için geçerli.
+     Eskiden NPC gönderileri `pop × rand(80,900)` alırken oyuncunun
+     gönderisi `20 + pop × rand(5,20)` alıyordu — aynı popülerlikte
+     100 kat fark. Artık ikisi de takipçi × gerçekçi etkileşim oranı. */
+  K.socialEngagement = function (followers) {
+    const f = Math.max(0, followers || 0);
+    const rate = 0.018 + Math.random() * 0.045;     // %1,8 – %6,3 etkileşim oranı
+    const likes = Math.round(f * rate);
+    return {
+      likes,
+      comments: Math.round(likes * (0.015 + Math.random() * 0.03)),
+      shares: Math.round(likes * (0.006 + Math.random() * 0.02))
+    };
+  };
 
   K.social = {
 
@@ -82,16 +181,19 @@
     createPost(platform, text, songId) {
       const s = K.state;
       const p = s.player;
+      /* oyuncunun gönderisi de NPC'lerle AYNI formülü kullanır
+         (takipçi × gerçekçi etkileşim oranı) */
+      const eng = K.socialEngagement((p.ig || 0) + (p.tiktok || 0) + (p.x || 0));
       const post = {
         id: U.uid("post"),
         platform,
         authorId: "player",
         authorName: p.stageName,
-        text: text || U.pick(platform === "x" ? X_POSTS : platform === "tiktok" ? TT_CAPTIONS : IG_CAPTIONS),
+        text: text || U.pick(VOICE[K.state.player.genre] ? VOICE[K.state.player.genre][platform === "x" ? "x" : platform === "tiktok" ? "tt" : "ig"] : VOICE.rap.ig),
         day: s.day,
-        likes: Math.round(20 + p.popularity * U.rand(5, 20)),
-        comments: Math.round(p.popularity * U.rand(0.3, 1.5)),
-        shares: Math.round(p.popularity * U.rand(0.2, 1.2)),
+        likes: eng.likes,
+        comments: eng.comments,
+        shares: eng.shares,
         songId: songId || null,
         mine: true
       };
@@ -221,23 +323,66 @@
         .slice(0, n || 6);
     },
 
+    /* ---------------- NPC gönderisi (tek yol) ----------------
+       Ses havuzu sanatçıya özel; gönderilerin bir kısmı GERÇEK
+       şarkısına bağlanır (eskiden songId hep null'dı). */
+    npcPost(a, platform, opts) {
+      opts = opts || {};
+      const pool = voiceFor(a, platform);
+      let song = null;
+      if (opts.song) song = opts.song;
+      else if (U.chance(0.38)) {
+        const real = (K.REAL_SONGS && K.REAL_SONGS[a.id]) || [];
+        if (real.length) song = U.pick(real);
+      }
+      const eng = K.socialEngagement(a.ig || 0);
+      const text = opts.text || (song
+        ? (platform === "x"
+            ? `"${song.title}" - sözler ve kayıt bitti, dinleyin.`
+            : `"${song.title}" 🎧 ${U.pick(pool)}`)
+        : U.pick(pool));
+      return {
+        id: U.uid("post"), platform,
+        authorId: a.id, authorName: a.stageName,
+        text, day: K.state.day,
+        likes: eng.likes, comments: eng.comments, shares: eng.shares,
+        songId: song ? song.title : null,
+        songTitle: song ? song.title : null,
+        art: song ? song.art : null,
+        mine: false
+      };
+    },
+
     seedFeed(platform) {
       const s = K.state;
       const artists = K.artistList();
-      const texts = platform === "x" ? X_POSTS : platform === "tiktok" ? TT_CAPTIONS : IG_CAPTIONS;
       const arr = s.feed[platform] = s.feed[platform] || [];
       for (let i = 0; i < 14; i++) {
         const a = U.pick(artists);
-        arr.push({
-          id: U.uid("post"), platform, authorId: a.id, authorName: a.stageName,
-          text: U.pick(texts), day: s.day - U.randInt(0, 6),
-          likes: Math.round(a.popularity * U.rand(80, 900)),
-          comments: Math.round(a.popularity * U.rand(4, 60)),
-          shares: Math.round(a.popularity * U.rand(2, 40)),
-          songId: null, mine: false
-        });
+        const post = K.social.npcPost(a, platform);
+        post.day = s.day - U.randInt(0, 6);
+        arr.push(post);
       }
       arr.sort((a, b) => b.day - a.day);
+    },
+
+    /* ---------------- NPC'nin YENİ ŞARKISI duyurusu -------------
+       Endüstri canlandırma motoru (game.npcRelease) bunu çağırır. */
+    npcReleasePost(a, song) {
+      const s = K.state;
+      const platforms = ["instagram", "x", "tiktok"];
+      platforms.forEach((pf) => {
+        const post = K.social.npcPost(a, pf, {
+          song,
+          text: pf === "x"
+            ? `Yeni şarkı "${song.title}" çıktı. Dinleyin, ne düşünüyorsunuz?`
+            : pf === "tiktok"
+              ? `"${song.title}" ile bir bölüm 🎬 #fyp`
+              : `"${song.title}" şimdi yayında 🎧`
+        });
+        (s.feed[pf] = s.feed[pf] || []).unshift(post);
+        s.feed[pf] = s.feed[pf].slice(0, 60);
+      });
     },
 
     /* ---------------- günlük tick ---------------- */
@@ -251,18 +396,11 @@
           post.comments = Math.round(post.comments * (1 + growth * 0.7));
           post.shares = Math.round(post.shares * (1 + growth * 0.5));
         });
-        // yeni NPC gönderileri
+        // yeni NPC gönderileri (sanatçının kendi sesiyle)
         if (U.chance(0.7)) {
           const a = U.pick(K.artistList());
-          const texts = pf === "x" ? X_POSTS : pf === "tiktok" ? TT_CAPTIONS : IG_CAPTIONS;
-          (s.feed[pf] = s.feed[pf] || []).unshift({
-            id: U.uid("post"), platform: pf, authorId: a.id, authorName: a.stageName,
-            text: U.pick(texts), day: s.day,
-            likes: Math.round(a.popularity * U.rand(80, 900)),
-            comments: Math.round(a.popularity * U.rand(4, 60)),
-            shares: Math.round(a.popularity * U.rand(2, 40)),
-            songId: null, mine: false
-          });
+          const post = K.social.npcPost(a, pf);
+          (s.feed[pf] = s.feed[pf] || []).unshift(post);
           s.feed[pf] = s.feed[pf].slice(0, 60);
         }
       });
