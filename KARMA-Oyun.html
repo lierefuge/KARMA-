@@ -4721,8 +4721,12 @@ html, body {
   }
 
   /* ---- M-3: iOS odak zoom'unu engelle (16px kuralı) ----
-     13px girdiler iOS'ta odaklanınca sayfayı büyütüyordu. */
-  input, select, textarea,
+     13px girdiler iOS'ta odaklanınca sayfayı büyütüyordu.
+     Yalnızca GERÇEKTEN YAZI GİRİLEN alanlar: kaydırıcı, onay kutusu
+     ve radyo düğmeleri dışarıda — onların boyutu zoom'a bağlı değil
+     ve 16px'e zorlanınca iç arayüzde bozuluyorlardı. */
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+  textarea,
   .field input, .field select, .field textarea,
   .dm-composer input, .p-search input, .ig-search input,
   .cmt-input input, .lyr-card textarea, .studio-craft input[type="text"],
@@ -4734,16 +4738,34 @@ html, body {
 }
 
 /* ============================================================
-   2) DOKUNMA HEDEFİ: en az 44×44 (Apple HIG / Material)
+   2) DOKUNMA HEDEFİ — YALNIZCA OYUN KABUĞU
+   ------------------------------------------------------------
+   DÜZELTME (v10.17.1): Bu blok önce `.ig-btn`, `.ig-tab`, `.tab`,
+   `.p-row`, `.dm-select-row` ve `.dm-send` sınıflarına da 44/48 px
+   zorluyordu. Ama bu sınıflar SİMÜLE TELEFONUN İÇİNDE kullanılıyor
+   (ör. gönder butonu tasarımda 38 px, Instagram sekme çubuğu ince,
+   liste satırları sıkı) ve o arayüz 390×800 minyatür olarak
+   tasarlandı. Dış cihazın dokunma ergonomisini içeri uygulamak
+   mobilde düzeni bozuyordu.
+
+   Artık hedef büyütme yalnızca oyun kabuğunda geçerli:
+     · üst bar düğmeleri
+     · alt gezinme çubuğu (.view-switch)
+     · modal pencereler
+     · kariyer paneli (sol panel)
+   Telefon ekranının içi kendi ölçüsünde kalır; dokunuş hissi
+   tombol geri bildirim (:active) ile korunur.
    ============================================================ */
 @media (pointer: coarse) {
-  .btn, .ig-btn { min-height: 44px; }
-  .vs-btn { min-height: 44px; padding: 0 16px; }
-  .ig-tab, .phone-tab, .tab { min-height: 44px; }
-  /* gönder gibi yuvarlak ikon butonları */
-  .dm-send { width: 44px; height: 44px; }
-  /* liste satırları: parmakla ıskalanmasın */
-  .p-row, .dm-select-row { min-height: 48px; }
+  .topbar .btn,
+  .topbar-actions .btn,
+  .view-switch .vs-btn,
+  .modal-root .btn,
+  .modal-root .ig-btn,
+  .career-panel .btn,
+  .career-panel .career-tabs .tab { min-height: 44px; }
+
+  .view-switch .vs-btn { padding: 0 16px; }
 }
 
 /* ============================================================
@@ -4821,7 +4843,8 @@ html, body {
   .phone-stage {
     padding: 0;
     align-items: stretch;
-    justify-content: stretch;
+    /* `justify-content: stretch` geçersiz bir değerdir (flex'te yok
+       sayılır) — v10.17.1'de kaldırıldı. */
     overflow: hidden;
     scrollbar-width: none;
   }
@@ -4869,13 +4892,17 @@ html, body {
    5) YATAY / KISA EKRAN: dikey alanı geri kazan
    ============================================================ */
 @media (max-height: 520px) and (orientation: landscape) {
+  /* --mobilnav-h :root üzerinde tanımlanmalı: .layout bu değişkeni
+     OKUR, .view-switch üzerinde tanımlamak yukarı doğru yayılmaz
+     (v10.17.1 düzeltmesi — kısa/yatay ekranda boşuna yer ayrılıyordu). */
+  :root { --mobilnav-h: 48px; }
   .topbar {
     padding-top: calc(6px + var(--safe-top));
     padding-bottom: 6px;
   }
   .brand-sub, .stat-label { display: none; }
   .layout { padding-top: 6px; }
-  .view-switch { --mobilnav-h: 48px; padding: 4px; }
+  .view-switch { padding: 4px; }
   .view-switch .vs-btn { min-height: 38px; padding: 0 12px; }
 }
 
