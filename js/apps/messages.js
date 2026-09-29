@@ -67,17 +67,65 @@
         tabPos: "bottom",
         tabs: [
           { id: "all", label: "Tümü", icon: "💬" },
+          { id: "groups", label: "Gruplar", icon: "👥" },
+          { id: "requests", label: (() => { const n = Object.keys(K.state.dmRequests || {}).length; return n ? ("İstekler (" + n + ")") : "İstekler"; })(), icon: "📥" },
           { id: "offers", label: (() => { const n = K.state.offers.filter(o => o.status === "pending").length; return n ? ("Teklifler (" + n + ")") : "Teklifler"; })(), icon: "📨" },
           { id: "new", label: "Yeni DM", icon: "✏️" }
         ],
         activeTab: params.tab || "all",
         render: (tab) => {
-          if (tab === "all") return K.phone.appById("messages").listHTML();
-          if (tab === "offers") return K.phone.appById("messages").offersHTML();
-          return K.phone.appById("messages").newDMHTML();
+          const M = K.phone.appById("messages");
+          if (tab === "all") return M.listHTML();
+          if (tab === "groups") return M.groupsHTML();
+          if (tab === "requests") return M.requestsHTML();
+          if (tab === "offers") return M.offersHTML();
+          return M.newDMHTML();
+        },
+        onMount: (root) => {
+          const inp = U.qs("[data-dm-search]", root);
+          if (inp) {
+            const box = U.qs("[data-dm-list]", root);
+            const app2 = K.phone.appById("messages");
+            const draw = () => { if (box) box.innerHTML = app2.listRows(inp.value); };
+            inp.addEventListener("input", draw);
+            draw();
+          }
         },
         onAction: (act, el) => {
-          if (act === "open-thread") K.phone.pushView(K.phone.appById("messages").conversation(el.dataset.arg));
+          const M = K.phone.appById("messages");
+          if (act === "open-thread") K.phone.pushView(M.conversation(el.dataset.arg));
+          else if (act === "open-group") K.phone.pushView(M.groupView(el.dataset.arg));
+          else if (act === "req-accept") {
+            K.dmAcceptRequest(el.dataset.arg);
+            K.toast("✅ Kabul edildi", (K.artistById(el.dataset.arg) || {}).stageName + " artık sohbetlerinde.", "ok");
+            K.phone.reRender();
+          }
+          else if (act === "req-decline") {
+            K.dmDeclineRequest(el.dataset.arg);
+            K.toast("🗑️ İstek silindi", "", "warn");
+            K.phone.reRender();
+          }
+          else if (act === "thread-more") M.threadSheet(el.dataset.arg);
+          else if (act === "show-archived") {
+            M._showArchived = !M._showArchived;
+            K.toast(M._showArchived ? "📦 Arşiv gösteriliyor" : "📂 Arşiv gizlendi", "", "");
+            K.phone.reRender();
+          }
+          else if (act === "grp-create-roster") {
+            const roster = (K.state.label && K.state.label.roster) || [];
+            const met = K.artistList().filter(a => {
+              const rel = K.state.relations[a.id];
+              return rel && rel.met && (rel.affinity || 0) >= 55;
+            }).map(a => a.id);
+            const members = (roster.length ? roster : met).slice(0, 8);
+            if (!members.length) {
+              K.toast("Kadro yok", "Şirket kur ya da samimiyet 55+ sanatçı edin.", "warn");
+            } else {
+              const g = K.groupCreate("Kadro Grubu", members, "label");
+              K.toast("👥 Grup kuruldu", members.length + " üye", "ok");
+              K.phone.pushView(M.groupView(g.id));
+            }
+          }
           else if (act === "offer-accept") { K.relations.respondOffer(el.dataset.arg, true); K.phone.reRender(); }
           else if (act === "offer-decline") { K.relations.respondOffer(el.dataset.arg, false); K.phone.reRender(); }
         }
@@ -87,16 +135,47 @@
 
     /* ---------------- sohbet listesi ---------------- */
     listHTML() {
+      return `<div class="p-search"><span>🔎</span><input data-dm-search type="text" placeholder="Sohbette ara" /></div>
+        <div data-dm-list>${K.phone.appById("messages").listRows("")}</div>`;
+    },
+
+    /* arama + sabitlenmiş + arşiv kurallarıyla satır üretimi */
+    listRows(q) {
       const s = K.state;
+      const ql = String(q || "").toLocaleLowerCase("tr").trim();
       const ids = Object.keys(s.threads).filter(id => (s.threads[id].messages || []).length > 0);
       if (!ids.length) return `<div class="empty-note"><b>Mesaj yok</b>Mahalle çevren ve sanatçılar sana yazdığında burada görünür. "Yeni DM" ile sen de başlatabilirsin.</div>`;
 
-      const sorted = ids.sort((a, b) => {
-        const ta = s.threads[a], tb = s.threads[b];
-        return (tb.messages[tb.messages.length - 1]?.day || 0) - (ta.messages[ta.messages.length - 1]?.day || 0);
+      const showArch = !!K.phone.appById("messages")._showArchived;
+      let sorted = ids.filter(id => {
+        /* arşivlenenler listede görünmez (arama veya arşiv modu hariç) */
+        if (!ql && !showArch && K.relations.isArchived(id)) return false;
+        if (!ql) return true;
+        const a = K.artistById(id);
+        const name = a ? a.stageName.toLocaleLowerCase("tr") : "";
+        if (name.includes(ql)) return true;
+        return (s.threads[id].messages || []).some(m => String(m.text || "").toLocaleLowerCase("tr").includes(ql));
       });
 
-      return sorted.map(id => {
+      sorted.sort((a, b) => {
+        const pa = K.relations.isPinned(a) ? 1 : 0, pb = K.relations.isPinned(b) ? 1 : 0;
+        if (pa !== pb) return pb - pa;                       // sabitlenenler üstte
+        const ta = s.threads[a], tb = s.threads[b];
+        return ((tb.messages[tb.messages.length - 1] || {}).day || 0) - ((ta.messages[ta.messages.length - 1] || {}).day || 0);
+      });
+
+      const archivedCount = (s.player.dmArchived || []).length;
+      const archRow = archCountRow(archivedCount);
+      function archCountRow(n) {
+        if (!n || ql) return "";
+        return `<div class="dm-arch-row" data-pact="show-archived">📦 ${n} arşivlenmiş sohbet</div>`;
+      }
+
+      if (!sorted.length) {
+        return archRow + `<div class="empty-note"><b>Sonuç yok</b>“${U.escape(q)}” için arama sonucu çıkmadı.</div>`;
+      }
+
+      return archRow + sorted.map(id => {
         const a = K.artistById(id);
         if (!a) return "";
         const th = s.threads[id];
@@ -104,19 +183,156 @@
         const rel = K.relation(id);
         const stage = K.stageFor(rel.affinity);
         const preview = last ? (last.from === "me" ? "Sen: " : "") + last.text : "";
+        const pinned = K.relations.isPinned(id);
+        const icon = last && last.kind === "voice" ? "🎤 " : last && last.kind === "demo" ? "🎧 " : last && last.kind === "media" ? "🖼️ " : "";
         return `<div class="dm-list-row" data-pact="open-thread" data-arg="${id}">
+          ${pinned ? `<span class="dm-pin" title="Sabitlenmiş">📌</span>` : ""}
           ${K.ui.avatar(a.stageName, 50, true)}
           <div class="grow">
             <div class="nm">${U.escape(a.stageName)}</div>
-            <div class="last">${U.escape(preview).slice(0, 46)}</div>
+            <div class="last">${icon}${U.escape(preview).slice(0, 46)}</div>
             <div style="font-size:10px;color:var(--karma-2);margin-top:2px">${U.escape(stage.label)} · ${Math.round(rel.affinity)}</div>
           </div>
           <div style="text-align:right">
             <div class="dm-time">${last ? U.ago(last.day, s.day) : ""}</div>
             ${th.unread ? `<div class="dm-unread" style="margin-top:4px">${th.unread}</div>` : ""}
           </div>
+          <button class="dm-row-more" data-pact="thread-more" data-arg="${id}" title="Seçenekler">⋯</button>
         </div>`;
       }).join("");
+    },
+
+    /* satır seçenekleri: sabitle / arşivle */
+    threadSheet(artistId) {
+      const a = K.artistById(artistId);
+      if (!a) return;
+      const pinned = K.relations.isPinned(artistId);
+      const arch = K.relations.isArchived(artistId);
+      K.ui.actionSheet(a.stageName, [
+        { label: pinned ? "📌 Sabitlemeyi kaldır" : "📌 Sabitle", onClick: () => {
+          const on = K.relations.togglePin(artistId);
+          K.toast(on ? "📌 Sabitlendi" : "Sabitleme kaldırıldı", a.stageName, "ok");
+          K.phone.reRender();
+        } },
+        { label: arch ? "📂 Arşivden çıkar" : "📦 Arşivle", onClick: () => {
+          const on = K.relations.toggleArchive(artistId);
+          K.toast(on ? "📦 Arşivlendi" : "📂 Arşivden çıkarıldı", a.stageName, "ok");
+          K.phone.reRender();
+        } },
+        { label: "🗑️ Sohbeti temizle", cls: "destructive", onClick: () => {
+          const th = K.thread(artistId);
+          th.messages = []; th.unread = 0;
+          K.save(); K.toast("🗑️ Temizlendi", a.stageName, "warn"); K.phone.reRender();
+        } }
+      ]);
+    },
+
+    /* ---------------- DM İSTEKLERİ ---------------- */
+    requestsHTML() {
+      const reqs = K.state.dmRequests || {};
+      const ids = Object.keys(reqs).filter(id => K.artistById(id));
+      if (!ids.length) {
+        return `<div class="empty-note"><b>İstek yok</b>Seni tanımayan bir sanatçı yazdığında mesaj burada görünür — kabul edersen sohbet açılır.</div>`;
+      }
+      return `<div class="dm-req-note">Tanımadığın hesaplar doğrudan sohbetlerine düşmez. Kabul edersen sohbet açılır.</div>`
+        + ids.sort((a, b) => (reqs[b].day || 0) - (reqs[a].day || 0)).map(id => {
+          const a = K.artistById(id);
+          const last = reqs[id].messages[reqs[id].messages.length - 1] || {};
+          return `<div class="dm-req">
+            <div class="dm-req-head">${K.ui.avatar(a.stageName, 44, true)}
+              <div class="grow"><div class="nm">${U.escape(a.stageName)}</div>
+              <div class="last">${U.escape(String(last.text || "").slice(0, 70))}</div></div>
+            </div>
+            <div class="dm-req-actions">
+              <button class="btn btn-sm btn-primary" data-pact="req-accept" data-arg="${id}">Kabul et</button>
+              <button class="btn btn-sm btn-ghost" data-pact="req-decline" data-arg="${id}">Sil</button>
+            </div>
+          </div>`;
+        }).join("");
+    },
+
+    /* ---------------- GRUP SOHBETLERİ ---------------- */
+    groupsHTML() {
+      const s = K.state;
+      K.relations.ensureGroups();
+      const list = Object.values(s.groups || {}).sort((a, b) => (b.lastDay || 0) - (a.lastDay || 0));
+      const body = list.length
+        ? list.map(g => {
+            const last = g.messages[g.messages.length - 1];
+            const names = (g.members || []).map(id => (K.artistById(id) || {}).stageName).filter(Boolean);
+            return `<div class="dm-list-row" data-pact="open-group" data-arg="${g.id}">
+              <div class="dm-grp-ic">👥</div>
+              <div class="grow">
+                <div class="nm">${U.escape(g.name)}</div>
+                <div class="last">${last ? U.escape((last.from === "me" ? "Sen: " : (last.fromName ? last.fromName + ": " : "")) + String(last.text || "").slice(0, 40)) : (names.length + " üye")}</div>
+              </div>
+              ${g.unread ? `<div class="dm-unread">${g.unread}</div>` : ""}
+            </div>`;
+          }).join("")
+        : `<div class="empty-note"><b>Grup yok</b>Şirket kurduğunda kadro grubu otomatik açılır; ortak projede de grup oluşur.</div>`;
+
+      return body + `<div class="dm-grp-new">
+        <button class="btn btn-sm btn-ghost" data-pact="grp-create-roster">👥 Kadro grubu oluştur</button>
+      </div>`;
+    },
+
+    groupView(groupId) {
+      const M = K.phone.appById("messages");
+      const g = K.group(groupId);
+      if (!g) return { title: "Grup", render: () => "<div class='empty-note'>Grup bulunamadı.</div>" };
+      g.unread = 0;
+      return {
+        title: g.name, sub: (g.members || []).length + " üye", shellClass: "app-messages",
+        params: { groupId },
+        composer: `<div class="dm-composer"><input type="text" data-grp-input placeholder="Gruba yaz..." /><button class="dm-send" data-pact="grp-send">↑</button></div>`,
+        render: () => {
+          const names = (g.members || []).map(id => (K.artistById(id) || {}).stageName).filter(Boolean).join(" · ");
+          return `<div class="dm-grp-members">👥 ${U.escape(names || "üye yok")}</div>`
+            + `<div class="dm-thread">${(g.messages || []).map(m => {
+              const mine = m.from === "me";
+              const who = K.artistById(m.from);
+              return `<div class="dm-bubble ${mine ? "me" : "them"}">
+                ${!mine ? `<span class="dm-grp-who">${U.escape((who || {}).stageName || m.fromName || "?")}</span>` : ""}
+                ${U.escape(m.text)}
+                <span class="dm-day">Gün ${m.day}</span>
+              </div>`;
+            }).join("") || `<div class="dm-system">Grup boş. Bir şey yaz.</div>`}</div>`;
+        },
+        onMount: (vp) => {
+          const inp = U.qs("[data-grp-input]", vp);
+          if (inp) {
+            inp.addEventListener("keydown", (e) => {
+              if (e.key === "Enter") { M._grpSend(groupId, inp.value); inp.value = ""; }
+            });
+          }
+          const body = U.qs(".app-body", vp);
+          if (body) setTimeout(() => { body.scrollTop = body.scrollHeight; }, 50);
+        },
+        onAction: (act) => {
+          if (act === "grp-send") {
+            const inp = U.qs("[data-grp-input]");
+            if (inp) { M._grpSend(groupId, inp.value); inp.value = ""; }
+          }
+        }
+      };
+    },
+
+    _grpSend(groupId, text) {
+      text = String(text || "").trim();
+      if (!text) return;
+      K.groupPost(groupId, "me", text);
+      K.phone.reRender();
+      /* bir üye kısa süre sonra cevap verebilir */
+      const g = K.group(groupId);
+      const members = (g.members || []).filter(id => K.artistById(id));
+      if (members.length && Math.random() < 0.45) {
+        const who = members[Math.floor(Math.random() * members.length)];
+        const a = K.artistById(who);
+        setTimeout(() => {
+          K.groupPost(groupId, who, K.relations.groupLine(a), { fromName: a.stageName });
+          if (K.phone.appById("messages")) K.phone.reRender();
+        }, 900 + Math.random() * 1200);
+      }
     },
 
     /* ---------------- teklifler ---------------- */
@@ -197,6 +413,7 @@
         noAutoRefresh: true,   // sohbet kendi izleyicisiyle güncellenir (zıplama/titreme yok)
         params: { artistId },
         composer: `<div class="dm-composer">
+          <button class="dm-attach" data-pact="attach" title="Ekler">＋</button>
           <input type="text" data-dm-input placeholder="Mesaj yaz..." />
           <button class="dm-send" data-pact="send">↑</button>
         </div>`,
@@ -204,17 +421,32 @@
           const appR = K.phone.appById("messages");
           const th = K.thread(artistId);
           const offers = K.state.offers.filter(o => o.artistId === artistId && (o.status === "pending" || (K.state.day - o.day < 4)));
+          /* v10.12 — mesaj türleri (sesli / medya / demo) + emoji tepkisi */
           const msgs = th.messages.map(m => {
             if (m.type === "system") return `<div class="dm-system">${U.escape(m.text)}</div>`;
             const status = m.from === "me"
               ? `<span class="dm-status ${m.seen ? "seen" : ""}">${m.seen ? "✓✓ Görüldü" : "✓ İletildi"}</span>`
               : "";
             const quote = m.replyTo ? `<div class="dm-reply-quote">↩ ${U.escape(m.replyTo)}</div>` : "";
-            const tap = m.from === "them" ? ` data-pact="msg-actions" data-arg="${m.id}"` : "";
-            return `<div class="dm-bubble ${m.from === "me" ? "me" : "them"}"${tap}>
-              ${quote}
-              ${U.escape(m.text)}
-              <span class="dm-day">${status} Gün ${m.day}</span>
+            const tap = ` data-pact="msg-actions" data-arg="${m.id}"`;
+
+            let inner = U.escape(m.text);
+            if (m.kind === "voice") {
+              const sec = m.voiceSeconds || 0;
+              inner = `<span class="dm-voice"><i class="dvv">▶</i>`
+                + `<span class="dvv-bars">${Array.from({ length: 14 }, () => `<b style="height:${4 + Math.round(Math.random() * 12)}px"></b>`).join("")}</span>`
+                + `<span class="dvv-t">${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}</span></span>`
+                + `<span class="dvv-tx">${U.escape(m.text)}</span>`;
+            } else if (m.kind === "media" || m.kind === "demo") {
+              inner = `<span class="dm-media">`
+                + (m.art ? `<span class="dmm-art" style="background-image:url('${m.art}')"></span>` : `<span class="dmm-art dmm-ph">🎵</span>`)
+                + `<span class="dmm-info"><b>${U.escape(m.songTitle || m.text || "")}</b>`
+                + `<i>${m.kind === "demo" ? "Demo gönderildi" : "Şarkı paylaşıldı"}</i></span></span>`;
+            }
+
+            const react = m.reaction ? `<span class="dm-react">${m.reaction}</span>` : "";
+            return `<div class="dm-bubble ${m.from === "me" ? "me" : "them"} ${m.kind || ""}"${tap}>
+              ${quote}${inner}<span class="dm-day">${status} Gün ${m.day}</span>${react}
             </div>`;
           }).join("");
           const typing = rel._typing ? `<div class="dm-bubble them typing"><i></i><i></i><i></i></div>` : "";
@@ -286,17 +518,102 @@
           else if (act === "msg-actions") {
             const m = K.thread(artistId).messages.find(x => x.id === el.dataset.arg);
             if (!m) return;
-            K.ui.actionSheet("Mesaj", [
-              { label: "↩ Yanıtla", onClick: () => { app._reply = { artistId, msgId: m.id, text: m.text }; K.phone.reRender(); } },
-              { label: "📋 Kopyala", onClick: () => K.toast("📋 Kopyalandı", "", "ok") },
-              { label: "✕ Kapat", onClick: () => {} }
-            ]);
+            const REACTS = ["❤️", "🔥", "😂", "👍", "😮"];
+            K.ui.actionSheet("Mesaj", []
+              .concat(REACTS.map(em => ({
+                label: em + " Tepki ver",
+                onClick: () => { K.relations.reactToMessage(artistId, m.id, em); K.phone.reRender(); }
+              })))
+              .concat([
+                { label: "↩ Yanıtla", onClick: () => { app._reply = { artistId, msgId: m.id, text: m.text }; K.phone.reRender(); } },
+                { label: "📋 Kopyala", onClick: () => K.toast("📋 Kopyalandı", "", "ok") }
+              ]));
           }
+          else if (act === "attach") app.attachSheet(artistId);
+          else if (act === "send-demo") app.demoPicker(artistId);
+          else if (act === "send-media") app.mediaPicker(artistId);
+          else if (act === "send-voice") app.voicePicker(artistId);
           else if (act === "reply-cancel") { app._reply = null; K.phone.reRender(); }
           else if (act === "offer-accept") { K.relations.respondOffer(el.dataset.arg, true); K.phone.reRender(); }
           else if (act === "offer-decline") { K.relations.respondOffer(el.dataset.arg, false); K.phone.reRender(); }
         }
       };
+    },
+
+    /* ---------------- ekler: demo / medya / sesli mesaj ---------------- */
+    attachSheet(artistId) {
+      K.ui.actionSheet("Ne göndermek istersin?", [
+        { label: "🎧 Demo gönder", onClick: () => K.phone.appById("messages").demoPicker(artistId) },
+        { label: "🖼️ Şarkı/kapak paylaş", onClick: () => K.phone.appById("messages").mediaPicker(artistId) },
+        { label: "🎤 Sesli mesaj", onClick: () => K.phone.appById("messages").voicePicker(artistId) }
+      ]);
+    },
+
+    demoPicker(artistId) {
+      const M = K.phone.appById("messages");
+      const songs = K.state.player.songs || [];
+      if (!songs.length) { K.toast("Şarkın yok", "Önce bir şarkı yayınla.", "warn"); return; }
+      const a = K.artistById(artistId) || {};
+      K.phone.pushView({
+        title: "Demo gönder", sub: "Kime: " + (a.stageName || ""), shellClass: "app-messages",
+        render: () => `<div class="dm-hint">Sanatçı demoyu birkaç gün içinde dinler. Kalite ve samimiyet ne kadar yüksekse açılma ihtimali o kadar artar — ama garanti yok.</div>`
+          + songs.slice().reverse().map(sg => `<div class="p-row" data-pact="demo-send" data-arg="${sg.id}|${artistId}">
+              ${K.ui.cover(sg.coverSeed || sg.id, "🎧", 46, sg.art)}
+              <div class="grow"><div class="p-title">${U.escape(sg.title)}</div>
+              <div class="p-sub">Kalite ${Math.round(sg.quality || 0)}/100 · ${U.escape(sg.genre || "")}</div></div>
+              <span style="color:var(--text-3)">›</span>
+            </div>`).join(""),
+        onAction: (act, el) => {
+          if (act !== "demo-send") return;
+          const parts = String(el.dataset.arg).split("|");
+          const res = K.relations.sendDemo(parts[1], parts[0]);
+          if (!res.ok) { K.toast("Gönderilemedi", "", "warn"); return; }
+          K.toast("🎧 Demo gönderildi", `Dinlenmesi ~${res.days} gün sürebilir.`, "ok");
+          K.phone.back();
+          K.phone.reRender();
+        }
+      });
+    },
+
+    mediaPicker(artistId) {
+      const songs = (K.state.player.songs || []).filter(s => s.art);
+      if (!songs.length) { K.toast("Kapak yok", "Kapağı olan bir şarkın yok.", "warn"); return; }
+      K.phone.pushView({
+        title: "Şarkı paylaş", sub: "Kapağıyla birlikte gider", shellClass: "app-messages",
+        render: () => songs.slice().reverse().slice(0, 12).map(sg => `<div class="p-row" data-pact="media-send" data-arg="${sg.id}|${artistId}">
+            ${K.ui.cover(sg.coverSeed || sg.id, "🖼️", 46, sg.art)}
+            <div class="grow"><div class="p-title">${U.escape(sg.title)}</div>
+            <div class="p-sub">Albüm kapağıyla gönder</div></div>
+            <span style="color:var(--text-3)">›</span>
+          </div>`).join(""),
+        onAction: (act, el) => {
+          if (act !== "media-send") return;
+          const parts = String(el.dataset.arg).split("|");
+          if (K.relations.sendMedia(parts[1], parts[0])) {
+            K.toast("🖼️ Paylaşıldı", "", "ok");
+            K.phone.back(); K.phone.reRender();
+          }
+        }
+      });
+    },
+
+    voicePicker(artistId) {
+      /* sesli mesaj metne dökülür; sanatçı ona göre cevap verir */
+      K.ui.modal({
+        title: "🎤 Sesli mesaj", desc: "Kayıt metne dökülür ve gönderilir.",
+        body: K.ui.field("Söyleyeceklerin", `<textarea id="dm-voice-tx" rows="3" placeholder="Kısaca ne söylüyorsun?">Selam, sesli not bırakıyorum. Yeni iş üstünde çalışıyorum, bir ara konuşalım.</textarea>`),
+        actions: [
+          { label: "Vazgeç" },
+          { label: "Gönder", cls: "btn-primary", onClick: () => {
+            const tx = (U.qs("#dm-voice-tx") || {}).value || "";
+            if (!tx.trim()) { K.toast("Boş mesaj", "", "warn"); return; }
+            const sec = Math.max(4, Math.min(60, Math.round(tx.length / 12) + 3));
+            K.relations.sendVoice(artistId, sec, tx.trim());
+            K.toast("🎤 Sesli mesaj", sec + " sn gönderildi.", "ok");
+            K.phone.reRender();
+          } }
+        ]
+      });
     },
 
     send(artistId, text) {
