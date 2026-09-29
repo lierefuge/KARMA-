@@ -71,6 +71,7 @@
       if (K.news && K.news.refresh) K.news.refresh();
 
       K.game.advanceReleases();
+      K.game.tickAttention();      // v10.17 — dikkat dalgası söner, doygunluk azalır
       K.game.accrueStreams();
       K.game.accrueArtistWorld();
       K.game.accrueAlbums();
@@ -147,9 +148,57 @@
     },
 
     /* ---------------- stream accrual ---------------- */
+    /* ============================================================
+       v10.17 — DİKKAT DALGASI (yüksel → zirve → düş)
+       Ayrıntılı gerekçe: K.ECON içindeki attention* / fatigue* bloğu.
+       ============================================================ */
+
+    /* mevcut dalga katsayısı (1 = nötr). Katalog dinlenmesini çarpar. */
+    attention() {
+      const p = K.state && K.state.player;
+      if (!p) return 1;
+      if (p.att == null) p.att = 1;          // eski kayıtlar için güvenli başlangıç
+      return U.clamp(p.att, 0.35, K.ECON.attentionMax || 2.3);
+    },
+
+    /* doygunluk seviyesi (okuma/arayüz için) */
+    fatigueAttention() {
+      const p = K.state && K.state.player;
+      return p ? U.clamp(p.fatigueAtt || 0, 0, 1) : 0;
+    },
+
+    /* yayın yapıldığında dalgayı besle.
+       strength 0..1,4 arası: kalite + tanıtım + gündem uyumu.
+       Doygunluk arttıkça aynı yayının kazancı AZALIR. */
+    bumpAttention(strength) {
+      const p = K.state && K.state.player;
+      if (!p) return 1;
+      if (p.att == null) p.att = 1;
+      p.fatigueAtt = p.fatigueAtt || 0;
+      const st = U.clamp(strength == null ? 0.7 : strength, 0, 1.4);
+      const gain = (K.ECON.attentionGain || 0.62) * st * (1 - p.fatigueAtt);
+      p.att = Math.min(K.ECON.attentionMax || 2.3, p.att + gain);
+      p.fatigueAtt = Math.min(K.ECON.fatigueMax || 0.74, p.fatigueAtt + (K.ECON.fatigueStep || 0.17));
+      return p.att;
+    },
+
+    /* günlük: dalga nötre çöker, doygunluk çok yavaş azalır */
+    tickAttention() {
+      const p = K.state && K.state.player;
+      if (!p) return;
+      if (p.att == null) p.att = 1;
+      p.fatigueAtt = p.fatigueAtt || 0;
+      const d = K.ECON.attentionDecay || 0.978;
+      p.att = 1 + (p.att - 1) * d;
+      if (p.att < 1.001) p.att = 1;
+      p.fatigueAtt *= (K.ECON.fatigueRecovery || 0.9955);
+      if (p.fatigueAtt < 0.001) p.fatigueAtt = 0;
+    },
+
     accrueStreams() {
       const s = K.state;
       const p = s.player;
+      const att = K.game.attention();   // v10.17 — günün dalga katsayısı
 
       p.songs.forEach(song => {
         if (!song.dailyStreams) song.dailyStreams = K.game.initialDaily(song);
@@ -199,7 +248,10 @@
 
         // yorgunluk (yan iş) müzik performansını düşürür
         const energy = 1 - Math.min(0.35, (s.player.fatigue || 0) / 220);
-        const daily = Math.max(5, Math.round(song.dailyStreams * mult * energy * U.rand(0.9, 1.12)));
+        /* v10.17 — dikkat dalgası katalogun tamamına uygulanır:
+           yeni yayın dalgayı beslediğinde yalnızca yeni şarkı değil,
+           tüm katalog daha çok dinlenir (gerçekte de öyle olur). */
+        const daily = Math.max(5, Math.round(song.dailyStreams * mult * energy * att * U.rand(0.9, 1.12)));
         song.dailyStreams = Math.max(5, song.dailyStreams * (song.viral ? 1.01 : 0.997));
 
         song.streams += daily;
@@ -276,7 +328,8 @@
     buildAlbumChart() {
       const s = K.state, p = s.player;
       const entries = [];
-      const D = K.DISCOGRAPHY || {};
+      /* v10.16 — tembel veri katmanı (P-1) */
+      const D = K.lazy ? K.lazy.raw("discography") : (K.DISCOGRAPHY || {});
       const rising = [];
       K.artistList().forEach(a => {
         (D[a.id] || []).slice(0, 2).forEach((al, i) => {
@@ -333,7 +386,7 @@
        ŞARKI bile çıkarmıyordu. Ama IG'de "Yeni iş yolda 🎧", DM'de
        "yeni işim için promo ayarlar mısın" yazıyorlardı — sözleriyle
        çelişiyorlardı. Artık her sanatçının KENDİ yayın kadansı var:
-         • yayın → GERÇEK diskoğrafiden bir şarkı (K.REAL_SONGS)
+         • yayın → GERÇEK diskoğrafiden bir şarkı (v10.16: K.lazy.songs())
          • dinleyici sıçraması + popülerlik artışı, sonra 3 haftada söner
          • sosyal medyada gerçekten duyurulur (gerçek kapakla)
          • takip ediyorsan DM/bildirim gelir
@@ -370,7 +423,8 @@
       const s = K.state;
       s.industry = s.industry || { released: {}, log: [] };
       const used = (s.industry.released[a.id] = s.industry.released[a.id] || []);
-      const pool = (K.REAL_SONGS && K.REAL_SONGS[a.id]) || [];
+      /* v10.16 — tembel veri katmanı (P-1) */
+      const pool = K.lazy ? K.lazy.songs(a.id) : ((K.REAL_SONGS && K.REAL_SONGS[a.id]) || []);
       const next = pool.find(x => used.indexOf(x.title) < 0);
 
       /* gerçek diskografi bittiyse temsilî bir başlık üret */
