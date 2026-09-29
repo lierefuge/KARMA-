@@ -97,9 +97,9 @@ function run() {
      1) PROFİL VERİSİ
      ========================================================= */
   const IDS = ["sehinsah", "weghrumi"];
-  ok("K.personality motoru yüklendi", !!(K.personality && K.personality.byId));
+  ok("K.npcPersonality motoru yüklendi", !!(K.npcPersonality && K.npcPersonality.byId));
   IDS.forEach(id => {
-    const p = K.personality && K.personality.byId(id);
+    const p = K.npcPersonality && K.npcPersonality.byId(id);
     ok("Profil var: " + id, !!p);
     if (!p) return;
     ok("Alan: archetype/" + id, !!p.archetype);
@@ -112,7 +112,7 @@ function run() {
       Object.keys(p.bias || {}).length + " niyet");
     ok("bias: müzik > flört: " + id, p.bias.music > p.bias.flirt);
     ok("bias: övgü > hakaret: " + id, p.bias.compliment > p.bias.insult);
-    ok("card() üretilebiliyor: " + id, !!K.personality.card(id));
+    ok("card() üretilebiliyor: " + id, !!K.npcPersonality.card(id));
   });
 
   /* =========================================================
@@ -229,8 +229,8 @@ function run() {
     } catch (e) { errors.push("profileHTML hatası: " + e.message); }
     ok(`Profilde kişilik kartı: ${id}`, /ig-persona/.test(rendered) && /ig-persona-code/.test(rendered));
     ok(`Kişilik kartı içeriği: ${id}`,
-      rendered.indexOf(K.personality.byId(id).code) >= 0 &&
-      rendered.indexOf(K.personality.byId(id).test.title) >= 0);
+      rendered.indexOf(K.npcPersonality.byId(id).code) >= 0 &&
+      rendered.indexOf(K.npcPersonality.byId(id).test.title) >= 0);
   });
 
   /* ------------------------------------------------ SONUÇ ------ */
