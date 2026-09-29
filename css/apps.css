@@ -360,3 +360,104 @@
 .sheet button:hover { background: rgba(255,255,255,0.06); }
 .sheet button.destructive { color: #ff5c7a; }
 .sheet button.cancel { color: var(--text-0); font-weight: 800; border-bottom: none; }
+
+/* ============================================================
+   v10.12 — DM GENİŞLETMESİ
+   Mesaj tepkileri · sesli mesaj · medya/demo kartı · DM istekleri ·
+   grup sohbetleri · arama · sabitleme/arşivleme
+   ============================================================ */
+
+/* --- arama / arşiv satırı / sabitleme --- */
+.dm-arch-row {
+  font-size: 11.5px; font-weight: 700; color: var(--text-2);
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
+  border-radius: var(--radius-s); padding: 9px 12px; margin-bottom: 6px; cursor: pointer;
+}
+.dm-list-row { position: relative; }
+.dm-pin { position: absolute; top: 6px; right: 34px; font-size: 11px; opacity: .85; }
+.dm-row-more {
+  background: none; border: none; color: var(--text-3); font-size: 17px;
+  cursor: pointer; padding: 0 2px 0 8px; line-height: 1; align-self: center;
+}
+.dm-row-more:active { color: var(--text-0); }
+
+/* --- mesaj tepkisi (emoji) --- */
+.dm-bubble { position: relative; }
+.dm-react {
+  position: absolute; bottom: -9px; right: 6px;
+  background: #1b1f2a; border: 1px solid rgba(255,255,255,.14);
+  border-radius: var(--radius-pill); padding: 1px 5px; font-size: 11.5px; line-height: 1.5;
+}
+.dm-bubble.me .dm-react { right: auto; left: 6px; }
+
+/* --- sesli mesaj --- */
+.dm-bubble.voice { padding: 10px 12px; }
+.dm-voice { display: flex; align-items: center; gap: 9px; }
+.dm-voice .dvv {
+  width: 26px; height: 26px; border-radius: 50%; flex: 0 0 auto;
+  display: grid; place-items: center; font-size: 11px; font-style: normal;
+  background: rgba(255,255,255,.18); color: #fff;
+}
+.dm-voice .dvv-bars { display: flex; align-items: center; gap: 2px; }
+.dm-voice .dvv-bars b { width: 2.5px; border-radius: 2px; background: rgba(255,255,255,.55); display: block; }
+.dm-voice .dvv-t { font-size: 10.5px; opacity: .75; font-variant-numeric: tabular-nums; }
+.dvv-tx { display: block; font-size: 11.5px; opacity: .72; margin-top: 6px; font-style: italic; }
+
+/* --- medya / demo kartı --- */
+.dm-bubble.media, .dm-bubble.demo { padding: 8px; }
+.dm-media { display: flex; align-items: center; gap: 10px; }
+.dm-media .dmm-art {
+  width: 46px; height: 46px; border-radius: var(--radius-xs); flex: 0 0 auto;
+  background-size: cover; background-position: center; background-color: #222;
+  display: grid; place-items: center; font-size: 18px;
+}
+.dm-media .dmm-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.dm-media .dmm-info b { font-size: 12.5px; font-weight: 800; }
+.dm-media .dmm-info i { font-size: 10.5px; font-style: normal; opacity: .7; }
+
+/* --- ekleme butonu --- */
+.dm-attach {
+  width: 34px; height: 34px; border-radius: 50%; flex: 0 0 auto;
+  background: rgba(255,255,255,.1); border: none; color: #fff;
+  font-size: 18px; line-height: 1; cursor: pointer; display: grid; place-items: center;
+}
+.dm-attach:active { background: rgba(255,255,255,.18); }
+
+/* --- DM istekleri --- */
+.dm-req-note {
+  font-size: 11px; color: var(--text-2); line-height: 1.5;
+  background: rgba(110,195,255,.08); border: 1px solid rgba(110,195,255,.22);
+  border-radius: var(--radius-s); padding: 9px 11px; margin-bottom: 8px;
+}
+.dm-req {
+  border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.03);
+  border-radius: var(--radius-m); padding: 11px; margin-bottom: 8px;
+}
+.dm-req-head { display: flex; align-items: center; gap: 10px; }
+.dm-req-head .grow { flex: 1; min-width: 0; }
+.dm-req-head .nm { font-size: 13px; font-weight: 800; }
+.dm-req-head .last { font-size: 11.5px; color: var(--text-2); margin-top: 2px; line-height: 1.45; }
+.dm-req-actions { display: flex; gap: 8px; margin-top: 10px; }
+.dm-req-actions .btn { flex: 1; }
+
+/* --- grup sohbetleri --- */
+.dm-grp-ic {
+  width: 50px; height: 50px; border-radius: 50%; flex: 0 0 auto;
+  display: grid; place-items: center; font-size: 20px;
+  background: linear-gradient(135deg, rgba(176,108,255,.35), rgba(110,195,255,.28));
+  border: 1px solid rgba(255,255,255,.1);
+}
+.dm-grp-new { margin-top: 10px; }
+.dm-grp-members {
+  font-size: 11px; color: var(--text-2); line-height: 1.5;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.07);
+  border-radius: var(--radius-s); padding: 8px 11px; margin-bottom: 10px;
+}
+.dm-grp-who { display: block; font-size: 10.5px; font-weight: 800; color: var(--karma-2); margin-bottom: 3px; }
+
+/* --- ekran ipucu --- */
+.dm-hint {
+  font-size: 11.5px; color: var(--text-2); line-height: 1.6;
+  background: rgba(176,108,255,.08); border: 1px solid rgba(176,108,255,.22);
+  border-radius: var(--radius-s); padding: 10px 12px; margin-bottom: 10px;
+}
