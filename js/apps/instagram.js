@@ -761,30 +761,28 @@
 
     /* ---------- yeni gönderi ---------- */
     newPost() {
+      /* v10.30 — gönderi STRATEJİSİ: içerik türü (erişim / imaj / risk) */
       const body = `
         ${K.ui.field("Gönderi metni", `<textarea id="ig-text" rows="3" placeholder="Ne paylaşmak istiyorsun?">Stüdyodan selamlar 🎧</textarea>`)}
         ${K.ui.field("Şarkı etiketle (opsiyonel)", `<select id="ig-song">
           <option value="">— Yok —</option>
           ${K.state.player.songs.map((s) => `<option value="${s.id}">${U.escape(s.title)}</option>`).join("")}
-        </select>`)}`;
-      K.ui.modal({
+        </select>`)}
+        ${K.ui.field("İçerik türü", `<div data-posttype-box>${K.social.postTypeSelector("reach")}</div>`)}`;
+      const m = K.ui.modal({
         title: "Yeni Gönderi", body,
         actions: [
           { label: "Vazgeç" },
           { label: "Paylaş", cls: "btn-primary", onClick: () => {
             const text = U.qs("#ig-text").value.trim();
             const songId = U.qs("#ig-song").value || null;
-            K.social.createPost("instagram", text, songId);
-            if (songId) {
-              const song = K.platforms.findSong(songId);
-              if (song) { song.boosts.instagram_social = (song.boosts.instagram_social || 0) + 0.08; song.dailyStreams *= 1.05; }
-            }
-            K.state.player.ig += Math.round(K.state.player.popularity * 2 + 10);
-            K.toast("📸 Paylaşıldı", "Instagram gönderisi yayında.", "ok");
-            K.refresh();
+            const type = K.social.selectedPostType(m.root);
+            const res = K.social.playerPost("instagram", text, type, songId);
+            K.toast(res.title, res.msg, res.kind);
           }}
         ]
       });
+      K.social.bindPostTypes(m.root, "reach");
     },
 
     promotePicker() {
