@@ -6261,7 +6261,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.28.0";
+  K.VERSION = "10.29.0";
   K.VERSION_DATE = "2026-09-30";
 })(window.K = window.K || {});
 
@@ -15786,6 +15786,11 @@ window.K = window.K || {};
       const stage = K.stageIndexFor(rel.affinity);
       const t = tone(artist);
       const reach = pol ? pol.reach : (K.relations ? K.relations.reach(artistId) : 1);
+      /* v10.29 — akıl sağlığı çarpanı: stresliyken yazılan mesaj daha az
+         samimiyet kazandırır. Erken dönüş yollarında da uygulanır ki
+         davranış tutarlı olsun (stres 40 altında her zaman 1,00). */
+      const mdScale = () => (K.mental && K.mental.dmMult) ? K.mental.dmMult() : 1;   // 100 streste ≈ 0,55
+      const mTone = () => (K.mental && K.mental.dmTone) ? K.mental.dmTone() : null;
 
       const chat = rel._chat = rel._chat || { recent: [], lastIntent: null, turns: 0 };
 
@@ -15800,7 +15805,10 @@ window.K = window.K || {};
         chat.turns++;
         rel.lastTopic = "greet";
         rel.lastInteract = K.state.day;
-        return { msgs: [msg], delta: 0.9, intent: "greet", action: null };
+        /* NOT: selamlaşma yolu da ölçeklenir ve aynı alanları döndürür —
+           çağıran taraf her yolda `stressed`/`dmMult` görebilmeli. */
+        return { msgs: [msg], delta: +((0.9 * mdScale()).toFixed(3)), intent: "greet", action: null,
+                 stressed: !!mTone(), dmMult: +mdScale().toFixed(2) };
       }
 
       const intent0 = classify(text);
@@ -15812,7 +15820,8 @@ window.K = window.K || {};
         const msg = pickFresh(pool, chat.recent);
         chat.recent.push(msg); if (chat.recent.length > 6) chat.recent.shift();
         chat.turns++;
-        return { msgs: [msg], delta: 0.15, intent: intent0, action: null, cold: true };
+        return { msgs: [msg], delta: +((0.15 * mdScale()).toFixed(3)), intent: intent0, action: null, cold: true,
+                 stressed: !!mTone(), dmMult: +mdScale().toFixed(2) };
       }
 
       /* --- bağlamlı takip: kısa evet/hayır --- */
@@ -15858,6 +15867,20 @@ window.K = window.K || {};
       if (U.chance(0.22)) {
         const s = (prof && prof.suffix ? prof.suffix : TONE_SUFFIX[t]).filter(Boolean);
         if (s.length) extras.push(U.pick(s));
+      }
+
+      /* v10.29 — AKIL SAĞLIĞI: yüksek streste sanatçı MESAFE KOYAR.
+         Oyuncunun mesajları dağınık/ters gelir; karşı taraf bunu hisseder
+         ve cevabına bunu katar. (Samimiyet kaybı aşağıda `delta` ile.) */
+      const stressTone = mTone();
+      if (stressTone && U.chance(0.55)) {
+        const LINES = {
+          gergin:   [" Bugün biraz gergin gibisin.", " İyi misin? Sesin tuhaf çıkıyor."],
+          yuksek:   [" Bir şey mi oldu? Bana ters konuşuyorsun.", " Kafan dağınık galiba, sonra konuşalım."],
+          tukenmis: [" Sen iyi değilsin. Dinlen, sonra yazarım.", " Bu hâlde konuşmak ikimize de iyi gelmez."]
+        };
+        const pool = LINES[stressTone] || [];
+        if (pool.length) extras.push(U.pick(pool));
       }
 
       /* ---- gündem bağlantısı: mesajda haber konusu geçiyorsa ---- */
@@ -15928,6 +15951,12 @@ window.K = window.K || {};
       if (K.npcPersonality && K.npcPersonality.bias) delta += K.npcPersonality.bias(artistId, intent);
       if (agendaMsg) delta += 0.4;
 
+      /* v10.29 — AKIL SAĞLIĞI: stresliyken yazdığın mesaj daha az
+         samimiyet kazandırır (ters teper). Tüm bonuslardan SONRA
+         uygulanır ki nihai kazancı ölçeklesin. */
+      const dmMult = mdScale();
+      delta *= dmMult;   // 100 streste ≈ 0,55
+
       /* ---- hafızayı güncelle ---- */
       chat.lastIntent = intent;
       chat.turns++;
@@ -15958,7 +15987,7 @@ window.K = window.K || {};
         const op = K.npcPersonality.opening(artistId);
         if (op && msg.indexOf(op) !== 0 && (op.length + msg.length) < 240) msg = op + msg;
       }
-      return { msgs: [msg], delta, intent, action };
+      return { msgs: [msg], delta, intent, action, stressed: !!stressTone, dmMult: +dmMult.toFixed(2) };
     },
 
     /* -------- bağlamlı genel cevap --------
@@ -20034,19 +20063,32 @@ window.K = window.K || {};
           const revenue = Math.max(0, grossRev - cut);
           K.economy.earn(revenue, "concert");
           if (cut > 0) K.toast("🏢 360 payı", `Şirket konser gelirinden ${U.money(cut)} aldı.`, "warn");
-          K.game.addFame(est.fame);
-          s.player.reputation = Math.min(100, s.player.reputation + est.fame * 0.6);
-          const gained = Math.round(est.fans * (attendance / Math.max(1, est.attendance)));
+          /* v10.29 — AKIL SAĞLIĞI: sahne performansı stresten etkilenir.
+             Dağınık kafayla çıkılan sahne daha az şöhret/hayran kazandırır.
+             (Bilet satışı etkilenmez — salon doludur; kazanç ve izlenim düşer.) */
+          const perf = (K.mental && K.mental.performanceMult) ? K.mental.performanceMult() : 1;
+          const fameGain = +(est.fame * perf).toFixed(2);
+          K.game.addFame(fameGain);
+          s.player.reputation = Math.min(100, s.player.reputation + est.fame * 0.6 * perf);
+          const gained = Math.round(est.fans * (attendance / Math.max(1, est.attendance)) * perf);
           s.player.ig += Math.round(gained * 0.6);
           s.player.tiktok += Math.round(gained * 0.4);
+          if (perf < 0.85) {
+            s.notifications = (s.notifications || []).concat([{
+              title: "🎤 Sahne performansın düşüktü",
+              msg: `${cn.city} konserinde dağınıktın (stres ${Math.round(s.player.stress)}/100) — şöhret ve hayran kazancı %${Math.round((1 - perf) * 100)} azaldı.`,
+              kind: "warn", day: s.day
+            }]).slice(-60);
+          }
           if (cn.openerId) {
             const a = K.artistById(cn.openerId);
             if (a) a.popularity = U.clamp(a.popularity + 0.6, 0, 99);
           }
           cn.status = "tamamlandı";
-          cn.result = { attendance, revenue, gross: grossRev, labelCut: cut, merch: nums.merchGross, fame: est.fame, followers: gained };
+          cn.result = { attendance, revenue, gross: grossRev, labelCut: cut, merch: nums.merchGross, fame: fameGain, followers: gained, performance: +perf.toFixed(2) };
           K.toast("🎤 Konser tamamlandı",
-            `${cn.city} · ${U.fmt(attendance)} kişi · ${U.money(revenue)} · +${U.fmt(gained)} hayran${cn.dealType === "guarantee" ? " · garanti" : ""}`, "ok");
+            `${cn.city} · ${U.fmt(attendance)} kişi · ${U.money(revenue)} · +${U.fmt(gained)} hayran${cn.dealType === "guarantee" ? " · garanti" : ""}` +
+            (perf < 0.85 ? " · ⚠️ düşük performans" : ""), perf < 0.85 ? "warn" : "ok");
         }
       });
 
@@ -20061,7 +20103,9 @@ window.K = window.K || {};
         const grossRev = nums.ticket + nums.merchGross;
         const cut = (K.career && K.career.labelCut) ? K.career.labelCut("touring", grossRev) : 0;
         const revenue = Math.max(0, grossRev - cut);
-        const fans = est.fans;
+        /* v10.29 — turne durağında da sahne performansı stresten etkilenir */
+        const perfT = (K.mental && K.mental.performanceMult) ? K.mental.performanceMult() : 1;
+        const fans = Math.round(est.fans * perfT);
         K.economy.earn(revenue, "tour");
         s.tour.gross += revenue;
 
@@ -20075,7 +20119,7 @@ window.K = window.K || {};
         s.tour.attendance += est.attendance;
         s.tour.followers = (s.tour.followers || 0) + fans;
         s.tour.shows++;
-        K.game.addFame(est.fame);
+        K.game.addFame(+(est.fame * perfT).toFixed(2));
         s.player.ig += Math.round(fans * 0.6);
         s.player.tiktok += Math.round(fans * 0.4);
 
@@ -20085,10 +20129,12 @@ window.K = window.K || {};
           city: stop.city, day: stop.day,
           attendance: est.attendance, capacity: est.capacity,
           revenue, followers: fans,
+          performance: +perfT.toFixed(2),
           production: K.concerts.production(s.tour.productionId).name
         });
 
-        K.toast("🚌 Turne durağı", `${stop.city} · ${U.fmt(est.attendance)} kişi · +${U.fmt(fans)} hayran`, "ok");
+        K.toast("🚌 Turne durağı", `${stop.city} · ${U.fmt(est.attendance)} kişi · +${U.fmt(fans)} hayran` +
+          (perfT < 0.85 ? " · ⚠️ düşük performans" : ""), perfT < 0.85 ? "warn" : "ok");
 
         if (!s.tour.queue.length) {
           K.toast("🏁 Turne bitti",
@@ -21838,8 +21884,17 @@ window.K = window.K || {};
       const s = K.state, p = s.player;
       const a = K.artistById(artistId);
       const b = K.beef.ensure(artistId);
+
+      /* v10.29 — AKIL SAĞLIĞI: yüksek streste yazılan diss ZAYIF olur.
+         Öfkeli ama dağınık kafayla yazılan gönderme daha az yayılır,
+         daha az husumet doğurur ve daha az saygı kazandırır.
+         (Şarkının KALİTESİNİ zaten `career.estimateQuality` stres çarpanı
+         düşürüyor; burada diss'in ETKİSİ de ölçekleniyor.) */
+      const mental = (K.mental && K.mental.dissMult) ? K.mental.dissMult() : 1;
+      const weak = mental < 0.85;
+
       b.iDissedCount++;
-      b.heat = U.clamp(b.heat + 18, 0, 100);
+      b.heat = U.clamp(b.heat + 18 * mental, 0, 100);
       b.status = statusFor(b.heat);
       b.lastMoveDay = s.day;
       b.noted = false;
@@ -21847,19 +21902,27 @@ window.K = window.K || {};
       if (song) {
         song.dissTarget = artistId;
         song.boosts = song.boosts || {};
-        song.boosts.diss = (song.boosts.diss || 0) + 0.45;
-        song.dailyStreams = (song.dailyStreams || 0) * 1.25;
-        song.viralBonus = (song.viralBonus || 1) * 1.3;
+        song.boosts.diss = (song.boosts.diss || 0) + 0.45 * mental;
+        song.dailyStreams = (song.dailyStreams || 0) * (1 + 0.25 * mental);
+        song.viralBonus = (song.viralBonus || 1) * (1 + 0.3 * mental);
       }
-      p.popularity = U.clamp(p.popularity + 1.2, 0, 99);
+      p.popularity = U.clamp(p.popularity + 1.2 * mental, 0, 99);
       p.reputation = U.clamp(p.reputation - 0.8, 0, 100);
 
-      (b.log = b.log || []).push({ day: s.day, who: "me", text: `Diss: "${song ? song.title : "Cevap"}"` });
+      (b.log = b.log || []).push({
+        day: s.day, who: "me",
+        text: `Diss: "${song ? song.title : "Cevap"}"${weak ? " (dağınık)" : ""}`
+      });
       if (b.log.length > 24) b.log.shift();
 
-      K.toast("🔥 Diss yayında!", `"${song ? song.title : "Cevap"}" ile ${a ? a.stageName : "rakibe"} cevap verdin.`, "ok");
+      K.toast("🔥 Diss yayında!",
+        `"${song ? song.title : "Cevap"}" ile ${a ? a.stageName : "rakibe"} cevap verdin.` +
+        (weak ? " Kafan dağınık — etkisi zayıf kaldı." : ""),
+        weak ? "warn" : "ok");
       s.notifications = (s.notifications || []).concat([{
-        title: "🔥 Diss yayınlandı", msg: `${a ? a.stageName : "Rakip"} hedefli şarkın çıktı; husumet arttı.`,
+        title: weak ? "🔥 Diss yayınlandı (zayıf)" : "🔥 Diss yayınlandı",
+        msg: `${a ? a.stageName : "Rakip"} hedefli şarkın çıktı; husumet arttı.` +
+          (weak ? ` Stresin yüksek (${Math.round(p.stress)}/100) — sözler dağınık, etki %${Math.round((1 - mental) * 100)} azaldı.` : ""),
         kind: "warn", day: s.day
       }]).slice(-60);
 
@@ -23312,6 +23375,14 @@ window.K = window.K || {};
      · stres → kayıt kalitesi düşer (career.estimateQuality okur)
      · %85+ → kamusal taşma riski (pop/itibar/hayran kaybı)
      · %100 → TÜKENME: zorunlu ara (yayın yapamazsın), hayran kaybı
+
+   DİĞER SİSTEMLERE BAĞLANTILAR (v10.29)
+     · dissMult()        → systems/beef.js  : yüksek streste diss ZAYIF olur
+                            (hem yayılım hem husumet/saygı etkisi düşer)
+     · performanceMult() → systems/concerts.js : sahne şöhret/hayran kazancı düşer
+     · dmMult()/dmTone() → systems/chat.js : DM mesajları ters teper,
+                            sanatçı “bir tuhaf konuşuyorsun” diye mesafe koyar
+   Hepsi 40 stresin altında ETKİSİZdir (çarpạn = 1,00).
    ============================================================ */
 (function (K) {
   "use strict";
@@ -23356,11 +23427,50 @@ window.K = window.K || {};
       return { stress: v, key: "iyi", label: "İyi", tone: "ok", icon: "😌" };
     },
 
-    /* kayıt kalitesi çarpanı — yüksek stres işi bozar */
+    /* ------------------------------------------------------------
+       SİSTEM ETKİ ÇARPANLARI (v10.29)
+       Stres yalnızca “kalite” değil, sanatçının ÜRETİM VE İLETİŞİM
+       kalitesini bozar. Hepsi 40 stresin altında 1,00; tavanda belirgin
+       şekilde düşer. Tek eşik (40) kullanılır ki davranış öngörülebilir
+       olsun: “stres 40'ı geçtiyse işler bozulmaya başlar”.
+
+         qualityMult()     kayıt kalitesi        → 0,83 (100'de)
+         dissMult()        diss etkisi/yayılımı  → 0,55  (öfkeli ama dağınık)
+         performanceMult() sahne performansı     → 0,60  (şöhret/hayran kazancı)
+         dmMult()          DM samimiyet kazancı  → 0,55  (mesajlar ters teper)
+       ------------------------------------------------------------ */
     qualityMult() {
       const v = K.mental.stress();
       if (v <= 40) return 1;
       return U.clamp(1 - (v - 40) * 0.0028, 0.80, 1);   // 100'de ≈ 0,83
+    },
+
+    /* diss: yüksek streste yazılan gönderme zayıf kalır */
+    dissMult() {
+      const v = K.mental.stress();
+      if (v <= 40) return 1;
+      return U.clamp(1 - (v - 40) * 0.0075, 0.55, 1);   // 100'de 0,55
+    },
+
+    /* sahne: dağınık kafayla çıkılan konser daha az kazandırır */
+    performanceMult() {
+      const v = K.mental.stress();
+      if (v <= 40) return 1;
+      return U.clamp(1 - (v - 40) * 0.0067, 0.60, 1);   // 100'de 0,60
+    },
+
+    /* DM: stresliyken attığın mesaj daha az samimiyet kazandırır */
+    dmMult() {
+      const v = K.mental.stress();
+      if (v <= 40) return 1;
+      return U.clamp(1 - (v - 40) * 0.0075, 0.55, 1);   // 100'de 0,55
+    },
+
+    /* DM ton anahtarı: “gergin” | “yuksek” | “tukenmis” | null
+       (chat.js bunu sanatçının cevabına mesafe koymak için kullanır) */
+    dmTone() {
+      const k = K.mental.level().key;
+      return (k === "gergin" || k === "yuksek" || k === "tukenmis") ? k : null;
     },
 
     /* günlük */
@@ -23520,6 +23630,10 @@ window.K = window.K || {};
         stress: Math.round(K.mental.stress()),
         level: lv,
         qualityMult: K.mental.qualityMult(),
+        dissMult: K.mental.dissMult(),
+        performanceMult: K.mental.performanceMult(),
+        dmMult: K.mental.dmMult(),
+        dmTone: K.mental.dmTone(),
         onHiatus: K.mental.onHiatus(),
         hiatusLeft: Math.max(0, (m.hiatusUntil || 0) - K.state.day),
         inTherapy: K.mental.inTherapy(),
