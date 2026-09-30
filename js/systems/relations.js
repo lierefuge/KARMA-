@@ -805,9 +805,9 @@
       const a = K.artistById(artistId);
       const offer = {
         id: U.uid("off"), type: "feature", direction: "incoming",
-        artistId, day: K.state.day,
+        artistId, day: K.state.day, expiresDay: K.state.day + 7,
         terms: { title: K.career.suggestTitle(), split: U.pick([50, 60, 70]) },
-        status: "pending"
+        status: "pending", negotiated: 0
       };
       K.state.offers.push(offer);
       K.relations.pushArtistMessage(artistId,
@@ -825,9 +825,9 @@
       const a = K.artistById(artistId);
       const offer = {
         id: U.uid("off"), type: "hangout", direction: "incoming",
-        artistId, day: K.state.day,
+        artistId, day: K.state.day, expiresDay: K.state.day + 3,
         terms: { activity: U.pick(["studio", "coffee", "dinner", "game", "party"]) },
-        status: "pending"
+        status: "pending", negotiated: 0
       };
       K.state.offers.push(offer);
       K.relations.pushArtistMessage(artistId, U.pick([
@@ -846,13 +846,13 @@
       if (!lbl) return null;
       const offer = {
         id: U.uid("off"), type: "label", direction: "incoming",
-        artistId, day: K.state.day,
+        artistId, day: K.state.day, expiresDay: K.state.day + 9,
         terms: {
           advance: Math.round(U.rand(0, 1) * (a.labelId ? 80000 : 20000)),
           artistRoyalty: U.clamp(75 - a.traits.ego * 2, 60, 85),
           lengthDays: 365
         },
-        status: "pending"
+        status: "pending", negotiated: 0
       };
       K.state.offers.push(offer);
       K.relations.pushArtistMessage(artistId,
@@ -869,13 +869,149 @@
       const t = K.career.labelOfferTerms(labelId);
       const offer = {
         id: U.uid("off"), type: "label", direction: "incoming", labelId,
-        artistId: null, day: K.state.day,
-        terms: t, status: "pending"
+        artistId: null, day: K.state.day, expiresDay: K.state.day + 12,
+        terms: t, status: "pending", negotiated: 0
       };
       K.state.offers.push(offer);
       K.toast("📨 Şirket teklifi", `${l.name} sana sözleşme teklif ediyor.`, "ok");
       K.bus.emit("offer:new", offer);
       return offer;
+    },
+
+    /* ============================================================
+       v10.30 — TEKLİF KUYRUĞU + PAZARLIK
+       Teklifler artık SÜRELİDİR (expiresDay) ve BİRİKİR. Süre dolarsa
+       teklif geri çekilir ve küçük bir ilişki/itibar maliyeti doğar.
+       Ayrıca oyuncu PAZARLIK yapabilir: daha iyi şart ister, karşı taraf
+       kaldıraç (samimiyet + popülerlik + itibar) ve isteğin büyüklüğüne
+       göre kabul, kısmi taviz ya da geri çekilme ile karşılık verir.
+       ============================================================ */
+    offerDeadline(offer) {
+      if (!offer) return 0;
+      if (offer.expiresDay) return offer.expiresDay;
+      return (offer.day || 0) + (offer.type === "hangout" ? 3 : 7);
+    },
+
+    offerDaysLeft(offer) { return Math.max(0, K.relations.offerDeadline(offer) - K.state.day); },
+
+    /* süresi dolan teklifleri kapat (günlük tick'ten çağrılır) */
+    _expireOffers() {
+      const s = K.state;
+      s.offers.forEach(o => {
+        if (o.status !== "pending") return;
+        if (s.day < K.relations.offerDeadline(o)) return;
+        o.status = "expired";
+        o.handledDay = s.day;
+        if (o.artistId) {
+          K.relations.addAffinity(o.artistId, o.type === "feature" ? -1.5 : -0.5, "teklif_suresi");
+          K.relations.pushArtistMessage(o.artistId, U.pick([
+            "Teklifime dönmedin, ben de başka plan yaptım.",
+            "Cevap gelmedi, o konuyu kapattım.",
+            "Zaman geçti, artık uygun değil."
+          ]), "system");
+        } else if (o.type === "label") {
+          K.toast("⏳ Teklif süresi doldu", (o.terms.labelName || "Şirket") + " teklifi geri çekti.", "warn");
+        }
+      });
+      /* kuyruğu sade tut: bekleyenler + son 6 günde kapananlar */
+      s.offers = s.offers.filter(o =>
+        o.status === "pending" || (s.day - (o.handledDay || o.day || 0)) < 6);
+    },
+
+    /* pazarlık kaldıracı: karşı tarafın kabul eğilimi (0-1) */
+    offerLeverage(offer) {
+      const p = K.state.player;
+      if (offer.artistId) {
+        const rel = K.relation(offer.artistId);
+        const a = K.artistById(offer.artistId);
+        return U.clamp(0.35 + (rel.affinity - 45) / 70 +
+          ((p.popularity || 0) - (a ? a.popularity : 50)) / 220, 0.05, 0.95);
+      }
+      return U.clamp(0.30 + ((p.popularity || 0) - 18) / 70 + (p.reputation || 0) / 240, 0.05, 0.95);
+    },
+
+    /* teklife pazarlık: patch = yeni şartlar + greed (0-1) */
+    counterOffer(offerId, patch) {
+      const s = K.state;
+      const offer = s.offers.find(o => o.id === offerId);
+      if (!offer || offer.status !== "pending") return { ok: false, why: "yok" };
+      if (offer.type === "hangout") return { ok: false, why: "hangout" };
+      if (offer.negotiated) return { ok: false, why: "tekrar" };
+      patch = patch || {};
+
+      const leverage = K.relations.offerLeverage(offer);
+      const greed = U.clamp(patch.greed != null ? patch.greed : 0.4, 0, 1);
+      const acceptProb = U.clamp(leverage + 0.34 - greed * 0.62, 0.05, 0.94);
+      offer.negotiated = 1;
+
+      const applyFull = () => K.relations._applyCounter(offer, patch, 1);
+      const applyHalf = () => K.relations._applyCounter(offer, patch, 0.5);
+      const rel = offer.artistId ? K.relation(offer.artistId) : null;
+
+      if (Math.random() < acceptProb) {
+        applyFull();
+        const line = offer.artistId
+          ? U.pick(["Tamam kardeşim, senin dediğin olsun. El sıkıştık.",
+              "Peki, bu şartlarla varım. Hayırlı olsun.",
+              "İyi, kabul. Ama bu son tavizim."])
+          : U.pick(["Şartlarını yönetime ilettim, onayladılar.",
+              "Tamam, dediğin gibi olsun. Sözleşmeyi güncelliyoruz.",
+              "Anlaştık. Bu şartlarla devam edelim."]);
+        if (offer.artistId) K.relations.pushArtistMessage(offer.artistId, line, "system");
+        else K.toast("🤝 Pazarlık kabul edildi", line, "ok");
+        K.bus.emit("offer:counter", { offer, result: "accepted" });
+        K.save(); K.refresh();
+        return { ok: true, result: "accepted", reply: line, terms: offer.terms };
+      }
+
+      if (Math.random() < 0.5) {
+        applyHalf();
+        offer.negotiated = 0;   // bir tur daha mümkün
+        const line = offer.artistId
+          ? U.pick(["Bu kadar olmaz ama ortada buluşalım.",
+              "Yarı yolda buluşalım, daha fazlası olmaz."])
+          : "Tamamı olmaz ama sınırlı bir iyileştirme yapabiliriz.";
+        if (offer.artistId) K.relations.pushArtistMessage(offer.artistId, line, "system");
+        else K.toast("↔️ Kısmi taviz", line, "warn");
+        K.bus.emit("offer:counter", { offer, result: "partial" });
+        K.save(); K.refresh();
+        return { ok: true, result: "partial", reply: line, terms: offer.terms };
+      }
+
+      offer.status = "declined";
+      offer.handledDay = s.day;
+      if (offer.artistId) {
+        K.relations.addAffinity(offer.artistId, -2, "pazarlik_sert");
+        K.relations.pushArtistMessage(offer.artistId,
+          U.pick(["Bu kadar pazarlık fazla. Teklifimi geri çekiyorum.",
+            "Açgözlü davrandın, o zaman olmasın."]), "system");
+      } else {
+        K.toast("❌ Teklif geri çekildi", (offer.terms.labelName || "Şirket") + " pazarlığı reddetti.", "warn");
+      }
+      K.bus.emit("offer:counter", { offer, result: "withdrawn" });
+      K.save(); K.refresh();
+      return { ok: true, result: "withdrawn", reply: "Teklif geri çekildi." };
+    },
+
+    /* pazarlık şartlarını uygula. factor: 1 = tam istek, 0.5 = yarı yolda */
+    _applyCounter(offer, patch, factor) {
+      const t = offer.terms;
+      const mix = (cur, want) => Math.round(cur + (want - cur) * factor);
+      if (offer.type === "feature") {
+        if (patch.split != null) t.split = U.clamp(mix(t.split || 60, patch.split), 30, 90);
+      } else if (offer.type === "label" && offer.artistId) {
+        if (patch.advance != null) t.advance = Math.max(0, mix(t.advance || 0, patch.advance));
+        if (patch.artistRoyalty != null) t.artistRoyalty = U.clamp(mix(t.artistRoyalty || 70, patch.artistRoyalty), 40, 95);
+        if (patch.lengthDays != null) t.lengthDays = Math.max(90, mix(t.lengthDays || 365, patch.lengthDays));
+      } else if (offer.type === "label") {
+        if (patch.advance != null) t.advance = Math.max(0, mix(t.advance || 0, patch.advance));
+        if (patch.artistShare != null) {
+          const share = U.clamp(mix(t.artistShare || (100 - (t.royalty || 30)), patch.artistShare), 20, 90);
+          t.artistShare = share; t.royalty = 100 - share;
+        }
+        if (patch.lengthDays != null) t.lengthDays = Math.max(90, mix(t.lengthDays || 365, patch.lengthDays));
+      }
+      return t;
     },
 
     /* ---------------- teklife yanıt ---------------- */
@@ -970,6 +1106,7 @@
         }
       }
 
+      offer.handledDay = s.day;
       K.save(); K.refresh();
       K.bus.emit("offer:resolved", offer);
     },
@@ -1061,8 +1198,8 @@
         K.relations.createLabelSignsPlayerOffer(l.id);
       }
 
-      // 6) Bekleyen eski teklifleri temizle
-      s.offers = s.offers.filter(o => o.status === "pending" || (s.day - o.day) < 6);
+      // 6) v10.30 — teklif kuyruğu: süresi dolan teklifleri kapat
+      K.relations._expireOffers();
 
       // 7) GERÇEKLİK: Ünlü sanatçı, sen 1-4 şarkı çıkarmışken SANA YAZMAZ.
       //    Ancak ciddi bir dinlenme/popülerlik eşiğini geçince ve genelde
