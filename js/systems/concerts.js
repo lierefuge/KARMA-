@@ -243,19 +243,32 @@
           const revenue = Math.max(0, grossRev - cut);
           K.economy.earn(revenue, "concert");
           if (cut > 0) K.toast("🏢 360 payı", `Şirket konser gelirinden ${U.money(cut)} aldı.`, "warn");
-          K.game.addFame(est.fame);
-          s.player.reputation = Math.min(100, s.player.reputation + est.fame * 0.6);
-          const gained = Math.round(est.fans * (attendance / Math.max(1, est.attendance)));
+          /* v10.29 — AKIL SAĞLIĞI: sahne performansı stresten etkilenir.
+             Dağınık kafayla çıkılan sahne daha az şöhret/hayran kazandırır.
+             (Bilet satışı etkilenmez — salon doludur; kazanç ve izlenim düşer.) */
+          const perf = (K.mental && K.mental.performanceMult) ? K.mental.performanceMult() : 1;
+          const fameGain = +(est.fame * perf).toFixed(2);
+          K.game.addFame(fameGain);
+          s.player.reputation = Math.min(100, s.player.reputation + est.fame * 0.6 * perf);
+          const gained = Math.round(est.fans * (attendance / Math.max(1, est.attendance)) * perf);
           s.player.ig += Math.round(gained * 0.6);
           s.player.tiktok += Math.round(gained * 0.4);
+          if (perf < 0.85) {
+            s.notifications = (s.notifications || []).concat([{
+              title: "🎤 Sahne performansın düşüktü",
+              msg: `${cn.city} konserinde dağınıktın (stres ${Math.round(s.player.stress)}/100) — şöhret ve hayran kazancı %${Math.round((1 - perf) * 100)} azaldı.`,
+              kind: "warn", day: s.day
+            }]).slice(-60);
+          }
           if (cn.openerId) {
             const a = K.artistById(cn.openerId);
             if (a) a.popularity = U.clamp(a.popularity + 0.6, 0, 99);
           }
           cn.status = "tamamlandı";
-          cn.result = { attendance, revenue, gross: grossRev, labelCut: cut, merch: nums.merchGross, fame: est.fame, followers: gained };
+          cn.result = { attendance, revenue, gross: grossRev, labelCut: cut, merch: nums.merchGross, fame: fameGain, followers: gained, performance: +perf.toFixed(2) };
           K.toast("🎤 Konser tamamlandı",
-            `${cn.city} · ${U.fmt(attendance)} kişi · ${U.money(revenue)} · +${U.fmt(gained)} hayran${cn.dealType === "guarantee" ? " · garanti" : ""}`, "ok");
+            `${cn.city} · ${U.fmt(attendance)} kişi · ${U.money(revenue)} · +${U.fmt(gained)} hayran${cn.dealType === "guarantee" ? " · garanti" : ""}` +
+            (perf < 0.85 ? " · ⚠️ düşük performans" : ""), perf < 0.85 ? "warn" : "ok");
         }
       });
 
@@ -270,7 +283,9 @@
         const grossRev = nums.ticket + nums.merchGross;
         const cut = (K.career && K.career.labelCut) ? K.career.labelCut("touring", grossRev) : 0;
         const revenue = Math.max(0, grossRev - cut);
-        const fans = est.fans;
+        /* v10.29 — turne durağında da sahne performansı stresten etkilenir */
+        const perfT = (K.mental && K.mental.performanceMult) ? K.mental.performanceMult() : 1;
+        const fans = Math.round(est.fans * perfT);
         K.economy.earn(revenue, "tour");
         s.tour.gross += revenue;
 
@@ -284,7 +299,7 @@
         s.tour.attendance += est.attendance;
         s.tour.followers = (s.tour.followers || 0) + fans;
         s.tour.shows++;
-        K.game.addFame(est.fame);
+        K.game.addFame(+(est.fame * perfT).toFixed(2));
         s.player.ig += Math.round(fans * 0.6);
         s.player.tiktok += Math.round(fans * 0.4);
 
@@ -294,10 +309,12 @@
           city: stop.city, day: stop.day,
           attendance: est.attendance, capacity: est.capacity,
           revenue, followers: fans,
+          performance: +perfT.toFixed(2),
           production: K.concerts.production(s.tour.productionId).name
         });
 
-        K.toast("🚌 Turne durağı", `${stop.city} · ${U.fmt(est.attendance)} kişi · +${U.fmt(fans)} hayran`, "ok");
+        K.toast("🚌 Turne durağı", `${stop.city} · ${U.fmt(est.attendance)} kişi · +${U.fmt(fans)} hayran` +
+          (perfT < 0.85 ? " · ⚠️ düşük performans" : ""), perfT < 0.85 ? "warn" : "ok");
 
         if (!s.tour.queue.length) {
           K.toast("🏁 Turne bitti",
