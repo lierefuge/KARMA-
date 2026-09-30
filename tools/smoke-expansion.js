@@ -460,6 +460,147 @@ function run() {
       K.mental.CFG.holidayStress > 13, "tatil −" + K.mental.CFG.holidayStress + " / dinlenme −13");
   }
 
+  /* =========================================================
+     J) DERİN BAĞLANTILAR (v10.29)
+     Akıl sağlığı ekseni üç sisteme daha bağlandı:
+       · diss kaydetme başarısı (beef.js)
+       · konser performansı (concerts.js)
+       · DM yanıt tonu (chat.js)
+     ========================================================= */
+  {
+    /* --- J1: çarpan API'si --- */
+    p.stress = 20;
+    ok("J · düşük streste tüm çarpanlar 1,00",
+      K.mental.dissMult() === 1 && K.mental.performanceMult() === 1 && K.mental.dmMult() === 1,
+      [K.mental.dissMult(), K.mental.performanceMult(), K.mental.dmMult()].join(" / "));
+    ok("J · düşük streste DM tonu yok", K.mental.dmTone() === null, String(K.mental.dmTone()));
+
+    const tones = {};
+    [20, 50, 75, 95].forEach(v => { p.stress = v; tones[v] = K.mental.dmTone(); });
+    ok("J · DM tonu streste yükseliyor (gergin→yuksek→tukenmis)",
+      tones[20] === null && tones[50] === "gergin" && tones[75] === "yuksek" && tones[95] === "tukenmis",
+      JSON.stringify(tones));
+
+    p.stress = 95;
+    ok("J · yüksek streste üç çarpan da düşüyor",
+      K.mental.dissMult() < 1 && K.mental.performanceMult() < 1 && K.mental.dmMult() < 1,
+      "diss " + K.mental.dissMult().toFixed(2) + " · sahne " + K.mental.performanceMult().toFixed(2) + " · dm " + K.mental.dmMult().toFixed(2));
+    ok("J · çarpanlar taban değerin altına inmez",
+      K.mental.dissMult() >= 0.55 && K.mental.performanceMult() >= 0.60 && K.mental.dmMult() >= 0.55);
+    ok("J · summary çarpanları raporluyor", (() => {
+      const m = K.mental.summary();
+      return m.dissMult < 1 && m.performanceMult < 1 && m.dmMult < 1 && m.dmTone === "tukenmis";
+    })());
+
+    /* --- J2: DISS kaydetme başarısı stresten etkilenir --- */
+    const runDiss = (stress) => {
+      p.stress = stress;
+      const id = "__j_diss__";
+      const song = { id: "sg_j", title: "Test Diss", boosts: {}, dailyStreams: 1000, viralBonus: 1 };
+      s.beefs = s.beefs || {};
+      delete s.beefs[id];
+      const pop0 = p.popularity;
+      K.beef.noteDissTrack(id, song);
+      const b = K.beef.get(id) || { log: [] };
+      return {
+        heat: b.heat || 0, diss: song.boosts.diss || 0, streams: song.dailyStreams,
+        viral: song.viralBonus, popGain: +(p.popularity - pop0).toFixed(3),
+        log: (b.log || []).map(x => x.text).join(" ")
+      };
+    };
+    const calmDiss = runDiss(20);
+    const madDiss = runDiss(95);
+    ok("J · streste diss husumeti daha az artırır", madDiss.heat < calmDiss.heat,
+      calmDiss.heat.toFixed(1) + " → " + madDiss.heat.toFixed(1));
+    ok("J · streste diss yayılımı (boosts.diss) düşer", madDiss.diss < calmDiss.diss,
+      calmDiss.diss.toFixed(3) + " → " + madDiss.diss.toFixed(3));
+    ok("J · streste diss dinlenme çarpanı düşer", madDiss.streams < calmDiss.streams,
+      Math.round(calmDiss.streams) + " → " + Math.round(madDiss.streams));
+    ok("J · streste diss viral bonusu düşer", madDiss.viral < calmDiss.viral,
+      calmDiss.viral.toFixed(3) + " → " + madDiss.viral.toFixed(3));
+    ok("J · streste diss şöhret kazancı düşer", madDiss.popGain < calmDiss.popGain,
+      calmDiss.popGain + " → " + madDiss.popGain);
+    ok("J · zayıf diss kayda geçti ('dağınık')",
+      /dağınık/.test(madDiss.log) && !/dağınık/.test(calmDiss.log));
+
+    /* --- J3: konser performansı stresten etkilenir --- */
+    const savedConcerts = s.concerts, savedTour = s.tour;
+    const runConcert = (stress) => {
+      p.stress = stress;
+      s.tour = null;
+      s.concerts = [{
+        id: "cn_j", city: "İstanbul", venueId: "hall", price: 900, productionId: "basic",
+        openerId: null, dealType: "door", merch: false, status: "planlandı",
+        day: s.day, scheduledDay: s.day - 10, capacity: 2500, sold: 0, target: 2500,
+        dailyPlan: [], salesHistory: []
+      }];
+      K.concerts.tick();
+      const cn = (s.concerts || []).find(x => x.id === "cn_j");
+      return (cn && cn.result) || null;
+    };
+    const cCalm = runConcert(20);
+    const cMad = runConcert(95);
+    ok("J · konser sonuçlandı (iki durumda da)", !!cCalm && !!cMad,
+      cCalm ? "" : "düşük stres sonuç yok");
+    if (cCalm && cMad) {
+      ok("J · streste sahne ŞÖHRET kazancı düşer", cMad.fame < cCalm.fame,
+        cCalm.fame.toFixed(2) + " → " + cMad.fame.toFixed(2));
+      ok("J · streste sahne HAYRAN kazancı düşer", cMad.followers < cCalm.followers,
+        cCalm.followers + " → " + cMad.followers);
+      ok("J · sonuçta performans çarpanı kayıtlı", cMad.performance < 1 && cCalm.performance === 1,
+        cCalm.performance + " / " + cMad.performance);
+      ok("J · bilet/katılım etkilenmez (salon doludur)", cMad.attendance === cCalm.attendance,
+        cCalm.attendance + " vs " + cMad.attendance);
+    }
+    s.concerts = savedConcerts; s.tour = savedTour;
+
+    /* --- J4: DM yanıt tonu stresten etkilenir --- */
+    const who = "sehinsah";
+    /* NOT: mesaj SELAMLA başlamamalı — aksi halde chat.js `greetForm()`
+       erken dönüş yoluna girer ve asıl cevap yolu (stres cümlesi burada
+       eklenir) hiç çalışmaz. Selamlaşma yolu ayrıca test edilir. */
+    const line = "Yeni işin gerçekten çok iyi olmuş, tebrikler";
+    p.stress = 20;
+    const dCalm = K.chat.reply(who, line, { reach: 1 });
+    p.stress = 95;
+    const dMad = K.chat.reply(who, line, { reach: 1 });
+    ok("J · DM: düşük streste çarpan 1,00 ve işaret yok",
+      dCalm.dmMult === 1 && dCalm.stressed === false, String(dCalm.dmMult));
+    ok("J · DM: streste samimiyet kazancı düşer", dMad.delta < dCalm.delta,
+      dCalm.delta.toFixed(2) + " → " + dMad.delta.toFixed(2));
+    ok("J · DM: streste 'stressed' işareti döner", dMad.stressed === true && dMad.dmMult < 1,
+      String(dMad.dmMult));
+    ok("J · DM: cevap hâlâ üretiliyor (çökme yok)",
+      Array.isArray(dMad.msgs) && dMad.msgs.length > 0 && typeof dMad.msgs[0] === "string");
+
+    /* sanatçı stresi hissettirip mesafe koyuyor mu? (birkaç denemede) */
+    let sawStressLine = false, sampleLine = "";
+    for (let i = 0; i < 40 && !sawStressLine; i++) {
+      const r = K.chat.reply(who, line, { reach: 1 });
+      const txt = (r.msgs || []).join(" ");
+      if (/gergin gibisin|İyi misin|ters konuşuyorsun|Kafan dağınık|iyi değilsin|iyi gelmez/.test(txt)) {
+        sawStressLine = true; sampleLine = txt.slice(0, 90);
+      }
+    }
+    ok("J · DM: sanatçı stresi hissettirip mesafe koyuyor", sawStressLine, sampleLine);
+
+    /* selamlaşma yolu da ölçekleniyor (tutarlılık) */
+    p.stress = 20; const gCalm = K.chat.reply(who, "selam", { reach: 1 });
+    p.stress = 95; const gMad = K.chat.reply(who, "selam", { reach: 1 });
+    ok("J · DM: selamlaşma yolu da stresten etkilenir", gMad.delta < gCalm.delta,
+      gCalm.delta + " → " + gMad.delta);
+
+    /* --- J5: statik entegrasyon --- */
+    ok("J · beef.js akıl sağlığını okur", /K\.mental\.dissMult/.test(read("js/systems/beef.js")));
+    ok("J · concerts.js akıl sağlığını okur", /K\.mental\.performanceMult/.test(read("js/systems/concerts.js")));
+    ok("J · chat.js DM tonunu ve çarpanını okur",
+      /K\.mental\.dmTone/.test(read("js/systems/chat.js")) && /K\.mental\.dmMult/.test(read("js/systems/chat.js")));
+    ok("J · mental.js çarpanları tanımlar",
+      ["dissMult", "performanceMult", "dmMult", "dmTone"].every(n => typeof K.mental[n] === "function"));
+
+    p.stress = 20;
+  }
+
   /* ---- rapor ---- */
   const runtime = (errors || []).filter(m => !/fonts|Not implemented/i.test(m));
   console.log("=".repeat(50));
