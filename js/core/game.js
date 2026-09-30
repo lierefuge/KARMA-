@@ -30,7 +30,10 @@
       }
 
       // karar bekleyen günlük olay varsa oyuncuya sor (tek modal)
-      if (s.pendingIncident && K.incidents && K.incidents.openPending) {
+      /* v10.30 — önce ÇALAN ARAMA (süreli, kaçırılmaması gereken bir karar) */
+      if (K.calls && K.calls.ringingCount && K.calls.ringingCount() > 0) {
+        setTimeout(() => K.calls.openNext(), 500);
+      } else if (s.pendingIncident && K.incidents && K.incidents.openPending) {
         setTimeout(() => K.incidents.openPending(), 500);
       } else if (s.pendingSync && K.catalog && K.catalog.openSyncOffer) {
         setTimeout(() => K.catalog.openSyncOffer(), 500);
@@ -123,6 +126,9 @@
       if (K.mental && K.mental.tick) K.mental.tick();
       if (K.shady && K.shady.tick) K.shady.tick();
       if (K.intl && K.intl.tick) K.intl.tick();
+      /* v10.30 — gelen aramalar + yabancı DM'ler */
+      if (K.calls && K.calls.tick) K.calls.tick();
+      if (K.dms && K.dms.tick) K.dms.tick();
       if (K.stats && K.stats.record) K.stats.record();
 
       K.game.decayAffinity();
