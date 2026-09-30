@@ -227,6 +227,134 @@
       return post;
     },
 
+    /* ============================================================
+       v10.30 — GÖNDERİ STRATEJİSİ: İÇERİK TÜRÜ
+       Oyuncu artık gönderi atarken NE tür bir içerik olduğunu seçer.
+       Üç yol var ve her biri farklı bir kaynağı besler:
+         📈 Erişim : en çok kişiye ulaşır, imajı pek beslemez
+         ✨ İmaj   : itibar/imaj kazandırır, erişim daha düşük
+         🎲 Risk   : ya patlar (viral) ya batar (tartışma/imaj kaybı)
+       ============================================================ */
+    POST_TYPES: {
+      reach: { id: "reach", name: "Erişim", icon: "📈", tone: "info",
+        desc: "Daha çok kişiye ulaşır; imajı ve itibarı pek beslemez." },
+      image: { id: "image", name: "İmaj", icon: "✨", tone: "ok",
+        desc: "İtibarını ve kamu imajını güçlendirir; erişim daha düşük kalır." },
+      risk:  { id: "risk",  name: "Risk", icon: "🎲", tone: "warn",
+        desc: "Ya patlar ya batar: yüksek erişim şansı, ama tartışma riski de var." }
+    },
+
+    /* tür seçici HTML — uygulama modalları kullanır */
+    postTypeSelector(selected) {
+      const cur = selected || "reach";
+      return `<div class="posttype-grid">` +
+        Object.keys(K.social.POST_TYPES).map(id => {
+          const t = K.social.POST_TYPES[id];
+          return `<button type="button" class="posttype ${id === cur ? "on" : ""}" data-posttype="${id}">` +
+            `<span class="pt-ic">${t.icon}</span><span class="pt-nm">${U.escape(t.name)}</span>` +
+            `<span class="pt-desc">${U.escape(t.desc)}</span></button>`;
+        }).join("") + `</div>`;
+    },
+
+    /* modal içindeki tür seçimini bağla (idempotent — tekrar bağlanmaz) */
+    bindPostTypes(root, initial) {
+      const box = (root || document).querySelector("[data-posttype-box]");
+      if (!box) return;
+      if (box.dataset.bound === "1") return;
+      box.dataset.bound = "1";
+      box.dataset.selected = initial || "reach";
+      box.querySelectorAll("[data-posttype]").forEach(b => {
+        b.addEventListener("click", () => {
+          box.dataset.selected = b.dataset.posttype;
+          box.querySelectorAll("[data-posttype]").forEach(x => x.classList.toggle("on", x === b));
+        });
+      });
+    },
+
+    /* modal içinde seçili tür */
+    selectedPostType(root) {
+      const box = (root || document).querySelector("[data-posttype-box]");
+      return (box && box.dataset.selected) || "reach";
+    },
+
+    /* oyuncunun STRATEJİLİ gönderisi: tür + sonuç motoru */
+    playerPost(platform, text, typeId, songId) {
+      const s = K.state, p = s.player;
+      const type = K.social.POST_TYPES[typeId] ? typeId : "reach";
+      const post = K.social.createPost(platform, text, songId || null);
+      post.postType = type;
+
+      /* şarkı etiketliyse o şarkıya küçük bir tanıtım ivmesi */
+      if (songId) {
+        const song = K.platforms.findSong(songId);
+        if (song) {
+          song.boosts = song.boosts || {};
+          const key = platform + "_social";
+          song.boosts[key] = (song.boosts[key] || 0) + 0.08;
+          song.dailyStreams *= 1.05;
+        }
+      }
+
+      let outcome = type, title = "", msg = "", kind = "ok";
+
+      if (type === "reach") {
+        post.likes = Math.round(post.likes * 1.45);
+        post.comments = Math.round(post.comments * 1.3);
+        const gain = Math.round((p.popularity || 0) * 3 + 40);
+        p.ig += platform === "instagram" ? gain : Math.round(gain * 0.4);
+        p.tiktok += platform === "tiktok" ? gain : Math.round(gain * 0.3);
+        p.x += platform === "x" ? gain : Math.round(gain * 0.2);
+        p.image = U.clamp((p.image == null ? 50 : p.image) - 0.6, 0, 100);
+        title = "📈 Erişim gönderisi";
+        msg = "Geniş kitleye ulaştı (+takipçi), imaj biraz nötrleşti.";
+      } else if (type === "image") {
+        post.likes = Math.round(post.likes * 0.72);
+        post.comments = Math.round(post.comments * 1.15);
+        p.reputation = U.clamp((p.reputation || 0) + 1.2, 0, 100);
+        p.image = U.clamp((p.image == null ? 50 : p.image) + 2.5, 0, 100);
+        p.ig += Math.round((p.popularity || 0) * 1.1 + 15);
+        title = "✨ İmaj gönderisi";
+        msg = "İtibar ve kamu imajı güçlendi; erişim daha sınırlı kaldı.";
+      } else {
+        /* RİSK: kumar. 0,52 patlama · 0,48 tepki */
+        if (U.chance(0.52)) {
+          outcome = "risk_win";
+          post.likes = Math.round(post.likes * 2.4);
+          post.shares = Math.round((post.shares || 0) * 2.2);
+          K.game.addFame(1.2);
+          p.ig += Math.round((p.popularity || 0) * 5 + 200);
+          p.tiktok += Math.round((p.popularity || 0) * 4 + 150);
+          p.image = U.clamp((p.image == null ? 50 : p.image) - 0.8, 0, 100);
+          title = "🎲 Risk tuttu!";
+          msg = "Gönderi patladı, gündem oldu ve takipçi fırladı.";
+        } else {
+          outcome = "risk_backfire";
+          post.likes = Math.round(post.likes * 0.6);
+          p.reputation = U.clamp((p.reputation || 0) - 1.4, 0, 100);
+          p.image = U.clamp((p.image == null ? 50 : p.image) - 3, 0, 100);
+          p.stress = U.clamp((p.stress || 0) + 5, 0, 100);
+          p.ig = Math.max(0, Math.round(p.ig - ((p.popularity || 0) * 20 + 30)));
+          title = "🎲 Risk tepki çekti";
+          msg = "Gönderi tartışma yarattı; itibar ve imaj zedelendi.";
+          kind = "warn";
+          s.notifications = (s.notifications || []).concat([{
+            title: "⚠️ Tartışma", msg: "Riskli gönderin tepki topladı; takipçi kaybettin.",
+            kind: "warn", day: s.day
+          }]).slice(-60);
+          /* küçük bir kriz ihtimali (gerçek sonuç) */
+          if (U.chance(0.22) && K.crisis && K.crisis.maybeStart) {
+            try { K.crisis.maybeStart(); } catch (e) {}
+          }
+        }
+      }
+
+      /* createPost gönderiyi akışa zaten ekledi — burada yalnızca sınırla */
+      s.feed[platform] = (s.feed[platform] || []).slice(0, 60);
+      K.save();
+      K.refresh();
+      return { post, outcome, title, msg, kind };
+    },
+
     /* ---------------- yayınlanan şarkıyı otomatik duyur ---------------- */
     onRelease(song) {
       K.social.createPost("instagram", `"${song.title}" tüm platformlarda yayında! 🎶 Şimdi dinleyin.`, song.id);
