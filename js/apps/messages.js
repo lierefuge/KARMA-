@@ -43,15 +43,22 @@
       }
     }
     const pending = offer.status === "pending";
+    const dl = (K.relations && K.relations.offerDaysLeft) ? K.relations.offerDaysLeft(offer) : null;
+    const canNeg = pending && offer.type !== "hangout" && !offer.negotiated;
+    const statusPill = offer.status === "accepted" ? ["money", "✓ Kabul edildi"]
+      : offer.status === "expired" ? ["hot", "⏳ Süresi doldu"]
+      : ["hot", "✕ Reddedildi"];
     return `<div class="dm-offer ${offer.type}">
-      <div class="of-tag">${tag}</div>
+      <div class="of-tag">${tag}${offer.negotiated ? ` <span class="of-neg-badge">🤝 pazarlık yapıldı</span>` : ""}</div>
       <div class="of-title">${U.escape(title)}</div>
       <div class="of-desc">${U.escape(desc)}</div>
       <div class="of-terms">${U.escape(terms)}</div>
       ${pending ? `<div class="of-actions">
         <button class="btn btn-sm btn-primary" data-pact="offer-accept" data-arg="${offer.id}">Kabul Et</button>
         <button class="btn btn-sm btn-ghost" data-pact="offer-decline" data-arg="${offer.id}">Reddet</button>
-      </div>` : `<div style="margin-top:8px"><span class="pill ${offer.status === "accepted" ? "money" : "hot"}">${offer.status === "accepted" ? "✓ Kabul edildi" : "✕ Reddedildi"}</span></div>`}
+        ${canNeg ? `<button class="btn btn-sm btn-ghost of-neg" data-pact="offer-negotiate" data-arg="${offer.id}">🤝 Pazarlık</button>` : ""}
+      </div>` : `<div style="margin-top:8px"><span class="pill ${statusPill[0]}">${statusPill[1]}</span></div>`}
+      ${pending && dl != null ? `<div class="of-deadline ${dl <= 2 ? "urgent" : ""}">⏳ ${dl} gün içinde yanıtla</div>` : ""}
     </div>`;
   }
 
@@ -105,6 +112,19 @@
             K.toast("🗑️ İstek silindi", "", "warn");
             K.phone.reRender();
           }
+          else if (act === "dms-reply") {
+            const parts = String(el.dataset.arg).split("|");
+            K.dms.reply(parts[0], parts[1]);
+            K.phone.reRender();
+          }
+          else if (act === "dms-blocked") {
+            const list = K.dms.blockedList();
+            if (!list.length) { K.toast("Engelli hesap yok", "", ""); return; }
+            K.ui.actionSheet("Engellenen hesaplar", list.map(x => ({
+              label: "🔓 " + x.sender.stageName + " · " + (x.sender.roleLabel || ""),
+              onClick: () => { K.dms.unblock(x.id); K.phone.reRender(); }
+            })));
+          }
           else if (act === "thread-more") M.threadSheet(el.dataset.arg);
           else if (act === "show-archived") {
             M._showArchived = !M._showArchived;
@@ -128,9 +148,80 @@
           }
           else if (act === "offer-accept") { K.relations.respondOffer(el.dataset.arg, true); K.phone.reRender(); }
           else if (act === "offer-decline") { K.relations.respondOffer(el.dataset.arg, false); K.phone.reRender(); }
+          else if (act === "offer-negotiate") { M.offerNegotiatePrompt(el.dataset.arg); }
         }
       };
       return view;
+    },
+
+    /* ---------------- PAZARLIK (v10.30) ---------------- */
+    offerNegotiatePrompt(offerId) {
+      const offer = (K.state.offers || []).find(o => o.id === offerId);
+      if (!offer || offer.status !== "pending") return;
+      const p = K.state.player;
+      const lever = K.relations.offerLeverage(offer);
+      const leverLabel = lever >= 0.7 ? "güçlü" : lever >= 0.45 ? "dengeli" : "zayıf";
+      const leverTone = lever >= 0.7 ? "money" : lever >= 0.45 ? "gold" : "hot";
+      let fields = "", readPatch = null;
+
+      if (offer.type === "feature") {
+        const cur = offer.terms.split || 60;
+        fields = K.ui.field("İstediğin gelir payı (%)",
+          `<input type="range" id="neg-split" min="30" max="90" step="5" value="${Math.min(90, cur + 10)}" />
+           <div class="readout" id="neg-split-v">%${Math.min(90, cur + 10)}</div>`);
+        readPatch = () => {
+          const want = +U.qs("#neg-split").value;
+          return { split: want, greed: U.clamp((want - cur) / 30, 0, 1) };
+        };
+      } else if (offer.type === "label" && offer.artistId) {
+        const t = offer.terms;
+        fields = K.ui.field("Avans (sen ödeyeceksin)", `<input type="number" id="neg-adv" value="${t.advance || 0}" min="0" step="5000" />`)
+          + K.ui.field("Sanatçının payı (%)", `<input type="number" id="neg-roy" value="${t.artistRoyalty || 70}" min="40" max="95" />`);
+        readPatch = () => {
+          const adv = Math.max(0, +U.qs("#neg-adv").value || 0);
+          const roy = +U.qs("#neg-roy").value || 70;
+          const g = U.clamp(((t.advance || 0) - adv) / Math.max(1, (t.advance || 1)) * 0.6 + Math.abs((t.artistRoyalty || 70) - roy) / 60, 0, 1);
+          return { advance: adv, artistRoyalty: roy, greed: g };
+        };
+      } else {
+        const t = offer.terms;
+        const share = t.artistShare != null ? t.artistShare : (100 - (t.royalty || 30));
+        fields = K.ui.field("İstediğin avans", `<input type="number" id="neg-adv" value="${Math.round((t.advance || 0) * 1.3)}" min="0" step="5000" />`)
+          + K.ui.field("İstediğin sanatçı payı (%)", `<input type="number" id="neg-share" value="${Math.min(90, share + 10)}" min="20" max="90" />`)
+          + K.ui.field("Sözleşme süresi (gün)", `<input type="number" id="neg-len" value="${Math.max(180, Math.round((t.lengthDays || 365) * 0.7))}" min="90" step="30" />`);
+        readPatch = () => {
+          const adv = Math.max(0, +U.qs("#neg-adv").value || 0);
+          const sh = +U.qs("#neg-share").value || 60;
+          const len = Math.max(90, +U.qs("#neg-len").value || 365);
+          const g = U.clamp((adv / Math.max(1, (t.advance || 1)) - 1) * 0.4 + Math.abs(sh - share) / 50 * 0.5 + Math.abs((t.lengthDays || 365) - len) / 300 * 0.4, 0, 1);
+          return { advance: adv, artistShare: sh, lengthDays: len, greed: g };
+        };
+      }
+
+      const body = `<div class="neg-lever">Kaldıraç: <b class="pill ${leverTone}">${leverLabel}</b>
+          <span class="muted">Samimiyet, popülerlik ve itibarın pazarlık gücünü belirler.</span></div>${fields}`;
+      K.ui.modal({
+        title: "🤝 Pazarlık", desc: "Karşı tarafın kabulü kaldıraca ve isteğinin büyüklüğüne bağlıdır.",
+        body,
+        actions: [
+          { label: "Vazgeç" },
+          { label: "Teklif Et", cls: "btn-primary", onClick: () => {
+            const patch = readPatch();
+            const res = K.relations.counterOffer(offerId, patch);
+            if (!res || res.ok === false) {
+              const why = res && res.why === "tekrar" ? "Bu teklif için pazarlık hakkın doldu." : "Pazarlık yapılamadı.";
+              K.toast("Pazarlık", why, "warn");
+              return false;
+            }
+            const titles = { accepted: "✅ Kabul edildi", partial: "↔️ Kısmi taviz", withdrawn: "❌ Geri çekildi" };
+            K.toast(titles[res.result] || "Pazarlık", res.reply || "", res.result === "accepted" ? "ok" : res.result === "withdrawn" ? "warn" : "");
+            K.phone.reRender();
+          } }
+        ]
+      });
+      /* canlı değer göstergesi */
+      const sr = U.qs("#neg-split");
+      if (sr) sr.addEventListener("input", () => { const v = U.qs("#neg-split-v"); if (v) v.textContent = "%" + sr.value; });
     },
 
     /* ---------------- sohbet listesi ---------------- */
@@ -231,24 +322,60 @@
     requestsHTML() {
       const reqs = K.state.dmRequests || {};
       const ids = Object.keys(reqs).filter(id => K.artistById(id));
+      const ext = ids.filter(id => reqs[id].external);
+      const art = ids.filter(id => !reqs[id].external);
+      const blocked = (K.dms && K.dms.blockedCount) ? K.dms.blockedCount() : 0;
+      const blockedRow = blocked ? `<div class="dm-arch-row" data-pact="dms-blocked">🚫 ${blocked} engellenen hesap</div>` : "";
       if (!ids.length) {
-        return `<div class="empty-note"><b>İstek yok</b>Seni tanımayan bir sanatçı yazdığında mesaj burada görünür — kabul edersen sohbet açılır.</div>`;
+        return blockedRow + `<div class="empty-note"><b>İstek yok</b>Tanımadığın biri yazdığında mesaj burada görünür. Yabancı hesaplar (hayran / dolandırıcı / gazeteci) doğrudan gelen kutuna düşmez.</div>`;
       }
-      return `<div class="dm-req-note">Tanımadığın hesaplar doğrudan sohbetlerine düşmez. Kabul edersen sohbet açılır.</div>`
-        + ids.sort((a, b) => (reqs[b].day || 0) - (reqs[a].day || 0)).map(id => {
-          const a = K.artistById(id);
-          const last = reqs[id].messages[reqs[id].messages.length - 1] || {};
-          return `<div class="dm-req">
-            <div class="dm-req-head">${K.ui.avatar(a.stageName, 44, true)}
-              <div class="grow"><div class="nm">${U.escape(a.stageName)}</div>
-              <div class="last">${U.escape(String(last.text || "").slice(0, 70))}</div></div>
-            </div>
-            <div class="dm-req-actions">
-              <button class="btn btn-sm btn-primary" data-pact="req-accept" data-arg="${id}">Kabul et</button>
-              <button class="btn btn-sm btn-ghost" data-pact="req-decline" data-arg="${id}">Sil</button>
-            </div>
-          </div>`;
-        }).join("");
+      const extHTML = ext.length
+        ? `<div class="sp-section-title">Yabancı hesaplar</div>` + ext.sort((a, b) => (reqs[b].day || 0) - (reqs[a].day || 0)).map(id => K.phone.appById("messages").externalReqCard(id, reqs[id])).join("")
+        : "";
+      const artHTML = art.length
+        ? `<div class="sp-section-title" style="margin-top:8px">Sanatçılar</div>`
+          + `<div class="dm-req-note">Tanımadığın sanatçılar doğrudan sohbetlerine düşmez. Kabul edersen sohbet açılır.</div>`
+          + art.sort((a, b) => (reqs[b].day || 0) - (reqs[a].day || 0)).map(id => {
+            const a = K.artistById(id);
+            const last = reqs[id].messages[reqs[id].messages.length - 1] || {};
+            return `<div class="dm-req">
+              <div class="dm-req-head">${K.ui.avatar(a.stageName, 44, true)}
+                <div class="grow"><div class="nm">${U.escape(a.stageName)}</div>
+                <div class="last">${U.escape(String(last.text || "").slice(0, 70))}</div></div>
+              </div>
+              <div class="dm-req-actions">
+                <button class="btn btn-sm btn-primary" data-pact="req-accept" data-arg="${id}">Kabul et</button>
+                <button class="btn btn-sm btn-ghost" data-pact="req-decline" data-arg="${id}">Sil</button>
+              </div>
+            </div>`;
+          }).join("")
+        : "";
+      return blockedRow + extHTML + artHTML;
+    },
+
+    /* yabancı DM kartı: hayran / dolandırıcı / gazeteci — engelle veya yanıtla */
+    externalReqCard(id, req) {
+      const s = K.dms.byId(id) || K.artistById(id) || {};
+      const last = (req.messages || [])[req.messages.length - 1] || {};
+      const kind = req.kind || (s && s.role) || "hayran";
+      const icon = (s.roleIcon) || ({ hayran: "💜", dolandirici: "⚠️", gazeteci: "📰" }[kind] || "👤");
+      const label = (s.roleLabel) || ({ hayran: "Hayran", dolandirici: "Şüpheli Hesap", gazeteci: "Gazeteci" }[kind] || "Yabancı");
+      const dl = req.expiresDay ? Math.max(0, req.expiresDay - K.state.day) : null;
+      const opts = (req.options || []).map(o =>
+        `<button class="btn btn-sm ${o.block ? "btn-ghost dm-block-btn" : "btn-primary"}" data-pact="dms-reply" data-arg="${id}|${o.id}">${U.escape(o.label)}</button>`).join("");
+      const outcome = req.handled
+        ? `<div class="dm-req-outcome"><span class="pill money">✓ Yanıtlandı</span>`
+          + ((req.messages || []).filter(m => m.from === "me").slice(-1)[0] ? `<span class="muted">Sen: ${U.escape(String((req.messages.filter(m => m.from === "me").slice(-1)[0] || {}).text || "").slice(0, 40))}</span>` : "")
+          + `</div>`
+        : "";
+      return `<div class="dm-req external k-${kind}">
+        <div class="dm-req-head">${K.ui.artistAvatar ? K.ui.artistAvatar(id, 44, true) : K.ui.avatar(s.stageName || "?", 44, true)}
+          <div class="grow"><div class="nm">${U.escape(s.stageName || "?")} <span class="dm-role-badge">${icon} ${U.escape(label)}</span></div>
+          <div class="last">${U.escape(String(last.text || "").slice(0, 80))}</div></div>
+        </div>
+        ${req.handled ? outcome : `<div class="dm-req-actions">${opts}</div>`}
+        ${!req.handled && dl != null ? `<div class="of-deadline ${dl <= 1 ? "urgent" : ""}">⏳ ${dl} gün içinde yanıtla</div>` : ""}
+      </div>`;
     },
 
     /* ---------------- GRUP SOHBETLERİ ---------------- */
