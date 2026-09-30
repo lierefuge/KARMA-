@@ -121,6 +121,11 @@
          ince marjla çalışır). */
     labelBillableShare: 0.88,
     labelOpexShare: 0.18,
+
+    /* v10.28 — GENİŞLEME PAKETİ · sistemler arası paylaşılan sabitler.
+       Sistemin KENDİ ayarları (ürün tipleri, varlık listesi, pazar
+       tabloları) ilgili sistem dosyasında yaşar. */
+    writingBase: 18000,        // başkası için yazmanın temel ücreti (systems/writing.js)
     minAdvance: 20000,
     defaultRoyalty: 70,
     dailyMessageLimit: 6,
@@ -173,7 +178,20 @@
         /* B-6: OYUNCUNUN kimlik id'si (data/player-persona.js → K.PLAYER_PERSONAS).
            NPC kişilik katmanı (data/npc-personality.js → K.npcPersonality)
            ile İLGİSİZDİR. Alan adı kayıt uyumluluğu için `persona` kaldı. */
+        /* B-6: OYUNCUNUN kimlik id'si (data/persona.js → K.PLAYER_PERSONAS).
+           NPC kişilik katmanı (data/personality.js → K.npcPersonality)
+           ile İLGİSİZDİR. Alan adı kayıt uyumluluğu için `persona` kaldı. */
         persona: null,
+        /* ---------------- v10.28 GENİŞLEME PAKETİ ----------------
+           Taze oyunda da tanımlı olmalı; eski kayıtlar için aynı alanlar
+           `loadGame` göç bloğunda da varsayılır (state.js alt kısmı). */
+        merch: { brand: null, active: null, drops: [], brandValue: 0, cooldownDay: 0, totalRevenue: 0 },
+        assets: [],
+        writing: { offers: [], done: [], credited: 0, exposed: 0, totalEarned: 0 },
+        stress: 10,
+        mental: { therapyUntil: 0, sessions: 0, hiatusUntil: 0, burnoutCount: 0, spokeOut: false },
+        shady: { botStreams: 0, suspicion: 0, strikes: 0, bannedUntil: 0, curatorDeals: [], everUsed: false },
+        intl: { stage: 0, markets: {}, tours: [], features: 0, globalPlays: 0 },
         beats: [],                // beat envanteri [{id,name,producer,quality,cost}]
         ghost: { hired: false, name: null, exposure: 0, uses: 0 },  // söz yazarı
         albums: [],
@@ -438,6 +456,34 @@
       K.state.player.watchHistory = K.state.player.watchHistory || [];
       if (K.state.player.ytAutoplay === undefined) K.state.player.ytAutoplay = true;
       K.state.player.ytReadDay = K.state.player.ytReadDay || 0;
+
+      /* ============================================================
+         v10.28 — GENİŞLEME PAKETİ (altı yeni sistem) · eski kayıt göçü
+         Her alanın ayrıntısı kendi sistem dosyasında:
+           merch   → systems/merch.js    (ürün/streetwear markası)
+           assets  → systems/assets.js   (varlık & gösteriş)
+           writing → systems/writing.js  (başkası için şarkı yazmak)
+           stress  → systems/mental.js   (akıl sağlığı & tükenmişlik)
+           shady   → systems/shady.js    (bot dinlenme & payola)
+           intl    → systems/intl.js     (uluslararası / diaspora)
+         ============================================================ */
+      if (!K.state.player.merch) {
+        K.state.player.merch = { brand: null, active: null, drops: [], brandValue: 0, cooldownDay: 0, totalRevenue: 0 };
+      }
+      K.state.player.assets = K.state.player.assets || [];
+      if (!K.state.player.writing) {
+        K.state.player.writing = { offers: [], done: [], credited: 0, exposed: 0, totalEarned: 0 };
+      }
+      if (K.state.player.stress == null) K.state.player.stress = 10;
+      if (!K.state.player.mental) {
+        K.state.player.mental = { therapyUntil: 0, sessions: 0, hiatusUntil: 0, burnoutCount: 0, spokeOut: false };
+      }
+      if (!K.state.player.shady) {
+        K.state.player.shady = { botStreams: 0, suspicion: 0, strikes: 0, bannedUntil: 0, curatorDeals: [], everUsed: false };
+      }
+      if (!K.state.player.intl) {
+        K.state.player.intl = { stage: 0, markets: {}, tours: [], features: 0, globalPlays: 0 };
+      }
       K.state.player.payouts = K.state.player.payouts || [];
       K.state.player.totalStreamRevenue = K.state.player.totalStreamRevenue || 0;
       /* yeni alanlar (eski kayitlar) */
