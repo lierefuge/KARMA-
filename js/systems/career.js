@@ -84,9 +84,17 @@
       const mentorQ = (K.beef && K.beef.mentorBonus) ? K.beef.mentorBonus() : 0;  // duayen mentorlugu
       // kayıt kaynağı (stüdyo/ev/telefon...) kaliteye doğrudan etki eder
       const sourceQ = opts.sourceQAdd != null ? opts.sourceQAdd : (opts.sourceId ? K.sourceById(opts.sourceId).qAdd : 0);
+
+      /* v10.28 — yeni sistemlerin kalite katkıları:
+         · kendi stüdyosu (varlık) → kalite +
+         · AKIL SAĞLIĞI: yüksek stres işi bozar (çarpan olarak uygulanır) */
+      const studioOwnQ = (K.assets && K.assets.studioBonus) ? K.assets.studioBonus().quality : 0;
+
       const raw = (base + budgetScore + talent + music + studioSkill + beat.qAdd + vocal.qAdd + license.qAdd + craftAdj)
-        * g.quality * kind.qMult + kind.qAdd + jobBonus + teamQ + labelQ + mentorQ - fatiguePenalty + lyricAdj + cohesionAdj + agendaAdj + sourceQ;
-      return U.clamp(Math.round(raw + U.rand(-5, 6)), 18, 99);
+        * g.quality * kind.qMult + kind.qAdd + jobBonus + teamQ + labelQ + mentorQ + studioOwnQ
+        - fatiguePenalty + lyricAdj + cohesionAdj + agendaAdj + sourceQ;
+      const stressed = (K.mental && K.mental.qualityMult) ? K.mental.qualityMult() : 1;
+      return U.clamp(Math.round(raw * stressed + U.rand(-5, 6)), 18, 99);
     },
 
     /* Parça başına düşen üretim bütçelerini normalleştirir.
@@ -159,6 +167,12 @@
     createRelease(opts) {
       const s = K.state;
       const p = s.player;
+      /* v10.28 — TÜKENMİŞLİK: zorunlu ara sırasında yayın yapılamaz.
+         (mental.js tavan yapan streste 14 günlük ara verir.) */
+      if (K.mental && K.mental.onHiatus && K.mental.onHiatus()) {
+        K.toast("🛑 Zorunlu ara", "Tükendin — yayın yapamazsın. Dinlenme bitince devam edersin.", "bad");
+        return null;
+      }
       const type = opts.trackCount ? K.career.typeForCount(opts.trackCount) : (opts.type || "single");
       const trackCount = opts.trackCount ? U.clamp(Math.round(opts.trackCount), 1, 14) : (K.RELEASE_TYPES[type] || K.RELEASE_TYPES.single).tracks;
       const genre = opts.genre || p.genre;
