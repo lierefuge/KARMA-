@@ -19,6 +19,14 @@
      · stres → kayıt kalitesi düşer (career.estimateQuality okur)
      · %85+ → kamusal taşma riski (pop/itibar/hayran kaybı)
      · %100 → TÜKENME: zorunlu ara (yayın yapamazsın), hayran kaybı
+
+   DİĞER SİSTEMLERE BAĞLANTILAR (v10.29)
+     · dissMult()        → systems/beef.js  : yüksek streste diss ZAYIF olur
+                            (hem yayılım hem husumet/saygı etkisi düşer)
+     · performanceMult() → systems/concerts.js : sahne şöhret/hayran kazancı düşer
+     · dmMult()/dmTone() → systems/chat.js : DM mesajları ters teper,
+                            sanatçı “bir tuhaf konuşuyorsun” diye mesafe koyar
+   Hepsi 40 stresin altında ETKİSİZdir (çarpạn = 1,00).
    ============================================================ */
 (function (K) {
   "use strict";
@@ -63,11 +71,50 @@
       return { stress: v, key: "iyi", label: "İyi", tone: "ok", icon: "😌" };
     },
 
-    /* kayıt kalitesi çarpanı — yüksek stres işi bozar */
+    /* ------------------------------------------------------------
+       SİSTEM ETKİ ÇARPANLARI (v10.29)
+       Stres yalnızca “kalite” değil, sanatçının ÜRETİM VE İLETİŞİM
+       kalitesini bozar. Hepsi 40 stresin altında 1,00; tavanda belirgin
+       şekilde düşer. Tek eşik (40) kullanılır ki davranış öngörülebilir
+       olsun: “stres 40'ı geçtiyse işler bozulmaya başlar”.
+
+         qualityMult()     kayıt kalitesi        → 0,83 (100'de)
+         dissMult()        diss etkisi/yayılımı  → 0,55  (öfkeli ama dağınık)
+         performanceMult() sahne performansı     → 0,60  (şöhret/hayran kazancı)
+         dmMult()          DM samimiyet kazancı  → 0,55  (mesajlar ters teper)
+       ------------------------------------------------------------ */
     qualityMult() {
       const v = K.mental.stress();
       if (v <= 40) return 1;
       return U.clamp(1 - (v - 40) * 0.0028, 0.80, 1);   // 100'de ≈ 0,83
+    },
+
+    /* diss: yüksek streste yazılan gönderme zayıf kalır */
+    dissMult() {
+      const v = K.mental.stress();
+      if (v <= 40) return 1;
+      return U.clamp(1 - (v - 40) * 0.0075, 0.55, 1);   // 100'de 0,55
+    },
+
+    /* sahne: dağınık kafayla çıkılan konser daha az kazandırır */
+    performanceMult() {
+      const v = K.mental.stress();
+      if (v <= 40) return 1;
+      return U.clamp(1 - (v - 40) * 0.0067, 0.60, 1);   // 100'de 0,60
+    },
+
+    /* DM: stresliyken attığın mesaj daha az samimiyet kazandırır */
+    dmMult() {
+      const v = K.mental.stress();
+      if (v <= 40) return 1;
+      return U.clamp(1 - (v - 40) * 0.0075, 0.55, 1);   // 100'de 0,55
+    },
+
+    /* DM ton anahtarı: “gergin” | “yuksek” | “tukenmis” | null
+       (chat.js bunu sanatçının cevabına mesafe koymak için kullanır) */
+    dmTone() {
+      const k = K.mental.level().key;
+      return (k === "gergin" || k === "yuksek" || k === "tukenmis") ? k : null;
     },
 
     /* günlük */
@@ -227,6 +274,10 @@
         stress: Math.round(K.mental.stress()),
         level: lv,
         qualityMult: K.mental.qualityMult(),
+        dissMult: K.mental.dissMult(),
+        performanceMult: K.mental.performanceMult(),
+        dmMult: K.mental.dmMult(),
+        dmTone: K.mental.dmTone(),
         onHiatus: K.mental.onHiatus(),
         hiatusLeft: Math.max(0, (m.hiatusUntil || 0) - K.state.day),
         inTherapy: K.mental.inTherapy(),
