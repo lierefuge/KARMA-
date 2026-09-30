@@ -328,7 +328,12 @@
     list() { K.contacts.ensureRoster(); return (K.state && K.state.contacts) || []; },
 
     byId(id) {
-      if (!id || id.indexOf("c_") !== 0) return null;
+      if (!id) return null;
+      if (id.indexOf("c_") !== 0) {
+        /* v10.30 — yabancı DM gönderenleri (hayran/dolandırıcı/gazeteci)
+           de sanatçı-benzeri kayıt olarak çözülsün. */
+        return (K.dms && K.dms.byId) ? K.dms.byId(id) : null;
+      }
       return K.contacts.list().find(c => c.id === id) || null;
     },
 
