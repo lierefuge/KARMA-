@@ -306,8 +306,17 @@
       const s = K.state, p = s.player;
       const a = K.artistById(artistId);
       const b = K.beef.ensure(artistId);
+
+      /* v10.29 — AKIL SAĞLIĞI: yüksek streste yazılan diss ZAYIF olur.
+         Öfkeli ama dağınık kafayla yazılan gönderme daha az yayılır,
+         daha az husumet doğurur ve daha az saygı kazandırır.
+         (Şarkının KALİTESİNİ zaten `career.estimateQuality` stres çarpanı
+         düşürüyor; burada diss'in ETKİSİ de ölçekleniyor.) */
+      const mental = (K.mental && K.mental.dissMult) ? K.mental.dissMult() : 1;
+      const weak = mental < 0.85;
+
       b.iDissedCount++;
-      b.heat = U.clamp(b.heat + 18, 0, 100);
+      b.heat = U.clamp(b.heat + 18 * mental, 0, 100);
       b.status = statusFor(b.heat);
       b.lastMoveDay = s.day;
       b.noted = false;
@@ -315,19 +324,27 @@
       if (song) {
         song.dissTarget = artistId;
         song.boosts = song.boosts || {};
-        song.boosts.diss = (song.boosts.diss || 0) + 0.45;
-        song.dailyStreams = (song.dailyStreams || 0) * 1.25;
-        song.viralBonus = (song.viralBonus || 1) * 1.3;
+        song.boosts.diss = (song.boosts.diss || 0) + 0.45 * mental;
+        song.dailyStreams = (song.dailyStreams || 0) * (1 + 0.25 * mental);
+        song.viralBonus = (song.viralBonus || 1) * (1 + 0.3 * mental);
       }
-      p.popularity = U.clamp(p.popularity + 1.2, 0, 99);
+      p.popularity = U.clamp(p.popularity + 1.2 * mental, 0, 99);
       p.reputation = U.clamp(p.reputation - 0.8, 0, 100);
 
-      (b.log = b.log || []).push({ day: s.day, who: "me", text: `Diss: "${song ? song.title : "Cevap"}"` });
+      (b.log = b.log || []).push({
+        day: s.day, who: "me",
+        text: `Diss: "${song ? song.title : "Cevap"}"${weak ? " (dağınık)" : ""}`
+      });
       if (b.log.length > 24) b.log.shift();
 
-      K.toast("🔥 Diss yayında!", `"${song ? song.title : "Cevap"}" ile ${a ? a.stageName : "rakibe"} cevap verdin.`, "ok");
+      K.toast("🔥 Diss yayında!",
+        `"${song ? song.title : "Cevap"}" ile ${a ? a.stageName : "rakibe"} cevap verdin.` +
+        (weak ? " Kafan dağınık — etkisi zayıf kaldı." : ""),
+        weak ? "warn" : "ok");
       s.notifications = (s.notifications || []).concat([{
-        title: "🔥 Diss yayınlandı", msg: `${a ? a.stageName : "Rakip"} hedefli şarkın çıktı; husumet arttı.`,
+        title: weak ? "🔥 Diss yayınlandı (zayıf)" : "🔥 Diss yayınlandı",
+        msg: `${a ? a.stageName : "Rakip"} hedefli şarkın çıktı; husumet arttı.` +
+          (weak ? ` Stresin yüksek (${Math.round(p.stress)}/100) — sözler dağınık, etki %${Math.round((1 - mental) * 100)} azaldı.` : ""),
         kind: "warn", day: s.day
       }]).slice(-60);
 
