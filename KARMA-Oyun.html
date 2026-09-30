@@ -5784,6 +5784,104 @@ body.hide-values .brand-sub::after {
 }
 
 </style>
+<!-- v10.30 — aramalar · gönderi türü · teklif pazarlığı · yabancı DM -->
+<style>
+/* ==== css/calls.css ==== */
+/* ============================================================
+   KARMA — css/calls.css   (v10.30)
+   Gelen aramalar · gönderi türü seçici · teklif süresi/pazarlık ·
+   yabancı DM kartları (hayran / dolandırıcı / gazeteci).
+   ============================================================ */
+
+/* ---------------- GELEN ARAMA MODALI ---------------- */
+.call-modal .modal-body { text-align: center; }
+.call-head { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-bottom: 12px; }
+.call-avatar {
+  width: 74px; height: 74px; border-radius: 50%; font-size: 34px;
+  display: grid; place-items: center;
+  background: radial-gradient(circle at 35% 30%, rgba(176,108,255,.35), rgba(110,195,255,.14));
+  border: 1px solid var(--stroke-2);
+  box-shadow: 0 0 0 6px rgba(176,108,255,.08);
+  animation: callPulse 1.4s ease-in-out infinite;
+}
+@keyframes callPulse {
+  0%, 100% { box-shadow: 0 0 0 6px rgba(176,108,255,.08); }
+  50% { box-shadow: 0 0 0 14px rgba(176,108,255,.02); }
+}
+.call-name { font-size: 16px; font-weight: 800; color: var(--text-0); }
+.call-role { font-size: 11px; color: var(--text-3); }
+.call-ringing { font-size: 13px; color: var(--karma-2); font-weight: 700; letter-spacing: .5px; }
+.call-bubble {
+  margin-top: 10px; padding: 12px 14px; border-radius: var(--radius-m);
+  background: var(--glass); border: 1px solid var(--stroke);
+  color: var(--text-1); font-size: 12.5px; line-height: 1.65; text-align: left;
+}
+.call-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
+.call-opt { width: 100%; justify-content: flex-start; text-align: left; }
+.call-notes { margin-top: 10px; font-size: 11px; color: var(--money); font-weight: 700; }
+
+/* ---------------- ARAMA UYGULAMASI ---------------- */
+.app-calls .call-section-title {
+  font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px;
+  color: var(--text-3); margin: 10px 2px 6px;
+}
+.call-row {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 8px;
+  background: var(--glass); border: 1px solid var(--stroke); border-radius: var(--radius-m);
+}
+.call-row.ringing { border-color: rgba(92,232,155,.4); animation: callRowGlow 1.6s ease-in-out infinite; }
+@keyframes callRowGlow { 0%,100% { box-shadow: 0 0 0 0 rgba(92,232,155,.0); } 50% { box-shadow: 0 0 0 3px rgba(92,232,155,.10); } }
+.call-row-ic {
+  width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 19px; background: var(--glass-2); flex: none;
+}
+.call-row-name { font-size: 13px; font-weight: 700; color: var(--text-0); }
+.call-row-sub { font-size: 10.5px; color: var(--text-3); margin-top: 1px; }
+.call-row-reply { font-size: 11px; color: var(--text-2); margin-top: 3px; font-style: italic; }
+.call-row-actions { display: flex; gap: 6px; }
+.call-mini {
+  width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--stroke-2);
+  background: var(--glass); font-size: 15px; cursor: pointer;
+}
+.call-mini.answer { background: rgba(92,232,155,.16); border-color: rgba(92,232,155,.5); }
+.call-mini.reject { background: rgba(255,92,122,.14); border-color: rgba(255,92,122,.5); }
+
+/* ---------------- GÖNDERİ TÜRÜ SEÇİCİ ---------------- */
+.posttype-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.posttype {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
+  padding: 9px 10px; border-radius: var(--radius-s); cursor: pointer;
+  background: var(--glass); border: 1px solid var(--stroke); color: var(--text-1);
+  text-align: left; transition: border-color .15s, background .15s;
+}
+.posttype.on { border-color: var(--karma); background: rgba(176,108,255,.14); }
+.posttype .pt-ic { font-size: 16px; }
+.posttype .pt-nm { font-size: 12px; font-weight: 800; color: var(--text-0); }
+.posttype .pt-desc { font-size: 9.5px; line-height: 1.35; color: var(--text-3); }
+
+/* ---------------- TEKLİF SÜRESİ + PAZARLIK ---------------- */
+.of-neg-badge {
+  font-size: 9px; font-weight: 700; color: var(--gold);
+  border: 1px solid rgba(255,203,92,.4); border-radius: var(--radius-pill);
+  padding: 1px 6px; margin-left: 4px;
+}
+.of-deadline {
+  margin-top: 8px; font-size: 10.5px; font-weight: 700; color: var(--text-3);
+}
+.of-deadline.urgent { color: var(--hot); animation: callRowGlow 1.6s ease-in-out infinite; }
+.of-neg { border-color: rgba(255,203,92,.45) !important; color: var(--gold) !important; }
+.neg-lever { font-size: 11.5px; color: var(--text-2); margin-bottom: 10px; }
+.neg-lever .muted { display: block; font-size: 10px; color: var(--text-3); margin-top: 2px; }
+
+/* ---------------- YABANCI DM KARTLARI ---------------- */
+.dm-req.external { border-left: 3px solid var(--stroke-2); }
+.dm-req.external.k-hayran { border-left-color: #e07fa0; }
+.dm-req.external.k-dolandirici { border-left-color: var(--hot); }
+.dm-req.external.k-gazeteci { border-left-color: var(--karma-2); }
+.dm-req-outcome { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 11px; }
+.dm-block-btn { border-color: rgba(255,92,122,.45) !important; color: var(--hot) !important; }
+
+</style>
 <!-- mobil/dokunmatik katman: EN SON yüklenir ki altta kalan 25 dosyayı ezebilsin -->
 <style>
 /* ==== css/mobile.css ==== */
@@ -6261,7 +6359,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.29.0";
+  K.VERSION = "10.30.0";
   K.VERSION_DATE = "2026-09-30";
 })(window.K = window.K || {});
 
@@ -9556,7 +9654,12 @@ window.K = window.K || {};
         /* --- telefon (OS) --- */
         battery: 100,
         phone: { theme: "dark", wallpaper: "karma", brightness: 1, batterySaver: false, layout: null },
-        installed: null           // yüklü (kilitli olmayan) uygulamalar; phoneOS doldurur
+        installed: null,          // yüklü (kilitli olmayan) uygulamalar; phoneOS doldurur
+        /* v10.30 — GELEN ARAMALAR + YABANCI DM'LER */
+        calls: [],                // çalan/cevaplanan aramalar (systems/calls.js)
+        callLog: [],              // arama geçmişi
+        extSenders: [],           // yabancı DM gönderenleri (systems/dms.js)
+        dmBlocks: {}              // engellenen hesaplar (id → gün)
       },
       label: null,                 // oyuncunun kurduğu şirket
       relations: {},
@@ -9822,6 +9925,11 @@ window.K = window.K || {};
       K.state.player.phone = K.state.player.phone || { theme: "dark", wallpaper: "karma", brightness: 1, batterySaver: false, layout: null };
       if (K.state.player.phone.layout === undefined) K.state.player.phone.layout = null;
       if (K.state.player.installed === undefined) K.state.player.installed = null;
+      /* v10.30 — gelen aramalar + yabancı DM'ler (eski kayıt göçü) */
+      K.state.player.calls = K.state.player.calls || [];
+      K.state.player.callLog = K.state.player.callLog || [];
+      K.state.player.extSenders = K.state.player.extSenders || [];
+      K.state.player.dmBlocks = K.state.player.dmBlocks || {};
       if (K.state.pendingSync === undefined) K.state.pendingSync = null;
       if (K.state.pendingCatalogOffer === undefined) K.state.pendingCatalogOffer = null;
       if (K.state.catalogSold === undefined) K.state.catalogSold = false;
@@ -9895,7 +10003,10 @@ window.K = window.K || {};
       }
 
       // karar bekleyen günlük olay varsa oyuncuya sor (tek modal)
-      if (s.pendingIncident && K.incidents && K.incidents.openPending) {
+      /* v10.30 — önce ÇALAN ARAMA (süreli, kaçırılmaması gereken bir karar) */
+      if (K.calls && K.calls.ringingCount && K.calls.ringingCount() > 0) {
+        setTimeout(() => K.calls.openNext(), 500);
+      } else if (s.pendingIncident && K.incidents && K.incidents.openPending) {
         setTimeout(() => K.incidents.openPending(), 500);
       } else if (s.pendingSync && K.catalog && K.catalog.openSyncOffer) {
         setTimeout(() => K.catalog.openSyncOffer(), 500);
@@ -9988,6 +10099,9 @@ window.K = window.K || {};
       if (K.mental && K.mental.tick) K.mental.tick();
       if (K.shady && K.shady.tick) K.shady.tick();
       if (K.intl && K.intl.tick) K.intl.tick();
+      /* v10.30 — gelen aramalar + yabancı DM'ler */
+      if (K.calls && K.calls.tick) K.calls.tick();
+      if (K.dms && K.dms.tick) K.dms.tick();
       if (K.stats && K.stats.record) K.stats.record();
 
       K.game.decayAffinity();
@@ -14136,7 +14250,12 @@ window.K = window.K || {};
     list() { K.contacts.ensureRoster(); return (K.state && K.state.contacts) || []; },
 
     byId(id) {
-      if (!id || id.indexOf("c_") !== 0) return null;
+      if (!id) return null;
+      if (id.indexOf("c_") !== 0) {
+        /* v10.30 — yabancı DM gönderenleri (hayran/dolandırıcı/gazeteci)
+           de sanatçı-benzeri kayıt olarak çözülsün. */
+        return (K.dms && K.dms.byId) ? K.dms.byId(id) : null;
+      }
       return K.contacts.list().find(c => c.id === id) || null;
     },
 
@@ -18296,9 +18415,9 @@ window.K = window.K || {};
       const a = K.artistById(artistId);
       const offer = {
         id: U.uid("off"), type: "feature", direction: "incoming",
-        artistId, day: K.state.day,
+        artistId, day: K.state.day, expiresDay: K.state.day + 7,
         terms: { title: K.career.suggestTitle(), split: U.pick([50, 60, 70]) },
-        status: "pending"
+        status: "pending", negotiated: 0
       };
       K.state.offers.push(offer);
       K.relations.pushArtistMessage(artistId,
@@ -18316,9 +18435,9 @@ window.K = window.K || {};
       const a = K.artistById(artistId);
       const offer = {
         id: U.uid("off"), type: "hangout", direction: "incoming",
-        artistId, day: K.state.day,
+        artistId, day: K.state.day, expiresDay: K.state.day + 3,
         terms: { activity: U.pick(["studio", "coffee", "dinner", "game", "party"]) },
-        status: "pending"
+        status: "pending", negotiated: 0
       };
       K.state.offers.push(offer);
       K.relations.pushArtistMessage(artistId, U.pick([
@@ -18337,13 +18456,13 @@ window.K = window.K || {};
       if (!lbl) return null;
       const offer = {
         id: U.uid("off"), type: "label", direction: "incoming",
-        artistId, day: K.state.day,
+        artistId, day: K.state.day, expiresDay: K.state.day + 9,
         terms: {
           advance: Math.round(U.rand(0, 1) * (a.labelId ? 80000 : 20000)),
           artistRoyalty: U.clamp(75 - a.traits.ego * 2, 60, 85),
           lengthDays: 365
         },
-        status: "pending"
+        status: "pending", negotiated: 0
       };
       K.state.offers.push(offer);
       K.relations.pushArtistMessage(artistId,
@@ -18360,13 +18479,149 @@ window.K = window.K || {};
       const t = K.career.labelOfferTerms(labelId);
       const offer = {
         id: U.uid("off"), type: "label", direction: "incoming", labelId,
-        artistId: null, day: K.state.day,
-        terms: t, status: "pending"
+        artistId: null, day: K.state.day, expiresDay: K.state.day + 12,
+        terms: t, status: "pending", negotiated: 0
       };
       K.state.offers.push(offer);
       K.toast("📨 Şirket teklifi", `${l.name} sana sözleşme teklif ediyor.`, "ok");
       K.bus.emit("offer:new", offer);
       return offer;
+    },
+
+    /* ============================================================
+       v10.30 — TEKLİF KUYRUĞU + PAZARLIK
+       Teklifler artık SÜRELİDİR (expiresDay) ve BİRİKİR. Süre dolarsa
+       teklif geri çekilir ve küçük bir ilişki/itibar maliyeti doğar.
+       Ayrıca oyuncu PAZARLIK yapabilir: daha iyi şart ister, karşı taraf
+       kaldıraç (samimiyet + popülerlik + itibar) ve isteğin büyüklüğüne
+       göre kabul, kısmi taviz ya da geri çekilme ile karşılık verir.
+       ============================================================ */
+    offerDeadline(offer) {
+      if (!offer) return 0;
+      if (offer.expiresDay) return offer.expiresDay;
+      return (offer.day || 0) + (offer.type === "hangout" ? 3 : 7);
+    },
+
+    offerDaysLeft(offer) { return Math.max(0, K.relations.offerDeadline(offer) - K.state.day); },
+
+    /* süresi dolan teklifleri kapat (günlük tick'ten çağrılır) */
+    _expireOffers() {
+      const s = K.state;
+      s.offers.forEach(o => {
+        if (o.status !== "pending") return;
+        if (s.day < K.relations.offerDeadline(o)) return;
+        o.status = "expired";
+        o.handledDay = s.day;
+        if (o.artistId) {
+          K.relations.addAffinity(o.artistId, o.type === "feature" ? -1.5 : -0.5, "teklif_suresi");
+          K.relations.pushArtistMessage(o.artistId, U.pick([
+            "Teklifime dönmedin, ben de başka plan yaptım.",
+            "Cevap gelmedi, o konuyu kapattım.",
+            "Zaman geçti, artık uygun değil."
+          ]), "system");
+        } else if (o.type === "label") {
+          K.toast("⏳ Teklif süresi doldu", (o.terms.labelName || "Şirket") + " teklifi geri çekti.", "warn");
+        }
+      });
+      /* kuyruğu sade tut: bekleyenler + son 6 günde kapananlar */
+      s.offers = s.offers.filter(o =>
+        o.status === "pending" || (s.day - (o.handledDay || o.day || 0)) < 6);
+    },
+
+    /* pazarlık kaldıracı: karşı tarafın kabul eğilimi (0-1) */
+    offerLeverage(offer) {
+      const p = K.state.player;
+      if (offer.artistId) {
+        const rel = K.relation(offer.artistId);
+        const a = K.artistById(offer.artistId);
+        return U.clamp(0.35 + (rel.affinity - 45) / 70 +
+          ((p.popularity || 0) - (a ? a.popularity : 50)) / 220, 0.05, 0.95);
+      }
+      return U.clamp(0.30 + ((p.popularity || 0) - 18) / 70 + (p.reputation || 0) / 240, 0.05, 0.95);
+    },
+
+    /* teklife pazarlık: patch = yeni şartlar + greed (0-1) */
+    counterOffer(offerId, patch) {
+      const s = K.state;
+      const offer = s.offers.find(o => o.id === offerId);
+      if (!offer || offer.status !== "pending") return { ok: false, why: "yok" };
+      if (offer.type === "hangout") return { ok: false, why: "hangout" };
+      if (offer.negotiated) return { ok: false, why: "tekrar" };
+      patch = patch || {};
+
+      const leverage = K.relations.offerLeverage(offer);
+      const greed = U.clamp(patch.greed != null ? patch.greed : 0.4, 0, 1);
+      const acceptProb = U.clamp(leverage + 0.34 - greed * 0.62, 0.05, 0.94);
+      offer.negotiated = 1;
+
+      const applyFull = () => K.relations._applyCounter(offer, patch, 1);
+      const applyHalf = () => K.relations._applyCounter(offer, patch, 0.5);
+      const rel = offer.artistId ? K.relation(offer.artistId) : null;
+
+      if (Math.random() < acceptProb) {
+        applyFull();
+        const line = offer.artistId
+          ? U.pick(["Tamam kardeşim, senin dediğin olsun. El sıkıştık.",
+              "Peki, bu şartlarla varım. Hayırlı olsun.",
+              "İyi, kabul. Ama bu son tavizim."])
+          : U.pick(["Şartlarını yönetime ilettim, onayladılar.",
+              "Tamam, dediğin gibi olsun. Sözleşmeyi güncelliyoruz.",
+              "Anlaştık. Bu şartlarla devam edelim."]);
+        if (offer.artistId) K.relations.pushArtistMessage(offer.artistId, line, "system");
+        else K.toast("🤝 Pazarlık kabul edildi", line, "ok");
+        K.bus.emit("offer:counter", { offer, result: "accepted" });
+        K.save(); K.refresh();
+        return { ok: true, result: "accepted", reply: line, terms: offer.terms };
+      }
+
+      if (Math.random() < 0.5) {
+        applyHalf();
+        offer.negotiated = 0;   // bir tur daha mümkün
+        const line = offer.artistId
+          ? U.pick(["Bu kadar olmaz ama ortada buluşalım.",
+              "Yarı yolda buluşalım, daha fazlası olmaz."])
+          : "Tamamı olmaz ama sınırlı bir iyileştirme yapabiliriz.";
+        if (offer.artistId) K.relations.pushArtistMessage(offer.artistId, line, "system");
+        else K.toast("↔️ Kısmi taviz", line, "warn");
+        K.bus.emit("offer:counter", { offer, result: "partial" });
+        K.save(); K.refresh();
+        return { ok: true, result: "partial", reply: line, terms: offer.terms };
+      }
+
+      offer.status = "declined";
+      offer.handledDay = s.day;
+      if (offer.artistId) {
+        K.relations.addAffinity(offer.artistId, -2, "pazarlik_sert");
+        K.relations.pushArtistMessage(offer.artistId,
+          U.pick(["Bu kadar pazarlık fazla. Teklifimi geri çekiyorum.",
+            "Açgözlü davrandın, o zaman olmasın."]), "system");
+      } else {
+        K.toast("❌ Teklif geri çekildi", (offer.terms.labelName || "Şirket") + " pazarlığı reddetti.", "warn");
+      }
+      K.bus.emit("offer:counter", { offer, result: "withdrawn" });
+      K.save(); K.refresh();
+      return { ok: true, result: "withdrawn", reply: "Teklif geri çekildi." };
+    },
+
+    /* pazarlık şartlarını uygula. factor: 1 = tam istek, 0.5 = yarı yolda */
+    _applyCounter(offer, patch, factor) {
+      const t = offer.terms;
+      const mix = (cur, want) => Math.round(cur + (want - cur) * factor);
+      if (offer.type === "feature") {
+        if (patch.split != null) t.split = U.clamp(mix(t.split || 60, patch.split), 30, 90);
+      } else if (offer.type === "label" && offer.artistId) {
+        if (patch.advance != null) t.advance = Math.max(0, mix(t.advance || 0, patch.advance));
+        if (patch.artistRoyalty != null) t.artistRoyalty = U.clamp(mix(t.artistRoyalty || 70, patch.artistRoyalty), 40, 95);
+        if (patch.lengthDays != null) t.lengthDays = Math.max(90, mix(t.lengthDays || 365, patch.lengthDays));
+      } else if (offer.type === "label") {
+        if (patch.advance != null) t.advance = Math.max(0, mix(t.advance || 0, patch.advance));
+        if (patch.artistShare != null) {
+          const share = U.clamp(mix(t.artistShare || (100 - (t.royalty || 30)), patch.artistShare), 20, 90);
+          t.artistShare = share; t.royalty = 100 - share;
+        }
+        if (patch.lengthDays != null) t.lengthDays = Math.max(90, mix(t.lengthDays || 365, patch.lengthDays));
+      }
+      return t;
     },
 
     /* ---------------- teklife yanıt ---------------- */
@@ -18461,6 +18716,7 @@ window.K = window.K || {};
         }
       }
 
+      offer.handledDay = s.day;
       K.save(); K.refresh();
       K.bus.emit("offer:resolved", offer);
     },
@@ -18552,8 +18808,8 @@ window.K = window.K || {};
         K.relations.createLabelSignsPlayerOffer(l.id);
       }
 
-      // 6) Bekleyen eski teklifleri temizle
-      s.offers = s.offers.filter(o => o.status === "pending" || (s.day - o.day) < 6);
+      // 6) v10.30 — teklif kuyruğu: süresi dolan teklifleri kapat
+      K.relations._expireOffers();
 
       // 7) GERÇEKLİK: Ünlü sanatçı, sen 1-4 şarkı çıkarmışken SANA YAZMAZ.
       //    Ancak ciddi bir dinlenme/popülerlik eşiğini geçince ve genelde
@@ -19096,6 +19352,134 @@ window.K = window.K || {};
       (s.feed[platform] = s.feed[platform] || []).unshift(post);
       K.bus.emit("social:post", post);
       return post;
+    },
+
+    /* ============================================================
+       v10.30 — GÖNDERİ STRATEJİSİ: İÇERİK TÜRÜ
+       Oyuncu artık gönderi atarken NE tür bir içerik olduğunu seçer.
+       Üç yol var ve her biri farklı bir kaynağı besler:
+         📈 Erişim : en çok kişiye ulaşır, imajı pek beslemez
+         ✨ İmaj   : itibar/imaj kazandırır, erişim daha düşük
+         🎲 Risk   : ya patlar (viral) ya batar (tartışma/imaj kaybı)
+       ============================================================ */
+    POST_TYPES: {
+      reach: { id: "reach", name: "Erişim", icon: "📈", tone: "info",
+        desc: "Daha çok kişiye ulaşır; imajı ve itibarı pek beslemez." },
+      image: { id: "image", name: "İmaj", icon: "✨", tone: "ok",
+        desc: "İtibarını ve kamu imajını güçlendirir; erişim daha düşük kalır." },
+      risk:  { id: "risk",  name: "Risk", icon: "🎲", tone: "warn",
+        desc: "Ya patlar ya batar: yüksek erişim şansı, ama tartışma riski de var." }
+    },
+
+    /* tür seçici HTML — uygulama modalları kullanır */
+    postTypeSelector(selected) {
+      const cur = selected || "reach";
+      return `<div class="posttype-grid">` +
+        Object.keys(K.social.POST_TYPES).map(id => {
+          const t = K.social.POST_TYPES[id];
+          return `<button type="button" class="posttype ${id === cur ? "on" : ""}" data-posttype="${id}">` +
+            `<span class="pt-ic">${t.icon}</span><span class="pt-nm">${U.escape(t.name)}</span>` +
+            `<span class="pt-desc">${U.escape(t.desc)}</span></button>`;
+        }).join("") + `</div>`;
+    },
+
+    /* modal içindeki tür seçimini bağla (idempotent — tekrar bağlanmaz) */
+    bindPostTypes(root, initial) {
+      const box = (root || document).querySelector("[data-posttype-box]");
+      if (!box) return;
+      if (box.dataset.bound === "1") return;
+      box.dataset.bound = "1";
+      box.dataset.selected = initial || "reach";
+      box.querySelectorAll("[data-posttype]").forEach(b => {
+        b.addEventListener("click", () => {
+          box.dataset.selected = b.dataset.posttype;
+          box.querySelectorAll("[data-posttype]").forEach(x => x.classList.toggle("on", x === b));
+        });
+      });
+    },
+
+    /* modal içinde seçili tür */
+    selectedPostType(root) {
+      const box = (root || document).querySelector("[data-posttype-box]");
+      return (box && box.dataset.selected) || "reach";
+    },
+
+    /* oyuncunun STRATEJİLİ gönderisi: tür + sonuç motoru */
+    playerPost(platform, text, typeId, songId) {
+      const s = K.state, p = s.player;
+      const type = K.social.POST_TYPES[typeId] ? typeId : "reach";
+      const post = K.social.createPost(platform, text, songId || null);
+      post.postType = type;
+
+      /* şarkı etiketliyse o şarkıya küçük bir tanıtım ivmesi */
+      if (songId) {
+        const song = K.platforms.findSong(songId);
+        if (song) {
+          song.boosts = song.boosts || {};
+          const key = platform + "_social";
+          song.boosts[key] = (song.boosts[key] || 0) + 0.08;
+          song.dailyStreams *= 1.05;
+        }
+      }
+
+      let outcome = type, title = "", msg = "", kind = "ok";
+
+      if (type === "reach") {
+        post.likes = Math.round(post.likes * 1.45);
+        post.comments = Math.round(post.comments * 1.3);
+        const gain = Math.round((p.popularity || 0) * 3 + 40);
+        p.ig += platform === "instagram" ? gain : Math.round(gain * 0.4);
+        p.tiktok += platform === "tiktok" ? gain : Math.round(gain * 0.3);
+        p.x += platform === "x" ? gain : Math.round(gain * 0.2);
+        p.image = U.clamp((p.image == null ? 50 : p.image) - 0.6, 0, 100);
+        title = "📈 Erişim gönderisi";
+        msg = "Geniş kitleye ulaştı (+takipçi), imaj biraz nötrleşti.";
+      } else if (type === "image") {
+        post.likes = Math.round(post.likes * 0.72);
+        post.comments = Math.round(post.comments * 1.15);
+        p.reputation = U.clamp((p.reputation || 0) + 1.2, 0, 100);
+        p.image = U.clamp((p.image == null ? 50 : p.image) + 2.5, 0, 100);
+        p.ig += Math.round((p.popularity || 0) * 1.1 + 15);
+        title = "✨ İmaj gönderisi";
+        msg = "İtibar ve kamu imajı güçlendi; erişim daha sınırlı kaldı.";
+      } else {
+        /* RİSK: kumar. 0,52 patlama · 0,48 tepki */
+        if (U.chance(0.52)) {
+          outcome = "risk_win";
+          post.likes = Math.round(post.likes * 2.4);
+          post.shares = Math.round((post.shares || 0) * 2.2);
+          K.game.addFame(1.2);
+          p.ig += Math.round((p.popularity || 0) * 5 + 200);
+          p.tiktok += Math.round((p.popularity || 0) * 4 + 150);
+          p.image = U.clamp((p.image == null ? 50 : p.image) - 0.8, 0, 100);
+          title = "🎲 Risk tuttu!";
+          msg = "Gönderi patladı, gündem oldu ve takipçi fırladı.";
+        } else {
+          outcome = "risk_backfire";
+          post.likes = Math.round(post.likes * 0.6);
+          p.reputation = U.clamp((p.reputation || 0) - 1.4, 0, 100);
+          p.image = U.clamp((p.image == null ? 50 : p.image) - 3, 0, 100);
+          p.stress = U.clamp((p.stress || 0) + 5, 0, 100);
+          p.ig = Math.max(0, Math.round(p.ig - ((p.popularity || 0) * 20 + 30)));
+          title = "🎲 Risk tepki çekti";
+          msg = "Gönderi tartışma yarattı; itibar ve imaj zedelendi.";
+          kind = "warn";
+          s.notifications = (s.notifications || []).concat([{
+            title: "⚠️ Tartışma", msg: "Riskli gönderin tepki topladı; takipçi kaybettin.",
+            kind: "warn", day: s.day
+          }]).slice(-60);
+          /* küçük bir kriz ihtimali (gerçek sonuç) */
+          if (U.chance(0.22) && K.crisis && K.crisis.maybeStart) {
+            try { K.crisis.maybeStart(); } catch (e) {}
+          }
+        }
+      }
+
+      /* createPost gönderiyi akışa zaten ekledi — burada yalnızca sınırla */
+      s.feed[platform] = (s.feed[platform] || []).slice(0, 60);
+      K.save();
+      K.refresh();
+      return { post, outcome, title, msg, kind };
     },
 
     /* ---------------- yayınlanan şarkıyı otomatik duyur ---------------- */
@@ -24102,6 +24486,1127 @@ window.K = window.K || {};
     }
   };
 })(window.K = window.K || {});
+
+</script>
+  <!-- v10.30 — gelen aramalar + yabancı DM'ler -->
+  <script>
+/* ==== js/systems/calls.js ==== */
+/* ============================================================
+   KARMA — systems/calls.js   (v10.30 · GELEN ARAMALAR)
+   Telefona GELEN ARAMALAR: aç / reddet / mesajla yanıtla.
+
+   Neden ayrı bir sistem?
+   ----------------------
+   Oyunda iletişim yalnızca DM (asenkron metin) üzerinden yürüyordu.
+   Gerçek hayatta bazı kapılar TELEFONLA açılır: menajer, A&R, radyo,
+   gazeteci, sponsor, festival organizatörü. Ve bazıları da tuzaktır
+   (ödül/dolandırıcılık). Bu sistem her aramayı bir KARARA bağlar:
+     • AÇ    → konuşma seçenekleri (her seçeneğin somut sonucu var)
+     • REDDET→ kaçırdığın fırsat / bozulan ilişki
+     • MESAJ → yazılı yanıt (bazı arayanlar metni tercih eder)
+   Her arama SÜRELİDİR: süre dolarsa "cevapsız" olur ve sonucu yine vardır.
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  const U = K.util;
+
+  /* ---------------- arayan kişi çözümleme ---------------- */
+  function contactByRole(role) {
+    if (!K.contacts) return null;
+    return (K.contacts.list() || []).find(c => c.role === role) || null;
+  }
+
+  function anyArtist() {
+    const list = K.artistList() || [];
+    return list.length ? U.pick(list) : null;
+  }
+
+  function aPlayerSong() {
+    const songs = (K.state.player.songs || []);
+    return songs.length ? U.pick(songs) : null;
+  }
+
+  /* ---------------- ARAMA TÜRLERİ ----------------
+     Her tür: bir arayan + bir giriş cümlesi + seçenekler üretir.
+     `build()` çağrıldığında tam arama nesnesi döner. */
+  const KINDS = {
+
+    /* ---- MENAJER: kariyerini yönetmek isteyen aday ---- */
+    manager: {
+      icon: "📋", label: "Menajer Adayı", weight: p => (p.team && p.team.manager) ? 0 : 1.6,
+      build() {
+        const c = contactByRole("manager") || anyArtist();
+        const name = c ? c.stageName : "Menajer Adayı";
+        const fee = 8000;
+        return {
+          kind: "manager", callerId: c ? c.id : null, callerName: name, icon: "📋",
+          intro: `${name}: "Selam, işlerini takip ediyorum. Seni büyütebileceğimi düşünüyorum. ` +
+            `Aylık ${U.money(fee)} karşılığında menajerin olmak istiyorum. Ne dersin?"`,
+          options: [
+            {
+              id: "hire", label: "Anlaştık, menajerim ol",
+              reply: "Tamam, doğru karar. İlk iş: bu ay bir plan çıkarıyorum.",
+              eff: { money: -fee, team: { manager: 1 }, fame: 0.4, reputation: 0.5,
+                notify: ["📋 Menajer", "Artık bir menajerin var. Görünürlük ve iş fırsatları artacak."] }
+            },
+            {
+              id: "no", label: "Şimdilik kendim idare ederim",
+              reply: "Anlıyorum. Kapım açık, kafan değişirse ara.",
+              eff: { reputation: -0.2, notify: ["📋 Menajer", "Teklifi nazikçe geri çevirdin."] }
+            }
+          ],
+          reject: { reply: "Meşgulsün galiba. Neyse, sonra ararım.", eff: { reputation: -0.4 } },
+          message: {
+            prompt: "Menajere yazılı yanıt:",
+            choices: [
+              { id: "m1", label: "Şartları konuşalım, DM at", reply: "Tamam, yazıyorum hemen.",
+                eff: { affinity: c ? { id: c.id, delta: 3 } : null } },
+              { id: "m2", label: "İlgilenmiyorum", reply: "Anlaşıldı, kolay gelsin.", eff: { reputation: -0.2 } }
+            ]
+          },
+          expiresIn: 3,
+          miss: { reply: "Menajer adayı başka birine gitti.", eff: { reputation: -0.3 } }
+        };
+      }
+    },
+
+    /* ---- ŞİRKET A&R: seni imzalamak isteyen label ---- */
+    label: {
+      icon: "🏢", label: "Şirket A&R", weight: p => (p.labelId || (K.state.label)) ? 0 : (p.popularity >= 22 ? 1.3 : 0),
+      build() {
+        const l = U.pick(K.LABELS || []) || { id: "x", name: "Şirket" };
+        return {
+          kind: "label", callerId: null, callerName: l.name + " · A&R", icon: "🏢",
+          intro: `${l.name} A&R: "Selam, işlerini dinledik. Seninle çalışmak istiyoruz. ` +
+            `Stüdyoya gel, sözleşme şartlarını konuşalım."`,
+          options: [
+            {
+              id: "meet", label: "Görüşmeye evet de",
+              reply: "Harika. Sana resmi teklifimizi gönderiyoruz, mesajlarını kontrol et.",
+              eff: { fame: 0.6, labelOffer: l.id, notify: ["🏢 Şirket görüşmesi", l.name + " sana sözleşme teklifi gönderecek."] }
+            },
+            {
+              id: "later", label: "Şimdi bağımsız kalmak istiyorum",
+              reply: "Saygı duyarım. Ama kapı bir kere açılır, unutma.",
+              eff: { reputation: 0.3, notify: ["🏢 A&R", "Bağımsız kalmayı seçtin."] }
+            }
+          ],
+          reject: { reply: "Anlaşılan hazır değilsin. Bir daha aramayabiliriz.", eff: { reputation: -0.6, fame: -0.2 } },
+          message: {
+            prompt: "A&R'a yazılı yanıt:",
+            choices: [
+              { id: "m1", label: "Teklifi mail olarak at", reply: "Tamam, gönderiyorum.", eff: { labelOffer: l.id } },
+              { id: "m2", label: "Şu an müsait değilim", reply: "Peki, iyi çalışmalar.", eff: {} }
+            ]
+          },
+          expiresIn: 4,
+          miss: { reply: l.name + " başka bir sanatçıyla anlaştı.", eff: { reputation: -0.4 } }
+        };
+      }
+    },
+
+    /* ---- GAZETECİ: röportaj / alıntı ---- */
+    press: {
+      icon: "📰", label: "Gazeteci", weight: p => p.popularity >= 12 ? 1.1 : 0.2,
+      build() {
+        const c = contactByRole("blogger") || anyArtist();
+        const name = c ? c.stageName : "Müzik Muhabiri";
+        const outlet = U.pick(["Karma Kültür", "Ses Dergisi", "Ritim Gazetesi", "Bağımsız Müzik", "Sahne Notları"]);
+        return {
+          kind: "press", callerId: c ? c.id : null, callerName: name + " · " + outlet, icon: "📰",
+          intro: `${name} (${outlet}): "Merhaba, seninle kısa bir röportaj yapmak istiyoruz. ` +
+            `Müziğin ve sahne arkası hakkında birkaç soru soracağım. Uygun musun?"`,
+          options: [
+            {
+              id: "yes", label: "Röportajı kabul et",
+              reply: "Harika. Yarın yayında olur, güzel bir yazı çıkacak.",
+              eff: { reputation: 1.4, fame: 0.7, stress: 6,
+                notify: ["📰 Röportaj", outlet + " röportajın yayınlanacak."] }
+            },
+            {
+              id: "quote", label: "Sadece kısa bir alıntı vereyim",
+              reply: "Tamam, kısa da olur. Teşekkürler.",
+              eff: { reputation: 0.6, fame: 0.3 }
+            },
+            {
+              id: "no", label: "Şu an konuşmak istemiyorum",
+              reply: "Anlıyorum ama 'yorum yapmadı' diye yazmak zorunda kalırım.",
+              eff: { reputation: -0.7, notify: ["📰 Basın", "Röportajı reddettin; haber olumsuz çıkabilir."] }
+            }
+          ],
+          reject: { reply: "Telefonu kapattı... İlginç.", eff: { reputation: -1.1, fame: 0.2 } },
+          message: {
+            prompt: "Gazeteciye yazılı yanıt:",
+            choices: [
+              { id: "m1", label: "Soruları yazılı gönderin, cevaplarım", reply: "Tamam, iletiyorum.",
+                eff: { reputation: 0.9, fame: 0.3 } },
+              { id: "m2", label: "İlgilenmiyorum", reply: "Peki. İyi günler.", eff: { reputation: -0.5 } }
+            ]
+          },
+          expiresIn: 2,
+          miss: { reply: "Gazeteci başka bir isimle konuştu.", eff: { reputation: -0.3 } }
+        };
+      }
+    },
+
+    /* ---- RADYO / PLAYLIST: dinlenme fırsatı ---- */
+    radio: {
+      icon: "📻", label: "Radyo / Playlist", weight: p => (p.songs || []).length ? 1.2 : 0,
+      build() {
+        const song = aPlayerSong();
+        const station = U.pick(["Radyo Karma", "Frekans 34", "TR Müzik FM", "Gece Sesi", "Şehir Radyosu"]);
+        return {
+          kind: "radio", callerId: null, callerName: station + " · Müzik Direktörü", icon: "📻",
+          intro: `Müzik Direktörü: "${song ? '"' + song.title + '"' : "İşlerin"} çok dikkatimizi çekti. ` +
+            `Listeye almak istiyoruz ama tanıtım için küçük bir katkı bekliyoruz."`,
+          options: [
+            {
+              id: "free", label: "Organik listeye alın, para yok",
+              reply: "Zor. Ama şansını deneyeceğim, belki olur.",
+              eff: { radioBoost: song ? song.id : null, fame: 0.3 }
+            },
+            {
+              id: "pay", label: "Katkı payını öde (₺6.000)",
+              reply: "Kesin girer, söz veriyorum. (Payola riski var.)",
+              eff: { money: -6000, radioBoost: song ? song.id : null, payola: 6,
+                notify: ["📻 Playlist", "Şarkın listeye alındı — ama bu bir 'katkı' işiydi."] }
+            },
+            {
+              id: "no", label: "İlgilenmiyorum",
+              reply: "Peki, iyi günler.",
+              eff: {}
+            }
+          ],
+          reject: { reply: "Kapattı.", eff: {} },
+          message: {
+            prompt: "Radyoya yazılı yanıt:",
+            choices: [
+              { id: "m1", label: "Şarkımı dinleyin, organik değerlendirin", reply: "Tamam, dinleyeceğim.",
+                eff: { fame: 0.2 } },
+              { id: "m2", label: "Teşekkürler, şimdilik yok", reply: "Anlaşıldı.", eff: {} }
+            ]
+          },
+          expiresIn: 2,
+          miss: { reply: "Radyo şarkıyı listeye almadı.", eff: {} }
+        };
+      }
+    },
+
+    /* ---- SPONSOR: marka anlaşması ---- */
+    sponsor: {
+      icon: "🤝", label: "Sponsor", weight: p => p.popularity >= 20 ? 1.0 : 0,
+      build() {
+        const brand = U.pick(["Volt Enerji", "Kula Kulaklık", "Şehir Spor Giyim", "Drift Araç", "Nova İçecek"]);
+        const money = 12000 + Math.round((K.state.player.popularity || 0) * 700);
+        return {
+          kind: "sponsor", callerId: null, callerName: brand + " · Pazarlama", icon: "🤝",
+          intro: `${brand}: "Kampanyamız için seninle çalışmak istiyoruz. ` +
+            `Karşılığında ${U.money(money)} ödeyeceğiz, sadece markamızı bir gönderinde anman yeter."`,
+          options: [
+            {
+              id: "yes", label: "Anlaşmayı kabul et",
+              reply: "Mükemmel, sözleşmeyi gönderiyoruz.",
+              eff: { money: money, reputation: -0.3, image: -1, sponsor: brand,
+                notify: ["🤝 Sponsorluk", brand + " anlaşması imzalandı: " + U.money(money)] }
+            },
+            {
+              id: "no", label: "Marka kimliğime uymuyor",
+              reply: "Anlayışla karşılarız. Belki başka bir projede.",
+              eff: { reputation: 0.4 }
+            }
+          ],
+          reject: { reply: "Kapattı. Notumuza aldık.", eff: { reputation: -0.2 } },
+          message: {
+            prompt: "Markaya yazılı yanıt:",
+            choices: [
+              { id: "m1", label: "Detayları DM'den atın", reply: "Tamam, gönderiyoruz.", eff: {} },
+              { id: "m2", label: "İlgilenmiyorum", reply: "Peki.", eff: {} }
+            ]
+          },
+          expiresIn: 3,
+          miss: { reply: "Marka başka bir sanatçıyla anlaştı.", eff: {} }
+        };
+      }
+    },
+
+    /* ---- FESTİVAL: line-up daveti ---- */
+    festival: {
+      icon: "🎪", label: "Festival Organizatörü", weight: p => (p.popularity >= 18 && K.festivals) ? 0.9 : 0,
+      build() {
+        const fest = (K.FESTIVALS && K.FESTIVALS.length) ? U.pick(K.FESTIVALS) : { name: "Yaz Festivali" };
+        const slot = (K.state.player.popularity >= 55) ? "headliner" : (K.state.player.popularity >= 35 ? "akşam sahnesi" : "gündüz sahnesi");
+        return {
+          kind: "festival", callerId: null, callerName: fest.name + " · Organizasyon", icon: "🎪",
+          intro: `Organizatör: "${fest.name} için seni line-up'a eklemek istiyoruz. ` +
+            `Sana '${slot}' veriyoruz. Katılır mısın?"`,
+          options: [
+            {
+              id: "yes", label: "Sahneye çıkarım",
+              reply: "Harika! Takvimi netleştirip döneceğiz.",
+              eff: { fame: slot === "headliner" ? 1.6 : 0.9, reputation: 0.6, festival: { name: fest.name, slot },
+                notify: ["🎪 Festival", fest.name + " line-up'ına eklendin (" + slot + ")."] }
+            },
+            {
+              id: "maybe", label: "Şartları konuşalım",
+              reply: "Tamam, ücret ve sahne saatini yazılı gönderelim.",
+              eff: { reputation: 0.2 }
+            },
+            {
+              id: "no", label: "Bu sezon müsait değilim",
+              reply: "Anlayışla karşılarız. Seneye görüşürüz.",
+              eff: {}
+            }
+          ],
+          reject: { reply: "Peki, seneye artık.", eff: { reputation: -0.3 } },
+          message: {
+            prompt: "Organizatöre yazılı yanıt:",
+            choices: [
+              { id: "m1", label: "Takvimi gönderin, bakayım", reply: "Gönderiyoruz.", eff: { reputation: 0.2 } },
+              { id: "m2", label: "Bu yıl olmaz", reply: "Anlaşıldı.", eff: {} }
+            ]
+          },
+          expiresIn: 5,
+          miss: { reply: "Festival slotu başkasına verildi.", eff: { reputation: -0.2 } }
+        };
+      }
+    },
+
+    /* ---- HAYRAN: duygusal arama ---- */
+    fan: {
+      icon: "💜", label: "Hayran", weight: p => ((p.ig + p.tiktok) > 20000 ? 1.0 : 0.3),
+      build() {
+        const c = contactByRole("fan");
+        const name = c ? c.stageName : "Hayran";
+        return {
+          kind: "fan", callerId: c ? c.id : null, callerName: name + " (Hayran)", icon: "💜",
+          intro: `${name}: "Merhaba! Şarkılarını çok seviyorum. Sadece sesini duymak istedim, ` +
+            `doğum günüm bugün..."`,
+          options: [
+            {
+              id: "nice", label: "Sıcak konuş, teşekkür et",
+              reply: "Ağlıyorum şu an, inanamıyorum! Seni seviyorum!",
+              eff: { fans: 400, reputation: 0.5, fans_loyalty: 3,
+                notify: ["💜 Hayran", "Bir hayranla birebir konuştun; bağlılık arttı."] }
+            },
+            {
+              id: "short", label: "Kısa cevap ver, kapat",
+              reply: "Anladım... yine de teşekkürler.",
+              eff: { fans: 60 }
+            }
+          ],
+          reject: { reply: "Kapattı... Yıkıldım.", eff: { fans: -120, reputation: -0.4,
+            notify: ["💜 Hayran", "Bir hayranın aramasını reddettin; sosyal medyada üzüldü."] } },
+          message: {
+            prompt: "Hayrana yazılı yanıt:",
+            choices: [
+              { id: "m1", label: "Doğum günün kutlu olsun 🎂", reply: "Çok teşekkür ederim, en iyi günüm!",
+                eff: { fans: 300, reputation: 0.4 } },
+              { id: "m2", label: "Yoğunum, sonra konuşuruz", reply: "Tamam, anlıyorum.", eff: {} }
+            ]
+          },
+          expiresIn: 1,
+          miss: { reply: "Hayran üzgün bir gönderi paylaştı.", eff: { fans: -50 } }
+        };
+      }
+    },
+
+    /* ---- SANATÇI: iş birliği araması ---- */
+    artist: {
+      icon: "🎤", label: "Sanatçı", weight: p => {
+        const met = Object.keys(K.state.relations || {}).filter(id => K.state.relations[id].met).length;
+        return met >= 2 ? 1.0 : 0;
+      },
+      build() {
+        const metIds = Object.keys(K.state.relations || {}).filter(id => {
+          const r = K.state.relations[id];
+          return r.met && K.artistById(id);
+        });
+        const a = metIds.length ? K.artistById(U.pick(metIds)) : anyArtist();
+        if (!a) return null;
+        return {
+          kind: "artist", callerId: a.id, callerName: a.stageName, icon: "🎤",
+          intro: `${a.stageName}: "Selam kardeşim, telefonunu buldum sonunda. ` +
+            `Beraber bir iş yapalım diyorum. Stüdyo müsait, ne dersin?"`,
+          options: [
+            {
+              id: "yes", label: "Ortak iş yapalım",
+              reply: "İşte bu! Ben bir şeyler hazırlarım, sana gönderirim.",
+              eff: { affinity: { id: a.id, delta: 8 }, featureOffer: a.id,
+                notify: ["🎤 Ortak iş", a.stageName + " ile feature teklifi DM'e düştü."] }
+            },
+            {
+              id: "later", label: "Şimdi yoğunum, sonra konuşalım",
+              reply: "Tamam, ne zaman istersen.",
+              eff: { affinity: { id: a.id, delta: 1 } }
+            }
+          ],
+          reject: { reply: "Boş ver, ben başkasını bulurum.", eff: { affinity: { id: a.id, delta: -4 } } },
+          message: {
+            prompt: a.stageName + " için yazılı yanıt:",
+            choices: [
+              { id: "m1", label: "Beat at, bakayım", reply: "Tamam, atıyorum.", eff: { affinity: { id: a.id, delta: 4 } } },
+              { id: "m2", label: "Müsait değilim", reply: "Anladım.", eff: { affinity: { id: a.id, delta: -1 } } }
+            ]
+          },
+          expiresIn: 3,
+          miss: { reply: a.stageName + " işi başkasıyla yaptı.", eff: { affinity: { id: a.id, delta: -2 } } }
+        };
+      }
+    },
+
+    /* ---- AİLE / MAHALLE: kişisel arama ---- */
+    family: {
+      icon: "🏘️", label: "Mahalle / Aile", weight: p => (K.contacts && (K.contacts.list() || []).length) ? 0.8 : 0,
+      build() {
+        const c = contactByRole("kuzen") || contactByRole("mahalle") || contactByRole("abi");
+        if (!c) return null;
+        return {
+          kind: "family", callerId: c.id, callerName: c.stageName, icon: c.roleIcon || "🏘️",
+          intro: `${c.stageName}: "Lan naber, telefonu açsana! Mahallede herkes seni soruyor. ` +
+            `Bu akşam bir yere gidiyoruz, geliyor musun?"`,
+          options: [
+            {
+              id: "go", label: "Geliyorum, buluşalım",
+              reply: "İşte bu! Seni bekliyoruz.",
+              eff: { affinity: { id: c.id, delta: 7 }, stress: -6, money: -500,
+                notify: ["🏘️ Mahalle", c.stageName + " ile buluştun; kafan dağıldı."] }
+            },
+            {
+              id: "busy", label: "Bugün stüdyodayım, kusura bakma",
+              reply: "Tamam lan, işin önemli. Sonra.",
+              eff: { affinity: { id: c.id, delta: -1 }, stress: 2 }
+            }
+          ],
+          reject: { reply: "Ne oldu lan, şımardın mı?", eff: { affinity: { id: c.id, delta: -3 }, reputation: -0.2 } },
+          message: {
+            prompt: c.stageName + " için yazılı yanıt:",
+            choices: [
+              { id: "m1", label: "Yarın görüşelim, söz", reply: "Tamam, sözünü tut.", eff: { affinity: { id: c.id, delta: 2 } } },
+              { id: "m2", label: "Bu aralar çok yoğunum", reply: "Anladım, kendine dikkat et.", eff: { affinity: { id: c.id, delta: -1 } } }
+            ]
+          },
+          expiresIn: 1,
+          miss: { reply: c.stageName + " alındı: aramadın.", eff: { affinity: { id: c.id, delta: -1 } } }
+        };
+      }
+    },
+
+    /* ---- DOLANDIRICI: ödül / sahte fırsat tuzağı ---- */
+    scam: {
+      icon: "⚠️", label: "Şüpheli Arama", weight: p => 0.9,
+      build() {
+        const scam = U.pick([
+          { who: "Uluslararası Ödül Komitesi", hook: "Müzik ödülü kazandınız", fee: 3500 },
+          { who: "Dijital Dağıtım Ajansı", hook: "Liste garantisi veriyoruz", fee: 5000 },
+          { who: "Yatırım Danışmanı", hook: "müzik kataloğunuzu büyüteceğiz", fee: 7500 },
+          { who: "Sahte Menajer", hook: "sizi yıldız yapacağım", fee: 4000 }
+        ]);
+        return {
+          kind: "scam", callerId: null, callerName: scam.who, icon: "⚠️",
+          intro: `${scam.who}: "Tebrikler! ${scam.hook}. İşlem için sadece ${U.money(scam.fee)} ` +
+            `ön ödeme gerekiyor. Hemen başlayalım mı?"`,
+          options: [
+            {
+              id: "pay", label: "Ön ödemeyi yap (riskli!)",
+              reply: "Mükemmel, transferi alınca dönerim... *hat kesilir*",
+              eff: { money: -scam.fee, reputation: -0.3, scamLoss: true,
+                notify: ["⚠️ Dolandırıldın", scam.who + " parayı aldı ve kayboldu (" + U.money(scam.fee) + ")."] }
+            },
+            {
+              id: "info", label: "Önce detay ve şirket bilgisi iste",
+              reply: "Eee... şey... sistemde bir sorun var galiba. *hat kesilir*",
+              eff: { reputation: 0.3, notify: ["⚠️ Dolandırıcılık", "Detay isteyince 'kurum' panikleyip kapattı."] }
+            },
+            {
+              id: "no", label: "Asla ön ödeme yapmam, kapat",
+              reply: "*hat kesilir*",
+              eff: { reputation: 0.2 }
+            }
+          ],
+          reject: { reply: "*hat kesilir*", eff: {} },
+          message: {
+            prompt: "Şüpheli numaraya yazılı yanıt:",
+            choices: [
+              { id: "m1", label: "Bilgilerimi nereden aldınız?", reply: "*yanıt yok*", eff: { reputation: 0.2 } },
+              { id: "m2", label: "İlgilenmiyorum", reply: "*yanıt yok*", eff: {} }
+            ]
+          },
+          expiresIn: 2,
+          miss: { reply: "Dolandırıcı başka hedefe geçti.", eff: {} }
+        };
+      }
+    }
+  };
+
+  /* ---------------- sonuç uygulayıcı ---------------- */
+  function applyEffects(eff) {
+    if (!eff) return [];
+    const s = K.state, p = s.player;
+    const notes = [];
+
+    if (eff.money) {
+      s.balance = Math.max(0, (s.balance || 0) + eff.money);
+      notes.push((eff.money > 0 ? "+" : "") + U.money(eff.money));
+    }
+    if (eff.fame) { K.game.addFame(eff.fame); notes.push("şöhret " + (eff.fame > 0 ? "+" : "") + eff.fame.toFixed(1)); }
+    if (eff.reputation) { p.reputation = U.clamp((p.reputation || 0) + eff.reputation, 0, 100); }
+    if (eff.image) { p.image = U.clamp((p.image == null ? 50 : p.image) + eff.image, 0, 100); }
+    if (eff.stress) { p.stress = U.clamp((p.stress || 0) + eff.stress, 0, 100); }
+    if (eff.fans) {
+      const n = Math.round(eff.fans);
+      p.ig = Math.max(0, Math.round((p.ig || 0) + n));
+      p.tiktok = Math.max(0, Math.round((p.tiktok || 0) + n * 0.8));
+      p.x = Math.max(0, Math.round((p.x || 0) + n * 0.4));
+      notes.push((n > 0 ? "+" : "") + U.compact(n) + " takipçi");
+    }
+    if (eff.team) {
+      p.team = p.team || {};
+      Object.keys(eff.team).forEach(k => { p.team[k] = eff.team[k]; });
+    }
+    if (eff.affinity && eff.affinity.id) {
+      K.relations.addAffinity(eff.affinity.id, eff.affinity.delta, "telefon");
+    }
+    if (eff.labelOffer) {
+      try { K.relations.createLabelSignsPlayerOffer(eff.labelOffer); } catch (e) {}
+    }
+    if (eff.featureOffer) {
+      try { K.relations.createIncomingFeatureOffer(eff.featureOffer); } catch (e) {}
+    }
+    if (eff.radioBoost) {
+      const song = (p.songs || []).find(x => x.id === eff.radioBoost);
+      if (song) {
+        song.boosts = song.boosts || {};
+        song.boosts.radio = (song.boosts.radio || 0) + 0.18;
+        song.dailyStreams *= 1.08;
+        notes.push('"' + song.title + '" radyoda');
+      }
+    }
+    if (eff.payola && K.shady) {
+      try {
+        if (K.shady.addSuspicion) K.shady.addSuspicion(eff.payola);
+        else if (K.state.player.shady) K.state.player.shady.suspicion = (K.state.player.shady.suspicion || 0) + eff.payola;
+      } catch (e) {}
+    }
+    if (eff.festival) {
+      s.festivals = s.festivals || [];
+      s.festivals.unshift({ name: eff.festival.name, slot: eff.festival.slot, day: s.day, source: "call" });
+      s.festivals = s.festivals.slice(0, 20);
+    }
+    if (eff.notify) {
+      s.notifications = (s.notifications || []).concat([{
+        title: eff.notify[0], msg: eff.notify[1], kind: eff.notify[2] || "ok", day: s.day
+      }]).slice(-60);
+    }
+    return notes;
+  }
+
+  /* ---------------- günlük arama üretimi ---------------- */
+  function eligibleKinds() {
+    const p = K.state.player;
+    const out = [];
+    Object.keys(KINDS).forEach(k => {
+      const w = KINDS[k].weight ? KINDS[k].weight(p) : 0;
+      if (w > 0) out.push({ id: k, w });
+    });
+    return out;
+  }
+
+  function pickKind() {
+    const list = eligibleKinds();
+    if (!list.length) return null;
+    const total = U.sum(list, x => x.w);
+    let r = Math.random() * total;
+    for (const x of list) { r -= x.w; if (r <= 0) return x.id; }
+    return list[list.length - 1].id;
+  }
+
+  K.calls = {
+    KINDS,
+
+    ringing() { return (K.state.player.calls || []).filter(c => c.status === "ringing"); },
+    ringingCount() { return K.calls.ringing().length; },
+    history() { return (K.state.player.callLog || []).slice().reverse(); },
+
+    /* bir arama üret ve kuyruğa koy */
+    spawn(kindId) {
+      const s = K.state;
+      s.player.calls = s.player.calls || [];
+      if (K.calls.ringingCount() >= 3) return null;
+      const id = kindId || pickKind();
+      if (!id || !KINDS[id]) return null;
+      let call = null;
+      try { call = KINDS[id].build(); } catch (e) { call = null; }
+      if (!call) return null;
+      call.id = U.uid("call");
+      call.day = s.day;
+      call.expiresDay = s.day + (call.expiresIn || 3);
+      call.status = "ringing";
+      s.player.calls.push(call);
+      K.toast("📞 Gelen arama", call.callerName, "ok");
+      K.bus.emit("call:incoming", call);
+      return call;
+    },
+
+    /* günlük tick: arama gelir + süresi dolanlar cevapsız olur */
+    tick() {
+      const s = K.state, p = s.player;
+      p.calls = p.calls || [];
+
+      /* süresi dolan aramalar */
+      p.calls.forEach(c => {
+        if (c.status === "ringing" && s.day >= (c.expiresDay || 0)) {
+          c.status = "missed";
+          c.handledDay = s.day;
+          applyEffects(c.miss && c.miss.eff);
+          (p.callLog = p.callLog || []).push({
+            id: c.id, kind: c.kind, callerName: c.callerName, icon: c.icon,
+            day: s.day, status: "missed", reply: (c.miss && c.miss.reply) || "Cevapsız"
+          });
+          if (c.miss && c.miss.reply) {
+            s.notifications = (s.notifications || []).concat([{
+              title: "📵 Cevapsız arama", msg: c.callerName + ": " + c.miss.reply, kind: "warn", day: s.day
+            }]).slice(-60);
+          }
+        }
+      });
+
+      /* günlük arama olasılığı — popülerlik ve gün geçtikçe artar */
+      const base = 0.16 + Math.min(0.30, (p.popularity || 0) / 260) + Math.min(0.12, (s.day || 1) / 4000);
+      if (U.chance(base)) K.calls.spawn();
+    },
+
+    /* ---------------- kararlar ---------------- */
+    _finish(call, status, reply) {
+      const s = K.state;
+      call.status = status;
+      call.handledDay = s.day;
+      (s.player.callLog = s.player.callLog || []).push({
+        id: call.id, kind: call.kind, callerName: call.callerName, icon: call.icon,
+        day: s.day, status: status, reply: reply || ""
+      });
+      s.player.callLog = s.player.callLog.slice(-60);
+      K.save();
+    },
+
+    answer(id) {
+      const call = (K.state.player.calls || []).find(c => c.id === id);
+      if (!call || call.status !== "ringing") return null;
+      call.status = "talking";
+      K.bus.emit("call:changed", call);
+      return call;
+    },
+
+    choose(id, optionId) {
+      const call = (K.state.player.calls || []).find(c => c.id === id);
+      if (!call) return null;
+      const opt = (call.options || []).find(o => o.id === optionId);
+      if (!opt) return null;
+      const notes = applyEffects(opt.eff);
+      K.calls._finish(call, "answered", opt.reply);
+      K.refresh();
+      return { reply: opt.reply, notes: notes };
+    },
+
+    reject(id) {
+      const call = (K.state.player.calls || []).find(c => c.id === id);
+      if (!call) return null;
+      const notes = applyEffects(call.reject && call.reject.eff);
+      K.calls._finish(call, "rejected", call.reject && call.reject.reply);
+      K.refresh();
+      return { reply: (call.reject && call.reject.reply) || "", notes: notes };
+    },
+
+    message(id, choiceId) {
+      const call = (K.state.player.calls || []).find(c => c.id === id);
+      if (!call || !call.message) return null;
+      const ch = (call.message.choices || []).find(c => c.id === choiceId);
+      if (!ch) return null;
+      const notes = applyEffects(ch.eff);
+      K.calls._finish(call, "messaged", ch.reply);
+      K.refresh();
+      return { reply: ch.reply, notes: notes };
+    },
+
+    /* modal UI — gelen arama ekranı ve konuşma ağacı */
+    open(id) {
+      const call = (K.state.player.calls || []).find(c => c.id === id);
+      if (!call) return;
+      if (call.status === "ringing") K.calls.answer(id);
+      K.calls._render(call);
+    },
+
+    _render(call) {
+      const info = `<div class="call-head">
+          <div class="call-avatar">${call.icon || "📞"}</div>
+          <div class="call-name">${U.escape(call.callerName)}</div>
+          <div class="call-role">${U.escape((KINDS[call.kind] || {}).label || "Arayan")} · Gün ${call.day}</div>
+        </div>`;
+
+      if (call.status === "talking") {
+        const opts = (call.options || []).map(o =>
+          `<button class="btn btn-primary call-opt" data-call-opt="${o.id}">${U.escape(o.label)}</button>`).join("");
+        K.ui.modal({
+          title: "📞 Görüşme", className: "call-modal",
+          body: info + `<div class="call-bubble">${U.escape(call.intro)}</div>` +
+            `<div class="call-actions">${opts}</div>`,
+          actions: []
+        });
+        const root = U.qs("#modal-root");
+        root.querySelectorAll("[data-call-opt]").forEach(b => {
+          b.addEventListener("click", () => {
+            const res = K.calls.choose(call.id, b.dataset.callOpt);
+            K.calls._outcome(call, res);
+          });
+        });
+        return;
+      }
+      if (call.status === "ringing") {
+        K.ui.modal({
+          title: "📞 Gelen Arama", className: "call-modal",
+          body: info + `<div class="call-ringing">Çalıyor…</div>`,
+          actions: [
+            { label: "📵 Reddet", onClick: () => { const r = K.calls.reject(call.id); K.calls._outcome(call, r); return false; } },
+            { label: "✉️ Mesaj", onClick: () => { K.calls._renderMessage(call); return false; } },
+            { label: "📞 Aç", cls: "btn-primary", onClick: () => { K.calls.answer(call.id); K.calls._render(call); return false; } }
+          ]
+        });
+      }
+    },
+
+    _renderMessage(call) {
+      const msg = call.message;
+      if (!msg) { K.toast("Mesaj yok", "Bu arayan mesaja kapalı.", "warn"); return; }
+      const choices = (msg.choices || []).map(c =>
+        `<button class="btn call-opt" data-call-msg="${c.id}">${U.escape(c.label)}</button>`).join("");
+      K.ui.modal({
+        title: "✉️ Yazılı Yanıt", className: "call-modal",
+        body: `<div class="call-head">
+            <div class="call-avatar">${call.icon || "📞"}</div>
+            <div class="call-name">${U.escape(call.callerName)}</div>
+          </div><div class="call-bubble">${U.escape(msg.prompt || "Yanıt seç:")}</div>
+          <div class="call-actions">${choices}</div>`,
+        actions: [{ label: "Geri", onClick: () => { K.calls._render(call); return false; } }]
+      });
+      const root = U.qs("#modal-root");
+      root.querySelectorAll("[data-call-msg]").forEach(b => {
+        b.addEventListener("click", () => {
+          const res = K.calls.message(call.id, b.dataset.callMsg);
+          K.calls._outcome(call, res);
+        });
+      });
+    },
+
+    _outcome(call, res) {
+      const notes = (res && res.notes && res.notes.length) ? `<div class="call-notes">${res.notes.map(n => U.escape(n)).join(" · ")}</div>` : "";
+      K.ui.modal({
+        title: "📞 Görüşme Bitti", className: "call-modal",
+        body: `<div class="call-head">
+            <div class="call-avatar">${call.icon || "📞"}</div>
+            <div class="call-name">${U.escape(call.callerName)}</div>
+          </div>
+          <div class="call-bubble">${U.escape((res && res.reply) || "")}</div>${notes}`,
+        actions: [{ label: "Tamam", cls: "btn-primary", onClick: () => {
+          if (K.phone && !K.phone.homeActive) K.phone.reRender();
+          /* sırada başka çalan arama varsa onu aç */
+          const next = K.calls.ringing()[0];
+          if (next) setTimeout(() => K.calls.open(next.id), 350);
+        } }]
+      });
+    },
+
+    /* gün geçişinden sonra sıradaki çalan aramayı aç */
+    openNext() {
+      const next = K.calls.ringing()[0];
+      if (next) { K.calls.open(next.id); return true; }
+      return false;
+    }
+  };
+})(window.K);
+
+</script>
+  <script>
+/* ==== js/systems/dms.js ==== */
+/* ============================================================
+   KARMA — systems/dms.js   (v10.30)
+   YABANCI DM'LER: HAYRAN · DOLANDIRICI · GAZETECİ
+   — engelle / yanıtla —
+
+   Neden ayrı bir sistem?
+   ----------------------
+   Şimdiye kadar gelen kutusuna yalnızca SANATÇILAR ve mahalle çevresi
+   yazıyordu. Gerçek bir sanatçının kutusuna ise üç farklı yabancı düşer:
+     • 💜 Hayran       → duygusal, sadakat üretir; engellersen kaybedersin
+     • ⚠️ Dolandırıcı  → sahte ödül/playlist; ödeme yaparsan paran gider
+     • 📰 Gazeteci     → röportaj/alıntı; doğru yanıt itibar kazandırır
+   Her mesaj SÜRELİDİR ve iki karar vardır: YANITLA (somut sonuç) veya
+   ENGELLE (kalıcı; bazıları güvenli, bazıları itibar/ilişki maliyetli).
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  const U = K.util;
+
+  /* ---------- basit deterministik avatar (SVG data URI) ---------- */
+  function avatar(seed, palette) {
+    let h = 2166136261;
+    const str = String(seed || "x");
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    h = h >>> 0;
+    const c1 = palette[(h >>> 3) % palette.length];
+    const c2 = palette[(h >>> 7) % palette.length];
+    const skin = ["#f2c9a4", "#e8b98d", "#d9a273", "#c98b5a", "#a8764f", "#8a5c3a"][(h >>> 11) % 6];
+    const hair = ["#1b1b1f", "#2b2119", "#3d2a1a", "#111", "#4a3524", "#5c4632"][(h >>> 15) % 6];
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">` +
+      `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs>` +
+      `<rect width="128" height="128" fill="url(#g)"/>` +
+      `<path d="M22 128 Q24 92 64 88 Q104 92 106 128 Z" fill="${c2}"/>` +
+      `<rect x="56" y="78" width="16" height="16" fill="${skin}"/>` +
+      `<ellipse cx="64" cy="60" rx="30" ry="34" fill="${skin}"/>` +
+      `<path d="M30 46 Q30 18 64 18 Q98 18 98 46 L98 70 Q92 54 88 46 Q64 34 40 46 Q36 54 30 70 Z" fill="${hair}"/>` +
+      `<circle cx="52" cy="59" r="3.4" fill="#20202a"/><circle cx="76" cy="59" r="3.4" fill="#20202a"/>` +
+      `<path d="M56 78 Q64 84 72 78" stroke="#8a3a3a" stroke-width="2.6" fill="none" stroke-linecap="round"/>` +
+      `</svg>`;
+    return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  }
+
+  /* ---------- isim havuzları ---------- */
+  const FIRST = {
+    hayran: ["Zeynep", "Elif", "Merve", "Aslı", "Damla", "Büşra", "Gizem", "Ceren", "İdil", "Sude", "Yaren", "Buse"],
+    dolandirici: ["Kenan", "Serkan", "Tolga", "Bora", "Cengiz", "Erhan", "Volkan", "Selim", "Murat", "Hakan"],
+    gazeteci: ["Defne", "Yasemin", "Pelin", "Nazlı", "Işıl", "Arda", "Cem", "Tuna", "Deniz", "Ece"]
+  };
+  const LAST = ["Yıldız", "Demir", "Kaya", "Şahin", "Çelik", "Aydın", "Arslan", "Doğan", "Kılıç", "Polat"];
+  const PALETTE = {
+    hayran: ["#5a1f3a", "#e07fa0", "#c98b5a", "#1c1c24"],
+    dolandirici: ["#3a2a1a", "#b08a5a", "#8a6a3a", "#1a1a1c"],
+    gazeteci: ["#1f2f3f", "#6f9fc0", "#c98b5a", "#181820"]
+  };
+  const OUTFITS = ["Karma Kültür", "Ses Dergisi", "Ritim Gazetesi", "Bağımsız Müzik", "Sahne Notları", "Frekans Medya"];
+
+  const ROLES = {
+    hayran:     { label: "Hayran",      icon: "💜", badge: "fan" },
+    dolandirici:{ label: "Şüpheli Hesap", icon: "⚠️", badge: "risk" },
+    gazeteci:   { label: "Gazeteci",    icon: "📰", badge: "basın" }
+  };
+
+  function makeSender(role, i) {
+    const seed = role + ":" + i;
+    const first = FIRST[role][i % FIRST[role].length];
+    const lastN = LAST[(i * 3 + 1) % LAST.length];
+    const stageName = role === "hayran"
+      ? (first + " " + U.pick(["Fan", "Army", "Hayran"].map(x => x + " Sayfası")))
+      : (first + " " + lastN);
+    return {
+      id: "x_" + role + "_" + i,
+      isContact: true,
+      external: true,
+      role,
+      roleLabel: ROLES[role].label,
+      roleIcon: ROLES[role].icon,
+      badge: ROLES[role].badge,
+      stageName,
+      realName: first + " " + lastN,
+      firstName: first,
+      city: U.pick(["İstanbul", "Ankara", "İzmir", "Bursa", "Adana"]),
+      semt: U.pick(["Çukur", "Gültepe", "Kartal", "Keçiören", "Buca"]),
+      outlet: role === "gazeteci" ? OUTFITS[(i * 2) % OUTFITS.length] : null,
+      genre: "pop",
+      labelId: null,
+      popularity: 0, monthly: 0, streams: 0,
+      ig: 0, x: 0, tiktok: 0, ytSubs: 0,
+      chartPeak: 999,
+      traits: { openness: 5, loyalty: role === "hayran" ? 10 : 3, ego: 5, work: 5 },
+      affinityStart: role === "hayran" ? 80 : 20,
+      bio: role === "hayran" ? "Seni ilk günden beri dinliyor."
+        : role === "dolandirici" ? "Kimliği doğrulanamadı."
+        : "Müzik basınından.",
+      themes: [],
+      palette: PALETTE[role],
+      photo: avatar(seed, PALETTE[role]),
+      speech: "resmi"
+    };
+  }
+
+  /* ============================================================
+     MESAJ TÜRLERİ — her biri kendi seçenekleri ve sonuçları
+     ============================================================ */
+  const KINDS = {
+
+    hayran: {
+      expiresIn: 2,
+      line: (s) => U.pick([
+        `Merhaba! Ben senin en büyük hayranınım. Fan sayfası açtım, izin verir misin? 🥺`,
+        `Selam! Doğum günüm bugün, bana bir selam verir misin? Tek isteğim bu.`,
+        `Şarkıların hayatımı değiştirdi. Seninle tanışabilir miyim acaba?`
+      ]),
+      options: (s) => [
+        { id: "warm", label: "Sıcak yanıt ver 💜",
+          replyText: "Tabii ki, desteğin çok değerli. İyi ki varsın!",
+          response: "AĞLIYORUM ŞU AN! Seni çok seviyorum, asla bırakmayacağım!",
+          eff: { fans: 350, reputation: 0.4, loyalty: 3 } },
+        { id: "short", label: "Kısa teşekkür et",
+          replyText: "Sağ ol, destek için teşekkürler.",
+          response: "Teşekkür ederim! Yine de en büyük hayranın benim.",
+          eff: { fans: 80 } },
+        { id: "block", label: "Engelle 🚫",
+          replyText: "",
+          response: "",
+          eff: { fans: -250, reputation: -0.6 },
+          block: true }
+      ]
+    },
+
+    dolandirici: {
+      expiresIn: 3,
+      line: (s) => {
+        const p = U.pick([
+          { who: "Global Playlist Ajansı", hook: "şarkını 50 büyük listeye alacağız", fee: 4500 },
+          { who: "Uluslararası Ödül Kurulu", hook: "ödül kazandınız", fee: 3200 },
+          { who: "Dijital Büyüme Uzmanı", hook: "dinlenmenizi 10 katına çıkaracağız", fee: 6000 },
+          { who: "Sahte Yapımcı", hook: "sizi yıldız yapacağım", fee: 7500 }
+        ]);
+        return `Merhaba, ben ${p.who}. Sana özel bir fırsat: ${p.hook}. ` +
+          `Sadece ${U.money(p.fee)} işlem ücreti gerekiyor. IBAN göndereyim mi?`;
+      },
+      options: (s) => [
+        { id: "pay", label: "Ücreti öde (riskli!) ⚠️",
+          replyText: "Tamam, ödemeyi yapıyorum.",
+          response: "Ödeme alındı... *hesap kapatıldı*",
+          eff: { scam: true } },
+        { id: "info", label: "Önce şirket bilgisi / sözleşme iste 🔍",
+          replyText: "Önce resmi şirket bilgisi ve sözleşme gönderin.",
+          response: "Eee... sistemde bir sorun var. *yanıt yok*",
+          eff: { reputation: 0.4 } },
+        { id: "block", label: "Engelle 🚫",
+          replyText: "",
+          response: "",
+          eff: { reputation: 0.2 },
+          block: true }
+      ]
+    },
+
+    gazeteci: {
+      expiresIn: 3,
+      line: (s) => `Merhaba, ${U.pick(OUTFITS)} için bir dosya hazırlıyorum. ` +
+        `Seninle kısa bir röportaj yapmak istiyorum. Sorularımı gönderebilir miyim?`,
+      options: (s) => [
+        { id: "accept", label: "Röportajı kabul et 🎤",
+          replyText: "Memnuniyetle, sorularınızı gönderin.",
+          response: "Harika, yarın yayında. Güzel bir yazı olacak.",
+          eff: { reputation: 1.5, fame: 0.7, image: 1.5, stress: 5 } },
+        { id: "quote", label: "Kısa bir alıntı ver",
+          replyText: "Kısa bir alıntı verebilirim.",
+          response: "Tamam, teşekkürler.",
+          eff: { reputation: 0.6, fame: 0.3 } },
+        { id: "block", label: "Engelle 🚫",
+          replyText: "",
+          response: "",
+          eff: { reputation: -1.3, image: -1.5 },
+          block: true }
+      ]
+    }
+  };
+
+  /* ---------------- sonuç uygulayıcı ---------------- */
+  function applyEff(eff) {
+    if (!eff) return [];
+    const s = K.state, p = s.player;
+    const notes = [];
+    if (eff.fans) {
+      const n = Math.round(eff.fans);
+      p.ig = Math.max(0, Math.round((p.ig || 0) + n));
+      p.tiktok = Math.max(0, Math.round((p.tiktok || 0) + n * 0.8));
+      notes.push((n > 0 ? "+" : "") + U.compact(n) + " takipçi");
+    }
+    if (eff.reputation) { p.reputation = U.clamp((p.reputation || 0) + eff.reputation, 0, 100); }
+    if (eff.image) { p.image = U.clamp((p.image == null ? 50 : p.image) + eff.image, 0, 100); }
+    if (eff.stress) { p.stress = U.clamp((p.stress || 0) + eff.stress, 0, 100); }
+    if (eff.fame) K.game.addFame(eff.fame);
+    if (eff.loyalty) {
+      p.superfans = Math.max(0, Math.round((p.superfans || 0) + eff.loyalty * 10));
+    }
+    if (eff.scam) {
+      const loss = 3000 + U.randInt(0, 5000);
+      s.balance = Math.max(0, (s.balance || 0) - loss);
+      s.notifications = (s.notifications || []).concat([{
+        title: "⚠️ Dolandırıldın", msg: "Ön ödemeyi yaptın ve karşı taraf kayboldu (" + U.money(loss) + ").",
+        kind: "bad", day: s.day
+      }]).slice(-60);
+      notes.push("-" + U.money(loss));
+    }
+    return notes;
+  }
+
+  /* ============================================================
+     SİSTEM
+     ============================================================ */
+  K.dms = {
+    KINDS,
+
+    _pool: null,
+    ensure() {
+      const s = K.state;
+      s.player.extSenders = s.player.extSenders || [];
+      if (!s.player.extSenders.length) {
+        const out = [];
+        ["hayran", "dolandirici", "gazeteci"].forEach(role => {
+          for (let i = 0; i < 6; i++) out.push(makeSender(role, i));
+        });
+        s.player.extSenders = out;
+      }
+      s.player.dmBlocks = s.player.dmBlocks || {};
+      return s.player.extSenders;
+    },
+
+    list() { K.dms.ensure(); return K.state.player.extSenders; },
+
+    byId(id) {
+      if (!id || String(id).indexOf("x_") !== 0) return null;
+      const s = K.state;
+      if (!s || !s.player || !s.player.extSenders) return null;
+      return s.player.extSenders.find(x => x.id === id) || null;
+    },
+
+    isBlocked(id) {
+      const s = K.state;
+      return !!(s && s.player && s.player.dmBlocks && s.player.dmBlocks[id]);
+    },
+
+    blockedCount() {
+      const b = (K.state.player && K.state.player.dmBlocks) || {};
+      return Object.keys(b).length;
+    },
+
+    /* yeni yabancı DM isteği gönder */
+    send(senderId, kindId) {
+      const s = K.state;
+      const sender = K.dms.byId(senderId);
+      if (!sender) return null;
+      const kind = kindId || sender.role;
+      if (!KINDS[kind]) return null;
+      if (K.dms.isBlocked(senderId)) return null;
+      const req = K.dmRequest(senderId);
+      req.external = true;
+      req.senderId = senderId;
+      req.kind = kind;
+      req.day = s.day;
+      req.expiresDay = s.day + (KINDS[kind].expiresIn || 3);
+      req.handled = false;
+      req.outcome = null;
+      req.messages = [{
+        id: U.uid("m"), from: "them", text: KINDS[kind].line(sender), day: s.day,
+        type: "chat", kind: "text", reaction: null
+      }];
+      req.options = KINDS[kind].options(sender);
+      s.notifications = (s.notifications || []).concat([{
+        title: (ROLES[kind].icon) + " Yeni DM isteği",
+        msg: sender.stageName + " sana mesaj gönderdi.", kind: kind === "dolandirici" ? "warn" : "ok", day: s.day
+      }]).slice(-60);
+      K.save();
+      K.bus.emit("dm:new", req);
+      return req;
+    },
+
+    /* yanıtla */
+    reply(reqId, choiceId) {
+      const s = K.state;
+      const req = (s.dmRequests || {})[reqId];
+      if (!req || !req.external || req.handled) return null;
+      const opt = (req.options || []).find(o => o.id === choiceId);
+      if (!opt) return null;
+      if (opt.block) return K.dms.block(reqId);
+
+      const notes = applyEff(opt.eff);
+      req.handled = true;
+      req.outcome = opt.id;
+      if (opt.replyText) req.messages.push({ id: U.uid("m"), from: "me", text: opt.replyText, day: s.day, type: "chat", kind: "text", reaction: null });
+      if (opt.response) req.messages.push({ id: U.uid("m"), from: "them", text: opt.response, day: s.day, type: "chat", kind: "text", reaction: null });
+      K.toast((ROLES[req.kind] || {}).icon + " Yanıtlandı", notes.join(" · ") || "Mesaj gönderildi.", "ok");
+      K.save(); K.refresh();
+      K.bus.emit("dm:handled", req);
+      return { notes, reply: opt.response };
+    },
+
+    /* engelle */
+    block(reqId) {
+      const s = K.state;
+      const req = (s.dmRequests || {})[reqId];
+      const sender = K.dms.byId(reqId) || (req && req.senderId ? K.dms.byId(req.senderId) : null);
+      if (!sender) return null;
+      s.player.dmBlocks = s.player.dmBlocks || {};
+      if (s.player.dmBlocks[sender.id]) { K.toast("Zaten engelli", sender.stageName, "warn"); return null; }
+      s.player.dmBlocks[sender.id] = s.day;
+      const kind = (req && req.kind) || sender.role;
+      const opt = ((req && req.options) || []).find(o => o.block);
+      const notes = applyEff(opt && opt.eff);
+      if (s.dmRequests) delete s.dmRequests[sender.id];
+      const msg = kind === "dolandirici" ? "Şüpheli hesap engellendi — güvendesin."
+        : kind === "gazeteci" ? "Gazeteci engellendi; basın ilişkilerin zedelendi."
+        : "Hayran engellendi; bir kısmı seni bıraktı.";
+      K.toast("🚫 Engellendi", msg + (notes.length ? " (" + notes.join(" · ") + ")" : ""),
+        kind === "dolandirici" ? "ok" : "warn");
+      K.save(); K.refresh();
+      K.bus.emit("dm:blocked", sender.id);
+      return { notes };
+    },
+
+    unblock(senderId) {
+      const s = K.state;
+      if (!s.player.dmBlocks || !s.player.dmBlocks[senderId]) return false;
+      delete s.player.dmBlocks[senderId];
+      K.toast("🔓 Engel kaldırıldı", (K.dms.byId(senderId) || {}).stageName || "", "ok");
+      K.save(); K.refresh();
+      return true;
+    },
+
+    blockedList() {
+      const b = (K.state.player && K.state.player.dmBlocks) || {};
+      return Object.keys(b).map(id => ({ id, day: b[id], sender: K.dms.byId(id) })).filter(x => x.sender);
+    },
+
+    /* ---------------- günlük tick ---------------- */
+    tick() {
+      const s = K.state, p = s.player;
+      K.dms.ensure();
+      s.dmRequests = s.dmRequests || {};
+
+      /* süresi dolan yabancı istekler */
+      Object.keys(s.dmRequests).forEach(id => {
+        const req = s.dmRequests[id];
+        if (!req || !req.external || req.handled) return;
+        if (s.day < (req.expiresDay || 0)) return;
+        if (req.kind === "hayran") {
+          p.reputation = U.clamp((p.reputation || 0) - 0.3, 0, 100);
+          p.ig = Math.max(0, Math.round((p.ig || 0) - 60));
+        } else if (req.kind === "gazeteci") {
+          p.reputation = U.clamp((p.reputation || 0) - 0.5, 0, 100);
+        }
+        delete s.dmRequests[id];
+        K.toast("⌛ DM süresi doldu", "Bir yabancı mesajı yanıtsız kaldı.", "warn");
+      });
+
+      /* yeni yabancı DM olasılığı */
+      const active = Object.keys(s.dmRequests).filter(id => s.dmRequests[id].external).length;
+      if (active >= 2) return;
+      const pop = p.popularity || 0;
+      const chance = 0.10 + Math.min(0.18, pop / 220);
+      if (!U.chance(chance)) return;
+
+      const pool = K.dms.list().filter(x => !K.dms.isBlocked(x.id));
+      const wantScam = U.chance(0.30);
+      let cands = pool.filter(x => x.role === (wantScam ? "dolandirici" : "hayran"));
+      if (!cands.length || (pop >= 12 && U.chance(0.3))) {
+        const press = pool.filter(x => x.role === "gazeteci");
+        if (press.length && pop >= 12) cands = press;
+      }
+      if (!cands.length) cands = pool;
+      if (!cands.length) return;
+      const sender = U.pick(cands);
+      K.dms.send(sender.id, sender.role);
+    }
+  };
+})(window.K);
 
 </script>
   <script>
@@ -32707,30 +34212,28 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
     /* ---------- yeni gönderi ---------- */
     newPost() {
+      /* v10.30 — gönderi STRATEJİSİ: içerik türü (erişim / imaj / risk) */
       const body = `
         ${K.ui.field("Gönderi metni", `<textarea id="ig-text" rows="3" placeholder="Ne paylaşmak istiyorsun?">Stüdyodan selamlar 🎧</textarea>`)}
         ${K.ui.field("Şarkı etiketle (opsiyonel)", `<select id="ig-song">
           <option value="">— Yok —</option>
           ${K.state.player.songs.map((s) => `<option value="${s.id}">${U.escape(s.title)}</option>`).join("")}
-        </select>`)}`;
-      K.ui.modal({
+        </select>`)}
+        ${K.ui.field("İçerik türü", `<div data-posttype-box>${K.social.postTypeSelector("reach")}</div>`)}`;
+      const m = K.ui.modal({
         title: "Yeni Gönderi", body,
         actions: [
           { label: "Vazgeç" },
           { label: "Paylaş", cls: "btn-primary", onClick: () => {
             const text = U.qs("#ig-text").value.trim();
             const songId = U.qs("#ig-song").value || null;
-            K.social.createPost("instagram", text, songId);
-            if (songId) {
-              const song = K.platforms.findSong(songId);
-              if (song) { song.boosts.instagram_social = (song.boosts.instagram_social || 0) + 0.08; song.dailyStreams *= 1.05; }
-            }
-            K.state.player.ig += Math.round(K.state.player.popularity * 2 + 10);
-            K.toast("📸 Paylaşıldı", "Instagram gönderisi yayında.", "ok");
-            K.refresh();
+            const type = K.social.selectedPostType(m.root);
+            const res = K.social.playerPost("instagram", text, type, songId);
+            K.toast(res.title, res.msg, res.kind);
           }}
         ]
       });
+      K.social.bindPostTypes(m.root, "reach");
     },
 
     promotePicker() {
@@ -33434,9 +34937,11 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     },
 
     newPost(prefill, hashtag) {
+      /* v10.30 — gönderi STRATEJİSİ: içerik türü (erişim / imaj / risk) */
       const body = K.ui.field("Ne düşünüyorsun?", `<textarea id="x-text" rows="3" placeholder="Bir şeyler yaz...">${U.escape(prefill || "")}</textarea>`)
-        + (hashtag ? `<div class="hint">${U.escape(hashtag)} etiketi eklenecek.</div>` : "");
-      K.ui.modal({
+        + (hashtag ? `<div class="hint">${U.escape(hashtag)} etiketi eklenecek.</div>` : "")
+        + K.ui.field("İçerik türü", `<div data-posttype-box>${K.social.postTypeSelector("reach")}</div>`);
+      const m = K.ui.modal({
         title: "Gönderi Oluştur", body,
         actions: [
           { label: "Vazgeç" },
@@ -33444,13 +34949,13 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             let text = U.qs("#x-text").value.trim();
             if (!text) { K.toast("Boş gönderi", "", "warn"); return false; }
             if (hashtag) text += " " + hashtag;
-            K.social.createPost("x", text);
-            K.state.player.x += Math.round(K.state.player.popularity * 1.2 + 5);
-            K.toast("𝕏 Paylaşıldı", "", "ok");
-            K.refresh();
+            const type = K.social.selectedPostType(m.root);
+            const res = K.social.playerPost("x", text, type);
+            K.toast(res.title, res.msg, res.kind);
           }}
         ]
       });
+      K.social.bindPostTypes(m.root, "reach");
     },
 
     promotePicker() {
@@ -34003,15 +35508,22 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       }
     }
     const pending = offer.status === "pending";
+    const dl = (K.relations && K.relations.offerDaysLeft) ? K.relations.offerDaysLeft(offer) : null;
+    const canNeg = pending && offer.type !== "hangout" && !offer.negotiated;
+    const statusPill = offer.status === "accepted" ? ["money", "✓ Kabul edildi"]
+      : offer.status === "expired" ? ["hot", "⏳ Süresi doldu"]
+      : ["hot", "✕ Reddedildi"];
     return `<div class="dm-offer ${offer.type}">
-      <div class="of-tag">${tag}</div>
+      <div class="of-tag">${tag}${offer.negotiated ? ` <span class="of-neg-badge">🤝 pazarlık yapıldı</span>` : ""}</div>
       <div class="of-title">${U.escape(title)}</div>
       <div class="of-desc">${U.escape(desc)}</div>
       <div class="of-terms">${U.escape(terms)}</div>
       ${pending ? `<div class="of-actions">
         <button class="btn btn-sm btn-primary" data-pact="offer-accept" data-arg="${offer.id}">Kabul Et</button>
         <button class="btn btn-sm btn-ghost" data-pact="offer-decline" data-arg="${offer.id}">Reddet</button>
-      </div>` : `<div style="margin-top:8px"><span class="pill ${offer.status === "accepted" ? "money" : "hot"}">${offer.status === "accepted" ? "✓ Kabul edildi" : "✕ Reddedildi"}</span></div>`}
+        ${canNeg ? `<button class="btn btn-sm btn-ghost of-neg" data-pact="offer-negotiate" data-arg="${offer.id}">🤝 Pazarlık</button>` : ""}
+      </div>` : `<div style="margin-top:8px"><span class="pill ${statusPill[0]}">${statusPill[1]}</span></div>`}
+      ${pending && dl != null ? `<div class="of-deadline ${dl <= 2 ? "urgent" : ""}">⏳ ${dl} gün içinde yanıtla</div>` : ""}
     </div>`;
   }
 
@@ -34065,6 +35577,19 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             K.toast("🗑️ İstek silindi", "", "warn");
             K.phone.reRender();
           }
+          else if (act === "dms-reply") {
+            const parts = String(el.dataset.arg).split("|");
+            K.dms.reply(parts[0], parts[1]);
+            K.phone.reRender();
+          }
+          else if (act === "dms-blocked") {
+            const list = K.dms.blockedList();
+            if (!list.length) { K.toast("Engelli hesap yok", "", ""); return; }
+            K.ui.actionSheet("Engellenen hesaplar", list.map(x => ({
+              label: "🔓 " + x.sender.stageName + " · " + (x.sender.roleLabel || ""),
+              onClick: () => { K.dms.unblock(x.id); K.phone.reRender(); }
+            })));
+          }
           else if (act === "thread-more") M.threadSheet(el.dataset.arg);
           else if (act === "show-archived") {
             M._showArchived = !M._showArchived;
@@ -34088,9 +35613,80 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           }
           else if (act === "offer-accept") { K.relations.respondOffer(el.dataset.arg, true); K.phone.reRender(); }
           else if (act === "offer-decline") { K.relations.respondOffer(el.dataset.arg, false); K.phone.reRender(); }
+          else if (act === "offer-negotiate") { M.offerNegotiatePrompt(el.dataset.arg); }
         }
       };
       return view;
+    },
+
+    /* ---------------- PAZARLIK (v10.30) ---------------- */
+    offerNegotiatePrompt(offerId) {
+      const offer = (K.state.offers || []).find(o => o.id === offerId);
+      if (!offer || offer.status !== "pending") return;
+      const p = K.state.player;
+      const lever = K.relations.offerLeverage(offer);
+      const leverLabel = lever >= 0.7 ? "güçlü" : lever >= 0.45 ? "dengeli" : "zayıf";
+      const leverTone = lever >= 0.7 ? "money" : lever >= 0.45 ? "gold" : "hot";
+      let fields = "", readPatch = null;
+
+      if (offer.type === "feature") {
+        const cur = offer.terms.split || 60;
+        fields = K.ui.field("İstediğin gelir payı (%)",
+          `<input type="range" id="neg-split" min="30" max="90" step="5" value="${Math.min(90, cur + 10)}" />
+           <div class="readout" id="neg-split-v">%${Math.min(90, cur + 10)}</div>`);
+        readPatch = () => {
+          const want = +U.qs("#neg-split").value;
+          return { split: want, greed: U.clamp((want - cur) / 30, 0, 1) };
+        };
+      } else if (offer.type === "label" && offer.artistId) {
+        const t = offer.terms;
+        fields = K.ui.field("Avans (sen ödeyeceksin)", `<input type="number" id="neg-adv" value="${t.advance || 0}" min="0" step="5000" />`)
+          + K.ui.field("Sanatçının payı (%)", `<input type="number" id="neg-roy" value="${t.artistRoyalty || 70}" min="40" max="95" />`);
+        readPatch = () => {
+          const adv = Math.max(0, +U.qs("#neg-adv").value || 0);
+          const roy = +U.qs("#neg-roy").value || 70;
+          const g = U.clamp(((t.advance || 0) - adv) / Math.max(1, (t.advance || 1)) * 0.6 + Math.abs((t.artistRoyalty || 70) - roy) / 60, 0, 1);
+          return { advance: adv, artistRoyalty: roy, greed: g };
+        };
+      } else {
+        const t = offer.terms;
+        const share = t.artistShare != null ? t.artistShare : (100 - (t.royalty || 30));
+        fields = K.ui.field("İstediğin avans", `<input type="number" id="neg-adv" value="${Math.round((t.advance || 0) * 1.3)}" min="0" step="5000" />`)
+          + K.ui.field("İstediğin sanatçı payı (%)", `<input type="number" id="neg-share" value="${Math.min(90, share + 10)}" min="20" max="90" />`)
+          + K.ui.field("Sözleşme süresi (gün)", `<input type="number" id="neg-len" value="${Math.max(180, Math.round((t.lengthDays || 365) * 0.7))}" min="90" step="30" />`);
+        readPatch = () => {
+          const adv = Math.max(0, +U.qs("#neg-adv").value || 0);
+          const sh = +U.qs("#neg-share").value || 60;
+          const len = Math.max(90, +U.qs("#neg-len").value || 365);
+          const g = U.clamp((adv / Math.max(1, (t.advance || 1)) - 1) * 0.4 + Math.abs(sh - share) / 50 * 0.5 + Math.abs((t.lengthDays || 365) - len) / 300 * 0.4, 0, 1);
+          return { advance: adv, artistShare: sh, lengthDays: len, greed: g };
+        };
+      }
+
+      const body = `<div class="neg-lever">Kaldıraç: <b class="pill ${leverTone}">${leverLabel}</b>
+          <span class="muted">Samimiyet, popülerlik ve itibarın pazarlık gücünü belirler.</span></div>${fields}`;
+      K.ui.modal({
+        title: "🤝 Pazarlık", desc: "Karşı tarafın kabulü kaldıraca ve isteğinin büyüklüğüne bağlıdır.",
+        body,
+        actions: [
+          { label: "Vazgeç" },
+          { label: "Teklif Et", cls: "btn-primary", onClick: () => {
+            const patch = readPatch();
+            const res = K.relations.counterOffer(offerId, patch);
+            if (!res || res.ok === false) {
+              const why = res && res.why === "tekrar" ? "Bu teklif için pazarlık hakkın doldu." : "Pazarlık yapılamadı.";
+              K.toast("Pazarlık", why, "warn");
+              return false;
+            }
+            const titles = { accepted: "✅ Kabul edildi", partial: "↔️ Kısmi taviz", withdrawn: "❌ Geri çekildi" };
+            K.toast(titles[res.result] || "Pazarlık", res.reply || "", res.result === "accepted" ? "ok" : res.result === "withdrawn" ? "warn" : "");
+            K.phone.reRender();
+          } }
+        ]
+      });
+      /* canlı değer göstergesi */
+      const sr = U.qs("#neg-split");
+      if (sr) sr.addEventListener("input", () => { const v = U.qs("#neg-split-v"); if (v) v.textContent = "%" + sr.value; });
     },
 
     /* ---------------- sohbet listesi ---------------- */
@@ -34191,24 +35787,60 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     requestsHTML() {
       const reqs = K.state.dmRequests || {};
       const ids = Object.keys(reqs).filter(id => K.artistById(id));
+      const ext = ids.filter(id => reqs[id].external);
+      const art = ids.filter(id => !reqs[id].external);
+      const blocked = (K.dms && K.dms.blockedCount) ? K.dms.blockedCount() : 0;
+      const blockedRow = blocked ? `<div class="dm-arch-row" data-pact="dms-blocked">🚫 ${blocked} engellenen hesap</div>` : "";
       if (!ids.length) {
-        return `<div class="empty-note"><b>İstek yok</b>Seni tanımayan bir sanatçı yazdığında mesaj burada görünür — kabul edersen sohbet açılır.</div>`;
+        return blockedRow + `<div class="empty-note"><b>İstek yok</b>Tanımadığın biri yazdığında mesaj burada görünür. Yabancı hesaplar (hayran / dolandırıcı / gazeteci) doğrudan gelen kutuna düşmez.</div>`;
       }
-      return `<div class="dm-req-note">Tanımadığın hesaplar doğrudan sohbetlerine düşmez. Kabul edersen sohbet açılır.</div>`
-        + ids.sort((a, b) => (reqs[b].day || 0) - (reqs[a].day || 0)).map(id => {
-          const a = K.artistById(id);
-          const last = reqs[id].messages[reqs[id].messages.length - 1] || {};
-          return `<div class="dm-req">
-            <div class="dm-req-head">${K.ui.avatar(a.stageName, 44, true)}
-              <div class="grow"><div class="nm">${U.escape(a.stageName)}</div>
-              <div class="last">${U.escape(String(last.text || "").slice(0, 70))}</div></div>
-            </div>
-            <div class="dm-req-actions">
-              <button class="btn btn-sm btn-primary" data-pact="req-accept" data-arg="${id}">Kabul et</button>
-              <button class="btn btn-sm btn-ghost" data-pact="req-decline" data-arg="${id}">Sil</button>
-            </div>
-          </div>`;
-        }).join("");
+      const extHTML = ext.length
+        ? `<div class="sp-section-title">Yabancı hesaplar</div>` + ext.sort((a, b) => (reqs[b].day || 0) - (reqs[a].day || 0)).map(id => K.phone.appById("messages").externalReqCard(id, reqs[id])).join("")
+        : "";
+      const artHTML = art.length
+        ? `<div class="sp-section-title" style="margin-top:8px">Sanatçılar</div>`
+          + `<div class="dm-req-note">Tanımadığın sanatçılar doğrudan sohbetlerine düşmez. Kabul edersen sohbet açılır.</div>`
+          + art.sort((a, b) => (reqs[b].day || 0) - (reqs[a].day || 0)).map(id => {
+            const a = K.artistById(id);
+            const last = reqs[id].messages[reqs[id].messages.length - 1] || {};
+            return `<div class="dm-req">
+              <div class="dm-req-head">${K.ui.avatar(a.stageName, 44, true)}
+                <div class="grow"><div class="nm">${U.escape(a.stageName)}</div>
+                <div class="last">${U.escape(String(last.text || "").slice(0, 70))}</div></div>
+              </div>
+              <div class="dm-req-actions">
+                <button class="btn btn-sm btn-primary" data-pact="req-accept" data-arg="${id}">Kabul et</button>
+                <button class="btn btn-sm btn-ghost" data-pact="req-decline" data-arg="${id}">Sil</button>
+              </div>
+            </div>`;
+          }).join("")
+        : "";
+      return blockedRow + extHTML + artHTML;
+    },
+
+    /* yabancı DM kartı: hayran / dolandırıcı / gazeteci — engelle veya yanıtla */
+    externalReqCard(id, req) {
+      const s = K.dms.byId(id) || K.artistById(id) || {};
+      const last = (req.messages || [])[req.messages.length - 1] || {};
+      const kind = req.kind || (s && s.role) || "hayran";
+      const icon = (s.roleIcon) || ({ hayran: "💜", dolandirici: "⚠️", gazeteci: "📰" }[kind] || "👤");
+      const label = (s.roleLabel) || ({ hayran: "Hayran", dolandirici: "Şüpheli Hesap", gazeteci: "Gazeteci" }[kind] || "Yabancı");
+      const dl = req.expiresDay ? Math.max(0, req.expiresDay - K.state.day) : null;
+      const opts = (req.options || []).map(o =>
+        `<button class="btn btn-sm ${o.block ? "btn-ghost dm-block-btn" : "btn-primary"}" data-pact="dms-reply" data-arg="${id}|${o.id}">${U.escape(o.label)}</button>`).join("");
+      const outcome = req.handled
+        ? `<div class="dm-req-outcome"><span class="pill money">✓ Yanıtlandı</span>`
+          + ((req.messages || []).filter(m => m.from === "me").slice(-1)[0] ? `<span class="muted">Sen: ${U.escape(String((req.messages.filter(m => m.from === "me").slice(-1)[0] || {}).text || "").slice(0, 40))}</span>` : "")
+          + `</div>`
+        : "";
+      return `<div class="dm-req external k-${kind}">
+        <div class="dm-req-head">${K.ui.artistAvatar ? K.ui.artistAvatar(id, 44, true) : K.ui.avatar(s.stageName || "?", 44, true)}
+          <div class="grow"><div class="nm">${U.escape(s.stageName || "?")} <span class="dm-role-badge">${icon} ${U.escape(label)}</span></div>
+          <div class="last">${U.escape(String(last.text || "").slice(0, 80))}</div></div>
+        </div>
+        ${req.handled ? outcome : `<div class="dm-req-actions">${opts}</div>`}
+        ${!req.handled && dl != null ? `<div class="of-deadline ${dl <= 1 ? "urgent" : ""}">⏳ ${dl} gün içinde yanıtla</div>` : ""}
+      </div>`;
     },
 
     /* ---------------- GRUP SOHBETLERİ ---------------- */
@@ -34702,6 +36334,88 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     }
   });
 })(window.K);
+
+</script>
+  <script>
+/* ==== js/apps/calls.js ==== */
+/* ============================================================
+   KARMA — apps/calls.js   (v10.30)
+   Telefon uygulaması: gelen aramalar (aç/reddet/mesaj) + arama geçmişi.
+   Motor: systems/calls.js
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  const U = K.util;
+
+  K.phone.register({
+    id: "calls", name: "Telefon", icon: "📞", iconClass: "ic-calls", dock: false,
+
+    unread() { return (K.calls && K.calls.ringingCount) ? K.calls.ringingCount() : 0; },
+
+    render() {
+      return {
+        title: "Telefon", sub: "Aramalar",
+        shellClass: "app-calls",
+        tabs: [
+          { id: "incoming", label: "Gelen", icon: "📞" },
+          { id: "history", label: "Geçmiş", icon: "🕓" }
+        ],
+        activeTab: "incoming",
+        render: (tab) => (tab === "history" ? K.phone.appById("calls").historyHTML() : K.phone.appById("calls").incomingHTML()),
+        onAction: (act, el) => {
+          const app = K.phone.appById("calls");
+          if (act === "call-open") { K.calls.open(el.dataset.arg); return; }
+          if (act === "call-reject") { K.calls.reject(el.dataset.arg); K.phone.reRender(); return; }
+          if (act === "call-answer") { K.calls.open(el.dataset.arg); return; }
+          if (act === "call-clear") { K.state.player.callLog = []; K.save(); K.toast("🕓 Geçmiş temizlendi", "", "ok"); K.phone.reRender(); return; }
+        }
+      };
+    },
+
+    incomingHTML() {
+      const list = K.calls.ringing();
+      if (!list.length) {
+        return `<div class="empty-note"><b>Gelen arama yok</b>Biri seni aradığında burada görünür. Günü bitirdikçe yeni aramalar gelir — aç, reddet ya da mesajla yanıtla.</div>`;
+      }
+      return `<div class="call-section-title">Şu an çalıyor (${list.length})</div>` + list.map(c => `
+        <div class="call-row ringing">
+          <div class="call-row-ic">${c.icon || "📞"}</div>
+          <div class="grow">
+            <div class="call-row-name">${U.escape(c.callerName)}</div>
+            <div class="call-row-sub">${U.escape((K.calls.KINDS[c.kind] || {}).label || "Arayan")} · ${Math.max(0, (c.expiresDay || 0) - K.state.day)} gün içinde yanıtla</div>
+          </div>
+          <div class="call-row-actions">
+            <button class="call-mini reject" data-pact="call-reject" data-arg="${c.id}" title="Reddet">📵</button>
+            <button class="call-mini answer" data-pact="call-answer" data-arg="${c.id}" title="Aç">📞</button>
+          </div>
+        </div>`).join("");
+    },
+
+    historyHTML() {
+      const list = K.calls.history();
+      if (!list.length) return `<div class="empty-note"><b>Geçmiş boş</b>Cevapladığın, reddettiğin ve kaçırdığın aramalar burada listelenir.</div>`;
+      const label = {
+        answered: ["📞", "Cevaplandı", "money"],
+        rejected: ["📵", "Reddedildi", "hot"],
+        messaged: ["✉️", "Mesajla yanıtlandı", "gold"],
+        missed: ["⏳", "Cevapsız", "warn"]
+      };
+      return `<div class="call-section-title">Arama geçmişi</div>` + list.map(h => {
+        const L = label[h.status] || ["📞", h.status, ""];
+        return `<div class="call-row">
+          <div class="call-row-ic">${h.icon || "📞"}</div>
+          <div class="grow">
+            <div class="call-row-name">${U.escape(h.callerName)}</div>
+            <div class="call-row-sub">${U.escape((K.calls.KINDS[h.kind] || {}).label || "")} · Gün ${h.day}</div>
+            ${h.reply ? `<div class="call-row-reply">${U.escape(h.reply)}</div>` : ""}
+          </div>
+          <span class="pill ${L[2]}">${L[0]} ${L[1]}</span>
+        </div>`;
+      }).join("") + `<button class="btn btn-sm btn-ghost" data-pact="call-clear" style="margin-top:10px">🕓 Geçmişi temizle</button>`;
+    }
+  });
+})(window.K = window.K || {});
 
 </script>
 <script>
@@ -35524,6 +37238,8 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     if (K.phoneOS) { K.phoneOS.ensureInstalled(); K.phoneOS.apply(); }
     // mahalle/semt çevresi (kalıcı kişiler)
     if (K.contacts && K.contacts.ensureRoster) K.contacts.ensureRoster();
+    // v10.30 — yabancı DM gönderenleri (hayran / dolandırıcı / gazeteci)
+    if (K.dms && K.dms.ensure) K.dms.ensure();
     // ZOR MOD: sayısal değerler gizli
     document.body.classList.toggle("hide-values", !!(K.settings && K.settings.valuesHidden && K.settings.valuesHidden()));
     K.careerUI.init();
@@ -35591,6 +37307,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     // kayıt yüklendiğinde her yeri tazele
     K.bus.on("game:loaded", () => {
       if (K.contacts && K.contacts.ensureRoster) K.contacts.ensureRoster();
+      if (K.dms && K.dms.ensure) K.dms.ensure();
       renderAll();
     });
     // zorluk değişince değer maskesini yeniden uygula
