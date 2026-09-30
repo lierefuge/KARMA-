@@ -126,10 +126,12 @@
             `Müziğin ve sahne arkası hakkında birkaç soru soracağım. Uygun musun?"`,
           options: [
             {
+              /* v10.31 — TEK RÖPORTAJ MOTORU: karar ekranı K.press.interview()
+                 açar; buradaki tüm basın/itibar sonucu o ekranda belirlenir. */
               id: "yes", label: "Röportajı kabul et",
-              reply: "Harika. Yarın yayında olur, güzel bir yazı çıkacak.",
-              eff: { reputation: 1.4, fame: 0.7, stress: 6,
-                notify: ["📰 Röportaj", outlet + " röportajın yayınlanacak."] }
+              reply: "Harika, mikrofonu uzatıyorum...",
+              interview: true,
+              eff: { notify: ["📰 Röportaj", outlet + " ile röportaj başlıyor."] }
             },
             {
               id: "quote", label: "Sadece kısa bir alıntı vereyim",
@@ -612,7 +614,7 @@
       const notes = applyEffects(opt.eff);
       K.calls._finish(call, "answered", opt.reply);
       K.refresh();
-      return { reply: opt.reply, notes: notes };
+      return { reply: opt.reply, notes: notes, interview: !!opt.interview };
     },
 
     reject(id) {
@@ -715,6 +717,11 @@
           <div class="call-bubble">${U.escape((res && res.reply) || "")}</div>${notes}`,
         actions: [{ label: "Tamam", cls: "btn-primary", onClick: () => {
           if (K.phone && !K.phone.homeActive) K.phone.reRender();
+          /* röportaj kabul edildiyse TEK karar ekranını aç */
+          if (res && res.interview && K.press && K.press.interview) {
+            setTimeout(() => K.press.interview(), 350);
+            return;
+          }
           /* sırada başka çalan arama varsa onu aç */
           const next = K.calls.ringing()[0];
           if (next) setTimeout(() => K.calls.open(next.id), 350);
