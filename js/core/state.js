@@ -246,7 +246,12 @@
         /* --- telefon (OS) --- */
         battery: 100,
         phone: { theme: "dark", wallpaper: "karma", brightness: 1, batterySaver: false, layout: null },
-        installed: null           // yüklü (kilitli olmayan) uygulamalar; phoneOS doldurur
+        installed: null,          // yüklü (kilitli olmayan) uygulamalar; phoneOS doldurur
+        /* v10.30 — GELEN ARAMALAR + YABANCI DM'LER */
+        calls: [],                // çalan/cevaplanan aramalar (systems/calls.js)
+        callLog: [],              // arama geçmişi
+        extSenders: [],           // yabancı DM gönderenleri (systems/dms.js)
+        dmBlocks: {}              // engellenen hesaplar (id → gün)
       },
       label: null,                 // oyuncunun kurduğu şirket
       relations: {},
@@ -512,6 +517,11 @@
       K.state.player.phone = K.state.player.phone || { theme: "dark", wallpaper: "karma", brightness: 1, batterySaver: false, layout: null };
       if (K.state.player.phone.layout === undefined) K.state.player.phone.layout = null;
       if (K.state.player.installed === undefined) K.state.player.installed = null;
+      /* v10.30 — gelen aramalar + yabancı DM'ler (eski kayıt göçü) */
+      K.state.player.calls = K.state.player.calls || [];
+      K.state.player.callLog = K.state.player.callLog || [];
+      K.state.player.extSenders = K.state.player.extSenders || [];
+      K.state.player.dmBlocks = K.state.player.dmBlocks || {};
       if (K.state.pendingSync === undefined) K.state.pendingSync = null;
       if (K.state.pendingCatalogOffer === undefined) K.state.pendingCatalogOffer = null;
       if (K.state.catalogSold === undefined) K.state.catalogSold = false;
