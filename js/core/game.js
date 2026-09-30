@@ -83,6 +83,8 @@
         if (K.economy.settleMonth) K.economy.settleMonth();
         if (K.fans && K.fans.monthly) K.fans.monthly();
         if (K.sponsor && K.sponsor.monthly) K.sponsor.monthly();
+        if (K.assets && K.assets.monthly) K.assets.monthly();      // v10.28 pasif varlık geliri
+        if (K.intl && K.intl.monthly) K.intl.monthly();            // v10.28 yurt dışı telif
         if (K.economy.chargeMonthly) K.economy.chargeMonthly();
       }
       K.game.buildChart();
@@ -114,6 +116,13 @@
       if (K.rivalry && K.rivalry.tick) K.rivalry.tick();
       if (K.beef && K.beef.dailyTick) K.beef.dailyTick();
       if (K.crisis && K.crisis.maybeStart) K.crisis.maybeStart();
+      /* v10.28 — genişleme paketi (altı sistem) */
+      if (K.writing && K.writing.tick) K.writing.tick();
+      if (K.merch && K.merch.tick) K.merch.tick();
+      if (K.assets && K.assets.tick) K.assets.tick();
+      if (K.mental && K.mental.tick) K.mental.tick();
+      if (K.shady && K.shady.tick) K.shady.tick();
+      if (K.intl && K.intl.tick) K.intl.tick();
       if (K.stats && K.stats.record) K.stats.record();
 
       K.game.decayAffinity();
