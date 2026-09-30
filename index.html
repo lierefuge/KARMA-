@@ -29,40 +29,41 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/main.css?v=cea77fce" />
-<link rel="stylesheet" href="css/career.css?v=cea77fce" />
-<link rel="stylesheet" href="css/phone.css?v=cea77fce" />
-<link rel="stylesheet" href="css/apps.css?v=cea77fce" />
-<link rel="stylesheet" href="css/apps-ext.css?v=cea77fce" />
-<link rel="stylesheet" href="css/ext.css?v=cea77fce" />
-<link rel="stylesheet" href="css/concerts.css?v=cea77fce" />
-<link rel="stylesheet" href="css/jobs.css?v=cea77fce" />
-<link rel="stylesheet" href="css/albums.css?v=cea77fce" />
-<link rel="stylesheet" href="css/payout.css?v=cea77fce" />
-<link rel="stylesheet" href="css/artistapps.css?v=cea77fce" />
-<link rel="stylesheet" href="css/fans.css?v=cea77fce" />
-<link rel="stylesheet" href="css/studio-theme.css?v=cea77fce" />
-<link rel="stylesheet" href="css/studio.css?v=cea77fce" />
-<link rel="stylesheet" href="css/update-v2.css?v=cea77fce" />
-<link rel="stylesheet" href="css/studio-wizard.css?v=cea77fce" />
-<link rel="stylesheet" href="css/lyrics-editor.css?v=cea77fce" />
-<link rel="stylesheet" href="css/social-v2.css?v=cea77fce" />
-<link rel="stylesheet" href="css/instagram.css?v=cea77fce" />
-<link rel="stylesheet" href="css/apps-misc.css?v=cea77fce" />
-<link rel="stylesheet" href="css/phone-extras.css?v=cea77fce" />
-<link rel="stylesheet" href="css/player.css?v=cea77fce" />
-<link rel="stylesheet" href="css/fullplay.css?v=cea77fce" />
-<link rel="stylesheet" href="css/ytplayer.css?v=cea77fce" />
-<link rel="stylesheet" href="css/festivals.css?v=cea77fce" />
+<link rel="stylesheet" href="css/main.css?v=a6faf166" />
+<link rel="stylesheet" href="css/career.css?v=a6faf166" />
+<link rel="stylesheet" href="css/phone.css?v=a6faf166" />
+<link rel="stylesheet" href="css/apps.css?v=a6faf166" />
+<link rel="stylesheet" href="css/apps-ext.css?v=a6faf166" />
+<link rel="stylesheet" href="css/ext.css?v=a6faf166" />
+<link rel="stylesheet" href="css/concerts.css?v=a6faf166" />
+<link rel="stylesheet" href="css/jobs.css?v=a6faf166" />
+<link rel="stylesheet" href="css/albums.css?v=a6faf166" />
+<link rel="stylesheet" href="css/payout.css?v=a6faf166" />
+<link rel="stylesheet" href="css/artistapps.css?v=a6faf166" />
+<link rel="stylesheet" href="css/fans.css?v=a6faf166" />
+<link rel="stylesheet" href="css/studio-theme.css?v=a6faf166" />
+<link rel="stylesheet" href="css/studio.css?v=a6faf166" />
+<link rel="stylesheet" href="css/update-v2.css?v=a6faf166" />
+<link rel="stylesheet" href="css/studio-wizard.css?v=a6faf166" />
+<link rel="stylesheet" href="css/lyrics-editor.css?v=a6faf166" />
+<link rel="stylesheet" href="css/social-v2.css?v=a6faf166" />
+<link rel="stylesheet" href="css/instagram.css?v=a6faf166" />
+<link rel="stylesheet" href="css/apps-misc.css?v=a6faf166" />
+<link rel="stylesheet" href="css/phone-extras.css?v=a6faf166" />
+<link rel="stylesheet" href="css/player.css?v=a6faf166" />
+<link rel="stylesheet" href="css/fullplay.css?v=a6faf166" />
+<link rel="stylesheet" href="css/ytplayer.css?v=a6faf166" />
+<link rel="stylesheet" href="css/festivals.css?v=a6faf166" />
 <!-- v10.20 — uygulama kimlikleri (Spotify/Apple/YouTube marka dili + YouTube dikey akış) -->
-<link rel="stylesheet" href="css/apps-identity.css?v=cea77fce" />
+<link rel="stylesheet" href="css/apps-identity.css?v=a6faf166" />
 <!-- v10.22 — Spotify & Apple Music: gerçek ekran kurgusu (ızgara/carousel/filtre) -->
-<link rel="stylesheet" href="css/music-apps.css?v=cea77fce" />
+<link rel="stylesheet" href="css/music-apps.css?v=a6faf166" />
 <!-- v10.23 — plak vitrini + KARMA Wrapped -->
-<link rel="stylesheet" href="css/certifications.css?v=cea77fce" />
-<link rel="stylesheet" href="css/rollout.css?v=cea77fce" />
+<link rel="stylesheet" href="css/certifications.css?v=a6faf166" />
+<link rel="stylesheet" href="css/rollout.css?v=a6faf166" />
+<link rel="stylesheet" href="css/expansion.css?v=a6faf166" />
 <!-- mobil/dokunmatik katman: EN SON yüklenir ki altta kalan 25 dosyayı ezebilsin -->
-<link rel="stylesheet" href="css/mobile.css?v=cea77fce" />
+<link rel="stylesheet" href="css/mobile.css?v=a6faf166" />
 </head>
 <body>
   <div id="app">
@@ -146,6 +147,7 @@
           <button class="tab" data-tab="concerts">Konser</button>
           <button class="tab" data-tab="festivals">Festival</button>
           <button class="tab" data-tab="label">Şirket</button>
+          <button class="tab" data-tab="business">Girişim</button>
           <button class="tab" data-tab="events">Olaylar</button>
         </nav>
         <div class="career-body" id="career-body"><!-- rendered by JS --></div>
@@ -205,15 +207,15 @@
   <!-- ================= DATA ================= -->
   <!-- v10.18 — yayın sürümü (K.VERSION). Önbellek hash'inden bağımsız,
        insan okunur sürüm; tools/release.js tarafından yazılır. -->
-  <script src="js/version.js?v=cea77fce"></script>
-  <script src="js/data/artists.js?v=cea77fce"></script>
-  <script src="js/data/artist-photos.js?v=cea77fce"></script>
-  <script src="js/data/labels.js?v=cea77fce"></script>
-  <script src="js/data/genres.js?v=cea77fce"></script>
-  <script src="js/data/creative.js?v=cea77fce"></script>
-  <script src="js/data/news.js?v=cea77fce"></script>
-  <script src="js/data/festivals.js?v=cea77fce"></script>
-  <script src="js/data/charts.js?v=cea77fce"></script>
+  <script src="js/version.js?v=a6faf166"></script>
+  <script src="js/data/artists.js?v=a6faf166"></script>
+  <script src="js/data/artist-photos.js?v=a6faf166"></script>
+  <script src="js/data/labels.js?v=a6faf166"></script>
+  <script src="js/data/genres.js?v=a6faf166"></script>
+  <script src="js/data/creative.js?v=a6faf166"></script>
+  <script src="js/data/news.js?v=a6faf166"></script>
+  <script src="js/data/festivals.js?v=a6faf166"></script>
+  <script src="js/data/charts.js?v=a6faf166"></script>
   <!-- v10.16 (P-1) — AĞIR VERİ ARTIK BURADA DEĞİL.
        real-songs (154 KB) + real-previews (143 KB) + real-youtube (33 KB)
        + discography (77 KB) = ~408 KB, açılışta hem indiriliyor hem
@@ -221,95 +223,102 @@
        defterinden İHTİYAÇ ANINDA yüklenir; tek dosya build'inde
        <script type="application/json"> olarak gömülüp tembel parse edilir.
        listeyi tools/build-single.js bu kayıt defterinden okur. -->
-  <script src="js/data/lazy.js?v=cea77fce"></script>
-  <script src="js/data/distro.js?v=cea77fce"></script>
-  <script src="js/data/lyrics.js?v=cea77fce"></script>
+  <script src="js/data/lazy.js?v=a6faf166"></script>
+  <script src="js/data/distro.js?v=a6faf166"></script>
+  <script src="js/data/lyrics.js?v=a6faf166"></script>
   <!-- B-6: dosya adları yakın (`persona` / `personality`) ama anlamları AYRI:
          persona.js      → OYUNCUNUN sanatçı kimliği   (K.PLAYER_PERSONAS)
          personality.js  → NPC kişilik katmanı          (K.npcPersonality)
        Yanlış olanı yazmak `undefined` döndürüp SESSİZCE bozulmasın diye
        global adları artık açık `PLAYER_` / `npc` önekli. -->
-  <script src="js/data/persona.js?v=cea77fce"></script>
-  <script src="js/data/personality.js?v=cea77fce"></script>
+  <script src="js/data/persona.js?v=a6faf166"></script>
+  <script src="js/data/personality.js?v=a6faf166"></script>
 
   <!-- ================= CORE ================= -->
-  <script src="js/core/util.js?v=cea77fce"></script>
-  <script src="js/core/events.js?v=cea77fce"></script>
-  <script src="js/core/state.js?v=cea77fce"></script>
-  <script src="js/core/game.js?v=cea77fce"></script>
+  <script src="js/core/util.js?v=a6faf166"></script>
+  <script src="js/core/events.js?v=a6faf166"></script>
+  <script src="js/core/state.js?v=a6faf166"></script>
+  <script src="js/core/game.js?v=a6faf166"></script>
 
   <!-- ================= SYSTEMS ================= -->
-  <script src="js/systems/economy.js?v=cea77fce"></script>
-<script src="js/systems/fans.js?v=cea77fce"></script>
-<script src="js/systems/shortform.js?v=cea77fce"></script>
-<script src="js/systems/catalog.js?v=cea77fce"></script>
-<script src="js/systems/press.js?v=cea77fce"></script>
-<script src="js/systems/ai.js?v=cea77fce"></script>
-<script src="js/systems/skills.js?v=cea77fce"></script>
-<script src="js/systems/goals.js?v=cea77fce"></script>
-<script src="js/systems/team.js?v=cea77fce"></script>
-<script src="js/systems/video.js?v=cea77fce"></script>
-<script src="js/systems/sponsor.js?v=cea77fce"></script>
-<script src="js/systems/phoneos.js?v=cea77fce"></script>
-<script src="js/systems/phonehome.js?v=cea77fce"></script>
-<script src="js/systems/playlists.js?v=cea77fce"></script>
-  <script src="js/systems/jobs.js?v=cea77fce"></script>
-  <script src="js/systems/stats.js?v=cea77fce"></script>
-  <script src="js/systems/settings.js?v=cea77fce"></script>
-  <script src="js/systems/imagery.js?v=cea77fce"></script>
-  <script src="js/systems/contacts.js?v=cea77fce"></script>
+  <script src="js/systems/economy.js?v=a6faf166"></script>
+<script src="js/systems/fans.js?v=a6faf166"></script>
+<script src="js/systems/shortform.js?v=a6faf166"></script>
+<script src="js/systems/catalog.js?v=a6faf166"></script>
+<script src="js/systems/press.js?v=a6faf166"></script>
+<script src="js/systems/ai.js?v=a6faf166"></script>
+<script src="js/systems/skills.js?v=a6faf166"></script>
+<script src="js/systems/goals.js?v=a6faf166"></script>
+<script src="js/systems/team.js?v=a6faf166"></script>
+<script src="js/systems/video.js?v=a6faf166"></script>
+<script src="js/systems/sponsor.js?v=a6faf166"></script>
+<script src="js/systems/phoneos.js?v=a6faf166"></script>
+<script src="js/systems/phonehome.js?v=a6faf166"></script>
+<script src="js/systems/playlists.js?v=a6faf166"></script>
+  <script src="js/systems/jobs.js?v=a6faf166"></script>
+  <script src="js/systems/stats.js?v=a6faf166"></script>
+  <script src="js/systems/settings.js?v=a6faf166"></script>
+  <script src="js/systems/imagery.js?v=a6faf166"></script>
+  <script src="js/systems/contacts.js?v=a6faf166"></script>
   <!-- v10.18 (B-5) — DM ağızları motor dosyasından ayrıldı:
        data/chat-profiles.js K.CHAT_PROFILES'ı kurar, systems/chat.js
        onu okur. Sıra önemli: veri, motordan ÖNCE yüklenmeli. -->
-  <script src="js/data/chat-profiles.js?v=cea77fce"></script>
-  <script src="js/systems/chat.js?v=cea77fce"></script>
-  <script src="js/systems/lists.js?v=cea77fce"></script>
-  <script src="js/systems/career.js?v=cea77fce"></script>
-  <script src="js/systems/label.js?v=cea77fce"></script>
-  <script src="js/systems/relations.js?v=cea77fce"></script>
-  <script src="js/systems/platforms.js?v=cea77fce"></script>
-  <script src="js/systems/social.js?v=cea77fce"></script>
-  <script src="js/systems/live.js?v=cea77fce"></script>
-  <script src="js/systems/interactions.js?v=cea77fce"></script>
-  <script src="js/systems/concerts.js?v=cea77fce"></script>
-  <script src="js/systems/festivals.js?v=cea77fce"></script>
-  <script src="js/systems/rollout.js?v=cea77fce"></script>
-  <script src="js/systems/certifications.js?v=cea77fce"></script>
-  <script src="js/systems/yearwrap.js?v=cea77fce"></script>
-  <script src="js/systems/awards.js?v=cea77fce"></script>
-  <script src="js/systems/rivalry.js?v=cea77fce"></script>
-  <script src="js/systems/beef.js?v=cea77fce"></script>
-  <script src="js/systems/crisis.js?v=cea77fce"></script>
-  <script src="js/systems/incidents.js?v=cea77fce"></script>
-  <script src="js/systems/livestream.js?v=cea77fce"></script>
-  <script src="js/systems/audio.js?v=cea77fce"></script>
-  <script src="js/systems/preview.js?v=cea77fce"></script>
-  <script src="js/systems/devtools.js?v=cea77fce"></script>
-  <script src="js/systems/updater.js?v=cea77fce"></script>
+  <script src="js/data/chat-profiles.js?v=a6faf166"></script>
+  <script src="js/systems/chat.js?v=a6faf166"></script>
+  <script src="js/systems/lists.js?v=a6faf166"></script>
+  <script src="js/systems/career.js?v=a6faf166"></script>
+  <script src="js/systems/label.js?v=a6faf166"></script>
+  <script src="js/systems/relations.js?v=a6faf166"></script>
+  <script src="js/systems/platforms.js?v=a6faf166"></script>
+  <script src="js/systems/social.js?v=a6faf166"></script>
+  <script src="js/systems/live.js?v=a6faf166"></script>
+  <script src="js/systems/interactions.js?v=a6faf166"></script>
+  <script src="js/systems/concerts.js?v=a6faf166"></script>
+  <script src="js/systems/festivals.js?v=a6faf166"></script>
+  <script src="js/systems/rollout.js?v=a6faf166"></script>
+  <script src="js/systems/certifications.js?v=a6faf166"></script>
+  <script src="js/systems/yearwrap.js?v=a6faf166"></script>
+  <script src="js/systems/awards.js?v=a6faf166"></script>
+  <script src="js/systems/rivalry.js?v=a6faf166"></script>
+  <script src="js/systems/beef.js?v=a6faf166"></script>
+  <script src="js/systems/crisis.js?v=a6faf166"></script>
+  <script src="js/systems/incidents.js?v=a6faf166"></script>
+  <script src="js/systems/livestream.js?v=a6faf166"></script>
+  <!-- v10.28 — GENİŞLEME PAKETİ (altı yeni sistem) -->
+  <script src="js/systems/writing.js?v=a6faf166"></script>
+  <script src="js/systems/merch.js?v=a6faf166"></script>
+  <script src="js/systems/assets.js?v=a6faf166"></script>
+  <script src="js/systems/mental.js?v=a6faf166"></script>
+  <script src="js/systems/shady.js?v=a6faf166"></script>
+  <script src="js/systems/intl.js?v=a6faf166"></script>
+  <script src="js/systems/audio.js?v=a6faf166"></script>
+  <script src="js/systems/preview.js?v=a6faf166"></script>
+  <script src="js/systems/devtools.js?v=a6faf166"></script>
+  <script src="js/systems/updater.js?v=a6faf166"></script>
 
   <!-- ================= UI ================= -->
-  <script src="js/ui/components.js?v=cea77fce"></script>
-<script src="js/ui/studio.js?v=cea77fce"></script>
-  <script src="js/ui/career-ui.js?v=cea77fce"></script>
+  <script src="js/ui/components.js?v=a6faf166"></script>
+<script src="js/ui/studio.js?v=a6faf166"></script>
+  <script src="js/ui/career-ui.js?v=a6faf166"></script>
 
   <!-- ================= PHONE APPS ================= -->
-  <script src="js/apps/phone.js?v=cea77fce"></script>
-  <script src="js/apps/spotify.js?v=cea77fce"></script>
-  <script src="js/apps/applemusic.js?v=cea77fce"></script>
-  <script src="js/apps/youtube.js?v=cea77fce"></script>
-  <script src="js/apps/instagram.js?v=cea77fce"></script>
-  <script src="js/apps/tiktok.js?v=cea77fce"></script>
-  <script src="js/apps/x.js?v=cea77fce"></script>
-  <script src="js/apps/news.js?v=cea77fce"></script>
-  <script src="js/apps/artistapps.js?v=cea77fce"></script>
-  <script src="js/apps/messages.js?v=cea77fce"></script>
-<script src="js/apps/fans.js?v=cea77fce"></script>
-<script src="js/apps/goals.js?v=cea77fce"></script>
-<script src="js/apps/team.js?v=cea77fce"></script>
-<script src="js/apps/video.js?v=cea77fce"></script>
-<script src="js/apps/phoneapps.js?v=cea77fce"></script>
+  <script src="js/apps/phone.js?v=a6faf166"></script>
+  <script src="js/apps/spotify.js?v=a6faf166"></script>
+  <script src="js/apps/applemusic.js?v=a6faf166"></script>
+  <script src="js/apps/youtube.js?v=a6faf166"></script>
+  <script src="js/apps/instagram.js?v=a6faf166"></script>
+  <script src="js/apps/tiktok.js?v=a6faf166"></script>
+  <script src="js/apps/x.js?v=a6faf166"></script>
+  <script src="js/apps/news.js?v=a6faf166"></script>
+  <script src="js/apps/artistapps.js?v=a6faf166"></script>
+  <script src="js/apps/messages.js?v=a6faf166"></script>
+<script src="js/apps/fans.js?v=a6faf166"></script>
+<script src="js/apps/goals.js?v=a6faf166"></script>
+<script src="js/apps/team.js?v=a6faf166"></script>
+<script src="js/apps/video.js?v=a6faf166"></script>
+<script src="js/apps/phoneapps.js?v=a6faf166"></script>
 
   <!-- ================= BOOT ================= -->
-  <script src="js/main.js?v=cea77fce"></script>
+  <script src="js/main.js?v=a6faf166"></script>
 </body>
 </html>
