@@ -5,6 +5,70 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.29 — Akıl sağlığı ekseni üç sisteme daha bağlandı
+
+v10.28'de eklenen stres ekseni yalnızca **kayıt kalitesini** ve **yayın kilidini**
+etkiliyordu. Artık sanatçının kafası **üç yerde daha** hissediliyor.
+
+### 🔗 Yeni bağlantılar
+
+| Sistem | Ne oluyor | Çarpan (stres 100'de) |
+|---|---|---|
+| ⚔️ **Diss kaydetme** (`beef.js`) | Dağınık kafayla yazılan gönderme **zayıf** kalır | `dissMult` → **0,55** |
+| 🎤 **Konser performansı** (`concerts.js`) | Sahneden daha az şöhret/hayran kazanılır | `performanceMult` → **0,60** |
+| 💬 **DM yanıt tonu** (`chat.js`) | Mesajların **ters teper**; sanatçı mesafe koyar | `dmMult` → **0,55** |
+
+Hepsi **40 stresin altında etkisizdir** (çarpan 1,00) — yani sistem “stres 40'ı geçtiyse
+bozulmaya başlar” diye öngörülebilir davranır.
+
+### ⚔️ Diss: öfkeli ama dağınık
+
+`noteDissTrack()` artık hem **etkiyi** hem **yayılımı** ölçekler. Ayrıca kayda
+`(dağınık)` notu düşer ve bildirim *“Stresin yüksek — sözler dağınık”* der.
+
+| Stres | Husumet | `boosts.diss` | Şöhret kazancı |
+|---|---|---|---|
+| 20 | 18,0 | 0,450 | +1,20 |
+| 70 | 14,0 | 0,349 | +0,93 |
+| 95 | **10,6** | **0,264** | **+0,70** |
+
+### 🎤 Konser: salon dolar ama izlenim düşer
+
+Sahne kazancı ayrıldı: **bilet/katılım etkilenmez** (salon doludur — bilet satışı ayrı
+bir aşamada olur), ama **şöhret, itibar ve hayran kazancı** düşer. Turne durakları da aynı
+şekilde ölçeklenir, her durakta `performance` değeri kaydedilir.
+
+| Stres | Şöhret | Hayran |
+|---|---|---|
+| 20 | 2,70 | 127 |
+| 70 | 2,16 | 101 |
+| 95 | **1,71** | **80** |
+
+### 💬 DM: sanatçı stresini hisseder
+
+- Samimiyet kazancı ölçeklenir (stres 95'te **1,16 → 0,68**)
+- Sanatçı **mesafe koyan bir cümle** ekler: *“Bugün biraz gergin gibisin.”* ·
+  *“Bir şey mi oldu? Bana ters konuşuyorsun.”* · *“Sen iyi değilsin. Dinlen, sonra yazarım.”*
+- Dönüş değeri `stressed` ve `dmMult` alanlarıyla bunu bildirir
+- **Tutarlılık:** selamlaşma ve “seni tanımıyorum” (cold) yolları da ölçeklenir ve aynı
+alanları döndürür — aksi halde “Selam” yazan oyuncu cezadan muaf kalırdı (bu, test
+ yazılırken yakalandı)
+
+### 🧪 Testler: `smoke-expansion.js` 135 → **162 kontrol**
+
+Yeni **J) DERİN BAĞLANTILAR** bölümü:
+
+- **J1** çarpan API'si — 40 altında 1,00 · ton eşikleri (gergin→yuksek→tukenmis) · taban değerler
+- **J2** diss — iki koşuda karşılaştırma (husumet, `boosts.diss`, dinlenme, viral, şöhret,
+  “dağınık” kaydı)
+- **J3** konser — aynı konser iki streste; şöhret/hayran düşer, **katılım aynı kalır**,
+  `performance` kaydedilir
+- **J4** DM — çarpan, `stressed` işareti, **mesafe cümlesinin gerçekten üretildiği** (40 deneme),
+  selamlaşma yolunun da ölçeklendiği
+- **J5** statik entegrasyon — üç dosya `K.mental.*` okuyor mu, çarpanlar tanımlı mı
+
+---
+
 ## GÜNCELLEME v10.28 — GENİŞLEME PAKETİ: altı yeni sistem
 
 Bu sürüm oyuna **altı yeni sistem** ekler ve hepsi tek bir sekmede toplanır:
