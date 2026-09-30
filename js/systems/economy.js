@@ -220,7 +220,10 @@
        30 SANİYE EŞİĞİ: atlanan çalma gelir sayılmaz (bkz. K.econ.billable). */
     settleMonth() {
       const s = K.state, p = s.player;
-      const dm = K.settings ? K.settings.diffMult().income : 1;
+      let dm = K.settings ? K.settings.diffMult().income : 1;
+      /* v10.28 — PLATFORM YASAĞI: bot dinlenme tespiti (3 strike) sonrası
+         dağıtımcı sözleşmeyi askıya alır → telif geliri düşer. */
+      if (K.shady && K.shady.incomeMult) dm *= K.shady.incomeMult();
       const lag = K.ECON.payoutLag;
       K.econ.ensure();
 
@@ -382,8 +385,11 @@
          giderler enflasyonun 8-17 katı hızla artıyordu). Artık katalog
          bakımı o ayın gelirinin %25'ini geçemez; bir taban vardır ki
          büyük katalog yine de bir şeye mal olsun. */
+      /* v10.28 — VARLIK BAKIMI: alınan varlıkların aylık gideri.
+         (upkeepTotal kendi içinde enflasyon uygular, tekrar çarpılmaz.) */
+      const assetUpkeep = (K.assets && K.assets.upkeepTotal) ? K.assets.upkeepTotal() : 0;
       const baseCost = ((K.ECON.monthlyBase + K.ECON.equipmentUpkeep) * (1 + lvl * 0.8)
-        + staffSal + teamSal) * infl;
+        + staffSal + teamSal) * infl + assetUpkeep;
       const catalogRaw = (p.songs || []).length * K.ECON.perSongUpkeep * infl;
       const monthInc = p.monthIncome || 0;
       const catalogCap = Math.max(K.ECON.catalogUpkeepFloor, monthInc * K.ECON.catalogUpkeepMaxShare);
@@ -418,6 +424,20 @@
       if (s.balance >= upkeep) s.balance -= upkeep;
       else { short = upkeep - s.balance; s.balance = 0; p.debt += short; }
 
+      /* GÖSTERİŞİ SÜRDÜREMEDİN: bakım ödenemediyse imaj zedelenir.
+         (Varlık sistemi bunu burada değil, giderin hesaplandığı tek
+         yerde işaretler — tick sırasına bağlı hata olmasın.) */
+      const assetMissed = (short > 0 && assetUpkeep > 0) ? Math.min(short, assetUpkeep) : 0;
+      if (assetMissed > 0) {
+        p.image = U.clamp((p.image || 50) - 4, 0, 100);
+        s.notifications = (s.notifications || []).concat([{
+          title: "🏚️ Gösterişi sürdüremedin",
+          msg: `Varlık bakımı ödenemedi (${U.money(assetMissed)}). İmaj zedelendi, kamuoyu konuşuyor.`,
+          kind: "bad", day: s.day
+        }]).slice(-60);
+        K.toast("🏚️ Bakım ödenemedi", "“Gösteriş borçla dönmez” haberleri çıktı.", "bad");
+      }
+
       /* vergi — KADEMELİ DİLİM (v10): gelir arttıkça efektif oran yükselir */
       const inc = p.monthIncome || 0;
       const tax = K.econ.taxFor(inc);
@@ -435,6 +455,7 @@
       const margin = K.econ.margin(inc, cost);
       p.lastFinance = {
         day: s.day, income: inc, upkeep, tax, net: inc - cost, debt: p.debt || 0,
+        assetUpkeep, assetUpkeepMissed: assetMissed,
         margin, effRate, bracketRate: bracket.rate, bracketUpTo: bracket.upTo,
         fx: climate.fx, fxDrift: climate.fxDrift, fxShock: climate.shock,
         infl: climate.inflationIndex, debtInterest: climate.debtInterest,
