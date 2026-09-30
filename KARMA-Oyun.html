@@ -5657,6 +5657,133 @@ body.hide-values .brand-sub::after {
 }
 
 </style>
+<style>
+/* ==== css/expansion.css ==== */
+/* ============================================================
+   KARMA — css/expansion.css   (v10.28)
+   GENİŞLEME PAKETİ arayüzü — altı yeni sistem için ortak stiller:
+     · ürün / streetwear (merch)
+     · varlık & gösteriş (assets)
+     · başkası için yazmak (writing)
+     · akıl sağlığı (mental)
+     · karanlık taraf (shady)
+     · uluslararası / diaspora (intl)
+
+   Tasarım kuralı: her sistem tek bir “durum başlığı” ile özetlenir,
+   ayrıntı altına açılır. Karanlık taraf görsel olarak AYRIŞIR (uyarı
+   tonlu çerçeve) ki oyuncu neyin riskli olduğunu bir bakışta anlasın.
+   ============================================================ */
+
+.xg-block { display: flex; flex-direction: column; gap: 12px; }
+
+/* Girişim sekmesinde satır içi küçük düğmeler (.btn-sm'den de küçük) */
+.btn-xs { padding: 4px 9px; font-size: 11px; border-radius: var(--radius-xs); }
+
+/* ---------- ortak kart başlığı ---------- */
+.xg-head {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 13px 14px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(150deg, rgba(176,108,255,.12), rgba(110,195,255,.05));
+  border: 1px solid rgba(176,108,255,.26);
+}
+.xg-head.warn { background: linear-gradient(150deg, rgba(255,92,122,.10), rgba(255,203,92,.05)); border-color: rgba(255,92,122,.30); }
+.xg-head.ok   { background: linear-gradient(150deg, rgba(92,232,155,.12), rgba(110,195,255,.05)); border-color: rgba(92,232,155,.28); }
+.xg-ico { font-size: 24px; flex: 0 0 auto; }
+.xg-txt { flex: 1; min-width: 150px; }
+.xg-txt h3 { font-size: 14px; font-weight: 800; }
+.xg-txt p  { font-size: 11.5px; color: var(--text-2); margin-top: 3px; line-height: 1.45; }
+.xg-big { font-size: 19px; font-weight: 900; color: var(--text-0); }
+
+/* ---------- ölçü çubuğu ---------- */
+.xg-bar { height: 8px; border-radius: var(--radius-pill); background: var(--bg-3); overflow: hidden; }
+.xg-bar > i { display: block; height: 100%; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--karma), var(--karma-2)); transition: width .3s; }
+.xg-bar.hot > i  { background: linear-gradient(90deg, #ffb35c, var(--hot)); }
+.xg-bar.cool > i { background: linear-gradient(90deg, #5ce89b, #6ec3ff); }
+.xg-bar-row { display: flex; align-items: center; gap: 10px; }
+.xg-bar-row .xg-bar { flex: 1; }
+.xg-bar-row b { font-size: 11.5px; min-width: 40px; text-align: right; color: var(--text-1); }
+
+/* ---------- satır listesi ---------- */
+.xg-rows { display: flex; flex-direction: column; gap: 7px; }
+.xg-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 11px;
+  border-radius: var(--radius-s);
+  background: var(--glass);
+  border: 1px solid var(--stroke);
+}
+.xg-row .xg-row-ico { font-size: 17px; flex: 0 0 auto; }
+.xg-row .xg-row-main { flex: 1; min-width: 0; }
+.xg-row .xg-row-main b { font-size: 12.5px; }
+.xg-row .xg-row-main span { display: block; font-size: 10.5px; color: var(--text-3); margin-top: 2px; }
+.xg-row.done { opacity: .62; }
+.xg-row.locked { opacity: .5; }
+
+/* ---------- seçenek ızgarası ---------- */
+.xg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 8px; }
+.xg-opt {
+  text-align: left; cursor: pointer;
+  padding: 10px;
+  border-radius: var(--radius-s);
+  background: var(--glass);
+  border: 1px solid var(--stroke);
+  color: var(--text-1);
+  transition: border-color .15s, background .15s, transform .08s;
+}
+.xg-opt:hover { border-color: var(--stroke-2); background: var(--glass-2); }
+.xg-opt:active { transform: scale(.98); }
+.xg-opt.active { border-color: var(--karma); background: rgba(176,108,255,.14); color: var(--text-0); }
+.xg-opt b { display: block; font-size: 12.5px; }
+.xg-opt span { display: block; font-size: 10.5px; color: var(--text-3); margin-top: 3px; line-height: 1.4; }
+.xg-opt .xg-cost { color: var(--money); font-weight: 700; }
+
+/* ---------- istatistik şeridi ---------- */
+.xg-stats { display: flex; flex-wrap: wrap; gap: 8px; }
+.xg-stat { flex: 1 1 84px; padding: 8px 10px; border-radius: var(--radius-s); background: var(--bg-2); border: 1px solid var(--stroke); }
+.xg-stat .k { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; }
+.xg-stat .v { font-size: 14px; font-weight: 800; margin-top: 3px; }
+.xg-stat .v.money { color: var(--money); }
+.xg-stat .v.hot { color: var(--hot); }
+.xg-stat .v.gold { color: var(--gold); }
+
+/* ---------- alanlar (form) ---------- */
+.xg-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 9px; }
+.xg-fields .field { display: flex; flex-direction: column; gap: 4px; }
+.xg-fields label { font-size: 10.5px; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; }
+
+/* ---------- karanlık taraf uyarısı ---------- */
+.xg-dark {
+  padding: 12px 13px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(150deg, rgba(255,92,122,.10), rgba(0,0,0,.18));
+  border: 1px solid rgba(255,92,122,.34);
+}
+.xg-dark h3 { font-size: 13.5px; font-weight: 800; color: #ff9aae; }
+.xg-dark p { font-size: 11px; color: var(--text-2); margin-top: 4px; line-height: 1.5; }
+.xg-dark .xg-warn { margin-top: 8px; font-size: 11px; color: #ffb3c1; }
+
+/* ---------- akıl sağlığı ölçeri (kariyer kartı) ---------- */
+.mh-card {
+  display: flex; align-items: center; gap: 13px; flex-wrap: wrap;
+  padding: 12px 14px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(150deg, rgba(110,195,255,.10), rgba(176,108,255,.05));
+  border: 1px solid rgba(110,195,255,.26);
+}
+.mh-card.bad  { background: linear-gradient(150deg, rgba(255,92,122,.14), rgba(255,92,122,.04)); border-color: rgba(255,92,122,.34); }
+.mh-card.warn { background: linear-gradient(150deg, rgba(255,203,92,.13), rgba(255,92,122,.04)); border-color: rgba(255,203,92,.30); }
+.mh-face { font-size: 26px; flex: 0 0 auto; }
+.mh-main { flex: 1; min-width: 150px; }
+.mh-main h3 { font-size: 13.5px; font-weight: 800; }
+.mh-main p { font-size: 11px; color: var(--text-2); margin-top: 3px; }
+
+@media (max-width: 560px) {
+  .xg-grid { grid-template-columns: 1fr 1fr; }
+  .xg-head { padding: 11px; }
+}
+
+</style>
 <!-- mobil/dokunmatik katman: EN SON yüklenir ki altta kalan 25 dosyayı ezebilsin -->
 <style>
 /* ==== css/mobile.css ==== */
@@ -6059,6 +6186,7 @@ html, body {
           <button class="tab" data-tab="concerts">Konser</button>
           <button class="tab" data-tab="festivals">Festival</button>
           <button class="tab" data-tab="label">Şirket</button>
+          <button class="tab" data-tab="business">Girişim</button>
           <button class="tab" data-tab="events">Olaylar</button>
         </nav>
         <div class="career-body" id="career-body"><!-- rendered by JS --></div>
@@ -6133,8 +6261,8 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.27.0";
-  K.VERSION_DATE = "2026-09-29";
+  K.VERSION = "10.28.0";
+  K.VERSION_DATE = "2026-09-30";
 })(window.K = window.K || {});
 
 </script>
@@ -9303,6 +9431,11 @@ window.K = window.K || {};
          ince marjla çalışır). */
     labelBillableShare: 0.88,
     labelOpexShare: 0.18,
+
+    /* v10.28 — GENİŞLEME PAKETİ · sistemler arası paylaşılan sabitler.
+       Sistemin KENDİ ayarları (ürün tipleri, varlık listesi, pazar
+       tabloları) ilgili sistem dosyasında yaşar. */
+    writingBase: 18000,        // başkası için yazmanın temel ücreti (systems/writing.js)
     minAdvance: 20000,
     defaultRoyalty: 70,
     dailyMessageLimit: 6,
@@ -9355,7 +9488,20 @@ window.K = window.K || {};
         /* B-6: OYUNCUNUN kimlik id'si (data/player-persona.js → K.PLAYER_PERSONAS).
            NPC kişilik katmanı (data/npc-personality.js → K.npcPersonality)
            ile İLGİSİZDİR. Alan adı kayıt uyumluluğu için `persona` kaldı. */
+        /* B-6: OYUNCUNUN kimlik id'si (data/persona.js → K.PLAYER_PERSONAS).
+           NPC kişilik katmanı (data/personality.js → K.npcPersonality)
+           ile İLGİSİZDİR. Alan adı kayıt uyumluluğu için `persona` kaldı. */
         persona: null,
+        /* ---------------- v10.28 GENİŞLEME PAKETİ ----------------
+           Taze oyunda da tanımlı olmalı; eski kayıtlar için aynı alanlar
+           `loadGame` göç bloğunda da varsayılır (state.js alt kısmı). */
+        merch: { brand: null, active: null, drops: [], brandValue: 0, cooldownDay: 0, totalRevenue: 0 },
+        assets: [],
+        writing: { offers: [], done: [], credited: 0, exposed: 0, totalEarned: 0 },
+        stress: 10,
+        mental: { therapyUntil: 0, sessions: 0, hiatusUntil: 0, burnoutCount: 0, spokeOut: false },
+        shady: { botStreams: 0, suspicion: 0, strikes: 0, bannedUntil: 0, curatorDeals: [], everUsed: false },
+        intl: { stage: 0, markets: {}, tours: [], features: 0, globalPlays: 0 },
         beats: [],                // beat envanteri [{id,name,producer,quality,cost}]
         ghost: { hired: false, name: null, exposure: 0, uses: 0 },  // söz yazarı
         albums: [],
@@ -9620,6 +9766,34 @@ window.K = window.K || {};
       K.state.player.watchHistory = K.state.player.watchHistory || [];
       if (K.state.player.ytAutoplay === undefined) K.state.player.ytAutoplay = true;
       K.state.player.ytReadDay = K.state.player.ytReadDay || 0;
+
+      /* ============================================================
+         v10.28 — GENİŞLEME PAKETİ (altı yeni sistem) · eski kayıt göçü
+         Her alanın ayrıntısı kendi sistem dosyasında:
+           merch   → systems/merch.js    (ürün/streetwear markası)
+           assets  → systems/assets.js   (varlık & gösteriş)
+           writing → systems/writing.js  (başkası için şarkı yazmak)
+           stress  → systems/mental.js   (akıl sağlığı & tükenmişlik)
+           shady   → systems/shady.js    (bot dinlenme & payola)
+           intl    → systems/intl.js     (uluslararası / diaspora)
+         ============================================================ */
+      if (!K.state.player.merch) {
+        K.state.player.merch = { brand: null, active: null, drops: [], brandValue: 0, cooldownDay: 0, totalRevenue: 0 };
+      }
+      K.state.player.assets = K.state.player.assets || [];
+      if (!K.state.player.writing) {
+        K.state.player.writing = { offers: [], done: [], credited: 0, exposed: 0, totalEarned: 0 };
+      }
+      if (K.state.player.stress == null) K.state.player.stress = 10;
+      if (!K.state.player.mental) {
+        K.state.player.mental = { therapyUntil: 0, sessions: 0, hiatusUntil: 0, burnoutCount: 0, spokeOut: false };
+      }
+      if (!K.state.player.shady) {
+        K.state.player.shady = { botStreams: 0, suspicion: 0, strikes: 0, bannedUntil: 0, curatorDeals: [], everUsed: false };
+      }
+      if (!K.state.player.intl) {
+        K.state.player.intl = { stage: 0, markets: {}, tours: [], features: 0, globalPlays: 0 };
+      }
       K.state.player.payouts = K.state.player.payouts || [];
       K.state.player.totalStreamRevenue = K.state.player.totalStreamRevenue || 0;
       /* yeni alanlar (eski kayitlar) */
@@ -9774,6 +9948,8 @@ window.K = window.K || {};
         if (K.economy.settleMonth) K.economy.settleMonth();
         if (K.fans && K.fans.monthly) K.fans.monthly();
         if (K.sponsor && K.sponsor.monthly) K.sponsor.monthly();
+        if (K.assets && K.assets.monthly) K.assets.monthly();      // v10.28 pasif varlık geliri
+        if (K.intl && K.intl.monthly) K.intl.monthly();            // v10.28 yurt dışı telif
         if (K.economy.chargeMonthly) K.economy.chargeMonthly();
       }
       K.game.buildChart();
@@ -9805,6 +9981,13 @@ window.K = window.K || {};
       if (K.rivalry && K.rivalry.tick) K.rivalry.tick();
       if (K.beef && K.beef.dailyTick) K.beef.dailyTick();
       if (K.crisis && K.crisis.maybeStart) K.crisis.maybeStart();
+      /* v10.28 — genişleme paketi (altı sistem) */
+      if (K.writing && K.writing.tick) K.writing.tick();
+      if (K.merch && K.merch.tick) K.merch.tick();
+      if (K.assets && K.assets.tick) K.assets.tick();
+      if (K.mental && K.mental.tick) K.mental.tick();
+      if (K.shady && K.shady.tick) K.shady.tick();
+      if (K.intl && K.intl.tick) K.intl.tick();
       if (K.stats && K.stats.record) K.stats.record();
 
       K.game.decayAffinity();
@@ -10611,7 +10794,10 @@ window.K = window.K || {};
        30 SANİYE EŞİĞİ: atlanan çalma gelir sayılmaz (bkz. K.econ.billable). */
     settleMonth() {
       const s = K.state, p = s.player;
-      const dm = K.settings ? K.settings.diffMult().income : 1;
+      let dm = K.settings ? K.settings.diffMult().income : 1;
+      /* v10.28 — PLATFORM YASAĞI: bot dinlenme tespiti (3 strike) sonrası
+         dağıtımcı sözleşmeyi askıya alır → telif geliri düşer. */
+      if (K.shady && K.shady.incomeMult) dm *= K.shady.incomeMult();
       const lag = K.ECON.payoutLag;
       K.econ.ensure();
 
@@ -10773,8 +10959,11 @@ window.K = window.K || {};
          giderler enflasyonun 8-17 katı hızla artıyordu). Artık katalog
          bakımı o ayın gelirinin %25'ini geçemez; bir taban vardır ki
          büyük katalog yine de bir şeye mal olsun. */
+      /* v10.28 — VARLIK BAKIMI: alınan varlıkların aylık gideri.
+         (upkeepTotal kendi içinde enflasyon uygular, tekrar çarpılmaz.) */
+      const assetUpkeep = (K.assets && K.assets.upkeepTotal) ? K.assets.upkeepTotal() : 0;
       const baseCost = ((K.ECON.monthlyBase + K.ECON.equipmentUpkeep) * (1 + lvl * 0.8)
-        + staffSal + teamSal) * infl;
+        + staffSal + teamSal) * infl + assetUpkeep;
       const catalogRaw = (p.songs || []).length * K.ECON.perSongUpkeep * infl;
       const monthInc = p.monthIncome || 0;
       const catalogCap = Math.max(K.ECON.catalogUpkeepFloor, monthInc * K.ECON.catalogUpkeepMaxShare);
@@ -10809,6 +10998,20 @@ window.K = window.K || {};
       if (s.balance >= upkeep) s.balance -= upkeep;
       else { short = upkeep - s.balance; s.balance = 0; p.debt += short; }
 
+      /* GÖSTERİŞİ SÜRDÜREMEDİN: bakım ödenemediyse imaj zedelenir.
+         (Varlık sistemi bunu burada değil, giderin hesaplandığı tek
+         yerde işaretler — tick sırasına bağlı hata olmasın.) */
+      const assetMissed = (short > 0 && assetUpkeep > 0) ? Math.min(short, assetUpkeep) : 0;
+      if (assetMissed > 0) {
+        p.image = U.clamp((p.image || 50) - 4, 0, 100);
+        s.notifications = (s.notifications || []).concat([{
+          title: "🏚️ Gösterişi sürdüremedin",
+          msg: `Varlık bakımı ödenemedi (${U.money(assetMissed)}). İmaj zedelendi, kamuoyu konuşuyor.`,
+          kind: "bad", day: s.day
+        }]).slice(-60);
+        K.toast("🏚️ Bakım ödenemedi", "“Gösteriş borçla dönmez” haberleri çıktı.", "bad");
+      }
+
       /* vergi — KADEMELİ DİLİM (v10): gelir arttıkça efektif oran yükselir */
       const inc = p.monthIncome || 0;
       const tax = K.econ.taxFor(inc);
@@ -10826,6 +11029,7 @@ window.K = window.K || {};
       const margin = K.econ.margin(inc, cost);
       p.lastFinance = {
         day: s.day, income: inc, upkeep, tax, net: inc - cost, debt: p.debt || 0,
+        assetUpkeep, assetUpkeepMissed: assetMissed,
         margin, effRate, bracketRate: bracket.rate, bracketUpTo: bracket.upTo,
         fx: climate.fx, fxDrift: climate.fxDrift, fxShock: climate.shock,
         infl: climate.inflationIndex, debtInterest: climate.debtInterest,
@@ -16226,9 +16430,17 @@ window.K = window.K || {};
       const mentorQ = (K.beef && K.beef.mentorBonus) ? K.beef.mentorBonus() : 0;  // duayen mentorlugu
       // kayıt kaynağı (stüdyo/ev/telefon...) kaliteye doğrudan etki eder
       const sourceQ = opts.sourceQAdd != null ? opts.sourceQAdd : (opts.sourceId ? K.sourceById(opts.sourceId).qAdd : 0);
+
+      /* v10.28 — yeni sistemlerin kalite katkıları:
+         · kendi stüdyosu (varlık) → kalite +
+         · AKIL SAĞLIĞI: yüksek stres işi bozar (çarpan olarak uygulanır) */
+      const studioOwnQ = (K.assets && K.assets.studioBonus) ? K.assets.studioBonus().quality : 0;
+
       const raw = (base + budgetScore + talent + music + studioSkill + beat.qAdd + vocal.qAdd + license.qAdd + craftAdj)
-        * g.quality * kind.qMult + kind.qAdd + jobBonus + teamQ + labelQ + mentorQ - fatiguePenalty + lyricAdj + cohesionAdj + agendaAdj + sourceQ;
-      return U.clamp(Math.round(raw + U.rand(-5, 6)), 18, 99);
+        * g.quality * kind.qMult + kind.qAdd + jobBonus + teamQ + labelQ + mentorQ + studioOwnQ
+        - fatiguePenalty + lyricAdj + cohesionAdj + agendaAdj + sourceQ;
+      const stressed = (K.mental && K.mental.qualityMult) ? K.mental.qualityMult() : 1;
+      return U.clamp(Math.round(raw * stressed + U.rand(-5, 6)), 18, 99);
     },
 
     /* Parça başına düşen üretim bütçelerini normalleştirir.
@@ -16301,6 +16513,12 @@ window.K = window.K || {};
     createRelease(opts) {
       const s = K.state;
       const p = s.player;
+      /* v10.28 — TÜKENMİŞLİK: zorunlu ara sırasında yayın yapılamaz.
+         (mental.js tavan yapan streste 14 günlük ara verir.) */
+      if (K.mental && K.mental.onHiatus && K.mental.onHiatus()) {
+        K.toast("🛑 Zorunlu ara", "Tükendin — yayın yapamazsın. Dinlenme bitince devam edersin.", "bad");
+        return null;
+      }
       const type = opts.trackCount ? K.career.typeForCount(opts.trackCount) : (opts.type || "single");
       const trackCount = opts.trackCount ? U.clamp(Math.round(opts.trackCount), 1, 14) : (K.RELEASE_TYPES[type] || K.RELEASE_TYPES.single).tracks;
       const genre = opts.genre || p.genre;
@@ -22502,6 +22720,1276 @@ window.K = window.K || {};
 })(window.K);
 
 </script>
+  <!-- v10.28 — GENİŞLEME PAKETİ (altı yeni sistem) -->
+  <script>
+/* ==== js/systems/writing.js ==== */
+/* ============================================================
+   KARMA — systems/writing.js   (v10.28)
+   BAŞKASI İÇİN ŞARKI YAZMAK (toplining / gölge yazarlık)
+
+   Neden?
+   ------
+   Oyuncu zaten bir GÖLGE YAZAR TUTABİLİYORDU (`player.ghost`) ama
+   kendisi bir başkası için yazamıyordu. Gerçekte bu, genç bir
+   söz yazarının en yaygın gelir ve network yoludur:
+       hook/vokal yaz → ücret → samimiyet → itibar
+   Ayrıca rap sahnesinin en tartışmalı konusunu oyuna taşır:
+       “şarkıyı YAZAN mı konuşur, söyleyen mi?”
+
+   İKİ MOD (asıl gerilim burada)
+   -----------------------------
+     🎭 GÖLGE  : adın geçmez → ücret ×1,35 (daha çok para)
+                 ama iş sayısı arttıkça AÇIĞA ÇIKMA riski birikir
+     ✍️ ADINLA : kredilendirilirsin → ücret düşük, ama itibar +
+                 samimiyet + “yazarlık” itibarı kazanırsın
+   Açığa çıkma: gölge iş sayısı ve düşük samimiyet riski büyütür.
+   Yakalanırsan imaj ve itibar yanar (“kendi işini yapmıyor”).
+   ============================================================ */
+(function (K) {
+  "use strict";
+  const U = K.util;
+
+  /* kapsam: ne yazıyorsun? */
+  const SCOPES = {
+    hook:  { id: "hook",  name: "Hook / Nakarat",  icon: "🎣", base: 1.00, days: 2, minSkill: 0 },
+    verse: { id: "verse", name: "Verse (16'lık)",  icon: "📝", base: 1.55, days: 3, minSkill: 0 },
+    full:  { id: "full",  name: "Tam Şarkı",       icon: "🎼", base: 2.60, days: 5, minSkill: 12 }
+  };
+
+  K.writing = {
+    SCOPES,
+
+    /* müzik + stüdyo becerisi yazarlık kalitesini belirler (0-100) */
+    craft() {
+      const sk = (K.state.player.skills) || {};
+      return U.clamp(Math.round((sk.music || 0) * 6 + (sk.studio || 0) * 3.2), 12, 96);
+    },
+
+    active() { return K.state.player.writing.active || null; },
+
+    /* ---------------- günlük ---------------- */
+    tick() {
+      const s = K.state, p = s.player, w = p.writing;
+      w.offers = w.offers || [];
+
+      /* --- aktif işi ilerlet --- */
+      if (w.active) {
+        w.active.daysLeft = (w.active.daysLeft || 0) - 1;
+        if (w.active.daysLeft <= 0) K.writing._resolve();
+      }
+
+      /* --- teklif üret --- */
+      if (w.active) return;
+      if (w.offers.length >= 3) return;
+      const pop = p.popularity || 0;
+      if (pop < 12) return;                     // kimse tanımıyorsa teklif gelmez
+      const chance = 0.03 + pop / 1400 + K.writing.craft() / 1800;
+      if (!U.chance(chance)) return;
+
+      /* yazacak sanatçı: yeterli samimiyet ya da yeterli şöhret */
+      const pool = (K.artistList ? K.artistList() : []).filter(a => {
+        if (!a || a.id === "player") return false;
+        if (K.state.label && (K.state.label.roster || []).indexOf(a.id) >= 0) return false;
+        const rel = K.relation ? K.relation(a.id) : null;
+        const aff = rel ? (rel.affinity || 0) : 0;
+        return aff >= 40 || (a.popularity || 0) < pop + 12;
+      });
+      if (!pool.length) return;
+      const a = U.pick(pool);
+      const scopes = ["hook", "verse"].concat(pop >= 25 ? ["full"] : []);
+      const sid = U.pick(scopes);
+      const sc = SCOPES[sid];
+      if ((K.writing.craft() < sc.minSkill) && sid === "full") return;
+
+      /* ücret: müşterinin büyüklüğü × kapsam × senin ustalığın */
+      const size = 1 + (a.popularity || 0) / 26;
+      const fee = Math.round(K.ECON.writingBase * sc.base * size * (0.7 + K.writing.craft() / 100));
+      const offer = {
+        id: U.uid("wr"), artistId: a.id, artistName: a.stageName, icon: sc.icon,
+        scope: sc.id, scopeName: sc.name, fee, days: sc.days, day: s.day,
+        quality: K.writing.craft()
+      };
+      w.offers.push(offer);
+      if (K.toast) K.toast("✍️ Yazarlık teklifi", `${a.stageName} ${sc.name.toLowerCase()} istiyor.`, "ok");
+      s.notifications = (s.notifications || []).concat([{
+        title: "✍️ Yazarlık teklifi",
+        msg: `${a.stageName} · ${sc.name} · ${U.money(fee)} · ${sc.days} gün`,
+        kind: "ok", day: s.day
+      }]).slice(-60);
+      K.save();
+    },
+
+    /* ---------------- kabul / ret ---------------- */
+    accept(offerId, mode) {
+      const s = K.state, w = s.player.writing;
+      const o = (w.offers || []).find(x => x.id === offerId);
+      if (!o) return false;
+      if (w.active) { K.toast("Zaten bir işin var", "Önce mevcut işi bitir.", "warn"); return false; }
+      w.offers = w.offers.filter(x => x.id !== offerId);
+      w.active = {
+        ...o, mode: mode === "ghost" ? "ghost" : "credit",
+        fee: mode === "ghost" ? Math.round(o.fee * 1.35) : Math.round(o.fee * 0.85),
+        daysLeft: o.days, startDay: s.day
+      };
+      K.toast("✍️ İş kabul edildi",
+        `${o.artistName} için ${o.scopeName} · ${o.days} gün` +
+        (mode === "ghost" ? " · GÖLGE (adın geçmeyecek)" : " · adın geçecek"), "ok");
+      K.save(); K.refresh();
+      return true;
+    },
+
+    decline(offerId) {
+      const w = K.state.player.writing;
+      const o = (w.offers || []).find(x => x.id === offerId);
+      if (!o) return false;
+      w.offers = w.offers.filter(x => x.id !== offerId);
+      if (K.relation && o.artistId) {
+        const rel = K.relation(o.artistId);
+        if (rel) rel.affinity = U.clamp((rel.affinity || 0) - 1, 0, 100);
+      }
+      K.toast("Teklif reddedildi", `${o.artistName} başka birine soracak.`, "warn");
+      K.save(); K.refresh();
+      return true;
+    },
+
+    /* ---------------- iş bitişi ---------------- */
+    _resolve() {
+      const s = K.state, p = s.player, w = p.writing;
+      const j = w.active;
+      w.active = null;
+      if (!j) return;
+
+      /* kalite: ustalık + biraz şans */
+      const roll = U.clamp(j.quality + U.rand(-9, 9), 10, 99);
+      const paid = Math.max(0, Math.round(j.fee * (0.75 + roll / 200)));
+      K.economy.earn(paid, "writing");
+      w.totalEarned = (w.totalEarned || 0) + paid;
+      w.done = (w.done || []).concat([{ artistId: j.artistId, artistName: j.artistName, scope: j.scope, roll, paid, mode: j.mode, day: s.day }]).slice(-40);
+
+      const rel = K.relation ? K.relation(j.artistId) : null;
+      if (j.mode === "ghost") {
+        /* gölge: daha çok para, samimiyet daha az, risk birikir */
+        p.shady = p.shady || {};
+        if (rel) rel.affinity = U.clamp((rel.affinity || 0) + 3, 0, 100);
+        const risk = U.clamp(0.05 + (w.done.filter(d => d.mode === "ghost").length) * 0.035, 0.05, 0.42);
+        if (U.chance(risk)) {
+          w.exposed = (w.exposed || 0) + 1;
+          p.image = U.clamp((p.image || 50) - 6, 0, 100);
+          p.reputation = Math.max(0, (p.reputation || 0) - 4);
+          s.notifications = (s.notifications || []).concat([{
+            title: "🕵️ Gölge yazarlık açığa çıktı",
+            msg: `${j.artistName}'ın şarkısını senin yazdığın ortaya çıktı — imaj ve itibar zarar gördü.`,
+            kind: "bad", day: s.day
+          }]).slice(-60);
+          K.toast("🕵️ Açığa çıktın!", "“Kendi işini yapmıyor” eleştirisi yayıldı.", "bad");
+        } else {
+          K.toast("✍️ İş bitti (gölge)", `${j.artistName} · ${U.money(paid)} · kalite ${roll}`, "ok");
+        }
+      } else {
+        /* adın geçti: itibar + samimiyet, ücret düşük */
+        w.credited = (w.credited || 0) + 1;
+        p.reputation = (p.reputation || 0) + 3;
+        if (rel) rel.affinity = U.clamp((rel.affinity || 0) + 5, 0, 100);
+        if (K.game && K.game.addFame) K.game.addFame(0.6 + roll / 120);
+        K.toast("✍️ İş bitti (kredili)", `${j.artistName} · ${U.money(paid)} · itibar +3`, "ok");
+      }
+      K.save(); K.refresh();
+    },
+
+    /* özet (UI) */
+    summary() {
+      const w = K.state.player.writing;
+      return {
+        craft: K.writing.craft(),
+        active: w.active || null,
+        offers: (w.offers || []).slice(),
+        credited: w.credited || 0,
+        ghostJobs: (w.done || []).filter(d => d.mode === "ghost").length,
+        exposed: w.exposed || 0,
+        totalEarned: w.totalEarned || 0
+      };
+    }
+  };
+})(window.K = window.K || {});
+
+</script>
+  <script>
+/* ==== js/systems/merch.js ==== */
+/* ============================================================
+   KARMA — systems/merch.js   (v10.28)
+   ÜRÜN / STREETWEAR MARKASI
+
+   Neden ayrı sistem?
+   ------------------
+   Oyunda merch yalnızca KONSERE bağlıydı (katılımın %18'i × 250 ₺).
+   Günümüz rapçisinin en büyük BAĞIMSIZ geliri ise drop bazlı ürün
+   işidir: tasarım → üretim → stok → drop heyecanı → tükenme/yeniden
+   stok. Burada kendi markanı kurup drop çıkarırsın.
+
+   GERÇEKÇİLİK
+   -----------
+   · Fiyat duyarlılığı: pahalı fiyat → az satış ama iyi marj
+   · Stok yanlış tahmini → elde kalan ürün = ZARAR (geri dönmez)
+   · Tükenme (sell-out) → marka değeri + heyecan + hayran memnuniyeti
+   · Marka değeri büyüdükçe daha büyük stok/premium tasarım açılır
+   · Moda sponsorluğu varsa talep artar (sponsor sistemiyle sinerji)
+   · Drop sonrası bekleme süresi var → spam yok
+   ============================================================ */
+(function (K) {
+  "use strict";
+  const U = K.util;
+
+  /* ürün tipleri: birim maliyet / referans fiyat / göreli talep */
+  const ITEMS = {
+    tee:    { id: "tee",    name: "Tişört",  icon: "👕", unit: 120, price: 450,  demand: 1.00 },
+    cap:    { id: "cap",    name: "Şapka",   icon: "🧢", unit: 90,  price: 380,  demand: 0.85 },
+    hoodie: { id: "hoodie", name: "Hoodie",  icon: "🧥", unit: 320, price: 1100, demand: 0.62 },
+    vinyl:  { id: "vinyl",  name: "Plak",    icon: "💿", unit: 260, price: 900,  demand: 0.35 },
+    chain:  { id: "chain",  name: "Zincir",  icon: "⛓️", unit: 900, price: 3200, demand: 0.22 }
+  };
+
+  /* tasarım kademesi: maliyet + çekicilik */
+  const DESIGNS = {
+    basic:   { id: "basic",   name: "Basit Baskı",    icon: "🖨️", cost: 4000,   appeal: 1.00 },
+    solid:   { id: "solid",   name: "Sağlam Tasarım", icon: "🎨", cost: 18000,  appeal: 1.22, minBrand: 0 },
+    premium: { id: "premium", name: "Premium Koleksiyon", icon: "✨", cost: 60000, appeal: 1.45, minBrand: 25 }
+  };
+
+  const DROP_DAYS = 7;         // drop penceresi
+  const COOLDOWN = 14;         // iki drop arası
+
+  K.merch = {
+    ITEMS, DESIGNS, DROP_DAYS, COOLDOWN,
+
+    st() { return K.state.player.merch; },
+
+    /* marka değeri çarpanı (talep + prestij) */
+    brandMult() {
+      const m = K.merch.st();
+      return 1 + (m.brandValue || 0) / 200;
+    },
+
+    /* günlük potansiyel alıcı havuzu */
+    audience() {
+      const p = K.state.player;
+      const ig = p.ig || 0, tt = p.tiktok || 0, x = p.x || 0;
+      return Math.round((ig + tt) * 0.012 + x * 0.006 + (p.superfans || 0) * 0.4 + (p.popularity || 0) * 40);
+    },
+
+    /* drop maliyeti (tasarım + stok) */
+    cost(itemId, designId, stock) {
+      const it = ITEMS[itemId], d = DESIGNS[designId];
+      if (!it || !d) return 0;
+      return Math.round(d.cost + it.unit * stock);
+    },
+
+    /* drop başlat */
+    launch(itemId, designId, stock, priceMult) {
+      const s = K.state, m = K.merch.st(), it = ITEMS[itemId], d = DESIGNS[designId];
+      if (!it || !d) return false;
+      /* DÜZELTME (v10.28): marka kurulmadan drop başlatılamaz.
+         (Eskiden bu kontrol yoktu; marka adı olmadan ürün çıkabiliyordu.) */
+      if (!m.brand) { K.toast("Marka yok", "Önce bir ürün markası kur.", "warn"); return false; }
+      if (m.active) { K.toast("Drop sürüyor", "Önce mevcut drop bitsin.", "warn"); return false; }
+      if ((m.brandValue || 0) < (d.minBrand || 0)) {
+        K.toast("Marka değeri yetersiz", `${d.name} için marka değeri ${d.minBrand} olmalı.`, "warn");
+        return false;
+      }
+      if (s.day < (m.cooldownDay || 0)) {
+        K.toast("Üretim molası", `Yeni drop için ${(m.cooldownDay || 0) - s.day} gün beklemelisin.`, "warn");
+        return false;
+      }
+      const units = U.clamp(Math.round(stock || 0), 50, 5000);
+      const mult = U.clamp(priceMult || 1, 0.6, 1.8);
+      const total = K.merch.cost(itemId, designId, units);
+      if (!K.economy.canAfford(total)) {
+        K.toast("Yetersiz bakiye", `Bu drop ${U.money(total)} gerektiriyor.`, "bad");
+        return false;
+      }
+      K.economy.spend(total, "merch");
+      m.active = {
+        id: U.uid("drop"), itemId, designId, units, sold: 0,
+        price: Math.round(it.price * mult), priceMult: mult,
+        startDay: s.day, daysLeft: DROP_DAYS, revenue: 0, cost: total, hype: 1
+      };
+      K.toast("👕 Drop başladı!", `${it.icon} ${d.name} · ${units} adet · ${U.money(m.active.price)}`, "ok");
+      s.notifications = (s.notifications || []).concat([{
+        title: "👕 Drop başladı",
+        msg: `${d.name} ${it.name} · ${units} adet · birim ${U.money(m.active.price)}`,
+        kind: "ok", day: s.day
+      }]).slice(-60);
+      K.save(); K.refresh();
+      return true;
+    },
+
+    /* günlük satış */
+    tick() {
+      const s = K.state, p = s.player, m = K.merch.st();
+      if (!m.active) return;
+      const a = m.active, it = ITEMS[a.itemId], d = DESIGNS[a.designId];
+      if (!a || !it || !d) { m.active = null; return; }
+
+      /* talep: havuz × çekicilik × ürün × marka × fiyat duyarlılığı */
+      let value = (d.appeal || 1) * (it.demand || 1) * K.merch.brandMult();
+      value *= U.clamp(1.35 - (a.price / (it.price || 1)) * 0.35, 0.35, 1.45);
+      if (p.image != null && p.image < 40) value *= 0.85;         // imaj kötüyse talep düşer
+      if (K.sponsor && K.sponsor.active) {
+        const hasFashion = K.sponsor.active().some(x => /Moda|Spor Giyim/i.test(x.cat || ""));
+        if (hasFashion) value *= 1.18;                             // moda sponsorluğu sinerjisi
+      }
+      /* viral trend varsa ürün de talep görür (shortform sinerjisi) */
+      if (K.shortform && K.shortform.trendList && K.shortform.trendList(1).length) value *= 1.15;
+
+      const perDay = Math.max(0, Math.round(K.merch.audience() * value / 60));
+      const sold = Math.min(perDay, Math.max(0, a.units - a.sold));
+      a.sold += sold;
+      a.revenue += sold * a.price;
+      a.daysLeft -= 1;
+
+      if (a.sold >= a.units) {
+        /* TÜKENDİ → marka değeri + heyecan */
+        m.brandValue = Math.min(100, (m.brandValue || 0) + 6);
+        if (K.game && K.game.addFame) K.game.addFame(0.5);
+        K.toast("🔥 Drop TÜKENDİ!", `${a.units} adet bitti · gelir ${U.money(a.revenue)}`, "ok");
+        s.notifications = (s.notifications || []).concat([{
+          title: "🔥 Drop tükendi",
+          msg: `${d.name} ${it.name} tükendi — marka değeri yükseldi. Yeniden stok düşünülebilir.`,
+          kind: "ok", day: s.day
+        }]).slice(-60);
+        K.merch._close(a, true);
+        return;
+      }
+      if (a.daysLeft <= 0) {
+        /* süre bitti: kalan stok ZARAR */
+        const left = a.units - a.sold;
+        m.brandValue = Math.min(100, (m.brandValue || 0) + 2);
+        const profit = a.revenue - a.cost;
+        if (left > 0) {
+          s.notifications = (s.notifications || []).concat([{
+            title: "📦 Drop bitti (stok kaldı)",
+            msg: `${left} adet elde kaldı — üretim maliyeti geri gelmedi. Net ${U.money(profit)}`,
+            kind: profit >= 0 ? "" : "warn", day: s.day
+          }]).slice(-60);
+          K.toast("📦 Drop bitti", `${left} adet elde kaldı · net ${U.money(profit)}`, profit >= 0 ? "ok" : "warn");
+        } else {
+          K.toast("📦 Drop bitti", `net ${U.money(profit)}`, "ok");
+        }
+        K.merch._close(a, false);
+      }
+    },
+
+    _close(a, soldOut) {
+      const m = K.merch.st();
+      const profit = a.revenue - a.cost;
+      m.totalRevenue = (m.totalRevenue || 0) + a.revenue;
+      m.drops = (m.drops || []).concat([{
+        itemId: a.itemId, designId: a.designId, units: a.units, sold: a.sold,
+        revenue: a.revenue, cost: a.cost, profit, soldOut: !!soldOut, day: K.state.day
+      }]).slice(-30);
+      m.cooldownDay = K.state.day + COOLDOWN;
+      m.active = null;
+      K.bus.emit("merch:dropEnded", { profit, soldOut: !!soldOut });
+      K.save(); if (K.refresh) K.refresh();
+    },
+
+    /* marka kur (tek seferlik) */
+    found(brandName) {
+      const m = K.merch.st();
+      if (m.brand) { K.toast("Markan zaten var", m.brand, "warn"); return false; }
+      const name = String(brandName || "").trim().slice(0, 22);
+      if (!name) { K.toast("İsim gerekli", "Markaya bir isim ver.", "warn"); return false; }
+      m.brand = name;
+      m.brandValue = Math.max(m.brandValue || 0, 4);
+      K.toast("👕 Marka kuruldu", `"${name}" artık senin markan.`, "ok");
+      K.save(); K.refresh();
+      return true;
+    },
+
+    summary() {
+      const m = K.merch.st();
+      const done = m.drops || [];
+      return {
+        brand: m.brand, brandValue: m.brandValue || 0,
+        active: m.active || null, cooldownDay: m.cooldownDay || 0,
+        drops: done.slice().reverse().slice(0, 8),
+        totalRevenue: m.totalRevenue || 0,
+        profit: done.reduce((n, d) => n + (d.profit || 0), 0),
+        audience: K.merch.audience(),
+        mult: K.merch.brandMult()
+      };
+    }
+  };
+})(window.K = window.K || {});
+
+</script>
+  <script>
+/* ==== js/systems/assets.js ==== */
+/* ============================================================
+   KARMA — systems/assets.js   (v10.28)
+   VARLIK & GÖSTERİŞ (para harcama + statü)
+
+   Neden?
+   ------
+   Oyunda para yalnızca ÜRETİM giderine gidiyordu; biriken parayı
+   harcayacak “statü” kalemi yoktu. Rap kültüründe varlık hem ödüldür
+   hem tuzaktır: gösteriş imajı yükseltir ama BAKIM GİDERİ getirir.
+   Bakımı ödeyemezsen “gösterişi sürdüremeyen” sanatçı durumuna
+   düşersin — klasik bir rap hikâyesi.
+
+   İKİ KATMANLI ETKİ
+   -----------------
+   1) ALIM ANI   : imaj + itibar + bazıları işlevsel bonus
+   2) AYLIK      : bakım gideri (chargeMonthly'ye eklenir) + imaj etkisi
+   Bazı varlıklar PASİF GELİR (kafe/kulüp) veya başka sistemlere
+   bonus verir (stüdyo → kayıt maliyeti, ev → stres, bina → şirket gücü).
+   ============================================================ */
+(function (K) {
+  "use strict";
+  const U = K.util;
+
+  const ASSETS = [
+    { id: "watch",    name: "Kol Saati",      icon: "⌚", cost: 180000,  upkeep: 900,   img: 4,  rep: 1,  minPop: 15,
+      note: "Sessiz gösteriş; imajı yükseltir.", effect: "flex" },
+    { id: "chain",    name: "Elmas Zincir",   icon: "💎", cost: 260000,  upkeep: 1200,  img: 6,  rep: 2,  minPop: 18,
+      note: "Gösterişin zirvesi — ama soyulma riski var.", effect: "flex", risk: "theft" },
+    { id: "studio",   name: "Kendi Stüdyosu", icon: "🎛️", cost: 350000,  upkeep: 6000,  img: 3,  rep: 6,  minPop: 22,
+      note: "Kayıt maliyeti düşer, kayıt kalitesi artar.", effect: "studio" },
+    { id: "business", name: "Kafe / Kulüp",   icon: "☕", cost: 700000,  upkeep: 8000,  img: 1,  rep: 3,  minPop: 28,
+      note: "Aylık pasif gelir getirir.", effect: "income", income: 26000 },
+    { id: "car",      name: "Lüks Araba",     icon: "🏎️", cost: 900000,  upkeep: 9000,  img: 5,  rep: 4,  minPop: 30,
+      note: "Gösteriş; imajı belirgin yükseltir.", effect: "flex" },
+    { id: "label",    name: "Şirket Binası",  icon: "🏢", cost: 1200000, upkeep: 18000, img: 2,  rep: 10, minPop: 32,
+      note: "Şirket gücünü ve prestijini artırır.", effect: "label" },
+    { id: "house",    name: "Şehir Evi",      icon: "🏠", cost: 1400000, upkeep: 14000, img: 2,  rep: 8,  minPop: 34,
+      note: "Huzur: her gün stres azaltır.", effect: "calm" }
+  ];
+
+  const SELL_RATIO = 0.6;   // satışta değer kaybı
+
+  K.assets = {
+    ASSETS, SELL_RATIO,
+
+    list() { return K.state.player.assets || []; },
+    def(id) { return ASSETS.find(a => a.id === id); },
+    owns(id) { return K.assets.list().some(x => x.id === id); },
+    count() { return K.assets.list().length; },
+
+    /* bir etkiye sahip mi (stüdyo bonusu, huzur, pasif gelir…) */
+    hasEffect(effect) { return K.assets.list().some(x => (K.assets.def(x.id) || {}).effect === effect); },
+
+    /* aylık bakım toplamı (chargeMonthly okur) */
+    upkeepTotal() {
+      const infl = K.econ ? K.econ.infl() : 1;
+      return Math.round(K.assets.list().reduce((n, x) => n + ((K.assets.def(x.id) || {}).upkeep || 0), 0) * infl);
+    },
+
+    /* aylık pasif gelir */
+    incomeTotal() {
+      return K.assets.list().reduce((n, x) => n + ((K.assets.def(x.id) || {}).income || 0), 0);
+    },
+
+    /* stüdyo bonusu: kayıt maliyeti çarpanı + kalite */
+    studioBonus() {
+      if (!K.assets.hasEffect("studio")) return { costMult: 1, quality: 0 };
+      return { costMult: 0.85, quality: 2 };
+    },
+
+    canBuy(id) {
+      const a = K.assets.def(id);
+      if (!a) return { ok: false, why: "Bilinmeyen varlık" };
+      if (K.assets.owns(id)) return { ok: false, why: "Zaten sende" };
+      if ((K.state.player.popularity || 0) < a.minPop) {
+        return { ok: false, why: `Popülerlik ${a.minPop} olmalı` };
+      }
+      if (!K.economy.canAfford(a.cost)) return { ok: false, why: `Yetersiz bakiye (${U.money(a.cost)})` };
+      return { ok: true };
+    },
+
+    buy(id) {
+      const a = K.assets.def(id);
+      const c = K.assets.canBuy(id);
+      if (!c.ok) { K.toast("Alınamadı", c.why, "warn"); return false; }
+      K.economy.spend(a.cost, "asset");
+      const p = K.state.player;
+      p.assets = p.assets || [];
+      p.assets.push({ id: a.id, day: K.state.day, price: a.cost });
+      p.image = U.clamp((p.image || 50) + (a.img || 0), 0, 100);
+      p.reputation = (p.reputation || 0) + (a.rep || 0);
+      K.toast(a.icon + " Alındı", `${a.name} · imaj +${a.img} · itibar +${a.rep} · aylık bakım ${U.money(a.upkeep)}`, "ok");
+      K.state.notifications = (K.state.notifications || []).concat([{
+        title: a.icon + " Varlık alındı",
+        msg: `${a.name} — aylık bakım ${U.money(a.upkeep)} giderlerine eklendi.`,
+        kind: "ok", day: K.state.day
+      }]).slice(-60);
+      K.save(); K.refresh();
+      return true;
+    },
+
+    sell(id) {
+      const a = K.assets.def(id);
+      if (!a || !K.assets.owns(id)) return false;
+      const back = Math.round(a.cost * SELL_RATIO);
+      const p = K.state.player;
+      p.assets = (p.assets || []).filter(x => x.id !== id);
+      K.economy.earn(back, "asset_sale");
+      p.image = U.clamp((p.image || 50) - (a.img || 0) * 0.6, 0, 100);
+      K.toast("Satıldı", `${a.name} → ${U.money(back)} (değer kaybı %${Math.round((1 - SELL_RATIO) * 100)})`, "warn");
+      K.save(); K.refresh();
+      return true;
+    },
+
+    /* Ay dönümü: yalnızca PASİF GELİR.
+       Bakım gideri ve ödenememe cezası `economy.chargeMonthly` içindedir
+       (orada TÜM giderler tek yerde toplanıyor; ayrıca burada yapılırsa
+       tick sırasına bağlı bir hata doğardı). */
+    monthly() {
+      const list = K.assets.list();
+      if (!list.length) return { income: 0 };
+      const income = K.assets.incomeTotal();
+      if (income > 0) {
+        K.economy.earn(income, "asset_income");
+        K.toast("☕ Varlık geliri", `${list.length} varlık → ${U.money(income)}`, "ok");
+      }
+      return { income };
+    },
+
+    /* günlük: huzur + soyulma riski */
+    tick() {
+      const s = K.state, p = s.player;
+      /* ev: stres azaltır (mental sistemiyle sinerji) */
+      if (K.assets.hasEffect("calm") && p.stress != null) {
+        p.stress = U.clamp(p.stress - 0.35, 0, 100);
+      }
+      /* zincir soyulma riski */
+      if (K.assets.owns("chain") && U.chance(0.0016)) {
+        p.assets = (p.assets || []).filter(x => x.id !== "chain");
+        p.image = U.clamp((p.image || 50) - 5, 0, 100);
+        s.notifications = (s.notifications || []).concat([{
+          title: "🚨 Zincirin çalındı",
+          msg: "Bir etkinlikte zincirin çalındı. Hem mal hem itibar gitti.",
+          kind: "bad", day: s.day
+        }]).slice(-60);
+        K.toast("🚨 Zincir çalındı!", "Gösterişin bedeli: hem varlık hem imaj.", "bad");
+        K.save();
+      }
+    },
+
+    summary() {
+      const list = K.assets.list();
+      const owned = list.map(x => ({ ...(K.assets.def(x.id) || {}), day: x.day, price: x.price }));
+      return {
+        owned,
+        totalCost: owned.reduce((n, a) => n + (a.cost || 0), 0),
+        upkeep: K.assets.upkeepTotal(),
+        income: K.assets.incomeTotal(),
+        count: owned.length
+      };
+    }
+  };
+})(window.K = window.K || {});
+
+</script>
+  <script>
+/* ==== js/systems/mental.js ==== */
+/* ============================================================
+   KARMA — systems/mental.js   (v10.28)
+   AKIL SAĞLIĞI & TÜKENMİŞLİK
+
+   Neden?
+   ------
+   Oyunda `fatigue` vardı ama o yalnızca “dikkat dalgası”nın
+   doygunluğuydu — sanatçının KAFASI değil. Günümüz rapi ise akıl
+   sağlığını açıkça konuşuyor (terapi, ara, tükenme, dönüş).
+   Bu sistem bir KAYNAK YÖNETİMİ ekseni ekler: stres birikir,
+   performansı düşürür ve tavan yaparsa seni durdurur.
+
+   STRES KAYNAKLARI (günlük)
+     · borç · beef gerilimi · aktif kriz · üst üste yayın/konser
+     · kötü imaj · yüksek şöhretin baskısı
+   RAHATLAMA
+     · ev (varlık) · terapi · tatil · dinlenme günü · açık konuşma
+   ETKİLER
+     · stres → kayıt kalitesi düşer (career.estimateQuality okur)
+     · %85+ → kamusal taşma riski (pop/itibar/hayran kaybı)
+     · %100 → TÜKENME: zorunlu ara (yayın yapamazsın), hayran kaybı
+   ============================================================ */
+(function (K) {
+  "use strict";
+  const U = K.util;
+
+  const CFG = {
+    restCost: 3500,          // bir günlük dinlenmenin fırsat maliyeti (bakım/kaçamak)
+    therapyCostPerDay: 9000, // terapi günü başı
+    holidayCost: 85000,      // tatil paketi
+    holidayDays: 7,
+    holidayStress: 42,
+    holidayPopLoss: 1.4,
+    burnoutHiatusDays: 14,
+    burnoutFanLoss: 0.05,
+    meltdownChance: 0.05     // stres %85+ iken günlük taşma olasılığı
+  };
+
+  K.mental = {
+    CFG,
+
+    stress() { return K.state.player.stress == null ? 10 : K.state.player.stress; },
+    m() { return K.state.player.mental; },
+
+    /* zorunlu ara aktif mi? */
+    onHiatus() {
+      const m = K.mental.m();
+      return !!(m.hiatusUntil && K.state.day < m.hiatusUntil);
+    },
+
+    /* terapi aktif mi? */
+    inTherapy() {
+      const m = K.mental.m();
+      return !!(m.therapyUntil && K.state.day < m.therapyUntil);
+    },
+
+    level() {
+      const v = K.mental.stress();
+      if (v >= 90) return { stress: v, key: "tukenmis", label: "Tükenmiş", tone: "bad", icon: "🆘" };
+      if (v >= 70) return { stress: v, key: "yuksek",   label: "Yüksek",   tone: "bad", icon: "🔥" };
+      if (v >= 45) return { stress: v, key: "gergin",   label: "Gergin",   tone: "warn", icon: "😰" };
+      if (v >= 25) return { stress: v, key: "normal",   label: "Normal",   tone: "", icon: "🙂" };
+      return { stress: v, key: "iyi", label: "İyi", tone: "ok", icon: "😌" };
+    },
+
+    /* kayıt kalitesi çarpanı — yüksek stres işi bozar */
+    qualityMult() {
+      const v = K.mental.stress();
+      if (v <= 40) return 1;
+      return U.clamp(1 - (v - 40) * 0.0028, 0.80, 1);   // 100'de ≈ 0,83
+    },
+
+    /* günlük */
+    tick() {
+      const s = K.state, p = s.player, m = K.mental.m();
+
+      /* TÜKENME KONTROLÜ EN BAŞTA (DÜZELTME v10.28):
+         günlük delta stresi 100'ün altına indirebiliyor (terapi, ev,
+         süperfan rahatlaması). Eşik DELTA UYGULANMADAN önce bakılmazsa
+         tükenme hiç tetiklenmezdi — stres tam 100'de bir gün durup sonra
+         düşerdi. */
+      if (p.stress >= 100 && !K.mental.onHiatus()) {
+        m.hiatusUntil = s.day + CFG.burnoutHiatusDays;
+        m.burnoutCount = (m.burnoutCount || 0) + 1;
+        const fl = Math.round((K.fans && K.fans.followers ? K.fans.followers() : 0) * CFG.burnoutFanLoss);
+        ["ig", "tiktok", "x"].forEach(k => { p[k] = Math.max(0, Math.round((p[k] || 0) - fl * 0.33)); });
+        p.stress = 72;   // ara başladı, yük düşer
+        s.notifications = (s.notifications || []).concat([{
+          title: "🛑 TÜKENDİN — zorunlu ara",
+          msg: `${CFG.burnoutHiatusDays} gün yayın yapamazsın. Yönetim “sanatçı ara verdi” açıklaması yaptı.`,
+          kind: "bad", day: s.day
+        }]).slice(-60);
+        K.toast("🛑 Tükendin", `${CFG.burnoutHiatusDays} gün zorunlu ara. Dinlenmen şart.`, "bad");
+        K.save();
+        return;
+      }
+
+      let d = 0;
+      if ((p.debt || 0) > 0) d += 0.45;                                  // borç baskısı
+      if (K.state.crisis) d += 1.3;                                      // aktif kriz
+      /* beef gerilimi: aktif husumetlerin toplam heat'i.
+         NOT: beef.js'te `heat()` diye bir fonksiyon YOK — veri
+         `beefs[artistId].heat` alanında durur, `K.beef.list()` okur. */
+      if (K.beef && K.beef.list) {
+        const heat = K.beef.list().reduce((n, b) => n + (b.heat || 0), 0);
+        d += Math.min(1.6, heat / 40);
+      }
+      const recent = (p.songs || []).filter(x => (x.publishedDay || 0) > s.day - 7).length;
+      if (recent >= 2) d += 0.5;                                         // üst üste yayın
+
+      /* TEMPO BASKISI (DÜZELTME v10.28):
+         Yalnızca kriz/borç/beef beklerken stress hiç birikmiyordu — yani
+         sistem pratikte ölü kalıyordu (ölçüldü: 600 günde stres 10'da sabit).
+         Normal çalışma temposu da yorar: hazırlık hattı, aktif dönem,
+         yan işler, turne. Bu, sistemin aylık bir yönetim ekseni olmasını sağlar. */
+      const pipeline = (p.releases || []).some(r => r && r.stage !== "released");
+      if (pipeline) d += 0.35;                                           // hazırlık/çıkış hattı
+      const recentAny = (p.songs || []).some(x => (x.publishedDay || 0) > s.day - 30);
+      if (recentAny) d += 0.12;                                          // aktif kariyer temposu
+      if (p.writing && p.writing.active) d += 0.20;                      // yazarlık işi
+      if (p.merch && p.merch.active) d += 0.15;                          // drop koordinasyonu
+      if (K.state.tour) d += 0.4;                                        // turne yorgunluğu
+      if (p.intl && p.intl.touring) d += 0.30;                           // yurt dışı turne
+      if ((p.image || 50) < 40) d += 0.25;                               // kötü imaj
+      if ((p.popularity || 0) >= 60) d += 0.18;                          // şöhretin baskısı
+      if ((p.reputation || 0) < 0) d += 0.2;
+
+      /* rahatlama */
+      if (K.assets && K.assets.hasEffect && K.assets.hasEffect("calm")) d -= 0.35;
+      if (K.mental.inTherapy()) d -= 0.9;
+      if (K.fans && K.fans.followers && p.superfans > 0) d -= Math.min(0.25, p.superfans / 60000);
+
+      p.stress = U.clamp((p.stress == null ? 10 : p.stress) + d, 0, 100);
+
+      /* kamusal taşma riski */
+      if (p.stress >= 85 && U.chance(CFG.meltdownChance)) {
+        const loss = Math.round((K.fans && K.fans.followers ? K.fans.followers() : 0) * 0.012);
+        ["ig", "tiktok", "x"].forEach(k => { p[k] = Math.max(0, Math.round((p[k] || 0) - loss * 0.3)); });
+        p.reputation = Math.max(0, (p.reputation || 0) - 3);
+        p.image = U.clamp((p.image || 50) - 3, 0, 100);
+        s.notifications = (s.notifications || []).concat([{
+          title: "💥 Kamusal taşma",
+          msg: "Sahnede/Canlı yayında sinirlerine hâkim olamadın — kötü klip viral oldu.",
+          kind: "bad", day: s.day
+        }]).slice(-60);
+        K.toast("💥 Taşma", "Kontrolü kaybettin: itibar ve takipçi kaybı.", "bad");
+      }
+
+    },
+
+    /* ---- eylemler ---- */
+    rest() {
+      const p = K.state.player;
+      if (K.mental.onHiatus()) { K.toast("Artesin", "Zorunlu aradasın, zaten dinleniyorsun.", "warn"); return false; }
+      if (!K.economy.canAfford(CFG.restCost)) { K.toast("Yetersiz bakiye", `${U.money(CFG.restCost)} gerekiyor.`, "bad"); return false; }
+      K.economy.spend(CFG.restCost, "mental_rest");
+      p.stress = U.clamp(p.stress - 13, 0, 100);
+      K.toast("🌿 Dinlendin", `Stres −13 → ${Math.round(p.stress)}`, "ok");
+      K.save(); K.refresh();
+      return true;
+    },
+
+    therapy(days) {
+      const s = K.state, p = s.player, m = K.mental.m();
+      const n = U.clamp(Math.round(days || 3), 1, 10);
+      const cost = CFG.therapyCostPerDay * n;
+      if (!K.economy.canAfford(cost)) { K.toast("Yetersiz bakiye", `${U.money(cost)} gerekiyor.`, "bad"); return false; }
+      K.economy.spend(cost, "therapy");
+      m.therapyUntil = Math.max(m.therapyUntil || 0, s.day + n);
+      m.sessions = (m.sessions || 0) + n;
+      K.toast("🛋️ Terapi başladı", `${n} gün · günlük stres −0,9 · şimdiki ${Math.round(p.stress)}`, "ok");
+      s.notifications = (s.notifications || []).concat([{
+        title: "🛋️ Terapi", msg: `${n} seans planlandı. Düzenli destek stresi düşürür.`, kind: "ok", day: s.day
+      }]).slice(-60);
+      K.save(); K.refresh();
+      return true;
+    },
+
+    holiday() {
+      const s = K.state, p = s.player;
+      if (K.mental.onHiatus()) { K.toast("Artesin", "Zaten aradasın.", "warn"); return false; }
+      if (p.stress < 45) { K.toast("Gerek yok", "Stresin zaten düşük — parayı boşa harcama.", "warn"); return false; }
+      if (!K.economy.canAfford(CFG.holidayCost)) { K.toast("Yetersiz bakiye", `${U.money(CFG.holidayCost)} gerekiyor.`, "bad"); return false; }
+      K.economy.spend(CFG.holidayCost, "holiday");
+      p.stress = U.clamp(p.stress - CFG.holidayStress, 0, 100);
+      /* yokluğun bedeli: momentum ve popülerlik biraz düşer */
+      if (K.game && K.game.addFame) K.game.addFame(-CFG.holidayPopLoss);
+      K.toast("🏖️ Tatile çıktın", `${CFG.holidayDays} gün uzakta · stres −${CFG.holidayStress} → ${Math.round(p.stress)}`, "ok");
+      s.notifications = (s.notifications || []).concat([{
+        title: "🏖️ Tatil", msg: "Kafanı topladın. Ama sahne seni biraz unuttu (popülerlik −" + CFG.holidayPopLoss + ").",
+        kind: "", day: s.day
+      }]).slice(-60);
+      K.save(); K.refresh();
+      return true;
+    },
+
+    /* akıl sağlığını AÇIKÇA konuşmak: imaj riski ↔ hayran bağlılığı */
+    speakOut() {
+      const s = K.state, p = s.player, m = K.mental.m();
+      if (m.spokeOut) { K.toast("Zaten konuştun", "Bu kartı bir kez kullandın.", "warn"); return false; }
+      m.spokeOut = true;
+      p.stress = U.clamp(p.stress - 8, 0, 100);
+      const risky = (p.image || 50) < 45;
+      if (risky) {
+        p.image = U.clamp((p.image || 50) - 4, 0, 100);
+        s.notifications = (s.notifications || []).concat([{
+          title: "🗣️ Açık konuşma", msg: "Dinleyicilerin bir kısmı “bahane” dedi — imaj hafif zedelendi.",
+          kind: "warn", day: s.day
+        }]).slice(-60);
+        K.toast("🗣️ Konuştun", "Samimiyet bazılarını kazandı, bazılarını kaybettirdi (imaj −4).", "warn");
+      } else {
+        p.superfans = (p.superfans || 0) + Math.round((K.fans && K.fans.followers ? K.fans.followers() : 0) * 0.01);
+        p.reputation = (p.reputation || 0) + 4;
+        s.notifications = (s.notifications || []).concat([{
+          title: "🗣️ Açık konuşma", msg: "Akıl sağlığı paylaşımın hayran bağlılığını artırdı (süperfan +).",
+          kind: "ok", day: s.day
+        }]).slice(-60);
+        K.toast("🗣️ Konuştun", "Hayranlar sahiplendi: süperfan artışı + itibar.", "ok");
+      }
+      K.save(); K.refresh();
+      return true;
+    },
+
+    summary() {
+      const lv = K.mental.level(), m = K.mental.m();
+      return {
+        stress: Math.round(K.mental.stress()),
+        level: lv,
+        qualityMult: K.mental.qualityMult(),
+        onHiatus: K.mental.onHiatus(),
+        hiatusLeft: Math.max(0, (m.hiatusUntil || 0) - K.state.day),
+        inTherapy: K.mental.inTherapy(),
+        sessions: m.sessions || 0,
+        burnouts: m.burnoutCount || 0,
+        spokeOut: !!m.spokeOut
+      };
+    }
+  };
+})(window.K = window.K || {});
+
+</script>
+  <script>
+/* ==== js/systems/shady.js ==== */
+/* ============================================================
+   KARMA — systems/shady.js   (v10.28)
+   KARANLIK TARAF: BOT DİNLENME & PLAYLIST PAYOLASI
+
+   Neden?
+   ------
+   Oyun dürüst yolları ödüllendiriyordu ama endüstrinin gerçeği olan
+   KISA YOLU hiç sunmuyordu. Bu sistem bir AHLAKİ SEÇİM ekler:
+   hızlı liste/şöhret, ama tespit riski gerçek.
+
+   · 🎰 Bot dinlenme : anlık dinlenme şişmesi → liste/chart etkisi
+                       HER kullanım ŞÜPHE biriktirir
+   · 📻 Payola       : küratöre para → playlist girişi (daha az riskli)
+   TESPİT
+     · günlük tespit şansı şüphe ile artar
+     · tespitte: bot dinlenmenin çoğu GERİ ALINIR, imaj/itibar yanar,
+       1 strike. 3 strike → platform yasağı (60 gün, telif geliri ×0,45)
+   Dürüst kalana ödül: hiç kullanmayan oyuncuya itibar + bildirim.
+   ============================================================ */
+(function (K) {
+  "use strict";
+  const U = K.util;
+
+  const BOT_TIERS = [
+    { id: "s", name: "Küçük Paket",  icon: "🐜", cost: 45000,  streams: 250000,  susp: 8,  mult: 1.25 },
+    { id: "m", name: "Orta Paket",   icon: "🐝", cost: 140000, streams: 900000,  susp: 18, mult: 1.45 },
+    { id: "l", name: "Büyük Paket",  icon: "🦗", cost: 400000, streams: 3000000, susp: 34, mult: 1.75 }
+  ];
+
+  const PAYOLA_COST = 60000;
+  const PAYOLA_SUSP = 10;
+  const BAN_DAYS = 60;
+  const CLEAN_DAY = 360;
+
+  K.shady = {
+    BOT_TIERS, PAYOLA_COST, BAN_DAYS, CLEAN_DAY,
+
+    st() { return K.state.player.shady; },
+
+    /* telif geliri çarpanı — platform yasağı sırasında düşer */
+    incomeMult() {
+      const st = K.shady.st();
+      return (st.bannedUntil && K.state.day < st.bannedUntil) ? 0.45 : 1;
+    },
+
+    isBanned() {
+      const st = K.shady.st();
+      return !!(st.bannedUntil && K.state.day < st.bannedUntil);
+    },
+
+    /* tespit şansı (günlük) */
+    detectChance() {
+      const sus = K.shady.st().suspicion || 0;
+      return U.clamp((sus / 100) * 0.075, 0, 0.35);
+    },
+
+    /* ---- bot dinlenme satın al ---- */
+    buyBots(tierId, songId) {
+      const s = K.state, p = s.player, st = K.shady.st();
+      const t = BOT_TIERS.find(x => x.id === tierId);
+      if (!t) return false;
+      if (K.shady.isBanned()) { K.toast("Platform yasağı", "Yasak süresince bu işe bulaşamazsın.", "bad"); return false; }
+      const song = songId
+        ? (p.songs || []).find(x => x.id === songId)
+        : (p.songs || []).slice().sort((a, b) => (b.streams || 0) - (a.streams || 0))[0];
+      if (!song) { K.toast("Şarkı yok", "Önce bir şarkı yayınla.", "warn"); return false; }
+      if (!K.economy.canAfford(t.cost)) { K.toast("Yetersiz bakiye", `${U.money(t.cost)} gerekiyor.`, "bad"); return false; }
+
+      K.economy.spend(t.cost, "bot_streams");
+      st.everUsed = true;
+      st.botStreams = (st.botStreams || 0) + t.streams;
+      st.suspicion = U.clamp((st.suspicion || 0) + t.susp, 0, 100);
+
+      song.streams = (song.streams || 0) + t.streams;
+      song.boosts = song.boosts || {};
+      song.boosts.bot = (song.boosts.bot || 0) + 0.35;
+      song.botBoost = { streams: t.streams, mult: t.mult, until: s.day + 30, tier: t.id };
+
+      K.toast("🎰 Bot dinlenme", `${U.fmt(t.streams)} dinlenme eklendi · şüphe ${Math.round(st.suspicion)}/100`, "warn");
+      s.notifications = (s.notifications || []).concat([{
+        title: "🎰 Bot dinlenme alındı",
+        msg: `"${song.title}" için ${U.fmt(t.streams)} sahte dinlenme. Şüphe ${Math.round(st.suspicion)}/100 — tespit edilirse ağır bedel.`,
+        kind: "warn", day: s.day
+      }]).slice(-60);
+      K.save(); K.refresh();
+      return true;
+    },
+
+    /* ---- küratöre para (payola) ---- */
+    payCurator() {
+      const s = K.state, p = s.player, st = K.shady.st();
+      if (K.shady.isBanned()) { K.toast("Platform yasağı", "Yasak süresince olmaz.", "bad"); return false; }
+      const song = (p.songs || []).slice().sort((a, b) => (b.publishedDay || 0) - (a.publishedDay || 0))[0];
+      if (!song) { K.toast("Şarkı yok", "Önce bir şarkı yayınla.", "warn"); return false; }
+      if (!K.economy.canAfford(PAYOLA_COST)) { K.toast("Yetersiz bakiye", `${U.money(PAYOLA_COST)} gerekiyor.`, "bad"); return false; }
+
+      K.economy.spend(PAYOLA_COST, "payola");
+      st.everUsed = true;
+      st.suspicion = U.clamp((st.suspicion || 0) + PAYOLA_SUSP, 0, 100);
+      st.curatorDeals = (st.curatorDeals || []).concat([{ songId: song.id, day: s.day }]).slice(-20);
+
+      song.boosts = song.boosts || {};
+      song.boosts.playlist = Math.max(song.boosts.playlist || 0, 0.4);
+      song.listPitch = { accepted: true, paidDay: s.day, score: 90 };
+      song.dailyStreams = Math.round((song.dailyStreams || 0) * 1.15);
+
+      K.toast("📻 Küratör anlaşması", `"${song.title}" liste kapısından geçti · şüphe ${Math.round(st.suspicion)}/100`, "warn");
+      s.notifications = (s.notifications || []).concat([{
+        title: "📻 Payola",
+        msg: `Küratöre ${U.money(PAYOLA_COST)} gitti; "${song.title}" editoryal listeye girdi. Bu iş kayıt altında.`,
+        kind: "warn", day: s.day
+      }]).slice(-60);
+      K.save(); K.refresh();
+      return true;
+    },
+
+    /* ---- günlük: tespit + bot etkisinin sönmesi ---- */
+    tick() {
+      const s = K.state, p = s.player, st = K.shady.st();
+      if (!st || !st.everUsed) {
+        /* dürüst kaldıysan (360. gün) ödül */
+        if (s.day === CLEAN_DAY && !st.cleanRewarded) {
+          st.cleanRewarded = true;
+          p.reputation = (p.reputation || 0) + 8;
+          s.notifications = (s.notifications || []).concat([{
+            title: "🕊️ Temiz kariyer",
+            msg: "360 gündür tek bir sahte dinlenme/payola kullanmadın. Camia bunu biliyor (itibar +8).",
+            kind: "ok", day: s.day
+          }]).slice(-60);
+          K.toast("🕊️ Temiz kariyer", "Hiç kısa yol kullanmadın — itibar +8.", "ok");
+        }
+        return;
+      }
+
+      /* bot etkisi 30 günde söner */
+      (p.songs || []).forEach(sg => {
+        if (sg.botBoost && s.day >= (sg.botBoost.until || 0)) {
+          if (sg.boosts && sg.boosts.bot) delete sg.boosts.bot;
+          sg.botBoost = null;
+        }
+      });
+
+      /* şüphe doğal olarak çok yavaş azalır (zamanla unutulur) */
+      st.suspicion = U.clamp((st.suspicion || 0) - 0.06, 0, 100);
+
+      /* tespit */
+      if (!U.chance(K.shady.detectChance())) return;
+
+      st.strikes = (st.strikes || 0) + 1;
+      /* bot dinlenmenin %70'i geri alınır */
+      let rolled = 0;
+      (p.songs || []).forEach(sg => {
+        if (!sg.botBoost || !sg.botBoost.streams) return;
+        const cut = Math.round(sg.botBoost.streams * 0.7);
+        rolled += cut;
+        sg.streams = Math.max(0, (sg.streams || 0) - cut);
+        sg.botBoost = null;
+        if (sg.boosts && sg.boosts.bot) delete sg.boosts.bot;
+      });
+      p.image = U.clamp((p.image || 50) - 8, 0, 100);
+      p.reputation = Math.max(0, (p.reputation || 0) - 10);
+      st.suspicion = U.clamp((st.suspicion || 0) + 25, 0, 100);
+
+      s.notifications = (s.notifications || []).concat([{
+        title: "🚨 Sahte dinlenme tespit edildi (" + st.strikes + "/3)",
+        msg: rolled ? `${U.fmt(rolled)} dinlenme silindi. ` : "" +
+          "Platform soruşturma açtı; imaj ve itibar zarar gördü.",
+        kind: "bad", day: s.day
+      }]).slice(-60);
+      K.toast("🚨 Tespit edildin!", `${st.strikes}/3 strike · ${U.fmt(rolled)} dinlenme silindi`, "bad");
+
+      if (st.strikes >= 3) {
+        st.bannedUntil = s.day + BAN_DAYS;
+        s.notifications = (s.notifications || []).concat([{
+          title: "⛔ Platform yasağı",
+          msg: `${BAN_DAYS} gün boyunca telif gelirin %45'e düştü. Dağıtımcı sözleşmeyi askıya aldı.`,
+          kind: "bad", day: s.day
+        }]).slice(-60);
+        K.toast("⛔ Platform yasağı", `${BAN_DAYS} gün · telif geliri ×0,45`, "bad");
+      }
+      K.save(); K.refresh();
+    },
+
+    summary() {
+      const st = K.shady.st();
+      return {
+        suspicion: Math.round(st.suspicion || 0),
+        detectChance: K.shady.detectChance(),
+        strikes: st.strikes || 0,
+        banned: K.shady.isBanned(),
+        bannedLeft: Math.max(0, (st.bannedUntil || 0) - K.state.day),
+        botStreams: st.botStreams || 0,
+        curatorDeals: (st.curatorDeals || []).length,
+        everUsed: !!st.everUsed,
+        incomeMult: K.shady.incomeMult()
+      };
+    }
+  };
+})(window.K = window.K || {});
+
+</script>
+  <script>
+/* ==== js/systems/intl.js ==== */
+/* ============================================================
+   KARMA — systems/intl.js   (v10.28)
+   ULUSLARARASI / DİASPORA ÇIKIŞI
+
+   Neden?
+   ------
+   Türk rapinin son yıllardaki gerçek hikâyesi bu: Almanya/Hollanda
+   diasporası, Avrupa kulüpleri, yabancı feature'lar, global listeler.
+   Oyunda yalnızca bir “Euro Trap” tür etiketi vardı; mekanik yoktu.
+
+   NASIL ÇALIŞIR?
+   --------------
+   Her pazarın bir BÜYÜKLÜĞÜ (diaspora + pazar gücü) ve SENİN
+   NÜFUZUN (0-100) var. Pazara girersin, nüfuz zamanla hedefe doğru
+   kayar; hedef popülerlik + yabancı feature + turne + global
+   dinlenmeyle büyür. Nüfuz aylık YURT DIŞI TELİF geliri üretir.
+
+   RİSKLER (gerçekçilik)
+     · Vize reddi (turne parası yanar)
+     · Lojistik aşımı (bütçe artar)
+     · İlgisiz kalırsan nüfuz SÖNER
+   AŞAMALAR: kapalı → diasporaya açıldı → Avrupa turu → küresel
+   ============================================================ */
+(function (K) {
+  "use strict";
+  const U = K.util;
+
+  const MARKETS = [
+    { id: "de", name: "Almanya",   icon: "🇩🇪", size: 3.0, minPop: 25, unlock: 260000, cities: ["Berlin", "Köln", "Stuttgart"] },
+    { id: "nl", name: "Hollanda",  icon: "🇳🇱", size: 1.1, minPop: 28, unlock: 180000, cities: ["Amsterdam", "Rotterdam"] },
+    { id: "fr", name: "Fransa",    icon: "🇫🇷", size: 1.2, minPop: 32, unlock: 240000, cities: ["Paris", "Lyon"] },
+    { id: "uk", name: "İngiltere", icon: "🇬🇧", size: 0.9, minPop: 38, unlock: 320000, cities: ["Londra", "Manchester"] },
+    { id: "us", name: "ABD",       icon: "🇺🇸", size: 1.6, minPop: 48, unlock: 900000, cities: ["New York", "Los Angeles"] }
+  ];
+
+  const TOUR_COST = 150000;      // turne ön ödemesi
+  const TOUR_DAYS = 5;
+  const FEATURE_COST = 220000;   // yabancı sanatçıya ödenen
+  const VISA_FAIL = 0.15;
+  const OVERRUN = 0.18;
+
+  K.intl = {
+    MARKETS, TOUR_COST, TOUR_DAYS, FEATURE_COST,
+
+    st() { return K.state.player.intl; },
+    market(id) { return MARKETS.find(m => m.id === id); },
+
+    entered() {
+      const st = K.intl.st();
+      return MARKETS.filter(m => (st.markets || {})[m.id] != null);
+    },
+
+    pen(id) { return (K.intl.st().markets || {})[id] || 0; },
+
+    /* bir pazarın nüfuz HEDEFİ */
+    target(id) {
+      const p = K.state.player, st = K.intl.st();
+      const m = K.intl.market(id);
+      if (!m) return 0;
+      let t = (p.popularity || 0) * 0.55;
+      if (/euro|hyperpop|drill|phonk/.test(p.genre || "")) t += 8;      // sound uyumu
+      t += (st.features || 0) * 4;                                     // yabancı feature
+      const tour = (st.tours || []).filter(x => x.marketId === id && K.state.day - x.day < 120).length;
+      t += tour * 6;
+      t += Math.min(12, (st.globalPlays || 0) / 400000);
+      return U.clamp(t, 0, 100);
+    },
+
+    /* ---- pazara gir ---- */
+    enter(id) {
+      const s = K.state, p = s.player, st = K.intl.st();
+      const m = K.intl.market(id);
+      if (!m) return false;
+      if (st.markets && st.markets[id] != null) { K.toast("Zaten içerdesin", `${m.name} pazarı açık.`, "warn"); return false; }
+      if ((p.popularity || 0) < m.minPop) { K.toast("Şöhret yetersiz", `${m.name} için popülerlik ${m.minPop} olmalı.`, "warn"); return false; }
+      if (!K.economy.canAfford(m.unlock)) { K.toast("Yetersiz bakiye", `${U.money(m.unlock)} gerekiyor.`, "bad"); return false; }
+      K.economy.spend(m.unlock, "intl_enter");
+      st.markets = st.markets || {};
+      st.markets[id] = 10;
+      st.stage = Math.max(st.stage || 0, 1);
+      K.toast(m.icon + " Pazar açıldı", `${m.name} · dağıtım + yerel PR ayarlandı.`, "ok");
+      s.notifications = (s.notifications || []).concat([{
+        title: m.icon + " " + m.name + " pazarı",
+        msg: `${m.name} için dağıtım ve yerel tanıtım başladı. Nüfuz zamanla büyür.`,
+        kind: "ok", day: s.day
+      }]).slice(-60);
+      K.save(); K.refresh();
+      return true;
+    },
+
+    /* ---- diasporaya turne ---- */
+    tour(id) {
+      const s = K.state, p = s.player, st = K.intl.st();
+      const m = K.intl.market(id);
+      if (!m || (st.markets || {})[id] == null) { K.toast("Pazar kapalı", "Önce pazara gir.", "warn"); return false; }
+      if (st.touring) { K.toast("Turne sürüyor", "Bitmesini bekle.", "warn"); return false; }
+      if (K.mental && K.mental.onHiatus()) { K.toast("Artesin", "Zorunlu arada turne yapamazsın.", "warn"); return false; }
+      if (!K.economy.canAfford(TOUR_COST)) { K.toast("Yetersiz bakiye", `${U.money(TOUR_COST)} gerekiyor.`, "bad"); return false; }
+      K.economy.spend(TOUR_COST, "intl_tour");
+
+      /* VİZE RİSKİ */
+      if (U.chance(VISA_FAIL)) {
+        st.markets[id] = Math.max(0, (st.markets[id] || 0) - 4);
+        s.notifications = (s.notifications || []).concat([{
+          title: "🛂 Vize reddi",
+          msg: `${m.name} turne vizesi reddedildi — ön ödeme yandı (${U.money(TOUR_COST)}).`,
+          kind: "bad", day: s.day
+        }]).slice(-60);
+        K.toast("🛂 Vize reddi", "Turne iptal, ön ödeme gitti.", "bad");
+        K.save(); K.refresh();
+        return false;
+      }
+
+      /* LOJİSTİK AŞIMI */
+      let extra = 0;
+      if (U.chance(OVERRUN)) {
+        extra = Math.round(TOUR_COST * 0.3);
+        if (K.economy.canAfford(extra)) K.economy.spend(extra, "intl_tour");
+        else { s.player.debt = (s.player.debt || 0) + extra; }
+      }
+
+      st.touring = { marketId: id, daysLeft: TOUR_DAYS, startDay: s.day };
+      K.toast(m.icon + " Diaspora turnesi", `${m.name} · ${m.cities.join(" → ")}${extra ? " · lojistik aşımı " + U.money(extra) : ""}`, "ok");
+      K.save(); K.refresh();
+      return true;
+    },
+
+    /* ---- yabancı feature ---- */
+    foreignFeature(id) {
+      const s = K.state, p = s.player, st = K.intl.st();
+      const m = K.intl.market(id);
+      if (!m || (st.markets || {})[id] == null) { K.toast("Pazar kapalı", "Önce pazara gir.", "warn"); return false; }
+      if (!K.economy.canAfford(FEATURE_COST)) { K.toast("Yetersiz bakiye", `${U.money(FEATURE_COST)} gerekiyor.`, "bad"); return false; }
+      K.economy.spend(FEATURE_COST, "intl_feature");
+      st.features = (st.features || 0) + 1;
+      st.markets[id] = U.clamp((st.markets[id] || 0) + 6, 0, 100);
+      p.reputation = (p.reputation || 0) + 5;
+      if (K.game && K.game.addFame) K.game.addFame(1.1);
+      K.toast("🤝 Yabancı feature", `${m.name} pazarından bir sanatçıyla ortak iş · itibar +5`, "ok");
+      s.notifications = (s.notifications || []).concat([{
+        title: "🤝 Yabancı feature",
+        msg: `${m.name} pazarında ortak çalışma yayınlandı — yurt dışı nüfuz arttı.`,
+        kind: "ok", day: s.day
+      }]).slice(-60);
+      K.save(); K.refresh();
+      return true;
+    },
+
+    /* ---- günlük ---- */
+    tick() {
+      const s = K.state, p = s.player, st = K.intl.st();
+      if (!st) return;
+
+      /* turne ilerlemesi */
+      if (st.touring) {
+        st.touring.daysLeft -= 1;
+        if (st.touring.daysLeft <= 0) {
+          const mid = st.touring.marketId;
+          const m = K.intl.market(mid);
+          st.markets[mid] = U.clamp((st.markets[mid] || 0) + 18, 0, 100);
+          st.tours = (st.tours || []).concat([{ marketId: mid, day: s.day }]).slice(-20);
+          /* Takipçi kazancı: fans.js'te `add()` YOK — sosyal sayaçlara
+             doğrudan dağıtılır (fans.followers() bu alanları toplar). */
+          const gain = Math.round((K.fans && K.fans.followers ? K.fans.followers() : 0) * 0.03);
+          p.ig = (p.ig || 0) + Math.round(gain * 0.50);
+          p.tiktok = (p.tiktok || 0) + Math.round(gain * 0.35);
+          p.x = (p.x || 0) + Math.round(gain * 0.15);
+          p.reputation = (p.reputation || 0) + 3;
+          st.touring = null;
+          K.toast(m.icon + " Turne bitti", `${m.name} nüfuz +18 · itibar +3`, "ok");
+          s.notifications = (s.notifications || []).concat([{
+            title: m.icon + " " + m.name + " turnesi tamam",
+            msg: `${m.cities.join(", ")} — diaspora yoğun ilgi gösterdi. Nüfuz yükseldi.`,
+            kind: "ok", day: s.day
+          }]).slice(-60);
+        }
+      }
+
+      /* nüfuz hedefe doğru kayar, ilgisiz kalırsa söner */
+      K.intl.entered().forEach(m => {
+        const cur = st.markets[m.id] || 0;
+        const tgt = K.intl.target(m.id);
+        const drift = (tgt - cur) * 0.02;
+        const decay = cur > tgt ? -0.15 : 0;
+        st.markets[m.id] = U.clamp(cur + drift + decay, 0, 100);
+        st.globalPlays = (st.globalPlays || 0) + Math.round(st.markets[m.id] * m.size * 40);
+      });
+
+      /* aşama ilerlemesi */
+      const eu = ["de", "nl", "fr"].filter(id => (st.markets[id] || 0) >= 40).length;
+      const us = (st.markets.us || 0) >= 50;
+      const newStage = us ? 3 : (eu >= 2 ? 2 : (K.intl.entered().length ? 1 : 0));
+      if (newStage > (st.stage || 0)) {
+        st.stage = newStage;
+        const label = ["", "Diaspora", "Avrupa turu", "Küresel"][newStage];
+        s.notifications = (s.notifications || []).concat([{
+          title: "🌍 Uluslararası aşama: " + label,
+          msg: "Kariyerin artık yurt dışında da sayılıyor.",
+          kind: "ok", day: s.day
+        }]).slice(-60);
+        K.toast("🌍 Aşama atladın", label, "ok");
+      }
+    },
+
+    /* aylık yurt dışı telif geliri */
+    monthly() {
+      const st = K.intl.st();
+      const list = K.intl.entered();
+      if (!list.length) return 0;
+      const p = K.state.player;
+      let income = 0;
+      list.forEach(m => {
+        const pen = st.markets[m.id] || 0;
+        income += m.size * (pen / 100) * (1 + (p.popularity || 0) / 50) * 12000;
+      });
+      income = Math.round(income * K.intl._shadyMult());
+      if (income > 0) {
+        K.economy.earn(income, "intl_royalty");
+        K.toast("🌍 Yurt dışı telif", `${list.length} pazar → ${U.money(income)}`, "ok");
+      }
+      return income;
+    },
+
+    /* payola yasağı yurt dışı gelirini de etkiler (tek yerden) */
+    _shadyMult() { return (K.shady && K.shady.incomeMult) ? K.shady.incomeMult() : 1; },
+
+    stageLabel() { return ["Kapalı", "Diaspora", "Avrupa turu", "Küresel"][K.intl.st().stage || 0]; },
+
+    summary() {
+      const st = K.intl.st();
+      return {
+        stage: st.stage || 0,
+        stageLabel: K.intl.stageLabel(),
+        markets: MARKETS.map(m => ({
+          ...m, entered: (st.markets || {})[m.id] != null,
+          pen: Math.round(st.markets[m.id] || 0), target: Math.round(K.intl.target(m.id))
+        })),
+        touring: st.touring || null,
+        tours: (st.tours || []).length,
+        features: st.features || 0,
+        globalPlays: st.globalPlays || 0,
+        monthly: (() => {
+          const p = K.state.player;
+          return Math.round(MARKETS.reduce((n, m) =>
+            n + (st.markets && st.markets[m.id] != null
+              ? m.size * ((st.markets[m.id] || 0) / 100) * (1 + (p.popularity || 0) / 50) * 12000 : 0), 0));
+        })()
+      };
+    }
+  };
+})(window.K = window.K || {});
+
+</script>
   <script>
 /* ==== js/systems/audio.js ==== */
 /* ============================================================
@@ -24814,7 +26302,11 @@ window.K = window.K || {};
 
   const U = K.util;
   let currentTab = "career";
-  const ui = { tourCities: [], festStance: "balanced", presaveRel: null, presaveChans: [] };
+  const ui = {
+    tourCities: [], festStance: "balanced", presaveRel: null, presaveChans: [],
+    /* v10.28 — Girişim sekmesi geçici form durumu (render sırasında korunur) */
+    mrcItem: "tee", mrcDesign: "basic", mrcStock: 200, mrcPriceMult: 1, botTier: "s"
+  };
   const subTab = { label: "genel", events: "awards" };
 
   K.careerUI = {
@@ -24851,6 +26343,7 @@ window.K = window.K || {};
         concerts: K.careerUI.renderConcerts,
         festivals: K.careerUI.renderFestivals,
         label: K.careerUI.renderLabelTab,
+        business: K.careerUI.renderBusiness,
         events: K.careerUI.renderEventsTab
       };
       body.innerHTML = (map[currentTab] || map.career)();
@@ -24909,6 +26402,31 @@ window.K = window.K || {};
               <div class="grow"><b>${U.escape(persona.name)}</b><span>${U.escape(persona.desc)}</span></div>
               <div class="persona-ident"><span>Tutarlılık</span><b>${ident}%</b></div>
             </div>` : `<div class="helper">Henüz kimlik seçmedin. Kimlik, hangi tür ve temalarda güçlü olduğunu belirler.</div>`}
+
+          ${(function () {
+            /* v10.28 — AKIL SAĞLIĞI kartı: stres kaliteyi ve kararları etkiler */
+            const mh = K.mental.summary();
+            const cls = (mh.level.key === "tukenmis" || mh.level.key === "yuksek") ? "bad"
+              : mh.level.key === "gergin" ? "warn" : "";
+            return `<div class="c-head" style="margin-top:6px"><div><h2>Akıl Sağlığı</h2><div class="sub">Stres kayıt kalitesini ve kararlarını etkiler</div></div></div>
+            <div class="mh-card ${cls}">
+              <span class="mh-face">${mh.level.icon}</span>
+              <div class="mh-main">
+                <h3>${mh.level.label} · ${mh.stress}/100</h3>
+                <div class="xg-bar ${mh.stress >= 70 ? "hot" : "cool"}" style="margin-top:6px"><i style="width:${mh.stress}%"></i></div>
+                <p>${mh.onHiatus
+                    ? `🛑 ZORUNLU ARA — ${mh.hiatusLeft} gün yayın yapamazsın.`
+                    : mh.inTherapy ? "🛋️ Terapi devam ediyor (günlük stres azalıyor)."
+                    : `Kayıt kalitesi çarpanı ×${mh.qualityMult.toFixed(2)}${mh.stress >= 60 ? " · dikkat: işler bozuluyor" : ""}`}</p>
+              </div>
+              <div class="action-row">
+                <button class="btn btn-ghost btn-xs" data-act="mh-rest">🌿 Dinlen</button>
+                <button class="btn btn-ghost btn-xs" data-act="mh-therapy">🛋️ Terapi</button>
+                <button class="btn btn-ghost btn-xs" data-act="mh-holiday">🏖️ Tatil</button>
+                ${mh.spokeOut ? "" : `<button class="btn btn-ghost btn-xs" data-act="mh-speak">🗣️ Açık konuş</button>`}
+              </div>
+            </div>`;
+          })()}
 
           ${(function () {
             const fin = K.economy && K.economy.report ? K.economy.report() : null;
@@ -27622,6 +29140,27 @@ window.K = window.K || {};
       else if (act === "beef-studio") K.beef.openDissStudio(btn.dataset.arg);
       else if (act === "crew-found") K.beef.promptFoundCrew();
       else if (act === "rival-action") K.rivalry.respond(btn.dataset.arg, btn.dataset.kind);
+      /* =========================================================
+         v10.28 — GENİŞLEME PAKETİ eylemleri
+         ========================================================= */
+      else if (act === "mrc-found") {
+        const el = U.qs("#mrc-brand");
+        K.merch.found(el ? el.value : "");
+      }
+      else if (act === "mrc-launch") K.merch.launch(ui.mrcItem, ui.mrcDesign, ui.mrcStock, ui.mrcPriceMult);
+      else if (act === "ast-buy") K.assets.buy(btn.dataset.arg);
+      else if (act === "ast-sell") K.assets.sell(btn.dataset.arg);
+      else if (act === "wr-accept") K.writing.accept(btn.dataset.arg, btn.dataset.mode);
+      else if (act === "wr-decline") K.writing.decline(btn.dataset.arg);
+      else if (act === "in-enter") K.intl.enter(btn.dataset.arg);
+      else if (act === "in-tour") K.intl.tour(btn.dataset.arg);
+      else if (act === "in-feature") K.intl.foreignFeature(btn.dataset.arg);
+      else if (act === "sh-bot") K.shady.buyBots(btn.dataset.arg);
+      else if (act === "sh-payola") K.shady.payCurator();
+      else if (act === "mh-rest") K.mental.rest();
+      else if (act === "mh-therapy") K.mental.therapy(3);
+      else if (act === "mh-holiday") K.mental.holiday();
+      else if (act === "mh-speak") K.mental.speakOut();
       else if (act === "open-settings") K.settings.openUI();
     },
 
@@ -27629,6 +29168,12 @@ window.K = window.K || {};
       if (["cn-price", "cn-city", "cn-venue", "cn-days", "cn-prod", "cn-opener", "cn-deal", "cn-merch"].includes(e.target.id)) {
         K.careerUI.updateConcertEstimate();
       }
+      /* v10.28 — Girişim sekmesi: form değerleri render arasında korunur */
+      const id = e.target.id;
+      if (id === "mrc-item") ui.mrcItem = e.target.value;
+      else if (id === "mrc-design") ui.mrcDesign = e.target.value;
+      else if (id === "mrc-stock") ui.mrcStock = U.clamp(parseInt(e.target.value, 10) || 0, 0, 5000);
+      else if (id === "mrc-price") ui.mrcPriceMult = U.clamp(parseFloat(e.target.value) || 1, 0.6, 1.8);
     },
 
     /* ---------------- SANATÇI KİMLİĞİ (persona) ---------------- */
@@ -27763,6 +29308,200 @@ window.K = window.K || {};
         U.qs(sel).addEventListener("change", update);
       });
       update();
+    },
+
+    /* =====================================================
+       v10.28 — GİRİŞİM SEKMESİ
+       Altı yeni sistemi tek yerde toplar: ürün, varlık, yazarlık,
+       uluslararası ve karanlık taraf. Her biri KENDİ durum başlığıyla
+       özetlenir; ayrıntı altına açılır.
+       ===================================================== */
+    renderBusiness() {
+      const p = K.state.player;
+      const parts = [];
+
+      /* ---------- 1) ÜRÜN / STREETWEAR ---------- */
+      {
+        const m = K.merch.summary();
+        const a = m.active;
+        const item = K.merch.ITEMS[ui.mrcItem] || K.merch.ITEMS.tee;
+        const design = K.merch.DESIGNS[ui.mrcDesign] || K.merch.DESIGNS.basic;
+        const est = K.merch.cost(ui.mrcItem, ui.mrcDesign, ui.mrcStock);
+        const priced = Math.round(item.price * ui.mrcPriceMult);
+        parts.push(`<div class="c-block">
+          <div class="xg-head">
+            <span class="xg-ico">👕</span>
+            <div class="xg-txt">
+              <h3>${m.brand ? U.escape(m.brand) : "Ürün Markası Kurulmadı"}</h3>
+              <p>${m.brand
+                ? `Marka değeri ${Math.round(m.brandValue)}/100 · talep çarpanı ×${m.mult.toFixed(2)} · potansiyel alıcı havuzu ${U.compact(m.audience)}`
+                : "Drop bazlı ürün işi kur — günümüz rapçisinin en büyük bağımsız geliri."}</p>
+            </div>
+            <div class="xg-big">${U.money(m.profit)}</div>
+          </div>
+          ${m.brand ? `<div class="xg-bar-row"><span style="font-size:11px;color:var(--text-3)">Marka</span><div class="xg-bar"><i style="width:${Math.round(m.brandValue)}%"></i></div><b>${Math.round(m.brandValue)}</b></div>` : ""}
+          ${!m.brand ? `<div class="xg-fields">
+              <div class="field"><label>Marka adı</label><input id="mrc-brand" class="input" placeholder="ör. SOKAK MODA" maxlength="22"></div>
+            </div>
+            <button class="btn btn-primary btn-sm" data-act="mrc-found">Marka Kur</button>` : ""}
+          ${a ? `
+            <div class="xg-rows">
+              <div class="xg-row">
+                <span class="xg-row-ico">${K.merch.ITEMS[a.itemId].icon}</span>
+                <div class="xg-row-main"><b>Drop sürüyor · ${a.sold}/${a.units} satıldı</b>
+                  <span>${U.money(a.price)}/adet · ${a.daysLeft} gün kaldı · gelir ${U.money(a.revenue)}</span></div>
+              </div>
+              <div class="xg-bar"><i style="width:${Math.round(a.sold / a.units * 100)}%"></i></div>
+            </div>` : (m.brand ? `
+            <div class="xg-fields">
+              <div class="field"><label>Ürün</label><select id="mrc-item">${Object.values(K.merch.ITEMS).map(x => `<option value="${x.id}" ${ui.mrcItem === x.id ? "selected" : ""}>${x.icon} ${x.name}</option>`).join("")}</select></div>
+              <div class="field"><label>Tasarım</label><select id="mrc-design">${Object.values(K.merch.DESIGNS).map(x => `<option value="${x.id}" ${ui.mrcDesign === x.id ? "selected" : ""}>${x.icon} ${x.name}</option>`).join("")}</select></div>
+              <div class="field"><label>Adet</label><input id="mrc-stock" class="input" type="number" min="50" max="5000" step="50" value="${ui.mrcStock}"></div>
+              <div class="field"><label>Fiyat ×</label><input id="mrc-price" class="input" type="number" min="0.6" max="1.8" step="0.05" value="${ui.mrcPriceMult}"></div>
+            </div>
+            <div class="xg-stats">
+              <div class="xg-stat"><div class="k">Maliyet</div><div class="v hot">${U.money(est)}</div></div>
+              <div class="xg-stat"><div class="k">Birim fiyat</div><div class="v">${U.money(priced)}</div></div>
+              <div class="xg-stat"><div class="k">Tükense gelir</div><div class="v money">${U.money(priced * ui.mrcStock)}</div></div>
+              <div class="xg-stat"><div class="k">Tahmini kâr</div><div class="v ${priced * ui.mrcStock - est > 0 ? "money" : "hot"}">${U.money(priced * ui.mrcStock - est)}</div></div>
+            </div>
+            <div class="helper">Fiyat yükseldikçe satış düşer. Stok fazlaysa elde kalır — üretim maliyeti geri gelmez.</div>
+            <button class="btn btn-primary btn-sm" data-act="mrc-launch">Drop Başlat · ${U.money(est)}</button>
+            ${K.state.day < m.cooldownDay ? `<div class="helper">Üretim molası: ${m.cooldownDay - K.state.day} gün.</div>` : ""}` : "")}
+          ${m.drops.length ? `<div class="xg-rows">${m.drops.slice(0, 4).map(d => `
+            <div class="xg-row done">
+              <span class="xg-row-ico">${K.merch.ITEMS[d.itemId].icon}</span>
+              <div class="xg-row-main"><b>${d.sold}/${d.units} ${d.soldOut ? "· TÜKENDİ 🔥" : ""}</b>
+                <span>gelir ${U.money(d.revenue)} · net ${U.money(d.profit)}</span></div>
+            </div>`).join("")}</div>` : ""}
+        </div>`);
+      }
+
+      /* ---------- 2) VARLIK & GÖSTERİŞ ---------- */
+      {
+        const sum = K.assets.summary();
+        parts.push(`<div class="c-block">
+          <div class="xg-head">
+            <span class="xg-ico">🏎️</span>
+            <div class="xg-txt"><h3>Varlık & Gösteriş</h3>
+              <p>Varlıklar statü kazandırır ama <b>aylık bakım</b> ister. Ödeyemezsen imaj zarar görür.</p></div>
+            <div class="xg-big">${sum.count}</div>
+          </div>
+          <div class="xg-stats">
+            <div class="xg-stat"><div class="k">Toplam değer</div><div class="v">${U.money(sum.totalCost)}</div></div>
+            <div class="xg-stat"><div class="k">Aylık bakım</div><div class="v hot">${U.money(sum.upkeep)}</div></div>
+            <div class="xg-stat"><div class="k">Pasif gelir</div><div class="v money">${U.money(sum.income)}</div></div>
+          </div>
+          ${sum.owned.length ? `<div class="xg-rows">${sum.owned.map(x => `
+            <div class="xg-row">
+              <span class="xg-row-ico">${x.icon}</span>
+              <div class="xg-row-main"><b>${U.escape(x.name)}</b>
+                <span>aylık bakım ${U.money(x.upkeep)}${x.income ? " · gelir " + U.money(x.income) : ""}</span></div>
+              <button class="btn btn-ghost btn-xs" data-act="ast-sell" data-arg="${x.id}">Sat</button>
+            </div>`).join("")}</div>` : ""}
+          <div class="xg-grid">
+            ${K.assets.ASSETS.filter(x => !K.assets.owns(x.id)).map(x => {
+              const c = K.assets.canBuy(x.id);
+              return `<button class="xg-opt ${c.ok ? "" : "locked"}" ${c.ok ? `data-act="ast-buy" data-arg="${x.id}"` : "disabled"}>
+                <b>${x.icon} ${U.escape(x.name)}</b>
+                <span class="xg-cost">${U.money(x.cost)}</span>
+                <span>bakım ${U.money(x.upkeep)}/ay · imaj +${x.img}</span>
+                <span>${c.ok ? U.escape(x.note) : U.escape(c.why)}</span>
+              </button>`; }).join("")}
+          </div>
+        </div>`);
+      }
+
+      /* ---------- 3) BAŞKASI İÇİN YAZMAK ---------- */
+      {
+        const w = K.writing.summary();
+        parts.push(`<div class="c-block">
+          <div class="xg-head">
+            <span class="xg-ico">✍️</span>
+            <div class="xg-txt"><h3>Başkası İçin Yazmak</h3>
+              <p>Hook/verse yaz, para kazan, network kur. <b>Gölge</b> seçersen adın geçmez (ücret ×1,35) ama açığa çıkma riski birikir.</p></div>
+            <div class="xg-big">${w.craft}</div>
+          </div>
+          <div class="xg-stats">
+            <div class="xg-stat"><div class="k">Ustalık</div><div class="v">${w.craft}</div></div>
+            <div class="xg-stat"><div class="k">Kredili iş</div><div class="v">${w.credited}</div></div>
+            <div class="xg-stat"><div class="k">Gölge iş</div><div class="v hot">${w.ghostJobs}</div></div>
+            <div class="xg-stat"><div class="k">Toplam</div><div class="v money">${U.money(w.totalEarned)}</div></div>
+          </div>
+          ${w.exposed ? `<div class="helper">⚠️ ${w.exposed} kez açığa çıktın — imaj ve itibar zarar gördü.</div>` : ""}
+          ${w.active ? `<div class="xg-rows"><div class="xg-row">
+              <span class="xg-row-ico">${w.active.icon}</span>
+              <div class="xg-row-main"><b>${U.escape(w.active.artistName)} · ${U.escape(w.active.scopeName)}</b>
+                <span>${w.active.daysLeft} gün kaldı · ${w.active.mode === "ghost" ? "GÖLGE" : "kredili"} · ${U.money(w.active.fee)}</span></div>
+            </div></div>` : (w.offers.length ? `<div class="xg-rows">${w.offers.map(o => `
+            <div class="xg-row">
+              <span class="xg-row-ico">${o.icon}</span>
+              <div class="xg-row-main"><b>${U.escape(o.artistName)} · ${U.escape(o.scopeName)}</b>
+                <span>${U.money(o.fee)} · ${o.days} gün · ustalık ${o.quality}</span></div>
+              <button class="btn btn-primary btn-xs" data-act="wr-accept" data-arg="${o.id}" data-mode="credit">Kredili</button>
+              <button class="btn btn-ghost btn-xs" data-act="wr-accept" data-arg="${o.id}" data-mode="ghost">Gölge</button>
+              <button class="btn btn-ghost btn-xs" data-act="wr-decline" data-arg="${o.id}">Ret</button>
+            </div>`).join("")}</div>` : `<div class="helper">Şu an teklif yok. Şöhretin ve ustalığın arttıkça daha çok iş gelir.</div>`)}
+        </div>`);
+      }
+
+      /* ---------- 4) ULUSLARARASI ---------- */
+      {
+        const it2 = K.intl.summary();
+        parts.push(`<div class="c-block">
+          <div class="xg-head ok">
+            <span class="xg-ico">🌍</span>
+            <div class="xg-txt"><h3>Uluslararası · ${U.escape(it2.stageLabel)}</h3>
+              <p>Diaspora pazarına gir, turne yap, yabancı feature al. Nüfuz aylık <b>yurt dışı telif</b> üretir.</p></div>
+            <div class="xg-big">${U.money(it2.monthly)}</div>
+          </div>
+          ${it2.touring ? `<div class="helper">✈️ Turne sürüyor: ${U.escape((K.intl.market(it2.touring.marketId) || {}).name || "")} · ${it2.touring.daysLeft} gün kaldı.</div>` : ""}
+          <div class="xg-rows">${it2.markets.map(m => `
+            <div class="xg-row ${m.entered ? "" : "locked"}">
+              <span class="xg-row-ico">${m.icon}</span>
+              <div class="xg-row-main">
+                <b>${U.escape(m.name)}${m.entered ? ` · nüfuz ${m.pen}` : ""}</b>
+                <span>${m.entered ? `hedef ${m.target} · pazar gücü ×${m.size}` : `giriş ${U.money(m.unlock)} · pop ${m.minPop}`}</span>
+                ${m.entered ? `<div class="xg-bar" style="margin-top:5px"><i style="width:${m.pen}%"></i></div>` : ""}
+              </div>
+              ${m.entered
+                ? `<button class="btn btn-ghost btn-xs" data-act="in-tour" data-arg="${m.id}">Turne</button>
+                   <button class="btn btn-ghost btn-xs" data-act="in-feature" data-arg="${m.id}">Feature</button>`
+                : `<button class="btn btn-primary btn-xs" data-act="in-enter" data-arg="${m.id}">Gir</button>`}
+            </div>`).join("")}</div>
+          <div class="helper">Not: yurt dışı vergi ve lojistik kalemleri dahildir; vize reddi ya da bütçe aşımı olabilir.</div>
+        </div>`);
+      }
+
+      /* ---------- 5) KARANLIK TARAF ---------- */
+      {
+        const sh = K.shady.summary();
+        parts.push(`<div class="c-block">
+          <div class="xg-dark">
+            <h3>🎰 Karanlık Taraf — kısa yol</h3>
+            <p>Sahte dinlenme ve playlist payolası sana zaman kazandırır. Ama iz bırakır:
+tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün platform yasağı</b> (telif ×0,45).</p>
+            ${sh.banned ? `<div class="xg-warn">⛔ Şu an YASAKLISIN — ${sh.bannedLeft} gün kaldı (telif ×${sh.incomeMult.toFixed(2)})</div>` : ""}
+            <div class="xg-bar-row" style="margin-top:9px"><span style="font-size:11px;color:var(--text-3)">Şüphe</span>
+              <div class="xg-bar hot"><i style="width:${sh.suspicion}%"></i></div><b>${sh.suspicion}</b></div>
+            <div class="helper">Günlük tespit şansı: %${(sh.detectChance * 100).toFixed(1)} · strike ${sh.strikes}/3${sh.everUsed ? "" : " · hiç kullanmadın (temiz kariyer ödülü 360. günde)"}</div>
+          </div>
+          <div class="xg-grid">
+            ${K.shady.BOT_TIERS.map(t => `<button class="xg-opt" data-act="sh-bot" data-arg="${t.id}" ${sh.banned ? "disabled" : ""}>
+              <b>${t.icon} ${U.escape(t.name)}</b>
+              <span class="xg-cost">${U.money(t.cost)}</span>
+              <span>+${U.compact(t.streams)} dinlenme · şüphe +${t.susp}</span>
+            </button>`).join("")}
+            <button class="xg-opt" data-act="sh-payola" ${sh.banned ? "disabled" : ""}>
+              <b>📻 Küratör (payola)</b>
+              <span class="xg-cost">${U.money(K.shady.PAYOLA_COST)}</span>
+              <span>en yeni şarkıyı listeye sokar · şüphe +10</span>
+            </button>
+          </div>
+        </div>`);
+      }
+
+      return `<div class="xg-block">${parts.join("")}</div>`;
     },
 
     /* ---------------- kariyer detayı ---------------- */
