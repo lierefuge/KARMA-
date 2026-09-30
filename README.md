@@ -5,6 +5,64 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.30 — İletişim katmanı: aramalar · gönderi türü · teklif kuyruğu · yabancı DM'ler
+
+Dört yeni/derinleştirilmiş sistem; hepsi birbirine bağlı. Yeni test paketi:
+`tools/smoke-v1030.js` (**80 kontrol**).
+
+### 1) 📞 Gelen aramalar — `systems/calls.js` + `apps/calls.js`
+Telefon artık **çalıyor**. 10 arama türü (menajer, şirket A&R, gazeteci, radyo,
+sponsor, festival, hayran, sanatçı, mahalle/aile, **dolandırıcı**) gelir ve her biri
+bir KARARA bağlanır:
+
+| Karar | Sonuç |
+|---|---|
+| **📞 Aç** | Konuşma seçenekleri; her seçeneğin somut sonucu (para, şöhret, itibar, imaj, stres, ilişki, teklif) |
+| **📵 Reddet** | Kaçan fırsat / bozulan ilişki / itibar kaybı |
+| **✉️ Mesaj** | Yazılı yanıt; bazı arayanlar metni tercih eder |
+
+Her arama **sürelidir** (`expiresDay`); süre dolarsa "cevapsız" olur ve sonucu yine
+de vardır. Aramalar gün geçişinden sonra otomatik açılır; kaçarsan **Telefon**
+uygulamasının *Gelen* sekmesinde bekler. Yanlış numara yok: dolandırıcı ön ödeme
+istersen paranı alır, gazeteciyi reddedersen olumsuz haber çıkar.
+
+### 2) 📈 Gönderi stratejisi — içerik TÜRÜ (`systems/social.js`)
+Gönderi atarken artık **ne tür** bir içerik olduğunu seçiyorsun:
+
+| Tür | Erişim | İmaj / İtibar | Risk |
+|---|---|---|---|
+| 📈 **Erişim** | Yüksek (×1,45 etkileşim + takipçi) | Hafif nötr | — |
+| ✨ **İmaj** | Düşük (×0,72) | +itibar, +imaj | — |
+| 🎲 **Risk** | %52 patlama (×2,4 + viral) | %48 tepki (−itibar/imaj, kriz riski) | Yüksek |
+
+Tür seçici Instagram ve X gönderi modallarında. `K.social.playerPost()` sonuç
+motorunu yönetir.
+
+### 3) 🤝 Teklif kuyruğu + pazarlık — `systems/relations.js`
+Teklifler artık **süreli ve birikimli**:
+- Her teklife `expiresDay` atanır; süre dolarsa **geri çekilir** ve ilişki/itibar maliyeti doğar.
+- **Pazarlık**: daha iyi şart istersin; karşı taraf kaldıraca (samimiyet + popülerlik + itibar)
+  ve isteğin büyüklüğüne göre **kabul / kısmi taviz / geri çekilme** ile karşılık verir.
+- Teklif kartında geri sayım (⏳) ve 🤝 Pazarlık düğmesi; teklif türüne göre farklı alanlar
+  (feature gelir payı; şirket avansı/payı/süresi).
+
+### 4) 💜⚠️📰 Yabancı DM'ler — `systems/dms.js`
+Gelen kutusuna artık üç yabancı düşer; ikisi **engelle / yanıtla**:
+- 💜 **Hayran** — sıcak yanıt sadakat ve takipçi kazandırır; engellersen kaybedersin.
+- ⚠️ **Dolandırıcı** — sahte ödül/playlist; ödeme yaparsan para gider, detay sorarsan kaçar, engelle güvenli.
+- 📰 **Gazeteci** — röportaj kabulü itibar kazandırır; engellersen basın ilişkilerin zedelenir.
+
+Her mesaj süreli; **engellenen hesap** kalıcı olarak listeye girer ve bir daha yazamaz
+(İstekler sekmesinde "🚫 engellenen hesap" satırından yönetilir).
+
+### 🔗 Entegrasyon
+- `game.js` günlük tick zinciri: `calls.tick()` + `dms.tick()`; gün geçişinde çalan arama otomatik açılır.
+- Aramalar/DM'ler mevcut sistemleri besler: `economy` (para), `game.addFame` (şöhret tavanı),
+  `press` (imaj/itibar), `relations` (samimiyet, teklif), `mental` (stres), `festivals`, `shady` (payola).
+- `contacts.byId` artık yabancı gönderenleri de çözer; böylece Mesajlar/avatar altyapısı ortak çalışır.
+
+---
+
 ## GÜNCELLEME v10.29 — Akıl sağlığı ekseni üç sisteme daha bağlandı
 
 v10.28'de eklenen stres ekseni yalnızca **kayıt kalitesini** ve **yayın kilidini**
