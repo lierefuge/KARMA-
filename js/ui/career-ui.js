@@ -8,7 +8,11 @@
 
   const U = K.util;
   let currentTab = "career";
-  const ui = { tourCities: [], festStance: "balanced", presaveRel: null, presaveChans: [] };
+  const ui = {
+    tourCities: [], festStance: "balanced", presaveRel: null, presaveChans: [],
+    /* v10.28 — Girişim sekmesi geçici form durumu (render sırasında korunur) */
+    mrcItem: "tee", mrcDesign: "basic", mrcStock: 200, mrcPriceMult: 1, botTier: "s"
+  };
   const subTab = { label: "genel", events: "awards" };
 
   K.careerUI = {
@@ -45,6 +49,7 @@
         concerts: K.careerUI.renderConcerts,
         festivals: K.careerUI.renderFestivals,
         label: K.careerUI.renderLabelTab,
+        business: K.careerUI.renderBusiness,
         events: K.careerUI.renderEventsTab
       };
       body.innerHTML = (map[currentTab] || map.career)();
@@ -103,6 +108,31 @@
               <div class="grow"><b>${U.escape(persona.name)}</b><span>${U.escape(persona.desc)}</span></div>
               <div class="persona-ident"><span>Tutarlılık</span><b>${ident}%</b></div>
             </div>` : `<div class="helper">Henüz kimlik seçmedin. Kimlik, hangi tür ve temalarda güçlü olduğunu belirler.</div>`}
+
+          ${(function () {
+            /* v10.28 — AKIL SAĞLIĞI kartı: stres kaliteyi ve kararları etkiler */
+            const mh = K.mental.summary();
+            const cls = (mh.level.key === "tukenmis" || mh.level.key === "yuksek") ? "bad"
+              : mh.level.key === "gergin" ? "warn" : "";
+            return `<div class="c-head" style="margin-top:6px"><div><h2>Akıl Sağlığı</h2><div class="sub">Stres kayıt kalitesini ve kararlarını etkiler</div></div></div>
+            <div class="mh-card ${cls}">
+              <span class="mh-face">${mh.level.icon}</span>
+              <div class="mh-main">
+                <h3>${mh.level.label} · ${mh.stress}/100</h3>
+                <div class="xg-bar ${mh.stress >= 70 ? "hot" : "cool"}" style="margin-top:6px"><i style="width:${mh.stress}%"></i></div>
+                <p>${mh.onHiatus
+                    ? `🛑 ZORUNLU ARA — ${mh.hiatusLeft} gün yayın yapamazsın.`
+                    : mh.inTherapy ? "🛋️ Terapi devam ediyor (günlük stres azalıyor)."
+                    : `Kayıt kalitesi çarpanı ×${mh.qualityMult.toFixed(2)}${mh.stress >= 60 ? " · dikkat: işler bozuluyor" : ""}`}</p>
+              </div>
+              <div class="action-row">
+                <button class="btn btn-ghost btn-xs" data-act="mh-rest">🌿 Dinlen</button>
+                <button class="btn btn-ghost btn-xs" data-act="mh-therapy">🛋️ Terapi</button>
+                <button class="btn btn-ghost btn-xs" data-act="mh-holiday">🏖️ Tatil</button>
+                ${mh.spokeOut ? "" : `<button class="btn btn-ghost btn-xs" data-act="mh-speak">🗣️ Açık konuş</button>`}
+              </div>
+            </div>`;
+          })()}
 
           ${(function () {
             const fin = K.economy && K.economy.report ? K.economy.report() : null;
@@ -2816,6 +2846,27 @@
       else if (act === "beef-studio") K.beef.openDissStudio(btn.dataset.arg);
       else if (act === "crew-found") K.beef.promptFoundCrew();
       else if (act === "rival-action") K.rivalry.respond(btn.dataset.arg, btn.dataset.kind);
+      /* =========================================================
+         v10.28 — GENİŞLEME PAKETİ eylemleri
+         ========================================================= */
+      else if (act === "mrc-found") {
+        const el = U.qs("#mrc-brand");
+        K.merch.found(el ? el.value : "");
+      }
+      else if (act === "mrc-launch") K.merch.launch(ui.mrcItem, ui.mrcDesign, ui.mrcStock, ui.mrcPriceMult);
+      else if (act === "ast-buy") K.assets.buy(btn.dataset.arg);
+      else if (act === "ast-sell") K.assets.sell(btn.dataset.arg);
+      else if (act === "wr-accept") K.writing.accept(btn.dataset.arg, btn.dataset.mode);
+      else if (act === "wr-decline") K.writing.decline(btn.dataset.arg);
+      else if (act === "in-enter") K.intl.enter(btn.dataset.arg);
+      else if (act === "in-tour") K.intl.tour(btn.dataset.arg);
+      else if (act === "in-feature") K.intl.foreignFeature(btn.dataset.arg);
+      else if (act === "sh-bot") K.shady.buyBots(btn.dataset.arg);
+      else if (act === "sh-payola") K.shady.payCurator();
+      else if (act === "mh-rest") K.mental.rest();
+      else if (act === "mh-therapy") K.mental.therapy(3);
+      else if (act === "mh-holiday") K.mental.holiday();
+      else if (act === "mh-speak") K.mental.speakOut();
       else if (act === "open-settings") K.settings.openUI();
     },
 
@@ -2823,6 +2874,12 @@
       if (["cn-price", "cn-city", "cn-venue", "cn-days", "cn-prod", "cn-opener", "cn-deal", "cn-merch"].includes(e.target.id)) {
         K.careerUI.updateConcertEstimate();
       }
+      /* v10.28 — Girişim sekmesi: form değerleri render arasında korunur */
+      const id = e.target.id;
+      if (id === "mrc-item") ui.mrcItem = e.target.value;
+      else if (id === "mrc-design") ui.mrcDesign = e.target.value;
+      else if (id === "mrc-stock") ui.mrcStock = U.clamp(parseInt(e.target.value, 10) || 0, 0, 5000);
+      else if (id === "mrc-price") ui.mrcPriceMult = U.clamp(parseFloat(e.target.value) || 1, 0.6, 1.8);
     },
 
     /* ---------------- SANATÇI KİMLİĞİ (persona) ---------------- */
@@ -2957,6 +3014,200 @@
         U.qs(sel).addEventListener("change", update);
       });
       update();
+    },
+
+    /* =====================================================
+       v10.28 — GİRİŞİM SEKMESİ
+       Altı yeni sistemi tek yerde toplar: ürün, varlık, yazarlık,
+       uluslararası ve karanlık taraf. Her biri KENDİ durum başlığıyla
+       özetlenir; ayrıntı altına açılır.
+       ===================================================== */
+    renderBusiness() {
+      const p = K.state.player;
+      const parts = [];
+
+      /* ---------- 1) ÜRÜN / STREETWEAR ---------- */
+      {
+        const m = K.merch.summary();
+        const a = m.active;
+        const item = K.merch.ITEMS[ui.mrcItem] || K.merch.ITEMS.tee;
+        const design = K.merch.DESIGNS[ui.mrcDesign] || K.merch.DESIGNS.basic;
+        const est = K.merch.cost(ui.mrcItem, ui.mrcDesign, ui.mrcStock);
+        const priced = Math.round(item.price * ui.mrcPriceMult);
+        parts.push(`<div class="c-block">
+          <div class="xg-head">
+            <span class="xg-ico">👕</span>
+            <div class="xg-txt">
+              <h3>${m.brand ? U.escape(m.brand) : "Ürün Markası Kurulmadı"}</h3>
+              <p>${m.brand
+                ? `Marka değeri ${Math.round(m.brandValue)}/100 · talep çarpanı ×${m.mult.toFixed(2)} · potansiyel alıcı havuzu ${U.compact(m.audience)}`
+                : "Drop bazlı ürün işi kur — günümüz rapçisinin en büyük bağımsız geliri."}</p>
+            </div>
+            <div class="xg-big">${U.money(m.profit)}</div>
+          </div>
+          ${m.brand ? `<div class="xg-bar-row"><span style="font-size:11px;color:var(--text-3)">Marka</span><div class="xg-bar"><i style="width:${Math.round(m.brandValue)}%"></i></div><b>${Math.round(m.brandValue)}</b></div>` : ""}
+          ${!m.brand ? `<div class="xg-fields">
+              <div class="field"><label>Marka adı</label><input id="mrc-brand" class="input" placeholder="ör. SOKAK MODA" maxlength="22"></div>
+            </div>
+            <button class="btn btn-primary btn-sm" data-act="mrc-found">Marka Kur</button>` : ""}
+          ${a ? `
+            <div class="xg-rows">
+              <div class="xg-row">
+                <span class="xg-row-ico">${K.merch.ITEMS[a.itemId].icon}</span>
+                <div class="xg-row-main"><b>Drop sürüyor · ${a.sold}/${a.units} satıldı</b>
+                  <span>${U.money(a.price)}/adet · ${a.daysLeft} gün kaldı · gelir ${U.money(a.revenue)}</span></div>
+              </div>
+              <div class="xg-bar"><i style="width:${Math.round(a.sold / a.units * 100)}%"></i></div>
+            </div>` : (m.brand ? `
+            <div class="xg-fields">
+              <div class="field"><label>Ürün</label><select id="mrc-item">${Object.values(K.merch.ITEMS).map(x => `<option value="${x.id}" ${ui.mrcItem === x.id ? "selected" : ""}>${x.icon} ${x.name}</option>`).join("")}</select></div>
+              <div class="field"><label>Tasarım</label><select id="mrc-design">${Object.values(K.merch.DESIGNS).map(x => `<option value="${x.id}" ${ui.mrcDesign === x.id ? "selected" : ""}>${x.icon} ${x.name}</option>`).join("")}</select></div>
+              <div class="field"><label>Adet</label><input id="mrc-stock" class="input" type="number" min="50" max="5000" step="50" value="${ui.mrcStock}"></div>
+              <div class="field"><label>Fiyat ×</label><input id="mrc-price" class="input" type="number" min="0.6" max="1.8" step="0.05" value="${ui.mrcPriceMult}"></div>
+            </div>
+            <div class="xg-stats">
+              <div class="xg-stat"><div class="k">Maliyet</div><div class="v hot">${U.money(est)}</div></div>
+              <div class="xg-stat"><div class="k">Birim fiyat</div><div class="v">${U.money(priced)}</div></div>
+              <div class="xg-stat"><div class="k">Tükense gelir</div><div class="v money">${U.money(priced * ui.mrcStock)}</div></div>
+              <div class="xg-stat"><div class="k">Tahmini kâr</div><div class="v ${priced * ui.mrcStock - est > 0 ? "money" : "hot"}">${U.money(priced * ui.mrcStock - est)}</div></div>
+            </div>
+            <div class="helper">Fiyat yükseldikçe satış düşer. Stok fazlaysa elde kalır — üretim maliyeti geri gelmez.</div>
+            <button class="btn btn-primary btn-sm" data-act="mrc-launch">Drop Başlat · ${U.money(est)}</button>
+            ${K.state.day < m.cooldownDay ? `<div class="helper">Üretim molası: ${m.cooldownDay - K.state.day} gün.</div>` : ""}` : "")}
+          ${m.drops.length ? `<div class="xg-rows">${m.drops.slice(0, 4).map(d => `
+            <div class="xg-row done">
+              <span class="xg-row-ico">${K.merch.ITEMS[d.itemId].icon}</span>
+              <div class="xg-row-main"><b>${d.sold}/${d.units} ${d.soldOut ? "· TÜKENDİ 🔥" : ""}</b>
+                <span>gelir ${U.money(d.revenue)} · net ${U.money(d.profit)}</span></div>
+            </div>`).join("")}</div>` : ""}
+        </div>`);
+      }
+
+      /* ---------- 2) VARLIK & GÖSTERİŞ ---------- */
+      {
+        const sum = K.assets.summary();
+        parts.push(`<div class="c-block">
+          <div class="xg-head">
+            <span class="xg-ico">🏎️</span>
+            <div class="xg-txt"><h3>Varlık & Gösteriş</h3>
+              <p>Varlıklar statü kazandırır ama <b>aylık bakım</b> ister. Ödeyemezsen imaj zarar görür.</p></div>
+            <div class="xg-big">${sum.count}</div>
+          </div>
+          <div class="xg-stats">
+            <div class="xg-stat"><div class="k">Toplam değer</div><div class="v">${U.money(sum.totalCost)}</div></div>
+            <div class="xg-stat"><div class="k">Aylık bakım</div><div class="v hot">${U.money(sum.upkeep)}</div></div>
+            <div class="xg-stat"><div class="k">Pasif gelir</div><div class="v money">${U.money(sum.income)}</div></div>
+          </div>
+          ${sum.owned.length ? `<div class="xg-rows">${sum.owned.map(x => `
+            <div class="xg-row">
+              <span class="xg-row-ico">${x.icon}</span>
+              <div class="xg-row-main"><b>${U.escape(x.name)}</b>
+                <span>aylık bakım ${U.money(x.upkeep)}${x.income ? " · gelir " + U.money(x.income) : ""}</span></div>
+              <button class="btn btn-ghost btn-xs" data-act="ast-sell" data-arg="${x.id}">Sat</button>
+            </div>`).join("")}</div>` : ""}
+          <div class="xg-grid">
+            ${K.assets.ASSETS.filter(x => !K.assets.owns(x.id)).map(x => {
+              const c = K.assets.canBuy(x.id);
+              return `<button class="xg-opt ${c.ok ? "" : "locked"}" ${c.ok ? `data-act="ast-buy" data-arg="${x.id}"` : "disabled"}>
+                <b>${x.icon} ${U.escape(x.name)}</b>
+                <span class="xg-cost">${U.money(x.cost)}</span>
+                <span>bakım ${U.money(x.upkeep)}/ay · imaj +${x.img}</span>
+                <span>${c.ok ? U.escape(x.note) : U.escape(c.why)}</span>
+              </button>`; }).join("")}
+          </div>
+        </div>`);
+      }
+
+      /* ---------- 3) BAŞKASI İÇİN YAZMAK ---------- */
+      {
+        const w = K.writing.summary();
+        parts.push(`<div class="c-block">
+          <div class="xg-head">
+            <span class="xg-ico">✍️</span>
+            <div class="xg-txt"><h3>Başkası İçin Yazmak</h3>
+              <p>Hook/verse yaz, para kazan, network kur. <b>Gölge</b> seçersen adın geçmez (ücret ×1,35) ama açığa çıkma riski birikir.</p></div>
+            <div class="xg-big">${w.craft}</div>
+          </div>
+          <div class="xg-stats">
+            <div class="xg-stat"><div class="k">Ustalık</div><div class="v">${w.craft}</div></div>
+            <div class="xg-stat"><div class="k">Kredili iş</div><div class="v">${w.credited}</div></div>
+            <div class="xg-stat"><div class="k">Gölge iş</div><div class="v hot">${w.ghostJobs}</div></div>
+            <div class="xg-stat"><div class="k">Toplam</div><div class="v money">${U.money(w.totalEarned)}</div></div>
+          </div>
+          ${w.exposed ? `<div class="helper">⚠️ ${w.exposed} kez açığa çıktın — imaj ve itibar zarar gördü.</div>` : ""}
+          ${w.active ? `<div class="xg-rows"><div class="xg-row">
+              <span class="xg-row-ico">${w.active.icon}</span>
+              <div class="xg-row-main"><b>${U.escape(w.active.artistName)} · ${U.escape(w.active.scopeName)}</b>
+                <span>${w.active.daysLeft} gün kaldı · ${w.active.mode === "ghost" ? "GÖLGE" : "kredili"} · ${U.money(w.active.fee)}</span></div>
+            </div></div>` : (w.offers.length ? `<div class="xg-rows">${w.offers.map(o => `
+            <div class="xg-row">
+              <span class="xg-row-ico">${o.icon}</span>
+              <div class="xg-row-main"><b>${U.escape(o.artistName)} · ${U.escape(o.scopeName)}</b>
+                <span>${U.money(o.fee)} · ${o.days} gün · ustalık ${o.quality}</span></div>
+              <button class="btn btn-primary btn-xs" data-act="wr-accept" data-arg="${o.id}" data-mode="credit">Kredili</button>
+              <button class="btn btn-ghost btn-xs" data-act="wr-accept" data-arg="${o.id}" data-mode="ghost">Gölge</button>
+              <button class="btn btn-ghost btn-xs" data-act="wr-decline" data-arg="${o.id}">Ret</button>
+            </div>`).join("")}</div>` : `<div class="helper">Şu an teklif yok. Şöhretin ve ustalığın arttıkça daha çok iş gelir.</div>`)}
+        </div>`);
+      }
+
+      /* ---------- 4) ULUSLARARASI ---------- */
+      {
+        const it2 = K.intl.summary();
+        parts.push(`<div class="c-block">
+          <div class="xg-head ok">
+            <span class="xg-ico">🌍</span>
+            <div class="xg-txt"><h3>Uluslararası · ${U.escape(it2.stageLabel)}</h3>
+              <p>Diaspora pazarına gir, turne yap, yabancı feature al. Nüfuz aylık <b>yurt dışı telif</b> üretir.</p></div>
+            <div class="xg-big">${U.money(it2.monthly)}</div>
+          </div>
+          ${it2.touring ? `<div class="helper">✈️ Turne sürüyor: ${U.escape((K.intl.market(it2.touring.marketId) || {}).name || "")} · ${it2.touring.daysLeft} gün kaldı.</div>` : ""}
+          <div class="xg-rows">${it2.markets.map(m => `
+            <div class="xg-row ${m.entered ? "" : "locked"}">
+              <span class="xg-row-ico">${m.icon}</span>
+              <div class="xg-row-main">
+                <b>${U.escape(m.name)}${m.entered ? ` · nüfuz ${m.pen}` : ""}</b>
+                <span>${m.entered ? `hedef ${m.target} · pazar gücü ×${m.size}` : `giriş ${U.money(m.unlock)} · pop ${m.minPop}`}</span>
+                ${m.entered ? `<div class="xg-bar" style="margin-top:5px"><i style="width:${m.pen}%"></i></div>` : ""}
+              </div>
+              ${m.entered
+                ? `<button class="btn btn-ghost btn-xs" data-act="in-tour" data-arg="${m.id}">Turne</button>
+                   <button class="btn btn-ghost btn-xs" data-act="in-feature" data-arg="${m.id}">Feature</button>`
+                : `<button class="btn btn-primary btn-xs" data-act="in-enter" data-arg="${m.id}">Gir</button>`}
+            </div>`).join("")}</div>
+          <div class="helper">Not: yurt dışı vergi ve lojistik kalemleri dahildir; vize reddi ya da bütçe aşımı olabilir.</div>
+        </div>`);
+      }
+
+      /* ---------- 5) KARANLIK TARAF ---------- */
+      {
+        const sh = K.shady.summary();
+        parts.push(`<div class="c-block">
+          <div class="xg-dark">
+            <h3>🎰 Karanlık Taraf — kısa yol</h3>
+            <p>Sahte dinlenme ve playlist payolası sana zaman kazandırır. Ama iz bırakır:
+tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün platform yasağı</b> (telif ×0,45).</p>
+            ${sh.banned ? `<div class="xg-warn">⛔ Şu an YASAKLISIN — ${sh.bannedLeft} gün kaldı (telif ×${sh.incomeMult.toFixed(2)})</div>` : ""}
+            <div class="xg-bar-row" style="margin-top:9px"><span style="font-size:11px;color:var(--text-3)">Şüphe</span>
+              <div class="xg-bar hot"><i style="width:${sh.suspicion}%"></i></div><b>${sh.suspicion}</b></div>
+            <div class="helper">Günlük tespit şansı: %${(sh.detectChance * 100).toFixed(1)} · strike ${sh.strikes}/3${sh.everUsed ? "" : " · hiç kullanmadın (temiz kariyer ödülü 360. günde)"}</div>
+          </div>
+          <div class="xg-grid">
+            ${K.shady.BOT_TIERS.map(t => `<button class="xg-opt" data-act="sh-bot" data-arg="${t.id}" ${sh.banned ? "disabled" : ""}>
+              <b>${t.icon} ${U.escape(t.name)}</b>
+              <span class="xg-cost">${U.money(t.cost)}</span>
+              <span>+${U.compact(t.streams)} dinlenme · şüphe +${t.susp}</span>
+            </button>`).join("")}
+            <button class="xg-opt" data-act="sh-payola" ${sh.banned ? "disabled" : ""}>
+              <b>📻 Küratör (payola)</b>
+              <span class="xg-cost">${U.money(K.shady.PAYOLA_COST)}</span>
+              <span>en yeni şarkıyı listeye sokar · şüphe +10</span>
+            </button>
+          </div>
+        </div>`);
+      }
+
+      return `<div class="xg-block">${parts.join("")}</div>`;
     },
 
     /* ---------------- kariyer detayı ---------------- */
