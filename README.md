@@ -5,6 +5,144 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.28 — GENİŞLEME PAKETİ: altı yeni sistem
+
+Bu sürüm oyuna **altı yeni sistem** ekler ve hepsi tek bir sekmede toplanır:
+**💼 Girişim**. Ortak tema: *oyunun eksik kalan gerçekçilik katmanları*.
+
+| # | Sistem | Dosya | Ne katar |
+|---|---|---|---|
+| 1 | ✍️ Başkası için yazmak | `systems/writing.js` | Gelir + network; gölge/kredili ikilemi |
+| 2 | 👕 Ürün markası | `systems/merch.js` | Drop ekonomisi, stok riski, marka değeri |
+| 3 | 🏎️ Varlık & gösteriş | `systems/assets.js` | Statü + **aylık bakım** (para harcama yeri) |
+| 4 | 🧠 Akıl sağlığı | `systems/mental.js` | Stres/tükenme ekseni, zorunlu ara |
+| 5 | 🎰 Karanlık taraf | `systems/shady.js` | Bot dinlenme & payola + tespit/yasak |
+| 6 | 🌍 Uluslararası | `systems/intl.js` | Diaspora pazarı, nüfuz, yurt dışı telif |
+
+### 1) ✍️ Başkası için şarkı yazmak — `systems/writing.js`
+
+Oyuncu zaten bir **gölge yazar tutabiliyordu** ama kendisi yazamıyordu. Artık yazabiliyor.
+Asıl gerilim **iki mod** arasında:
+
+| Mod | Ücret | Bedel |
+|---|---|---|
+| 🎭 **Gölge** | **×1,35** | Adın geçmez; iş sayısı arttıkça **açığa çıkma riski** birikir |
+| ✍️ **Kredili** | ×0,85 | İtibar +3, samimiyet +5, “yazarlık” kimliği |
+
+Açığa çıkarsan imaj ve itibar yanar, “kendi işini yapmıyor” eleştirisi yayılır.
+Kapsamlar: hook (2 gün) · verse (3) · tam şarkı (5). Ustalık = müzik + stüdyo becerisi.
+
+### 2) 👕 Ürün / streetwear markası — `systems/merch.js`
+
+Merch şimdiye kadar **yalnızca konsere bağlıydı** (katılımın %18'i). Artık kendi markanı
+kurup **drop** çıkarıyorsun: tasarım kademesi, adet, fiyat.
+
+- **Fiyat duyarlılığı:** pahalı fiyat → az satış, iyi marj
+- **Stok riski:** elde kalan ürün **zarardır** (üretim maliyeti geri gelmez)
+- **Tükenme (sell-out):** marka değeri + şöhret + yeniden stok baskısı
+- Marka değeri büyüdükçe **premium koleksiyon** açılır
+- Sinerji: moda sponsorluğu talebi +%18, viral trend +%15
+- Drop sonrası **14 gün üretim molası** (spam yok)
+
+### 3) 🏎️ Varlık & gösteriş — `systems/assets.js`
+
+Oyunda parayı harcayacak **statü kalemi yoktu** (ölçüm: ÇALIŞKAN profil 420 günde net
+~413 bin ₺ kâr ediyor). Yedi varlık eklendi — her biri **imaj + itibar** verir, karşılığında
+**aylık bakım** ister:
+
+| Varlık | Maliyet | Aylık bakım | İşlev |
+|---|---|---|---|
+| ⌚ Kol Saati | 180.000 | 900 | imaj |
+| 💎 Elmas Zincir | 260.000 | 1.200 | imaj · **soyulma riski** |
+| 🎛️ Kendi Stüdyosu | 350.000 | 6.000 | kayıt maliyeti ×0,85 · kalite +2 |
+| ☕ Kafe / Kulüp | 700.000 | 8.000 | **pasif gelir** |
+| 🏎️ Lüks Araba | 900.000 | 9.000 | imaj |
+| 🏢 Şirket Binası | 1.200.000 | 18.000 | şirket gücü · itibar |
+| 🏠 Şehir Evi | 1.400.000 | 14.000 | **stres azaltır** |
+
+**Bakım ödenemezse imaj zedelenir** (“gösteriş borçla dönmez” haberleri). Satışta %40
+değer kaybı var. Toplam bakım **pasif gelirden büyük** — yani varlık net giderdir; satın
+aldığın şey statü ve işlevsel bonus.
+
+### 4) 🧠 Akıl sağlığı & tükenmişlik — `systems/mental.js`
+
+`fatigue` yalnızca “dikkat dalgası”nın doygunluğuydu — sanatçının kafası değil. Artık bir
+**stres** ekseni var (0-100).
+
+**Stres kaynakları:** borç · kriz · beef gerilimi · **çıkış hattı (0,35/gün)** · aktif kariyer
+temposu (0,12) · yazarlık işi (0,20) · ürün drop'u (0,15) · turne (0,40) · yurt dışı turne (0,30)
+· kötü imaj · şöhret baskısı.
+
+**Çıkışlar:** 🌿 dinlen (−13, ücretli) · 🛋️ terapi (−0,9/gün) · 🏖️ tatil (−42 ama popülerlik düşer)
+· 🗣️ **açık konuşma** (bir kez: imaj riski ↔ süperfan + itibar).
+
+**Sonuçlar:** kayıt kalitesi çarpanı (100 streste ×0,83) · %85+ kamusal taşma · **%100 → 14 gün
+ZORUNLU ARA** (yayın yapamazsın, hayran kaybı).
+
+**Kalibrasyon (ölçüldü, 720 gün):** stresi 70'te dinlenen aktif oyuncu **0 tükenme** yaşıyor
+(16 dinlenme ile idare ediyor); **hiç dinlenmeyen aktif oyuncu 8 kez tükeniyor ve 112 gün
+kaybediyor**; yayın yapmayan pasif oyuncunun stresi 10'da kalıyor.
+
+### 5) 🎰 Karanlık taraf: bot dinlenme & payola — `systems/shady.js`
+
+Endüstrinin gerçeği olan **kısa yol** artık oyunda — ama bedeliyle.
+
+| Paket | Maliyet | Dinlenme | Şüphe |
+|---|---|---|---|
+| 🐜 Küçük | 45.000 | +250 bin | +8 |
+| 🐝 Orta | 140.000 | +900 bin | +18 |
+| 🦗 Büyük | 400.000 | +3 Mn | +34 |
+| 📻 Payola | 60.000 | listeye giriş | +10 |
+
+**Tespit:** günlük şans = şüphe/100 × %7,5. Tespitte **bot dinlenmenin %70'i silinir**, imaj −8,
+itibar −10, 1 strike. **3 strike → 60 gün platform yasağı** (telif geliri **×0,45**).
+Şüphe zamanla çok yavaş azalır.
+**Dürüst kalana ödül:** 360. güne kadar hiç kullanmayan oyuncuya itibar +8.
+
+### 6) 🌍 Uluslararası / diaspora çıkışı — `systems/intl.js`
+
+Türk rapinin son yıllardaki gerçek hikâyesi (Avrupa diasporası) oyunda yoktu. Beş pazar:
+
+| Pazar | Pazar gücü | Giriş | Min. pop |
+|---|---|---|---|
+| 🇩🇪 Almanya | ×3,0 | 260.000 | 25 |
+| 🇳🇱 Hollanda | ×1,1 | 180.000 | 28 |
+| 🇫🇷 Fransa | ×1,2 | 240.000 | 32 |
+| 🇬🇧 İngiltere | ×0,9 | 320.000 | 38 |
+| 🇺🇸 ABD | ×1,6 | 900.000 | 48 |
+
+Her pazarın **nüfuzu** (0-100) var; hedef popülerlik + yabancı feature + turne + global
+dinlenmeyle büyür, ilgisiz kalırsan **söner**. Eylemler: 🌍 pazara gir · ✈️ diaspora turnesi
+(**%15 vize reddi**, %18 lojistik aşımı) · 🤝 yabancı feature. Aşamalar: kapalı → diaspora →
+Avrupa turu → küresel. Nüfuz **aylık yurt dışı telif** üretir.
+
+### 🔌 Entegrasyon (yeni sistemler izole değil)
+
+- `core/game.js` — altısı günlük tick'te, ikisi aylık döngüde
+- `systems/career.js` — kayıt kalitesi **stres çarpanı** + **kendi stüdyosu** bonusu; tükenmişlikte **yayın kilidi**
+- `systems/economy.js` — **varlık bakımı** aylık gidere girer; **platform yasağı** telif çarpanı
+- `css/expansion.css` — yeni arayüz stilleri (karanlık taraf görsel olarak ayrışır)
+- `core/state.js` — taze oyun şablonu **ve** eski kayıt göçü (iki yolda da varsayılan)
+
+### 🧪 Yeni test paketi: `tools/smoke-expansion.js` (135 kontrol)
+
+Bölümler: **A** kurulum · **B** yazarlık (gölge/kredili/açığa çıkma) · **C** ürün (maliyet,
+satış, tükenme, bekleme) · **D** varlık (kilitler, bakım gidere girdi mi, ödenemezse imaj) ·
+**E** akıl sağlığı (kaynaklar, eylemler, kalite cezası, **tükenme → yayın kilidi**) ·
+**F** karanlık taraf (şüphe, tespit, geri alma, 3 strike → yasak, temiz ödül) ·
+**G** uluslararası (giriş, nüfuz, turne, feature, aylık telif, aşamalar) ·
+**H** entegrasyon (statik: tick zinciri, kalite, ekonomi, index.html, UI, CSS) ·
+**I** **denge** (drop kâr oranı < 3×, varlık net gider, ücret bantları, ceza eşikleri).
+
+Test yazılırken **üç gerçek hata** yakalandı ve düzeltildi:
+1. **Marka kurulmadan drop başlatılabiliyordu** (kontrol eksikti)
+2. **Tükenme hiç tetiklenmiyordu** — eşik, günlük düşüşten *sonra* kontrol ediliyordu;
+   terapi/ev/süperfan rahatlaması stresi 100'ün altına indiriyordu
+3. **Stres pratikte hiç birikmiyordu** — yalnızca kriz/borç/beef bekleniyordu; normal
+   çalışma temposu baskısı eklenerek sistem canlandırıldı (yukarıdaki kalibrasyon ölçümü)
+
+---
+
 ## GÜNCELLEME v10.27 — B-6 kapatıldı: oyuncu kimliği ↔ NPC kişiliği ayrıştırıldı
 
 ### 🏷️ Sorun: tek harfle ayrılan iki global
