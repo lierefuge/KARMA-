@@ -582,6 +582,11 @@
       const stage = K.stageIndexFor(rel.affinity);
       const t = tone(artist);
       const reach = pol ? pol.reach : (K.relations ? K.relations.reach(artistId) : 1);
+      /* v10.29 — akıl sağlığı çarpanı: stresliyken yazılan mesaj daha az
+         samimiyet kazandırır. Erken dönüş yollarında da uygulanır ki
+         davranış tutarlı olsun (stres 40 altında her zaman 1,00). */
+      const mdScale = () => (K.mental && K.mental.dmMult) ? K.mental.dmMult() : 1;   // 100 streste ≈ 0,55
+      const mTone = () => (K.mental && K.mental.dmTone) ? K.mental.dmTone() : null;
 
       const chat = rel._chat = rel._chat || { recent: [], lastIntent: null, turns: 0 };
 
@@ -596,7 +601,10 @@
         chat.turns++;
         rel.lastTopic = "greet";
         rel.lastInteract = K.state.day;
-        return { msgs: [msg], delta: 0.9, intent: "greet", action: null };
+        /* NOT: selamlaşma yolu da ölçeklenir ve aynı alanları döndürür —
+           çağıran taraf her yolda `stressed`/`dmMult` görebilmeli. */
+        return { msgs: [msg], delta: +((0.9 * mdScale()).toFixed(3)), intent: "greet", action: null,
+                 stressed: !!mTone(), dmMult: +mdScale().toFixed(2) };
       }
 
       const intent0 = classify(text);
@@ -608,7 +616,8 @@
         const msg = pickFresh(pool, chat.recent);
         chat.recent.push(msg); if (chat.recent.length > 6) chat.recent.shift();
         chat.turns++;
-        return { msgs: [msg], delta: 0.15, intent: intent0, action: null, cold: true };
+        return { msgs: [msg], delta: +((0.15 * mdScale()).toFixed(3)), intent: intent0, action: null, cold: true,
+                 stressed: !!mTone(), dmMult: +mdScale().toFixed(2) };
       }
 
       /* --- bağlamlı takip: kısa evet/hayır --- */
@@ -654,6 +663,20 @@
       if (U.chance(0.22)) {
         const s = (prof && prof.suffix ? prof.suffix : TONE_SUFFIX[t]).filter(Boolean);
         if (s.length) extras.push(U.pick(s));
+      }
+
+      /* v10.29 — AKIL SAĞLIĞI: yüksek streste sanatçı MESAFE KOYAR.
+         Oyuncunun mesajları dağınık/ters gelir; karşı taraf bunu hisseder
+         ve cevabına bunu katar. (Samimiyet kaybı aşağıda `delta` ile.) */
+      const stressTone = mTone();
+      if (stressTone && U.chance(0.55)) {
+        const LINES = {
+          gergin:   [" Bugün biraz gergin gibisin.", " İyi misin? Sesin tuhaf çıkıyor."],
+          yuksek:   [" Bir şey mi oldu? Bana ters konuşuyorsun.", " Kafan dağınık galiba, sonra konuşalım."],
+          tukenmis: [" Sen iyi değilsin. Dinlen, sonra yazarım.", " Bu hâlde konuşmak ikimize de iyi gelmez."]
+        };
+        const pool = LINES[stressTone] || [];
+        if (pool.length) extras.push(U.pick(pool));
       }
 
       /* ---- gündem bağlantısı: mesajda haber konusu geçiyorsa ---- */
@@ -724,6 +747,12 @@
       if (K.npcPersonality && K.npcPersonality.bias) delta += K.npcPersonality.bias(artistId, intent);
       if (agendaMsg) delta += 0.4;
 
+      /* v10.29 — AKIL SAĞLIĞI: stresliyken yazdığın mesaj daha az
+         samimiyet kazandırır (ters teper). Tüm bonuslardan SONRA
+         uygulanır ki nihai kazancı ölçeklesin. */
+      const dmMult = mdScale();
+      delta *= dmMult;   // 100 streste ≈ 0,55
+
       /* ---- hafızayı güncelle ---- */
       chat.lastIntent = intent;
       chat.turns++;
@@ -754,7 +783,7 @@
         const op = K.npcPersonality.opening(artistId);
         if (op && msg.indexOf(op) !== 0 && (op.length + msg.length) < 240) msg = op + msg;
       }
-      return { msgs: [msg], delta, intent, action };
+      return { msgs: [msg], delta, intent, action, stressed: !!stressTone, dmMult: +dmMult.toFixed(2) };
     },
 
     /* -------- bağlamlı genel cevap --------
