@@ -288,9 +288,11 @@
     },
 
     newPost(prefill, hashtag) {
+      /* v10.30 — gönderi STRATEJİSİ: içerik türü (erişim / imaj / risk) */
       const body = K.ui.field("Ne düşünüyorsun?", `<textarea id="x-text" rows="3" placeholder="Bir şeyler yaz...">${U.escape(prefill || "")}</textarea>`)
-        + (hashtag ? `<div class="hint">${U.escape(hashtag)} etiketi eklenecek.</div>` : "");
-      K.ui.modal({
+        + (hashtag ? `<div class="hint">${U.escape(hashtag)} etiketi eklenecek.</div>` : "")
+        + K.ui.field("İçerik türü", `<div data-posttype-box>${K.social.postTypeSelector("reach")}</div>`);
+      const m = K.ui.modal({
         title: "Gönderi Oluştur", body,
         actions: [
           { label: "Vazgeç" },
@@ -298,13 +300,13 @@
             let text = U.qs("#x-text").value.trim();
             if (!text) { K.toast("Boş gönderi", "", "warn"); return false; }
             if (hashtag) text += " " + hashtag;
-            K.social.createPost("x", text);
-            K.state.player.x += Math.round(K.state.player.popularity * 1.2 + 5);
-            K.toast("𝕏 Paylaşıldı", "", "ok");
-            K.refresh();
+            const type = K.social.selectedPostType(m.root);
+            const res = K.social.playerPost("x", text, type);
+            K.toast(res.title, res.msg, res.kind);
           }}
         ]
       });
+      K.social.bindPostTypes(m.root, "reach");
     },
 
     promotePicker() {
