@@ -1,0 +1,123 @@
+/* ============================================================
+   KARMA — css/expansion.css   (v10.28)
+   GENİŞLEME PAKETİ arayüzü — altı yeni sistem için ortak stiller:
+     · ürün / streetwear (merch)
+     · varlık & gösteriş (assets)
+     · başkası için yazmak (writing)
+     · akıl sağlığı (mental)
+     · karanlık taraf (shady)
+     · uluslararası / diaspora (intl)
+
+   Tasarım kuralı: her sistem tek bir “durum başlığı” ile özetlenir,
+   ayrıntı altına açılır. Karanlık taraf görsel olarak AYRIŞIR (uyarı
+   tonlu çerçeve) ki oyuncu neyin riskli olduğunu bir bakışta anlasın.
+   ============================================================ */
+
+.xg-block { display: flex; flex-direction: column; gap: 12px; }
+
+/* Girişim sekmesinde satır içi küçük düğmeler (.btn-sm'den de küçük) */
+.btn-xs { padding: 4px 9px; font-size: 11px; border-radius: var(--radius-xs); }
+
+/* ---------- ortak kart başlığı ---------- */
+.xg-head {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 13px 14px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(150deg, rgba(176,108,255,.12), rgba(110,195,255,.05));
+  border: 1px solid rgba(176,108,255,.26);
+}
+.xg-head.warn { background: linear-gradient(150deg, rgba(255,92,122,.10), rgba(255,203,92,.05)); border-color: rgba(255,92,122,.30); }
+.xg-head.ok   { background: linear-gradient(150deg, rgba(92,232,155,.12), rgba(110,195,255,.05)); border-color: rgba(92,232,155,.28); }
+.xg-ico { font-size: 24px; flex: 0 0 auto; }
+.xg-txt { flex: 1; min-width: 150px; }
+.xg-txt h3 { font-size: 14px; font-weight: 800; }
+.xg-txt p  { font-size: 11.5px; color: var(--text-2); margin-top: 3px; line-height: 1.45; }
+.xg-big { font-size: 19px; font-weight: 900; color: var(--text-0); }
+
+/* ---------- ölçü çubuğu ---------- */
+.xg-bar { height: 8px; border-radius: var(--radius-pill); background: var(--bg-3); overflow: hidden; }
+.xg-bar > i { display: block; height: 100%; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--karma), var(--karma-2)); transition: width .3s; }
+.xg-bar.hot > i  { background: linear-gradient(90deg, #ffb35c, var(--hot)); }
+.xg-bar.cool > i { background: linear-gradient(90deg, #5ce89b, #6ec3ff); }
+.xg-bar-row { display: flex; align-items: center; gap: 10px; }
+.xg-bar-row .xg-bar { flex: 1; }
+.xg-bar-row b { font-size: 11.5px; min-width: 40px; text-align: right; color: var(--text-1); }
+
+/* ---------- satır listesi ---------- */
+.xg-rows { display: flex; flex-direction: column; gap: 7px; }
+.xg-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 11px;
+  border-radius: var(--radius-s);
+  background: var(--glass);
+  border: 1px solid var(--stroke);
+}
+.xg-row .xg-row-ico { font-size: 17px; flex: 0 0 auto; }
+.xg-row .xg-row-main { flex: 1; min-width: 0; }
+.xg-row .xg-row-main b { font-size: 12.5px; }
+.xg-row .xg-row-main span { display: block; font-size: 10.5px; color: var(--text-3); margin-top: 2px; }
+.xg-row.done { opacity: .62; }
+.xg-row.locked { opacity: .5; }
+
+/* ---------- seçenek ızgarası ---------- */
+.xg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 8px; }
+.xg-opt {
+  text-align: left; cursor: pointer;
+  padding: 10px;
+  border-radius: var(--radius-s);
+  background: var(--glass);
+  border: 1px solid var(--stroke);
+  color: var(--text-1);
+  transition: border-color .15s, background .15s, transform .08s;
+}
+.xg-opt:hover { border-color: var(--stroke-2); background: var(--glass-2); }
+.xg-opt:active { transform: scale(.98); }
+.xg-opt.active { border-color: var(--karma); background: rgba(176,108,255,.14); color: var(--text-0); }
+.xg-opt b { display: block; font-size: 12.5px; }
+.xg-opt span { display: block; font-size: 10.5px; color: var(--text-3); margin-top: 3px; line-height: 1.4; }
+.xg-opt .xg-cost { color: var(--money); font-weight: 700; }
+
+/* ---------- istatistik şeridi ---------- */
+.xg-stats { display: flex; flex-wrap: wrap; gap: 8px; }
+.xg-stat { flex: 1 1 84px; padding: 8px 10px; border-radius: var(--radius-s); background: var(--bg-2); border: 1px solid var(--stroke); }
+.xg-stat .k { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; }
+.xg-stat .v { font-size: 14px; font-weight: 800; margin-top: 3px; }
+.xg-stat .v.money { color: var(--money); }
+.xg-stat .v.hot { color: var(--hot); }
+.xg-stat .v.gold { color: var(--gold); }
+
+/* ---------- alanlar (form) ---------- */
+.xg-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 9px; }
+.xg-fields .field { display: flex; flex-direction: column; gap: 4px; }
+.xg-fields label { font-size: 10.5px; color: var(--text-3); text-transform: uppercase; letter-spacing: .04em; }
+
+/* ---------- karanlık taraf uyarısı ---------- */
+.xg-dark {
+  padding: 12px 13px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(150deg, rgba(255,92,122,.10), rgba(0,0,0,.18));
+  border: 1px solid rgba(255,92,122,.34);
+}
+.xg-dark h3 { font-size: 13.5px; font-weight: 800; color: #ff9aae; }
+.xg-dark p { font-size: 11px; color: var(--text-2); margin-top: 4px; line-height: 1.5; }
+.xg-dark .xg-warn { margin-top: 8px; font-size: 11px; color: #ffb3c1; }
+
+/* ---------- akıl sağlığı ölçeri (kariyer kartı) ---------- */
+.mh-card {
+  display: flex; align-items: center; gap: 13px; flex-wrap: wrap;
+  padding: 12px 14px;
+  border-radius: var(--radius-m);
+  background: linear-gradient(150deg, rgba(110,195,255,.10), rgba(176,108,255,.05));
+  border: 1px solid rgba(110,195,255,.26);
+}
+.mh-card.bad  { background: linear-gradient(150deg, rgba(255,92,122,.14), rgba(255,92,122,.04)); border-color: rgba(255,92,122,.34); }
+.mh-card.warn { background: linear-gradient(150deg, rgba(255,203,92,.13), rgba(255,92,122,.04)); border-color: rgba(255,203,92,.30); }
+.mh-face { font-size: 26px; flex: 0 0 auto; }
+.mh-main { flex: 1; min-width: 150px; }
+.mh-main h3 { font-size: 13.5px; font-weight: 800; }
+.mh-main p { font-size: 11px; color: var(--text-2); margin-top: 3px; }
+
+@media (max-width: 560px) {
+  .xg-grid { grid-template-columns: 1fr 1fr; }
+  .xg-head { padding: 11px; }
+}
