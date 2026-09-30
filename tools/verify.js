@@ -131,7 +131,8 @@ const SUITES = [
   { id: "certs",       script: "tools/smoke-certifications.js", label: "Plak + Wrapped" },
   { id: "label",       script: "tools/smoke-label.js",       label: "Şirket ekonomisi" },
   { id: "previews",    script: "tools/smoke-previews.js",    label: "Önizleme + YouTube verisi" },
-  { id: "expansion",   script: "tools/smoke-expansion.js",   label: "Genişleme paketi (6 sistem)" }
+  { id: "expansion",   script: "tools/smoke-expansion.js",   label: "Genişleme paketi (6 sistem)" },
+  { id: "v1030",       script: "tools/smoke-v1030.js",       label: "v10.30 güncelleme (aramalar · gönderi türü · teklif · DM)" }
 ];
 
 const suiteOut = {};
