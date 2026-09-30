@@ -152,6 +152,8 @@
     if (K.phoneOS) { K.phoneOS.ensureInstalled(); K.phoneOS.apply(); }
     // mahalle/semt çevresi (kalıcı kişiler)
     if (K.contacts && K.contacts.ensureRoster) K.contacts.ensureRoster();
+    // v10.30 — yabancı DM gönderenleri (hayran / dolandırıcı / gazeteci)
+    if (K.dms && K.dms.ensure) K.dms.ensure();
     // ZOR MOD: sayısal değerler gizli
     document.body.classList.toggle("hide-values", !!(K.settings && K.settings.valuesHidden && K.settings.valuesHidden()));
     K.careerUI.init();
@@ -219,6 +221,7 @@
     // kayıt yüklendiğinde her yeri tazele
     K.bus.on("game:loaded", () => {
       if (K.contacts && K.contacts.ensureRoster) K.contacts.ensureRoster();
+      if (K.dms && K.dms.ensure) K.dms.ensure();
       renderAll();
     });
     // zorluk değişince değer maskesini yeniden uygula
