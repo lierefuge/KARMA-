@@ -84,7 +84,6 @@
               </div>
               <div class="action-row" style="margin-top:8px">
                 <button class="btn btn-ghost btn-sm" data-act="edit-identity">Profili Düzenle</button>
-                <button class="btn btn-ghost btn-sm" data-act="advanced-career">Kariyer Detayı</button>
               </div>
             </div>
           </div>
@@ -1912,6 +1911,17 @@
 
       const card = (k, v, cls) => `<div class="an-card"><span class="k">${k}</span><span class="v ${cls || ""}">${v}</span></div>`;
 
+      /* v10.31 — "Kariyer Detayı" modalı kaldırıldı; tek analiz yuvası burası.
+         Kariyer durumu / şirket / anlaşma / kalite özeti artık burada. */
+      const avgQuality = songs.length ? Math.round(U.sum(songs, x => x.quality || 0) / songs.length) : 0;
+      const statusLabel = p.popularity >= 70 ? "Yıldız seviyesi"
+        : p.popularity >= 45 ? "Yükselen sanatçı"
+        : p.popularity >= 20 ? "Tanınan isim" : "Yeni başlayan";
+      const labelLine = s.label ? U.escape(s.label.name) + " · güç " + K.label.power()
+        : (p.labelId ? U.escape((K.labelById(p.labelId) || {}).name || "Şirket") : "Bağımsız");
+      const dealLine = p.labelDeal ? ("avans " + U.money(p.labelDeal.advance) + " · %" + (p.labelDeal.artistRoyalty || 100))
+        : (s.label ? "kendi şirketi" : "sözleşmesiz");
+
       const rows = songs.slice(0, 12).map(sg => {
         const age = s.day - (sg.publishedDay || s.day);
         const lists = (sg.lists || []).filter(e => !e.exitDay).length;
@@ -1954,6 +1964,17 @@
           <div class="an-panel">
             <div class="an-panel-head">Son yayınlar</div>
             ${rows}
+          </div>
+          <div class="an-panel">
+            <div class="an-panel-head">Kariyer durumu</div>
+            <div class="an-cards">
+              ${card("Kariyer", statusLabel)}
+              ${card("Ortalama Kalite", String(avgQuality))}
+              ${card("Görünürlük", String(K.social.visibilityScore()))}
+              ${card("Toplam Kazanç", U.money(p.totalEarned), "money")}
+              ${card("Şirket", labelLine)}
+              ${card("Anlaşma", dealLine)}
+            </div>
           </div>
         </div>`;
     },
@@ -2646,97 +2667,6 @@
     /* =====================================================
        İSTATİSTİK
        ===================================================== */
-    renderStats() {
-      const s = K.state;
-      const sum = K.stats.summary();
-      const card = (title, key, color, fmt) => {
-        const vals = K.stats.series(key, 30);
-        const last = vals.length ? vals[vals.length - 1] : 0;
-        const g = K.stats.growth(key, 30);
-        return `<div class="chart-card">
-          <div class="ch-head"><span class="ch-title">${title}</span>
-          <span class="ch-val">${fmt ? fmt(last) : U.fmt(last)} <span class="ch-growth ${g >= 0 ? "up" : "down"}">${g >= 0 ? "▲" : "▼"}${Math.abs(g)}%</span></span></div>
-          ${K.stats.sparkline(vals, { color })}
-        </div>`;
-      };
-      return `
-        <div class="c-block">
-          <div class="c-head"><div><h2>İstatistikler</h2><div class="sub">Son 30 günün grafikleri</div></div></div>
-          <div class="stat-grid">
-            <div class="stat-card"><span class="k">Günlük Dinlenme</span><span class="v">${U.compact(sum.dailyStreams)}</span><span class="d">ortalama</span></div>
-            <div class="stat-card"><span class="k">Günlük Gelir</span><span class="v money">${U.money(sum.dailyIncome)}</span><span class="d">ortalama</span></div>
-            <div class="stat-card"><span class="k">Aylık Dinleyici</span><span class="v">${U.compact(s.player.monthly)}</span><span class="d">${sum.growthMonthly >= 0 ? "+" : ""}${sum.growthMonthly}% / 14 gün</span></div>
-            <div class="stat-card"><span class="k">Listedeki Şarkı</span><span class="v">${sum.chartDays}</span><span class="d">top 50</span></div>
-          </div>
-          <div class="payout-panel">
-            <div class="pp-head">
-              <span>💰 Telif Ödemeleri <span class="muted">· platform bazlı, aylık</span></span>
-              <span class="muted">sonraki ödeme: ${K.ECON.payoutPeriodDays - (s.day % K.ECON.payoutPeriodDays)} gün</span>
-            </div>
-            <div class="pp-rates">
-              <span class="pill">Spotify ${U.money(K.econ.rate("spotify"))}/dinlenme</span>
-              <span class="pill">Apple ${U.money(K.econ.rate("apple"))}/dinlenme</span>
-              <span class="pill">YouTube ${U.money(K.econ.rate("youtube"))}/dinlenme</span>
-              <span class="pill">diğer mağazalar ${U.money(K.econ.rate("other"))}/dinlenme</span>
-              <span class="pill karma">toplam kazanç ${U.money(s.player.totalStreamRevenue || 0)}</span>
-            </div>
-            ${(() => {
-              const cl = K.economy.climate();
-              const pend = K.economy.pending();
-              const fin = s.player.lastFinance || {};
-              const marj = fin.margin;
-              const drift = cl.fxDrift || 0;
-              return `<div class="pp-rates" style="margin-top:6px">
-                <span class="pill">💱 kur ${cl.fx.toFixed(2)} ₺/$
-                  <span class="${drift >= 0 ? "up" : "down"}">${drift >= 0 ? "▲" : "▼"}${Math.abs(Math.round(drift * 100))}%</span>
-                  ${cl.shock ? "⚡ ani şok" : ""}</span>
-                <span class="pill">📈 enflasyon endeksi ${cl.inflationIndex.toFixed(3)} (maliyetler +%${Math.round((cl.inflationIndex - 1) * 100)})</span>
-                <span class="pill">🧾 vergi dilimi %${Math.round((fin.bracketRate || 0) * 100)} · efektif %${Math.round((fin.effRate || 0) * 100)}</span>
-                <span class="pill">📊 kâr marjı ${marj == null ? "—" : (marj < 0 ? "−%" + Math.abs(Math.round(marj * 100)) : "%" + Math.round(marj * 100))}</span>
-              </div>
-              <div class="pp-rates" style="margin-top:6px">
-                <span class="pill">⏳ rapor bekleyen ${U.compact(pend.streams)} dinlenme</span>
-                <span class="pill">💤 yolda olan para ${U.money(pend.value)}</span>
-                <span class="muted">ödeme gecikmesi: Spotify ${K.ECON.payoutLag.spotify}g · Apple ${K.ECON.payoutLag.apple}g · YouTube ${K.ECON.payoutLag.youtube}g · diğer ${K.ECON.payoutLag.other}g</span>
-              </div>`;
-            })()}
-            ${(() => {
-              const mtd = { spotify: 0, apple: 0, youtube: 0, other: 0 };
-              (s.player.songs || []).forEach(sg => {
-                const m = sg.month || {};
-                const bill = K.econ.billable(sg);           // 30 sn eşiği
-                K.econ.STORES.forEach(st => { mtd[st] += (m[st] || 0) * bill; });
-              });
-              const gross = K.econ.STORES.reduce((n, st) => n + mtd[st] * K.econ.rate(st), 0);
-              const lblPct = s.player.labelId ? ((K.labelById(s.player.labelId) || {}).royalty || 50) : 0;
-              const net = gross * (1 - lblPct / 100);
-              return `<div class="stat-grid" style="margin-top:8px">
-                <div class="stat-card"><span class="k">Spotify (bu ay)</span><span class="v">${U.compact(mtd.spotify)}</span><span class="d">≈ ${U.money(mtd.spotify * K.econ.rate("spotify"))}</span></div>
-                <div class="stat-card"><span class="k">Apple Music (bu ay)</span><span class="v">${U.compact(mtd.apple)}</span><span class="d">≈ ${U.money(mtd.apple * K.econ.rate("apple"))}</span></div>
-                <div class="stat-card"><span class="k">YouTube (bu ay)</span><span class="v">${U.compact(mtd.youtube)}</span><span class="d">≈ ${U.money(mtd.youtube * K.econ.rate("youtube"))}</span></div>
-                <div class="stat-card"><span class="k">Raporlanan (bu ay)</span><span class="v">${U.compact(mtd.spotify + mtd.apple + mtd.youtube + mtd.other)}</span><span class="d">30 sn üstü dinlenme</span></div>
-                <div class="stat-card"><span class="k">Ay Sonu Net</span><span class="v money">${U.money(net)}</span><span class="d">${lblPct ? "şirket payı %" + lblPct : "bağımsız"}</span></div>
-              </div>`;
-            })()}
-            ${(s.player.payouts || []).length ? `<div class="row-list" style="margin-top:10px">${(s.player.payouts || []).slice(0, 4).map(p => `
-              <div class="row-item">
-                <div class="cover" style="background:${U.gradientFor("pay" + p.day)}">💰</div>
-                <div class="grow"><div class="title">Gün ${p.day} ödemesi</div>
-                <div class="sub">Spotify ${U.fmt(p.spotify)} · Apple ${U.fmt(p.apple)} · YT ${U.fmt(p.youtube)}${p.other ? " · diğer " + U.fmt(p.other) : ""}${p.labelPct ? " · şirket payı " + U.money(p.labelPct) : ""}${p.recoup ? " · avans " + U.money(p.recoup) : ""}${p.pendingValue ? " · yolda " + U.money(p.pendingValue) : ""}</div></div>
-                <span class="pill money">+${U.money(p.net)}</span>
-              </div>`).join("")}</div>` : `<div class="mini-empty" style="margin-top:8px">Henüz telif tahsilatı yok. Mağazalar dinlenmeyi geç raporlar: ilk ödeme, mağaza türüne göre <b>${K.ECON.payoutLag.apple}–${K.ECON.payoutLag.youtube} gün</b> sonra yatar.</div>`}
-          </div>
-
-          <div class="chart-grid">
-            ${card("Toplam Dinlenme", "streams", "#1ed760")}
-            ${card("Aylık Dinleyici", "monthly", "#6ec3ff", U.compact)}
-            ${card("Kasa", "balance", "#5ce89b", U.money)}
-            ${card("Popülerlik", "popularity", "#b06cff")}
-            ${card("Toplam Takipçi", "followers", "#ff5c7a", U.compact)}
-            ${card("Şarkı Sayısı", "songs", "#ffcb5c")}
-          </div>
-        </div>`;
-    },
 
     /* =====================================================
        EVENTS
@@ -2787,7 +2717,6 @@
       else if (act === "roster-release") K.label.releaseForArtist(btn.dataset.artist);
       else if (act === "open-dm") K.phone.openApp("messages", { artistId: btn.dataset.artist });
       else if (act === "edit-identity") K.careerUI.openIdentityModal();
-      else if (act === "advanced-career") K.careerUI.openAdvancedCareer();
       else if (act === "refresh-chart") {
         K.toast("🔄 Yenileniyor", "Gerçek liste çekiliyor…", "");
         K.live.refreshChart(false).then(ok => { if (ok) K.refresh(); });
@@ -2867,7 +2796,6 @@
       else if (act === "mh-therapy") K.mental.therapy(3);
       else if (act === "mh-holiday") K.mental.holiday();
       else if (act === "mh-speak") K.mental.speakOut();
-      else if (act === "open-settings") K.settings.openUI();
     },
 
     onInput(e) {
@@ -3211,27 +3139,5 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     },
 
     /* ---------------- kariyer detayı ---------------- */
-    openAdvancedCareer() {
-      const p = K.state.player;
-      const s = K.state;
-      const songCount = p.songs.length;
-      const total = U.sum(p.songs, x => x.streams);
-      const avgQuality = songCount ? Math.round(U.sum(p.songs, x => x.quality) / songCount) : 0;
-      const chartPeak = Math.min(999, ...p.songs.map(x => x.chartPeak || 999), 999);
-      const body = `
-        <div class="stat-grid">
-          <div class="stat-card"><span class="k">Toplam Dinlenme</span><span class="v">${U.compact(total)}</span></div>
-          <div class="stat-card"><span class="k">Ortalama Kalite</span><span class="v">${avgQuality}</span></div>
-          <div class="stat-card"><span class="k">En İyi Liste</span><span class="v gold">${chartPeak === 999 ? "—" : "#" + chartPeak}</span></div>
-          <div class="stat-card"><span class="k">Görünürlük Puanı</span><span class="v">${K.social.visibilityScore()}</span></div>
-        </div>
-        <div style="font-size:12px;color:var(--text-1);line-height:1.7">
-          <b>Kariyer durumu:</b> ${p.popularity >= 70 ? "Yıldız seviyesinde." : p.popularity >= 45 ? "Yükselen sanatçı." : p.popularity >= 20 ? "Tanınan isim." : "Yeni başlayan."}<br>
-          <b>Şirket durumu:</b> ${s.label ? U.escape(s.label.name) + " (Güç " + K.label.power() + ")" : "Henüz kendi şirketin yok"}<br>
-          <b>Anlaşma:</b> ${p.labelId ? U.escape(K.labelById(p.labelId).name) : "Bağımsız"}<br>
-          <b>Toplam kazanç:</b> ${U.money(p.totalEarned)}
-        </div>`;
-      K.ui.modal({ title: "Kariyer Detayı", body, actions: [{ label: "Kapat" }] });
-    }
   };
 })(window.K);
