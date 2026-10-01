@@ -46,17 +46,26 @@ const out = {
 const dest = path.join(ROOT, "version.json");
 fs.writeFileSync(dest, JSON.stringify(out, null, 2) + "\n");
 
-/* sw.js içindeki önbellek adını da aynı sürüme damgala.
-   Neden? Worker önbellek adı sabit kalırsa activate adımı eski
-   önbelleği silmez ve oyuncu iki sürümü karışık çalıştırabilir. */
+/* sw.js içindeki sürümü VE önbellek anahtarını damgala.
+
+   VERSION  → insan okunur sürüm; activate'te bilgi amaçlı kalır.
+   CACHE_KEY→ İÇERİK HASH'İ. Önbellek adı buna bağlıdır.
+
+   Neden içerik hash'i? Sürüm numarası değişmeden içerik değişirse
+   (damgalama unutulursa) "karma-10.31.0" adı sabit kalır, activate
+   eski önbelleği silmez ve oyuncu cache-first yüzünden eski JS/CSS'i
+   sonsuza kadar çalıştırır. İçerik hash'i her değişimde adı
+   değiştirir → eski önbellek kesin olarak temizlenir. */
 try {
   const swPath = path.join(ROOT, "sw.js");
   if (fs.existsSync(swPath)) {
     const sw = fs.readFileSync(swPath, "utf8");
-    const patched = sw.replace(/const VERSION = "[^"]*";/, `const VERSION = "${out.version}";`);
+    const patched = sw
+      .replace(/const VERSION = "[^"]*";/, `const VERSION = "${out.version}";`)
+      .replace(/const CACHE_KEY = "[^"]*";/, `const CACHE_KEY = "${out.cache || ""}";`);
     if (patched !== sw) {
       fs.writeFileSync(swPath, patched);
-      console.log(`   sw.js sürümü damgalandı: ${out.version}`);
+      console.log(`   sw.js damgalandı: sürüm ${out.version} · önbellek ${out.cache || "?"}`);
     }
   }
 } catch (e) {
