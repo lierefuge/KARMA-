@@ -19,14 +19,34 @@
 
   const U = K.util;
 
-  /* ---------- gerçek Instagram simgeleri (SVG) ---------- */
+  /* ---------- gerçek Instagram simgeleri (SVG) ----------
+     .ig-off = pasif (ince çizgi) · .ig-on = aktif (dolu)
+     Gerçek Instagram alt sekmede aktif simgeyi DOLDURUR. */
   const ICO = {
-    home: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 10.2 12 3l9 7.2V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>`,
+    home: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <path class="ig-off" d="M3 10.2 12 3l9 7.2V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" fill="none"/>
+      <path class="ig-on" d="M12.7 2.5a1.1 1.1 0 0 0-1.4 0L2.9 9.6A1.5 1.5 0 0 0 2.4 10.7V20.4A1.6 1.6 0 0 0 4 22h4.6v-6.2h6.8V22H20a1.6 1.6 0 0 0 1.6-1.6v-9.7a1.5 1.5 0 0 0-.5-1.1z" fill="currentColor" stroke="none"/>
+    </svg>`,
     search: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="10.8" cy="10.8" r="7.2"/><path d="m16.2 16.2 4.6 4.6"/></svg>`,
-    reels: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M3.6 8.2h16.8M8.6 3.3l2.6 4.9M15 3.3l2.6 4.9"/><path d="m11 12.4 4.2 2.6-4.2 2.6z" fill="currentColor" stroke="none"/></svg>`,
+    reels: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <rect class="ig-off" x="3" y="3" width="18" height="18" rx="5" fill="none"/>
+      <path class="ig-off" d="M3.6 8.2h16.8M8.6 3.3l2.6 4.9M15 3.3l2.6 4.9" fill="none"/>
+      <path class="ig-off" d="m11 12.4 4.2 2.6-4.2 2.6z" fill="currentColor" stroke="none"/>
+      <rect class="ig-on" x="2.6" y="2.6" width="18.8" height="18.8" rx="5.2" fill="currentColor" stroke="none"/>
+      <path class="ig-on" d="M3.4 8.4h17.2M8.8 3l2.4 5.4M15.2 3l2.4 5.4" stroke="#000" stroke-width="1.5" fill="none"/>
+      <path class="ig-on" d="m10.4 11.6 5.6 3.9-5.6 3.9z" fill="#000" stroke="none"/>
+    </svg>`,
     grid: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 3h18v18H3zM9 3v18M15 3v18M3 9h18M3 15h18"/></svg>`,
     play: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><path d="M3.6 8.2h16.8M8.6 3.3l2.6 4.9M15 3.3l2.6 4.9"/><path d="m11 12.4 4.2 2.6-4.2 2.6z" fill="currentColor" stroke="none"/></svg>`,
-    tagged: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 4h18v13H8l-5 4z"/></svg>`
+    tagged: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M3 4h18v13H8l-5 4z"/></svg>`,
+    /* gönderi eylemleri */
+    heart: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 20.6 3.9 12.5a5.2 5.2 0 0 1 7.4-7.4l.7.7.7-.7a5.2 5.2 0 0 1 7.4 7.4z"/></svg>`,
+    comment: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M21 11.6c0 4.4-4 8-9 8-1 0-2-.1-2.9-.4L4 21.5l1.4-3.9C4.3 16.2 3 14 3 11.6c0-4.4 4-8 9-8s9 3.6 9 8z"/></svg>`,
+    share: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M21.4 3.3 2.9 10.5c-.8.3-.8 1.5.1 1.7l4.6 1.4 1.4 4.6c.2.9 1.4.9 1.7.1l2.4-6 6.6-6.4-5.7 7.3 5 5c.6.6 1.7.2 1.7-.7V4.2c0-.7-.7-1.2-1.3-.9z"/></svg>`,
+    bookmark: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M5.5 3h13a1 1 0 0 1 1 1v17l-7.5-5.2L4.5 21V4a1 1 0 0 1 1-1z"/></svg>`,
+    navHeart: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 20.6 3.9 12.5a5.2 5.2 0 0 1 7.4-7.4l.7.7.7-.7a5.2 5.2 0 0 1 7.4 7.4z"/></svg>`,
+    heartSm: `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20.6 3.9 12.5a5.2 5.2 0 0 1 7.4-7.4l.7.7.7-.7a5.2 5.2 0 0 1 7.4 7.4z"/></svg>`,
+    navMsg: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M21.4 3.3 2.9 10.5c-.8.3-.8 1.5.1 1.7l4.6 1.4 1.4 4.6c.2.9 1.4.9 1.7.1l2.4-6 6.6-6.4-5.7 7.3 5 5c.6.6 1.7.2 1.7-.7V4.2c0-.7-.7-1.2-1.3-.9z"/></svg>`
   };
 
   /* ---------- yardımcılar ---------- */
@@ -75,8 +95,12 @@
         <div class="iph-left" data-pact="open-profile" data-arg="${post.authorId}">
           ${K.ui.artistAvatar(post.authorId, 34, true)}
           <div style="min-width:0">
-            <div class="iph-name">${U.escape(post.authorName)}</div>
-            <div class="iph-sub">${post.songId ? "Şarkı tanıtımı" : "Gönderi"} · ${U.ago(post.day, K.state.day)}</div>
+            <div class="iph-line">
+              <span class="iph-name">${U.escape(post.authorName)}</span>
+              ${post.songId ? `<span class="iph-music">♫</span>` : ""}
+              <span class="iph-dot">·</span>
+              <span class="iph-time">${U.ago(post.day, K.state.day)}</span>
+            </div>
           </div>
         </div>
         <button class="ig-more" data-pact="post-more" data-arg="${U.escape(post.id)}">⋯</button>
@@ -85,11 +109,11 @@
       ${mediaBox(post)}
 
       <div class="ig-actions">
-        <button class="heart ${liked ? "on" : ""}" data-pact="like" data-arg="ig_${U.escape(post.id)}">${liked ? "♥" : "♡"}</button>
-        <button data-pact="post-open" data-arg="${U.escape(post.id)}">💬</button>
-        <button data-pact="post-share" data-arg="${U.escape(post.id)}">✈︎</button>
+        <button class="heart ${liked ? "on" : ""}" data-pact="like" data-arg="ig_${U.escape(post.id)}">${ICO.heart}</button>
+        <button data-pact="post-open" data-arg="${U.escape(post.id)}">${ICO.comment}</button>
+        <button data-pact="post-share" data-arg="${U.escape(post.id)}">${ICO.share}</button>
         <span class="grow"></span>
-        <button class="${saved ? "on" : ""}" data-pact="ig-save" data-arg="${U.escape(post.id)}">${saved ? "🔖" : "⚑"}</button>
+        <button class="${saved ? "on" : ""}" data-pact="ig-save" data-arg="${U.escape(post.id)}">${ICO.bookmark}</button>
       </div>
 
       <div class="ig-body">
@@ -127,8 +151,8 @@
         ],
         activeTab: params.tab || "feed",
         navRight: `<div class="ig-nav-actions">
-          <button class="ig-icon-btn" data-pact="ig-activity" title="Etkinlik">♡${navBadge ? `<b style="position:absolute;top:-5px;right:-7px;background:#ff3b5c;color:#fff;font-size:9px;font-weight:800;border-radius:999px;padding:1px 4px">${Math.min(99, navBadge)}</b>` : ""}</button>
-          <button class="ig-icon-btn" data-pact="ig-inbox" title="Mesajlar">✈︎</button>
+          <button class="ig-icon-btn" data-pact="ig-activity" title="Etkinlik">${ICO.navHeart}${navBadge ? `<b style="position:absolute;top:-5px;right:-7px;background:#ff3b5c;color:#fff;font-size:9px;font-weight:800;border-radius:999px;padding:1px 4px">${Math.min(99, navBadge)}</b>` : ""}</button>
+          <button class="ig-icon-btn" data-pact="ig-inbox" title="Mesajlar">${ICO.navMsg}</button>
         </div>`,
 
         /* gerçek Instagram gibi: SAĞA kaydır → DM · SOLA kaydır → canlı yayın */
@@ -230,6 +254,7 @@
           <button class="ig-story" data-pact="story" data-arg="player">
             <span class="ig-story-ring mine">
               <span class="ig-story-img" ${myPhoto ? `style="background-image:url('${myPhoto}')"` : `style="${myGrad}"`}>${myPhoto ? "" : U.escape(U.initials(K.state.player.stageName))}</span>
+              <span class="ig-plus">+</span>
             </span>
             <span class="ig-story-name">Hikâyen</span>
           </button>
@@ -288,11 +313,13 @@
           return `<div class="ig-reel" style="${bg}">
             <div class="r-ov"></div>
             <div class="r-side">
-              <button class="${liked ? "on" : ""}" data-pact="like" data-arg="reel_${U.escape(v.id)}">${liked ? "♥" : "♡"}</button>
+              <button class="${liked ? "on" : ""}" data-pact="like" data-arg="reel_${U.escape(v.id)}">${ICO.heart}</button>
               <span>${U.compact(Math.round(v.views * 0.06))}</span>
-              <button data-pact="reel-cmt">💬</button>
+              <button data-pact="reel-cmt">${ICO.comment}</button>
               <span>${U.compact(Math.round(v.views * 0.003))}</span>
-              <button data-pact="post-share" data-arg="${U.escape(v.id)}">✈︎</button>
+              <button data-pact="post-share" data-arg="${U.escape(v.id)}">${ICO.share}</button>
+              <span class="grow"></span>
+              <button data-pact="ig-save" data-arg="${U.escape(v.id)}">${ICO.bookmark}</button>
             </div>
             <div class="r-info">
               <div class="r-user" data-pact="open-profile" data-arg="${v.channelId || ""}">
@@ -553,17 +580,20 @@
             <div class="ig-post-head">
               <div class="iph-left" data-pact="open-profile" data-arg="${post.authorId}">
                 ${K.ui.artistAvatar(post.authorId, 34, true)}
-                <div><div class="iph-name">${U.escape(post.authorName)}</div>
-                <div class="iph-sub">${U.ago(post.day, K.state.day)}</div></div>
+                <div style="min-width:0"><div class="iph-line">
+                  <span class="iph-name">${U.escape(post.authorName)}</span>
+                  <span class="iph-dot">·</span>
+                  <span class="iph-time">${U.ago(post.day, K.state.day)}</span>
+                </div></div>
               </div>
             </div>
             ${mediaBox(post)}
             <div class="ig-actions">
-              <button class="heart ${liked ? "on" : ""}" data-pact="like" data-arg="ig_${U.escape(post.id)}">${liked ? "♥" : "♡"}</button>
-              <button data-pact="focus-cmt">💬</button>
-              <button data-pact="post-share" data-arg="${U.escape(post.id)}">✈︎</button>
+              <button class="heart ${liked ? "on" : ""}" data-pact="like" data-arg="ig_${U.escape(post.id)}">${ICO.heart}</button>
+              <button data-pact="focus-cmt">${ICO.comment}</button>
+              <button data-pact="post-share" data-arg="${U.escape(post.id)}">${ICO.share}</button>
               <span class="grow"></span>
-              <button class="${saved ? "on" : ""}" data-pact="ig-save" data-arg="${U.escape(post.id)}">${saved ? "🔖" : "⚑"}</button>
+              <button class="${saved ? "on" : ""}" data-pact="ig-save" data-arg="${U.escape(post.id)}">${ICO.bookmark}</button>
             </div>
             <div class="ig-body">
               <div class="ig-likes">${U.compact(K.interactions.likeCount("ig_" + post.id, post.likes))} beğenme</div>
@@ -574,7 +604,7 @@
               ${K.ui.avatar(c.user, 32, true)}
               <div class="grow"><div class="cmt-user">${U.escape(c.user)} · ${U.ago(c.day, K.state.day)}</div>
               <div class="cmt-text">${U.escape(c.text)}</div>
-              <div class="cmt-actions">♡ ${c.likes} · <span data-pact="ig-reply" data-arg="${U.escape(post.id + "_" + i)}" style="cursor:pointer;color:var(--karma-2);font-weight:700">Yanıtla</span></div></div></div>`).join("")}
+              <div class="cmt-actions">${ICO.heartSm} ${c.likes} · <span data-pact="ig-reply" data-arg="${U.escape(post.id + "_" + i)}" style="cursor:pointer;color:var(--karma-2);font-weight:700">Yanıtla</span></div></div></div>`).join("")}
             <div class="cmt-input"><input placeholder="Yorum ekle..." data-ig-cmt /><button data-pact="cmt-send" data-arg="${U.escape(post.id)}">Paylaş</button></div>`;
         },
         onAction: (act, el) => {
