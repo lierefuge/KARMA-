@@ -237,7 +237,7 @@
       const folderIcon = (en, pi, ei) => {
         const prev = (en.items || []).slice(0, 4).map(id => {
           const a = K.phone.appById(id);
-          return a ? `<span class="fl-mini ${a.iconClass || ""}">${a.icon}</span>` : "";
+          return a ? `<span class="fl-mini ${a.iconClass || ""}">${K.brandIcon(a.id) || a.icon}</span>` : "";
         }).join("");
         return `<button class="app-icon-wrap" data-open-folder="${pi}:${ei}"><div class="app-icon folder">${prev}</div><span class="app-label">${U.escape(en.name || "Klasör")}</span></button>`;
       };
@@ -286,7 +286,7 @@
     iconHTML(a, count) {
       return `<button class="app-icon-wrap" data-open-app="${a.id}">
         <div class="app-icon ${a.iconClass || ""}">
-          ${a.icon}
+          ${K.brandIcon(a.id) || a.icon}
           ${count > 0 ? `<span class="app-badge">${count > 99 ? "99+" : count}</span>` : ""}
         </div>
         <span class="app-label">${U.escape(a.name)}</span>
