@@ -2877,6 +2877,21 @@ body.hide-values .brand-sub::after {
   font-size: 11px;
   touch-action: manipulation;
 }
+/* Güncelleme UYGULANAMADI durumu: sarı/amber uyarı tonu.
+   Şerit aynı bileşendir, yalnızca renk "bir şey ters gitti" der. */
+.kub-warn {
+  border-color: rgba(255, 176, 66, 0.5);
+  background: linear-gradient(180deg, #2e2413, #211a0e);
+}
+.kub-warn .kub-dot {
+  background: #ffb042;
+  box-shadow: 0 0 0 3px rgba(255, 176, 66, 0.22);
+}
+.kub-warn .kub-btn {
+  background: linear-gradient(135deg, #ffb042, #e07a12);
+  color: #1a1206;
+}
+
 @media (max-width: 520px) {
   .kub { left: 10px; right: 10px; transform: none; max-width: none; }
   @keyframes kub-in {
@@ -6359,8 +6374,8 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.31.0";
-  K.VERSION_DATE = "2026-09-30";
+  K.VERSION = "10.31.1";
+  K.VERSION_DATE = "2026-10-01";
 })(window.K = window.K || {});
 
 </script>
@@ -26990,6 +27005,40 @@ window.K = window.K || {};
   const CHECK_INTERVAL_MS = 5 * 60 * 1000;   // 5 dakikada bir yokla
   const BANNER_ID = "karma-update-banner";
 
+  /* SONSUZ DÖNGÜ KORUMASI.
+     Şerit "yeni sürüm var" der, oyuncu Güncelle'ye basar, sayfa yenilenir
+     ama çalışan sürüm değişmezse şerit yine çıkar ve oyuncu aynı döngüde
+     kalır ("güncelle diyorum, güncellenmiyor"). Bu kayıt aynı çalışan
+     sürümde yakın zamanda denendi mi diye bakar; denendiyse tekrar
+     denemek yerine dürüst bir "uygulanamadı" şeridi gösterir. */
+  const ATTEMPT_KEY = "karma-update-attempt";
+  const ATTEMPT_WINDOW_MS = 45 * 1000;
+
+  function rememberAttempt() {
+    try {
+      sessionStorage.setItem(ATTEMPT_KEY, String(K.VERSION) + "|" + Date.now());
+    } catch (e) {}
+  }
+
+  function attemptedRecently() {
+    try {
+      const parts = (sessionStorage.getItem(ATTEMPT_KEY) || "").split("|");
+      if (parts.length !== 2) return false;
+      return parts[0] === String(K.VERSION) &&
+        (Date.now() - (parseInt(parts[1], 10) || 0)) < ATTEMPT_WINDOW_MS;
+    } catch (e) { return false; }
+  }
+
+  /* Sert yenilemeden gelen damga parametresini adres çubuğundan temizle. */
+  function cleanUrl() {
+    try {
+      const u = new URL(location.href);
+      if (!u.searchParams.has("_karma_refresh")) return;
+      u.searchParams.delete("_karma_refresh");
+      history.replaceState(null, "", u.toString());
+    } catch (e) {}
+  }
+
   function doc() { return (K.util && K.util.doc) || (typeof document !== "undefined" ? document : null); }
 
   /* Modüler sürüm mü? index.html harici script'lere atıfta bulunur.
@@ -27045,6 +27094,36 @@ window.K = window.K || {};
     d.body.appendChild(banner);
   }
 
+  /* Güncelleme UYGULANAMADI: denendi, sayfa yenilendi, sürüm değişmedi.
+     Bu genelde "yayındaki sürüm numarası ile kod uyuşmuyor" ya da
+     "tarayıcı önbelleği takılı kaldı" demektir. Aynı düğmeyi tekrar
+     sunmak yerine yapılacak şeyi söyler ve sert sıfırlama sunar. */
+  function showStuckBanner() {
+    const d = doc();
+    if (!d || banner) return;
+    banner = d.createElement("div");
+    banner.id = BANNER_ID;
+    banner.className = "kub kub-warn";
+    banner.innerHTML =
+      '<span class="kub-dot"></span>' +
+      '<div class="kub-text">' +
+        '<b>Güncelleme uygulanamadı</b>' +
+        '<span>Tarayıcı hâlâ v' + K.util.escape(String(K.VERSION)) +
+        ' çalıştırıyor. Sıfırla düğmesi önbelleği temizleyip yeniden yükler;' +
+        ' olmazsa sert yenile: <b>Ctrl+Shift+R</b> (Mac: <b>Cmd+Shift+R</b>).</span>' +
+      '</div>' +
+      '<button class="kub-btn" type="button">Sıfırla ve yenile</button>' +
+      '<button class="kub-x" type="button" aria-label="Kapat">✕</button>';
+
+    banner.querySelector(".kub-btn").addEventListener("click", function () {
+      K.updater._hardReset();
+    });
+    banner.querySelector(".kub-x").addEventListener("click", function () {
+      removeBanner();
+    });
+    d.body.appendChild(banner);
+  }
+
   K.updater = {
     get supported() { return isModular() && httpOk(); },
     get hasWorker() { return !!registration; },
@@ -27064,7 +27143,9 @@ window.K = window.K || {};
         .then(function (info) {
           if (!info || !info.version) return null;
           if (String(info.version) !== String(K.VERSION)) {
-            showBanner(info);
+            /* Az önce denedik ve sürüm yine aynı → döngüye sokma. */
+            if (attemptedRecently()) showStuckBanner();
+            else showBanner(info);
             return info;
           }
           return null;
@@ -27072,12 +27153,64 @@ window.K = window.K || {};
         .catch(function () { return null; });   /* çevrimdışı: sessiz geç */
     },
 
+    /* ------------------------------------------------------------
+       SERT SIFIRLAMA — "güncelle dedim, güncellenmedi"nin ilacı.
+
+       Neden `location.reload()` YETMEZ?
+       Service worker, `?v=` damgalı css/js isteklerini CACHE-FIRST
+       karşılar. Önbellekte eski içerik varsa reload AYNI eski dosyaları
+       getirir: sayfa yenilenir, kod değişmez. Bu yüzden sıra şudur:
+         worker'ı kayıttan düşür → tüm önbellekleri sil → yeniden yükle.
+       ------------------------------------------------------------ */
+    _unregister() {
+      if (!swSupported() || !navigator.serviceWorker.getRegistrations) {
+        return Promise.resolve();
+      }
+      return navigator.serviceWorker.getRegistrations()
+        .then(function (regs) {
+          return Promise.all(regs.map(function (r) { return r.unregister(); }));
+        })
+        .catch(function () {});
+    },
+
+    _resetCaches() {
+      if (typeof caches === "undefined" || !caches.keys) return Promise.resolve();
+      return caches.keys()
+        .then(function (keys) {
+          return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+        })
+        .catch(function () {});
+    },
+
+    /* Damga parametresi, tarayıcının HTML'i kendi HTTP önbelleğinden
+       vermesini engeller. init() parametreyi adres çubuğundan temizler. */
+    _hardReload() {
+      try {
+        const u = new URL(location.href);
+        u.searchParams.set("_karma_refresh", String(Date.now()));
+        location.replace(u.toString());
+      } catch (e) {
+        try { location.reload(); } catch (e2) {}
+      }
+    },
+
+    _hardReset() {
+      return Promise.resolve()
+        .then(function () { return K.updater._unregister(); })
+        .then(function () { return K.updater._resetCaches(); })
+        .then(function () { K.updater._hardReload(); });
+    },
+
     /* yeni worker'ı devreye al ve sayfayı yenile */
     apply() {
       try { if (K.save) K.save(); } catch (e) {}
+      rememberAttempt();                    /* sonsuz döngü koruması */
+
       const doReload = function () {
         try { location.reload(); } catch (e) {}
       };
+
+      /* 1) Hazır bekleyen worker → devreye al, kontrol değişince yenile */
       if (registration && registration.waiting) {
         const waiting = registration.waiting;
         let reloaded = false;
@@ -27089,14 +27222,32 @@ window.K = window.K || {};
           });
         }
         waiting.postMessage({ type: "KARMA_SKIP_WAITING" });
-        setTimeout(function () { if (!reloaded) { reloaded = true; doReload(); } }, 1500);
+        setTimeout(function () {
+          if (!reloaded) { reloaded = true; K.updater._hardReset(); }
+        }, 1500);
         return;
       }
-      doReload();
+
+      /* 2) Worker var ama bekleyen yok → güncellemeyi ARA, sonucu bekle */
+      if (registration && registration.update) {
+        let settled = false;
+        try { registration.update().catch(function () {}); } catch (e) {}
+        setTimeout(function () {
+          if (settled) return;
+          settled = true;
+          if (registration.waiting) { K.updater.apply(); return; }
+          K.updater._hardReset();           /* yeni worker gelmedi: sert sıfırla */
+        }, 2000);
+        return;
+      }
+
+      /* 3) Worker hiç yok → sade reload önbelleği temizlemez, sert sıfırla */
+      K.updater._hardReset();
     },
 
     init() {
       if (!isModular()) return;
+      cleanUrl();
       if (!swSupported()) {
         /* worker yoksa bile sürüm kontrolü denenebilir */
         K.updater.check(true);
@@ -35174,11 +35325,8 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           : topSrc.name.indexOf("Harici") >= 0
             ? ["🎬", "Trafiğin çoğu sosyal/TikTok'tan. Short-form hunisini sıcak tut.", "rgba(255,92,122,.13)"]
             : ["🧭", `Ana kaynağın <b>${topSrc.name}</b>. Bu kanalı güçlendirmek için içerik ritmini sabit tut.`, "rgba(255,255,255,.06)"];
-      const fanModel = (K.fans && K.fans.model) ? K.fans.model() : { casual: 0, active: 0, superfans: 0, followers: 0 };
-      const activeRatio = fanModel.followers ? Math.round((fanModel.active / fanModel.followers) * 100) : 0;
-      const fanNote = fanModel.superfans > 0 && activeRatio >= 8
-        ? ["💜", `Aktif dinleyici oranın %${activeRatio} — sağlıklı. Süperfan (${U.compact(fanModel.superfans)}) için fan kulübü kur.`, "rgba(150,90,255,.14)"]
-        : ["💜", "Aktif dinleyici oranı düşük. Kapak/önizleme ve tekrar dinlenebilir kısa işler sadakati artırır.", "rgba(255,255,255,.06)"];
+      /* v10.32 — KİTLE TEK YUVA: fan katmanları (casual/aktif/süperfan)
+         Fanbase uygulamasının işidir. Spotify app'i yalnız platform verisi gösterir. */
 
       const view = {
         title: "Spotify for Artists", sub: "Dinlenme & kitle verisi",
@@ -35188,7 +35336,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           { id: "gen", label: "Özet", icon: "🎵" },
           { id: "stream", label: "Dinlenme", icon: "📈" },
           { id: "kaynak", label: "Kaynaklar", icon: "🧭" },
-          { id: "kitle", label: "Kitle", icon: "👥" },
+          { id: "kitle", label: "Şehirler", icon: "🗺️" },
           { id: "songs", label: "Şarkılar", icon: "💿" }
         ],
         activeTab: params.tab || "gen",
@@ -35233,23 +35381,12 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           if (tab === "kitle") {
             const rows = cityBreakdown("spotify" + p.stageName, spotifyTotal);
             return card(`
-              <div class="studio-title mb">Dinleyici Katmanları</div>
-              ${[["Casual", fanModel.casual, "#8a8a99"], ["Aktif", fanModel.active, "#6ec3ff"], ["Süperfan", fanModel.superfans, "#b06cff"]].map(([l, v, c]) => {
-                const pct = fanModel.followers ? Math.round((v / fanModel.followers) * 100) : 0;
-                return `<div class="studio-row">
-                  <div class="studio-row-label xs">${l}</div>
-                  <div class="studio-bar lg"><i class="studio-bar-fill" style="width:${pct}%;background:${c}"></i></div>
-                  <div class="studio-row-val wide">${U.compact(v)} · %${pct}</div>
-                </div>`;
-              }).join("")}
-              ${note(fanNote[0], fanNote[1], fanNote[2])}
-            `, "#b06cff")
-            + card(`
-              <div class="studio-title sm">Şehirler</div>
+              <div class="studio-title sm">Dinleyici Şehirleri</div>
               ${rows.map(c => `<div class="tt-bar-row"><span class="name">${U.escape(c.city)}</span>
                 <span class="bar"><i style="width:${Math.min(100, c.share * 1.6)}%"></i></span>
                 <span class="pct">%${c.share}</span></div>`).join("")}
               ${note("🗺️", "Turnu rotanı en güçlü şehirlerden başlat; bilet talebi buralarda yüksek olur.", "rgba(255,255,255,.05)")}
+              ${note("💜", "Dinleyici katmanları (casual/aktif/süperfan) telefonda <b>Fanbase</b> uygulamasında.", "rgba(150,90,255,.12)")}
             `, "#1ed760");
           }
           if (tab === "songs") {
@@ -35286,7 +35423,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
                 <div class="studio-health-emoji">${health >= 75 ? "🏆" : health >= 55 ? "👍" : health >= 35 ? "📊" : "⚠️"}</div>
               </div>
               <div class="studio-health-bar"><i style="width:${health}%;background:linear-gradient(90deg,${healthColor},#6ec3ff)"></i></div>
-              ${note("🧭", `Dinlenme büyümesi %${growthM} · ${plSongs.length} şarkı listede · ${U.compact(fanModel.superfans)} süperfan`, "rgba(255,255,255,.06)")}
+              ${note("🧭", `Dinlenme büyümesi %${growthM} · ${plSongs.length} şarkı listede · ${(p.songs || []).filter(x => x.chartRank).length} şarkı chart'ta`, "rgba(255,255,255,.06)")}
             `, healthColor)}
             ${K.ui.section("Dinlenme Trendi")}
             ${K.stats.sparkline(dailyStreams, { color: "#1ed760", h: 64 })}
@@ -35297,7 +35434,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
                 • Editoryal listede: <b>${plSongs.length}</b> şarkı<br>
                 • Kaydetme oranı: <b>~%3.5</b> · Toplam şarkı: <b>${p.songs.length}</b>
               </div>
-              ${note("💡", "Üstteki sekmelerden Dinlenme / Kaynaklar / Kitle / Şarkılar detaylarına geç.", "rgba(255,255,255,.05)")}
+              ${note("💡", "Üstteki sekmelerden Dinlenme / Kaynaklar / Şehirler / Şarkılar detaylarına geç.", "rgba(255,255,255,.05)")}
             `, "#7c5cff")}
           `;
         }
@@ -36412,12 +36549,12 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       <div class="fans-wrap">
         <div class="fans-card">
           <div class="fans-card-head"><div>
-            <div class="fans-card-title">👕 Sınırlı Merch Drop</div>
-            <div class="fans-card-sub">Aktif + süperfan kitlesine tişört/kapüşon</div>
+            <div class="fans-card-title">👕 Sınırlı Fan Merch</div>
+            <div class="fans-card-sub">Aktif + süperfan kitlesine tişört/kapüşon · (marka ürünü değil, fan ürünü)</div>
           </div></div>
           <div class="fans-line">Birim maliyet ₺140 · satış ₺320 · 30 günde bir</div>
           <button class="btn ${f.merchReady ? "btn-primary" : "btn-ghost"}" data-pact="fans-merch" ${f.merchReady ? "" : "disabled"}>
-            ${f.merchReady ? "Merch Drop Yap" : "Beklemede"}
+            ${f.merchReady ? "Fan Merch Drop Yap" : "Beklemede"}
           </button>
         </div>
         <div class="fans-card">
@@ -36430,7 +36567,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             ${f.vipReady ? "VIP İçerik Yayınla" : "Beklemede"}
           </button>
         </div>
-        ${K.studio.note("💡", "Merch ve VIP anlık nakit sağlar; kulüp ise düzenli aylık gelir. Üçünü birlikte kullan.", "info")}
+        ${K.studio.note("💡", "Fan merch'i ve VIP anlık nakit sağlar; kulüp ise düzenli aylık gelir. (Kendi streetwear markan için sol panel → Girişim.)", "info")}
         <div class="fans-foot">Toplam kazanç: ${money(p.totalEarned || 0)} · Borç: ${money(p.debt || 0)}</div>
       </div>`;
   }
@@ -36446,7 +36583,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         tabs: [
           { id: "kitle", label: "Kitle", icon: "💜" },
           { id: "kulup", label: "Fan Kulübü", icon: "🎟️" },
-          { id: "urun", label: "Merch & VIP", icon: "👕" }
+          { id: "urun", label: "Fan Merch & VIP", icon: "👕" }
         ],
         activeTab: params.tab || "kitle",
         render: (tab) => (tab === "kulup" ? kulupHTML() : tab === "urun" ? urunHTML() : kitleHTML()),
@@ -36625,14 +36762,14 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
   }
 
   K.phone.register({
-    id: "team", name: "Ekip", icon: "🧑‍💼", iconClass: "ic-team", dock: false,
+    id: "team", name: "Kişisel Ekip", icon: "🧑‍💼", iconClass: "ic-team", dock: false,
 
     render(params) {
       return {
-        title: "Ekip & Sponsor", sub: "Kariyer ekibi ve marka anlaşmaları",
+        title: "Kişisel Ekip & Sponsor", sub: "Sana bağlı çalışanlar ve marka anlaşmaları",
         shellClass: "app-team",
         tabPos: "bottom",
-        tabs: [{ id: "kadro", label: "Ekip", icon: "🧑‍💼" }, { id: "sponsor", label: "Sponsorluk", icon: "💼" }],
+        tabs: [{ id: "kadro", label: "Kişisel Ekip", icon: "🧑‍💼" }, { id: "sponsor", label: "Sponsorluk", icon: "💼" }],
         activeTab: params.tab || "kadro",
         render: (tab) => (tab === "sponsor" ? sponsorHTML() : teamHTML()),
         onAction: (act, el) => {
@@ -36807,7 +36944,6 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
             <div class="cc-tile">
               <button class="cc-wide" data-act="cc-phone-settings">⚙️ Telefon Ayarları</button>
-              <button class="cc-wide" data-act="cc-game-settings">🎛️ Karma Ayarları</button>
             </div>
           </div>`,
         onMount: (root) => {
@@ -36834,7 +36970,6 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           else if (act === "cc-autoplay") { K.state.player.ytAutoplay = !(K.state.player.ytAutoplay !== false); K.save(); K.phone.reRender(); }
           else if (act === "cc-saver") { K.phoneOS.setPref("batterySaver", !K.phoneOS.prefs().batterySaver); K.phone.reRender(); }
           else if (act === "cc-phone-settings") { K.phone.openApp("phonesettings"); }
-          else if (act === "cc-game-settings") { K.settings.openUI(); }
         }
       };
     }
@@ -36980,10 +37115,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
               <button class="phset-item ${K.settings.all().contrast ? "on" : ""}" data-pact="ph-contrast">◐ Yüksek kontrast <span>${K.settings.all().contrast ? "Açık" : "Kapalı"}</span></button>
             </div>
 
-            <div class="phset-card">
-              <button class="phset-item" data-pact="ph-game">🎛️ Karma Ayarları (kayıt & zorluk) <span>›</span></button>
-            </div>
-            <div class="hint">Duvar kağıdı, parlaklık ve pil tercihleri kaydına işlenir.</div>`;
+            <div class="hint">Duvar kağıdı, parlaklık ve pil tercihleri kaydına işlenir.<br>🎛️ Oyun ayarları (kayıt & zorluk) tek yerden: <b>üst bardaki ⚙️</b>.</div>`;
         },
         onMount: (root) => {
           const br = root.querySelector("#ph-bright");
@@ -37000,7 +37132,6 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           else if (act === "ph-saver") { K.phoneOS.setPref("batterySaver", !K.phoneOS.prefs().batterySaver); K.phone.reRender(); }
           else if (act === "ph-motion") { K.settings.set({ reduceMotion: !K.settings.all().reduceMotion }); K.phone.reRender(); }
           else if (act === "ph-contrast") { K.settings.set({ contrast: !K.settings.all().contrast }); K.phone.reRender(); }
-          else if (act === "ph-game") { K.settings.openUI(); }
         }
       };
     }
