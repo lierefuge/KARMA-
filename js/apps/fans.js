@@ -62,12 +62,12 @@
       <div class="fans-wrap">
         <div class="fans-card">
           <div class="fans-card-head"><div>
-            <div class="fans-card-title">👕 Sınırlı Merch Drop</div>
-            <div class="fans-card-sub">Aktif + süperfan kitlesine tişört/kapüşon</div>
+            <div class="fans-card-title">👕 Sınırlı Fan Merch</div>
+            <div class="fans-card-sub">Aktif + süperfan kitlesine tişört/kapüşon · (marka ürünü değil, fan ürünü)</div>
           </div></div>
           <div class="fans-line">Birim maliyet ₺140 · satış ₺320 · 30 günde bir</div>
           <button class="btn ${f.merchReady ? "btn-primary" : "btn-ghost"}" data-pact="fans-merch" ${f.merchReady ? "" : "disabled"}>
-            ${f.merchReady ? "Merch Drop Yap" : "Beklemede"}
+            ${f.merchReady ? "Fan Merch Drop Yap" : "Beklemede"}
           </button>
         </div>
         <div class="fans-card">
@@ -80,7 +80,7 @@
             ${f.vipReady ? "VIP İçerik Yayınla" : "Beklemede"}
           </button>
         </div>
-        ${K.studio.note("💡", "Merch ve VIP anlık nakit sağlar; kulüp ise düzenli aylık gelir. Üçünü birlikte kullan.", "info")}
+        ${K.studio.note("💡", "Fan merch'i ve VIP anlık nakit sağlar; kulüp ise düzenli aylık gelir. (Kendi streetwear markan için sol panel → Girişim.)", "info")}
         <div class="fans-foot">Toplam kazanç: ${money(p.totalEarned || 0)} · Borç: ${money(p.debt || 0)}</div>
       </div>`;
   }
@@ -96,7 +96,7 @@
         tabs: [
           { id: "kitle", label: "Kitle", icon: "💜" },
           { id: "kulup", label: "Fan Kulübü", icon: "🎟️" },
-          { id: "urun", label: "Merch & VIP", icon: "👕" }
+          { id: "urun", label: "Fan Merch & VIP", icon: "👕" }
         ],
         activeTab: params.tab || "kitle",
         render: (tab) => (tab === "kulup" ? kulupHTML() : tab === "urun" ? urunHTML() : kitleHTML()),
