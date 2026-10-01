@@ -81,6 +81,19 @@
     fatigueMax: 0.74,         // doygunluk tavanı (yayın başına kazanç en çok %74 kısılır)
     fatigueRecovery: 0.9955,  // günlük doygunluk azalması (yarı ömür ≈ 154 gün)
 
+    /* ---------- v10.32 KATALOG SÖNÜMÜ: unutulma ----------
+       Ölçüm (tools/sim-balance.js): 34 şarkılık ÖLÜ bir katalog,
+       şarkı başına 5 dinlenmelik taban yüzünden aylık ~2.500
+       “dinleyici”yi SONSUZA KADAR koruyordu — en iyi şarkısı günde
+       5 dinlenirken. Yani taban katalog büyüklüğüyle DOĞRUSAL
+       büyüyor ve hiç sönmüyordu; “yüksel → zirve → düş” halkası
+       kopuktu, oyuncuya “yayın yap” baskısı kalmıyordu.
+       Artık taban da sönümlenir: sanatçı görünmez kaldıkça unutulur. */
+    silenceGrace: 30,          // yayınsız ilk 30 gün ceza yok (normal aralık)
+    silenceDecay: 0.9945,      // sonrasında günlük unutulma (yarı ömür ≈ 126 gün)
+    silenceFloor: 0.22,        // çarpanın alt sınırı — tamamen sıfırlanmaz
+    catalogFloor: 5,           // şarkı başına dinlenme tabanı (aktifken)
+
     /* ---------- v10 GERÇEKLİK KATMANI: kur · enflasyon · gecikme · vergi ---------- */
     baseFx: 32,                    // 1 USD = 32 ₺ (oyun başı)
     fxMonthlyDrift: 0.018,         // aylık ortalama ₺ değer kaybı (%1,8)
