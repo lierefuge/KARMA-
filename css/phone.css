@@ -221,8 +221,9 @@
 .ic-apple { background: linear-gradient(160deg, #fb5c74, #b31f3f); }
 .ic-youtube { background: linear-gradient(160deg, #ff4b4b, #b00); }
 .ic-instagram { background: radial-gradient(circle at 30% 110%, #ffd776 0%, #f56040 35%, #c13584 60%, #833ab4 100%); }
-.ic-tiktok { background: linear-gradient(160deg, #25f4ee, #000 55%, #fe2c55); }
+.ic-tiktok { background: linear-gradient(160deg, #1a1a1a, #000); }
 .ic-x { background: linear-gradient(160deg, #2b2b2b, #000); }
+.ic-calls { background: linear-gradient(160deg, #5ff07a, #0fb44a); }
 .ic-messages { background: linear-gradient(160deg, #5ff07a, #0fb44a); }
 
 /* dock */
