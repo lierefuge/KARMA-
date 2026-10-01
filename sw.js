@@ -20,8 +20,18 @@
      activate → eski önbellekler silinir, sayfa yenilenir.
    ============================================================ */
 
-const VERSION = "10.31.0"; /* tools/gen-version-json.js ile aynı kaynaktan gelir */
-const CACHE = "karma-" + VERSION;
+const VERSION = "10.31.1"; /* tools/gen-version-json.js ile aynı kaynaktan gelir */
+
+/* ÖNBELLEK ADI İÇERİK HASH'İNDEN TÜRETİLİR — insan sürümünden DEĞİL.
+   Neden? Sürüm numarası değişmeden içerik değişebilir (damgalama
+   unutulduğunda tam olarak bu oldu). O durumda ad "karma-10.31.0"
+   olarak sabit kalır, activate hiçbir şeyi silmez ve oyuncu
+   cache-first kuralı yüzünden eski JS/CSS'i SONSUZA KADAR çalıştırır:
+   "güncelle dedim, güncellenmedi". İçerik hash'i her içerik
+   değişiminde adı değiştirir; activate eski önbelleği siler.
+   Damgalama: tools/gen-version-json.js (CACHE_KEY alanı). */
+const CACHE_KEY = "6cf80d88";
+const CACHE = "karma-" + CACHE_KEY;
 const CORE = ["./", "./index.html", "./js/version.js"];
 
 self.addEventListener("install", (event) => {
@@ -55,7 +65,9 @@ self.addEventListener("message", (event) => {
   const data = event.data || {};
   if (data.type === "KARMA_SKIP_WAITING") self.skipWaiting();
   if (data.type === "KARMA_VERSION" && event.source) {
-    event.source.postMessage({ type: "KARMA_VERSION_REPLY", version: VERSION });
+    event.source.postMessage({
+      type: "KARMA_VERSION_REPLY", version: VERSION, cacheKey: CACHE_KEY
+    });
   }
 });
 
@@ -63,11 +75,44 @@ function isSameOrigin(url) {
   return url.origin === self.location.origin;
 }
 
+/* index.html içindeki ilk ?v= damgasını oku (css/js varlık sürümü). */
+function stampOf(html) {
+  const m = String(html || "").match(/[?&]v=([A-Za-z0-9._-]+)/);
+  return m ? m[1] : "";
+}
+
+/* Tüm önbellekleri sil. Kendini onarma yolunda kullanılır. */
+async function purgeAll() {
+  try {
+    const keys = await caches.keys();
+    await Promise.all(keys.map((k) => caches.delete(k)));
+  } catch (e) { /* önbellek yoksa sorun değil */ }
+}
+
 async function networkFirst(request) {
   const cache = await caches.open(CACHE);
   try {
     const fresh = await fetch(request);
-    if (fresh && fresh.ok) cache.put(request, fresh.clone());
+    if (fresh && fresh.ok) {
+      /* KENDİNİ ONARAN DAMGA KONTROLÜ
+         Gelen index.html'in ?v= damgası worker'ın kendi CACHE_KEY'inden
+         farklıysa yayında yeni içerik var ama worker güncellenmemiş
+         demektir (damgalama/build unutulmuş). Bu durumda eski
+         önbellekleri temizle: sonraki cache-first aramaları ıskalar ve
+         içerik ağdan taze gelir. Böylece "damgalamayı unutma" hatası
+         oyuncuyu kalıcı olarak eski sürümde bırakamaz. */
+      try {
+        const isNav = request.mode === "navigate" ||
+          new URL(request.url).pathname.endsWith("index.html");
+        if (isNav) {
+          const stamp = stampOf(await fresh.clone().text());
+          if (stamp && stamp !== CACHE_KEY) await purgeAll();
+        }
+      } catch (e) { /* gövde okunamazsa onarımı atla */ }
+
+      const c = await caches.open(CACHE);
+      c.put(request, fresh.clone());
+    }
     return fresh;
   } catch (e) {
     const cached = await cache.match(request);
