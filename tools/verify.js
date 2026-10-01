@@ -133,7 +133,10 @@ const SUITES = [
   { id: "previews",    script: "tools/smoke-previews.js",    label: "Önizleme + YouTube verisi" },
   { id: "expansion",   script: "tools/smoke-expansion.js",   label: "Genişleme paketi (6 sistem)" },
   { id: "v1030",       script: "tools/smoke-v1030.js",       label: "v10.30 güncelleme (aramalar · gönderi türü · teklif · DM)" },
-  { id: "v1031",       script: "tools/smoke-v1031.js",       label: "v10.31 çoklu erişim temizliği (ölü kod · röportaj · analiz)" }
+  { id: "v1031",       script: "tools/smoke-v1031.js",       label: "v10.31 çoklu erişim temizliği (ölü kod · röportaj · analiz)" },
+  /* güncelleme akışı: "güncelle dedim, güncellenmedi" sınıfını kilitler.
+     Sürüm/damga/worker üçlüsü tutarsızsa yayın burada durur. */
+  { id: "updater",     script: "tools/smoke-updater.js",     label: "Güncelleme akışı (sürüm · damga · worker)" }
 ];
 
 const suiteOut = {};
