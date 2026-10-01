@@ -375,3 +375,48 @@
   border-top: 1px dashed rgba(255, 255, 255, .12);
   opacity: .80; font-weight: 600;
 }
+
+/* ============================================================
+   GERÇEK INSTAGRAM DÜZENİ (v10.36)
+   • alt sekmede aktif simge DOLAR (gerçek IG davranışı)
+   • gönderi eylemleri SVG: kalp · yorum · paylaş · kaydet
+   • hikâye "+" rozeti · başlıkta "kullanıcı · süre"
+   ============================================================ */
+
+/* alt sekme: pasif ince çizgi ↔ aktif dolu simge */
+.app-instagram .seg-bottom svg .ig-on { display: none; }
+.app-instagram .seg-bottom button.active svg .ig-on { display: inline; }
+.app-instagram .seg-bottom button.active svg .ig-off { display: none; }
+.app-instagram .seg-bottom button .tb-ic svg { width: 24px; height: 24px; }
+
+/* üst çubuk (kalp · mesajlar) SVG boyutu */
+.ig-nav-actions svg { width: 24px; height: 24px; display: block; }
+
+/* gönderi eylemleri — SVG ikonlar */
+.ig-actions svg { width: 24px; height: 24px; display: block; }
+.ig-actions button.heart.on svg path { fill: #ff3040; stroke: #ff3040; }
+.ig-actions button.on svg path { fill: #fff; stroke: #fff; }
+.ig-actions button { transition: transform .12s; }
+.ig-actions button:active { transform: scale(.88); }
+
+/* gönderi başlığı: kullanıcı adı · süre (gerçek IG tek satır) */
+.ig-post-head .iph-line { display: flex; align-items: center; gap: 5px; }
+.ig-post-head .iph-music,
+.ig-post-head .iph-dot,
+.ig-post-head .iph-time { font-size: 11px; color: var(--ig-dim); }
+
+/* hikâye "+" rozeti (kendi hikâyen) */
+.ig-story-ring.mine .ig-plus {
+  position: absolute; right: -2px; bottom: -2px; z-index: 2;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--ig-blue); color: #fff; border: 2px solid #000;
+  display: grid; place-items: center; font-size: 14px; font-weight: 700; line-height: 1;
+}
+
+/* reels yan eylemleri */
+.ig-reel .r-side button svg { width: 26px; height: 26px; display: block; }
+.ig-reel .r-side button.on svg path { fill: #ff3040; stroke: #ff3040; }
+.ig-reel .r-side .grow { flex: 1; }
+
+/* yorum satırındaki küçük kalp */
+.cmt-actions svg { width: 12px; height: 12px; display: inline-block; vertical-align: -2px; }
