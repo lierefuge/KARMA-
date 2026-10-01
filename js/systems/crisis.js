@@ -10,7 +10,7 @@
   K.crisis = {
     POOL: [
       {
-        id: "scandal", tag: "SKANDAL", title: "Eski bir paylaşımın gündem oldu",
+        id: "scandal", tag: "SKANDAL", minPop: 22, title: "Eski bir paylaşımın gündem oldu",
         desc: "Yıllar önce yaptığın bir paylaşım ekran görüntüsü olarak yayıldı. Sosyal medya karışık.",
         choices: [
           { label: "Özür dile (samimi video)", effects: { rep: 3, pop: -0.5, fans: -4000, money: 0 }, note: "İtibar korunur, kısa vadede hayran kaybı." },
@@ -19,7 +19,7 @@
         ]
       },
       {
-        id: "censorship", tag: "SANSÜR", title: "Şarkın platformdan kaldırıldı",
+        id: "censorship", tag: "SANSÜR", minPop: 12, title: "Şarkın platformdan kaldırıldı",
         desc: "Bir şarkının sözleri nedeniyle platform incelemesi başlatıldı ve yayın geçici kaldırıldı.",
         choices: [
           { label: "Sözleri yumuşat, tekrar yükle", effects: { rep: -1, pop: 0.5, money: -15000, fans: 0 }, note: "Hızlı çözüm, sanatsal taviz." },
@@ -28,7 +28,7 @@
         ]
       },
       {
-        id: "plagiarism", tag: "İDDİA", title: "Beat'in çalıntı olduğu iddia edildi",
+        id: "plagiarism", tag: "İDDİA", minPop: 15, title: "Beat'in çalıntı olduğu iddia edildi",
         desc: "Bir prodüktör, beat'inin izinsiz kullanıldığını öne sürüyor. Konu hızla yayılıyor.",
         choices: [
           { label: "Prodüktörle anlaş (telif öde)", effects: { rep: 2, pop: 0, money: -90000, fans: 0 }, note: "Temiz çözüm." },
@@ -37,7 +37,7 @@
         ]
       },
       {
-        id: "leak", tag: "SIZINTI", title: "Yayınlanmamış şarkın sızdı",
+        id: "leak", tag: "SIZINTI", minPop: 12, title: "Yayınlanmamış şarkın sızdı",
         desc: "Bitmemiş bir kaydın internete düştü. Dinleyiciler bölünmüş durumda.",
         choices: [
           { label: "Erken yayınla", effects: { rep: 1, pop: 1.5, money: 25000, fans: 8000 }, note: "Sızıntıyı fırsata çevir." },
@@ -46,7 +46,7 @@
         ]
       },
       {
-        id: "beef", tag: "GERİLİM", title: "Bir sanatçı seni canlı yayında eleştirdi",
+        id: "beef", tag: "GERİLİM", minPop: 12, title: "Bir sanatçı seni canlı yayında eleştirdi",
         desc: "Popüler bir rapçi canlı yayında senin sound'unu eleştirdi, klipler kesildi ve viral oldu.",
         choices: [
           { label: "Şarkıyla cevap ver", effects: { rep: 2, pop: 2, money: -20000, fans: 12000 }, note: "Diss kültürü işler." },
@@ -65,10 +65,15 @@
       /* DÜZELTME (v10.9): kriz art arda gelebiliyor ve aynı senaryo
          tekrar tekrar seçilebiliyordu. Artık asgari arayı var ve
          henüz yaşanmamış senaryolar öncelikli. */
-      if (s.day - (s.lastCrisisDay || -999) < 25) return;
-      const chance = 0.035 * mult * (1 + s.player.popularity / 60);
+      /* v10.33 — krizler belirgin şekilde seyreldi (asgari 30 gün ara) ve
+         ancak belli bir ünden sonra mümkün: tanınmayan sanatçının skandalı
+         olmaz. Senaryolar minPop eşiğiyle süzülür. */
+      if (s.day - (s.lastCrisisDay || -999) < 30) return;
+      const pop = s.player.popularity || 0;
+      const chance = 0.02 * mult * (1 + pop / 70);
       if (!U.chance(chance)) return;
-      const base = K.crisis.POOL.filter(c => s.player.popularity >= 10 || c.id !== "beef");
+      const base = K.crisis.POOL.filter(c => pop >= (c.minPop || 0));
+      if (!base.length) return;
       const seen = s.crisisSeen = s.crisisSeen || [];
       const fresh = base.filter(c => seen.indexOf(c.id) < 0);
       const evt = U.pick(fresh.length ? fresh : base);
