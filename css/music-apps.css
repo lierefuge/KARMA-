@@ -200,7 +200,48 @@
 .amx-playbar .prog { background: #fa233b; }
 
 /* ============================================================
-   7) MOBİL
+   7) GERÇEK SPOTIFY DÜZENİ — sanatçı rafı · Beğenilen Şarkılar ·
+      çalma listesi başlığı · alt sekme simgeleri (v10.35)
+   ============================================================ */
+
+/* yuvarlak sanatçı kartları (Fans also like) */
+.spx-card .art.round { border-radius: 50%; }
+
+/* alt sekme çubuğu: emoji yerine gerçek SVG simgeler */
+.seg-bottom .tb-ic svg { width: 22px; height: 22px; display: block; margin: 0 auto; }
+.seg-bottom button .tb-ic { display: grid; place-items: center; }
+
+/* Beğenilen Şarkılar — gerçek Spotify'ın mor→beyaz kalp karosu */
+.spx-librow.liked .liked-art,
+.pl-hero .liked-art {
+  background: linear-gradient(135deg, #450af5 0%, #8e8ee5 70%, #c4efd9 100%);
+  color: #fff;
+  font-size: 24px;
+  box-shadow: 0 6px 16px rgba(69,10,245,.32);
+}
+.pl-hero.liked-hero { background: linear-gradient(135deg, #450af5, #8e8ee5 70%, #c4efd9); }
+.pl-hero .liked-art { width: 88px; height: 88px; border-radius: var(--radius-s); font-size: 38px; }
+
+/* çalma listesi sahibi satırı */
+.pl-owner { font-size: 10.5px; color: #a7a7a7; margin-top: 5px; font-weight: 600; }
+
+/* eylem satırı: büyük yeşil Çal + ikincil düğmeler */
+.sp-actions {
+  display: flex; align-items: center; gap: 8px;
+  margin: 12px 0 6px; flex-wrap: wrap;
+}
+.sp-play-btn {
+  width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer;
+  background: #1db954; color: #000; font-size: 17px; font-weight: 800;
+  display: grid; place-items: center; flex: 0 0 auto;
+  box-shadow: 0 6px 18px rgba(29,185,84,.35);
+  transition: transform .14s;
+}
+.sp-play-btn:hover { transform: scale(1.05); }
+.sp-play-btn:active { transform: scale(.95); }
+
+/* ============================================================
+   8) MOBİL
    ============================================================ */
 @container phone (max-width: 360px) {
   .spx-card { flex: 0 0 104px; width: 104px; }
