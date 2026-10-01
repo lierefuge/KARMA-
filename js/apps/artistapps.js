@@ -158,6 +158,10 @@
       const spotifyTotal = U.sum(p.songs, x => x.spotifyStreams || 0);
       const mtd = U.sum(p.songs, x => Math.round(x.month ? (x.month.spotify || 0) : 0));
       const monthSaved = Math.round(mtd * 0.035);
+      /* Spotify payı — 30 günlük global trendi Spotify'a ölçeklemek için */
+      const spotifyShare = (p.songs || []).length
+        ? U.clamp(U.sum(p.songs, x => (x.platforms && x.platforms.spotify) || 0.46) / p.songs.length, 0.05, 0.95)
+        : 0.46;
       const plSongs = (p.songs || []).filter(x => x.playlists && x.playlists.length);
       const algoSongs = (p.songs || []).filter(x => x.algos);
       const dailyStreams = K.stats.series("streams", 30);
@@ -205,19 +209,26 @@
         activeTab: params.tab || "gen",
         render: (tab) => {
           if (tab === "stream") {
-            const dailyAvg = K.stats.summary().dailyStreams;
+            /* v10.31 — yalnız SPOTIFY verisi. Global "aylık dinleyici trendi"
+               kaldırıldı (o veri sol panel → Analiz'de). */
+            const spotifyDaily = dailyStreams.map(v => Math.round(v * spotifyShare));
+            const dailyAvg = Math.round(K.stats.summary().dailyStreams * spotifyShare);
             return card(`
               <div class="studio-head baseline">
-                <div class="studio-title">Dinlenme (30 gün)</div>
+                <div class="studio-title">Spotify Dinlenme (30 gün)</div>
                 <div style="font-size:11px;color:var(--text-3)">günde ~${U.compact(dailyAvg)}</div>
               </div>
-              ${K.stats.sparkline(dailyStreams, { color: "#1ed760", h: 96 })}
+              ${K.stats.sparkline(spotifyDaily, { color: "#1ed760", h: 96 })}
               ${note(streamNote[0], streamNote[1], streamNote[2])}
             `, "#1ed760")
             + card(`
-              <div class="studio-title sm">Aylık Dinleyici Trendi</div>
-              ${K.stats.sparkline(K.stats.series("monthly", 30), { color: "#6ec3ff", h: 84 })}
-              ${note("👥", `Aylık dinleyici: <b>${U.compact(p.monthly)}</b> · büyüme %${growthM}. Tekrar dinlenme oranı yüksek işler dinleyiciyi tutar.`, "rgba(110,195,255,.12)")}
+              <div class="studio-title sm">Spotify Toplamları</div>
+              <div class="hint" style="line-height:1.9">
+                • Toplam Spotify dinlenme: <b>${U.compact(spotifyTotal)}</b><br>
+                • Bu ay dinlenme: <b>${U.compact(mtd)}</b><br>
+                • Bu ay kaydetme: <b>${U.compact(monthSaved)}</b><br>
+                • Editoryal listede: <b>${plSongs.length}</b> şarkı
+              </div>
             `, "#6ec3ff");
           }
           if (tab === "kaynak") {
@@ -278,10 +289,10 @@
               <div class="h-sub" style="color:rgba(4,20,10,.75)">Spotify for Artists · doğrulanmış</div></div>
             </div>
             <div class="sp-stat-row">
-              ${stat("Aylık Dinleyici", U.compact(p.monthly), "rgba(30,215,96,.1)")}
-              ${stat("Toplam Dinlenme", U.compact(spotifyTotal), "rgba(30,215,96,.1)")}
+              ${stat("Spotify Dinlenme", U.compact(spotifyTotal), "rgba(30,215,96,.1)")}
+              ${stat("Bu Ay Dinlenme", U.compact(mtd), "rgba(30,215,96,.1)")}
               ${stat("Bu Ay Kaydetme", U.compact(monthSaved), "rgba(30,215,96,.1)")}
-              ${stat("Takipçi", U.compact(p.ig), "rgba(30,215,96,.1)")}
+              ${stat("Listedeki Şarkı", String(plSongs.length), "rgba(30,215,96,.1)")}
             </div>
             ${card(`
               <div class="studio-health">
@@ -327,6 +338,10 @@
           const p = K.state.player;
           const appleTotal = U.sum(p.songs, x => x.appleStreams || 0);
           const shazam = Math.round(appleTotal * 0.004);
+          /* Apple payı — 30 günlük global trendi Apple'a ölçeklemek için */
+          const appleShare = (p.songs || []).length
+            ? U.clamp(U.sum(p.songs, x => (x.platforms && x.platforms.apple) || 0.19) / p.songs.length, 0.03, 0.95)
+            : 0.19;
 
           if (tab === "songs") {
             const songs = p.songs.slice().sort((a, b) => (b.appleStreams || 0) - (a.appleStreams || 0)).slice(0, 12);
@@ -354,13 +369,7 @@
                 ${K.ui.cover(sg.coverSeed, (sg.title[0] || "?").toUpperCase(), 38)}
                 <div class="info"><div class="n">${U.escape(sg.title)}</div><div class="a">en iyi #${sg.chartPeak && sg.chartPeak < 999 ? sg.chartPeak : sg.chartRank}</div></div>
                 <span class="streams">${U.compact(sg.lastDaily || 0)}/g</span>
-              </div>`).join("") : `<div class="mini-empty">Listeye girmek için dinlenmen artmalı.</div>`}
-              ${K.ui.section("Global Albüm Listesi")}
-              ${(K.state.albumChart || []).slice(0, 5).map(e => `<div class="am-chart-row">
-                <span class="num">${e.rank}</span>
-                <div class="info"><div class="n">${U.escape(e.title)}</div><div class="a">${U.escape(e.artistName)}</div></div>
-                <span class="streams">${U.compact(e.daily)}</span>
-              </div>`).join("")}`;
+              </div>`).join("") : `<div class="mini-empty">Listeye girmek için dinlenmen artmalı.</div>`}`;
           }
 
           return `
@@ -370,13 +379,13 @@
               <div class="h-listeners">${U.compact(appleTotal)} Apple dinlenme · ${U.compact(shazam)} Shazam</div>
             </div>
             <div class="sp-stat-row">
-              <div class="sp-stat" style="background:rgba(251,92,116,.1)"><div class="k">Aylık Dinleyici</div><div class="v">${U.compact(p.monthly)}</div></div>
+              <div class="sp-stat" style="background:rgba(251,92,116,.1)"><div class="k">Apple Dinlenme</div><div class="v">${U.compact(appleTotal)}</div></div>
               <div class="sp-stat" style="background:rgba(251,92,116,.1)"><div class="k">Shazam</div><div class="v">${U.compact(shazam)}</div></div>
               <div class="sp-stat" style="background:rgba(251,92,116,.1)"><div class="k">Bu Ay Dinlenme</div><div class="v">${U.compact(U.sum(p.songs, x => Math.round((x.month ? (x.month.apple || 0) : 0))))}</div></div>
               <div class="sp-stat" style="background:rgba(251,92,116,.1)"><div class="k">Aylık Telif</div><div class="v">${U.money(U.sum(p.songs, x => Math.round((x.month ? (x.month.apple || 0) : 0))) * K.ECON.streamRates.apple)}</div></div>
             </div>
-            ${K.ui.section("Dinlenme Trendi")}
-            ${K.stats.sparkline(K.stats.series("streams", 30), { color: "#fb5c74", h: 60 })}
+            ${K.ui.section("Apple Dinlenme Trendi (30 gün)")}
+            ${K.stats.sparkline(K.stats.series("streams", 30).map(v => Math.round(v * appleShare)), { color: "#fb5c74", h: 60 })}
             ${K.ui.section("Şehirler")}
             ${cityBreakdown("apple" + p.stageName, appleTotal).map(c => `<div class="tt-bar-row">
               <span class="name">${U.escape(c.city)}</span>
