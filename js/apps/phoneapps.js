@@ -109,7 +109,7 @@
 
     search(q) {
       q = (q || "").toLowerCase().trim();
-      const apps = K.phone.apps.filter(a => K.phoneOS.installed(a.id) && a.name.toLowerCase().includes(q)).map(a => ({ id: a.id, name: a.name, icon: a.icon }));
+      const apps = K.phone.apps.filter(a => K.phoneOS.installed(a.id) && a.name.toLowerCase().includes(q)).map(a => ({ id: a.id, name: a.name, icon: a.icon, iconClass: a.iconClass }));
       if (!q) return { apps: apps.slice(0, 6), locked: [], artists: [], songs: [], news: [] };
       const locked = Object.keys(K.phoneOS.LOCKS)
         .filter(id => !K.phoneOS.installed(id) && (K.phoneOS.LOCKS[id].name || "").toLowerCase().includes(q))
@@ -123,7 +123,7 @@
     resultsHTML(q) {
       const r = K.spotlight.search(q);
       const sec = (title, inner) => inner ? K.ui.section(title) + inner : "";
-      const appRows = r.apps.map(a => `<div class="sp-res" data-act="open-app" data-arg="${a.id}"><span class="sp-res-ic">${a.icon}</span><div class="grow"><div class="sp-res-name">${U.escape(a.name)}</div><div class="sp-res-sub">Uygulama</div></div></div>`).join("");
+      const appRows = r.apps.map(a => `<div class="sp-res" data-act="open-app" data-arg="${a.id}"><span class="sp-res-ic">${K.brandIcon.tile(a.id, a.iconClass, a.icon)}</span><div class="grow"><div class="sp-res-name">${U.escape(a.name)}</div><div class="sp-res-sub">Uygulama</div></div></div>`).join("");
       const lockRows = r.locked.map(a => `<div class="sp-res" data-act="open-store"><span class="sp-res-ic">🛍️</span><div class="grow"><div class="sp-res-name">${U.escape(a.name)}</div><div class="sp-res-sub">Mağazada · kilitli</div></div></div>`).join("");
       const artistRows = r.artists.map(a => `<div class="sp-res" data-act="open-artist" data-arg="${a.id}"><span class="sp-res-ic">🎤</span><div class="grow"><div class="sp-res-name">${U.escape(a.name)}</div><div class="sp-res-sub">${U.compact(a.monthly)} dinleyici</div></div></div>`).join("");
       const songRows = r.songs.map(sg => `<div class="sp-res" data-act="play-song" data-arg="${U.escape(sg.id)}"><span class="sp-res-ic">🎵</span><div class="grow"><div class="sp-res-name">${U.escape(sg.title)}</div><div class="sp-res-sub">${U.escape(sg.artistName || "")}</div></div></div>`).join("");
@@ -186,7 +186,7 @@
           return `${locked.length ? "" : K.studio.note("🎉", "Tüm uygulamalar yüklü. Yeni uygulamalar kariyerinle açılır.", "ok")}`
             + (locked.length ? K.ui.section("Kilitli / Yüklenebilir") + locked.map(card).join("") : "")
             + K.ui.section("Yüklü Uygulamalar")
-            + installed.map(x => `<div class="sp-res" data-pact="store-open" data-arg="${x.id}"><span class="sp-res-ic">${x.icon}</span><div class="grow"><div class="sp-res-name">${U.escape(x.name)}</div><div class="sp-res-sub">${U.escape(x.desc)}</div></div><span style="color:var(--text-3)">›</span></div>`).join("");
+            + installed.map(x => `<div class="sp-res" data-pact="store-open" data-arg="${x.id}"><span class="sp-res-ic">${K.brandIcon.tile(x.id, (K.phone.appById(x.id) || {}).iconClass, x.icon)}</span><div class="grow"><div class="sp-res-name">${U.escape(x.name)}</div><div class="sp-res-sub">${U.escape(x.desc)}</div></div><span style="color:var(--text-3)">›</span></div>`).join("");
         },
         onAction: (act, el) => {
           if (act === "store-install") { K.phoneOS.install(el.dataset.arg); K.phone.reRender(); }
