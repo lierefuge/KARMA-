@@ -136,7 +136,10 @@ const SUITES = [
   { id: "v1031",       script: "tools/smoke-v1031.js",       label: "v10.31 çoklu erişim temizliği (ölü kod · röportaj · analiz)" },
   /* güncelleme akışı: "güncelle dedim, güncellenmedi" sınıfını kilitler.
      Sürüm/damga/worker üçlüsü tutarsızsa yayın burada durur. */
-  { id: "updater",     script: "tools/smoke-updater.js",     label: "Güncelleme akışı (sürüm · damga · worker)" }
+  { id: "updater",     script: "tools/smoke-updater.js",     label: "Güncelleme akışı (sürüm · damga · worker)" },
+  /* katalog sönümü: "yayın yapmazsan kitle erir" halkasını ve cezanın
+     oyuncuya GÖRÜNÜR olmasını kilitler. */
+  { id: "silence",     script: "tools/smoke-silence.js",     label: "Katalog sönümü (unutulma · uyarı)" }
 ];
 
 const suiteOut = {};
