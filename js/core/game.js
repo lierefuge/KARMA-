@@ -132,6 +132,7 @@
       if (K.stats && K.stats.record) K.stats.record();
 
       K.game.decayAffinity();
+      K.game.silenceWarning();   // v10.32 — katalog sönümü görünür olsun
 
       // günlük rastgele olay (%10-15) — para / ün / itibar / hayran etkisi
       if (K.incidents && K.incidents.maybeFire) K.incidents.maybeFire();
@@ -214,10 +215,70 @@
       if (p.fatigueAtt < 0.001) p.fatigueAtt = 0;
     },
 
+    /* ---------- SON YAYINDAN BU YANA GEÇEN GÜN (v10.32) ----------
+       Katalogdaki EN YENİ yayın esas alınır; demo/taslak parçalar
+       (publishedDay yok) sayılmaz. Hiç yayın yoksa büyük bir değer
+       döner — kariyer henüz başlamamış demektir. */
+    daysSinceRelease() {
+      const p = K.state.player;
+      let last = -1;                       // -1 = "hiç yayın yok" işareti
+      (p.songs || []).forEach(x => {
+        const d = x.publishedDay;
+        if (typeof d === "number" && d >= 0 && d > last) last = d;
+      });
+      return last >= 0 ? Math.max(0, K.state.day - last) : 999;
+    },
+
+    /* ---------- UNUTULMA ÇARPANI (v10.32) ----------
+       Yayınsız ilk `silenceGrace` gün ceza yok: iki single arası 30 gün
+       normaldir. Sonrasında üstel derinleşir ve `silenceFloor`'da durur.
+
+       Neden gerekliydi? Şarkı başına dinlenme tabanı (5) katalog
+       büyüklüğüyle DOĞRUSAL büyüyordu; 34 şarkılık ölü bir katalog
+       günde 170 dinlenme üretip aylık ~2.500 dinleyiciyi süresiz
+       koruyordu. Taban artık bu çarpanla birlikte sönümleniyor. */
+    silenceDecay() {
+      const silence = K.game.daysSinceRelease() - (K.ECON.silenceGrace || 30);
+      if (silence <= 0) return 1;
+      const d = K.ECON.silenceDecay || 0.9945;
+      return Math.max(K.ECON.silenceFloor || 0.22, Math.pow(d, silence));
+    },
+
+    /* ---------- UNUTULMA UYARISI (v10.32) ----------
+       Sönüm oyuncuya GÖRÜNMEZ olmamalı: kitle neden eridiğini
+       anlamadan cezalandırılmak haksız hissi verir. Eşikler geçildiğinde
+       TEK SEFERLİK uyarı düşer (her gün tekrarlamaz). Yeni yayın
+       yapıldığında sayaç kendiliğinden sıfırlanır. */
+    silenceWarning() {
+      const s = K.state, p = s.player;
+      const days = K.game.daysSinceRelease();
+      if (days >= 999) return;                       // henüz hiç yayın yok
+      const silence = days - (K.ECON.silenceGrace || 30);
+      if (silence <= 0) { p._silenceWarned = 0; return; }
+
+      const THRESHOLDS = [15, 45, 90, 180];          // ek süre (gün)
+      const hit = THRESHOLDS.filter(t => silence >= t).pop() || 0;
+      if (!hit || hit <= (p._silenceWarned || 0)) return;
+      p._silenceWarned = hit;
+
+      const pct = Math.round(K.game.silenceDecay() * 100);
+      s.notifications = (s.notifications || []).concat([{
+        title: "📉 Katalog sönümleniyor",
+        msg: `${days} gündür yayın yok. Dinleyici tabanı %${pct}'ine indi — ` +
+             `yeni bir yayın dalgayı yeniden besler.`,
+        kind: "warn",
+        day: s.day
+      }]).slice(-60);
+    },
+
     accrueStreams() {
       const s = K.state;
       const p = s.player;
       const att = K.game.attention();   // v10.17 — günün dalga katsayısı
+      /* v10.32 — şarkı başına taban ARTIK SÖNÜMLÜ: sanatçı görünmez
+         kaldıkça katalog da unutulur. Aktifken (≤30 gün) değer sabittir,
+         yani normal oynayış hiç etkilenmez. */
+      const catFloor = Math.max(0.2, (K.ECON.catalogFloor || 5) * K.game.silenceDecay());
 
       p.songs.forEach(song => {
         if (!song.dailyStreams) song.dailyStreams = K.game.initialDaily(song);
@@ -270,8 +331,8 @@
         /* v10.17 — dikkat dalgası katalogun tamamına uygulanır:
            yeni yayın dalgayı beslediğinde yalnızca yeni şarkı değil,
            tüm katalog daha çok dinlenir (gerçekte de öyle olur). */
-        const daily = Math.max(5, Math.round(song.dailyStreams * mult * energy * att * U.rand(0.9, 1.12)));
-        song.dailyStreams = Math.max(5, song.dailyStreams * (song.viral ? 1.01 : 0.997));
+        const daily = Math.max(0, Math.round(song.dailyStreams * mult * energy * att * U.rand(0.9, 1.12)));
+        song.dailyStreams = Math.max(catFloor, song.dailyStreams * (song.viral ? 1.01 : 0.997));
 
         song.streams += daily;
         song.lastDaily = daily;
