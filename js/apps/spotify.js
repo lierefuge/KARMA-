@@ -9,6 +9,30 @@
 
   const U = K.util;
 
+  /* Gerçek Spotify alt sekme simgeleri (currentColor ile boyanır) */
+  const SP_IC = {
+    home: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 3.2a1 1 0 0 0-1 0l-8 5A1 1 0 0 0 3 9v10a1 1 0 0 0 1 1h5v-6h6v6h5a1 1 0 0 0 1-1V9a1 1 0 0 0-.5-.87z"/></svg>',
+    search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>',
+    library: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="4" width="2.2" height="16" rx="1"/><rect x="7.2" y="4" width="2.2" height="16" rx="1"/><path d="M12.6 5.1 14.6 4.5l4.3 14.6-2 .6z"/></svg>'
+  };
+
+  /* Son aramalar — gerçek Spotify'ın arama ekranında görünür */
+  function recents() {
+    const p = K.state && K.state.player;
+    if (!p) return [];
+    p.spRecent = p.spRecent || [];
+    return p.spRecent;
+  }
+  function pushRecent(q) {
+    q = String(q || "").trim();
+    if (q.length < 2) return;
+    const list = recents();
+    const i = list.findIndex(x => x.toLowerCase() === q.toLowerCase());
+    if (i >= 0) list.splice(i, 1);
+    list.unshift(q);
+    if (list.length > 8) list.length = 8;
+  }
+
   function trackRow(t, opts) {
     opts = opts || {};
     const letter = (t.title[0] || "?").toUpperCase();
@@ -63,7 +87,7 @@
   function spxCard(c) {
     const bg = c.color ? `linear-gradient(135deg,${c.color},#111)` : U.gradientFor(c.seed || c.title);
     return `<div class="spx-card" data-pact="${c.act}" data-arg="${c.arg}">
-      <div class="art" style="background:${bg}${c.art ? `;background-image:url('${c.art}');background-size:cover` : ""}">${c.art ? "" : (c.letter || "♫")}</div>
+      <div class="art ${c.round ? "round" : ""}" style="background:${bg}${c.art ? `;background-image:url('${c.art}');background-size:cover` : ""}">${c.art ? "" : (c.letter || "♫")}</div>
       <div class="tt">${U.escape(c.title)}</div>
       ${c.sub ? `<div class="ss">${U.escape(c.sub)}</div>` : ""}
     </div>`;
@@ -91,9 +115,9 @@
         musicBar: true,
         tabPos: "bottom",
         tabs: [
-          { id: "home", label: "Ana Sayfa", icon: "🏠" },
-          { id: "search", label: "Ara", icon: "🔍" },
-          { id: "library", label: "Kütüphane", icon: "📚" }
+          { id: "home", label: "Ana Sayfa", icon: SP_IC.home },
+          { id: "search", label: "Ara", icon: SP_IC.search },
+          { id: "library", label: "Kitaplığın", icon: SP_IC.library }
         ],
         activeTab: params.tab || "home",
         state: { q: "", filter: "all" },
@@ -104,17 +128,28 @@
         },
         onMount: (root) => {
           const input = U.qs("[data-sp-search]", root);
-          if (input) {
-            const results = U.qs("[data-sp-results]", root);
-            const draw = () => { results.innerHTML = K.phone.appById("spotify").resultsHTML(input.value, view.state.filter); };
-            input.addEventListener("input", draw);
-            draw();
-          }
+          if (!input) return;
+          const results = U.qs("[data-sp-results]", root);
+          const draw = () => { results.innerHTML = K.phone.appById("spotify").resultsHTML(input.value, view.state.filter); };
+          input.addEventListener("input", draw);
+          input.addEventListener("keydown", (e) => { if (e.key === "Enter") { pushRecent(input.value); draw(); } });
+          draw();
         },
         onAction: (act, el, v) => {
           const app = K.phone.appById("spotify");
-          if (act === "open-artist") app.openArtist(el.dataset.arg);
-          else if (act === "play") app.playById(el.dataset.arg);
+          if (act === "open-artist") { pushRecent((U.qs("[data-sp-search]") || {}).value); app.openArtist(el.dataset.arg); }
+          else if (act === "play") { pushRecent((U.qs("[data-sp-search]") || {}).value); app.playById(el.dataset.arg); }
+          else if (act === "open-liked") app.openLiked();
+          else if (act === "sp-recent") {
+            const input = U.qs("[data-sp-search]");
+            if (input) { input.value = el.dataset.arg || ""; input.dispatchEvent(new Event("input", { bubbles: true })); }
+          }
+          else if (act === "sp-clear-recent") { K.state.player.spRecent = []; K.phone.reRender(); }
+          else if (act === "sp-share") K.toast("🔗 Bağlantı kopyalandı", el.dataset.arg || "", "ok");
+          else if (act === "playlist-shuffle") {
+            const list = (K.phone.views[K.phone.views.length - 1] || {})._plSongs || [];
+            if (list.length) { app.playSong(list[Math.floor(Math.random() * list.length)]); K.toast("🔀 Karıştır", list.length + " şarkı", "ok"); }
+          }
           else if (act === "row-more") K.tracks.actionSheet(el.dataset.arg);
           else if (act === "create-playlist") K.playlists.promptCreate((pl) => app.openUserPlaylist(pl.id));
           else if (act === "open-upl") app.openUserPlaylist(el.dataset.arg);
@@ -224,16 +259,13 @@
 
     /* ---------------- ARAMA ---------------- */
     searchHTML(view) {
-      const f = view.state.filter || "all";
-      const filters = [["all", "Tümü"], ["artist", "Sanatçılar"], ["song", "Şarkılar"], ["album", "Albümler"]];
+      /* Gerçek Spotify: filtre çipi YOK — yalnız arama alanı,
+         altında "Son aramalar" + "Hepsini keşfet" renkli ızgarası. */
       return `
-        <h1 class="spx-h1">Ne dinlemek istiyorsun?</h1>
+        <h1 class="spx-h1">Ara</h1>
         <div class="p-search">
           <span>🔍</span>
-          <input data-sp-search type="text" placeholder="Sanatçı, şarkı veya albüm ara" value="${U.escape(view.state.q)}" />
-        </div>
-        <div class="filter-chips">
-          ${filters.map(([id, label]) => `<button class="fchip ${f === id ? "active" : ""}" data-pact="filter" data-arg="${id}">${label}</button>`).join("")}
+          <input data-sp-search type="text" placeholder="Ne dinlemek istersin?" value="${U.escape(view.state.q)}" />
         </div>
         <div data-sp-results style="display:flex;flex-direction:column;gap:4px"></div>`;
     },
@@ -248,10 +280,18 @@
       /* Boş sorgu → gerçek Spotify'ın "Hepsini keşfet" RENKLİ ızgarası.
          Her tür kendi rengiyle bir kutucuk; tıklayınca o tür aranır. */
       if (!q) {
+        const rec = recents();
+        const recHTML = rec.length
+          ? `${K.ui.section("Son aramalar", `<button class="mini-btn" data-pact="sp-clear-recent">Tümünü temizle</button>`)}
+             ${rec.map(r => `<div class="spx-librow" data-pact="sp-recent" data-arg="${U.escape(r)}">
+               <div class="art" style="background:#2a2a2a;font-size:16px">🕘</div>
+               <div class="grow" style="min-width:0"><div class="tt">${U.escape(r)}</div></div>
+               <span class="rt">↗</span></div>`).join("")}`
+          : "";
         const palette = ["#e13300", "#7358ff", "#1e3264", "#e8115b", "#148a08",
                          "#8d67ab", "#ba5d07", "#0d73ec", "#537aa1", "#777777"];
         const genres = K.GENRES.slice(0, 10);
-        return `<div class="spx-sec"><h2>Hepsini keşfet</h2></div>
+        return recHTML + `<div class="spx-sec"><h2>Hepsini keşfet</h2></div>
           <div class="spx-explore">${genres.map((g, i) => `
             <div class="spx-gen" style="background:${palette[i % palette.length]}"
                  data-pact="sp-genre" data-arg="${U.escape(g.name)}">
@@ -293,7 +333,6 @@
       const followed = K.interactions.followedArtists();
       const userPls = K.playlists.list();
       const edito = K.platforms.editorialPlaylists();
-      const totals = K.platforms.playerTotals();
       const f = libFilter;
 
       const chips = [["playlists", "Çalma listeleri"], ["artists", "Sanatçılar"],
@@ -328,24 +367,55 @@
         })).join("") : `<div class="mini-empty">Şarkıları kalp ile beğen, burada birikir.</div>`;
       }
 
+      /* Gerçek Spotify: "Beğenilen Şarkılar" kitaplığın EN ÜSTÜNDE sabit satır.
+         İstatistik kartları kaldırıldı (gerçek uygulamada kitaplıkta yok). */
+      const likedRow = `<div class="spx-librow liked" data-pact="open-liked">
+        <div class="art liked-art">♥</div>
+        <div class="grow" style="min-width:0">
+          <div class="tt">Beğenilen Şarkılar</div>
+          <div class="ss">Çalma listesi · ${liked.length} şarkı</div>
+        </div>
+        <span class="rt">›</span></div>`;
+
       return `
         <h1 class="spx-h1">Kitaplığın</h1>
-
-        <div class="sp-stat-row" style="margin-bottom:10px">
-          <div class="sp-stat"><div class="k">Aylık Dinleyici</div><div class="v green">${U.compact(p.monthly)}</div></div>
-          <div class="sp-stat"><div class="k">Dinlenme</div><div class="v">${U.compact(totals.spotify)}</div></div>
-          <div class="sp-stat"><div class="k">Şarkı</div><div class="v">${p.songs.length}</div></div>
-        </div>
-
-        <div class="spx-chips" style="margin-bottom:4px">
+        ${likedRow}
+        <div class="spx-chips" style="margin:10px 0 4px">
           ${chips.map(([id, label]) => `<button class="spx-chip ${f === id ? "on" : ""}" data-pact="sp-libfilter" data-arg="${id}">${label}</button>`).join("")}
           ${f === "playlists" ? `<button class="spx-chip" data-pact="create-playlist">＋ Yeni</button>` : ""}
         </div>
-
         ${body}
-
-        ${K.queue.size() ? `<div class="sp-stat" style="padding:9px 12px;margin-top:10px"><div class="k">Çalma Kuyruğu</div><div class="v">${K.queue.size()} şarkı sırada</div></div>` : ""}
       `;
+    },
+
+    /* ---------------- BEĞENİLEN ŞARKILAR ---------------- */
+    openLiked() {
+      const songs = K.interactions.likedSongs();
+      K.phone.pushView({
+        title: "Beğenilen Şarkılar", sub: songs.length + " şarkı", shellClass: "app-spotify", musicBar: true,
+        _plSongs: songs,
+        render: () => `
+          <div class="pl-hero liked-hero">
+            <div class="pl-art liked-art">♥</div>
+            <div class="pl-meta">
+              <div class="pl-name">Beğenilen Şarkılar</div>
+              <div class="pl-desc">${songs.length} şarkı</div>
+            </div>
+          </div>
+          <div class="sp-actions">
+            <button class="sp-play-btn" data-pact="playlist-play">▶</button>
+            <button class="btn btn-sm btn-ghost" data-pact="playlist-shuffle">🔀 Karıştır</button>
+          </div>
+          ${songs.length
+            ? songs.map((s, i) => trackRow({ ...s, coverSeed: s.coverSeed || s.id, artistName: s.artistName || K.state.player.stageName }, { index: i })).join("")
+            : `<div class="mini-empty">Hiç beğenin yok — şarkıların yanındaki ♡ ile beğen.</div>`}`,
+        onAction: (act, el) => {
+          const app = K.phone.appById("spotify");
+          if (act === "play") app.playById(el.dataset.arg);
+          else if (act === "row-more") K.tracks.actionSheet(el.dataset.arg);
+          else if (act === "playlist-play") { if (songs[0]) app.playSong(songs[0]); }
+        }
+      });
     },
 
     /* ---------------- KULLANICI ÇALMA LİSTESİ ---------------- */
@@ -354,15 +424,18 @@
       if (!pl) return;
       K.phone.pushView({
         title: pl.name, sub: pl.tracks.length + " şarkı", shellClass: "app-spotify", musicBar: true,
+        _plSongs: pl.tracks,
         render: () => `
           <div class="pl-hero" style="background:linear-gradient(135deg,#2a2a35,#111)">
             <div class="pl-art">🎵</div>
             <div class="pl-meta"><div class="pl-name">${U.escape(pl.name)}</div>
-              <div class="pl-desc">${pl.tracks.length} şarkı · Sana ait</div></div>
+              <div class="pl-desc">${pl.tracks.length} şarkı</div>
+              <div class="pl-owner">Spotify · Senin çalma listen</div></div>
           </div>
-          <div class="action-row">
-            <button class="btn btn-sm btn-primary" data-pact="upl-play">▶ Çal</button>
-            <button class="btn btn-sm btn-ghost" data-pact="upl-del">🗑️ Listeyi sil</button>
+          <div class="sp-actions">
+            <button class="sp-play-btn" data-pact="upl-play" title="Çal">▶</button>
+            <button class="btn btn-sm btn-ghost" data-pact="playlist-shuffle">🔀 Karıştır</button>
+            <button class="btn btn-sm btn-ghost" data-pact="upl-del">🗑️ Sil</button>
           </div>
           ${pl.tracks.length ? pl.tracks.map((t, i) => trackRow({ ...t, streams: 0 }, { index: i })).join("")
             : `<div class="mini-empty">Liste boş. Bir şarkının ⋯ menüsünden “listesine ekle” seç.</div>`}`,
@@ -391,58 +464,69 @@
 
       K.phone.pushView({
         title: prof.name, sub: "Sanatçı", shellClass: "app-spotify", musicBar: true,
-        tabs: [{ id: "pop", label: "Popüler" }, { id: "alb", label: "Albümler" }, { id: "rel", label: "Benzer" }],
-        activeTab: "pop",
-        render: (tab) => {
+        /* Gerçek Spotify'da sanatçı sayfası SEKMEsizdir: tek kaydırma
+           içinde Popüler → Diskografi → Fans also like → Hakkında. */
+        render: () => {
           const head = `
             <div class="artist-hero-sp" style="background:${prof.art ? `linear-gradient(180deg, rgba(0,0,0,0.2), rgba(0,0,0,0.75)), url('${prof.art}') center/cover` : U.gradientFor(prof.name)}">
               <div class="ah-avatar">${prof.art ? `<div class="ah-img" style="background-image:url('${prof.art}')"></div>` : K.ui.avatar(prof.name, 86, true)}</div>
               <div class="ah-info">
                 <div class="ah-verified">${prof.popularity > 75 ? "✓ Doğrulanmış Sanatçı" : "Sanatçı"}</div>
                 <div class="ah-name">${U.escape(prof.name)}</div>
-                <div class="ah-meta">${(prof.aliases && prof.aliases.length) ? "aka " + U.escape(prof.aliases.join(", ")) + " · " : ""}${U.escape(prof.real || "")}</div>
+                <div class="ah-meta">${U.compact(prof.monthly)} aylık dinleyici</div>
               </div>
             </div>
-            ${artistId !== "player" ? `<button class="btn btn-sm ${followed ? "btn-ghost" : "btn-primary"}" data-pact="follow" data-arg="${artistId}" style="align-self:flex-start">${followed ? "Takip Ediliyor" : "Takip Et"}</button>` : ""}
-            <div class="sp-stat-row">
-              <div class="sp-stat"><div class="k">Aylık Dinleyici</div><div class="v green">${U.compact(prof.monthly)}</div></div>
-              <div class="sp-stat"><div class="k">Toplam Dinlenme</div><div class="v">${U.compact(prof.streams)}</div></div>
-              <div class="sp-stat"><div class="k">Popülerlik</div><div class="v">${Math.round(prof.popularity)}/100</div></div>
-              <div class="sp-stat"><div class="k">En İyi Liste</div><div class="v">${prof.chartPeak ? "#" + prof.chartPeak : "—"}</div></div>
-            </div>
-            ${rel ? `<div class="sp-stat" style="padding:10px 12px"><div class="k">Samimiyetin</div>
-              <div class="v">${(rel.discovered || rel.met) ? Math.round(rel.affinity) + "/100 · " + U.escape(K.stageFor(rel.affinity).label) : "gizli"}</div></div>` : ""}`;
+            <div class="sp-actions">
+              ${artistId !== "player" ? `<button class="btn btn-sm ${followed ? "btn-ghost" : "btn-primary"}" data-pact="follow" data-arg="${artistId}">${followed ? "Takip Ediliyor" : "Takip Et"}</button>` : ""}
+              ${artistId !== "player" ? `<button class="btn btn-sm btn-ghost" data-pact="dm" data-arg="${artistId}" title="DM">💬</button>` : ""}
+              <button class="btn btn-sm btn-ghost" data-pact="sp-share" data-arg="${U.escape(prof.name)}" title="Paylaş">⋮</button>
+            </div>`;
 
-          if (tab === "alb") {
-            const keys = Object.keys(albumsMap);
-            return head + K.ui.section("Albümler / Single'lar") + (keys.length ? keys.map(al => `
-              <div class="p-row" data-pact="open-album" data-arg="${U.escape(al)}">
-                ${K.ui.cover("al_" + al, "💿", 46, albumsMap[al][0].art)}
-                <div class="grow"><div class="p-title">${U.escape(al)}</div>
-                <div class="p-sub">${albumsMap[al].length} şarkı · ${U.escape(prof.name)}</div></div>
-              </div>`).join("") : `<div class="mini-empty">Albüm bilgisi yok.</div>`);
-          }
-
-          if (tab === "rel") {
-            return head + K.ui.section("Benzer Sanatçılar") + (related.length
-              ? related.map(a => artistRow({ id: a.id, name: a.stageName, monthly: a.monthly })).join("")
-              : `<div class="mini-empty">Benzer sanatçı bulunamadı.</div>`);
-          }
-
+          /* Popüler — gerçek Spotify ilk 5 şarkıyı gösterir */
           const total = (prof.songs || []).length;
-          return head + K.ui.section("Popüler", `<span class="muted">${songs.length} / ${total}</span>`)
-            + songs.map((s, i) => trackRow({ ...s, artistName: prof.name }, { index: i })).join("")
-            + (total > songs.length
+          const top = songs.slice(0, 5);
+          const popular = K.ui.section("Popüler", `<span class="muted">${songs.length} / ${total}</span>`)
+            + top.map((s, i) => trackRow({ ...s, artistName: prof.name }, { index: i })).join("")
+            + (total > top.length
               ? `<div class="p-row" data-pact="all-songs" data-arg="${artistId}">
                    <span style="font-size:18px">≡</span>
-                   <div class="grow"><div class="p-title">Tüm şarkıları gör</div>
+                   <div class="grow"><div class="p-title">Tümünü gör</div>
                    <div class="p-sub">${total} şarkı · tam diskografi</div></div>
                    <span style="color:var(--text-3)">›</span>
                  </div>`
-              : "")
-            + K.ui.discographySection(artistId, "open-album")
-            + (prof.bio ? `<div class="bio-box">${U.escape(prof.bio)}</div>` : "")
-            + (artistId !== "player" ? `<button class="btn btn-ghost btn-sm" data-pact="dm" data-arg="${artistId}" style="align-self:flex-start">💬 DM Gönder</button>` : "");
+              : "");
+
+          /* Diskografi — yatay raf (gerçek Spotify'da albüm kartları) */
+          const albKeys = Object.keys(albumsMap);
+          const disc = albKeys.length
+            ? K.ui.section("Diskografi", `<span class="muted">${albKeys.length} yayın</span>`)
+              + `<div class="spx-rail">${albKeys.slice(0, 10).map(al => spxCard({
+                  act: "open-album", arg: U.escape(al),
+                  seed: "al_" + al, letter: "💿", art: albumsMap[al][0].art,
+                  title: al, sub: albumsMap[al].length + " şarkı"
+                })).join("")}</div>`
+            : "";
+
+          /* Fans also like — yuvarlak sanatçı kartları */
+          const fansAlso = related.length
+            ? K.ui.section("Fans also like")
+              + `<div class="spx-rail">${related.map(a => spxCard({
+                  act: "open-artist", arg: a.id, round: true,
+                  seed: a.id, letter: (a.stageName || "?")[0],
+                  title: a.stageName, sub: "Sanatçı"
+                })).join("")}</div>`
+            : "";
+
+          const about = prof.bio
+            ? K.ui.section("Hakkında") + `<div class="bio-box">${U.escape(prof.bio)}</div>`
+            : "";
+
+          const affinity = rel && (rel.discovered || rel.met)
+            ? `<div class="sp-stat" style="padding:10px 12px"><div class="k">Samimiyetin</div>
+                 <div class="v">${Math.round(rel.affinity)}/100 · ${U.escape(K.stageFor(rel.affinity).label)}</div></div>`
+            : "";
+
+          return head + popular + disc + fansAlso + about + affinity;
         },
         onAction: (act, el, v) => {
           const app = K.phone.appById("spotify");
@@ -524,15 +608,18 @@
       const saved = K.interactions.isSaved(id);
       K.phone.pushView({
         title: pl.name, sub: pl.desc, shellClass: "app-spotify", musicBar: true,
+        _plSongs: pl.songs,
         render: () => `
           <div class="pl-hero" style="background:linear-gradient(135deg,${pl.color},#111)">
             <div class="pl-art">♫</div>
             <div class="pl-meta"><div class="pl-name">${U.escape(pl.name)}</div>
-              <div class="pl-desc">${U.escape(pl.desc)} · ${pl.songs.length} şarkı</div></div>
+              <div class="pl-desc">${U.escape(pl.desc)}</div>
+              <div class="pl-owner">Spotify · ${pl.songs.length} şarkı</div></div>
           </div>
-          <div class="action-row">
-            <button class="btn btn-sm btn-primary" data-pact="playlist-play">▶ Çal</button>
-            <button class="btn btn-sm ${saved ? "btn-ghost" : "btn-ghost"}" data-pact="playlist-save" data-arg="${id}">${saved ? "✓ Kaydedildi" : "＋ Kaydet"}</button>
+          <div class="sp-actions">
+            <button class="sp-play-btn" data-pact="playlist-play" title="Çal">▶</button>
+            <button class="btn btn-sm btn-ghost" data-pact="playlist-shuffle">🔀 Karıştır</button>
+            <button class="btn btn-sm btn-ghost" data-pact="playlist-save" data-arg="${id}">${saved ? "✓ Kaydedildi" : "＋ Kaydet"}</button>
           </div>
           ${pl.songs.map((s, i) => trackRow({ ...s, coverSeed: s.coverSeed || s.id }, { index: i })).join("")}`,
         onAction: (act, el, v) => {
