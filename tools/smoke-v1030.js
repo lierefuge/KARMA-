@@ -120,6 +120,14 @@ function run() {
     ok("B · süresi dolan arama cevapsız oldu", p.callLog.length > logLen && p.callLog.some(h => h.id === c4.id && h.status === "missed"));
     ok("B · cevapsız arama kuyruktan düştü (status missed)", c4.status === "missed");
 
+    /* GAZETECİ ARAMASI → tek röportaj motoruna yönlendirir (v10.31) */
+    p.calls = [];
+    const c6 = K.calls.spawn("press");
+    K.calls.answer(c6.id);
+    const c6res = K.calls.choose(c6.id, "yes");
+    ok("B · gazeteci araması tek röportaj motoruna yönlendiriyor", !!(c6res && c6res.interview), String(c6res && c6res.interview));
+    p.calls = [];
+
     /* modal render çökmeden çalışıyor mu? */
     p.calls = [];
     const c5 = K.calls.spawn("radio");
@@ -277,12 +285,17 @@ function run() {
     ok("E · engellenen istek listeden düştü", !s.dmRequests[scam2.id]);
     ok("E · engellenen tekrar yazamıyor", K.dms.send(scam2.id, "dolandirici") === null);
 
-    /* GAZETECİ: röportaj kabul → itibar */
+    /* GAZETECİ: röportaj kabul → TEK röportaj motoruna yönlendirir (v10.31) */
     s.dmRequests = {};
     K.dms.send(press.id, "gazeteci");
+    const gres = K.dms.reply(press.id, "accept");
+    ok("E · gazeteci DM'i tek röportaj motoruna yönlendiriyor", !!(gres && gres.interview), String(gres && gres.interview));
+    K.press.interview();
+    ok("E · röportaj karar ekranı açıldı", !!K.state.pendingInterview);
     const repB = p.reputation;
-    K.dms.reply(press.id, "accept");
-    ok("E · gazeteci röportajı itibar kazandırdı", p.reputation > repB, repB + " → " + p.reputation);
+    K.press.resolveInterview("humble");
+    ok("E · röportaj sonucu itibar kazandırdı", p.reputation > repB, repB + " → " + p.reputation);
+    K.ui.closeModal();
 
     /* engel kaldırma */
     K.dms.unblock(scam2.id);
