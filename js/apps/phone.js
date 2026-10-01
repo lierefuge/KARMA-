@@ -425,7 +425,9 @@
         if (pact === "like") {
           const on = K.interactions.toggleLike(actEl.dataset.arg);
           actEl.classList.toggle("on", on);
-          actEl.textContent = on ? "♥" : "♡";
+          /* SVG ikonlu beğeni düğmelerinde metni EZME (Instagram gibi);
+             yalnızca .on sınıfı ile renk/dolgu değişir. */
+          if (!actEl.querySelector("svg")) actEl.textContent = on ? "♥" : "♡";
           const v0 = K.phone.views[K.phone.views.length - 1];
           if (v0 && v0.state) v0.state.dirty = true;
           return;
