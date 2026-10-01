@@ -132,7 +132,8 @@ const SUITES = [
   { id: "label",       script: "tools/smoke-label.js",       label: "Şirket ekonomisi" },
   { id: "previews",    script: "tools/smoke-previews.js",    label: "Önizleme + YouTube verisi" },
   { id: "expansion",   script: "tools/smoke-expansion.js",   label: "Genişleme paketi (6 sistem)" },
-  { id: "v1030",       script: "tools/smoke-v1030.js",       label: "v10.30 güncelleme (aramalar · gönderi türü · teklif · DM)" }
+  { id: "v1030",       script: "tools/smoke-v1030.js",       label: "v10.30 güncelleme (aramalar · gönderi türü · teklif · DM)" },
+  { id: "v1031",       script: "tools/smoke-v1031.js",       label: "v10.31 çoklu erişim temizliği (ölü kod · röportaj · analiz)" }
 ];
 
 const suiteOut = {};
