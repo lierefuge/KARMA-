@@ -114,8 +114,12 @@
           }
           else if (act === "dms-reply") {
             const parts = String(el.dataset.arg).split("|");
-            K.dms.reply(parts[0], parts[1]);
+            const res = K.dms.reply(parts[0], parts[1]);
             K.phone.reRender();
+            /* v10.31 — röportaj kabul edildiyse TEK karar ekranını aç */
+            if (res && res.interview && K.press && K.press.interview) {
+              setTimeout(() => K.press.interview(), 350);
+            }
           }
           else if (act === "dms-blocked") {
             const list = K.dms.blockedList();
