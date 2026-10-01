@@ -5,6 +5,37 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.31 — Çoklu erişim temizliği: tek ana yuva kuralı
+
+Bazı işlevler birden çok yüzeyden erişilebiliyordu ve bakımı zorlaşıyordu.
+Bu sürüm **"her işlevin tek ana yuvası olur; diğer yüzeyler yalnızca oraya
+yönlendirir"** kuralını uygulamaya başlıyor. Yeni test: `tools/smoke-v1031.js`
+(**28 kontrol**).
+
+**Ayrım:** Sol panel = yönetim & üretim · Telefon = tüketim & iletişim.
+
+### 🗑️ Ölü kod kaldırıldı
+- `career-ui.js → renderStats()` — tanımlıydı ama **hiç çağrılmıyordu** (Analiz/Kariyer'in kopyası).
+- `career-ui.js → act === "open-settings"` — handler vardı, düğme üretilmiyordu.
+- **"Kariyer Detayı" modalı** — Kariyer sekmesindeki düğme kaldırıldı; içeriği Analiz'e taşındı.
+
+### 📰 Röportaj: tek motor
+Röportajın **üç ayrı sonuç motoru** vardı (basın teklifi · gazeteci araması · gazeteci DM).
+Artık tek karar ekranı var: **`K.press.interview()`**.
+- Sol panel → Olaylar → "🎤 Röportaj ver" (manuel giriş)
+- Telefon → Aramalar (gazeteci) → kabul → **aynı karar ekranı**
+- Telefon → Mesajlar (gazeteci DM) → kabul → **aynı karar ekranı**
+
+### 📊 Analiz: net ayrışma
+- **Sol panel → Analiz** = tüm-platform **yönetim özeti** (toplam dinlenme, platform kırılımı,
+  14 günlük grafik, aktif listeler, son yayınlar) + yeni **Kariyer durumu** paneli.
+- **Telefon → Spotify/Apple Artist** = yalnız **kendi platformunun** verisi. Global "aylık
+dinleyici", "takipçi", "global albüm listesi" ve global trend bu uygulamalardan çıkarıldı;
+yerine platforma özel toplamlar/kaydetme/Shazam/liste geldi.
+- **Karma Artists** (telif/ödeme paneli) olduğu gibi kalır — o bir ödeme paneli, analiz değil.
+
+---
+
 ## GÜNCELLEME v10.30 — İletişim katmanı: aramalar · gönderi türü · teklif kuyruğu · yabancı DM'ler
 
 Dört yeni/derinleştirilmiş sistem; hepsi birbirine bağlı. Yeni test paketi:
