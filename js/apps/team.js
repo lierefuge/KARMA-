@@ -59,14 +59,14 @@
   }
 
   K.phone.register({
-    id: "team", name: "Ekip", icon: "🧑‍💼", iconClass: "ic-team", dock: false,
+    id: "team", name: "Kişisel Ekip", icon: "🧑‍💼", iconClass: "ic-team", dock: false,
 
     render(params) {
       return {
-        title: "Ekip & Sponsor", sub: "Kariyer ekibi ve marka anlaşmaları",
+        title: "Kişisel Ekip & Sponsor", sub: "Sana bağlı çalışanlar ve marka anlaşmaları",
         shellClass: "app-team",
         tabPos: "bottom",
-        tabs: [{ id: "kadro", label: "Ekip", icon: "🧑‍💼" }, { id: "sponsor", label: "Sponsorluk", icon: "💼" }],
+        tabs: [{ id: "kadro", label: "Kişisel Ekip", icon: "🧑‍💼" }, { id: "sponsor", label: "Sponsorluk", icon: "💼" }],
         activeTab: params.tab || "kadro",
         render: (tab) => (tab === "sponsor" ? sponsorHTML() : teamHTML()),
         onAction: (act, el) => {
