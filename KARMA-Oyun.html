@@ -6,7 +6,7 @@
 
   YAYIN AKIŞI (tek komut):
     npm run release -- patch --verify   → sürümü yükselt + damgala + build + doğrula
-    npm run verify                      → yalnızca tam doğrulama (11 adım, ~2 dk)
+    npm run verify                      → yalnızca tam doğrulama (~2 dk)
 
   Elle takip edilen yayın sürümü: js/version.js  (K.VERSION)
   Sürüm numarası önbellek hash'inden BAĞIMSIZDIR: hash makine için
@@ -17,7 +17,7 @@
    alt kaynak çektiği için http gerekir.)
 
   Otomatik doğrulama: .github/workflows/tests.yml — her push'ta
-  aynı 11 adımlı zincir koşar.
+  aynı tam doğrulama zinciri koşar.
 -->
 <!DOCTYPE html>
 <html lang="tr">
