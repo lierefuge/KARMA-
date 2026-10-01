@@ -5,6 +5,68 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.32 — Katalog sönümü: "yayın yapmazsan kitle erir"
+
+Denge simülasyonunun bulduğu **son ORTA bulgu** kapatıldı ve neden olduğu
+oyun açığı giderildi. Yeni test paketi: `tools/smoke-silence.js` (**23 kontrol**).
+Boru hattı: `tools/smoke-updater.js` (v10.31.1) ile birlikte **24/24 adım**.
+
+### 🔍 Bulgu — ölü katalog ölümsüzdü
+
+`tools/sim-balance.js` üç profili 120 gün yayınsız bırakıp düşüşü ölçüyordu:
+
+| Profil | 120 günde aylık dinleyici kaybı |
+|---|---|
+| Rahat | %58 |
+| Standart | %38 |
+| **Grinder** | **%18** ❌ (eşik %25) |
+
+Kök neden popülerlik değildi: **şarkı başına dinlenme tabanı sabit `5`** idi
+(`Math.max(5, song.dailyStreams * …)`). Grinder profilinin 34 şarkılık ölü
+kataloğunda en iyi şarkı günde **5** dinleniyordu, ama 34 × 5 = **170/gün**
+dinlenme üretiyordu — yani **günlük dinlenmenin %100'ü** ve aylık dinleyicinin
+**%94'ü** yalnızca tabandan geliyordu.
+
+Sonuç: katalog büyüklüğü kitleyi **doğrusal olarak ve süresiz** ayakta tutuyordu.
+34 flop şarkı, kalıcı ~2.500 "aylık dinleyici" demekti. Oyuncuya **"yayın yap"
+baskısı kalmıyordu** — simülasyonun çekirdek halkası (yüksel → zirve → düş) kopuktu.
+
+### 🔧 Çözüm — taban artık sönümleniyor (unutulma)
+
+- **Şarkı başına taban sabit değil, sönümlü**: `catFloor = catalogFloor × silenceDecay()`
+- **`K.game.silenceDecay()`** — son yayından sonra:
+  - ilk **30 gün ceza yok** (iki single arası normal aralık)
+  - sonrasında günlük `0,9945` (yarı ömür ≈ 126 gün)
+  - alt sınır `0,22` — sanatçı tamamen sıfırlanmaz, ama görünmez kalırsa kitlesini kaybeder
+- **`K.game.daysSinceRelease()`** — katalogdaki en yeni yayın esas alınır;
+  `publishedDay` yok/0 olan demo parçalar sayılmaz (kenar durum testle kilitli)
+- Sabitler `K.ECON` içinde: `silenceGrace` · `silenceDecay` · `silenceFloor` · `catalogFloor`
+
+**Aktif oynayış hiç etkilenmedi** — lütuf süresi (30 gün) içinde çarpan `1`'dir;
+casual ve standard profillerinin eğrileri birebir aynı kaldı.
+
+### 📉 Ceza artık GÖRÜNÜR — `K.game.silenceWarning()`
+
+Oyuncuyu görünmez bir cezayla cezalandırmak haksız hissi verir. Eşikler
+(30+15 · +45 · +90 · +180 gün) geçildiğinde **tek seferlik** uyarı düşer:
+
+> 📉 **Katalog sönümleniyor** — 75 gündür yayın yok. Dinleyici tabanı %61'ine
+> indi — yeni bir yayın dalgayı yeniden besler.
+
+Yeni yayın yapıldığında sayaç kendiliğinden sıfırlanır.
+
+### 📊 Kalibrasyon sonucu
+
+| Profil | Önce | Sonra |
+|---|---|---|
+| Rahat | %58,6 | %58,7 |
+| Standart | %37,7 | %37,8 |
+| **Grinder** | **%18,2** ❌ | **%58,5** ✅ |
+
+`tools/sim-balance.js` → **0 yüksek · 0 orta** bulgu.
+
+---
+
 ## GÜNCELLEME v10.31 — Çoklu erişim temizliği: tek ana yuva kuralı
 
 Bazı işlevler birden çok yüzeyden erişilebiliyordu ve bakımı zorlaşıyordu.
