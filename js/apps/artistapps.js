@@ -189,11 +189,8 @@
           : topSrc.name.indexOf("Harici") >= 0
             ? ["🎬", "Trafiğin çoğu sosyal/TikTok'tan. Short-form hunisini sıcak tut.", "rgba(255,92,122,.13)"]
             : ["🧭", `Ana kaynağın <b>${topSrc.name}</b>. Bu kanalı güçlendirmek için içerik ritmini sabit tut.`, "rgba(255,255,255,.06)"];
-      const fanModel = (K.fans && K.fans.model) ? K.fans.model() : { casual: 0, active: 0, superfans: 0, followers: 0 };
-      const activeRatio = fanModel.followers ? Math.round((fanModel.active / fanModel.followers) * 100) : 0;
-      const fanNote = fanModel.superfans > 0 && activeRatio >= 8
-        ? ["💜", `Aktif dinleyici oranın %${activeRatio} — sağlıklı. Süperfan (${U.compact(fanModel.superfans)}) için fan kulübü kur.`, "rgba(150,90,255,.14)"]
-        : ["💜", "Aktif dinleyici oranı düşük. Kapak/önizleme ve tekrar dinlenebilir kısa işler sadakati artırır.", "rgba(255,255,255,.06)"];
+      /* v10.32 — KİTLE TEK YUVA: fan katmanları (casual/aktif/süperfan)
+         Fanbase uygulamasının işidir. Spotify app'i yalnız platform verisi gösterir. */
 
       const view = {
         title: "Spotify for Artists", sub: "Dinlenme & kitle verisi",
@@ -203,7 +200,7 @@
           { id: "gen", label: "Özet", icon: "🎵" },
           { id: "stream", label: "Dinlenme", icon: "📈" },
           { id: "kaynak", label: "Kaynaklar", icon: "🧭" },
-          { id: "kitle", label: "Kitle", icon: "👥" },
+          { id: "kitle", label: "Şehirler", icon: "🗺️" },
           { id: "songs", label: "Şarkılar", icon: "💿" }
         ],
         activeTab: params.tab || "gen",
@@ -248,23 +245,12 @@
           if (tab === "kitle") {
             const rows = cityBreakdown("spotify" + p.stageName, spotifyTotal);
             return card(`
-              <div class="studio-title mb">Dinleyici Katmanları</div>
-              ${[["Casual", fanModel.casual, "#8a8a99"], ["Aktif", fanModel.active, "#6ec3ff"], ["Süperfan", fanModel.superfans, "#b06cff"]].map(([l, v, c]) => {
-                const pct = fanModel.followers ? Math.round((v / fanModel.followers) * 100) : 0;
-                return `<div class="studio-row">
-                  <div class="studio-row-label xs">${l}</div>
-                  <div class="studio-bar lg"><i class="studio-bar-fill" style="width:${pct}%;background:${c}"></i></div>
-                  <div class="studio-row-val wide">${U.compact(v)} · %${pct}</div>
-                </div>`;
-              }).join("")}
-              ${note(fanNote[0], fanNote[1], fanNote[2])}
-            `, "#b06cff")
-            + card(`
-              <div class="studio-title sm">Şehirler</div>
+              <div class="studio-title sm">Dinleyici Şehirleri</div>
               ${rows.map(c => `<div class="tt-bar-row"><span class="name">${U.escape(c.city)}</span>
                 <span class="bar"><i style="width:${Math.min(100, c.share * 1.6)}%"></i></span>
                 <span class="pct">%${c.share}</span></div>`).join("")}
               ${note("🗺️", "Turnu rotanı en güçlü şehirlerden başlat; bilet talebi buralarda yüksek olur.", "rgba(255,255,255,.05)")}
+              ${note("💜", "Dinleyici katmanları (casual/aktif/süperfan) telefonda <b>Fanbase</b> uygulamasında.", "rgba(150,90,255,.12)")}
             `, "#1ed760");
           }
           if (tab === "songs") {
@@ -301,7 +287,7 @@
                 <div class="studio-health-emoji">${health >= 75 ? "🏆" : health >= 55 ? "👍" : health >= 35 ? "📊" : "⚠️"}</div>
               </div>
               <div class="studio-health-bar"><i style="width:${health}%;background:linear-gradient(90deg,${healthColor},#6ec3ff)"></i></div>
-              ${note("🧭", `Dinlenme büyümesi %${growthM} · ${plSongs.length} şarkı listede · ${U.compact(fanModel.superfans)} süperfan`, "rgba(255,255,255,.06)")}
+              ${note("🧭", `Dinlenme büyümesi %${growthM} · ${plSongs.length} şarkı listede · ${(p.songs || []).filter(x => x.chartRank).length} şarkı chart'ta`, "rgba(255,255,255,.06)")}
             `, healthColor)}
             ${K.ui.section("Dinlenme Trendi")}
             ${K.stats.sparkline(dailyStreams, { color: "#1ed760", h: 64 })}
@@ -312,7 +298,7 @@
                 • Editoryal listede: <b>${plSongs.length}</b> şarkı<br>
                 • Kaydetme oranı: <b>~%3.5</b> · Toplam şarkı: <b>${p.songs.length}</b>
               </div>
-              ${note("💡", "Üstteki sekmelerden Dinlenme / Kaynaklar / Kitle / Şarkılar detaylarına geç.", "rgba(255,255,255,.05)")}
+              ${note("💡", "Üstteki sekmelerden Dinlenme / Kaynaklar / Şehirler / Şarkılar detaylarına geç.", "rgba(255,255,255,.05)")}
             `, "#7c5cff")}
           `;
         }
