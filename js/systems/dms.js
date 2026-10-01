@@ -163,9 +163,11 @@
         `Seninle kısa bir röportaj yapmak istiyorum. Sorularımı gönderebilir miyim?`,
       options: (s) => [
         { id: "accept", label: "Röportajı kabul et 🎤",
-          replyText: "Memnuniyetle, sorularınızı gönderin.",
-          response: "Harika, yarın yayında. Güzel bir yazı olacak.",
-          eff: { reputation: 1.5, fame: 0.7, image: 1.5, stress: 5 } },
+          /* v10.31 — TEK RÖPORTAJ MOTORU: kararı K.press.interview() verir. */
+          replyText: "Memnuniyetle, röportajı yapalım.",
+          response: "Harika, mikrofonu uzatıyorum...",
+          interview: true,
+          eff: {} },
         { id: "quote", label: "Kısa bir alıntı ver",
           replyText: "Kısa bir alıntı verebilirim.",
           response: "Tamam, teşekkürler.",
@@ -296,7 +298,7 @@
       K.toast((ROLES[req.kind] || {}).icon + " Yanıtlandı", notes.join(" · ") || "Mesaj gönderildi.", "ok");
       K.save(); K.refresh();
       K.bus.emit("dm:handled", req);
-      return { notes, reply: opt.response };
+      return { notes, reply: opt.response, interview: !!opt.interview };
     },
 
     /* engelle */
