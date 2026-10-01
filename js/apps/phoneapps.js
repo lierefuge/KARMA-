@@ -70,7 +70,6 @@
 
             <div class="cc-tile">
               <button class="cc-wide" data-act="cc-phone-settings">⚙️ Telefon Ayarları</button>
-              <button class="cc-wide" data-act="cc-game-settings">🎛️ Karma Ayarları</button>
             </div>
           </div>`,
         onMount: (root) => {
@@ -97,7 +96,6 @@
           else if (act === "cc-autoplay") { K.state.player.ytAutoplay = !(K.state.player.ytAutoplay !== false); K.save(); K.phone.reRender(); }
           else if (act === "cc-saver") { K.phoneOS.setPref("batterySaver", !K.phoneOS.prefs().batterySaver); K.phone.reRender(); }
           else if (act === "cc-phone-settings") { K.phone.openApp("phonesettings"); }
-          else if (act === "cc-game-settings") { K.settings.openUI(); }
         }
       };
     }
@@ -243,10 +241,7 @@
               <button class="phset-item ${K.settings.all().contrast ? "on" : ""}" data-pact="ph-contrast">◐ Yüksek kontrast <span>${K.settings.all().contrast ? "Açık" : "Kapalı"}</span></button>
             </div>
 
-            <div class="phset-card">
-              <button class="phset-item" data-pact="ph-game">🎛️ Karma Ayarları (kayıt & zorluk) <span>›</span></button>
-            </div>
-            <div class="hint">Duvar kağıdı, parlaklık ve pil tercihleri kaydına işlenir.</div>`;
+            <div class="hint">Duvar kağıdı, parlaklık ve pil tercihleri kaydına işlenir.<br>🎛️ Oyun ayarları (kayıt & zorluk) tek yerden: <b>üst bardaki ⚙️</b>.</div>`;
         },
         onMount: (root) => {
           const br = root.querySelector("#ph-bright");
@@ -263,7 +258,6 @@
           else if (act === "ph-saver") { K.phoneOS.setPref("batterySaver", !K.phoneOS.prefs().batterySaver); K.phone.reRender(); }
           else if (act === "ph-motion") { K.settings.set({ reduceMotion: !K.settings.all().reduceMotion }); K.phone.reRender(); }
           else if (act === "ph-contrast") { K.settings.set({ contrast: !K.settings.all().contrast }); K.phone.reRender(); }
-          else if (act === "ph-game") { K.settings.openUI(); }
         }
       };
     }
