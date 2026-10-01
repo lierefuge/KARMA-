@@ -65,6 +65,30 @@ Yeni yayın yapıldığında sayaç kendiliğinden sıfırlanır.
 
 `tools/sim-balance.js` → **0 yüksek · 0 orta** bulgu.
 
+### ✅ Issue #2 — açık bulguların hepsi tamamlandı
+
+`#2` numaralı issue'nun "açık bulgular" listesi kodda ID'leriyle
+karşılanmış durumda; issue yalnızca güncellenmemişti. Kanıtlar:
+
+| Bulgu | Durum | Kanıt |
+|---|---|---|
+| **B-5** `chat.js` 88 KB tek modül | ✅ | `data/chat-profiles.js` (v10.18 · B-5) — veri/motor ayrıldı; `chat.js` 52 KB'a indi |
+| **B-6** `persona.js` / `personality.js` karışıklığı | ✅ | İki dosyanın başlığında karşılıklı `(B-6)` ayrım notu + ayrı global önekler |
+| **B-7** testlerde sabit `setTimeout(run, 2600)` | ✅ | `harness.js → whenReady()` (süre değil hazır olma durumu) |
+| **P-1** build'in %21'i gömülü veri | ✅ | `data/lazy.js` (v10.16 · P-1) — 350,7 KB JSON'a taşındı, yürütme maliyeti 0 |
+| **P-2** `real-previews.js` filtrelenmiyor | ✅ | `smoke-previews.js` veri değişmezini kilitliyor |
+
+Issue'da **açık kalan tek başlıklar** iki özellik önerisi:
+kişilik katmanını diğer amiral sanatçılara yaymak (Ceza, Sagopa Kajmer,
+Ezhel) ve kişilik katsayılarını oyuncuya görünür kılmak.
+
+### 🔧 Süreç düzeltmesi — sabit adım sayısı kaldırıldı
+
+`tools/verify.js` başlığında bu ders zaten alınmıştı (sabit sayı yazılmaz);
+aynı bayat sayılar `.github/workflows/tests.yml`, `index.html` ve `README.md`
+içinde kalmıştı ("11/12 adım", gerçek sayı artık 24). Sayılar kaldırıldı —
+doğru değer yalnızca `SONUÇ: n/m` satırında görünür.
+
 ---
 
 ## GÜNCELLEME v10.31 — Çoklu erişim temizliği: tek ana yuva kuralı
@@ -791,12 +815,12 @@ bu yüzden CI'ya kadar fark edilmedi.
   ```
   Böylece aynı hata sessizce tekrarlanamaz.
 
-### 🤖 CI — her push'ta 11 adımlı doğrulama
+### 🤖 CI — her push'ta tam doğrulama
 
 **Yeni: `.github/workflows/tests.yml`** + **`tools/verify.js`**
 
 ```bash
-npm run verify     # 11 adım · ~100 saniye
+npm run verify     # tam zincir · ~2 dakika
 ```
 
 | # | Adım | Ne korur |
@@ -840,7 +864,7 @@ npm run serve     # http://localhost:8080
 ### 📋 Güncelleme disiplini (bu sürümden sonra)
 
 1. Değişikliği yap
-2. `npm run verify` — **11 adım yeşil olmadan devam etme**
+2. `npm run verify` — **tüm adımlar yeşil olmadan devam etme**
 3. `npm run release -- patch --verify`
 4. Commit + tag (`git tag v10.18.0`)
 
