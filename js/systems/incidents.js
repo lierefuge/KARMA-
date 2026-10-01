@@ -10,8 +10,12 @@
 
   const U = K.util;
 
-  /* günlük olay olasılık bandı (%10 - %15). Değiştirmek için bu iki sayıyı güncelle. */
-  const EVENT_BAND = [0.10, 0.15];
+  /* v10.33 — Günlük olay olasılık bandı belirgin şekilde düşürüldü.
+     Eskiden günde %10-15 idi (neredeyse her hafta bir olay → spam hissi).
+     Artık günde %4,5-7 ve kariyer büyüklüğüne göre ölçekleniyor; ayrıca
+     iki olay arasında asgari 6 gün var. Ün eşiği (GATE) ile birlikte
+     oyuncu artık olayları "nadir ve özel" yaşar. */
+  const EVENT_BAND = [0.045, 0.07];
 
   /* ---------------- etki uygulayıcı ---------------- */
   function latestSong() {
@@ -109,22 +113,9 @@
       choices: [{ label: "Kazandık!", effects: { money: 42000, fans: 3000 }, note: "₺42.000 gelir." }] },
 
     /* ---------- KARAR GEREKTİREN ---------- */
-    { id: "leak", tag: "SIZINTI", kind: "bad", weight: 3, title: "Yayınlanmamış şarkın önceden sızdı",
-      desc: "Bitmemiş bir kaydın internete düştü. Dinleyiciler bölünmüş durumda.",
-      choices: [
-        { label: "Erken yayınla", effects: { pop: 1.5, money: 25000, fans: 8000, streams: 0.3 }, note: "Sızıntıyı fırsata çevir." },
-        { label: "Yayını iptal et", effects: { pop: -1, fans: -6000 }, note: "Temiz ama kayıplı." },
-        { label: "Görmezden gel", effects: { rep: -2, pop: 0.5, money: 10000 }, note: "Doğal yayılım." }
-      ] },
-
-    { id: "beat_claim", tag: "İDDİA", kind: "bad", weight: 3, title: "Beat'in çalıntı olduğu iddia edildi",
-      desc: "Bir prodüktör beat'inin izinsiz kullanıldığını öne sürüyor.",
-      choices: [
-        { label: "Anlaş, telif öde", effects: { rep: 2, money: -90000 }, note: "Temiz çözüm, ₺90.000." },
-        { label: "Kanıtları yayınla", effects: { rep: 3, pop: 1, fans: 5000 }, note: "Haklıysan itibar artar." },
-        { label: "Sessiz kal", effects: { rep: -4, pop: -1, fans: -5000 }, note: "Şüphe büyür." }
-      ] },
-
+    /* v10.33 — SIZINTI · beat iddiası · eski paylaşım · gönderme senaryoları
+       Kriz sisteminde (crisis.js) zaten yaşıyordu; buradan kaldırıldı ki
+       aynı olay iki ayrı kılıfla tekrar tekrar çıkmasın. */
     { id: "sponsor", tag: "SPONSOR", kind: "neutral", weight: 2, minPop: 15, title: "Marka sponsorluğu teklifi geldi",
       desc: "Bir marka kampanyasında yer alman için teklif var; ama kitle tepkisi riskli.",
       choices: [
@@ -145,21 +136,6 @@
       choices: [
         { label: "Danışmanla çöz", effects: { money: -45000, rep: 1 }, note: "₺45.000, sorun kapanır." },
         { label: "İtiraz et", effects: { money: -8000, rep: -1.5 }, note: "Ucuz ama riskli." }
-      ] },
-
-    { id: "old_tweet", tag: "GÜNDEM", kind: "bad", weight: 2, title: "Eski bir paylaşımın gündem oldu",
-      desc: "Yıllar önceki bir paylaşımın ekran görüntüsü yayıldı.",
-      choices: [
-        { label: "Özür dile", effects: { rep: 2, fans: -4000 }, note: "İtibar korunur, kısa vadede kayıp." },
-        { label: "Görmezden gel", effects: { rep: -5, pop: -1 }, note: "Gündem büyüyebilir." }
-      ] },
-
-    { id: "incoming_diss", tag: "GERİLİM", kind: "bad", weight: 2, minPop: 12, title: "Bir sanatçı sana gönderme yaptı",
-      desc: "Rakip bir rapçi şarkısında sana gönderme yaptı; klipler viral oluyor.",
-      choices: [
-        { label: "Diss ile cevap ver", effects: { pop: 2, rep: 1, money: -15000, fans: 11000 }, note: "Görünürlük patlar." },
-        { label: "Zarif cevap yaz", effects: { rep: 3, pop: 0.5, fans: 4000 }, note: "Olgunluk kazandırır." },
-        { label: "Hiç cevap verme", effects: { rep: -1, pop: -0.5 }, note: "Sessizlik zayıflık sayılabilir." }
       ] },
 
     { id: "voice_loss", tag: "SAĞLIK", kind: "bad", weight: 2, title: "Sesin yoruldu, dinlenmen gerekiyor",
@@ -328,6 +304,51 @@
       choices: [{ label: "Al", effects: { money: 80000, rep: 0.3 }, note: "₺80.000." }] }
   ];
 
+  /* ---------------- ÜN EŞİĞİ (fame gate) ----------------
+     v10.33 — "Kimse seni tanımıyorken kim seninle magazin yapsın?"
+     Her olay, oyuncunun ulaşmış olması gereken bir tanınırlık düzeyine
+     bağlanır. Ünsüz oyuncu yalnızca mütevazı/yerel olaylar yaşar;
+     magazin, vergi, dava gibi olaylar ancak belli bir ünden sonra anlam
+     kazanır.
+       minPop    : gereken asgari popülerlik
+       needSongs : gereken en az yayınlanmış şarkı sayısı            */
+  const GATE = {
+    /* ünsüz → yalnızca mütevazı, yerel olaylar */
+    equipment:       { minPop: 0,  needSongs: 1 },
+    street_support:  { minPop: 3,  needSongs: 1 },
+    tiktok_trend:    { minPop: 4,  needSongs: 1 },
+    voice_loss:      { minPop: 5,  needSongs: 1 },
+    radio:           { minPop: 6,  needSongs: 1 },
+    fan_base:        { minPop: 6,  needSongs: 1 },
+    beat_offer:      { minPop: 6,  needSongs: 1 },
+    sample_clear:    { minPop: 6,  needSongs: 1 },
+    radio_no:        { minPop: 6,  needSongs: 1 },
+    critic_praise:   { minPop: 8,  needSongs: 1 },
+    playlist:        { minPop: 8,  needSongs: 1 },
+    viral_clip:      { minPop: 8,  needSongs: 1 },
+    clip_viral2:     { minPop: 8,  needSongs: 1 },
+    /* yükselen */
+    feature_req:     { minPop: 10 },
+    merch:           { minPop: 10, needSongs: 1 },
+    algo_boost:      { minPop: 10, needSongs: 1 },
+    payment_delay:   { minPop: 10, needSongs: 1 },
+    interview:       { minPop: 10, needSongs: 1 },
+    cypher:          { minPop: 10, needSongs: 1 },
+    verse_sale:      { minPop: 12, needSongs: 1 },
+    collab_ghost:    { minPop: 12, needSongs: 1 },
+    fan_meetup:      { minPop: 12, needSongs: 1 },
+    /* sansasyon / risk → tanınırlık şart */
+    tax:             { minPop: 15, needSongs: 1 },
+    court:           { minPop: 15, needSongs: 1 },
+    ghostwriter:     { minPop: 15, needSongs: 1 },
+    festival_cancel: { minPop: 15, needSongs: 1 },
+    talk_show:       { minPop: 15 },
+    hater:           { minPop: 18, needSongs: 1 },
+    charity:         { minPop: 18 },
+    gossip:          { minPop: 22, needSongs: 1 },
+    paparazzi:       { minPop: 24, needSongs: 1 }
+  };
+
   K.incidents = {
     POOL,
     applyEffects,
@@ -336,24 +357,53 @@
     maybeFire() {
       const s = K.state, p = s.player;
       if (s.pendingIncident) return;                       // önce bekleyen kararı çöz
+
+      /* v10.33 — OLAY GERÇEKÇİLİĞİ
+         1) Sıklık belirgin düşürüldü; iki olay arasında asgari 6 gün var.
+         2) Şans kariyer büyüklüğüne göre ölçeklenir (ünsüz → neredeyse hiç).
+         3) Her olay bir ün eşiğine bağlı (GATE) — tanınmadan magazin yok.
+         4) Aynı olay kısa sürede tekrar etmez (cooldown + son olay hafızası). */
+      if (s.day - (s.lastIncidentDay || -999) < 6) return;
+      const pop = p.popularity || 0;
+      const fame = U.clamp(0.55 + pop / 100, 0.55, 1.6);
       const mult = K.settings ? K.settings.diffMult().crisis : 1;
       const base = U.rand(EVENT_BAND[0], EVENT_BAND[1]);
-      if (!U.chance(base * mult)) return;
+      if (!U.chance(base * fame * mult)) return;
 
       /* Şarkısı olmayan oyuncuya "şarkın trend oldu" tipi etkisiz olay
          çıkmasın: dinlenme/viral etkisi olan olayları filtrele. Böylece
          çıkan her olayın oyunda gerçek bir karşılığı olur. */
-      const hasSong = !!latestSong();
+      const songCount = (p.songs || []).length;
+      const hasSong = songCount > 0;
       const needsSong = evt => (evt.choices || []).some(c => {
         const e = c.effects || {};
         return e.streams || e.viral || e.streamsAll;
       });
-      const pool = POOL.filter(x =>
-        (!x.minPop || p.popularity >= x.minPop) &&
-        (hasSong || !needsSong(x))
-      );
+
+      /* ün eşiği + şarkı koşulu */
+      const eligible = evt => {
+        const g = GATE[evt.id] || {};
+        const needPop = evt.minPop != null ? evt.minPop : (g.minPop || 0);
+        if (pop < needPop) return false;
+        if (g.needSongs && songCount < g.needSongs) return false;
+        if (needsSong(evt) && !hasSong) return false;
+        return true;
+      };
+
+      const seen = s.incidentSeen = s.incidentSeen || {};
+      const COOLDOWN = 90;                                 // aynı olay 90 gün içinde tekrar etmez
+      const pool = POOL.filter(eligible);
       if (!pool.length) return;
-      const evt = U.pickWeighted(pool, x => x.weight || 1);
+      const fresh = pool.filter(x => !seen[x.id] || (s.day - seen[x.id]) > COOLDOWN);
+      const candidates = (fresh.length ? fresh : pool).filter(x => x.id !== s.lastIncidentId);
+      if (!candidates.length) return;
+      const evt = U.pickWeighted(candidates, x => x.weight || 1);
+
+      /* hafızayı güncelle (tekrar önleme) ve eski kayıtları temizle */
+      s.lastIncidentDay = s.day;
+      s.lastIncidentId = evt.id;
+      seen[evt.id] = s.day;
+      Object.keys(seen).forEach(k => { if (s.day - seen[k] > 400) delete seen[k]; });
 
       if (evt.choices && evt.choices.length > 1) {
         s.pendingIncident = {
