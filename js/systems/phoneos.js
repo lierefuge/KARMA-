@@ -1,9 +1,15 @@
 /* ============================================================
    KARMA — systems/phoneos.js
    TELEFON İŞLETİM SİSTEMİ EKSTRALARI
-   • Pil modeli (kullanımla azalır, şarj olur)
-   • Duvar kağıdı / parlaklık / pil tasarrufu tercihleri
+   • Duvar kağıdı / parlaklık tercihleri
    • Uygulama kilidi + mağaza (ilerlemeyle açılan uygulamalar)
+
+   v10.37 — PİL KALDIRILDI.
+   Pil mekaniği (günlük boşalma, "telefon kapandı" ekranı, şarj
+   düğmeleri) oyuncuya sürekli bakım yükü bindiriyordu; dahası kod
+   ile kendi yorumu çelişiyordu (yorum "telefon gece şarj olur"
+   diyordu ama daily() hiç şarj etmiyordu). Pil artık bir engel
+   değil — telefon her zaman açık.
    ============================================================ */
 (function (K) {
   "use strict";
@@ -36,7 +42,7 @@
     /* ---------------- tercihler ---------------- */
     prefs() {
       const p = K.state.player;
-      p.phone = p.phone || { theme: "dark", wallpaper: "karma", brightness: 1, batterySaver: false };
+      p.phone = p.phone || { theme: "dark", wallpaper: "karma", brightness: 1 };
       return p.phone;
     },
 
@@ -55,32 +61,9 @@
           scr.style.filter = pr.brightness && pr.brightness < 1 ? "brightness(" + pr.brightness + ")" : "";
           /* v10.11 — açık tema artık GERÇEKTEN uygulanıyor (CSS karşılığı var). */
           scr.setAttribute("data-theme", pr.theme === "light" ? "light" : "dark");
-          /* pil bitti → telefon kapalı ekranı (gerçek bir buton içerir) */
-          let dead = document.getElementById("phone-dead-overlay");
-          if (K.state.player.phoneDead) {
-            if (!dead) {
-              dead = document.createElement("div");
-              dead.id = "phone-dead-overlay";
-              dead.innerHTML = '<div class="pd-in"><div class="pd-ic">🪫</div>'
-                + '<div class="pd-t">Pil bitti</div>'
-                + '<div class="pd-s">Telefon kapandı. Şarja takman gerekiyor.</div>'
-                + '<button class="pd-btn" id="phone-dead-charge">🔌 Şarja tak</button></div>';
-              scr.appendChild(dead);
-              dead.querySelector("#phone-dead-charge").addEventListener("click", (ev) => {
-                ev.stopPropagation();
-                K.phoneOS.charge();
-                if (K.phone) K.phone.reRender();
-              });
-            }
-          } else if (dead && dead.parentNode) {
-            dead.parentNode.removeChild(dead);
-          }
         }
       } catch (e) {}
     },
-
-    /* pil bitti mi? (o gün telefon kullanılamaz) */
-    dead() { return !!K.state.player.phoneDead; },
 
     wallpaper() {
       const pr = K.phoneOS.prefs();
@@ -104,23 +87,6 @@
         return sg ? `url('${sg.art}') center/cover no-repeat #0b0b12` : "linear-gradient(160deg,#1b1030,#0a0a12)";
       }
       return w.css;
-    },
-
-    /* ---------------- pil ---------------- */
-    battery() {
-      const p = K.state.player;
-      return p.battery == null ? 100 : Math.round(p.battery);
-    },
-
-    charge() {
-      const p = K.state.player;
-      if ((p.battery || 0) >= 99 && !p.phoneDead) { K.toast("🔋 Pil dolu", "Şarja gerek yok.", "warn"); return false; }
-      p.battery = 100;
-      p.phoneDead = false;                      // şarj edince telefon açılır
-      K.toast("🔌 Şarj edildi", "Pil %100", "ok");
-      K.save();
-      if (K.phone && K.phone.updateStatus) K.phone.updateStatus();
-      return true;
     },
 
     /* ---------------- uygulama kilidi / mağaza ---------------- */
@@ -183,35 +149,10 @@
     },
 
     /* ---------------- günlük ---------------- */
-    /* v10.11 — PİL ARTIK ANLAMLI.
-       Eskiden pil dekoratifti: %0 olsa bile hiçbir şey olmuyordu ve
-       şarj ücretsiz/anındı, yani oyuncu için hiçbir sonucu yoktu.
-       Gerçek davranış: telefon GECE şarj olur, gün içi kullanım pili
-       tüketir; ağır kullanım (canlı yayın, müzik, yoğun gün) pili
-       bitirirse telefon o gün KAPANIR ve uygulamalar açılmaz. */
+    /* v10.37 — Pil kaldırıldı: günlük pil boşalması, uyarı ve
+       "telefon kapandı" durumu yok. Burada yalnızca mağaza
+       uygulamalarının kilidi güncellenir. */
     daily() {
-      const p = K.state.player;
-      if (p.battery == null) p.battery = 100;
-      const pr = K.phoneOS.prefs();
-      const heavy = (K.audio && K.audio.isPlaying()) ? 9 : 0;
-      const live = K.state.live ? 14 : 0;
-      let drain = 14 + heavy + live + U.randInt(0, 8);
-      if (pr.batterySaver) drain *= 0.55;                   // pil tasarrufu
-
-      p.battery = U.clamp(Math.round((p.battery - drain) * 10) / 10, 0, 100);
-
-      if (p.battery <= 0 && !p.phoneDead) {
-        p.phoneDead = true;
-        K.toast("🪫 Telefon kapandı", "Pil bitti. Kontrol Merkezi'nden şarja takman gerekiyor.", "bad");
-        K.state.notifications = (K.state.notifications || []).concat([{
-          title: "🪫 Telefon kapandı", msg: "Pil bitti — telefon kapandı. Şarja tak.", kind: "bad", day: K.state.day
-        }]).slice(-60);
-      } else if (p.battery <= 20 && p.battery > 0 && !K.phoneOS._warned) {
-        K.phoneOS._warned = true;
-        K.toast("🪫 Pil azaldı", "%" + Math.round(p.battery) + " — şarja takmayı unutma.", "warn");
-      }
-      if (p.battery > 35) K.phoneOS._warned = false;
-
       K.phoneOS.ensureInstalled();
     }
   };
