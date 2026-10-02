@@ -257,8 +257,8 @@
         tutorial: {},             // rehber adımları (id -> true)
 
         /* --- telefon (OS) --- */
-        battery: 100,
-        phone: { theme: "dark", wallpaper: "karma", brightness: 1, batterySaver: false, layout: null },
+        /* v10.37 — pil kaldırıldı; telefon her zaman açık */
+        phone: { theme: "dark", wallpaper: "karma", brightness: 1, layout: null },
         installed: null,          // yüklü (kilitli olmayan) uygulamalar; phoneOS doldurur
         /* v10.30 — GELEN ARAMALAR + YABANCI DM'LER */
         calls: [],                // çalan/cevaplanan aramalar (systems/calls.js)
@@ -526,8 +526,11 @@
       K.state.player.team = K.state.player.team || { manager: 0, pr: 0, lawyer: 0, engineer: 0, stylist: 0 };
       K.state.player.sponsors = K.state.player.sponsors || [];
       K.state.player.tutorial = K.state.player.tutorial || {};
-      if (K.state.player.battery == null) K.state.player.battery = 100;
-      K.state.player.phone = K.state.player.phone || { theme: "dark", wallpaper: "karma", brightness: 1, batterySaver: false, layout: null };
+      /* v10.37 — eski kayıtlardaki pil alanlarını temizle */
+      delete K.state.player.battery;
+      delete K.state.player.phoneDead;
+      K.state.player.phone = K.state.player.phone || { theme: "dark", wallpaper: "karma", brightness: 1, layout: null };
+      delete K.state.player.phone.batterySaver;
       if (K.state.player.phone.layout === undefined) K.state.player.phone.layout = null;
       if (K.state.player.installed === undefined) K.state.player.installed = null;
       /* v10.30 — gelen aramalar + yabancı DM'ler (eski kayıt göçü) */
