@@ -238,10 +238,6 @@
 }
 .cc-tgl.on { background: rgba(176, 108, 255, .28); border-color: rgba(176, 108, 255, .5); color: #fff; }
 .cc-wide { margin-top: 6px; }
-.cc-bat-row { display: flex; align-items: center; gap: 9px; }
-.cc-bat-val { font-size: 15px; font-weight: 900; }
-.battery.big { width: 34px; height: 16px; border-color: #fff; }
-.battery.big > i { border-radius: var(--radius-xs); }
 
 /* ---- spotlight sonuçları ---- */
 .sp-res {
@@ -316,8 +312,6 @@
    ------------------------------------------------------------ */
 #phone-screen[data-theme="light"] { background: #e9ebf1; }
 #phone-screen[data-theme="light"] .status-bar { color: #16181d; }
-#phone-screen[data-theme="light"] .status-bar .battery { border-color: rgba(22,24,29,.45); }
-#phone-screen[data-theme="light"] .status-bar .battery i { background: #16181d; }
 
 #phone-screen[data-theme="light"] .app-shell { background: #eef0f5; color: #16181d; }
 #phone-screen[data-theme="light"] .app-shell .app-nav {
@@ -378,25 +372,7 @@
 #phone-screen[data-theme="light"] .phset-name { color: #16181d; }
 #phone-screen[data-theme="light"] .phset-sub { color: #6b7180; }
 
-/* ------------------------------------------------------------
-   PİL BİTTİ EKRANI — ESKİ HATA: pil %0 olsa bile hiçbir şey
-   olmuyordu; pil tamamen dekoratifti. Artık telefon kapanır ve
-   tek çıkış şarja takmaktır.
-   ------------------------------------------------------------ */
-#phone-dead-overlay {
-  position: absolute; inset: 0; z-index: 90;
-  display: grid; place-items: center;
-  background: #05060a; color: #e8eaf2; text-align: center;
-}
-#phone-dead-overlay .pd-in { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px; }
-#phone-dead-overlay .pd-ic { font-size: 54px; line-height: 1; opacity: .92; }
-#phone-dead-overlay .pd-t { font-size: 19px; font-weight: 800; }
-#phone-dead-overlay .pd-s { font-size: 12.5px; color: #9aa1b4; max-width: 215px; line-height: 1.5; }
-#phone-dead-overlay .pd-btn {
-  margin-top: 8px; font-family: inherit; font-size: 13.5px; font-weight: 800;
-  padding: 11px 22px; border: none; cursor: pointer; border-radius: var(--radius-pill);
-  background: linear-gradient(135deg, #5ce89b, #34b972); color: #04170d;
-}
+/* v10.37 — "pil bitti" ekranı kaldırıldı (pil mekaniği yok). */
 
 /* ------------------------------------------------------------
    ŞARKI KAPAĞI DUVAR KAĞIDI (gerçek albüm kapağı) + TEMA GEÇİŞİ
