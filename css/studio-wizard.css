@@ -405,3 +405,66 @@
   .trk-budget-val { width: 70px; }
   .publish-hero { flex-direction: column; align-items: flex-start; }
 }
+
+/* ============================================================
+   v10.39 — Stüdyo düğme ikonları
+   Emoji (🎲 🗑 ＋) yerine gerçek SVG; .btn zaten inline-flex
+   olduğu için hizalama bedava geliyor.
+   ============================================================ */
+.btn .st-ico { flex: 0 0 auto; opacity: 0.9; }
+.btn-sm { gap: 6px; }
+.btn-sm .st-ico { width: 13px; height: 13px; }
+.trk-head [data-act="trk-remove"] { padding: 6px 8px; gap: 0; color: var(--text-3); }
+.trk-head [data-act="trk-remove"] .st-ico { width: 14px; height: 14px; opacity: 0.7; }
+.trk-head [data-act="trk-remove"]:hover { color: #ff97ac; }
+.trk-head [data-act="trk-remove"]:hover .st-ico { opacity: 1; }
+/* "Tümünü Yükle" eksik yoksa pasif görünsün */
+[data-act="trk-upload-all"]:disabled { opacity: 0.45; }
+.cv-chip { display: inline-flex; align-items: center; gap: 5px; }
+.cv-chip .st-ico { width: 12px; height: 12px; }
+
+/* ============================================================
+   v10.39 — Parça başına sözler
+   Her parçanın kendi sözü var; seçici şerit + toplu doldurma.
+   ============================================================ */
+.lyr-tracks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 7px;
+  padding: 0 14px;
+}
+.lyr-track {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; text-align: left; cursor: pointer;
+  border: 1px solid var(--stroke); border-radius: var(--radius-s);
+  background: var(--glass); color: var(--text-2);
+  font-family: inherit;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.lyr-track:hover { border-color: var(--stroke-2); color: var(--text-1); }
+.lyr-track.active { border-color: var(--karma); background: rgba(176,108,255,.16); color: var(--text-0); }
+.lyr-track .lt-no {
+  flex: 0 0 auto; width: 21px; height: 21px; border-radius: 6px;
+  display: grid; place-items: center;
+  background: var(--glass-2); font-size: 10.5px; font-weight: 800; color: var(--text-2);
+}
+.lyr-track.active .lt-no { background: var(--karma); color: #fff; }
+.lyr-track.done .lt-no { background: rgba(63,220,140,.22); color: #6ff0aa; }
+.lyr-track .lt-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.lyr-track .lt-body b { font-size: 11.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lyr-track .lt-body span { font-size: 10px; color: var(--text-3); }
+.lyr-track.done .lt-body span { color: #6ff0aa; }
+
+.lyr-bulk {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 11px 14px 2px;
+}
+.lyr-bulk-count { font-size: 11px; color: var(--text-3); font-weight: 700; margin-right: auto; }
+
+/* kayıt kaynağı satırı — yükleme kalktı, yerine kaynağın etkisi yazıyor */
+.trk-src {
+  flex: 1 1 auto; min-width: 0; font-size: 10.5px; color: var(--text-3);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.trk-src.good { color: #6ff0aa; }
+.trk-src.weak { color: #ffb26b; }
