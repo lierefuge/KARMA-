@@ -5,6 +5,64 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.39 — Stüdyo parça adımı: sözler artık parça başına
+
+Stüdyo sihirbazının **parça adımı** baştan ele alındı. Sekiz hata ölçülüp
+kapatıldı, yayın türü kuralları netleşti ve **sözler parça başına** ayrıldı.
+Yeni test paketi: `tools/smoke-v1039.js` (**68 kontrol**). Boru hattı: **26/26 → 27/27 adım**.
+
+###  Yayın türü kuralı artık tek ve net
+
+| Parça | Tür |
+|---|---|
+| 1 | **Single** |
+| 2–8 | **EP** |
+| 9–30 | **Albüm** |
+
+Eski kural (`1 → Single · 2 → Çift · 3-4 → EP · 5-11 → Albüm · 12+ → Deluxe`)
+hem ekrandaki üç kartla çelişiyordu hem de "Çift" ve "Deluxe" için hiç kart
+yoktu — 12 parça seçen oyuncu ekranda "Albüm" görüyordu. Üç kart artık kurala
+birebir uyuyor. Parça tavanı **14 → 30**'a çıktı (`K.career.MAX_TRACKS`, slider +
+kartlar + `createRelease` hepsi tek kaynaktan).
+
+###  Sözler artık PARÇA BAŞINA (en büyük hata)
+
+`createRelease` tek bir `lyricSections` kullanıyordu: 14 parçalı bir albümde
+**14 şarkının sözü de aynıydı** ve hepsi aynı söz skorunu alıyordu. Artık:
+
+- her parçanın kendi söz nesnesi var (`tracks[i].lyrics`)
+- söz atölyesinde **parça seçici şerit** (kaç bölümün dolu olduğunu gösterir)
+- **"Kalanları Otomatik Doldur"** — boş parçaları tek tuşla doldurur, dolu olanlara dokunmaz
+- **"Bu sözü tümüne uygula"** — bilinçli olarak aynı sözü kopyalamak isteyenler için
+- her parça **kendi söz skorunu** alır → albüm içinde kalite artık değişiyor
+- yayın skoru parçaların ortalaması; `rel.lyrics.perTrack` özeti tutuluyor
+
+###  Dosya yükleme adımı kaldırıldı
+
+Yükleme mekaniği oyuncuya hiçbir şey katmıyordu: ilerleme çubuğu izletiyor,
+karar verme anı yaratmıyordu. Kayıt kaynağı seçimi (Stüdyo/Ev/Canlı/Sample/
+Telefon) kaliteyi ve maliyeti zaten etkiliyordu — o **kaldı** ve parça satırına
+döndü. Artık satır doğrudan kaynağın etkisini yazıyor:
+`WAV · 24-bit / 48kHz · 42 MB · kalite +6`.
+
+###  Düzeltilen hatalar (ölçüldü)
+
+| # | Hata | Önce | Sonra |
+|---|---|---|---|
+| 1 | Adlar boşluksuz birleşiyordu (`SisliSonu`) | 37/100 | **0/200** |
+| 2 | "N yüklendi" sayacı her tuşta siliniyordu | kayboluyordu | kalıcı → toplam süre |
+| 3 | Adım sayacı "Adım 1/5" | yanlış | **"Adım 1/6"** |
+| 4 | Tip kartları eksik/çelişkili | 3 kart, yanlış aralık | kurala birebir uyar |
+| 5 | Sayı artırılınca isim çakışması | 12/30 tur | **0/30** |
+| 6 | Süre göstergesi sabit "3:24" | tek değer | **parça başına** (2:00–6:00) |
+| 7 | Kenar çubuğu "Albüm (5 parça)" | gereksiz tekrar | **"Albüm"** |
+| 8 | Düğmelerde emoji ( ＋ ⬆) | emoji | **SVG** |
+
+Kök neden (1): `suggestTitle()` içinde `.trim()` birleştirme boşluğunu yiyordu —
+bu sadece stüdyoyu değil, **tüm oyundaki şarkı adı üretimini** etkiliyordu.
+
+---
+
 ## GÜNCELLEME v10.38 — Kapak üreticisi: taşma bitti, düzenler geldi
 
 Kapak üreticisi çalışıyordu ama ürettiği kapaklar "garip" duruyordu. Üç ayrı
