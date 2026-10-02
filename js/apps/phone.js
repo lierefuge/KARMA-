@@ -182,7 +182,7 @@
       dots.forEach((dt, k) => dt.classList.toggle("on", k === i));
     },
 
-    /* ---------------- zaman / pil ---------------- */
+    /* ---------------- zaman ---------------- */
     updateStatus() {
       const s = K.state;
       const dow = U.dateForDay(s.day);
@@ -192,12 +192,6 @@
       const mm = String(minutes % 60).padStart(2, "0");
       const t = U.qs("#status-time");
       if (t) t.textContent = hh + ":" + mm;
-      const bat = U.qs("#battery-level");
-      if (bat) {
-        const level = K.phoneOS ? K.phoneOS.battery() : 100;
-        bat.style.width = level + "%";
-        bat.classList.toggle("low", level < 30);
-      }
       if (K.phoneOS) K.phoneOS.apply();   // parlaklık + telefon teması
     },
 
