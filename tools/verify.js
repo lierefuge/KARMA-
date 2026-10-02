@@ -139,7 +139,10 @@ const SUITES = [
   { id: "updater",     script: "tools/smoke-updater.js",     label: "Güncelleme akışı (sürüm · damga · worker)" },
   /* katalog sönümü: "yayın yapmazsan kitle erir" halkasını ve cezanın
      oyuncuya GÖRÜNÜR olmasını kilitler. */
-  { id: "silence",     script: "tools/smoke-silence.js",     label: "Katalog sönümü (unutulma · uyarı)" }
+  { id: "silence",     script: "tools/smoke-silence.js",     label: "Katalog sönümü (unutulma · uyarı)" },
+  /* gerçek uygulama düzeni (2. dalga) + pil kaldırma: beş uygulamanın
+     alt sekmesi SVG kalmalı, pil mekaniği geri gelmemeli. */
+  { id: "v1037",       script: "tools/smoke-v1037.js",       label: "v10.37 gerçek uygulama düzeni + pil kaldırma" }
 ];
 
 const suiteOut = {};
