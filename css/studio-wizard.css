@@ -656,3 +656,63 @@
 .px-opt.bad { border-color: rgba(248,113,113,.42); background: rgba(248,113,113,.08); }
 .px-opt.bad b { color: #ff8fa3; }
 .px-opt.bad.on { border-color: rgba(248,113,113,.7); background: rgba(248,113,113,.16); }
+
+/* ============================================================
+   v10.42 — DISTRIBÜTÖR SEÇİMİ + SÖZLEŞME
+   ============================================================ */
+.dist-chips { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+.dist-opt {
+  display: flex; align-items: center; gap: 11px; width: 100%; text-align: left;
+  padding: 10px 12px; border-radius: 12px; cursor: pointer;
+  border: 1px solid var(--stroke-1, rgba(255,255,255,.12));
+  background: rgba(255,255,255,.03); color: var(--text-1, #fff);
+  transition: all .14s;
+}
+.dist-opt:hover { border-color: var(--stroke-2, rgba(255,255,255,.28)); }
+.dist-opt.on { border-color: var(--karma, #b06cff); background: rgba(176,108,255,.14); }
+.dist-opt.locked { opacity: .5; cursor: not-allowed; }
+.dist-opt .do-icon { font-size: 20px; width: 26px; text-align: center; }
+.dist-opt .do-body { flex: 1; min-width: 0; }
+.dist-opt .do-body b { display: block; font-size: 13px; }
+.dist-opt .do-body span { display: block; font-size: 11px; color: var(--text-2, #cfd3dc); margin-top: 2px; }
+.dist-opt .do-check { font-size: 15px; font-weight: 800; color: var(--karma, #b06cff); }
+
+.master { margin-top: 10px; }
+.master-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 9px 11px; border-radius: 10px;
+  background: rgba(0,0,0,.2); border: 1px solid var(--stroke-1, rgba(255,255,255,.08));
+}
+.master-row .mr-lbl { font-size: 12px; font-weight: 700; color: var(--text-2, #cfd3dc); margin-right: auto; }
+.master-row .mr-opt {
+  padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 11.5px; font-weight: 700;
+  border: 1px solid var(--stroke-1, rgba(255,255,255,.14));
+  background: rgba(255,255,255,.04); color: var(--text-2, #cfd3dc);
+}
+.master-row .mr-opt.on { border-color: var(--karma, #b06cff); background: rgba(176,108,255,.18); color: #fff; }
+.master-row .mr-opt:disabled { opacity: .45; cursor: not-allowed; }
+.store-opt.locked { opacity: .5; cursor: not-allowed; }
+
+/* sözleşme kartı */
+.contract {
+  border: 1px solid rgba(255,203,92,.34); border-radius: 14px; overflow: hidden;
+  background: linear-gradient(180deg, rgba(255,203,92,.06), rgba(0,0,0,.14));
+}
+.contract .ct-head {
+  display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  border-bottom: 1px dashed rgba(255,203,92,.28);
+}
+.contract .ct-seal { font-size: 22px; }
+.contract .ct-head b { display: block; font-size: 12.5px; letter-spacing: .5px; }
+.contract .ct-head span { display: block; font-size: 11px; color: var(--text-2, #cfd3dc); }
+.contract .ct-rows { padding: 8px 14px; }
+.contract .ct-note {
+  padding: 10px 14px; font-size: 11px; color: var(--text-2, #cfd3dc);
+  border-top: 1px solid var(--stroke-1, rgba(255,255,255,.08));
+}
+.contract .ct-sign {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 12px 14px; border-top: 1px dashed rgba(255,203,92,.28);
+  font-size: 12px; flex-wrap: wrap;
+}
+.contract .ct-sign .ct-ok { color: #5ce89b; font-weight: 800; font-style: normal; }
