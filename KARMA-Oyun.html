@@ -2208,6 +2208,24 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
   flex: 0 0 auto;
 }
 
+/* ============================================================
+   v10.43 — YAN İŞLER: başvuru · vardiya · yorgunluk
+   ============================================================ */
+.job-fatigue {
+  margin: 10px 0 6px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(0,0,0,.22);
+  border: 1px solid var(--stroke-1, rgba(255,255,255,.1));
+}
+.job-fatigue .jf-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; flex-wrap: wrap; margin-top: 8px;
+}
+.job-fatigue .jf-row .helper { flex: 1; min-width: 200px; }
+.job-card .jc-name { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.job-card .jc-meta .pill { white-space: nowrap; }
+
 </style>
 <style>
 /* ==== css/albums.css ==== */
@@ -3559,6 +3577,66 @@ body.hide-values .brand-sub::after {
 .px-opt.bad { border-color: rgba(248,113,113,.42); background: rgba(248,113,113,.08); }
 .px-opt.bad b { color: #ff8fa3; }
 .px-opt.bad.on { border-color: rgba(248,113,113,.7); background: rgba(248,113,113,.16); }
+
+/* ============================================================
+   v10.42 — DISTRIBÜTÖR SEÇİMİ + SÖZLEŞME
+   ============================================================ */
+.dist-chips { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+.dist-opt {
+  display: flex; align-items: center; gap: 11px; width: 100%; text-align: left;
+  padding: 10px 12px; border-radius: 12px; cursor: pointer;
+  border: 1px solid var(--stroke-1, rgba(255,255,255,.12));
+  background: rgba(255,255,255,.03); color: var(--text-1, #fff);
+  transition: all .14s;
+}
+.dist-opt:hover { border-color: var(--stroke-2, rgba(255,255,255,.28)); }
+.dist-opt.on { border-color: var(--karma, #b06cff); background: rgba(176,108,255,.14); }
+.dist-opt.locked { opacity: .5; cursor: not-allowed; }
+.dist-opt .do-icon { font-size: 20px; width: 26px; text-align: center; }
+.dist-opt .do-body { flex: 1; min-width: 0; }
+.dist-opt .do-body b { display: block; font-size: 13px; }
+.dist-opt .do-body span { display: block; font-size: 11px; color: var(--text-2, #cfd3dc); margin-top: 2px; }
+.dist-opt .do-check { font-size: 15px; font-weight: 800; color: var(--karma, #b06cff); }
+
+.master { margin-top: 10px; }
+.master-row {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  padding: 9px 11px; border-radius: 10px;
+  background: rgba(0,0,0,.2); border: 1px solid var(--stroke-1, rgba(255,255,255,.08));
+}
+.master-row .mr-lbl { font-size: 12px; font-weight: 700; color: var(--text-2, #cfd3dc); margin-right: auto; }
+.master-row .mr-opt {
+  padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 11.5px; font-weight: 700;
+  border: 1px solid var(--stroke-1, rgba(255,255,255,.14));
+  background: rgba(255,255,255,.04); color: var(--text-2, #cfd3dc);
+}
+.master-row .mr-opt.on { border-color: var(--karma, #b06cff); background: rgba(176,108,255,.18); color: #fff; }
+.master-row .mr-opt:disabled { opacity: .45; cursor: not-allowed; }
+.store-opt.locked { opacity: .5; cursor: not-allowed; }
+
+/* sözleşme kartı */
+.contract {
+  border: 1px solid rgba(255,203,92,.34); border-radius: 14px; overflow: hidden;
+  background: linear-gradient(180deg, rgba(255,203,92,.06), rgba(0,0,0,.14));
+}
+.contract .ct-head {
+  display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  border-bottom: 1px dashed rgba(255,203,92,.28);
+}
+.contract .ct-seal { font-size: 22px; }
+.contract .ct-head b { display: block; font-size: 12.5px; letter-spacing: .5px; }
+.contract .ct-head span { display: block; font-size: 11px; color: var(--text-2, #cfd3dc); }
+.contract .ct-rows { padding: 8px 14px; }
+.contract .ct-note {
+  padding: 10px 14px; font-size: 11px; color: var(--text-2, #cfd3dc);
+  border-top: 1px solid var(--stroke-1, rgba(255,255,255,.08));
+}
+.contract .ct-sign {
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+  padding: 12px 14px; border-top: 1px dashed rgba(255,203,92,.28);
+  font-size: 12px; flex-wrap: wrap;
+}
+.contract .ct-sign .ct-ok { color: #5ce89b; font-weight: 800; font-style: normal; }
 
 </style>
 <style>
@@ -6925,7 +7003,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.41.0";
+  K.VERSION = "10.43.0";
   K.VERSION_DATE = "2026-10-02";
 })(window.K = window.K || {});
 
@@ -9124,6 +9202,208 @@ html, body {
 
 </script>
   <script>
+/* ==== js/data/distributors.js ==== */
+/* ============================================================
+   KARMA — data/distributors.js   (v10.42)
+   DISTRIBÜTÖR KATMANI
+
+   Neden var?
+   ----------
+   v10.40 dağıtım formunu gerçekçi yaptı ama tek bir şey eksikti:
+   "kim dağıtıyor?". Oyunda sanatçı hep kendi kendine dağıtıyormuş gibi
+   sabit maliyetle çalışıyordu. Gerçekte sanatçı bir distribütöre
+   (DistroKid / TuneCore / CD Baby / Amuse / Ditto) kaydolur ve o
+   distribütörün TİCARİ MODELİ kariyeri doğrudan etkiler:
+
+     · ücret    — ücretsiz / yayın başına / yıllık üyelik / tek seferlik
+     · kesinti  — streaming gelirinden alınan % (komisyon)
+     · teslim   — yayının mağazalara ulaşması için gereken ön süre
+     · mağaza   — premium mağazalara (Apple/TIDAL/Amazon) erişim
+
+   Denge şudur: ucuz distribütör çok keser ve geç teslim eder;
+   pahalı distribütör az keser, hızlı teslim eder, tüm mağazalara sokar.
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  /* model:
+       free       — ücretsiz, yüksek kesinti
+       perRelease — yayın başına ücret
+       oneTime    — yayın başına tek ödeme (katalog kalıcı)
+       annual     — yıllık üyelik (365 günde bir ücret, sınırsız yayın)
+       label      — şirket/major dağıtımı (itibar kapısı)              */
+  K.DISTRIBUTORS = [
+    { id: "karma", name: "KARMA Dağıtım", icon: "🅺", model: "free", fee: 0, commission: 18, leadDays: 10, premium: true, minRep: 0,
+      note: "Varsayılan. Ücretsiz ve tüm mağazalara açık; karşılığında yüksek kesinti ve geç teslim." },
+
+    { id: "amuse", name: "Amuse", icon: "🅰️", model: "free", fee: 0, commission: 25, leadDays: 14, premium: false, minRep: 0,
+      note: "Ücretsiz katman. En yüksek kesinti; en yavaş teslim, premium mağaza yok." },
+
+    { id: "cdbaby", name: "CD Baby", icon: "🎸", model: "oneTime", fee: 2600, commission: 9, leadDays: 7, premium: true, minRep: 0,
+      note: "Yayın başına tek ödeme + %9 kesinti. Katalog kalıcı, tüm mağazalar." },
+
+    { id: "tunecore", name: "TuneCore", icon: "🎼", model: "perRelease", fee: 1400, commission: 0, leadDays: 5, premium: true, minRep: 0,
+      note: "Yayın başına ücret, %0 kesinti. Tüm mağazalar." },
+
+    { id: "ditto", name: "Ditto Music", icon: "🎧", model: "annual", fee: 6900, commission: 0, leadDays: 6, premium: true, minRep: 0,
+      note: "Yıllık üyelik. Sınırsız yayın, %0 kesinti." },
+
+    { id: "distrokid", name: "DistroKid", icon: "🎤", model: "annual", fee: 9900, commission: 0, leadDays: 3, premium: true, minRep: 0,
+      note: "Yıllık üyelik. En hızlı teslim, %0 kesinti, tüm mağazalar." },
+
+    { id: "believe", name: "Believe", icon: "💠", model: "label", fee: 0, commission: 5, leadDays: 4, premium: true, minRep: 45,
+      note: "Etiket seviyesi dağıtım. Şirketin varsa ya da itibarın 45+ ise açılır." },
+
+    { id: "orchard", name: "The Orchard", icon: "🌿", model: "label", fee: 0, commission: 3, leadDays: 3, premium: true, minRep: 60,
+      note: "Major dağıtım. Şirketin varsa ya da itibarın 60+ ise açılır." }
+  ];
+
+  K.distributorById = function (id) {
+    return K.DISTRIBUTORS.find(d => d.id === id) || null;
+  };
+
+  K.defaultDistributor = function () { return "karma"; };
+
+  /* distribütör modelinin okunur etiketi */
+  K.distroModelLabel = function (id) {
+    const d = K.distributorById(id);
+    if (!d) return "—";
+    return ({
+      free: "Ücretsiz",
+      perRelease: "Yayın başına",
+      oneTime: "Tek seferlik",
+      annual: "Yıllık üyelik",
+      label: "Etiket dağıtımı"
+    })[d.model] || d.model;
+  };
+
+  /* bilinen bir distribütör adını id'ye çevir (şirket distribütörleri için) */
+  K.distroByName = function (name) {
+    const n = String(name || "").toLowerCase().trim();
+    if (!n) return null;
+    const hit = K.DISTRIBUTORS.find(d => {
+      const dn = d.name.toLowerCase();
+      return dn === n || n.indexOf(dn) >= 0;
+    });
+    return hit ? hit.id : null;
+  };
+
+  K.distro = {
+    list() { return K.DISTRIBUTORS; },
+    byId(id) { return K.distributorById(id); },
+    byName(name) { return K.distroByName(name); },
+
+    /* isimden tam tanımlayıcı üret; bilinmeyen (major) kollar için
+       makul bir varsayılan döndür. Şirket distribütörleri buradan geçer. */
+    descriptorFor(name) {
+      const id = K.distroByName(name);
+      if (id) {
+        const d = K.distributorById(id);
+        return { id, name: d.name, commission: d.commission, leadDays: d.leadDays, premium: d.premium, fee: 0, model: d.model };
+      }
+      return { id: "major", name: name || "Major Dağıtım", commission: 4, leadDays: 4, premium: true, fee: 0, model: "label" };
+    },
+
+    /* yayın için ödenecek distribütör ücreti.
+       annual modelde yıl içinde tekrar ödenmez. */
+    feeFor(id, day) {
+      const d = K.distributorById(id) || K.distributorById(K.defaultDistributor());
+      if (!d) return 0;
+      if (d.model === "free" || d.model === "label") return 0;
+      const today = (day != null) ? day : ((K.state && K.state.day) || 0);
+      if (d.model === "annual") {
+        const plans = (K.state && K.state.player && K.state.player.distroPlans) || {};
+        if ((plans[d.id] || 0) > today) return 0;
+      }
+      return d.fee || 0;
+    },
+
+    /* yıllık planı işaretle (ücret ödendikten sonra çağrılır) */
+    notePlan(id, day) {
+      const d = K.distributorById(id);
+      if (!d || d.model !== "annual") return;
+      const p = K.state && K.state.player;
+      if (!p) return;
+      p.distroPlans = p.distroPlans || {};
+      p.distroPlans[d.id] = ((day != null) ? day : (K.state.day || 0)) + 365;
+    },
+
+    /* yıllık planın bitiş günü (yoksa 0) */
+    planUntil(id) {
+      const p = K.state && K.state.player;
+      const plans = (p && p.distroPlans) || {};
+      return plans[id] || 0;
+    },
+
+    commission(id) {
+      const d = K.distributorById(id);
+      return d ? (d.commission || 0) : 0;
+    },
+
+    leadDays(id) {
+      const d = K.distributorById(id);
+      return d ? (d.leadDays || 7) : 7;
+    },
+
+    premiumAllowed(id) {
+      if (id === "major") return true;
+      const d = K.distributorById(id);
+      return !!(d && d.premium);
+    },
+
+    /* id'den tam tanımlayıcı ("major" dahil) */
+    descById(id) {
+      if (id === "major") return { id: "major", name: "Major Dağıtım", commission: 4, leadDays: 4, premium: true, fee: 0, model: "label" };
+      const d = K.distributorById(id);
+      if (!d) return { id: "karma", name: "KARMA Dağıtım", commission: 18, leadDays: 10, premium: false, fee: 0, model: "free" };
+      return { id: d.id, name: d.name, commission: d.commission, leadDays: d.leadDays, premium: d.premium, fee: K.distro.feeFor(d.id), model: d.model };
+    },
+
+    /* bu distribütör oyuncu için kullanılabilir mi? */
+    canUse(id, day) {
+      const d = K.distributorById(id);
+      if (!d) return false;
+      if (d.model === "label") {
+        const p = K.state && K.state.player;
+        const rep = (p && p.reputation) || 0;
+        const hasLabel = !!(K.label && K.label.hasLabel && K.label.hasLabel());
+        return hasLabel || rep >= (d.minRep || 0);
+      }
+      return true;
+    },
+
+    /* seçilebilir distribütörler + kilit gerekçesi */
+    options(day) {
+      return K.DISTRIBUTORS.map(d => {
+        const ok = K.distro.canUse(d.id, day);
+        return {
+          id: d.id, name: d.name, icon: d.icon, model: d.model,
+          fee: K.distro.feeFor(d.id, day), baseFee: d.fee,
+          commission: d.commission, leadDays: d.leadDays,
+          premium: d.premium, locked: !ok, minRep: d.minRep, note: d.note
+        };
+      });
+    },
+
+    /* bir distribütörün toplam maliyet etkisi (yayın başına) */
+    feeLabel(id, day) {
+      const f = K.distro.feeFor(id, day);
+      const d = K.distributorById(id);
+      if (!d) return "—";
+      if (d.model === "annual") {
+        const until = K.distro.planUntil(id);
+        const today = (day != null) ? day : ((K.state && K.state.day) || 0);
+        if (until > today) return "yıllık plan aktif";
+        return f + " ₺/yıl";
+      }
+      if (d.model === "free" || d.model === "label") return "ücretsiz";
+      return f + " ₺/yayın";
+    }
+  };
+})(window.K = window.K || {});
+
+</script>
+  <script>
 /* ==== js/data/release-meta.js ==== */
 /* ============================================================
    KARMA — data/release-meta.js
@@ -10684,6 +10964,10 @@ window.K = window.K || {};
         fatigue: 0,
         jobLog: {},
         jobEarnings: 0,
+        /* v10.43 — yan işler: başvuru durumu + günlük vardiya/dinlenme */
+        jobApps: {},
+        shiftsToday: 0,
+        restedToday: false,
         skills: { work: 4, studio: 0, music: 6, network: 2 },
         /* B-6: OYUNCUNUN kimlik id'si (data/player-persona.js → K.PLAYER_PERSONAS).
            NPC kişilik katmanı (data/npc-personality.js → K.npcPersonality)
@@ -11146,7 +11430,10 @@ window.K = window.K || {};
       // günlük dinlenme: yorgunluk azalır, iş kaydı sıfırlanır
       s.player.fatigue = Math.max(0, (s.player.fatigue || 0) - 6);
       s.player.jobLog = {};
-      if (K.jobs && K.jobs.resetDaily) K.jobs.resetDaily();
+      /* v10.43 — yan işler: vardiya/yorgunluk sayaçları sıfırlanır ve
+         bekleyen iş başvuruları sonuçlanır (kabul/ret). */
+      if (K.jobs && K.jobs.onNewDay) K.jobs.onNewDay();
+      else if (K.jobs && K.jobs.resetDaily) K.jobs.resetDaily();
 
       // gündem/haberler tazele (kendi içinde 30 günde bir yenilenir)
       if (K.news && K.news.refresh) K.news.refresh();
@@ -12151,6 +12438,8 @@ window.K = window.K || {};
       const paidN = { spotify: 0, apple: 0, youtube: 0, other: 0 };
       const grossBy = { spotify: 0, apple: 0, youtube: 0, other: 0 };
       let artistPool = 0, producerCutTotal = 0, featureCutTotal = 0, masterCutTotal = 0, waiting = 0;
+      /* v10.42 — distribütör kesintisi ve parça bazında şirket payı */
+      let distCutTotal = 0, labelCutTotal = 0;
 
       p.royalties.forEach(r => {
         const song = songById[r.songId];
@@ -12164,7 +12453,16 @@ window.K = window.K || {};
           const g = n * K.econ.rate(st) * dm;            // kur + enflasyon burada uygulanır
           grossBy[st] += g;
           if (song && song.masterSold) { masterCutTotal += g; return; }   // master satıldı → telif alıcının
-          let pool = g * (1 - labelPct / 100);
+          /* v10.42 — DISTRIBÜTÖR KESİNTİSİ: mağaza brütünden distribütörün
+             payı düşer (gerçekte önce distribütör alır, kalan paylaşılır). */
+          const distTake = g * (((song && song.distCommission) || 0) / 100);
+          distCutTotal += distTake;
+          const afterDist = g - distTake;
+          /* master sanatçıda ise şirket "dağıtım" rolüne düşer → payı yarıya iner */
+          let songLabelPct = labelPct;
+          if (song && song.masterOwner === "artist" && song.distributorId && labelPct > 0) songLabelPct = labelPct * 0.5;
+          labelCutTotal += afterDist * (songLabelPct / 100);
+          let pool = afterDist * (1 - songLabelPct / 100);
           const pp = ((song && song.producerPoints) || 0) / 100;
           if (pp > 0) { const c = pool * pp; pool -= c; producerCutTotal += c; }
           const share = (song && song.revenueShare != null) ? song.revenueShare : 1;
@@ -12178,7 +12476,7 @@ window.K = window.K || {};
       const sp = Math.round(paidN.spotify), ap = Math.round(paidN.apple);
       const yt = Math.round(paidN.youtube), ot = Math.round(paidN.other);
       const gross = grossBy.spotify + grossBy.apple + grossBy.youtube + grossBy.other;
-      const labelCut = Math.round(gross * labelPct / 100);
+      const labelCut = Math.round(labelCutTotal);
       artistPool = Math.round(artistPool);
       producerCutTotal = Math.round(producerCutTotal);
       featureCutTotal = Math.round(featureCutTotal);
@@ -12218,6 +12516,7 @@ window.K = window.K || {};
         day: s.day, period: K.ECON.payoutPeriodDays,
         spotify: sp, apple: ap, youtube: yt, other: ot,
         gross: Math.round(gross), net, labelCut, recoup, publishing,
+        distCut: Math.round(distCutTotal),
         producerCut: producerCutTotal, featureCut: featureCutTotal,
         masterCut: masterCutTotal,
         queued: Math.round(queued), waiting: Math.round(waiting),
@@ -14323,37 +14622,91 @@ window.K = window.K || {};
   <script>
 /* ==== js/systems/jobs.js ==== */
 /* ============================================================
-   KARMA — systems/jobs.js
-   HARİCİ GELİR + BECERİ SİSTEMİ
-   Her iş bir beceri geliştirir; beceri yükseldikçe ücret artar,
-   daha iyi işler açılır. Yorgunluk müzik performansını düşürür.
+   KARMA — systems/jobs.js   (v10.43)
+   YAN İŞLER: BAŞVURU · VARDİYA · YORGUNLUK · GELİR DENGESİ
+
+   v10.43'te değişen zihniyet
+   --------------------------
+   Eskiden her "açık" iş tek tıkla yapılabiliyordu; oyuncu günde
+   beş iş çevirip kariyerini yan işle döndürebiliyordu. Artık işler
+   gerçek hayattaki gibi:
+
+     1) BAŞVURU   — işe girmek için başvurursun, ertesi gün yanıt
+                    gelir (beceri/şöhret uygunluğuna göre kabul/ret).
+                    Reddedilirsen birkaç gün tekrar başvuramazsın.
+     2) VARDİYA   — her iş bir vardiyadır; günde en fazla 3 vardiya.
+                    Üst üste vardiya verimi düşürür (×0,75 · ×0,56 …).
+     3) YORGUNLUK — vardiya yorgunluk biriktirir. Yorgunken ücret
+                    düşer, belli eşikten sonra iş yapamazsın. Günü
+                    dinlenmeye ayırırsan toparlanırsın (o gün iş yok).
+     4) DENGE     — ün arttıkça yan iş ücreti ve kapılar kapanır;
+                    yan iş erken oyunun can simidi olur, motoru değil.
    ============================================================ */
 (function (K) {
   "use strict";
   const U = K.util;
 
+  /* --- v10.43 denge sabitleri (tek yerde durur) --- */
+  const MAX_SHIFTS = 3;          // günde en fazla vardiya
+  const FATIGUE_CAP = 80;        // bu yorgunlukta iş yapılamaz
+  const MAX_PENDING = 2;         // aynı anda bekleyen başvuru
+  const REJECT_COOLDOWN = 5;     // ret sonrası tekrar başvuru (gün)
+  const REST_RECOVERY = 25;      // dinlenme günü yorgunluk düşüşü
+
   const LIST = [
-    { id: "kafe",   name: "Kafede part-time",     emoji: "☕", pay: 620,  minAge: 15, perDay: 1, fatigue: 12, skill: "work",    xp: 6,  desc: "Vardiya başı ödeme. Sabır işi." },
-    { id: "market", name: "Market çalışanı",      emoji: "🛒", pay: 800,  minAge: 16, perDay: 1, fatigue: 14, skill: "work",    xp: 8,  desc: "Kasa + raf. Düzenli ama yorucu." },
-    { id: "street", name: "Sokak performansı",    emoji: "🎸", pay: 480,  minAge: 15, perDay: 2, fatigue: 9,  skill: "music",   xp: 5,  desc: "Meydanda çal; küçük kitle ve tecrübe.", fans: 22 },
-    { id: "kurye",  name: "Kurye",                emoji: "🛵", pay: 1050, minAge: 18, perDay: 1, fatigue: 17, skill: "work",    xp: 9,  desc: "Trafikte gün boyu; iyi para, çok yorgunluk." },
-    { id: "studio", name: "Stüdyo asistanlığı",   emoji: "🎚️", pay: 1150, minAge: 16, perDay: 1, fatigue: 10, skill: "studio",  xp: 10, desc: "Kayıt odasında çıraklık; kulak gelişir.", quality: 4 },
-    { id: "beat",   name: "Beat satışı",          emoji: "🎹", pay: 1400, minAge: 15, perDay: 2, fatigue: 8,  skill: "music",   xp: 7,  desc: "Beat'lerini online sat.", req: { music: 12 } },
-    { id: "jingle", name: "Jingle / reklam müziği", emoji: "🎼", pay: 2600, minAge: 16, perDay: 1, fatigue: 12, skill: "music", xp: 9,  desc: "Kurumsal iş; sıkıcı ama garantili para.", req: { music: 20 } },
-    { id: "dj",     name: "DJ / etkinlik",        emoji: "🎧", pay: 3200, minAge: 18, perDay: 1, fatigue: 14, skill: "network", xp: 10, desc: "Düğün/mekan seti. Network açar.", req: { network: 15 } },
-    { id: "prod",   name: "Prodüktörlük işi",     emoji: "🎛️", pay: 5200, minAge: 18, perDay: 1, fatigue: 12, skill: "studio",  xp: 14, desc: "Başka sanatçıya prodüksiyon.", req: { studio: 30, music: 25 } },
-    { id: "ses",    name: "Seslendirme / reklam vokali", emoji: "🎙️", pay: 2300, minAge: 16, perDay: 1, fatigue: 8, skill: "music", xp: 8, desc: "Reklam ve dizi vokali.", req: { music: 28, network: 10 } },
-    { id: "studyokirala", name: "Stüdyo kiralama", emoji: "🏠", pay: 2200, minAge: 18, perDay: 1, fatigue: 6, skill: "studio", xp: 8, desc: "Kendi stüdyonu günlük kirala.", req: { studio: 22 } },
-    { id: "ders",    name: "Müzik dersi verme", emoji: "📚", pay: 1700, minAge: 18, perDay: 1, fatigue: 9, skill: "music", xp: 7, desc: "Yeni başlayanlara ders ver.", req: { music: 18 } },
-    { id: "set",     name: "DJ seti / kulüp gecesi", emoji: "🌃", pay: 3600, minAge: 18, perDay: 1, fatigue: 16, skill: "network", xp: 11, desc: "Kulüp seti; network ve sahne tecrübesi.", req: { network: 20 } }
+    { id: "kafe",   name: "Kafede part-time",     emoji: "☕", pay: 620,  minAge: 15, perDay: 1, fatigue: 12, skill: "work",    xp: 6,  shift: "Gündüz · 09:00–15:00", desc: "Vardiya başı ödeme. Sabır işi." },
+    { id: "market", name: "Market çalışanı",      emoji: "🛒", pay: 800,  minAge: 16, perDay: 1, fatigue: 14, skill: "work",    xp: 8,  shift: "Akşam · 16:00–22:00", desc: "Kasa + raf. Düzenli ama yorucu." },
+    { id: "street", name: "Sokak performansı",    emoji: "🎸", pay: 480,  minAge: 15, perDay: 2, fatigue: 9,  skill: "music",   xp: 5,  shift: "Akşam · 18:00–21:00", self: true, desc: "Meydanda çal; küçük kitle ve tecrübe.", fans: 22 },
+    { id: "kurye",  name: "Kurye",                emoji: "🛵", pay: 1050, minAge: 18, perDay: 1, fatigue: 17, skill: "work",    xp: 9,  shift: "Tam gün · 10:00–19:00", desc: "Trafikte gün boyu; iyi para, çok yorgunluk." },
+    { id: "studio", name: "Stüdyo asistanlığı",   emoji: "🎚️", pay: 1150, minAge: 16, perDay: 1, fatigue: 10, skill: "studio",  xp: 10, shift: "Gündüz · 11:00–18:00", desc: "Kayıt odasında çıraklık; kulak gelişir.", quality: 4 },
+    { id: "beat",   name: "Beat satışı",          emoji: "🎹", pay: 1400, minAge: 15, perDay: 2, fatigue: 8,  skill: "music",   xp: 7,  shift: "Esnek · online", self: true, desc: "Beat'lerini online sat.", req: { music: 12 } },
+    { id: "jingle", name: "Jingle / reklam müziği", emoji: "🎼", pay: 2600, minAge: 16, perDay: 1, fatigue: 12, skill: "music", xp: 9,  shift: "Proje · teslim tarihli", desc: "Kurumsal iş; sıkıcı ama garantili para.", req: { music: 20 } },
+    { id: "dj",     name: "DJ / etkinlik",        emoji: "🎧", pay: 3200, minAge: 18, perDay: 1, fatigue: 14, skill: "network", xp: 10, shift: "Gece · 22:00–03:00", desc: "Düğün/mekan seti. Network açar.", req: { network: 15 } },
+    { id: "prod",   name: "Prodüktörlük işi",     emoji: "🎛️", pay: 5200, minAge: 18, perDay: 1, fatigue: 12, skill: "studio",  xp: 14, shift: "Proje · stüdyo", desc: "Başka sanatçıya prodüksiyon.", req: { studio: 30, music: 25 } },
+    { id: "ses",    name: "Seslendirme / reklam vokali", emoji: "🎙️", pay: 2300, minAge: 16, perDay: 1, fatigue: 8, skill: "music", xp: 8, shift: "Gündüz · kayıt", desc: "Reklam ve dizi vokali.", req: { music: 28, network: 10 } },
+    { id: "studyokirala", name: "Stüdyo kiralama", emoji: "🏠", pay: 2200, minAge: 18, perDay: 1, fatigue: 6, skill: "studio", xp: 8, shift: "Seans · saatlik", desc: "Kendi stüdyonu günlük kirala.", req: { studio: 22 } },
+    { id: "ders",    name: "Müzik dersi verme", emoji: "📚", pay: 1700, minAge: 18, perDay: 1, fatigue: 9, skill: "music", xp: 7, shift: "Akşam · ders saati", desc: "Yeni başlayanlara ders ver.", req: { music: 18 } },
+    { id: "set",     name: "DJ seti / kulüp gecesi", emoji: "🌃", pay: 3600, minAge: 18, perDay: 1, fatigue: 16, skill: "network", xp: 11, shift: "Gece · 23:00–04:00", desc: "Kulüp seti; network ve sahne tecrübesi.", req: { network: 20 } }
   ];
+
+  const byId = (id) => LIST.find(j => j.id === id);
 
   K.jobs = {
     LIST,
+    MAX_SHIFTS,
+    FATIGUE_CAP,
 
-    resetDaily() { K.state.player.jobLog = {}; },
+    /* --- eski kayıt göçü -------------------------------------
+       v10.43 öncesi kayıtlarda `jobApps` yoktu; oyuncuyu işsiz
+       bırakmamak için giriş seviyesi işleri "işe alınmış" sayar. */
+    ensure() {
+      const p = K.state && K.state.player;
+      if (!p) return;
+      if (p.jobApps) return;
+      p.jobApps = {};
+      ["kafe", "market", "street"].forEach(id => {
+        p.jobApps[id] = { status: "hired", appliedDay: K.state.day, hiredDay: K.state.day };
+      });
+    },
+
+    resetDaily() {
+      const p = K.state.player;
+      p.jobLog = {};
+      p.shiftsToday = 0;
+      p.restedToday = false;
+    },
+
+    /* gün dönümü: sayaçlar sıfırlanır + bekleyen başvurular sonuçlanır */
+    onNewDay() {
+      K.jobs.ensure();
+      K.jobs.resetDaily();
+      K.jobs.resolveApplications();
+    },
 
     todayCount(id) { return (K.state.player.jobLog || {})[id] || 0; },
+    shiftsToday() { return K.state.player.shiftsToday || 0; },
+    shiftsLeft() { return Math.max(0, MAX_SHIFTS - K.jobs.shiftsToday()); },
+    restedToday() { return !!K.state.player.restedToday; },
 
     skill(id) { return K.skillLevel(id); },
 
@@ -14369,36 +14722,149 @@ window.K = window.K || {};
       return true;
     },
 
-    /* beceri ücret çarpanı
-       ------------------------------------------------------------
-       DÜZELTME (v10.7): Yan iş ücreti artık ŞÖHRETLE DÜŞER.
-       Simülasyonda çalışkan bir oyuncu tüm gelirinin %84'ünü yan
-       işlerden kazanıyordu (42 şarkılık katalogdan 33× fazla).
-       Gerçekte tanınan bir sanatçı kafede vardiya tutmaz; yan işler
-       erken oyunun can simidi olmalı, kariyerin motoru değil.
-       Ün arttıkça hem ücret düşer hem iş kapıları kapanır. */
+    /* ---------------- BAŞVURU ---------------- */
+    appOf(id) { return (K.state.player.jobApps || {})[id] || null; },
+    /* serbest işler (sokak, beat) başvuru gerektirmez */
+    isHired(id) { const j = byId(id); if (j && j.self) return true; const a = K.jobs.appOf(id); return !!a && a.status === "hired"; },
+
+    pendingCount() {
+      const apps = K.state.player.jobApps || {};
+      return Object.keys(apps).filter(id => apps[id] && apps[id].status === "pending").length;
+    },
+
+    canApply(id) {
+      const job = byId(id);
+      if (!job) return false;
+      if (!K.jobs.unlocked(job)) return false;
+      const a = K.jobs.appOf(id);
+      if (job.self) return false;
+      if (a && a.status === "hired") return false;
+      if (a && a.status === "pending") return false;
+      if (a && a.status === "rejected" && K.state.day < (a.retryDay || 0)) return false;
+      return true;
+    },
+
+    apply(id) {
+      K.jobs.ensure();
+      const job = byId(id);
+      if (!job) return false;
+      if (!K.jobs.unlocked(job)) { K.toast("Bu iş kilitli", `${job.name} için şartları sağlamıyorsun.`, "warn"); return false; }
+      const a = K.jobs.appOf(id);
+      if (job.self) { K.toast("Başvuru gerekmez", `${job.name} serbest çalışılan bir iş — doğrudan yapabilirsin.`, "warn"); return false; }
+      if (a && a.status === "hired") { K.toast("Zaten çalışıyorsun", `${job.name} kadrosundasın.`, "warn"); return false; }
+      if (a && a.status === "pending") { K.toast("Yanıt bekleniyor", `${job.name} başvurun değerlendiriliyor.`, "warn"); return false; }
+      if (a && a.status === "rejected" && K.state.day < (a.retryDay || 0)) {
+        K.toast("Tekrar başvuru yok", `${job.name} için Gün ${a.retryDay}'den sonra tekrar deneyebilirsin.`, "warn");
+        return false;
+      }
+      if (K.jobs.pendingCount() >= MAX_PENDING) {
+        K.toast("Çok fazla başvuru", `Aynı anda en fazla ${MAX_PENDING} başvuru bekleyebilir.`, "warn");
+        return false;
+      }
+      K.state.player.jobApps = K.state.player.jobApps || {};
+      K.state.player.jobApps[id] = {
+        status: "pending",
+        appliedDay: K.state.day,
+        decideDay: K.state.day + 1,
+        tries: ((a && a.tries) || 0) + 1
+      };
+      K.toast("📨 Başvuru gönderildi", `${job.name} — yanıt yarın gelir.`, "");
+      K.save(); K.refresh();
+      return true;
+    },
+
+    /* bekleyen başvuruları sonuçlandır (gün dönümünde çağrılır) */
+    resolveApplications() {
+      const s = K.state, p = s.player;
+      const apps = p.jobApps || {};
+      Object.keys(apps).forEach(id => {
+        const a = apps[id];
+        if (!a || a.status !== "pending" || (a.decideDay || 0) > s.day) return;
+        const job = byId(id);
+        if (!job) return;
+        const req = job.req || {};
+        const need = req.music || req.studio || req.network || req.work || 0;
+        const have = K.skillLevel(job.skill);
+        const skillFit = need ? U.clamp(have / need, 0, 1.4) : 1;
+        const repBonus = U.clamp((p.reputation || 0) / 300, 0, 0.2);
+        /* giriş seviyesi (şart yok) neredeyse kesin; uzman iş zor */
+        const base = need ? 0.34 : 0.86;
+        const chance = U.clamp(base + skillFit * 0.42 + repBonus, 0.15, 0.96);
+        if (U.chance(chance)) {
+          a.status = "hired";
+          a.hiredDay = s.day;
+          a.resolvedDay = s.day;
+          K.toast(job.emoji + " İşe alındın!", `${job.name} — başvurun kabul edildi.`, "ok");
+          s.notifications = (s.notifications || []).concat([{
+            title: job.emoji + " İşe alındın", msg: `${job.name} kadrosuna girdin.`, kind: "ok", day: s.day
+          }]).slice(-60);
+        } else {
+          a.status = "rejected";
+          a.retryDay = s.day + REJECT_COOLDOWN;
+          a.resolvedDay = s.day;
+          K.toast("Başvuru reddedildi", `${job.name} — Gün ${a.retryDay}'den sonra tekrar dene.`, "warn");
+        }
+      });
+    },
+
+    /* ---------------- DİNLENME ---------------- */
+    canRest() { return !K.jobs.restedToday(); },
+    rest() {
+      const p = K.state.player;
+      if (K.jobs.restedToday()) { K.toast("Bugün zaten dinlendin", "", "warn"); return false; }
+      p.restedToday = true;
+      p.shiftsToday = MAX_SHIFTS;   // bugün artık vardiya yok
+      const before = p.fatigue || 0;
+      p.fatigue = Math.max(0, before - REST_RECOVERY);
+      K.toast("😴 Dinlendin", `Yorgunluk ${Math.round(before)} → ${Math.round(p.fatigue)} · bugün vardiya yok.`, "ok");
+      K.save(); K.refresh();
+      return true;
+    },
+
+    /* ---------------- ÜCRET / DENGE ---------------- */
     fameDampen() {
       const p = K.state.player;
       const pop = p.popularity || 0;
       const followers = K.fans ? K.fans.followers() : 0;
-      /* pop 0 → 1.00 · pop 30 → 0.55 · pop 60+ → 0.15 */
       const byPop = 1 - 0.85 * U.clamp(pop / 60, 0, 1);
-      /* takipçi de etkiler: 250K+ takipçiyle part-time iş olmaz */
       const byFans = 1 - 0.6 * U.clamp(followers / 250000, 0, 1);
       return U.clamp(byPop * byFans, 0.08, 1);
+    },
+
+    /* yorgunluk ücreti düşürür (bitkinlikte %40'a kadar) */
+    fatigueMult() {
+      const f = K.state.player.fatigue || 0;
+      return 1 - U.clamp(f / 200, 0, 0.4);
     },
 
     payMult(job) {
       const lvl = K.skillLevel(job.skill);
       const dm = K.settings ? K.settings.diffMult().jobPay : 1;
-      return (1 + lvl / 140) * dm * K.jobs.fameDampen();
+      return (1 + lvl / 140) * dm * K.jobs.fameDampen() * K.jobs.fatigueMult();
+    },
+
+    /* gün içi azalan verim: 1. iş tam, sonrakiler kademeli */
+    efficiency() {
+      const done = Object.keys(K.state.player.jobLog || {})
+        .reduce((n, k) => n + (K.state.player.jobLog[k] || 0), 0);
+      return Math.pow(0.75, done);
     },
 
     list() {
       const p = K.state.player;
+      K.jobs.ensure();
+      const shiftsLeft = K.jobs.shiftsLeft();
+      const rested = K.jobs.restedToday();
+      const tired = (p.fatigue || 0) >= FATIGUE_CAP;
       return LIST.map(j => {
         const count = K.jobs.todayCount(j.id);
         const unlocked = K.jobs.unlocked(j);
+        const a = K.jobs.appOf(j.id);
+        const status = j.self ? "self" : (a ? a.status : "none");
+        const hired = j.self || status === "hired";
+        const eff = K.jobs.efficiency();
+        const canWork = unlocked && hired && count < j.perDay &&
+          shiftsLeft > 0 && !rested && !tired;
         let reason = "";
         if (!unlocked) {
           const req = j.req || {};
@@ -14407,38 +14873,52 @@ window.K = window.K || {};
           else if (req.studio) reason = "Stüdyo Becerisi " + req.studio + "+ gerekli";
           else if (req.network) reason = "Network " + req.network + "+ gerekli";
           else reason = "henüz kilitli";
-        } else if (count >= j.perDay) reason = "bugünlük yaptın";
+        } else if (!hired && status === "none") reason = "önce başvur";
+        else if (status === "pending") reason = "yanıt bekleniyor";
+        else if (status === "rejected") reason = "reddedildi";
+        else if (tired) reason = "bitkinsin, dinlen";
+        else if (rested) reason = "bugün dinleniyorsun";
+        else if (shiftsLeft <= 0) reason = "vardiya hakkı bitti";
+        else if (count >= j.perDay) reason = "bugünlük yaptın";
+
+        const canApply = K.jobs.canApply(j.id);
+        let applyReason = "";
+        if (!unlocked) applyReason = "kilitli";
+        else if (status === "pending") applyReason = "yanıt bekleniyor";
+        else if (status === "hired") applyReason = "kadrodasın";
+        else if (status === "rejected") applyReason = "Gün " + (a.retryDay || 0) + " tekrar";
+        else if (K.jobs.pendingCount() >= MAX_PENDING) applyReason = "çok başvuru";
+
         return {
-          ...j, count, unlocked, canWork: unlocked && count < j.perDay, reason,
-          effectivePay: Math.round(j.pay * K.jobs.payMult(j)),
-          fameCut: K.jobs.fameDampen()
+          ...j, count, unlocked, hired, status, canWork, canApply, applyReason, reason,
+          effectivePay: Math.round(j.pay * K.jobs.payMult(j) * eff),
+          basePay: Math.round(j.pay * K.jobs.payMult(j)),
+          fameCut: K.jobs.fameDampen(),
+          fatigueCut: K.jobs.fatigueMult()
         };
       });
     },
 
     work(id) {
       const s = K.state, p = s.player;
-      const job = LIST.find(j => j.id === id);
+      K.jobs.ensure();
+      const job = byId(id);
       if (!job) return false;
       if (!K.jobs.unlocked(job)) { K.toast("Bu iş kilitli", `${job.name} için şartları sağlamıyorsun.`, "warn"); return false; }
+      if (!K.jobs.isHired(id)) { K.toast("Kadroda değilsin", `${job.name} için önce başvurup işe alınmalısın.`, "warn"); return false; }
+      if (K.jobs.restedToday()) { K.toast("Bugün dinleniyorsun", "Vardiya yapmadan önce gün geçir.", "warn"); return false; }
+      if (K.jobs.shiftsLeft() <= 0) { K.toast("Vardiya hakkı bitti", `Günde en fazla ${MAX_SHIFTS} vardiya.`, "warn"); return false; }
+      if ((p.fatigue || 0) >= FATIGUE_CAP) { K.toast("Bitkinsin", "Yorgunluk çok yüksek — dinlenmen gerek.", "bad"); return false; }
       if (K.jobs.todayCount(id) >= job.perDay) { K.toast("Bugünlük yeter", `${job.name} için bugünkü hakkını kullandın.`, "warn"); return false; }
 
-      /* GÜN İÇİ AZALAN VERİM — DÜZELTME (v10.7)
-         Simülasyonda oyuncu günde 5 iş yaparak 42 şarkılık katalogdan
-         33 kat fazla kazanıyordu; yan iş "kariyerin motoru" hâline
-         gelmişti. Gerçekte gün içinde üst üste vardiya tutmak verimi
-         düşürür. Günün İLK işi tam ücret, sonrakiler kademeli azalır
-         (×0,75 · ×0,56 · ×0,42 · ×0,32 …). Sabah erken oyun aynı kalır,
-         fabrika gibi iş çevirmek anlamsızlaşır. */
-      const doneToday = Object.keys(K.state.player.jobLog || {})
-        .reduce((n, k) => n + (K.state.player.jobLog[k] || 0), 0);
-      const efficiency = Math.pow(0.75, doneToday);
+      const efficiency = K.jobs.efficiency();
       const pay = Math.round(job.pay * K.jobs.payMult(job) * efficiency * U.rand(0.9, 1.15));
       K.economy.earn(pay, "job");
       p.jobEarnings = (p.jobEarnings || 0) + pay;
       p.fatigue = (p.fatigue || 0) + job.fatigue;
       p.jobLog = p.jobLog || {};
       p.jobLog[id] = (p.jobLog[id] || 0) + 1;
+      p.shiftsToday = (p.shiftsToday || 0) + 1;
 
       // BECERİ KAZANIMI
       p.skills = p.skills || {};
@@ -14457,9 +14937,11 @@ window.K = window.K || {};
       }
 
       const skillName = K.SKILLS[job.skill] ? K.SKILLS[job.skill].name : job.skill;
+      const left = K.jobs.shiftsLeft();
       K.toast(job.emoji + " " + job.name,
         `+${U.money(pay)} · ${skillName} +${job.xp}${leveled ? " · SEVİYE " + after : ""}`
-        + (efficiency < 0.95 ? ` · bugün ${doneToday + 1}. iş (verim %${Math.round(efficiency * 100)})` : ""),
+        + (efficiency < 0.95 ? ` · bugün ${Object.keys(p.jobLog).reduce((n, k) => n + p.jobLog[k], 0)}. vardiya` : "")
+        + ` · kalan vardiya ${left}`,
         leveled ? "ok" : "");
       K.save(); K.refresh();
       return true;
@@ -14470,17 +14952,18 @@ window.K = window.K || {};
     dailyTotal() {
       const p = K.state.player;
       return U.sum(Object.keys(p.jobLog || {}), id => {
-        const j = LIST.find(x => x.id === id);
+        const j = byId(id);
         return j ? j.pay * (p.jobLog[id] || 0) : 0;
       });
     },
 
     condition() {
       const f = K.state.player.fatigue || 0;
-      if (f >= 65) return { label: "Bitkin", color: "hot", penalty: "%35" };
-      if (f >= 35) return { label: "Yorgun", color: "gold", penalty: "%20" };
-      if (f >= 15) return { label: "Hafif yorgun", color: "", penalty: "%8" };
-      return { label: "Dinç", color: "money", penalty: "—" };
+      if (f >= FATIGUE_CAP) return { label: "Bitkin", color: "hot", penalty: "%40", block: true };
+      if (f >= 65) return { label: "Çok yorgun", color: "hot", penalty: "%33", block: false };
+      if (f >= 35) return { label: "Yorgun", color: "gold", penalty: "%18", block: false };
+      if (f >= 15) return { label: "Hafif yorgun", color: "", penalty: "%8", block: false };
+      return { label: "Dinç", color: "money", penalty: "—", block: false };
     },
 
     /* becerilerin müzikal etkisi */
@@ -17941,6 +18424,22 @@ window.K = window.K || {};
       /* --- ŞİRKET AKIŞI: sözleşmeliysen yayını şirket çıkarır; masrafın bir kısmını üstlenir --- */
       const myLabel = p.labelId ? K.labelById(p.labelId) : null;
       const viaLabel = !!myLabel;
+
+      /* --- v10.42 — DISTRIBÜTÖR: kim dağıtıyor? --------------------------
+         Bağımsızsan distribütörü sen seçersin. Şirket altındaysan iki
+         yol var: (a) şirketin distribütörü (masrafı şirket üstlenir),
+         (b) kendi distribütörün. Ayrıca master (yayın sahibi) sözleşmeden
+         gelir: "label" ise şirket adına, "artist" ise kendi adına çıkar. */
+      const wantOwnDist = !!(opts.distributorId && K.distributorById && K.distributorById(opts.distributorId));
+      const distDesc = (viaLabel && !wantOwnDist)
+        ? K.distro.descriptorFor(myLabel.distributor)
+        : K.distro.descriptorFor(wantOwnDist ? K.distributorById(opts.distributorId).name : K.distributorById(K.defaultDistributor()).name);
+      const distFee = distDesc.fee || 0;
+      const distCommission = distDesc.commission || 0;
+      const dealMaster = (p.labelDeal && p.labelDeal.master) || (viaLabel ? "label" : "artist");
+      const masterOwner = (opts.masterOwner === "artist" || opts.masterOwner === "label")
+        ? opts.masterOwner
+        : dealMaster;
       /* --- A&R TOPLANTISI: şirket revizyon isteyebilir --- */
       const arRequest = (viaLabel && Math.random() < 0.45)
         ? U.pick([
@@ -17950,10 +18449,13 @@ window.K = window.K || {};
           ])
         : null;
 
+      /* v10.42 — distribütör ücreti maliyete girer; yıllık plan aktifse 0 */
       const payCost = viaLabel
-        ? Math.max(1000, Math.round(grossCost * (1 - (myLabel.cover || 0.3) * 0.55)))
-        : grossCost;
+        ? Math.max(1000, Math.round((grossCost + distFee) * (1 - (myLabel.cover || 0.3) * 0.55)))
+        : grossCost + distFee;
       const cost = payCost;
+      /* yıllık üyelik ödendiyse planı işaretle */
+      if (distFee > 0 && K.distro && K.distro.notePlan) K.distro.notePlan(distDesc.id, s.day);
       if (!K.economy.canAfford(payCost)) {
         K.toast("Yetersiz bakiye", `Bu yayın için ${U.money(payCost)} gerekiyor.`, "bad");
         return null;
@@ -18036,7 +18538,14 @@ window.K = window.K || {};
         budget, marketing, cost, grossCost, progress: 0, stage: "prep",
         viaLabel: viaLabel, labelId: myLabel ? myLabel.id : null, labelName: myLabel ? myLabel.name : null,
         labelCover: myLabel ? (myLabel.cover || 0) : 0,
-        distributor: myLabel ? myLabel.distributor : "KARMA Dağıtım",
+        distributor: distDesc.name,
+        /* v10.42 — distribütör ticari modeli + master sahipliği */
+        distributorId: distDesc.id,
+        distCommission: distCommission,
+        distFee: distFee,
+        distLeadDays: distDesc.leadDays || 7,
+        distPremium: !!distDesc.premium,
+        masterOwner: masterOwner,
         coverSeed: opts.coverSeed || U.uid("cv"),
         /* v10.41 — B grubu METADATA
            Gerçek dağıtım formunun zorunlu alanları: bölge, dil,
@@ -18129,6 +18638,11 @@ window.K = window.K || {};
           contentId: !!rel.contentId,
           releaseDayFit: rel.releaseDayFit || 1,
           releaseWeekday: rel.releaseWeekday != null ? rel.releaseWeekday : null,
+          /* v10.42 — distribütör + master sahipliği */
+          distributorId: rel.distributorId || "karma",
+          distributorName: rel.distributor || null,
+          distCommission: rel.distCommission || 0,
+          masterOwner: rel.masterOwner || "artist",
           albumTitle: rel.title,
           trackNo: i + 1,
           budget: (rel.trackBudgets && rel.trackBudgets[i] != null) ? rel.trackBudgets[i] : rel.budget,
@@ -18206,6 +18720,11 @@ window.K = window.K || {};
           song.dailyStreams *= 1 + (K.meta ? K.meta.INSTRUMENTAL_BONUS : 0.05);
           song.syncIncome = true;
         }
+        /* v10.42 — MASTER SAHİPLİĞİ: şirket master'a sahipse daha çok
+           iter (yayın ×1.06); sanatçı master'a sahipse şirket desteği
+           azalır (×0.96) ama telif payı yüksek kalır. */
+        if (rel.viaLabel && rel.masterOwner === "label") song.dailyStreams *= 1.06;
+        else if (rel.viaLabel && rel.masterOwner === "artist") song.dailyStreams *= 0.96;
         /* yayın stratejisi: snippet beklenti kurar, surprise sessiz başlar */
         if (rel.strategy === "snippet") song.dailyStreams *= 1.18;
         else if (rel.strategy === "surprise") song.dailyStreams *= 0.88;
@@ -18513,6 +19032,11 @@ window.K = window.K || {};
       const is360 = (l.power || 50) >= 55 && U.chance(0.55);
       const mgr = (K.team && K.team.bonus) ? K.team.bonus().advance : 1;   // menajer pazarlığı
       const advance = Math.round(l.fee * leverage / 3 * (is360 ? 1.45 : 1) * mgr);
+      /* v10.42 — MASTER SAHİPLİĞİ: güçlü şirketler master'ı ister;
+         küçük/orta şirketler bazen sanatçıda bırakır. Bu, yayının
+         "şirket adına" mı "kendi adına" mı çıkacağını belirler. */
+      const keepMaster = (l.power || 50) < 55 && U.chance(0.5);
+      const master = keepMaster ? "artist" : "label";
       return {
         labelId,
         labelName: l.name,
@@ -18520,6 +19044,8 @@ window.K = window.K || {};
         royalty: l.royalty,          // şirketin streaming'den aldığı pay
         artistRoyalty: 100 - l.royalty,
         lengthDays: 180,
+        master: master,              // "label" | "artist"
+        distributor: l.distributor || "KARMA Dağıtım",
         dealType: is360 ? "360" : "standard",
         splits: is360
           ? { touring: U.randInt(12, 20), merch: U.randInt(18, 28), sync: U.randInt(20, 30) }
@@ -18541,6 +19067,9 @@ window.K = window.K || {};
         labelId, advance: t.advance, recouped: 0,
         labelRoyalty: t.royalty, artistRoyalty: t.artistRoyalty,
         startDay: K.state.day, lengthDays: t.lengthDays,
+        /* v10.42 — sözleşme şartları: master sahipliği + distribütör */
+        master: t.master || "label",
+        distributor: t.distributor || null,
         dealType: t.dealType || "standard", splits: t.splits || { touring: 0, merch: 0, sync: 0 }
       };
       K.economy.earn(t.advance, "advance");
@@ -20061,6 +20590,9 @@ window.K = window.K || {};
               labelId: offer.labelId, advance: offer.terms.advance, recouped: 0,
               labelRoyalty: offer.terms.royalty, artistRoyalty: offer.terms.artistRoyalty,
               startDay: s.day, lengthDays: offer.terms.lengthDays,
+              /* v10.42 — master sahipliği + distribütör */
+              master: offer.terms.master || "label",
+              distributor: offer.terms.distributor || null,
               dealType: offer.terms.dealType || "standard",
               splits: offer.terms.splits || { touring: 0, merch: 0, sync: 0 }
             };
@@ -30157,6 +30689,10 @@ window.K = window.K || {};
         projectTitle: "",
         coverOpts: K.careerUI.defaultCoverOpts(),
         stores: (K.defaultStores ? K.defaultStores() : []),
+        /* v10.42 — distribütör seçimi + master sahipliği */
+        distributor: (K.defaultDistributor ? K.defaultDistributor() : "karma"),
+        useLabelDist: true,
+        masterOwner: null,
         inventoryBeat: null,
         strategy: "standard",
         ghost: false,
@@ -30679,6 +31215,32 @@ window.K = window.K || {};
         return;
       }
 
+      /* v10.42 — distribütör seçimi + master sahipliği */
+      if (act === "dist-pick") {
+        const id = btn.dataset.arg;
+        if (K.distro.canUse(id, K.state.day)) {
+          st.distributor = id;
+          st.useLabelDist = false;
+          K.careerUI.renderDistributorChips();
+          K.careerUI.renderStoreChips();
+          K.careerUI.updateStudioEstimate();
+        }
+        return;
+      }
+      if (act === "dist-label-mode") {
+        st.useLabelDist = btn.dataset.arg === "1";
+        K.careerUI.renderDistributorChips();
+        K.careerUI.renderStoreChips();
+        K.careerUI.updateStudioEstimate();
+        return;
+      }
+      if (act === "master-pick") {
+        st.masterOwner = btn.dataset.arg === "label" ? "label" : "artist";
+        K.careerUI.renderDistributorChips();
+        K.careerUI.updateStudioEstimate();
+        return;
+      }
+
       /* parça listesi */
       if (act === "trk-add") {
         if (st.tracks.length >= K.career.MAX_TRACKS) { K.toast("En fazla " + K.career.MAX_TRACKS + " parça", "", "warn"); return; }
@@ -31094,18 +31656,105 @@ window.K = window.K || {};
         'stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
     },
 
+    /* v10.42 — etkin distribütör (şirket modu dahil) */
+    effectiveDistId(st) {
+      const s = K.state;
+      const myLabel = s.player.labelId ? K.labelById(s.player.labelId) : null;
+      if (myLabel && st.useLabelDist !== false) {
+        return K.distro.descriptorFor(myLabel.distributor).id;
+      }
+      return st.distributor || K.defaultDistributor();
+    },
+    effectiveDistDesc(st) {
+      return K.distro.descById(K.careerUI.effectiveDistId(st));
+    },
+
+    /* v10.42 — distribütör seçimi. Bağımsızsan distribütörü seçersin;
+       şirket altındaysan "şirketin distribütörü" ya da "kendi
+       distribütörün" arasında karar verirsin. Master sahipliği de burada. */
+    renderDistributorChips() {
+      const wrap = U.qs("#st-dist-chips");
+      if (!wrap) return;
+      const st = K.careerUI._studio;
+      if (!st) return;
+      const s = K.state;
+      const myLabel = s.player.labelId ? K.labelById(s.player.labelId) : null;
+      const dealMaster = (s.player.labelDeal && s.player.labelDeal.master) || (myLabel ? "label" : "artist");
+      const usingLabelDist = !!(myLabel && st.useLabelDist !== false);
+      const opts = K.distro.options(s.day);
+
+      let html = "";
+      if (myLabel) {
+        const ld = K.distro.descriptorFor(myLabel.distributor);
+        html += `<button class="dist-opt ${usingLabelDist ? "on" : ""}" data-act="dist-label-mode" data-arg="1">
+          <span class="do-icon">🏢</span>
+          <span class="do-body"><b>${U.escape(myLabel.name)} distribütörü · ${U.escape(ld.name)}</b>
+            <span>kesinti %${ld.commission} · teslim ${ld.leadDays} gün · masrafı şirket üstlenir</span></span>
+          <span class="do-check">${usingLabelDist ? "✓" : "+"}</span>
+        </button>`;
+        html += `<button class="dist-opt ${!usingLabelDist ? "on" : ""}" data-act="dist-label-mode" data-arg="0">
+          <span class="do-icon">🎛️</span>
+          <span class="do-body"><b>Kendi distribütörün</b><span>Ücretini sen ödersin; şirket payı yine geçerli.</span></span>
+          <span class="do-check">${!usingLabelDist ? "✓" : "+"}</span>
+        </button>`;
+      }
+      if (!myLabel || !usingLabelDist) {
+        html += opts.map(d => {
+          const active = d.id === (st.distributor || K.defaultDistributor());
+          return `<button class="dist-opt ${active ? "on" : ""}${d.locked ? " locked" : ""}" data-act="dist-pick" data-arg="${d.id}" ${d.locked ? "disabled" : ""}>
+            <span class="do-icon">${d.icon}</span>
+            <span class="do-body"><b>${U.escape(d.name)}</b>
+              <span>${K.distroModelLabel(d.id)} · kesinti %${d.commission} · teslim ${d.leadDays} gün${d.premium ? " · premium ✓" : " · premium ✗"}</span></span>
+            <span class="do-check">${d.locked ? "🔒" : (active ? "✓" : "+")}</span>
+          </button>`;
+        }).join("");
+      }
+      wrap.innerHTML = html;
+
+      /* master sahipliği (yayın kime ait?) */
+      const masterWrap = U.qs("#st-master");
+      if (masterWrap) {
+        const mo = st.masterOwner || dealMaster;
+        const lockLabel = myLabel && dealMaster === "label";
+        masterWrap.innerHTML = `<div class="master-row">
+          <span class="mr-lbl">Yayın sahibi (master)</span>
+          <button class="mr-opt ${mo === "label" ? "on" : ""}" data-act="master-pick" data-arg="label" ${(!myLabel || lockLabel) ? "disabled" : ""}>Şirket adına</button>
+          <button class="mr-opt ${mo === "artist" ? "on" : ""}" data-act="master-pick" data-arg="artist">Kendi adına</button>
+        </div>`;
+      }
+
+      const info = U.qs("#st-dist-info");
+      if (info) {
+        const desc = K.careerUI.effectiveDistDesc(st);
+        const fee = usingLabelDist ? 0 : K.distro.feeFor(st.distributor || K.defaultDistributor(), s.day);
+        info.textContent = "Dağıtım: " + desc.name + " · kesinti %" + desc.commission + " · teslim " + desc.leadDays +
+          " gün · ücret " + (fee ? U.money(fee) : "yok") +
+          (desc.premium ? " · premium mağazalar açık" : " · premium mağazalar kapalı");
+      }
+    },
+
     renderStoreChips() {
       const wrap = U.qs("#st-store-chips");
       if (!wrap) return;
       const st = K.careerUI._studio;
       if (!st) return;
+      /* v10.42 — premium mağaza erişimi distribütöre bağlı */
+      const premiumOk = K.distro.premiumAllowed(K.careerUI.effectiveDistId(st));
+      if (!premiumOk) {
+        const bad = new Set(K.meta.premiumStores(st.stores || []));
+        if (bad.size) st.stores = (st.stores || []).filter(id => !bad.has(id));
+      }
       const sel = new Set(st.stores || []);
-      wrap.innerHTML = K.DISTRO_STORES.map(s => `
-        <button class="store-opt ${sel.has(s.id) ? "on" : ""}" data-act="store-toggle" data-arg="${s.id}">
+      wrap.innerHTML = K.DISTRO_STORES.map(s => {
+        const isPrem = K.meta.PREMIUM_STORES.indexOf(s.id) >= 0;
+        const blocked = isPrem && !premiumOk;
+        return `
+        <button class="store-opt ${sel.has(s.id) ? "on" : ""}${blocked ? " locked" : ""}" data-act="store-toggle" data-arg="${s.id}" ${blocked ? "disabled" : ""}>
           <span class="so-icon">${s.icon}</span>
-          <span class="so-body"><b>${s.name}</b><span>${U.money(s.cost)} · erişim ${s.reach.toFixed(2)}</span></span>
-          <span class="so-check">${sel.has(s.id) ? "✓" : "+"}</span>
-        </button>`).join("");
+          <span class="so-body"><b>${s.name}</b><span>${U.money(s.cost)} · erişim ${s.reach.toFixed(2)}${blocked ? " · distribütör desteklemiyor" : ""}</span></span>
+          <span class="so-check">${blocked ? "🔒" : (sel.has(s.id) ? "✓" : "+")}</span>
+        </button>`;
+      }).join("");
       const info = U.qs("#st-store-info");
       if (info) info.textContent = (st.stores || []).length + " mağaza seçili · dağıtım ücreti " +
         U.money(K.distroCost(st.stores)) + " · erişim ×" + K.distroReach(st.stores).toFixed(2);
@@ -31318,6 +31967,7 @@ window.K = window.K || {};
       K.careerUI.renderProjectField();
       K.careerUI.renderCoverControls();
       K.careerUI.renderCoverPreview();
+      K.careerUI.renderDistributorChips();
       K.careerUI.renderStoreChips();
       K.careerUI.renderRegionChips();
       K.careerUI.renderCredits();
@@ -31836,8 +32486,15 @@ window.K = window.K || {};
       const row = (k, v) => `<div class="sum-row"><span>${k}</span><b>${v}</b></div>`;
 
       const myLabel = s.player.labelId ? K.labelById(s.player.labelId) : null;
+      /* v10.42 — distribütör + teslim süresi + master sahipliği */
+      const distDesc = K.careerUI.effectiveDistDesc(st);
+      const distLead = distDesc.leadDays || 7;
+      const dealMaster = (s.player.labelDeal && s.player.labelDeal.master) || (myLabel ? "label" : "artist");
+      const masterOwner = st.masterOwner || dealMaster;
+      const curRelDay = K.meta.snapToWeekday(s.day + (st.wait || 18), st.releaseWeekday != null ? st.releaseWeekday : 5);
+      const leadShort = curRelDay < s.day + distLead;
       return `
-        ${myLabel ? `<div class="note-line ok">🏢 <b>${U.escape(myLabel.name)}</b> bünyesindesin: bu yayını şirket çıkarır. Distribütör: <b>${U.escape(myLabel.distributor || "—")}</b> · masrafın bir kısmını şirket üstlenir.</div>` : ""}
+        ${myLabel ? `<div class="note-line ok">🏢 <b>${U.escape(myLabel.name)}</b> bünyesindesin: bu yayını şirket çıkarır. Distribütör: <b>${U.escape(distDesc.name)}</b> · masrafın bir kısmını şirket üstlenir.</div>` : ""}
         <div class="publish-hero">
           <div class="ph-art">${K.ui.cover(st.coverSeed, "", 140)}</div>
           <div class="ph-info">
@@ -31848,7 +32505,15 @@ window.K = window.K || {};
         </div>
 
         <div class="form-block">
-          <div class="form-block-head"><span class="fb-no">1</span><div><h4>Dağıtım Yapılacak Mağazalar</h4><p>Mağaza seçimi erişimini ve dağıtım ücretini belirler. Liste ve sıralama yine performansa bağlıdır.</p></div></div>
+          <div class="form-block-head"><span class="fb-no">🚚</span><div><h4>Distribütör</h4><p>Yayınını mağazalara kim gönderiyor? Ücretsiz distribütör çok keser ve geç teslim eder; pahalısı az keser, hızlı teslim eder, tüm mağazalara sokar.</p></div></div>
+          <div class="dist-chips" id="st-dist-chips"></div>
+          <div class="master" id="st-master"></div>
+          <div class="helper" id="st-dist-info"></div>
+          ${leadShort ? `<div class="note-line gold">⏳ <b>${U.escape(distDesc.name)}</b> teslim süresi <b>${distLead} gün</b>. Seçili çıkış Gün ${curRelDay}; en erken <b>Gün ${s.day + distLead}</b>. Yayın otomatik olarak ${distLead} güne kaydırılır.</div>` : ""}
+        </div>
+
+        <div class="form-block">
+          <div class="form-block-head"><span class="fb-no">1</span><div><h4>Dağıtım Yapılacak Mağazalar</h4><p>Mağaza seçimi erişimini ve dağıtım ücretini belirler. Liste ve sıralama yine performansa bağlıdır. Premium mağazalar distribütöre bağlıdır.</p></div></div>
           <div class="store-opts" id="st-store-chips"></div>
           <div class="helper" id="st-store-info"></div>
         </div>
@@ -31926,6 +32591,8 @@ window.K = window.K || {};
             ${row("Explicit", st.count > 1 ? K.careerUI.explicitCount(st) + "/" + st.count + " parça" : (st.tracks[0] && st.tracks[0].explicit ? "<em class='exp-tag'>E</em> Var" : "Yok"))}
             ${st.beatId === "sample" ? row("Örnek Hakkı", st.clearSample ? "Ödendi ✓" : "<span class='warn-txt'>Riskli</span>") : ""}
             ${st.instrumental ? row("Enstrümantal", "Dahil ✓") : ""}
+            ${row("Distribütör", U.escape(distDesc.name) + " · %" + distDesc.commission + " kesinti")}
+            ${row("Yayın Sahibi", masterOwner === "label" ? "Şirket adına" : "Kendi adına")}
           </div>
         </div>
 
@@ -31935,6 +32602,7 @@ window.K = window.K || {};
             ${row("Prodüksiyon", hide ? "🔒" : U.money(U.sum(trackBudgets)))}
             ${row("Pazarlama", U.money(st.marketing))}
             ${row("Dağıtım (" + (st.stores || []).length + " mağaza)", U.money(((K.RELEASE_TYPES[type] || {}).dist || 0) + storeCost))}
+            ${row("Distribütör ücreti", K.distro.feeFor(K.careerUI.effectiveDistId(st), s.day) ? U.money(K.distro.feeFor(K.careerUI.effectiveDistId(st), s.day)) : "yok")}
             ${row("Erişim", "×" + storeReach.toFixed(2))}
             ${row("Toplam", "<em class='total'>" + U.money(cost) + "</em>")}
             ${row("Kasa Sonrası", U.money(s.balance - cost))}
@@ -32096,9 +32764,17 @@ window.K = window.K || {};
       }));
       const title = K.careerUI.projectName(st) || tracks[0].name;
       K.careerUI._syncCover(st);
+      /* v10.42 — distribütör: premium mağaza filtresi + teslim süresi.
+         Distribütör premium mağazaları desteklemiyorsa onlar düşürülür;
+         teslim süresi kısa seçilirse çıkış tarihi otomatik kaydırılır. */
+      const distDesc = K.careerUI.effectiveDistDesc(st);
+      const usingLabelDist = !!(K.state.player.labelId && st.useLabelDist !== false);
+      let stores = (st.stores || []).slice();
+      if (!distDesc.premium) stores = stores.filter(id => K.meta.PREMIUM_STORES.indexOf(id) < 0);
       /* v10.42 — C3: hazırlık süresi en az st.wait, ama takvim hedef
          hafta gününe (varsayılan cuma) kaydırılır. */
-      const relDay = K.meta.snapToWeekday(K.state.day + (st.wait || 18), st.releaseWeekday != null ? st.releaseWeekday : 5);
+      const relDay0 = K.meta.snapToWeekday(K.state.day + (st.wait || 18), st.releaseWeekday != null ? st.releaseWeekday : 5);
+      const relDay = Math.max(relDay0, K.state.day + (distDesc.leadDays || 0));
       const waitDays = Math.max(1, relDay - K.state.day);
 
       const rel = K.career.createRelease({
@@ -32114,7 +32790,10 @@ window.K = window.K || {};
         lyricSections: K.careerUI.trackLyrics(st, 0),
         conceptId: st.conceptId, coverSeed: st.coverSeed,
         strategy: st.strategy, ghost: st.ghost, inventoryBeat: st.inventoryBeat,
-        stores: st.stores,
+        stores: stores,
+        /* v10.42 — distribütör + master sahipliği */
+        distributorId: usingLabelDist ? null : (st.distributor || K.defaultDistributor()),
+        masterOwner: st.masterOwner || null,
         /* v10.40 — A5/A6: örnek hakkı kararı + enstrümantal sürüm */
         clearSample: !!st.clearSample,
         instrumental: !!st.instrumental,
@@ -32366,21 +33045,39 @@ window.K = window.K || {};
       return bar + `<div class="label-console">` + K.careerUI.renderMyDeal() + body + `</div>`;
     },
 
-    /* oyuncunun bağlı olduğu şirket (sözleşme) kartı */
+    /* oyuncunun bağlı olduğu şirket SÖZLEŞMESİ (v10.42 — tam metin + imza) */
     renderMyDeal() {
       const d = (K.label && K.label.myDeal) ? K.label.myDeal() : null;
       if (!d) return "";
       const l = d.label || {};
       const sp = d.deal.splits || {};
       const is360 = d.deal.dealType === "360";
+      const master = d.deal.master || "label";
+      const dist = d.deal.distributor || l.distributor || "—";
+      const row = (k, v) => `<div class="sum-row"><span>${k}</span><b>${v}</b></div>`;
       return `<div class="c-block">
-        <div class="c-head"><div><h2>Bağlı Olduğun Şirket</h2><div class="sub">Sözleşme şartları ve yükümlülükler</div></div></div>
-        <div class="crisis-card" style="border-color:rgba(110,195,255,.4)">
-          <div class="cr-tag">🏢 ${U.escape(l.name || "Şirket")}${is360 ? " · 360 ANLAŞMA" : ""}</div>
-          <div class="cr-desc">Şirket payı: <b>%${d.deal.labelRoyalty || 0}</b> · sana kalan: <b>%${d.deal.artistRoyalty || 100}</b>${is360 ? ` · turne %${sp.touring || 0} / merch %${sp.merch || 0} / sync %${sp.sync || 0}` : ""}</div>
+        <div class="c-head"><div><h2>Sözleşme</h2><div class="sub">İmzalı anlaşma şartları ve yükümlülükler</div></div></div>
+        <div class="contract">
+          <div class="ct-head">
+            <span class="ct-seal">✍️</span>
+            <div><b>KAYIT VE LİSANS SÖZLEŞMESİ</b><span>${U.escape(l.name || "Şirket")} ↔ ${U.escape(K.state.player.stageName)}</span></div>
+          </div>
+          <div class="sum-rows ct-rows">
+            ${row("Anlaşma türü", is360 ? "360 Anlaşma" : "Standart")}
+            ${row("Avans", U.money(d.deal.advance || 0))}
+            ${row("Şirket payı", "%" + (d.deal.labelRoyalty || 0))}
+            ${row("Sanatçı payı", "%" + (d.deal.artistRoyalty || 100))}
+            ${row("Master (yayın sahibi)", master === "label" ? "Şirket" : "Sanatçı (sen)")}
+            ${row("Distribütör", U.escape(dist))}
+            ${row("Süre", (d.deal.lengthDays || 180) + " gün · bitiş Gün " + d.endDay)}
+            ${is360 ? row("360 payları", "turne %" + (sp.touring || 0) + " · merch %" + (sp.merch || 0) + " · sync %" + (sp.sync || 0)) : ""}
+          </div>
           ${K.studio.row("Avans recoup", d.recoupPct, U.money(d.recoupLeft) + " kaldı", { color: "linear-gradient(90deg,#ffcb5c,#5ce89b)" })}
-          <div class="cr-desc" style="margin-top:8px">Sözleşme bitişi: <b>Gün ${d.endDay}</b> · ${Math.max(0, d.endDay - K.state.day)} gün kaldı</div>
-          ${K.studio.note("📌", "Şirket destek verir (A&R kalite +2). Karşılığında 60 günde bir yeni yayın bekler; çıkmazsa itibar düşer.", "info")}
+          <div class="ct-note">📌 Şirket destek verir (A&R kalite +2) ve yayınını kendi distribütörüyle çıkarır. Karşılığında 60 günde bir yeni yayın bekler; çıkmazsa itibar düşer.</div>
+          <div class="ct-sign">
+            <span>İmza: <b>${U.escape(K.state.player.stageName)}</b></span>
+            <span>Gün ${d.deal.startDay || 0} · <em class="ct-ok">İMZALANDI ✓</em></span>
+          </div>
         </div>
       </div>`;
     },
@@ -33141,14 +33838,25 @@ window.K = window.K || {};
       const s = K.state, p = s.player;
       const cond = K.jobs.condition();
       const jobs = K.jobs.list();
+      const shiftsLeft = K.jobs.shiftsLeft();
+      const restBtn = K.jobs.canRest()
+        ? `<button class="btn btn-sm btn-ghost" data-act="rest-day">😴 Bugünü dinlenmeye ayır</button>`
+        : `<span class="pill">😴 bugün dinlendin</span>`;
       return `
         <div class="c-block">
           <div class="c-head"><div><h2>Yan İşler</h2><div class="sub">Müzikten geçinmek yıllar sürer — kiranı ve ekipmanı bunlarla çıkarırsın</div></div></div>
           <div class="stat-grid">
             <div class="stat-card"><span class="k">Bugünkü Kazanç</span><span class="v money">${U.money(K.jobs.dailyTotal())}</span><span class="d">yan işlerden</span></div>
+            <div class="stat-card"><span class="k">Vardiya Hakkı</span><span class="v ${shiftsLeft ? "" : "hot"}">${shiftsLeft}/${K.jobs.MAX_SHIFTS}</span><span class="d">bugün kalan</span></div>
+            <div class="stat-card"><span class="k">Durum</span><span class="v ${cond.color}">${cond.label}</span><span class="d">ücret & kalite cezası ${cond.penalty}</span></div>
             <div class="stat-card"><span class="k">Toplam Yan İş</span><span class="v">${U.money(p.jobEarnings || 0)}</span><span class="d">kariyer boyunca</span></div>
-            <div class="stat-card"><span class="k">Durum</span><span class="v ${cond.color}">${cond.label}</span><span class="d">üretim cezası ${cond.penalty}</span></div>
-            <div class="stat-card"><span class="k">Yaş</span><span class="v">${p.age}</span><span class="d">15 yaşında başladın</span></div>
+          </div>
+          <div class="job-fatigue">
+            ${K.studio.row("Yorgunluk", Math.round(p.fatigue || 0), Math.round(p.fatigue || 0) + "/100", { color: "linear-gradient(90deg,#5ce89b,#ffcb5c,#ff6b6b)" })}
+            <div class="jf-row">
+              <span class="helper">Vardiya yorgunluk biriktirir. <b>${K.jobs.FATIGUE_CAP}+</b> yorgunlukta iş yapamazsın; ücret de yorgunlukla düşer.</span>
+              ${restBtn}
+            </div>
           </div>
           <div class="c-head" style="margin-top:4px"><div><h2 style="font-size:15px">Beceriler</h2><div class="sub">Her iş bir beceri geliştirir; beceri ücretini ve şarkı kaliteni artırır</div></div></div>
           <div class="skill-grid">
@@ -33170,29 +33878,40 @@ window.K = window.K || {};
           </div>
 
           <div class="job-grid">
-            ${jobs.map(j => `
+            ${jobs.map(j => {
+              const pill = j.status === "self" ? `<span class="pill karma">serbest</span>`
+                : j.hired ? `<span class="pill money">kadroda ✓</span>`
+                : j.status === "pending" ? `<span class="pill gold">başvuru bekliyor</span>`
+                : j.status === "rejected" ? `<span class="pill">reddedildi</span>`
+                : `<span class="pill">başvurulmadı</span>`;
+              const action = j.canWork
+                ? `<button class="btn btn-sm btn-primary" data-act="work-job" data-arg="${j.id}">💼 Vardiyaya gir</button>`
+                : j.canApply
+                  ? `<button class="btn btn-sm btn-primary" data-act="apply-job" data-arg="${j.id}">📨 Başvur</button>`
+                  : `<button class="btn btn-sm btn-ghost" data-act="work-job" data-arg="${j.id}" disabled>${U.escape(j.reason || j.applyReason || "kilitli")}</button>`;
+              return `
               <div class="job-card ${j.unlocked ? "" : "locked"}">
                 <div class="jc-head">
                   <span class="jc-icon">${j.emoji}</span>
                   <div class="grow">
-                    <div class="jc-name">${U.escape(j.name)}</div>
+                    <div class="jc-name">${U.escape(j.name)} ${pill}</div>
                     <div class="jc-desc">${U.escape(j.desc)}</div>
                   </div>
                   <span class="pill money">${U.money(j.effectivePay || j.pay)}</span>
                 </div>
                 <div class="jc-meta">
+                  <span>${U.escape(j.shift || "")}</span>
                   <span>Yaş ${j.minAge}+</span><span>Yorgunluk +${j.fatigue}</span>
                   <span>Bugün ${j.count}/${j.perDay}</span>
                   ${j.quality ? `<span class="pill karma">kalite +${j.quality}</span>` : ""}
                   ${j.fans ? `<span class="pill">+${j.fans} hayran</span>` : ""}
                   <span class="pill">${K.SKILLS[j.skill] ? K.SKILLS[j.skill].icon + " " + K.SKILLS[j.skill].name + " +" + j.xp : ""}</span>
                 </div>
-                <button class="btn btn-sm ${j.canWork ? "btn-primary" : "btn-ghost"}" data-act="work-job" data-arg="${j.id}" ${j.canWork ? "" : "disabled"}>
-                  ${j.canWork ? "💼 Çalış" : U.escape(j.reason || "kilitli")}
-                </button>
-              </div>`).join("")}
+                ${action}
+              </div>`;
+            }).join("")}
           </div>
-          <div class="hint">Yorgunluk arttıkça o gün yaptığın şarkıların kalitesi ve dinlenmesi düşer. Dinlenmek için gün geçir.</div>
+          <div class="hint">Vardiya hakkın günde ${K.jobs.MAX_SHIFTS}. Üst üste çalışırsan verim düşer (×0,75 · ×0,56 …). Başvurun ertesi gün yanıtlanır; reddedilirsen birkaç gün bekle.</div>
         </div>`;
     },
 
@@ -33479,6 +34198,8 @@ window.K = window.K || {};
       else if (act === "open-wrapped") K.yearwrap.open();
       else if (act === "hire-staff") K.label.hireStaff(btn.dataset.arg);
       else if (act === "work-job") K.jobs.work(btn.dataset.arg);
+      else if (act === "apply-job") K.jobs.apply(btn.dataset.arg);
+      else if (act === "rest-day") K.jobs.rest();
       else if (act === "crisis-choice") K.crisis.resolve(+btn.dataset.arg);
       else if (act === "incident-choice") K.incidents.resolve(+btn.dataset.arg);
       else if (act === "beef-action") { const parts = String(btn.dataset.arg || "").split(":"); K.beef.respond(parts[0], parts[1]); }
