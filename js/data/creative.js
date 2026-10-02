@@ -104,32 +104,63 @@
      ===================================================== */
   K.lyrics = {
 
-    /* bölüm nesnesini ya da düz metni tek metne çevir */
-    flatten(sections) {
+    /* bölüm nesnesini ya da düz metni tek metne çevir.
+       v10.41 — slots verilirse metin YAPIYA göre birleştirilir: her
+       benzersiz bölüm bir kez yazılır (nakarat tekrarında yeniden
+       yazılır, boş son-nakarat düz nakarata düşer). */
+    flatten(sections, slots) {
       if (!sections) return "";
       if (typeof sections === "string") return sections;
+      if (Array.isArray(slots) && slots.length && K.lyricStructureUnique) {
+        return K.lyricStructureUnique(slots)
+          .map(k => K.lyrics.sectionText(sections, k))
+          .filter(x => String(x).trim()).join("\n");
+      }
       return K.LYRIC_SECTIONS.map(s => sections[s.id] || "").filter(x => String(x).trim()).join("\n");
     },
 
-    /* bölüm dolu mu? */
-    structure(sections) {
-      if (!sections || typeof sections === "string") return { have: 0, total: K.LYRIC_SECTIONS.length, list: [] };
+    /* bir bölüm anahtarının metni. Boş son-nakarat (chorusLast) düz
+       nakarata düşer; normal bölümde düşme yok. */
+    sectionText(sections, key) {
+      if (!sections || typeof sections === "string") return "";
+      if (key === "chorusLast") return String(sections.chorusLast || sections.chorus || "");
+      return String(sections[key] || "");
+    },
+
+    /* bölüm dolu mu? slots verilirse doluluk yapıya göre ölçülür. */
+    structure(sections, slots) {
+      if (!sections || typeof sections === "string") {
+        return { have: 0, total: K.LYRIC_SECTIONS.length, list: [], slots: [] };
+      }
+      if (Array.isArray(slots) && slots.length && K.lyricStructureUnique) {
+        const keys = K.lyricStructureKeys(slots);
+        const uniq = K.lyricStructureUnique(slots);
+        const list = uniq.filter(k => String(K.lyrics.sectionText(sections, k)).trim());
+        return { have: list.length, total: uniq.length, list, slots: keys };
+      }
       const list = K.LYRIC_SECTIONS.filter(s => String(sections[s.id] || "").trim());
-      return { have: list.length, total: K.LYRIC_SECTIONS.length, list: list.map(s => s.id) };
+      return { have: list.length, total: K.LYRIC_SECTIONS.length, list: list.map(s => s.id), slots: [] };
     },
 
     /* SÖZ ANALİZİ: uzunluk · çeşitlilik · yapı · kafiye · açı · tema */
-    analyze(sections, themeId, genre, kindId) {
+    analyze(sections, themeId, genre, kindId, slots) {
       const theme = K.lyricThemeById(themeId);
       const kind = K.kindById(kindId);
-      const text = K.lyrics.flatten(sections);
+      const text = K.lyrics.flatten(sections, slots);
       const t = (text || "").trim();
-      const st = K.lyrics.structure(sections);
+      const st = K.lyrics.structure(sections, slots);
+      /* v10.41 — biçim puanı ve yapıdan türeyen süre. Yapı verilmezse
+         0 (eski davranış korunur). */
+      const formScore = (Array.isArray(slots) && slots.length && K.lyricStructureScore)
+        ? K.lyricStructureScore(slots) : 0;
+      const estSeconds = (Array.isArray(slots) && slots.length && K.lyricStructureSeconds)
+        ? K.lyricStructureSeconds(slots) : null;
 
       if (!t) {
         return {
           score: 22, words: 0, lines: 0, unique: 0, fit: 0, empty: true,
-          rhyme: { scheme: "", density: 0, pairs: [] }, angle: null, structure: st
+          rhyme: { scheme: "", density: 0, pairs: [] }, angle: null, structure: st,
+          formScore, estSeconds
         };
       }
 
@@ -166,6 +197,8 @@
       /* YAPI: bölümlerin dolu olması */
       if (st.total) s += (st.have / st.total) * 10;
       if (st.list.indexOf("hook") >= 0 && st.list.indexOf("chorus") >= 0) s += 4;
+      /* BİÇİM PUANI: nakarat omurgası ve köprü kırılması skora işler */
+      s += formScore * 0.6;
 
       /* LİRİKAL AÇI tutarlılığı */
       const angle = K.detectAngle(t);
@@ -183,13 +216,14 @@
       const score = Math.max(10, Math.min(99, Math.round(s)));
       return {
         score, words: wordCount, lines: lines.length, unique, fit, empty: false,
-        rhyme, internal, meter, punches, angle, structure: st
+        rhyme, internal, meter, punches, angle, structure: st,
+        formScore, estSeconds
       };
     },
 
     /* geriye dönük: düz metin */
-    score(text, themeId, genre, kindId) {
-      return K.lyrics.analyze(text, themeId, genre, kindId);
+    score(text, themeId, genre, kindId, slots) {
+      return K.lyrics.analyze(text, themeId, genre, kindId, slots);
     },
 
     /* söz önerisi: bölüm verilirse o bölüm, verilmezse tam şarkı */
