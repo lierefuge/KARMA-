@@ -281,7 +281,30 @@
       const catFloor = Math.max(0.2, (K.ECON.catalogFloor || 5) * K.game.silenceDecay());
 
       p.songs.forEach(song => {
-        if (!song.dailyStreams) song.dailyStreams = K.game.initialDaily(song);
+        if (!song.dailyStreams && !song.takenDown) song.dailyStreams = K.game.initialDaily(song);
+
+        /* v10.40 — A5: TEMİZLENMEMİŞ SAMPLE → TAKEDOWN RİSKİ.
+           Örnek hakkı ödenmediyse yayın ilk 30 günde kaldırılabilir.
+           Günlük olasılık = toplam risk / pencere; toplamı %16 civarı. */
+        if (song.sampleRisk && !song.takenDown) {
+          const win = (K.meta ? K.meta.SAMPLE_TAKEDOWN_DAYS : 30);
+          const age = s.day - (song.publishedDay || s.day);
+          if (age <= win && Math.random() < ((K.meta ? K.meta.SAMPLE_RISK : 0.16) / win)) {
+            song.takenDown = true;
+            song.takenDownDay = s.day;
+            song.dailyStreams = 0;
+            song.lastDaily = 0;
+            song.playlists = [];
+            song.chartRank = null;
+            s.notifications = (s.notifications || []).concat([{
+              title: "🚫 Yayın kaldırıldı",
+              msg: `"${song.title}" örnek hakkı ödenmediği için mağazalardan çekildi. Sample clearance bedelini ödeyerek bunu önleyebilirdin.`,
+              kind: "bad", day: s.day
+            }]).slice(-60);
+            if (K.toast) K.toast("🚫 Takedown", `"${song.title}" örnek hakkı nedeniyle kaldırıldı.`, "bad");
+          }
+        }
+        if (song.takenDown) { song.lastDaily = 0; return; }
 
         /* v10 GERÇEKLİK DÜZELTMESİ — VİRAL ARTIK SÜRELİ.
            Eski hâlde song.viral bir kez true olduktan sonra ASLA sönmüyordu;
@@ -364,6 +387,13 @@
         song.month.apple += daily * song.platforms.apple;
         song.month.youtube += daily * song.platforms.youtube;
         song.month.other += daily * (song.platforms.other || 0);
+        /* v10.42 — C4: YouTube Content ID. Başkalarının videolarında
+           kullanımdan doğan ek dinlenme; "diğer mağazalar" kalemine eklenir. */
+        if (song.contentId) {
+          const cid = daily * (K.meta ? K.meta.CONTENT_ID_YIELD : 0.035);
+          song.month.other += cid;
+          song.contentIdTotal = (song.contentIdTotal || 0) + cid;
+        }
 
         p.streams += daily;
 
