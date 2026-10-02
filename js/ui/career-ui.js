@@ -237,7 +237,7 @@
       { id: 3, label: "Söz Atölyesi", desc: "Bölüm bölüm yaz: Verse, Hook, Chorus, Bridge..." },
       { id: 4, label: "Kapak",        desc: "Kapağını tasarla, mağazada nasıl görüneceğini gör." },
       { id: 5, label: "Tanıtım",      desc: "Pazarlama bütçesi ve çıkış planı." },
-      { id: 6, label: "Dağıtım",      desc: "Son kontrol ve mağazalara gönderim." }
+      { id: 6, label: "Dağıtım",      desc: "Mağaza · bölge · kredi · telif bölüşümü · barkod ve son kontrol." }
     ],
 
     DISTRO_STORES: [
@@ -287,6 +287,20 @@
         inventoryBeat: null,
         strategy: "standard",
         ghost: false,
+        /* v10.40 — sample hakkı ve enstrümantal sürüm (A5/A6) */
+        clearSample: false,
+        instrumental: false,
+        /* v10.41 — B grubu metadata: bölge, dil, krediler, label, telif yılı */
+        regions: (K.defaultRegions ? K.defaultRegions() : ["world"]),
+        lang: "tr",
+        credits: (K.meta && K.meta.defaultCredits) ? K.meta.defaultCredits({ ghost: false }) : {},
+        labelName: "",
+        copyrightYear: String(U.dateForDay(K.state.day).y),
+        publishTab: "dist",       // dağıtım adımındaki alt sekme
+        /* v10.42 — C grubu teknik gereksinimler */
+        coverPx: 1400,            // kapak dışa aktarma çözünürlüğü (mağaza alt sınırı 1400)
+        contentId: false,         // YouTube Content ID kaydı
+        releaseWeekday: 5,        // hedef çıkış günü (5 = Cuma)
         budget: 12000,
         marketing: 3000,
         wait: 18
@@ -406,7 +420,15 @@
         if (!t.source) t.source = "ev";
         if (!t.dur) t.dur = K.career.suggestDuration();   // her parçanın kendi süresi
         if (!t.lyrics || typeof t.lyrics !== "object") t.lyrics = K.careerUI.emptyLyrics();
+        /* v10.40 — parça bazında feat ve explicit bayrağı */
+        if (t.feat === undefined) t.feat = null;
+        if (t.explicit === undefined) t.explicit = false;
       });
+      /* v10.40 — yayın-seviyesi feat artık "tümüne uygula" kolaylığıdır;
+         gerçek kredi parça bazında tutulur (t.feat). */
+      if (st.feat && st.tracks.every(t => !t.feat)) {
+        st.tracks.forEach(t => { t.feat = st.feat; });
+      }
       if (!(st.lyrTrack >= 0 && st.lyrTrack < st.tracks.length)) st.lyrTrack = 0;
       if (st.count > 1 && (st.autoCount !== st.count || !st.autoProjectTitle)) {
         st.autoProjectTitle = K.career.suggestProjectTitle(st.count);
@@ -468,7 +490,13 @@
         case "st-vocal": st.vocalId = v; break;
         case "st-vocal-q": st.vocalQ = +v; break;
         case "st-mix-q": st.mixQ = +v; break;
-        case "st-feat": st.feat = v || null; break;
+        /* v10.40 — A2: bu seçim artık TÜM parçalara uygulanan kolaylıktır.
+           Gerçek kredi parça bazında tutulur (parça satırındaki Feat alanı). */
+        case "st-feat":
+          st.feat = v || null;
+          st.tracks.forEach(t => { t.feat = st.feat; });
+          K.careerUI.renderTrackList();
+          break;
         case "st-lyric-theme": st.lyricsTheme = v; break;
         case "st-lyrics": st.lyricsText = v; break;
         case "st-concept": st.conceptId = v; break;
@@ -476,6 +504,12 @@
         case "st-budget": st.budget = +v; break;
         case "st-marketing": st.marketing = +v; break;
         case "st-wait": st.wait = +v; break;
+        /* v10.41 — B4/B5/B6: dil, etiket adı, telif yılı */
+        case "st-lang": st.lang = v; K.careerUI.renderRegionChips(); break;
+        case "st-label-name": st.labelName = v; break;
+        case "st-copy-year": st.copyrightYear = v; break;
+        /* v10.42 — C3: hedef çıkış günü */
+        case "st-weekday": st.releaseWeekday = +v; K.careerUI.updateStudioEstimate(); break;
       }
     },
 
@@ -483,7 +517,8 @@
       const st = K.careerUI._studio;
       if (!st) return;
       ["st-genre", "st-kind", "st-beat", "st-vocal", "st-feat", "st-lyric-theme",
-        "st-lyrics", "st-concept", "st-project"].forEach(id => {
+        "st-lyrics", "st-concept", "st-project", "st-lang", "st-label-name",
+        "st-copy-year", "st-weekday"].forEach(id => {
         const el = U.qs("#" + id);
         if (el) K.careerUI.collectField(id, el);
       });
@@ -546,6 +581,30 @@
         K.careerUI.updateStudioEstimate();
         return;
       }
+      /* v10.40 — A2: parça bazında featuring */
+      if (ds.feat != null) {
+        const i = +ds.feat;
+        if (st.tracks[i]) st.tracks[i].feat = el.value || null;
+        K.careerUI.updateStudioEstimate();
+        return;
+      }
+      /* v10.41 — B1/B2: kredi sahibi ve payı */
+      if (ds.credit != null) {
+        st.credits = st.credits || K.meta.defaultCredits(st);
+        const role = ds.credit;
+        const c = st.credits[role] || (st.credits[role] = { self: false, name: null, share: K.creditRoleById(role).share });
+        if (ds.creditField === "holder") {
+          if (el.value === "self") { c.self = true; c.name = null; }
+          else if (el.value) { c.self = false; c.name = el.value; }
+          else { c.self = false; c.name = null; }
+          K.careerUI.renderCredits();
+        } else {
+          c.share = U.clamp(+el.value || 0, 0, 100);
+        }
+        K.careerUI.renderSplitSheet();
+        K.careerUI.updateStudioEstimate();
+        return;
+      }
       if (el.id === "st-inv-beat") { st.inventoryBeat = el.value || null; K.careerUI.updateStudioEstimate(); return; }
       if (el.id === "st-hue") {
         st.coverOpts.hue = +el.value;
@@ -584,6 +643,23 @@
         const bos = st.tracks.filter(t => K.careerUI.lyricsFilled(t.lyrics) === 0);
         if (bos.length) {
           K.toast("Söz eksik", bos.length + " parçada hiç söz yok. \"Kalanları Otomatik Doldur\" ile tamamlayabilirsin.", "warn");
+          return false;
+        }
+      }
+      /* v10.42 — C1: kapak mağaza alt sınırının altındaysa yayın reddedilir */
+      if (n === 4) {
+        if (!K.meta.coverAccepted(st.coverPx)) {
+          K.toast("Kapak reddedilir", "Mağazalar " + K.meta.COVER_MIN_PX + "×" + K.meta.COVER_MIN_PX + " altındaki kapağı kabul etmez. Teknik Gereksinim bölümünden yükselt.", "bad");
+          return false;
+        }
+      }
+      /* v10.42 — C2: düşük kaliteli kaynak + premium mağaza = ret */
+      if (n === 6) {
+        const bad = (st.tracks || []).filter(t => !K.meta.sourceAccepted(K.sourceById(t.source)));
+        const badStores = bad.length ? K.meta.premiumStores(st.stores) : [];
+        if (badStores.length) {
+          const names = badStores.map(id => (K.storeById(id) || {}).name).join(", ");
+          K.toast("Format uyumsuz", names + " düşük kaliteli kaydı kabul etmez. Kaynağı yükselt ya da o mağazaları kaldır.", "bad");
           return false;
         }
       }
@@ -640,6 +716,24 @@
         return;
       }
 
+      /* v10.41 — B3: bölge seçimi. "world" seçilirse diğer bölgeler
+         listeden düşer (dünya geneli zaten hepsini kapsar). */
+      if (act === "region-toggle") {
+        const id = btn.dataset.arg;
+        let set = new Set(st.regions && st.regions.length ? st.regions : ["world"]);
+        if (id === "world") {
+          set = new Set(set.has("world") ? [] : ["world"]);
+        } else {
+          set.delete("world");
+          if (set.has(id)) set.delete(id); else set.add(id);
+        }
+        st.regions = Array.from(set);
+        if (!st.regions.length) st.regions = ["world"];
+        K.careerUI.renderRegionChips();
+        K.careerUI.updateStudioEstimate();
+        return;
+      }
+
       if (act === "store-toggle") {
         const id = btn.dataset.arg;
         const set = new Set(st.stores || []);
@@ -675,12 +769,75 @@
         K.careerUI.updateStudioEstimate();
         return;
       }
+      /* v10.40 — A1: parça sırası. Albümde açılış parçası +2 kalite
+         bonusu aldığı için sıralama artık gerçek bir sanat kararı. */
+      if (act === "trk-move") {
+        const i = +btn.dataset.arg;
+        const dir = btn.dataset.dir === "up" ? -1 : 1;
+        const j = i + dir;
+        if (j < 0 || j >= st.tracks.length) return;
+        const tmp = st.tracks[i];
+        st.tracks[i] = st.tracks[j];
+        st.tracks[j] = tmp;
+        /* söz atölyesi seçili parçayı takip etsin */
+        if (st.lyrTrack === i) st.lyrTrack = j;
+        else if (st.lyrTrack === j) st.lyrTrack = i;
+        K.careerUI.renderTrackList();
+        K.careerUI.updateStudioEstimate();
+        return;
+      }
+      /* v10.40 — A3: explicit bayrağı (mağazaya bildirilir) */
+      if (act === "trk-explicit") {
+        const i = +btn.dataset.arg;
+        if (st.tracks[i]) st.tracks[i].explicit = !st.tracks[i].explicit;
+        K.careerUI.renderTrackList();
+        K.careerUI.updateStudioEstimate();
+        return;
+      }
       if (act === "trk-reroll") {
         K.career.suggestTracks(st.tracks.length).forEach((nm, i) => { if (st.tracks[i]) st.tracks[i].name = nm; });
         K.careerUI.renderTrackList();
         K.careerUI._syncCover(st);
         K.careerUI.renderCoverPreview();
         K.careerUI.updateStudioEstimate();
+        return;
+      }
+      /* v10.40 — A5: sample hakkı kararı */
+      if (act === "st-clear-sample") {
+        st.clearSample = btn.dataset.arg === "1";
+        K.careerUI.renderStudioStep();
+        K.careerUI.updateStudioEstimate();
+        return;
+      }
+      /* v10.40 — A6: enstrümantal sürüm */
+      if (act === "st-instrumental") {
+        st.instrumental = !st.instrumental;
+        K.careerUI.renderStudioStep();
+        K.careerUI.updateStudioEstimate();
+        return;
+      }
+      /* v10.42 — C1: kapak dışa aktarma çözünürlüğü */
+      if (act === "cover-px") {
+        st.coverPx = +btn.dataset.arg || 1400;
+        K.careerUI.renderStudioStep();
+        K.careerUI.updateStudioEstimate();
+        return;
+      }
+      /* v10.42 — C4: YouTube Content ID */
+      if (act === "st-content-id") {
+        st.contentId = !st.contentId;
+        K.careerUI.renderStudioStep();
+        K.careerUI.updateStudioEstimate();
+        return;
+      }
+      /* v10.42 — C2: uyumsuz premium mağazaları tek tuşla düşür */
+      if (act === "st-drop-premium") {
+        const bad = new Set(K.meta.premiumStores(st.stores));
+        st.stores = (st.stores || []).filter(id => !bad.has(id));
+        K.careerUI.renderStoreChips();
+        K.careerUI.renderStudioStep();
+        K.careerUI.updateStudioEstimate();
+        K.toast("Mağazalar güncellendi", bad.size + " mağaza çıkarıldı; yayın artık gönderilebilir.", "ok");
         return;
       }
       if (act === "trk-budget-all") {
@@ -833,24 +990,78 @@
          katmıyordu (sadece ilerleme çubuğu izletiyordu); kaynak seçimi
          kalite ve maliyeti zaten belirliyor. Kaynak satırı kaldı ve
          artık etkisini açıkça yazıyor. */
+      /* v10.40 — parça satırı artık gerçek dağıtım formunun parçası:
+         sıra (açılış parçası kalite bonusu alır), feat (parça bazında),
+         explicit bayrağı (mağazaya bildirilir). */
+      const last = st.tracks.length - 1;
+      const expHint = K.meta ? K.meta.suggestExplicit(st.lyricsTheme, st.kind) : false;
       wrap.innerHTML = st.tracks.map((t, i) => {
         const src = K.sourceById(t.source);
         const q = src.qAdd > 0 ? "+" + src.qAdd : String(src.qAdd);
+        const isExp = !!t.explicit;
+        const expSuggested = !isExp && expHint;
         return `
-        <div class="trk-card">
+        <div class="trk-card${i === 0 && st.count > 1 ? " trk-open" : ""}">
           <div class="trk-head">
             <span class="t-rank">${i + 1}</span>
             <input type="text" data-trk="${i}" value="${U.escape(t.name || "")}" placeholder="Parça adı" />
             <span class="t-dur">${U.escape(t.dur || K.career.suggestDuration())}</span>
-            <button class="btn btn-ghost btn-sm" data-act="trk-remove" data-arg="${i}" title="Parçayı çıkar">${K.careerUI.ico("trash")}</button>
+            <div class="trk-order">
+              <button class="btn btn-ghost btn-sm" data-act="trk-move" data-arg="${i}" data-dir="up" title="Yukarı taşı" ${i === 0 ? "disabled" : ""}>${K.careerUI.ico("arrowUp")}</button>
+              <button class="btn btn-ghost btn-sm" data-act="trk-move" data-arg="${i}" data-dir="down" title="Aşağı taşı" ${i === last ? "disabled" : ""}>${K.careerUI.ico("arrowDown")}</button>
+              <button class="btn btn-ghost btn-sm" data-act="trk-remove" data-arg="${i}" title="Parçayı çıkar">${K.careerUI.ico("trash")}</button>
+            </div>
           </div>
           <div class="trk-up">
             <select data-src="${i}" title="Kayıt kaynağı">${srcOpts(t.source)}</select>
             <span class="trk-src ${src.qAdd > 0 ? "good" : src.qAdd < 0 ? "weak" : ""}">${src.file} · ${src.bit} · ${src.size} · kalite ${q}</span>
           </div>
+          <div class="trk-meta">
+            <label class="trk-fld"><span>Feat</span>
+              <select data-feat="${i}" title="Bu parçaya ortak sanatçı">${K.careerUI.featOpts(t.feat)}</select>
+            </label>
+            <button class="trk-exp${isExp ? " on" : ""}${expSuggested ? " suggest" : ""}" data-act="trk-explicit" data-arg="${i}" title="Müstehcen içerik bayrağı — mağazaya bildirilir, radyo/editoryal listeleri düşürür ama çekirdek kitleyi güçlendirir">
+              <b>E</b><span>Explicit</span>
+            </button>
+            ${i === 0 && st.count > 1 ? `<span class="trk-open-tag">Açılış parçası · kalite +2</span>` : ""}
+          </div>
         </div>`;
       }).join("");
       K.careerUI.refreshTracksInfo();
+    },
+
+    /* v10.40 — parça bazında featuring seçenekleri. Eskiden tek bir
+       yayın-seviyesi feat vardı ve 12 parçalı albümde 12 parçaya da
+       aynı ortak sanatçı yazılıyordu. */
+    featOpts(sel) {
+      const featable = K.artistList().concat(K.contacts && K.contacts.list ? K.contacts.list() : [])
+        .filter(a => K.relations.canProposeFeature(a.id));
+      const seen = new Set();
+      const opts = [`<option value="">—</option>`];
+      featable.forEach(a => {
+        if (seen.has(a.id)) return;
+        seen.add(a.id);
+        opts.push(`<option value="${a.id}" ${sel === a.id ? "selected" : ""}>${U.escape(a.stageName)}</option>`);
+      });
+      return opts.join("");
+    },
+
+    /* v10.40 — hangi parçada kimin feature'ı var? Parçalar adımındaki
+       satırlardan değiştirilince burada özet çıkar. */
+    featSummary(st) {
+      const withFeat = (st.tracks || []).map((t, i) => ({ i, f: t.feat })).filter(x => x.f);
+      if (!withFeat.length) return "Henüz hiçbir parçada ortak sanatçı yok.";
+      const parts = withFeat.slice(0, 6).map(x => {
+        const a = K.artistById(x.f);
+        return `<b>${x.i + 1}</b> ${a ? U.escape(a.stageName) : "?"}`;
+      });
+      const more = withFeat.length > 6 ? ` … +${withFeat.length - 6}` : "";
+      return "Ortaklı parçalar: " + parts.join(" · ") + more;
+    },
+
+    /* v10.40 — A3: explicit dağılımı (yayın özeti ve adım göstergesi için) */
+    explicitCount(st) {
+      return (st.tracks || []).filter(t => t.explicit).length;
     },
 
     /* v10.39 — parça sayacının TEK kaynağı. Eskiden renderTrackList
@@ -890,7 +1101,9 @@
         zap:     '<path d="M13 2.5 4.8 13.6H11L10 21.5l8.2-11.1H12z"/>',
         play:    '<path d="M7.5 5.2 19 12 7.5 18.8z"/>',
         building:'<path d="M4 20V6.6A1.6 1.6 0 0 1 5.6 5h6.8A1.6 1.6 0 0 1 14 6.6V20"/><path d="M14 10.2h4.4A1.6 1.6 0 0 1 20 11.8V20"/><path d="M2.6 20h18.8"/><path d="M7.3 8.8h3.4M7.3 12.4h3.4M7.3 16h3.4"/>',
-        rocket:  '<path d="M12 3.2c3.3 1.7 5.1 4.8 5.1 8.5 0 1.4-.3 2.8-.8 3.9H7.7a9.9 9.9 0 0 1-.8-3.9c0-3.7 1.8-6.8 5.1-8.5z"/><circle cx="12" cy="10.2" r="1.9"/><path d="m9.3 15.6-1.2 4.6 2.7-1.4M14.7 15.6l1.2 4.6-2.7-1.4"/>'
+        rocket:  '<path d="M12 3.2c3.3 1.7 5.1 4.8 5.1 8.5 0 1.4-.3 2.8-.8 3.9H7.7a9.9 9.9 0 0 1-.8-3.9c0-3.7 1.8-6.8 5.1-8.5z"/><circle cx="12" cy="10.2" r="1.9"/><path d="m9.3 15.6-1.2 4.6 2.7-1.4M14.7 15.6l1.2 4.6-2.7-1.4"/>',
+        arrowUp: '<path d="M12 19.5V5"/><path d="m5.8 11.2 6.2-6.2 6.2 6.2"/>',
+        arrowDown:'<path d="M12 4.5V19"/><path d="m5.8 12.8 6.2 6.2 6.2-6.2"/>'
       };
       const d = P[name];
       if (!d) return "";
@@ -913,6 +1126,91 @@
       const info = U.qs("#st-store-info");
       if (info) info.textContent = (st.stores || []).length + " mağaza seçili · dağıtım ücreti " +
         U.money(K.distroCost(st.stores)) + " · erişim ×" + K.distroReach(st.stores).toFixed(2);
+    },
+
+    /* v10.41 — B3: dağıtım bölgeleri. Dünya geneli bir kısayoldur;
+       seçilirse diğer bölgelerin hepsini kapsar. */
+    renderRegionChips() {
+      const wrap = U.qs("#st-region-chips");
+      if (!wrap) return;
+      const st = K.careerUI._studio;
+      if (!st) return;
+      st.regions = (st.regions && st.regions.length) ? st.regions : ["world"];
+      const sel = new Set(st.regions);
+      const world = sel.has("world");
+      const opts = [{ id: "world", name: "Dünya Geneli", icon: "🌍", reach: 1.30, cost: 1.55, note: "Tüm pazarlar açık; en yüksek erişim, en yüksek maliyet." }]
+        .concat(K.REGIONS);
+      wrap.innerHTML = opts.map(r => `
+        <button class="region-opt ${sel.has(r.id) ? "on" : ""}" data-act="region-toggle" data-arg="${r.id}">
+          <span class="ro-icon">${r.icon}</span>
+          <span class="ro-body"><b>${r.name}</b><span>erişim ${(+r.reach).toFixed(2)} · maliyet ×${(+r.cost).toFixed(2)}</span></span>
+          <span class="ro-check">${sel.has(r.id) ? "✓" : "+"}</span>
+        </button>`).join("");
+      const info = U.qs("#st-region-info");
+      if (info) {
+        const reach = K.meta.regionReach(st.regions);
+        const cost = K.meta.regionCost(st.regions);
+        const fit = K.meta.languageFit(st.lang, st.regions);
+        const lang = K.languageById(st.lang);
+        info.textContent = K.meta.regionLabel(st.regions) + " · erişim ×" + reach.toFixed(2) +
+          " · dağıtım maliyeti ×" + cost.toFixed(2) +
+          (fit > 1.001 ? " · " + lang.name + " uyumu +%" + Math.round((fit - 1) * 100) : "");
+      }
+    },
+
+    /* v10.41 — B1: kredi listesi. Her rol için kime kredi verileceği ve
+       yüzde payı. Gerçek dağıtım formlarında bu alan zorunludur. */
+    renderCredits() {
+      const wrap = U.qs("#st-credit-list");
+      if (!wrap) return;
+      const st = K.careerUI._studio;
+      if (!st) return;
+      st.credits = st.credits || K.meta.defaultCredits(st);
+      const seen = new Set();
+      const people = [];
+      K.artistList().concat(K.contacts && K.contacts.list ? K.contacts.list() : []).forEach(a => {
+        if (seen.has(a.id)) return;
+        seen.add(a.id);
+        people.push({ id: a.id, name: a.stageName });
+      });
+      wrap.innerHTML = K.CREDIT_ROLES.map(r => {
+        const c = st.credits[r.id] || { self: false, name: null, share: r.share };
+        const holder = c.self ? "self" : (c.name || "");
+        const share = c.share != null ? c.share : r.share;
+        const on = c.self || !!c.name;
+        const opts = [`<option value="">— kredi yok —</option>`, `<option value="self" ${holder === "self" ? "selected" : ""}>Sen</option>`]
+          .concat(people.map(p => `<option value="${p.id}" ${holder === p.id ? "selected" : ""}>${U.escape(p.name)}</option>`)).join("");
+        return `
+        <div class="cred-row${on ? " on" : ""}">
+          <span class="cr-ico">${r.icon}</span>
+          <span class="cr-body"><b>${r.name}</b><span>${r.note}</span></span>
+          <select data-credit="${r.id}" data-credit-field="holder">${opts}</select>
+          <label class="cr-share"><input type="number" min="0" max="100" step="1" value="${share}" data-credit="${r.id}" data-credit-field="share" ${on ? "" : "disabled"} /><span>%</span></label>
+        </div>`;
+      }).join("");
+    },
+
+    /* v10.41 — B2: telif bölüşümü (split sheet) */
+    renderSplitSheet() {
+      const wrap = U.qs("#st-split-sheet");
+      if (!wrap) return;
+      const st = K.careerUI._studio;
+      if (!st) return;
+      const pseudo = {
+        credits: st.credits || {},
+        featWith: (st.tracks.find(t => t.feat) || {}).feat || st.feat || null,
+        featureShare: 100 - ((K.meta.defaultFeatureCut != null) ? K.meta.defaultFeatureCut : 15),
+        licensePoints: 0
+      };
+      const sheet = K.meta.splitSheet(pseudo);
+      const myLabel = K.state.player.labelId ? K.labelById(K.state.player.labelId) : null;
+      wrap.innerHTML = `
+        <div class="split-rows">
+          ${sheet.rows.map(r => `<div class="split-row"><span>${r.icon} ${r.name} <em>${U.escape(r.holder)}</em></span><b>%${r.share}</b></div>`).join("")}
+          <div class="split-row mine"><span>💼 Senin net payın</span><b>%${sheet.mine}</b></div>
+        </div>
+        ${sheet.over ? `<div class="note-line bad">⚠️ Toplam pay %100'ü aşıyor (%${sheet.taken}). Kredi paylarını düşür.</div>` : ""}
+        ${myLabel ? `<div class="helper">🏢 ${U.escape(myLabel.name)} bünyesindesin — şirket sözleşmesi bu payların üzerine uygulanır.</div>` : ""}`;
     },
 
     renderBudgetList() {
@@ -1038,6 +1336,9 @@
       K.careerUI.renderCoverControls();
       K.careerUI.renderCoverPreview();
       K.careerUI.renderStoreChips();
+      K.careerUI.renderRegionChips();
+      K.careerUI.renderCredits();
+      K.careerUI.renderSplitSheet();
       K.careerUI.renderBeatMarket();
       K.careerUI.updateStudioEstimate();
     },
@@ -1142,6 +1443,14 @@
           <span class="range-val" id="${valId}">${val}</span>
         </div>`;
 
+      /* v10.40 — form blok numarası artık sayaçla yürür; yeni blok
+         eklendiğinde (sample hakkı, enstrümantal) elle yeniden
+         numaralandırmak gerekmiyor. */
+      let bn = 4;
+      const needsClearance = st.beatId === "sample";
+      const clearCost = K.meta ? K.meta.clearanceCost : 14000;
+      const instCost = K.meta ? K.meta.INSTRUMENTAL_COST : 5000;
+
       return `
         ${st.dissArtist ? `<div class="note-line hot">🔥 Diss modu: <b>${U.escape(st.dissArtist.stageName)}</b> hedef alındı. Sözlerinde adı geçerse husumet sayılır.</div>` : ""}
         ${st.topic ? `<div class="note-line gold">📰 Gündemden geldin: <b>${U.escape(st.topic.title)}</b> · sıcaklık ${st.topic.heat}°</div>` : ""}
@@ -1181,12 +1490,12 @@
 
         ${st.count >= 4 ? `
         <div class="form-block">
-          <div class="form-block-head"><span class="fb-no">5</span><div><h4>Albüm Konsepti</h4><p>Çok parçalı projelerde bütünlük puanını belirler.</p></div></div>
+          <div class="form-block-head"><span class="fb-no">${++bn}</span><div><h4>Albüm Konsepti</h4><p>Çok parçalı projelerde bütünlük puanını belirler.</p></div></div>
           ${K.ui.field("Konsept", `<select id="st-concept">${concepts}</select>`)}
         </div>` : ""}
 
         <div class="form-block">
-          <div class="form-block-head"><span class="fb-no">${st.count > 1 ? 5 : 4}</span><div><h4>Prodüksiyon Bütçesi</h4><p>Her parçanın kendi bütçesi olur ve kalitesini o belirler.</p></div></div>,
+          <div class="form-block-head"><span class="fb-no">${++bn}</span><div><h4>Prodüksiyon Bütçesi</h4><p>Her parçanın kendi bütçesi olur ve kalitesini o belirler.</p></div></div>
           <div class="form-grid">
             ${K.ui.field("Parça Başına Bütçe", range("st-budget", 3000, 120000, 1000, st.budget, "st-budget-val"))}
             <div class="st-align-end"><button class="btn btn-ghost btn-sm" data-act="trk-budget-all">${K.careerUI.ico("money")} Tüm parçalara uygula</button></div>
@@ -1194,9 +1503,31 @@
           <div id="st-budget-list" class="st-budget-list"></div>
         </div>
 
+        ${needsClearance ? `
         <div class="form-block">
-          <div class="form-block-head"><span class="fb-no">${st.count > 1 ? 6 : 5}</span><div><h4>Feature</h4><p>Yalnızca samimiyet kurduğun isimler listelenir.</p></div></div>
-          ${K.ui.field("Ortak sanatçı (isteğe bağlı)", `<select id="st-feat">${featOptions}</select>`)}
+          <div class="form-block-head"><span class="fb-no">${++bn}</span><div><h4>Örnek Hakkı (Sample Clearance)</h4><p>Sample tabanlı altyapıda örnek hakkını ödemek yayını güvenceye alır; ödemezsen ilk 30 günde kaldırılma riski var.</p></div></div>
+          <div class="clr-row">
+            <button class="clr-opt${st.clearSample ? " on" : ""}" data-act="st-clear-sample" data-arg="1">
+              <b>Hakkı öde</b><span>${U.money(clearCost)} · takedown riski yok</span>
+            </button>
+            <button class="clr-opt${st.clearSample ? "" : " on risk"}" data-act="st-clear-sample" data-arg="0">
+              <b>Riski göze al</b><span>Ücretsiz · %${Math.round((K.meta ? K.meta.SAMPLE_RISK : 0.16) * 100)} takedown riski</span>
+            </button>
+          </div>
+        </div>` : ""}
+
+        <div class="form-block">
+          <div class="form-block-head"><span class="fb-no">${++bn}</span><div><h4>Ek Sürümler</h4><p>Enstrümantal (sözsüz) sürüm karaoke/sync kullanımı açar; küçük ama istikrarlı ekstra gelir.</p></div></div>
+          <button class="clr-opt wide${st.instrumental ? " on" : ""}" data-act="st-instrumental">
+            <b>${st.instrumental ? "✓ Enstrümantal sürüm üretilecek" : "Enstrümantal sürüm ekle"}</b>
+            <span>${U.money(instCost)} · günlük dinlenmeye +%${Math.round((K.meta ? K.meta.INSTRUMENTAL_BONUS : 0.05) * 100)}</span>
+          </button>
+        </div>
+
+        <div class="form-block">
+          <div class="form-block-head"><span class="fb-no">${++bn}</span><div><h4>Feature</h4><p>Yalnızca samimiyet kurduğun isimler listelenir. Bu seçim <b>tüm parçalara</b> uygulanır; tek tek değiştirmek için Parçalar adımındaki satırları kullan.</p></div></div>
+          ${K.ui.field("Tüm parçalara ortak sanatçı", `<select id="st-feat">${featOptions}</select>`)}
+          <div class="helper">${K.careerUI.featSummary(st)}</div>
         </div>`;
     },
 
@@ -1289,6 +1620,17 @@
               <button class="btn btn-ghost btn-sm" data-act="cover-random">${K.careerUI.ico("dice")} Rastgele Kapak</button>
             </div>
             <div class="cv-store" id="cv-store"></div>
+            <div class="form-block cv-tech">
+              <div class="form-block-head"><span class="fb-no">✓</span><div><h4>Teknik Gereksinim</h4><p>Mağazalar kapağı <b>${K.meta.COVER_MIN_PX}×${K.meta.COVER_MIN_PX}</b> alt sınırının altında kabul etmez. Önerilen: ${K.meta.COVER_GOOD_PX}×${K.meta.COVER_GOOD_PX} (Apple Music).</p></div></div>
+              <div class="px-row">
+                ${[600, 1400, 3000].map(px => `
+                  <button class="px-opt${st.coverPx === px ? " on" : ""}${K.meta.coverAccepted(px) ? "" : " bad"}" data-act="cover-px" data-arg="${px}">
+                    <b>${px}×${px}</b>
+                    <span>${px < K.meta.COVER_MIN_PX ? "✕ mağaza reddeder" : (px >= K.meta.COVER_GOOD_PX ? "✓ önerilen · editoryal avantaj" : "✓ asgari kabul")}</span>
+                  </button>`).join("")}
+              </div>
+              <div class="helper">${K.meta.coverAccepted(st.coverPx) ? "Kapak teknik gereksinimini karşılıyor." : "<b class='warn-txt'>Bu çözünürlükte yayın gönderilemez</b> — mağazalar kapağı reddeder."}</div>
+            </div>
           </div>
           <div class="cv-controls" id="cv-controls"></div>
         </div>`;
@@ -1438,7 +1780,15 @@
       const trackSources = st.tracks.map(t => K.sourceById(t.source).id);
       const storeCost = K.distroCost(st.stores);
       const storeReach = K.distroReach(st.stores);
-      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: st.vocalQ, mixQuality: st.mixQ, kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost };
+      /* v10.42 — C2: düşük kaliteli kaynak + premium mağaza = RET */
+      const badSrcTracks = st.tracks.slice(0, st.count).filter(t => !K.meta.sourceAccepted(K.sourceById(t.source)));
+      const conflictStores = badSrcTracks.length ? K.meta.premiumStores(st.stores) : [];
+      const conflict = conflictStores.length > 0;
+      const conflictNames = conflictStores.map(id => (K.storeById(id) || {}).name).join(", ");
+      const badList = badSrcTracks.map(t => (t.name || "?") + " (" + K.sourceById(t.source).file + ")").join(", ");
+      /* v10.40 — A5/A6: örnek hakkı ve enstrümantal sürüm maliyete girer
+         v10.41 — B3: bölge kapsamı dağıtım maliyetini çarpar */
+      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: st.vocalQ, mixQuality: st.mixQ, kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost, clearSample: !!st.clearSample, instrumental: !!st.instrumental, regionMult: K.meta.regionCost(st.regions) };
       const qList = trackBudgets.map((tb, i) => K.career.estimateQuality(st.genre, tb, Object.assign({}, opts, {
         sourceQAdd: K.sourceById(trackSources[i]).qAdd,
         lyricScore: (lyrList[i] || lyrics).score
@@ -1469,7 +1819,68 @@
         </div>
 
         <div class="form-block">
-          <div class="form-block-head"><span class="fb-no">2</span><div><h4>Yayın Özeti</h4><p>Göndermeden önce son kontrol.</p></div></div>
+          <div class="form-block-head"><span class="fb-no">2</span><div><h4>Bölge & Dil</h4><p>Nerede yayınlanacak? Dünya geneli en geniş erişimi verir ama en pahalıdır; seçili bölgeler ucuz, kapsamı dar. Dil bölgeyle uyuşursa erişim artar.</p></div></div>
+          <div class="region-chips" id="st-region-chips"></div>
+          <div class="form-grid" style="margin-top:10px">
+            ${K.ui.field("Yayın Dili", `<select id="st-lang">${K.LANGUAGES.map(l => `<option value="${l.id}" ${st.lang === l.id ? "selected" : ""}>${l.icon} ${l.name}</option>`).join("")}</select>`)}
+          </div>
+          <div class="helper" id="st-region-info"></div>
+        </div>
+
+        <div class="form-block">
+          <div class="form-block-head"><span class="fb-no">3</span><div><h4>Krediler</h4><p>Dağıtım formlarında zorunlu: söz yazarı, besteci, prodüktör. Kime kredi vereceğini ve yüzde payını sen belirlersin.</p></div></div>
+          <div class="cred-list" id="st-credit-list"></div>
+        </div>
+
+        <div class="form-block">
+          <div class="form-block-head"><span class="fb-no">4</span><div><h4>Telif Bölüşümü</h4><p>Krediler + feature payı + beat lisans puanı. Kalan senin net payın.</p></div></div>
+          <div id="st-split-sheet"></div>
+        </div>
+
+        <div class="form-block">
+          <div class="form-block-head"><span class="fb-no">5</span><div><h4>Etiket & Telif</h4><p>Yayında görünecek etiket adı ve ℗/© telif yılı. Bağımsızsan kendi adını kullanabilirsin.</p></div></div>
+          <div class="form-grid">
+            ${K.ui.field("Etiket Adı", `<input type="text" id="st-label-name" value="${U.escape(st.labelName || "")}" placeholder="${U.escape(myLabel ? myLabel.name : s.player.stageName + " Müzik")}" />`)}
+            ${K.ui.field("Telif Yılı (℗/©)", `<input type="number" id="st-copy-year" min="1990" max="2099" value="${U.escape(st.copyrightYear || "")}" />`)}
+          </div>
+          <div class="helper" id="st-label-info"></div>
+        </div>
+
+        <div class="form-block">
+          <div class="form-block-head"><span class="fb-no">6</span><div><h4>Kayıt Kodları</h4><p>Distribütörün atadığı UPC barkodu ve parça başına ISRC kodu. Katalogda ve telif takibinde bunlarla görünür.</p></div></div>
+          <div class="upc-row"><span>UPC / Barkod</span><code>${(K.meta && K.meta.upc) ? K.meta.upc(s.player.stageName + st.count + s.day) : "—"}</code></div>
+          <div class="isrc-list">
+            ${st.tracks.slice(0, st.count).map((t, i) => {
+              const code = (K.meta && K.meta.isrc) ? K.meta.isrc(U.dateForDay(s.day).y, ((s.player.releases || []).length * 100) + i + 1) : "—";
+              return `<div class="isrc-row"><span class="isrc-no">${i + 1}</span><span class="isrc-nm">${U.escape(t.name || "")}</span><code>${code}</code>${t.explicit ? '<em class="exp-tag">E</em>' : ""}</div>`;
+            }).join("")}
+          </div>
+        </div>
+
+        <div class="form-block">
+          <div class="form-block-head"><span class="fb-no">7</span><div><h4>Çıkış Planı & Ek Hizmetler</h4><p>Endüstri standardı yeni yayınların <b>cuma</b> çıkmasıdır; diğer günler algoritmaya yakalanma şansını düşürür.</p></div></div>
+          <div class="form-grid">
+            ${K.ui.field("Hedef Çıkış Günü", `<select id="st-weekday">${K.meta.WEEKDAYS.map((n, i) => `<option value="${i}" ${st.releaseWeekday === i ? "selected" : ""}>${n}${i === 5 ? " (önerilen)" : ""}</option>`).join("")}</select>`)}
+          </div>
+          <div class="helper" id="st-weekday-info"></div>
+          <button class="clr-opt wide${st.contentId ? " on" : ""}" data-act="st-content-id" style="margin-top:10px">
+            <b>${st.contentId ? "✓ YouTube Content ID kaydı açık" : "YouTube Content ID kaydı ekle"}</b>
+            <span>${U.money(K.meta.CONTENT_ID_COST)} · başkaları şarkını kullanınca otomatik telif geliri</span>
+          </button>
+        </div>
+
+        ${conflict ? `
+        <div class="form-block">
+          <div class="form-block-head"><span class="fb-no">!</span><div><h4>Format Uyumsuzluğu</h4><p>Seçtiğin mağazalar bu kayıt kalitesini kabul etmiyor.</p></div></div>
+          <div class="note-line bad">
+            <b>${conflictNames}</b> yalnızca yüksek kaliteli dosya kabul eder; <b>${badList}</b> düşük kaliteli.
+            Kaynağı yükselt ya da bu mağazaları listeden çıkar.
+          </div>
+          <button class="clr-opt wide" data-act="st-drop-premium"><b>Sorunlu mağazaları kaldır</b><span>Yayına devam et — bu mağazalarda çıkmayacak</span></button>
+        </div>` : ""}
+
+        <div class="form-block">
+          <div class="form-block-head"><span class="fb-no">8</span><div><h4>Yayın Özeti</h4><p>Göndermeden önce son kontrol.</p></div></div>
           <div class="sum-rows">
             ${row("Kalite", hide ? "🔒" : (st.count > 1 ? qMin + "–" + qMax : qList[0]))}
             ${row("Söz", lyrics.empty ? "Sözsüz" : (hide ? "Yazıldı" : K.lyrics.feedback(lyrics)))} 
@@ -1477,11 +1888,14 @@
             ${row("Lirikal Açı", lyrics.angle ? U.escape(K.lyricAngleById(lyrics.angle).name) : "—")}
             ${row("Gündem", ag.hits.length ? "🔥 Gündemde" : "Sakin")}
             ${isProject ? row("Bütünlük", hide ? K.lyrics.cohesionLabel(cohesion) : cohesion + "/100") : ""}
+            ${row("Explicit", st.count > 1 ? K.careerUI.explicitCount(st) + "/" + st.count + " parça" : (st.tracks[0] && st.tracks[0].explicit ? "<em class='exp-tag'>E</em> Var" : "Yok"))}
+            ${st.beatId === "sample" ? row("Örnek Hakkı", st.clearSample ? "Ödendi ✓" : "<span class='warn-txt'>Riskli</span>") : ""}
+            ${st.instrumental ? row("Enstrümantal", "Dahil ✓") : ""}
           </div>
         </div>
 
         <div class="form-block">
-          <div class="form-block-head"><span class="fb-no">3</span><div><h4>Maliyet</h4><p>Üretim, pazarlama ve dağıtım toplamı.</p></div></div>
+          <div class="form-block-head"><span class="fb-no">9</span><div><h4>Maliyet</h4><p>Üretim, pazarlama ve dağıtım toplamı.</p></div></div>
           <div class="sum-rows">
             ${row("Prodüksiyon", hide ? "🔒" : U.money(U.sum(trackBudgets)))}
             ${row("Pazarlama", U.money(st.marketing))}
@@ -1504,8 +1918,19 @@
 
       if (q("#st-count-val")) q("#st-count-val").textContent = st.count;
       if (q("#st-format")) q("#st-format").textContent = K.career.formatLabel(st.count);
-      if (q("#st-releaseday")) q("#st-releaseday").textContent = "Gün " + (K.state.day + st.wait);
-      if (q("#st-releaseday2")) q("#st-releaseday2").textContent = "Gün " + (K.state.day + st.wait);
+      /* v10.42 — C3: gerçek çıkış günü hedef hafta gününe kaydırılır */
+      const relDay = K.meta.snapToWeekday(K.state.day + st.wait, st.releaseWeekday != null ? st.releaseWeekday : 5);
+      const relDayTxt = "Gün " + relDay + " · " + K.meta.weekdayName(relDay);
+      if (q("#st-releaseday")) q("#st-releaseday").textContent = relDayTxt;
+      if (q("#st-releaseday2")) q("#st-releaseday2").textContent = relDayTxt;
+      const wdInfo = q("#st-weekday-info");
+      if (wdInfo) {
+        const fit = K.meta.releaseDayFit(relDay);
+        const wd = K.meta.weekdayOf(relDay);
+        wdInfo.textContent = K.meta.weekdayName(relDay) + " · Gün " + relDay +
+          (fit >= 1 ? " · ideal çıkış günü" : " · algoritma erişimi ×" + fit.toFixed(2) + " (cuma önerilir)");
+        wdInfo.className = fit >= 1 ? "helper" : "helper warn-txt";
+      }
       if (q("#st-budget-val")) q("#st-budget-val").textContent = hide ? "🔒" : U.money(st.budget) + " / parça";
       if (q("#st-marketing-val")) q("#st-marketing-val").textContent = hide ? "🔒" : U.money(st.marketing);
       if (q("#st-beat-q-val")) q("#st-beat-q-val").textContent = st.beatQ;
@@ -1531,7 +1956,15 @@
       const trackSources = st.tracks.map(t => K.sourceById(t.source).id);
       const storeCost = K.distroCost(st.stores);
       const storeReach = K.distroReach(st.stores);
-      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: st.vocalQ, mixQuality: st.mixQ, kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost };
+      /* v10.42 — C2: düşük kaliteli kaynak + premium mağaza = RET */
+      const badSrcTracks = st.tracks.slice(0, st.count).filter(t => !K.meta.sourceAccepted(K.sourceById(t.source)));
+      const conflictStores = badSrcTracks.length ? K.meta.premiumStores(st.stores) : [];
+      const conflict = conflictStores.length > 0;
+      const conflictNames = conflictStores.map(id => (K.storeById(id) || {}).name).join(", ");
+      const badList = badSrcTracks.map(t => (t.name || "?") + " (" + K.sourceById(t.source).file + ")").join(", ");
+      /* v10.40 — A5/A6: örnek hakkı ve enstrümantal sürüm maliyete girer
+         v10.41 — B3: bölge kapsamı dağıtım maliyetini çarpar */
+      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: st.vocalQ, mixQuality: st.mixQ, kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost, clearSample: !!st.clearSample, instrumental: !!st.instrumental, regionMult: K.meta.regionCost(st.regions) };
       const qList = trackBudgets.map((tb, i) => K.career.estimateQuality(st.genre, tb, Object.assign({}, opts, {
         sourceQAdd: K.sourceById(trackSources[i]).qAdd,
         lyricScore: (lyrList[i] || lyrics).score
@@ -1619,16 +2052,23 @@
       const tracks = st.tracks.slice(0, count).map(t => ({
         name: (t.name || "").trim() || K.career.suggestTitle(),
         budget: t.budget,
-        source: t.source
+        source: t.source,
+        /* v10.40 — A2/A3: parça bazında feat + explicit */
+        feat: t.feat || null,
+        explicit: !!t.explicit
       }));
       const title = K.careerUI.projectName(st) || tracks[0].name;
       K.careerUI._syncCover(st);
+      /* v10.42 — C3: hazırlık süresi en az st.wait, ama takvim hedef
+         hafta gününe (varsayılan cuma) kaydırılır. */
+      const relDay = K.meta.snapToWeekday(K.state.day + (st.wait || 18), st.releaseWeekday != null ? st.releaseWeekday : 5);
+      const waitDays = Math.max(1, relDay - K.state.day);
 
       const rel = K.career.createRelease({
         title, genre: st.genre, type, kind: st.kind,
         beatId: st.beatId, vocalId: st.vocalId,
         beatQuality: st.beatQ, vocalQuality: st.vocalQ, mixQuality: st.mixQ,
-        waitDays: st.wait, budget: st.budget, marketing: st.marketing,
+        waitDays: waitDays, budget: st.budget, marketing: st.marketing,
         featWith: st.feat, lyricsTheme: st.lyricsTheme,
         /* parça başına sözler — albümde her şarkı kendi sözünü alır */
         trackLyrics: st.tracks.slice(0, count).map((t, i) => K.careerUI.trackLyrics(st, i)),
@@ -1636,6 +2076,14 @@
         conceptId: st.conceptId, coverSeed: st.coverSeed,
         strategy: st.strategy, ghost: st.ghost, inventoryBeat: st.inventoryBeat,
         stores: st.stores,
+        /* v10.40 — A5/A6: örnek hakkı kararı + enstrümantal sürüm */
+        clearSample: !!st.clearSample,
+        instrumental: !!st.instrumental,
+        /* v10.41 — B grubu metadata */
+        regions: st.regions, lang: st.lang, credits: st.credits,
+        labelName: st.labelName, copyrightYear: st.copyrightYear,
+        /* v10.42 — C grubu teknik */
+        coverPx: st.coverPx, contentId: !!st.contentId, releaseWeekday: st.releaseWeekday,
         trackCount: count, trackBudgets: tracks.map(t => t.budget), tracks
       });
       if (rel) K.refresh();
@@ -1819,7 +2267,7 @@
           <div class="release-top">
             ${K.ui.cover(song.coverSeed, (song.title[0] || "?").toUpperCase())}
             <div class="grow">
-              <div class="title">${U.escape(song.title)} ${song.viral ? '<span class="pill hot">🔥 Viral</span>' : ""}</div>
+              <div class="title">${U.escape(song.title)} ${song.viral ? '<span class="pill hot">🔥 Viral</span>' : ""}${song.takenDown ? '<span class="pill" style="color:#ff8fa3">🚫 Kaldırıldı</span>' : ""}${song.contentId ? '<span class="pill">🆔 Content ID</span>' : ""}${song.explicit ? '<em class="exp-tag">E</em>' : ""}</div>
               <div class="sub">Yayın: Gün ${song.publishedDay} · ${U.compact(song.streams)} dinlenme · Kalite ${song.quality}${song.chartRank ? ` · Liste #${song.chartRank}` : ""}</div>
               <div class="sub" style="margin-top:4px">Spotify ${U.compact(song.spotifyStreams)} · Apple ${U.compact(song.appleStreams)} · YouTube ${U.compact(song.youtubeViews)}</div>
             </div>
@@ -1832,6 +2280,9 @@
             ${song.sound && song.sound.startedDay
               ? `<span class="pill ${song.sound.trend ? "hot" : ""}" style="align-self:center">🎬 ${U.compact(song.sound.videos)} video</span>`
               : `<button class="btn btn-sm btn-primary" data-act="snippet" data-song="${song.id}" style="margin-left:6px">🎬 Kısa video</button>`}
+            ${song.takenDown
+              ? `<button class="btn btn-sm btn-primary" data-act="song-reupload" data-song="${song.id}" style="margin-left:6px">♻️ Yeniden yükle · ${U.money(K.meta.REUPLOAD_COST)}</button>`
+              : `<button class="btn btn-sm btn-ghost" data-act="song-takedown" data-song="${song.id}" style="margin-left:6px" title="Yayını mağazalardan çek">🚫 Kaldır</button>`}
           </div>
         </div>`;
       }).join("")}</div>`
@@ -2919,6 +3370,9 @@
       /* not: stüdyo sihirbazı kendi olay yöneticisini kullanır (openStudioModal) */
       if (act === "promo-social") K.social.promoteSong(btn.dataset.song, btn.dataset.platform);
       else if (act === "pitch-playlist") K.career.pitchPlaylist(btn.dataset.rel);
+      /* v10.42 — C5: takedown / yeniden yükleme */
+      else if (act === "song-takedown") K.career.takedownSong(btn.dataset.song, "manual");
+      else if (act === "song-reupload") K.career.reuploadSong(btn.dataset.song);
       else if (act === "snippet") K.shortform.startSnippet(btn.dataset.song, "tiktok");
       else if (act === "practice") K.skills.practice(btn.dataset.arg);
       else if (act === "preview-song") {
