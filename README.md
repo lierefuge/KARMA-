@@ -5,6 +5,135 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.43 — Yan işler: başvuru · vardiya · yorgunluk · denge
+
+Yan işler vardı ama fazla kolaydı: her "açık" iş tek tıkla yapılıyor, oyuncu
+günde beş iş çevirip kariyerini yan işle döndürebiliyordu. Bu sürüm yan işleri
+gerçek hayattaki gibi **bir işe girme sürecine** bağladı. Yeni test paketi:
+`tools/smoke-v1043.js` (**61 kontrol**). Boru hattı: **30/30 → 31/31 adım**.
+
+Değişen tek dosya: `js/systems/jobs.js` (+ `js/core/state.js` ve `js/core/game.js`
+başlangıç/tick alanları, `js/ui/career-ui.js` yan işler sekmesi).
+
+### Dört mekanik
+
+| # | Mekanik | Ne değişti |
+|---|---|---|
+| **1** | **Başvuru** | İşe girmek için **başvurursun**; yanıt ertesi gün gelir. Kabul/ret, beceri uygunluğuna ve itibara bağlıdır. Reddedilirsen **5 gün** tekrar başvuramazsın. Aynı anda en fazla **2** bekleyen başvuru olur. |
+| **2** | **Vardiya** | Her iş bir **vardiyadır** (sabah/akşam/gece etiketiyle). Günde en fazla **3 vardiya**. Üst üste çalışırsan verim düşer (×0,75 · ×0,56 · ×0,42 …). |
+| **3** | **Yorgunluk** | Vardiya yorgunluk biriktirir; yorgunluk ücreti düşürür (%40'a kadar) ve **80+** yorgunlukta iş yapamazsın. Günü **dinlenmeye** ayırırsan 25 puan toparlanırsın — ama o gün vardiya yok. |
+| **4** | **Denge** | Ün ve takipçi arttıkça yan iş ücreti ve kapılar kapanır; yan iş erken oyunun can simidi olur, motoru değil. |
+
+### Serbest işler
+
+Bazı işler başvuru gerektirmez — doğrudan yapılır:
+
+- **Sokak performansı** (15+) — meydanda çal, küçük kitle + tecrübe
+- **Beat satışı** (Müzikal Yetenek 12+) — beat'lerini online sat
+
+Bunlar ilk günden çalışılabilir; resmi işler (kafe, market, kurye, stüdyo…)
+başvuru ister.
+
+### Arayüz
+
+- **Vardiya Hakkı X/3** sayacı ve **yorgunluk çubuğu**
+- Her kartta durum rozeti: *başvurulmadı · başvuru bekliyor · kadroda ✓ · serbest · reddedildi*
+- Bağlama göre tek düğme: **📨 Başvur** ya da **💼 Vardiyaya gir**
+- **😴 Bugünü dinlenmeye ayır** düğmesi (günde bir kez)
+
+### Geriye uyum
+
+Eski kayıtlarda `jobApps` yoksa giriş seviyesi işler (kafe, market, sokak)
+"işe alınmış" sayılır; oyuncu işsiz kalmaz. Yeni oyunda ise başvuru akışı
+baştan işler.
+
+### Doğrulama
+
+```
+node tools/build-single.js && node tools/verify.js
+→ 31/31 adım geçti
+
+node tools/smoke-v1043.js
+→ 61/61 kontrol geçti
+```
+
+---
+
+## GÜNCELLEME v10.42 — Distribütör & Sözleşme: kim dağıtıyor?
+
+v10.40 dağıtım formunu gerçekçi yaptı ama tek bir soru eksik kaldı:
+**kim dağıtıyor?** Oyunda sanatçı hep kendi kendine dağıtıyormuş gibi sabit
+maliyetle çalışıyordu. Gerçekte sanatçı bir distribütöre (DistroKid / TuneCore /
+CD Baby / Amuse / Believe…) kaydolur ve o distribütörün **ticari modeli**
+kariyeri doğrudan etkiler. Yeni modül: `js/data/distributors.js`. Yeni test
+paketi: `tools/smoke-v1042.js` (**55 kontrol**). Boru hattı: **29/29 → 30/30 adım**.
+
+### Distribütör artık gerçek bir karar
+
+| Distribütör | Model | Ücret | Kesinti | Teslim | Premium mağaza |
+|---|---|---|---|---|---|
+| **KARMA Dağıtım** | Ücretsiz | — | %18 | 10 gün | ✓ |
+| **Amuse** | Ücretsiz | — | %25 | 14 gün | ✗ |
+| **CD Baby** | Tek seferlik | 2.600 ₺/yayın | %9 | 7 gün | ✓ |
+| **TuneCore** | Yayın başına | 1.400 ₺/yayın | %0 | 5 gün | ✓ |
+| **Ditto Music** | Yıllık üyelik | 6.900 ₺/yıl | %0 | 6 gün | ✓ |
+| **DistroKid** | Yıllık üyelik | 9.900 ₺/yıl | %0 | 3 gün | ✓ |
+| **Believe** | Etiket | — | %5 | 4 gün | ✓ (itibar 45+) |
+| **The Orchard** | Major | — | %3 | 3 gün | ✓ (itibar 60+) |
+
+Denge şudur: ucuz distribütör **çok keser ve geç teslim eder**; pahalısı
+**az keser, hızlı teslim eder, tüm mağazalara sokar**.
+
+- **Ücret modeli** — ücretsiz / yayın başına / tek seferlik / yıllık üyelik / etiket.
+  Yıllık üyelikte ücret **365 günde bir** alınır; o yıl içindeki yayınlar ücretsizdir.
+- **Kesinti (komisyon)** — streaming brütünden distribütörün payı teliften düşülür.
+- **Teslim süresi (lead time)** — her distribütörün minimum ön süresi var (3–14 gün).
+  Çıkış tarihi bu süreden erken seçilirse yayın **otomatik olarak** öne kaydırılır.
+- **Premium mağaza erişimi** — ücretsiz/kısıtlı distribütörler Apple/TIDAL/Amazon'a
+  giremez; o mağaza seçenekleri kilitlenir ve seçimden düşer.
+- **İtibar kapısı** — Believe (45+) ve The Orchard (60+) yeterli itibarla ya da
+  şirket sahibiysen açılır.
+
+### Master sahipliği: “yayın kime ait?”
+
+Yayının **master**'ı (kayıt hakkı) sözleşmeden gelir:
+
+- **Şirket adına** — şirket master'a sahiptir, yayını daha çok iter (dinlenme ×1.06),
+  karşılığında şirket payı tam işler.
+- **Kendi adına** — sanatçı master'a sahiptir; şirket “dağıtım” rolüne düşer,
+  payı **yarıya iner** ama şirket desteği azalır (dinlenme ×0.96).
+
+Şirket altındayken stüdyoda iki yol seçilir: **şirketin distribütörü** (masrafı
+şirket üstlenir) ya da **kendi distribütörün** (ücreti sen ödersin).
+
+### Şirket sözleşmeleri artık gerçek bir metin
+
+`labelOfferTerms` artık **master** ve **distribütör** şartlarını da taşır;
+imzalanan sözleşme şirket sekmesinde tam metin olarak görünür:
+
+- taraflar, anlaşma türü (standart / 360), avans, şirket–sanatçı payı,
+  **master sahibi**, **distribütör**, süre, 360 pay kalemleri (turne/merch/sync)
+- avans recoup ilerlemesi
+- **imza damgası** (sanatçı adı + imza günü)
+
+### Geriye uyum
+
+Varsayılan distribütör (`KARMA Dağıtım`) premium mağazalara açıktır; distribütör
+seçimine dokunmayan oyuncu için hiçbir şey değişmez. Eski kayıtlarda distribütör
+bilgisi yoksa şarkılar `karma` ve %18 kesinti varsayılanıyla davranır.
+
+### Doğrulama
+
+```
+node tools/build-single.js && node tools/verify.js
+→ 30/30 adım geçti
+
+node tools/smoke-v1042.js
+→ 55/55 kontrol geçti
+```
+
+---
+
 ## GÜNCELLEME v10.41 — Şarkı biçimi: parça artık gerçek bir yapı
 
 Söz atölyesinde **her parça sabit yedi bölümden** oluşuyordu: giriş · verse ·
