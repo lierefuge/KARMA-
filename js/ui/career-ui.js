@@ -265,15 +265,19 @@
         step: 1,
         genre: p.genre,
         count: 1,
-        tracks: [{ name: K.career.suggestTitle(), budget: 12000, source: "ev", uploaded: false }],
+        /* v10.39 — parça artık kendi SÖZÜNÜ taşır (eskiden tek bir
+           lyricSections vardı ve albümdeki her şarkı aynı sözü alıyordu) */
+        tracks: [{
+          name: K.career.suggestTitle(), budget: 12000, source: "ev",
+          lyrics: { intro: "", verse: lyrics || "", hook: "", chorus: "", bridge: "", outro: "" }
+        }],
+        lyrTrack: 0,
         kind: dissArtist ? "diss" : "normal",
         beatId: "digital", beatQ: 55,
         vocalId: "rap", vocalQ: 55,
         mixQ: 55,
         feat: null,
         lyricsTheme: topicTheme || "street",
-        lyricSections: { intro: "", verse: lyrics || "", hook: "", chorus: "", bridge: "", outro: "" },
-        lyricsText: "",
         topic: topic,
         dissArtist: dissArtist,
         conceptId: "open",
@@ -332,17 +336,78 @@
       K.careerUI.renderStudioStep();
     },
 
+    /* ---------------- parça başına sözler (v10.39) ---------------- */
+    emptyLyrics() {
+      const o = {};
+      K.LYRIC_SECTIONS.forEach(s => { o[s.id] = ""; });
+      return o;
+    },
+    lyrIndex(st) {
+      const n = (st.tracks || []).length;
+      const i = Math.round(+st.lyrTrack || 0);
+      return (i >= 0 && i < n) ? i : 0;
+    },
+    trackLyrics(st, i) {
+      const tr = (st.tracks || [])[i];
+      if (!tr) return K.careerUI.emptyLyrics();
+      if (!tr.lyrics || typeof tr.lyrics !== "object") tr.lyrics = K.careerUI.emptyLyrics();
+      return tr.lyrics;
+    },
+    lyricsFilled(sec) {
+      return K.LYRIC_SECTIONS.filter(s => String((sec || {})[s.id] || "").trim()).length;
+    },
+    lyricsDone(st) {
+      return (st.tracks || []).filter(t => K.careerUI.lyricsFilled(t.lyrics) === K.LYRIC_SECTIONS.length).length;
+    },
+    /* bir bölüm setini temaya göre doldurur (yerinde) */
+    suggestInto(sec, theme) {
+      K.LYRIC_SECTIONS.forEach(s => { sec[s.id] = K.lyrics.suggestSection(theme, s.id).join("\n"); });
+      return sec;
+    },
+    /* söz analizi pahalı; tuş başına 30 parçayı yeniden analiz etmemek
+       için küçük bir önbellek (içerik + tema + tür anahtarı). */
+    _lyrCache: {},
+    analyzeTrack(st, i) {
+      const sec = K.careerUI.trackLyrics(st, i);
+      const key = st.lyricsTheme + "|" + st.genre + "|" + st.kind + "|" +
+        K.LYRIC_SECTIONS.map(s => String(sec[s.id] || "")).join("\u0001");
+      const c = K.careerUI._lyrCache;
+      if (Object.prototype.hasOwnProperty.call(c, key)) return c[key];
+      if (Object.keys(c).length > 160) K.careerUI._lyrCache = {};
+      const r = K.lyrics.analyze(sec, st.lyricsTheme, st.genre, st.kind);
+      c[key] = r;
+      return r;
+    },
+
     /* ---------------- durum yardımcıları ---------------- */
     _syncTracks(st) {
       st.tracks = st.tracks || [];
       const def = st.budget || 12000;
+      st.count = Math.max(1, Math.min(K.career.MAX_TRACKS, Math.round(+st.count || 1)));
       if (st.tracks.length > st.count) st.tracks = st.tracks.slice(0, st.count);
-      while (st.tracks.length < st.count) st.tracks.push({ name: K.career.suggestTitle(), budget: def, source: "ev", uploaded: false });
+      /* v10.39 — YENİ PARÇALAR TEKİLLEŞTİRİLİR. Eskiden körlemesine
+         suggestTitle() ekleniyordu; 10 parçalı bir projede 30 denemenin
+         12'sinde aynı ad iki kez geliyordu (ör. iki tane "Gölge"). */
+      const used = new Set(st.tracks.map(t => String(t.name || "").trim()).filter(Boolean));
+      while (st.tracks.length < st.count) {
+        let nm = K.career.suggestTitle(), guard = 0;
+        while (used.has(nm) && guard++ < 40) nm = K.career.suggestTitle();
+        used.add(nm);
+        st.tracks.push({ name: nm, budget: def, source: "ev" });
+      }
+      /* eski kayıtlardan gelen TEK söz seti ilk parçaya taşınır */
+      if (st.lyricSections && !st._lyrMigrated) {
+        st.tracks.forEach((t, i) => { if (i === 0 && !t.lyrics) t.lyrics = Object.assign(K.careerUI.emptyLyrics(), st.lyricSections); });
+        st._lyrMigrated = true;
+        delete st.lyricSections;
+      }
       st.tracks.forEach(t => {
         if (t.budget == null) t.budget = def;
         if (!t.source) t.source = "ev";
-        if (t.uploaded == null) t.uploaded = false;
+        if (!t.dur) t.dur = K.career.suggestDuration();   // her parçanın kendi süresi
+        if (!t.lyrics || typeof t.lyrics !== "object") t.lyrics = K.careerUI.emptyLyrics();
       });
+      if (!(st.lyrTrack >= 0 && st.lyrTrack < st.tracks.length)) st.lyrTrack = 0;
       if (st.count > 1 && (st.autoCount !== st.count || !st.autoProjectTitle)) {
         st.autoProjectTitle = K.career.suggestProjectTitle(st.count);
         st.autoCount = st.count;
@@ -431,10 +496,10 @@
         const n = U.qs('[data-trk="' + i + '"]'); if (n) t.name = n.value;
         const b = U.qs('[data-trkb="' + i + '"]'); if (b) t.budget = +b.value;
       });
-      st.lyricSections = st.lyricSections || {};
+      const sec = K.careerUI.trackLyrics(st, K.careerUI.lyrIndex(st));
       K.LYRIC_SECTIONS.forEach(s => {
         const el = U.qs('[data-lyrsec="' + s.id + '"]');
-        if (el) st.lyricSections[s.id] = el.value;
+        if (el) sec[s.id] = el.value;
       });
       K.careerUI._syncCover(st);
     },
@@ -476,7 +541,7 @@
       }
       if (ds.src != null) {
         const i = +ds.src;
-        if (st.tracks[i]) { st.tracks[i].source = el.value; st.tracks[i].uploaded = false; }
+        if (st.tracks[i]) st.tracks[i].source = el.value;
         K.careerUI.renderTrackList();
         K.careerUI.updateStudioEstimate();
         return;
@@ -491,8 +556,7 @@
         return;
       }
       if (ds.lyrsec != null) {
-        st.lyricSections = st.lyricSections || {};
-        st.lyricSections[ds.lyrsec] = el.value;
+        K.careerUI.trackLyrics(st, K.careerUI.lyrIndex(st))[ds.lyrsec] = el.value;
         K.careerUI.updateStudioEstimate();
         return;
       }
@@ -514,8 +578,14 @@
         const anyName = (st.tracks || []).some(t => (t.name || "").trim());
         if (!anyName) { K.toast("Parça adı gerekli", "En az bir parça adı gir.", "warn"); return false; }
         st.count = st.tracks.length;
-        const missing = st.tracks.filter(t => !t.uploaded).length;
-        if (missing) { K.toast("Yükleme eksik", missing + " parça henüz yüklenmedi. Her parçayı yükle.", "warn"); return false; }
+      }
+      /* v10.39 — her parçanın sözü olmalı; tek tuşla doldurma var */
+      if (n === 3) {
+        const bos = st.tracks.filter(t => K.careerUI.lyricsFilled(t.lyrics) === 0);
+        if (bos.length) {
+          K.toast("Söz eksik", bos.length + " parçada hiç söz yok. \"Kalanları Otomatik Doldur\" ile tamamlayabilirsin.", "warn");
+          return false;
+        }
       }
       return true;
     },
@@ -570,8 +640,6 @@
         return;
       }
 
-      /* parça yükleme + mağaza seçimi */
-      if (act === "trk-upload") { K.careerUI._runUpload(+btn.dataset.arg); return; }
       if (act === "store-toggle") {
         const id = btn.dataset.arg;
         const set = new Set(st.stores || []);
@@ -584,9 +652,9 @@
 
       /* parça listesi */
       if (act === "trk-add") {
-        if (st.tracks.length >= 14) { K.toast("En fazla 14 parça", "", "warn"); return; }
-        st.tracks.push({ name: K.career.suggestTitle(), budget: st.budget, source: "ev", uploaded: false });
-        st.count = st.tracks.length;
+        if (st.tracks.length >= K.career.MAX_TRACKS) { K.toast("En fazla " + K.career.MAX_TRACKS + " parça", "", "warn"); return; }
+        st.count = st.tracks.length + 1;
+        K.careerUI._syncTracks(st);   // ad tekilleştirme + süre burada
         const sl = U.qs("#st-count"); if (sl) sl.value = st.count;
         K.careerUI.renderTrackList();
         K.careerUI.renderProjectField();
@@ -608,7 +676,7 @@
         return;
       }
       if (act === "trk-reroll") {
-        K.career.suggestTracks(st.tracks.length).forEach((nm, i) => { st.tracks[i].name = nm; });
+        K.career.suggestTracks(st.tracks.length).forEach((nm, i) => { if (st.tracks[i]) st.tracks[i].name = nm; });
         K.careerUI.renderTrackList();
         K.careerUI._syncCover(st);
         K.careerUI.renderCoverPreview();
@@ -625,23 +693,46 @@
         return;
       }
 
-      /* söz atölyesi */
+      /* söz atölyesi — v10.39: hepsi SEÇİLİ PARÇA üzerinde çalışır */
+      if (act === "lyr-track") {
+        st.lyrTrack = Math.round(+btn.dataset.arg || 0);
+        K.careerUI.renderStudioStep();
+        return;
+      }
       if (act === "lyr-suggest") {
-        const sid = btn.dataset.arg;
-        st.lyricSections = st.lyricSections || {};
-        st.lyricSections[sid] = K.lyrics.suggestSection(st.lyricsTheme, sid).join("\n");
+        const sec = K.careerUI.trackLyrics(st, K.careerUI.lyrIndex(st));
+        sec[btn.dataset.arg] = K.lyrics.suggestSection(st.lyricsTheme, btn.dataset.arg).join("\n");
         K.careerUI.renderStudioStep();
         return;
       }
       if (act === "lyr-suggest-all") {
-        st.lyricSections = st.lyricSections || {};
-        K.LYRIC_SECTIONS.forEach(s => { st.lyricSections[s.id] = K.lyrics.suggestSection(st.lyricsTheme, s.id).join("\n"); });
+        const i = K.careerUI.lyrIndex(st);
+        K.careerUI.suggestInto(K.careerUI.trackLyrics(st, i), st.lyricsTheme);
         K.careerUI.renderStudioStep();
-        K.toast("🎲 Söz önerildi", "Tüm bölümler temaya göre dolduruldu.", "ok");
+        K.toast("🎲 Söz önerildi", (st.tracks[i].name || "Parça " + (i + 1)) + " dolduruldu.", "ok");
+        return;
+      }
+      if (act === "lyr-fill-rest") {
+        let n = 0;
+        st.tracks.forEach((t, i) => {
+          if (K.careerUI.lyricsFilled(t.lyrics) === K.LYRIC_SECTIONS.length) return;
+          K.careerUI.suggestInto(K.careerUI.trackLyrics(st, i), st.lyricsTheme);
+          n++;
+        });
+        K.careerUI.renderStudioStep();
+        K.toast(n ? "🎲 " + n + " parça dolduruldu" : "Zaten hazır",
+          n ? "Sözler temaya göre yazıldı." : "Bütün parçaların sözü tam.", n ? "ok" : "warn");
+        return;
+      }
+      if (act === "lyr-apply-all") {
+        const src = JSON.parse(JSON.stringify(K.careerUI.trackLyrics(st, K.careerUI.lyrIndex(st))));
+        st.tracks.forEach(t => { t.lyrics = JSON.parse(JSON.stringify(src)); });
+        K.careerUI.renderStudioStep();
+        K.toast("📋 Uygulandı", "Bu söz bütün parçalara kopyalandı.", "ok");
         return;
       }
       if (act === "lyr-clear") {
-        st.lyricSections = { intro: "", verse: "", hook: "", chorus: "", bridge: "", outro: "" };
+        st.tracks[K.careerUI.lyrIndex(st)].lyrics = K.careerUI.emptyLyrics();
         K.careerUI.renderStudioStep();
         return;
       }
@@ -650,10 +741,9 @@
         if (!K.economy.canAfford(15000)) { K.toast("Yetersiz bakiye", "Söz yazarı için ₺15.000 gerekiyor.", "bad"); return; }
         K.economy.spend(15000, "ghostwriter");
         st.ghost = true;
-        st.lyricSections = st.lyricSections || {};
-        K.LYRIC_SECTIONS.forEach(s => { st.lyricSections[s.id] = K.lyrics.suggestSection(st.lyricsTheme, s.id).join("\n"); });
+        st.tracks.forEach((t, i) => K.careerUI.suggestInto(K.careerUI.trackLyrics(st, i), st.lyricsTheme));
         K.careerUI.renderStudioStep();
-        K.toast("✍️ Söz yazarı tutuldu", "Sözler yazıldı — sızma riski var.", "warn");
+        K.toast("✍️ Söz yazarı tutuldu", "Bütün parçaların sözleri yazıldı — sızma riski var.", "warn");
         return;
       }
 
@@ -739,50 +829,73 @@
       K.careerUI._syncTracks(st);
       const srcOpts = id => K.TRACK_SOURCES.map(s =>
         `<option value="${s.id}" ${s.id === id ? "selected" : ""}>${s.icon} ${s.name}</option>`).join("");
+      /* v10.39 — DOSYA YÜKLEME ADIMI KALDIRILDI. Oyuncuya hiçbir şey
+         katmıyordu (sadece ilerleme çubuğu izletiyordu); kaynak seçimi
+         kalite ve maliyeti zaten belirliyor. Kaynak satırı kaldı ve
+         artık etkisini açıkça yazıyor. */
       wrap.innerHTML = st.tracks.map((t, i) => {
         const src = K.sourceById(t.source);
-        const up = !!t.uploaded;
+        const q = src.qAdd > 0 ? "+" + src.qAdd : String(src.qAdd);
         return `
-        <div class="trk-card ${up ? "is-up" : ""}">
+        <div class="trk-card">
           <div class="trk-head">
             <span class="t-rank">${i + 1}</span>
             <input type="text" data-trk="${i}" value="${U.escape(t.name || "")}" placeholder="Parça adı" />
-            <span class="t-dur">${up ? "3:24" : "--:--"}</span>
-            <button class="btn btn-ghost btn-sm" data-act="trk-remove" data-arg="${i}" title="Parçayı çıkar">🗑</button>
+            <span class="t-dur">${U.escape(t.dur || K.career.suggestDuration())}</span>
+            <button class="btn btn-ghost btn-sm" data-act="trk-remove" data-arg="${i}" title="Parçayı çıkar">${K.careerUI.ico("trash")}</button>
           </div>
           <div class="trk-up">
             <select data-src="${i}" title="Kayıt kaynağı">${srcOpts(t.source)}</select>
-            <div class="up-bar" data-upbar="${i}"><i style="width:${up ? 100 : 0}%"></i></div>
-            <span class="up-status ${up ? "ok" : ""}" data-upstatus="${i}">${up ? "✓ Yüklendi · " + src.file + " · " + src.bit : src.note}</span>
-            <button class="btn ${up ? "btn-ghost" : "btn-primary"} btn-sm" data-act="trk-upload" data-arg="${i}">${up ? "↻ Değiştir" : "⬆ Yükle"}</button>
+            <span class="trk-src ${src.qAdd > 0 ? "good" : src.qAdd < 0 ? "weak" : ""}">${src.file} · ${src.bit} · ${src.size} · kalite ${q}</span>
           </div>
         </div>`;
       }).join("");
-      const info = U.qs("#st-tracks-info");
-      if (info) info.textContent = st.count + " parça · " + st.tracks.filter(x => x.uploaded).length + " yüklendi";
+      K.careerUI.refreshTracksInfo();
     },
 
-    _runUpload(i) {
-      const st = K.careerUI._studio;
-      const tr = st && st.tracks[i];
-      if (!tr) return;
-      const bar = U.qs('[data-upbar="' + i + '"] i');
-      const status = U.qs('[data-upstatus="' + i + '"]');
-      const btn = U.qs('[data-act="trk-upload"][data-arg="' + i + '"]');
-      if (btn) btn.disabled = true;
-      if (status) { status.className = "up-status loading"; status.textContent = "Yükleniyor…"; }
-      let pct = 0;
-      const timer = setInterval(() => {
-        pct = Math.min(100, pct + U.randInt(9, 22));
-        if (bar) bar.style.width = pct + "%";
-        if (pct >= 100) {
-          clearInterval(timer);
-          tr.uploaded = true;
-          K.careerUI.renderTrackList();
-          K.careerUI.updateStudioEstimate();
-          K.toast("⬆️ Parça yüklendi", (tr.name || ("Parça " + (i + 1))) + " · " + K.sourceById(tr.source).name, "ok");
-        }
-      }, 90);
+    /* v10.39 — parça sayacının TEK kaynağı. Eskiden renderTrackList
+       "N parça · N yüklendi" yazıyor, updateStudioEstimate ise hemen
+       ardından bunu "N parça" ile eziyordu; yükleme sayacı bir tuşa
+       dokunulunca kayboluyordu. */
+    tracksInfoText(st) {
+      if (!st) return "";
+      /* yükleme adımı kalktığı için sayaç artık TOPLAM SÜREyi gösterir */
+      let sec = 0;
+      (st.tracks || []).forEach(t => {
+        const m = String(t.dur || "").match(/^(\d+):(\d+)$/);
+        if (m) sec += (+m[1]) * 60 + (+m[2]);
+      });
+      return st.count + " parça · " + Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0") + " toplam";
+    },
+    refreshTracksInfo() {
+      const info = U.qs("#st-tracks-info");
+      if (info) info.textContent = K.careerUI.tracksInfoText(K.careerUI._studio);
+    },
+
+    /* stüdyo düğme ikonları (emoji yerine gerçek SVG) */
+    ico(name) {
+      const P = {
+        dice:    '<rect x="3.5" y="3.5" width="17" height="17" rx="4"/><circle cx="8.5" cy="8.5" r="1.4" fill="currentColor" stroke="none"/><circle cx="15.5" cy="15.5" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/>',
+        trash:   '<path d="M4 6.5h16M9.5 6.5V4.8a1.3 1.3 0 0 1 1.3-1.3h2.4a1.3 1.3 0 0 1 1.3 1.3v1.7"/><path d="M6.4 6.5 7.3 19a1.6 1.6 0 0 0 1.6 1.5h6.2a1.6 1.6 0 0 0 1.6-1.5l.9-12.5"/><path d="M10.4 10.4v6.4M13.6 10.4v6.4"/>',
+        plus:    '<path d="M12 5v14M5 12h14"/>',
+        upload:  '<path d="M12 16.5V4.8"/><path d="m7.6 9.2 4.4-4.4 4.4 4.4"/><path d="M4.8 15.5v2.4a1.6 1.6 0 0 0 1.6 1.6h11.2a1.6 1.6 0 0 0 1.6-1.6v-2.4"/>',
+        refresh: '<path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 3.6V9h-5.4"/>',
+        reset:   '<path d="M4 12a8 8 0 1 0 2.6-5.9"/><path d="M4 3.6V9h5.4"/>',
+        sparkle: '<path d="M12 3.5 13.9 9 19.5 11 13.9 13 12 18.5 10.1 13 4.5 11 10.1 9z"/><path d="M18.6 3.4v3.2M20.2 5h-3.2"/>',
+        copy:    '<rect x="9" y="9" width="11.5" height="11.5" rx="2.4"/><path d="M15 6.5V5.4A1.9 1.9 0 0 0 13.1 3.5H5.4A1.9 1.9 0 0 0 3.5 5.4v7.7A1.9 1.9 0 0 0 5.4 15h1.1"/>',
+        download:'<path d="M12 4.8v11.7"/><path d="m7.6 12.1 4.4 4.4 4.4-4.4"/><path d="M4.8 15.5v2.4a1.6 1.6 0 0 0 1.6 1.6h11.2a1.6 1.6 0 0 0 1.6-1.6v-2.4"/>',
+        money:   '<rect x="2.6" y="6" width="18.8" height="12" rx="2.6"/><circle cx="12" cy="12" r="2.7"/>',
+        pen:     '<path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17v3z"/><path d="m14.5 6.5 3 3"/>',
+        film:    '<rect x="3" y="4.5" width="18" height="15" rx="2.6"/><path d="M7.5 4.5v15M16.5 4.5v15M3 9.2h18M3 14.8h18"/>',
+        zap:     '<path d="M13 2.5 4.8 13.6H11L10 21.5l8.2-11.1H12z"/>',
+        play:    '<path d="M7.5 5.2 19 12 7.5 18.8z"/>',
+        building:'<path d="M4 20V6.6A1.6 1.6 0 0 1 5.6 5h6.8A1.6 1.6 0 0 1 14 6.6V20"/><path d="M14 10.2h4.4A1.6 1.6 0 0 1 20 11.8V20"/><path d="M2.6 20h18.8"/><path d="M7.3 8.8h3.4M7.3 12.4h3.4M7.3 16h3.4"/>',
+        rocket:  '<path d="M12 3.2c3.3 1.7 5.1 4.8 5.1 8.5 0 1.4-.3 2.8-.8 3.9H7.7a9.9 9.9 0 0 1-.8-3.9c0-3.7 1.8-6.8 5.1-8.5z"/><circle cx="12" cy="10.2" r="1.9"/><path d="m9.3 15.6-1.2 4.6 2.7-1.4M14.7 15.6l1.2 4.6-2.7-1.4"/>'
+      };
+      const d = P[name];
+      if (!d) return "";
+      return '<svg class="st-ico" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" ' +
+        'stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
     },
 
     renderStoreChips() {
@@ -826,7 +939,7 @@
       el.innerHTML = K.ui.field("💿 Proje adı (isteğe bağlı)",
         `<div class="range-row">
            <input id="st-project" type="text" value="${U.escape(st.projectTitle || "")}" placeholder="${U.escape(st.autoProjectTitle || K.career.suggestProjectTitle(st.count))}" style="flex:1" />
-           <button class="btn btn-ghost btn-sm" data-act="roll-project">🎲</button>
+           <button class="btn btn-ghost btn-sm" data-act="roll-project" title="Yeni ad öner">${K.careerUI.ico("dice")}</button>
          </div>`,
         "Boş bırakırsan otomatik ad kullanılır.");
     },
@@ -836,10 +949,12 @@
       if (!wrap) return;
       const st = K.careerUI._studio;
       const type = K.career.typeForCount(st.count);
+      /* v10.39 — kartlar yeni kurala birebir uyar:
+         1 → Single · 2-8 → EP · 9+ → Albüm (en fazla 30 parça) */
       const cards = [
-        { id: "single", label: "Single", count: 1, note: "1 parça", on: st.count <= 1 },
-        { id: "ep", label: "EP", count: 4, note: "3–4 parça", on: type === "ep" || type === "double" },
-        { id: "album", label: "Albüm", count: 8, note: "5+ parça", on: type === "album" || type === "deluxe" }
+        { id: "single", label: "Single", count: 1, note: "1 parça", on: type === "single" },
+        { id: "ep", label: "EP", count: 5, note: "2–8 parça", on: type === "ep" },
+        { id: "album", label: "Albüm", count: 12, note: "9+ parça", on: type === "album" }
       ];
       wrap.innerHTML = cards.map(c => `
         <button class="type-card ${c.on ? "active" : ""}" data-act="st-type" data-arg="${c.count}">
@@ -855,11 +970,13 @@
       const beat = K.beatById(st.beatId), vocal = K.vocalById(st.vocalId);
       const coverSt = (K.COVER_STYLES.find(x => x.id === st.coverOpts.style) || {}).name || "";
       const layout = (K.COVER_LAYOUTS.find(l => l.id === st.coverOpts.layout) || {}).name || "";
-      const filled = K.LYRIC_SECTIONS.filter(s => String((st.lyricSections || {})[s.id] || "").trim()).length;
+      /* v10.39 — söz artık parça başına; kenar çubuğu "kaç parçanın sözü
+         tam" diyor (eskiden tek setin kaç bölümü dolu olduğunu yazıyordu). */
+      const filled = K.careerUI.lyricsDone(st);
       return {
-        1: st.count + " parça · " + K.career.formatLabel(st.count).replace(/^\S+\s/, ""),
+        1: st.count + " parça · " + K.career.typeName(st.count),
         2: beat.name + " · " + vocal.name,
-        3: filled + "/" + K.LYRIC_SECTIONS.length + " bölüm",
+        3: filled + "/" + st.count + " parçanın sözü tam",
         4: coverSt + " · " + layout,
         5: U.money(st.marketing) + " · " + st.wait + " gün",
         6: "Son kontrol"
@@ -898,7 +1015,7 @@
       /* başlık */
       U.qs("#st-step-title").textContent = stepDef.label;
       U.qs("#st-step-desc").textContent = stepDef.desc;
-      U.qs("#st-stepno").textContent = st.step + " / 6";
+      U.qs("#st-stepno").textContent = st.step + " / " + K.careerUI.WIZ_STEPS.length;
 
       /* gövde + geçiş animasyonu */
       const stepFn = [null, K.careerUI.stepTracks, K.careerUI.stepContent, K.careerUI.stepLyrics,
@@ -912,7 +1029,7 @@
         `<button class="btn btn-ghost" data-act="st-back" ${st.step === 1 ? "disabled" : ""}>‹ Geri</button>` +
         (st.step < 6
           ? `<button class="btn btn-primary" data-act="st-next">İleri ›</button>`
-          : `<button class="btn btn-primary" data-act="st-publish">${K.state.player.labelId ? "🏢 Şirkete Gönder" : "🚀 Mağazalara Gönder"}</button>`);
+          : `<button class="btn btn-primary" data-act="st-publish">${K.state.player.labelId ? K.careerUI.ico("building") + " Şirkete Gönder" : K.careerUI.ico("rocket") + " Mağazalara Gönder"}</button>`);
 
       K.careerUI.renderTypeCards();
       K.careerUI.renderTrackList();
@@ -989,18 +1106,18 @@
         </div>
 
         <div class="form-block">
-          <div class="form-block-head"><span class="fb-no">3</span><div><h4>Parça Listesi</h4><p>Parça adlarını gir. Çok parçalı yayında proje adı isteğe bağlıdır.</p></div></div>
+          <div class="form-block-head"><span class="fb-no">3</span><div><h4>Parça Listesi</h4><p>Parça adını ve kayıt kaynağını seç. Kaynak kaliteyi ve maliyeti belirler.</p></div></div>
           <div class="st-list-head">
             <span class="st-list-count" id="st-tracks-info"></span>
             <div class="action-row">
-              <button class="btn btn-ghost btn-sm" data-act="trk-reroll">🎲 Adları Yenile</button>
-              <button class="btn btn-ghost btn-sm" data-act="trk-add">＋ Parça Ekle</button>
+              <button class="btn btn-ghost btn-sm" data-act="trk-reroll">${K.careerUI.ico("dice")} Adları Yenile</button>
+              <button class="btn btn-ghost btn-sm" data-act="trk-add">${K.careerUI.ico("plus")} Parça Ekle</button>
             </div>
           </div>
           <div class="trk-list" id="st-track-list"></div>
           <div class="st-count-slider">
             <span>Parça sayısı</span>
-            <input id="st-count" type="range" min="1" max="14" step="1" value="${st.count}" />
+            <input id="st-count" type="range" min="1" max="${K.career.MAX_TRACKS}" step="1" value="${st.count}" />
             <span class="range-val" id="st-count-val">${st.count}</span>
           </div>
           <div id="st-project-wrap" style="display:none"></div>
@@ -1062,7 +1179,7 @@
           <div id="st-beat-inv"></div>
         </div>
 
-        ${st.count > 1 ? `
+        ${st.count >= 4 ? `
         <div class="form-block">
           <div class="form-block-head"><span class="fb-no">5</span><div><h4>Albüm Konsepti</h4><p>Çok parçalı projelerde bütünlük puanını belirler.</p></div></div>
           ${K.ui.field("Konsept", `<select id="st-concept">${concepts}</select>`)}
@@ -1072,7 +1189,7 @@
           <div class="form-block-head"><span class="fb-no">${st.count > 1 ? 5 : 4}</span><div><h4>Prodüksiyon Bütçesi</h4><p>Her parçanın kendi bütçesi olur ve kalitesini o belirler.</p></div></div>,
           <div class="form-grid">
             ${K.ui.field("Parça Başına Bütçe", range("st-budget", 3000, 120000, 1000, st.budget, "st-budget-val"))}
-            <div class="st-align-end"><button class="btn btn-ghost btn-sm" data-act="trk-budget-all">💸 Tüm parçalara uygula</button></div>
+            <div class="st-align-end"><button class="btn btn-ghost btn-sm" data-act="trk-budget-all">${K.careerUI.ico("money")} Tüm parçalara uygula</button></div>
           </div>
           <div id="st-budget-list" class="st-budget-list"></div>
         </div>
@@ -1086,8 +1203,10 @@
     /* --- Adım 3: SÖZ ATÖLYESİ --- */
     stepLyrics() {
       const st = K.careerUI._studio;
+      const idx = K.careerUI.lyrIndex(st);
+      const cur = st.tracks[idx] || {};
       const themes = K.LYRIC_THEMES.map(t => `<option value="${t.id}" ${t.id === st.lyricsTheme ? "selected" : ""}>${t.icon || ""} ${t.name}</option>`).join("");
-      const sec = st.lyricSections || {};
+      const sec = K.careerUI.trackLyrics(st, idx);
       const cards = K.LYRIC_SECTIONS.map(s => {
         const val = sec[s.id] || "";
         const lines = val.split(/\n+/).filter(x => x.trim()).length;
@@ -1097,14 +1216,26 @@
             <span class="lyr-ic">${s.icon}</span>
             <div class="lyr-meta"><b>${s.name}</b><span>${U.escape(s.hint)}</span></div>
             <span class="lyr-lines">${lines} mısra</span>
-            <button class="btn btn-ghost btn-sm" data-act="lyr-suggest" data-arg="${s.id}">🎲 Öner</button>
+            <button class="btn btn-ghost btn-sm" data-act="lyr-suggest" data-arg="${s.id}">${K.careerUI.ico("dice")} Öner</button>
           </div>
           <textarea data-lyrsec="${s.id}" rows="${Math.max(2, s.lines)}" placeholder="${U.escape(s.name)} mısralarını yaz...">${U.escape(val)}</textarea>
         </div>`;
       }).join("");
+      const done = K.careerUI.lyricsDone(st);
+      const chips = st.tracks.map((t, k) => {
+        const f = K.careerUI.lyricsFilled(t.lyrics);
+        const cls = f === K.LYRIC_SECTIONS.length ? "done" : f ? "part" : "";
+        return `<button class="lyr-track ${k === idx ? "active" : ""} ${cls}" data-act="lyr-track" data-arg="${k}">
+          <span class="lt-no">${k + 1}</span>
+          <span class="lt-body"><b>${U.escape((t.name || ("Parça " + (k + 1))).slice(0, 24))}</b><span>${f}/${K.LYRIC_SECTIONS.length} bölüm</span></span>
+        </button>`;
+      }).join("");
+      const name = U.escape(cur.name || ("Parça " + (idx + 1)));
+      const no = st.count > 1 ? 3 : 2;
+
       return `
         <div class="form-block">
-          <div class="form-block-head"><span class="fb-no">1</span><div><h4>Söz Teması</h4><p>Tema, sözlerin yönünü ve gündem uyumunu belirler. Gündemi sözlerde anmak zorunda değilsin; gündem ayrı takip edilir.</p></div></div>
+          <div class="form-block-head"><span class="fb-no">1</span><div><h4>Söz Teması</h4><p>Tema bütün projeye işler; gündem uyumunu o belirler. Gündemi sözlerde anmak zorunda değilsin.</p></div></div>
           <div class="form-grid">
             ${K.ui.field("Tema", `<select id="st-lyric-theme">${themes}</select>`)}
             ${K.ui.field("Lirikal Açı", `<div class="readout" id="st-angle">—</div>`)}
@@ -1112,13 +1243,24 @@
           <div class="helper" id="st-theme-info"></div>
         </div>
 
+        ${st.count > 1 ? `
         <div class="form-block">
-          <div class="form-block-head"><span class="fb-no">2</span><div><h4>Bölümler</h4><p>Her bölümü ayrı yaz. Kafiye ve akış aşağıda analiz edilir.</p></div></div>
+          <div class="form-block-head"><span class="fb-no">2</span><div><h4>Hangi Parça?</h4><p>Her parçanın sözü ayrıdır. Parçaya dokun, sözlerini yaz.</p></div></div>
+          <div class="lyr-tracks" id="st-lyr-tracks">${chips}</div>
+          <div class="lyr-bulk">
+            <span class="lyr-bulk-count">${done}/${st.count} parçanın sözü tam</span>
+            <button class="btn btn-primary btn-sm" data-act="lyr-fill-rest">${K.careerUI.ico("sparkle")} Kalanları Otomatik Doldur</button>
+            <button class="btn btn-ghost btn-sm" data-act="lyr-apply-all">${K.careerUI.ico("copy")} Bu sözü tümüne uygula</button>
+          </div>
+        </div>` : ""}
+
+        <div class="form-block">
+          <div class="form-block-head"><span class="fb-no">${no}</span><div><h4>${name} — Bölümler</h4><p>Seçili parçanın sözleri. Bölümleri ayrı yaz; kafiye ve akış aşağıda analiz edilir.</p></div></div>
           <div class="range-row">
-            <button class="btn btn-ghost btn-sm" data-act="lyr-suggest-all">🎲 Tümünü Öner</button>
-            <button class="btn btn-ghost btn-sm" data-act="lyr-clear">🗑 Temizle</button>
-            <button class="btn ${st.ghost ? "btn-gold" : "btn-ghost"} btn-sm" data-act="lyr-ghost">✍️ Söz yazarı tut (₺15.000)</button>
-            <button class="btn btn-ghost btn-sm" data-act="audio-listen">▶ Dinle</button>
+            <button class="btn btn-ghost btn-sm" data-act="lyr-suggest-all">${K.careerUI.ico("dice")} Bu parçayı öner</button>
+            <button class="btn btn-ghost btn-sm" data-act="lyr-clear">${K.careerUI.ico("trash")} Bu parçayı temizle</button>
+            <button class="btn ${st.ghost ? "btn-gold" : "btn-ghost"} btn-sm" data-act="lyr-ghost">${K.careerUI.ico("pen")} Söz yazarı tut (₺15.000)</button>
+            <button class="btn btn-ghost btn-sm" data-act="audio-listen">${K.careerUI.ico("play")} Dinle</button>
             <span class="hint" id="st-lyric-info" style="margin:0"></span>
           </div>
           ${st.ghost ? `<div class="note-line gold">✍️ Ghostwriter devrede: sözler güçlenir ama sızma riski var (itibar −6).</div>` : ""}
@@ -1126,12 +1268,12 @@
         </div>
 
         <div class="form-block">
-          <div class="form-block-head"><span class="fb-no">3</span><div><h4>Kafiye & Analiz</h4><p>Satır sonu sesleri ve akış değerlendirmesi.</p></div></div>
+          <div class="form-block-head"><span class="fb-no">${no + 1}</span><div><h4>Kafiye & Analiz</h4><p>Seçili parçanın satır sonu sesleri ve akış değerlendirmesi.</p></div></div>
           <div class="lyr-analysis" id="st-lyric-analysis"></div>
         </div>
 
         <div class="form-block">
-          <div class="form-block-head"><span class="fb-no">4</span><div><h4>Aktüel Gündem</h4><p>Gündem ayrı takip edilir; sözlerine konu yazmana gerek yok. Tema, gündeme denk gelirse ivme kazanırsın.</p></div></div>
+          <div class="form-block-head"><span class="fb-no">${no + 2}</span><div><h4>Aktüel Gündem</h4><p>Gündem ayrı takip edilir; sözlerine konu yazmana gerek yok. Tema, gündeme denk gelirse ivme kazanırsın.</p></div></div>
           <div class="agenda-box" id="st-agenda-info"></div>
         </div>`;
     },
@@ -1144,7 +1286,7 @@
           <div class="cv-left">
             <div class="cv-canvas" id="cv-preview"></div>
             <div class="cv-actions">
-              <button class="btn btn-ghost btn-sm" data-act="cover-random">🎲 Rastgele Kapak</button>
+              <button class="btn btn-ghost btn-sm" data-act="cover-random">${K.careerUI.ico("dice")} Rastgele Kapak</button>
             </div>
             <div class="cv-store" id="cv-store"></div>
           </div>
@@ -1240,7 +1382,7 @@
         <div class="ctrl-group">
           <label>Baştan</label>
           <div class="cv-chips">
-            <button class="cv-chip" data-act="cover-reset">↺ Sıfırla</button>
+            <button class="cv-chip" data-act="cover-reset">${K.careerUI.ico("reset")} Sıfırla</button>
           </div>
         </div>`;
     },
@@ -1273,8 +1415,8 @@
           <div class="form-block-head"><span class="fb-no">3</span><div><h4>Yayın Stratejisi</h4><p>Snippet beklenti kurar (ilk gün ivmesi +), sürpriz çıkış sessiz başlar.</p></div></div>
           <div class="cv-chips" style="margin-left:14px;margin-right:14px">
             <button class="cv-chip ${st.strategy === "standard" ? "active" : ""}" data-act="strategy" data-arg="standard">Standart</button>
-            <button class="cv-chip ${st.strategy === "snippet" ? "active" : ""}" data-act="strategy" data-arg="snippet">🎬 Snippet paylaş (+₺8.000)</button>
-            <button class="cv-chip ${st.strategy === "surprise" ? "active" : ""}" data-act="strategy" data-arg="surprise">🌫️ Sürpriz çıkış</button>
+            <button class="cv-chip ${st.strategy === "snippet" ? "active" : ""}" data-act="strategy" data-arg="snippet">${K.careerUI.ico("film")} Snippet paylaş (+₺8.000)</button>
+            <button class="cv-chip ${st.strategy === "surprise" ? "active" : ""}" data-act="strategy" data-arg="surprise">${K.careerUI.ico("zap")} Sürpriz çıkış</button>
           </div>
         </div>`;
     },
@@ -1286,7 +1428,9 @@
       const type = K.career.typeForCount(st.count);
       const hide = K.settings && K.settings.valuesHidden && K.settings.valuesHidden();
       const genre = K.genreById(st.genre);
-      const lyrics = K.lyrics.analyze(st.lyricSections || st.lyricsText || "", st.lyricsTheme, st.genre, st.kind);
+      const lyrList = st.tracks.map((t, i) => K.careerUI.analyzeTrack(st, i));
+      const lyrics = lyrList[0] || K.lyrics.analyze("", st.lyricsTheme, st.genre, st.kind);
+      const avgLyric = Math.round(U.sum(lyrList, x => x.score) / Math.max(1, lyrList.length));
       const isProject = st.count >= 2;
       const cohesion = isProject ? K.lyrics.cohesion(st.conceptId, st.genre, st.kind, st.lyricsTheme, st.count) : null;
       const ag = (K.news && K.news.themeAffinity) ? K.news.themeAffinity(st.lyricsTheme, st.genre) : { score: 0, hits: [] };
@@ -1294,8 +1438,11 @@
       const trackSources = st.tracks.map(t => K.sourceById(t.source).id);
       const storeCost = K.distroCost(st.stores);
       const storeReach = K.distroReach(st.stores);
-      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: st.vocalQ, mixQuality: st.mixQ, kind: st.kind, lyricScore: lyrics.score, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost };
-      const qList = trackBudgets.map((tb, i) => K.career.estimateQuality(st.genre, tb, Object.assign({}, opts, { sourceQAdd: K.sourceById(trackSources[i]).qAdd })));
+      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: st.vocalQ, mixQuality: st.mixQ, kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost };
+      const qList = trackBudgets.map((tb, i) => K.career.estimateQuality(st.genre, tb, Object.assign({}, opts, {
+        sourceQAdd: K.sourceById(trackSources[i]).qAdd,
+        lyricScore: (lyrList[i] || lyrics).score
+      })));
       const qMin = Math.min.apply(null, qList), qMax = Math.max.apply(null, qList);
       const cost = K.career.releaseCost(type, st.budget, st.marketing, opts);
       const canAfford = s.balance >= cost;
@@ -1364,24 +1511,31 @@
       if (q("#st-beat-q-val")) q("#st-beat-q-val").textContent = st.beatQ;
       if (q("#st-vocal-q-val")) q("#st-vocal-q-val").textContent = st.vocalQ;
       if (q("#st-mix-q-val")) q("#st-mix-q-val").textContent = st.mixQ;
-      const ti = q("#st-tracks-info");
-      if (ti) ti.textContent = st.count + " parça";
+      K.careerUI.refreshTracksInfo();
 
       const beat = K.beatById(st.beatId);
       const vocal = K.vocalById(st.vocalId);
       const kind = K.kindById(st.kind);
       const type = K.career.typeForCount(st.count);
-      const lyrics = K.lyrics.analyze(st.lyricSections || st.lyricsText || "", st.lyricsTheme, st.genre, st.kind);
+      /* parça başına analiz: arayüz seçili parçayı, kalite hesabı ortalamayı
+         ve her parçanın kendi skorunu kullanır */
+      const lyrList = st.tracks.map((t, i) => K.careerUI.analyzeTrack(st, i));
+      const lyrics = lyrList[K.careerUI.lyrIndex(st)] || lyrList[0];
+      const avgLyric = Math.round(U.sum(lyrList, x => x.score) / Math.max(1, lyrList.length));
       const theme = K.lyricThemeById(st.lyricsTheme);
       const ag = (K.news && K.news.themeAffinity) ? K.news.themeAffinity(st.lyricsTheme, st.genre) : { score: 0, hits: [] };
-      const isProject = st.count >= 2;
+      /* createRelease ile aynı eşik: konsept/kohzyon 4+ parçada devreye girer */
+      const isProject = st.count >= 4;
       const cohesion = isProject ? K.lyrics.cohesion(st.conceptId, st.genre, st.kind, st.lyricsTheme, st.count) : null;
       const trackBudgets = st.tracks.map(t => t.budget || st.budget);
       const trackSources = st.tracks.map(t => K.sourceById(t.source).id);
       const storeCost = K.distroCost(st.stores);
       const storeReach = K.distroReach(st.stores);
-      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: st.vocalQ, mixQuality: st.mixQ, kind: st.kind, lyricScore: lyrics.score, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost };
-      const qList = trackBudgets.map((tb, i) => K.career.estimateQuality(st.genre, tb, Object.assign({}, opts, { sourceQAdd: K.sourceById(trackSources[i]).qAdd })));
+      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: st.vocalQ, mixQuality: st.mixQ, kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost };
+      const qList = trackBudgets.map((tb, i) => K.career.estimateQuality(st.genre, tb, Object.assign({}, opts, {
+        sourceQAdd: K.sourceById(trackSources[i]).qAdd,
+        lyricScore: (lyrList[i] || lyrics).score
+      })));
       const qMin = Math.min.apply(null, qList), qMax = Math.max.apply(null, qList);
       const cost = K.career.releaseCost(type, st.budget, st.marketing, opts);
 
@@ -1397,7 +1551,7 @@
           <div class="side-sum-row"><span>Çıkış</span><b>Gün ${K.state.day + st.wait}</b></div>`;
       }
       const navInfo = U.qs(".st-nav-info");
-      if (navInfo) navInfo.textContent = "Adım " + st.step + "/5 · " + K.career.formatLabel(st.count).replace(/^\S+\s/, "");
+      if (navInfo) navInfo.textContent = "Adım " + st.step + "/" + K.careerUI.WIZ_STEPS.length + " · " + K.career.formatLabel(st.count).replace(/^\S+\s/, "");
 
       /* kısa bilgi satırları */
       const setLine = (id, txt) => { const el = q(id); if (el) el.textContent = txt; };
@@ -1476,7 +1630,9 @@
         beatQuality: st.beatQ, vocalQuality: st.vocalQ, mixQuality: st.mixQ,
         waitDays: st.wait, budget: st.budget, marketing: st.marketing,
         featWith: st.feat, lyricsTheme: st.lyricsTheme,
-        lyricSections: st.lyricSections, lyricsText: K.lyrics.flatten(st.lyricSections),
+        /* parça başına sözler — albümde her şarkı kendi sözünü alır */
+        trackLyrics: st.tracks.slice(0, count).map((t, i) => K.careerUI.trackLyrics(st, i)),
+        lyricSections: K.careerUI.trackLyrics(st, 0),
         conceptId: st.conceptId, coverSeed: st.coverSeed,
         strategy: st.strategy, ghost: st.ghost, inventoryBeat: st.inventoryBeat,
         stores: st.stores,
