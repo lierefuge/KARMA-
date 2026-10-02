@@ -153,7 +153,13 @@ const SUITES = [
   { id: "v1040",       script: "tools/smoke-v1040.js",       label: "v10.40 dağıtım formu (parça · metadata · teknik)" },
   /* şarkı biçimi: parça başına sıralı bölüm dizisi (verse2/verse3,
      chorusLast), 8 hazır biçim, süre + biçim puanı yapıdan türer. */
-  { id: "v1041",       script: "tools/smoke-v1041.js",       label: "v10.41 şarkı biçimi (yuva · şablon · süre · puan)" }
+  { id: "v1041",       script: "tools/smoke-v1041.js",       label: "v10.41 şarkı biçimi (yuva · şablon · süre · puan)" },
+  /* distribütör & sözleşme: kim dağıtıyor (ücret/kesinti/teslim/mağaza),
+     master sahipliği, teliften kesinti, şirket sözleşmesi + imza. */
+  { id: "v1042",       script: "tools/smoke-v1042.js",       label: "v10.42 distribütör & sözleşme (ücret · kesinti · teslim)" },
+  /* yan işler: başvuru akışı, günlük vardiya bütçesi, yorgunluk yönetimi
+     ve gelir dengesi. Yan iş "tek tık" olmaktan çıkıp işe girme sürecine bağlandı. */
+  { id: "v1043",       script: "tools/smoke-v1043.js",       label: "v10.43 yan işler (başvuru · vardiya · yorgunluk)" }
 ];
 
 const suiteOut = {};
