@@ -5,6 +5,62 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.40 — Gerçek dağıtım formu: parça · metadata · teknik
+
+Stüdyonun **dağıtım adımı** gerçek distribütörlerin (DistroKid / TuneCore /
+CD Baby / Amuse / Believe) zorunlu alanlarıyla karşılaştırıldı ve **18 eksik
+kapatıldı**. Üç grupta toplandı: **A) parça seviyesi · B) metadata ·
+C) teknik gereksinimler**. Yeni test paketi: `tools/smoke-v1040.js`
+(**144 kontrol**). Boru hattı: **27/27 → 28/28 adım**.
+
+Yeni modül: `js/data/release-meta.js` — ISRC/UPC üretimi, bölge, dil, kredi
+rolleri, telif bölüşümü, explicit etkisi, teknik sınırlar.
+
+### A) Parça seviyesi — satır artık gerçek bir form
+
+| # | Özellik | Ne değişti |
+|---|---|---|
+| **A1** | **Parça sırası** | Her satırda ↑ ↓ taşıma. Sıra artık anlamlı: **açılış parçası kalite +2** alır (`trk-open` işaretli). Albümde açılış/kapanış seçimi gerçek bir sanat kararı oldu. |
+| **A2** | **Parça bazında feat** | Eskiden tek bir yayın-seviyesi `featWith` vardı ve 12 parçalı albümde 12 parçaya da aynı ortak sanatçı yazılıyordu. Artık her parçanın kendi `feat` alanı var; Üretim adımındaki seçim "tümüne uygula" kolaylığına dönüştü ve hangi parçada kim olduğunu özetliyor. |
+| **A3** | **Explicit bayrağı** | Kapaktaki "E" sadece görseldi; mağazaya bildirilen bir bayrak yoktu. Artık parça başına açılıp kapanıyor. **Yeni denge ekseni:** erişim ×0.94, editoryal liste ×0.68, pitch −14 puan — ama çekirdek kitle ×1.12, kütle ×1.05. Sert dil sokakta işe yarar, radyoda yaramaz. |
+| **A4** | **ISRC kayıt kodu** | Her parçaya distribütörün atadığı `TR-KRM-YY-NNNNN` kodu. Dağıtım adımında liste halinde görünür, şarkıya işlenir. |
+| **A5** | **Örnek hakkı kararı** | Sample altyapısında 15.000 sabit ücret sessizce ekleniyordu; oyuncunun seçeneği yoktu. Artık **"hakkı öde" (₺14.000) ya da "riski göze al"**. Ödenmezse ilk 30 günde **takedown riski** (%16 toplam) — yayın mağazalardan çekilir. |
+| **A6** | **Enstrümantal sürüm** | ₺5.000'e sözsüz sürüm; günlük dinlenmeye +%5. |
+
+### B) Metadata — dağıtım formunun zorunlu alanları
+
+| # | Alan | Etkisi |
+|---|---|---|
+| **B1** | **Krediler** | Söz yazarı · Besteci · Prodüktör · Aranjör · Mix & Mastering. Her rol için kime kredi verileceği (Sen / bir sanatçı) ve yüzde payı. |
+| **B2** | **Telif bölüşümü** | Krediler + feature payı + beat lisans puanı tek panelde; kalan senin net payın. %100 aşılırsa uyarı. |
+| **B3** | **Bölge** | 8 bölge + "Dünya Geneli". Kapsam erişimi (×0.30–×1.30) ve **dağıtım maliyetini** (×0.55–×1.55) belirler. |
+| **B4** | **Yayın dili** | 8 dil. Seçili bölgelerin diliyle uyuşursa erişim **+%14**'e kadar artar; enstrümantal dil bariyerini aşar. |
+| **B5** | **℗ / © telif yılı** | Yayında görünen telif satırı (`Etiket ℗ 2028`). |
+| **B6** | **Etiket adı** | Bağımsızken sabit "KARMA Dağıtım" yazıyordu; artık kendi etiket adını koyabiliyorsun. |
+| **B7** | **UPC barkodu** | 13 haneli barkod — **EAN kontrol basamağı gerçekten hesaplanıyor**, uydurma değil. |
+
+### C) Teknik gereksinimler — mağaza gerçekten reddeder
+
+| # | Özellik | Kural |
+|---|---|---|
+| **C1** | **Kapak çözünürlüğü** | Mağaza alt sınırı **1400×1400**. 600×600 seçilirse **yayın gönderilemez** (adım kilitlenir, açık gerekçeyle). 3000×3000 önerilen. |
+| **C2** | **Ses formatı reddi** | Telefon demosu (M4A 128 kbps) gibi düşük kaliteli kaynakları **Apple Music, TIDAL, Amazon reddeder**; Spotify/YouTube kabul eder. Çakışma varsa adım kilitlenir ve tek tuşla "sorunlu mağazaları kaldır" sunulur. |
+| **C3** | **Çıkış günü** | Endüstri standardı **cuma**. Hazırlık süresi en az seçtiğin kadar, ama takvim hedef gün gününe kayar. Cuma ×1.00, pazartesi ×0.91. |
+| **C4** | **YouTube Content ID** | ₺3.500; başkaları şarkını kullanınca otomatik telif geliri (günlük dinlenmenin %3.5'i). |
+| **C5** | **Takedown / yeniden yükleme** | Yayınlanmış bir işi mağazalardan çekebilirsin; kaldırılmış bir işi ₺6.000'e düzeltilmiş sürümle geri gönderebilirsin. |
+
+### Doğrulama
+
+```
+node tools/build-single.js && node tools/verify.js
+→ 28/28 adım geçti
+
+node tools/smoke-v1040.js
+→ 144/144 kontrol geçti
+```
+
+---
+
 ## GÜNCELLEME v10.39 — Stüdyo parça adımı: sözler artık parça başına
 
 Stüdyo sihirbazının **parça adımı** baştan ele alındı. Sekiz hata ölçülüp
