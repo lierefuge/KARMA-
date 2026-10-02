@@ -11,13 +11,19 @@
 (function (K) {
   "use strict";
 
+  /* mode:
+       single  → yapıda tek geçiş (intro/köprü/outro/hook)
+       indexed → her geçiş ayrı söz (Verse 1 / Verse 2 …)
+       shared  → bütün geçişler aynı sözü paylaşır (nakarat)
+     v10.41 — şarkı biçimi (song structure) bu modlara dayanır. */
   K.LYRIC_SECTIONS = [
-    { id: "intro",   name: "Intro",   icon: "🎬", lines: 2, hint: "Atmosfer kur; kısa ve güçlü." },
-    { id: "verse",   name: "Verse",   icon: "📝", lines: 4, hint: "Ana hikâye; en yoğun bölüm." },
-    { id: "hook",    name: "Hook",    icon: "🪝", lines: 2, hint: "Akılda kalan cümle." },
-    { id: "chorus",  name: "Chorus",  icon: "🔁", lines: 4, hint: "Tekrarlanan nakarat." },
-    { id: "bridge",  name: "Bridge",  icon: "🌉", lines: 2, hint: "Kırılma noktası." },
-    { id: "outro",   name: "Outro",   icon: "🎞️", lines: 2, hint: "Kapanış." }
+    { id: "intro",     name: "Intro",       icon: "🎬", lines: 2, mode: "single",  hint: "Atmosfer kur; kısa ve güçlü." },
+    { id: "verse",     name: "Verse",       icon: "📝", lines: 4, mode: "indexed", hint: "Ana hikâye; en yoğun bölüm." },
+    { id: "prechorus", name: "Pre-Nakarat", icon: "⤴️", lines: 2, mode: "indexed", hint: "Nakarata tırmanış." },
+    { id: "hook",      name: "Hook",        icon: "🪝", lines: 2, mode: "shared",  hint: "Akılda kalan cümle." },
+    { id: "chorus",    name: "Nakarat",     icon: "🔁", lines: 4, mode: "shared",  hint: "Tekrarlanan nakarat." },
+    { id: "bridge",    name: "Köprü",       icon: "🌉", lines: 2, mode: "single",  hint: "Kırılma noktası." },
+    { id: "outro",     name: "Outro",       icon: "🎞️", lines: 2, mode: "single",  hint: "Kapanış." }
   ];
   K.lyricSectionById = function (id) {
     return K.LYRIC_SECTIONS.find(s => s.id === id) || K.LYRIC_SECTIONS[1];
@@ -286,10 +292,15 @@
       case "intro":  return [pick(c.openers)];
       case "outro":  return (c.closers.length ? pick(c.closers) : pick(c.couplets)).slice();
       case "hook":   return (c.hooks.length ? pick(c.hooks) : pick(c.couplets)).slice();
-      case "chorus": {
+      /* v10.41 — nakaratın son geçişi (chorusLast) düz nakaratla aynı havuzdan beslenir */
+      case "chorus":
+      case "chorusLast": {
         const h = (c.hooks.length ? pick(c.hooks) : pick(c.couplets)).slice();
         return h.concat(h.slice(0, Math.max(0, 2 - h.length))); // nakarat tekrar eder
       }
+      case "prechorus":
+      case "prechorus2":
+        return (c.bridges.length ? pick(c.bridges) : pick(c.couplets)).slice();
       case "bridge": return (c.bridges.length ? pick(c.bridges) : pick(c.couplets)).slice();
       default: {
         const a = pick(c.couplets);
