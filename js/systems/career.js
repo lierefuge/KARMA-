@@ -55,6 +55,23 @@
       return Math.floor(total / 60) + ":" + String(total % 60).padStart(2, "0");
     },
 
+    /* v10.41 — SÜRE ARTIK YAPIDAN TÜRER (rastgele değil).
+       Aynı tohum aynı süreyi verir; tohum boşsa yapının ham süresi
+       döner. Makul aralık 1:30 – 7:00 arasına kırpılır. */
+    durationSecondsForSlots(slots, seed) {
+      const base = K.lyricStructureSeconds(slots);
+      if (!seed) return U.clamp(base, 90, 420);
+      const str = String(seed);
+      let h = 2166136261;
+      for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = (h * 16777619) >>> 0; }
+      const off = (h % 31) - 15;                  // ±15 sn sapma
+      return U.clamp(base + off, 90, 420);
+    },
+    durationForSlots(slots, seed) {
+      const total = K.career.durationSecondsForSlots(slots, seed);
+      return Math.floor(total / 60) + ":" + String(total % 60).padStart(2, "0");
+    },
+
     /* yayın türünün SADE adı — "Albüm (5 parça)" değil "Albüm" */
     typeName(n) {
       const t = K.RELEASE_TYPES[K.career.typeForCount(n)];
@@ -235,14 +252,18 @@
          (tüm parçalar aynı bölümü paylaşır) — eski kayıtlar bozulmasın. */
       const lyricTheme = K.lyricThemeById(opts.lyricsTheme).id;
       const inLyrics = Array.isArray(opts.trackLyrics) ? opts.trackLyrics : null;
+      /* v10.41 — her parçanın ŞARKI BİÇİMİ (slot dizisi). Verilmezse
+         null kalır ve süre de null olur (geriye uyum). */
+      const inSlots = Array.isArray(opts.trackSlots) ? opts.trackSlots : null;
+      const slotsAt = (i) => (inSlots && Array.isArray(inSlots[i]) && inSlots[i].length) ? inSlots[i].slice() : null;
       const legacySec = (opts.lyricSections && typeof opts.lyricSections === "object")
         ? opts.lyricSections : (opts.lyricsText || null);
       const secAt = (i) => (inLyrics && inLyrics[i] != null) ? inLyrics[i] : legacySec;
       const lyrList = [];
-      for (let i = 0; i < trackCount; i++) lyrList.push(K.lyrics.analyze(secAt(i), lyricTheme, genre, kind));
+      for (let i = 0; i < trackCount; i++) lyrList.push(K.lyrics.analyze(secAt(i), lyricTheme, genre, kind, slotsAt(i)));
       const lyr = lyrList[0] || K.lyrics.analyze("", lyricTheme, genre, kind);   // öncü parça
       const avgLyricScore = Math.round(U.sum(lyrList, x => x.score) / Math.max(1, lyrList.length));
-      const lyricText = lyrList.map((_, i) => K.lyrics.flatten(secAt(i)) || "").join("\n").slice(0, 4000);
+      const lyricText = lyrList.map((_, i) => K.lyrics.flatten(secAt(i), slotsAt(i)) || "").join("\n").slice(0, 4000);
 
       /* --- albüm konsepti (çok parçalı yayınlarda) --- */
       const isProject = trackCount >= 4;
@@ -338,11 +359,19 @@
         trackBudgets, trackSources, stores, storeReach, storeCost,
         strategy, ghost, inventoryBeat: opts.inventoryBeat || null,
         arRequest: arRequest, arResolved: !arRequest,
+        /* v10.41 — parça biçimleri yayına taşınır */
+        trackSlots: inSlots ? inSlots.slice(0, trackCount).map(s => (Array.isArray(s) ? s.slice() : null)) : null,
         tracks: tracks.map((tr, i) => {
           const tb = tr.budget != null ? U.clamp(Math.round(+tr.budget || 0), 0, 500000) : trackBudgets[i];
           const src = K.sourceById(trackSources[i]);
+          const slots = slotsAt(i);
+          const trackName = tr.name || (title + " " + (i + 1));
           return {
-            name: tr.name || (title + " " + (i + 1)),
+            name: trackName,
+            /* v10.41 — biçim, süre ve biçim puanı parça bazında */
+            slots: slots,
+            duration: slots ? K.career.durationForSlots(slots, trackName) : null,
+            formScore: slots ? K.lyricStructureScore(slots) : 0,
             budget: tb,
             source: src.id,
             file: { type: src.file, bit: src.bit, size: src.size },
@@ -366,7 +395,8 @@
               score: (lyrList[i] || lyr).score,
               lines: (lyrList[i] || lyr).lines,
               words: (lyrList[i] || lyr).words,
-              sections: secAt(i)
+              sections: secAt(i),
+              slots: slots
             }
           };
         }),
