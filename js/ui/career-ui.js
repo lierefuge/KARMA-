@@ -350,10 +350,15 @@
       K.careerUI.renderStudioStep();
     },
 
-    /* ---------------- parça başına sözler (v10.39) ---------------- */
+    /* ---------------- parça başına sözler (v10.39 · v10.41) ---------------- */
     emptyLyrics() {
       const o = {};
-      K.LYRIC_SECTIONS.forEach(s => { o[s.id] = ""; });
+      K.LYRIC_SECTIONS.forEach(s => {
+        o[s.id] = "";
+        if (s.mode === "indexed") { o[s.id + "2"] = ""; o[s.id + "3"] = ""; }
+      });
+      /* v10.41 — son nakarat varyasyonu ayrı anahtardır (opsiyonel) */
+      o.chorusLast = "";
       return o;
     },
     lyrIndex(st) {
@@ -367,28 +372,75 @@
       if (!tr.lyrics || typeof tr.lyrics !== "object") tr.lyrics = K.careerUI.emptyLyrics();
       return tr.lyrics;
     },
-    lyricsFilled(sec) {
+    /* v10.41 — parçanın şarkı biçimi (slot dizisi). Yoksa klasik atanır. */
+    trackSlots(st, i) {
+      const tr = (st.tracks || [])[i];
+      if (!tr) return K.lyricTemplateById("classic").slots.slice();
+      if (!Array.isArray(tr.slots) || !tr.slots.length) {
+        tr.slots = K.lyricTemplateById("classic").slots.slice();
+      }
+      return tr.slots;
+    },
+    /* yapıdaki benzersiz bölüm sayısı (yazılacak bölüm) */
+    lyricsTotal(slots) {
+      if (Array.isArray(slots) && slots.length) return K.lyricStructureUnique(slots).length;
+      return K.LYRIC_SECTIONS.length;
+    },
+    lyricsFilled(sec, slots) {
+      if (Array.isArray(slots) && slots.length) return K.lyrics.structure(sec, slots).have;
       return K.LYRIC_SECTIONS.filter(s => String((sec || {})[s.id] || "").trim()).length;
     },
-    lyricsDone(st) {
-      return (st.tracks || []).filter(t => K.careerUI.lyricsFilled(t.lyrics) === K.LYRIC_SECTIONS.length).length;
+    /* bir parça TAM sayılır: ya temel bölümlerin hepsi dolu ya da
+       yapıdaki bütün bölümler yazılmış (eski kayıtlar geriye uyumlu). */
+    trackLyricsDone(st, i) {
+      const t = (st.tracks || [])[i];
+      if (!t) return false;
+      if (K.careerUI.lyricsFilled(t.lyrics) === K.LYRIC_SECTIONS.length) return true;
+      const s = K.careerUI.trackSlots(st, i);
+      return K.careerUI.lyricsFilled(t.lyrics, s) === K.careerUI.lyricsTotal(s);
     },
-    /* bir bölüm setini temaya göre doldurur (yerinde) */
-    suggestInto(sec, theme) {
+    lyricsDone(st) {
+      return (st.tracks || []).filter((t, i) => K.careerUI.trackLyricsDone(st, i)).length;
+    },
+    /* bir bölüm setini temaya göre doldurur (yerinde).
+       Hem temel 7 bölümü hem de yapıdaki varyant anahtarları
+       (verse2/verse3/prechorus2/chorusLast) doldurur; böylece
+       yapı tamamen yazılmış sayılır. */
+    suggestInto(sec, theme, slots) {
       K.LYRIC_SECTIONS.forEach(s => { sec[s.id] = K.lyrics.suggestSection(theme, s.id).join("\n"); });
+      if (Array.isArray(slots) && slots.length) {
+        const usedVerse = {};
+        K.lyricStructureUnique(slots).forEach(k => {
+          if (k === "chorusLast") { sec[k] = ""; return; }  // opsiyonel varyasyon → düz nakarata düşer
+          const type = K.lyricKeyType(k).id;
+          if (type === "verse") {
+            const c = K.LYRIC_CONTENT[theme] || K.LYRIC_CONTENT.street;
+            const pool = c.couplets;
+            let idx = Math.floor(Math.random() * pool.length), guard = 0;
+            while (usedVerse[idx] && guard++ < 30) idx = Math.floor(Math.random() * pool.length);
+            usedVerse[idx] = true;
+            sec[k] = pool[idx].join("\n");
+          } else if (type === "chorus") {
+            sec[k] = sec.chorus || K.lyrics.suggestSection(theme, "chorus").join("\n");
+          } else {
+            sec[k] = K.lyrics.suggestSection(theme, k).join("\n");
+          }
+        });
+      }
       return sec;
     },
     /* söz analizi pahalı; tuş başına 30 parçayı yeniden analiz etmemek
-       için küçük bir önbellek (içerik + tema + tür anahtarı). */
+       için küçük bir önbellek (içerik + tema + tür + YAPI anahtarı). */
     _lyrCache: {},
     analyzeTrack(st, i) {
       const sec = K.careerUI.trackLyrics(st, i);
-      const key = st.lyricsTheme + "|" + st.genre + "|" + st.kind + "|" +
-        K.LYRIC_SECTIONS.map(s => String(sec[s.id] || "")).join("\u0001");
+      const slots = K.careerUI.trackSlots(st, i);
+      const key = st.lyricsTheme + "|" + st.genre + "|" + st.kind + "|" + slots.join(",") + "|" +
+        K.lyricStructureUnique(slots).map(k => k + ":" + String(sec[k] || "")).join("\u0001");
       const c = K.careerUI._lyrCache;
       if (Object.prototype.hasOwnProperty.call(c, key)) return c[key];
       if (Object.keys(c).length > 160) K.careerUI._lyrCache = {};
-      const r = K.lyrics.analyze(sec, st.lyricsTheme, st.genre, st.kind);
+      const r = K.lyrics.analyze(sec, st.lyricsTheme, st.genre, st.kind, slots);
       c[key] = r;
       return r;
     },
@@ -402,6 +454,9 @@
       /* v10.39 — YENİ PARÇALAR TEKİLLEŞTİRİLİR. Eskiden körlemesine
          suggestTitle() ekleniyordu; 10 parçalı bir projede 30 denemenin
          12'sinde aynı ad iki kez geliyordu (ör. iki tane "Gölge"). */
+      /* v10.41 — yeni parçalara ÇEŞİTLİ şarkı biçimi atanır; hepsi
+         aynı kalıp olmaz. "short" atanmaz (2 dakikanın altına inmesin). */
+      const VAR_SLOTS = ["classic", "three", "hookfirst", "bridge", "epic", "bars"];
       const used = new Set(st.tracks.map(t => String(t.name || "").trim()).filter(Boolean));
       while (st.tracks.length < st.count) {
         let nm = K.career.suggestTitle(), guard = 0;
@@ -415,14 +470,20 @@
         st._lyrMigrated = true;
         delete st.lyricSections;
       }
-      st.tracks.forEach(t => {
+      st.tracks.forEach((t, i) => {
         if (t.budget == null) t.budget = def;
         if (!t.source) t.source = "ev";
-        if (!t.dur) t.dur = K.career.suggestDuration();   // her parçanın kendi süresi
+        /* v10.41 — biçim yoksa ata (eski kayıtlar bozulmaz) */
+        if (!Array.isArray(t.slots) || !t.slots.length) {
+          const tmpl = K.lyricTemplateById(VAR_SLOTS[i % VAR_SLOTS.length]);
+          t.slots = ((tmpl && tmpl.slots) || K.lyricTemplateById("classic").slots).slice();
+        }
         if (!t.lyrics || typeof t.lyrics !== "object") t.lyrics = K.careerUI.emptyLyrics();
         /* v10.40 — parça bazında feat ve explicit bayrağı */
         if (t.feat === undefined) t.feat = null;
         if (t.explicit === undefined) t.explicit = false;
+        /* v10.41 — süre artık biçimden türer (deterministik) */
+        t.dur = K.career.durationForSlots(t.slots, t.name);
       });
       /* v10.40 — yayın-seviyesi feat artık "tümüne uygula" kolaylığıdır;
          gerçek kredi parça bazında tutulur (t.feat). */
@@ -532,9 +593,10 @@
         const b = U.qs('[data-trkb="' + i + '"]'); if (b) t.budget = +b.value;
       });
       const sec = K.careerUI.trackLyrics(st, K.careerUI.lyrIndex(st));
-      K.LYRIC_SECTIONS.forEach(s => {
-        const el = U.qs('[data-lyrsec="' + s.id + '"]');
-        if (el) sec[s.id] = el.value;
+      const slots = K.careerUI.trackSlots(st, K.careerUI.lyrIndex(st));
+      K.lyricStructureUnique(slots).forEach(k => {
+        const el = U.qs('[data-lyrsec="' + k + '"]');
+        if (el) sec[k] = el.value;
       });
       K.careerUI._syncCover(st);
     },
@@ -640,7 +702,7 @@
       }
       /* v10.39 — her parçanın sözü olmalı; tek tuşla doldurma var */
       if (n === 3) {
-        const bos = st.tracks.filter(t => K.careerUI.lyricsFilled(t.lyrics) === 0);
+        const bos = st.tracks.filter((t, i) => K.careerUI.lyricsFilled(t.lyrics, K.careerUI.trackSlots(st, i)) === 0);
         if (bos.length) {
           K.toast("Söz eksik", bos.length + " parçada hiç söz yok. \"Kalanları Otomatik Doldur\" ile tamamlayabilirsin.", "warn");
           return false;
@@ -864,7 +926,7 @@
       }
       if (act === "lyr-suggest-all") {
         const i = K.careerUI.lyrIndex(st);
-        K.careerUI.suggestInto(K.careerUI.trackLyrics(st, i), st.lyricsTheme);
+        K.careerUI.suggestInto(K.careerUI.trackLyrics(st, i), st.lyricsTheme, K.careerUI.trackSlots(st, i));
         K.careerUI.renderStudioStep();
         K.toast("🎲 Söz önerildi", (st.tracks[i].name || "Parça " + (i + 1)) + " dolduruldu.", "ok");
         return;
@@ -872,8 +934,8 @@
       if (act === "lyr-fill-rest") {
         let n = 0;
         st.tracks.forEach((t, i) => {
-          if (K.careerUI.lyricsFilled(t.lyrics) === K.LYRIC_SECTIONS.length) return;
-          K.careerUI.suggestInto(K.careerUI.trackLyrics(st, i), st.lyricsTheme);
+          if (K.careerUI.trackLyricsDone(st, i)) return;
+          K.careerUI.suggestInto(K.careerUI.trackLyrics(st, i), st.lyricsTheme, K.careerUI.trackSlots(st, i));
           n++;
         });
         K.careerUI.renderStudioStep();
@@ -888,6 +950,54 @@
         K.toast("📋 Uygulandı", "Bu söz bütün parçalara kopyalandı.", "ok");
         return;
       }
+      /* v10.41 — ŞARKI BİÇİMİ düzenleme */
+      if (act === "lyr-template") {
+        const tpl = K.lyricTemplateById(btn.dataset.arg);
+        const i = K.careerUI.lyrIndex(st);
+        if (tpl.slots) st.tracks[i].slots = tpl.slots.slice();
+        K.careerUI._syncTracks(st);
+        K.careerUI.renderStudioStep();
+        return;
+      }
+      if (act === "lyr-add") {
+        const i = K.careerUI.lyrIndex(st);
+        st.tracks[i].slots = K.careerUI.trackSlots(st, i).slice();
+        st.tracks[i].slots.push(btn.dataset.arg || "verse");
+        K.careerUI._syncTracks(st);
+        K.careerUI.renderStudioStep();
+        return;
+      }
+      if (act === "lyr-del") {
+        const i = K.careerUI.lyrIndex(st);
+        const idx = Math.round(+btn.dataset.arg || 0);
+        const slots = K.careerUI.trackSlots(st, i);
+        if (slots.length <= 2) { K.toast("En az 2 bölüm", "Bir şarkı en az iki bölümden oluşur.", "warn"); return; }
+        slots.splice(idx, 1);
+        K.careerUI._syncTracks(st);
+        K.careerUI.renderStudioStep();
+        return;
+      }
+      if (act === "lyr-mv") {
+        const i = K.careerUI.lyrIndex(st);
+        const idx = Math.round(+btn.dataset.arg || 0);
+        const dir = btn.dataset.dir === "-1" ? -1 : 1;
+        const slots = K.careerUI.trackSlots(st, i);
+        const j = idx + dir;
+        if (j < 0 || j >= slots.length) return;
+        const tmp = slots[idx]; slots[idx] = slots[j]; slots[j] = tmp;
+        K.careerUI._syncTracks(st);
+        K.careerUI.renderStudioStep();
+        return;
+      }
+      if (act === "lyr-apply-struct") {
+        const i = K.careerUI.lyrIndex(st);
+        const src = K.careerUI.trackSlots(st, i).slice();
+        st.tracks.forEach(t => { t.slots = src.slice(); });
+        K.careerUI._syncTracks(st);
+        K.careerUI.renderStudioStep();
+        K.toast("🎼 Biçim uygulandı", "Bu şarkı biçimi bütün parçalara uygulandı.", "ok");
+        return;
+      }
       if (act === "lyr-clear") {
         st.tracks[K.careerUI.lyrIndex(st)].lyrics = K.careerUI.emptyLyrics();
         K.careerUI.renderStudioStep();
@@ -898,7 +1008,7 @@
         if (!K.economy.canAfford(15000)) { K.toast("Yetersiz bakiye", "Söz yazarı için ₺15.000 gerekiyor.", "bad"); return; }
         K.economy.spend(15000, "ghostwriter");
         st.ghost = true;
-        st.tracks.forEach((t, i) => K.careerUI.suggestInto(K.careerUI.trackLyrics(st, i), st.lyricsTheme));
+        st.tracks.forEach((t, i) => K.careerUI.suggestInto(K.careerUI.trackLyrics(st, i), st.lyricsTheme, K.careerUI.trackSlots(st, i)));
         K.careerUI.renderStudioStep();
         K.toast("✍️ Söz yazarı tutuldu", "Bütün parçaların sözleri yazıldı — sızma riski var.", "warn");
         return;
@@ -1538,27 +1648,68 @@
       const cur = st.tracks[idx] || {};
       const themes = K.LYRIC_THEMES.map(t => `<option value="${t.id}" ${t.id === st.lyricsTheme ? "selected" : ""}>${t.icon || ""} ${t.name}</option>`).join("");
       const sec = K.careerUI.trackLyrics(st, idx);
-      const cards = K.LYRIC_SECTIONS.map(s => {
-        const val = sec[s.id] || "";
-        const lines = val.split(/\n+/).filter(x => x.trim()).length;
+      const slots = K.careerUI.trackSlots(st, idx);
+      const keys = K.lyricStructureKeys(slots);
+      const uniq = K.lyricStructureUnique(slots);
+
+      /* v10.41 — hazır biçim çipleri (8) */
+      const activeTpl = K.lyricTemplateOf(slots);
+      const tmplChips = K.LYRIC_TEMPLATES.map(t => `
+        <button class="lyr-tmpl${t.id === activeTpl ? " active" : ""}" data-act="lyr-template" data-arg="${t.id}" title="${U.escape(t.desc || "")}">
+          <span class="lt-ic">${t.icon}</span><b>${U.escape(t.name)}</b>
+        </button>`).join("");
+
+      /* v10.41 — zaman çizelgesi: yuvalar, taşıma ve çıkarma */
+      const timeline = keys.map((key, i) => {
+        const type = K.lyricKeyType(key);
+        return `<span class="sl-slot" data-kind="${type.id}" data-idx="${i}">
+          <span class="ss-name">${U.escape(K.lyricKeyLabel(key))}</span>
+          <span class="ss-mv">
+            <button data-act="lyr-mv" data-arg="${i}" data-dir="-1" ${i === 0 ? "disabled" : ""}>‹</button>
+            <button data-act="lyr-mv" data-arg="${i}" data-dir="1" ${i === keys.length - 1 ? "disabled" : ""}>›</button>
+          </span>
+          <button class="ss-del" data-act="lyr-del" data-arg="${i}" ${keys.length <= 2 ? "disabled" : ""}>×</button>
+        </span>`;
+      }).join("");
+      const addBtns = K.LYRIC_SECTIONS.map(s =>
+        `<button class="sl-add" data-act="lyr-add" data-arg="${s.id}">+ ${s.icon} ${U.escape(s.name)}</button>`).join("");
+      const writable = uniq.filter(k => k !== "chorusLast").length;
+      const stats = `<div class="sl-stats">
+          <span class="sl-stat"><b>${K.career.durationForSlots(slots, cur.name || "")}</b> tahmini süre</span>
+          <span class="sl-stat"><b>${K.lyricStructureScore(slots)}</b> biçim puanı</span>
+          <span class="sl-stat"><b>${writable}</b> yazılacak bölüm</span>
+          <span class="sl-stat"><b>${slots.length}</b> bölüm · ${U.escape(K.lyricTemplateById(activeTpl).name)}</span>
+        </div>`;
+
+      const chorusRep = K.lyricKeyRepeat(slots, "chorus");
+      const cards = uniq.map(k => {
+        const type = K.lyricKeyType(k);
+        const raw = String(sec[k] || "");
+        const effective = K.lyrics.sectionText(sec, k) || "";
+        const lines = effective.split(/\n+/).filter(x => x.trim()).length;
+        const opt = k === "chorusLast";
+        const rep = (type.id === "chorus" && chorusRep > 1) ? `<span class="lyr-rep">×${chorusRep}</span>` : "";
         return `
-        <div class="lyr-card ${lines ? "filled" : ""}">
+        <div class="lyr-card ${effective.trim() ? "filled" : ""}${opt ? " opt" : ""}" data-kind="${type.id}">
           <div class="lyr-card-head">
-            <span class="lyr-ic">${s.icon}</span>
-            <div class="lyr-meta"><b>${s.name}</b><span>${U.escape(s.hint)}</span></div>
+            <span class="lyr-ic">${type.icon}</span>
+            <div class="lyr-meta"><b>${U.escape(K.lyricKeyLabel(k))}</b><span>${U.escape(type.hint)}</span></div>
+            ${rep}
             <span class="lyr-lines">${lines} mısra</span>
-            <button class="btn btn-ghost btn-sm" data-act="lyr-suggest" data-arg="${s.id}">${K.careerUI.ico("dice")} Öner</button>
+            <button class="btn btn-ghost btn-sm" data-act="lyr-suggest" data-arg="${k}">${K.careerUI.ico("dice")} Öner</button>
           </div>
-          <textarea data-lyrsec="${s.id}" rows="${Math.max(2, s.lines)}" placeholder="${U.escape(s.name)} mısralarını yaz...">${U.escape(val)}</textarea>
+          <textarea data-lyrsec="${k}" rows="${Math.max(2, type.lines)}" placeholder="${U.escape(K.lyricKeyLabel(k))} mısralarını yaz...">${U.escape(raw)}</textarea>
         </div>`;
       }).join("");
       const done = K.careerUI.lyricsDone(st);
       const chips = st.tracks.map((t, k) => {
-        const f = K.careerUI.lyricsFilled(t.lyrics);
-        const cls = f === K.LYRIC_SECTIONS.length ? "done" : f ? "part" : "";
+        const s = K.careerUI.trackSlots(st, k);
+        const f = K.careerUI.lyricsFilled(t.lyrics, s);
+        const total = K.careerUI.lyricsTotal(s);
+        const cls = f === total ? "done" : f ? "part" : "";
         return `<button class="lyr-track ${k === idx ? "active" : ""} ${cls}" data-act="lyr-track" data-arg="${k}">
           <span class="lt-no">${k + 1}</span>
-          <span class="lt-body"><b>${U.escape((t.name || ("Parça " + (k + 1))).slice(0, 24))}</b><span>${f}/${K.LYRIC_SECTIONS.length} bölüm</span></span>
+          <span class="lt-body"><b>${U.escape((t.name || ("Parça " + (k + 1))).slice(0, 24))}</b><span>${f}/${total} bölüm</span></span>
         </button>`;
       }).join("");
       const name = U.escape(cur.name || ("Parça " + (idx + 1)));
@@ -1586,7 +1737,18 @@
         </div>` : ""}
 
         <div class="form-block">
-          <div class="form-block-head"><span class="fb-no">${no}</span><div><h4>${name} — Bölümler</h4><p>Seçili parçanın sözleri. Bölümleri ayrı yaz; kafiye ve akış aşağıda analiz edilir.</p></div></div>
+          <div class="form-block-head"><span class="fb-no">${no}</span><div><h4>Şarkı Biçimi</h4><p>Parçanın bölüm sırası ve tekrarları. Hazır bir biçim seç ya da zaman çizelgesinden kendin kur. Süre ve biçim puanı bu yapıdan türer.</p></div></div>
+          <div class="lyr-tmpl-row">${tmplChips}</div>
+          <div class="sl-timeline">${timeline}</div>
+          <div class="sl-add-row">${addBtns}</div>
+          ${stats}
+          <div class="range-row" style="margin-top:10px">
+            <button class="btn btn-ghost btn-sm" data-act="lyr-apply-struct">${K.careerUI.ico("copy")} Biçimi tümüne uygula</button>
+          </div>
+        </div>
+
+        <div class="form-block">
+          <div class="form-block-head"><span class="fb-no">${no + 1}</span><div><h4>${name} — Bölümler</h4><p>Seçili parçanın sözleri. Yapıdaki her bölüm için ayrı yaz; nakarat bütün geçişlerde paylaşılır.</p></div></div>
           <div class="range-row">
             <button class="btn btn-ghost btn-sm" data-act="lyr-suggest-all">${K.careerUI.ico("dice")} Bu parçayı öner</button>
             <button class="btn btn-ghost btn-sm" data-act="lyr-clear">${K.careerUI.ico("trash")} Bu parçayı temizle</button>
@@ -1599,12 +1761,12 @@
         </div>
 
         <div class="form-block">
-          <div class="form-block-head"><span class="fb-no">${no + 1}</span><div><h4>Kafiye & Analiz</h4><p>Seçili parçanın satır sonu sesleri ve akış değerlendirmesi.</p></div></div>
+          <div class="form-block-head"><span class="fb-no">${no + 2}</span><div><h4>Kafiye & Analiz</h4><p>Seçili parçanın satır sonu sesleri ve akış değerlendirmesi.</p></div></div>
           <div class="lyr-analysis" id="st-lyric-analysis"></div>
         </div>
 
         <div class="form-block">
-          <div class="form-block-head"><span class="fb-no">${no + 2}</span><div><h4>Aktüel Gündem</h4><p>Gündem ayrı takip edilir; sözlerine konu yazmana gerek yok. Tema, gündeme denk gelirse ivme kazanırsın.</p></div></div>
+          <div class="form-block-head"><span class="fb-no">${no + 3}</span><div><h4>Aktüel Gündem</h4><p>Gündem ayrı takip edilir; sözlerine konu yazmana gerek yok. Tema, gündeme denk gelirse ivme kazanırsın.</p></div></div>
           <div class="agenda-box" id="st-agenda-info"></div>
         </div>`;
     },
@@ -2019,7 +2181,9 @@
           row("Ölçü Dengesi", m.avg ? Math.round((m.steady || 0) * 100) + "%" : "—") +
           row("Vurucu Mısra", punch.length ? punch.length + " adet" : "yok") +
           row("Mısra", lyrics.lines || 0) +
-          row("Bölüm", (lyrics.structure ? lyrics.structure.have : 0) + "/" + K.LYRIC_SECTIONS.length) +
+          row("Bölüm", (lyrics.structure ? lyrics.structure.have : 0) + "/" + (lyrics.structure ? lyrics.structure.total : K.LYRIC_SECTIONS.length)) +
+          row("Biçim Puanı", (lyrics.formScore != null ? lyrics.formScore : 0)) +
+          row("Tahmini Süre", lyrics.estSeconds ? Math.floor(lyrics.estSeconds / 60) + ":" + String(lyrics.estSeconds % 60).padStart(2, "0") : "—") +
           `<div class="lyr-feedback">${U.escape(K.lyrics.feedback(lyrics))}</div>`;
       }
 
@@ -2072,6 +2236,8 @@
         featWith: st.feat, lyricsTheme: st.lyricsTheme,
         /* parça başına sözler — albümde her şarkı kendi sözünü alır */
         trackLyrics: st.tracks.slice(0, count).map((t, i) => K.careerUI.trackLyrics(st, i)),
+        /* v10.41 — parça başına şarkı biçimi (slot dizisi) */
+        trackSlots: st.tracks.slice(0, count).map((t, i) => K.careerUI.trackSlots(st, i).slice()),
         lyricSections: K.careerUI.trackLyrics(st, 0),
         conceptId: st.conceptId, coverSeed: st.coverSeed,
         strategy: st.strategy, ghost: st.ghost, inventoryBeat: st.inventoryBeat,
