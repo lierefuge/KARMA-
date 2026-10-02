@@ -278,7 +278,7 @@
         dissArtist: dissArtist,
         conceptId: "open",
         projectTitle: "",
-        coverOpts: { style: "gece", pattern: "flat", text: "mono", hue: -1, grain: 1, font: "blok", align: "center", shape: "none", showArtist: true },
+        coverOpts: K.careerUI.defaultCoverOpts(),
         stores: (K.defaultStores ? K.defaultStores() : []),
         inventoryBeat: null,
         strategy: "standard",
@@ -355,6 +355,17 @@
       return ((st.projectTitle || "").trim()) || st.autoProjectTitle || K.career.suggestProjectTitle(st.count);
     },
 
+    /* v10.38 — kapak seçeneklerinin tek kaynağı. Yeni alanlar burada
+       varsayılana düşer; eski kayıtlar (align) düzene çevrilir. */
+    defaultCoverOpts() {
+      return {
+        style: "gece", pattern: "flat", text: "mono", hue: -1, grain: 1,
+        font: "blok", layout: "merkez", align: "center", shape: "none",
+        showArtist: true, frame: false, explicit: false,
+        year: String(U.dateForDay(K.state.day).y)
+      };
+    },
+
     _syncCover(st) {
       st.coverOpts = st.coverOpts || {};
       const o = st.coverOpts;
@@ -364,13 +375,20 @@
       if (o.hue == null) o.hue = -1;
       if (o.grain == null) o.grain = 1;
       if (!o.font) o.font = "blok";
-      if (!o.align) o.align = "center";
+      /* eski kayıtta düzen yok → hizadan türet */
+      if (!o.layout) o.layout = o.align === "top" ? "ust" : o.align === "bottom" ? "alt" : "merkez";
+      if (!o.align) o.align = o.layout === "ust" ? "top" : o.layout === "alt" ? "bottom" : "center";
       if (!o.shape) o.shape = "none";
       if (o.showArtist == null) o.showArtist = true;
+      if (o.frame == null) o.frame = false;
+      if (o.explicit == null) o.explicit = false;
+      if (o.year == null) o.year = String(U.dateForDay(K.state.day).y);
       const artist = o.showArtist ? (K.state.player.stageName || "") : "";
       st.coverSeed = "cv~" + o.style + "~" + o.pattern + "~" + o.text + "~" + o.hue + "~" + o.grain +
         "~" + o.font + "~" + o.align + "~" + o.shape + "~" + encodeURIComponent(artist) +
-        "~" + encodeURIComponent(K.careerUI.projectName(st));
+        "~" + encodeURIComponent(K.careerUI.projectName(st)) +
+        "~" + o.layout + "~" + (o.frame ? 1 : 0) + "~" + (o.explicit ? 1 : 0) +
+        "~" + encodeURIComponent(o.year || "");
     },
 
     collectField(id, el) {
@@ -662,14 +680,33 @@
       if (act === "cover-pattern"){ st.coverOpts.pattern = btn.dataset.arg; K.careerUI._afterCoverChange(); return; }
       if (act === "cover-text")   { st.coverOpts.text = btn.dataset.arg;   K.careerUI._afterCoverChange(); return; }
       if (act === "cover-font")   { st.coverOpts.font = btn.dataset.arg;   K.careerUI._afterCoverChange(); return; }
-      if (act === "cover-align")  { st.coverOpts.align = btn.dataset.arg;  K.careerUI._afterCoverChange(); return; }
+      if (act === "cover-layout") { st.coverOpts.layout = btn.dataset.arg; K.careerUI._afterCoverChange(); return; }
       if (act === "cover-shape")  { st.coverOpts.shape = btn.dataset.arg;  K.careerUI._afterCoverChange(); return; }
       if (act === "cover-artist") { st.coverOpts.showArtist = !st.coverOpts.showArtist; K.careerUI._afterCoverChange(); return; }
       if (act === "cover-grain")  { st.coverOpts.grain = st.coverOpts.grain ? 0 : 1; K.careerUI._afterCoverChange(); return; }
+      if (act === "cover-frame")  { st.coverOpts.frame = !st.coverOpts.frame; K.careerUI._afterCoverChange(); return; }
+      if (act === "cover-explicit") { st.coverOpts.explicit = !st.coverOpts.explicit; K.careerUI._afterCoverChange(); return; }
+      if (act === "cover-year")   {
+        st.coverOpts.year = st.coverOpts.year ? "" : String(U.dateForDay(K.state.day).y);
+        K.careerUI._afterCoverChange();
+        return;
+      }
+      if (act === "cover-reset")  {
+        st.coverOpts = K.careerUI.defaultCoverOpts();
+        K.careerUI._afterCoverChange();
+        return;
+      }
       if (act === "cover-hue-auto") { st.coverOpts.hue = -1; K.careerUI._syncCover(st); K.careerUI.renderCoverControls(); K.careerUI.renderCoverPreview(); return; }
+      /* v10.38 — Rastgele artık yalnız stil/desen/şekil/ton/grain değiştirir.
+         Öncesinde tüm nesne değiştiriliyordu ve oyuncunun font, düzen,
+         çerçeve, explicit ve yıl seçimleri sessizce sıfırlanıyordu. */
       if (act === "cover-random") {
-        const cs = U.pick(K.COVER_STYLES), pa = U.pick(K.COVER_PATTERNS), tx = U.pick(K.COVER_TEXT_MODES);
-        st.coverOpts = { style: cs.id, pattern: pa.id, text: tx.id, hue: U.chance(0.45) ? U.randInt(0, 359) : -1, grain: U.chance(0.6) ? 1 : 0 };
+        const o = st.coverOpts;
+        o.style = U.pick(K.COVER_STYLES).id;
+        o.pattern = U.pick(K.COVER_PATTERNS).id;
+        o.shape = U.pick(K.COVER_SHAPES).id;
+        o.hue = U.chance(0.45) ? U.randInt(0, 359) : -1;
+        o.grain = U.chance(0.6) ? 1 : 0;
         K.careerUI._afterCoverChange();
         return;
       }
@@ -688,6 +725,7 @@
       K.careerUI._syncCover(st);
       K.careerUI.renderCoverControls();
       K.careerUI.renderCoverPreview();
+      K.careerUI.renderStepList();
       const cv = U.qs("#cv-preview");
       if (cv) { cv.classList.remove("cv-pop"); void cv.offsetWidth; cv.classList.add("cv-pop"); }
     },
@@ -810,6 +848,38 @@
         </button>`).join("");
     },
 
+    /* kenar çubuğundaki adım özetleri. Kapak seçenekleri değişince
+       (font/düzen/stil) yeniden çizilmesi gerektiği için ayrı duruyor;
+       aksi halde kenar çubuğu "Gece · Merkez" gibi eski değeri gösteriyordu. */
+    stepSubs(st) {
+      const beat = K.beatById(st.beatId), vocal = K.vocalById(st.vocalId);
+      const coverSt = (K.COVER_STYLES.find(x => x.id === st.coverOpts.style) || {}).name || "";
+      const layout = (K.COVER_LAYOUTS.find(l => l.id === st.coverOpts.layout) || {}).name || "";
+      const filled = K.LYRIC_SECTIONS.filter(s => String((st.lyricSections || {})[s.id] || "").trim()).length;
+      return {
+        1: st.count + " parça · " + K.career.formatLabel(st.count).replace(/^\S+\s/, ""),
+        2: beat.name + " · " + vocal.name,
+        3: filled + "/" + K.LYRIC_SECTIONS.length + " bölüm",
+        4: coverSt + " · " + layout,
+        5: U.money(st.marketing) + " · " + st.wait + " gün",
+        6: "Son kontrol"
+      };
+    },
+
+    renderStepList() {
+      const st = K.careerUI._studio;
+      const stepsEl = U.qs("#st-steps");
+      if (!st || !stepsEl) return;
+      const subs = K.careerUI.stepSubs(st);
+      stepsEl.innerHTML = K.careerUI.WIZ_STEPS.map(s => {
+        const state = s.id < st.step ? "done" : s.id === st.step ? "active" : "todo";
+        return `<button class="side-step" data-state="${state}" data-act="st-jump" data-arg="${s.id}">
+          <span class="ss-no">${s.id < st.step ? "✓" : s.id}</span>
+          <span class="ss-body"><b>${s.label}</b><span>${U.escape(subs[s.id] || "")}</span></span>
+        </button>`;
+      }).join("");
+    },
+
     /* ---------------- adım render ---------------- */
     renderStudioStep() {
       const st = K.careerUI._studio;
@@ -818,32 +888,12 @@
       K.careerUI._syncCover(st);
 
       const stepDef = K.careerUI.WIZ_STEPS[st.step - 1];
-      const stepsEl = U.qs("#st-steps");
       const bodyEl = U.qs("#st-body");
       const navEl = U.qs("#st-nav");
       if (!bodyEl) return;
 
       /* kenar çubuğu adımları */
-      const beat = K.beatById(st.beatId), vocal = K.vocalById(st.vocalId);
-      const coverSt = (K.COVER_STYLES.find(x => x.id === st.coverOpts.style) || {}).name || "";
-      const subs = {
-        1: st.count + " parça · " + K.career.formatLabel(st.count).replace(/^\S+\s/, ""),
-        2: beat.name + " · " + vocal.name,
-        3: (function () {
-          const filled = K.LYRIC_SECTIONS.filter(s => String((st.lyricSections || {})[s.id] || "").trim()).length;
-          return filled + "/" + K.LYRIC_SECTIONS.length + " bölüm";
-        })(),
-        4: coverSt + " · " + ((K.COVER_PATTERNS.find(p => p.id === st.coverOpts.pattern) || {}).name || ""),
-        5: U.money(st.marketing) + " · " + st.wait + " gün",
-        6: "Son kontrol"
-      };
-      stepsEl.innerHTML = K.careerUI.WIZ_STEPS.map(s => {
-        const state = s.id < st.step ? "done" : s.id === st.step ? "active" : "todo";
-        return `<button class="side-step" data-state="${state}" data-act="st-jump" data-arg="${s.id}">
-          <span class="ss-no">${s.id < st.step ? "✓" : s.id}</span>
-          <span class="ss-body"><b>${s.label}</b><span>${U.escape(subs[s.id] || "")}</span></span>
-        </button>`;
-      }).join("");
+      K.careerUI.renderStepList();
 
       /* başlık */
       U.qs("#st-step-title").textContent = stepDef.label;
@@ -1105,6 +1155,8 @@
     renderCoverPreview() {
       const st = K.careerUI._studio;
       if (!st) return;
+      /* mağaza satırlarında emoji yerine gerçek marka logosu (v10.38) */
+      const brand = (id, cls) => (K.brandIcon && K.brandIcon.has(id)) ? K.brandIcon.tile(id, cls) : "";
       const el = U.qs("#cv-preview");
       if (el) el.innerHTML = K.ui.cover(st.coverSeed, "", 250);
       const store = U.qs("#cv-store");
@@ -1113,11 +1165,11 @@
         const artist = K.state.player.stageName;
         store.innerHTML = `
           <div class="store-title">Mağazada görünüm</div>
-          <div class="store-row sp"><span class="st-icon">🟢</span>${K.ui.cover(st.coverSeed, "", 44)}
+          <div class="store-row sp"><span class="st-icon">${brand("spotify", "ic-spotify")}</span>${K.ui.cover(st.coverSeed, "", 44)}
             <div class="grow"><b>${U.escape(title)}</b><span>${U.escape(artist)}</span></div><em>Spotify</em></div>
-          <div class="store-row ap"><span class="st-icon">🍎</span>${K.ui.cover(st.coverSeed, "", 44)}
+          <div class="store-row ap"><span class="st-icon">${brand("applemusic", "ic-apple")}</span>${K.ui.cover(st.coverSeed, "", 44)}
             <div class="grow"><b>${U.escape(title)}</b><span>${U.escape(artist)}</span></div><em>Apple</em></div>
-          <div class="store-row yt"><span class="st-icon">▶️</span>${K.ui.cover(st.coverSeed, "", 44)}
+          <div class="store-row yt"><span class="st-icon">${brand("youtube", "ic-youtube")}</span>${K.ui.cover(st.coverSeed, "", 44)}
             <div class="grow"><b>${U.escape(title)}</b><span>${U.escape(artist)}</span></div><em>YouTube</em></div>`;
       }
     },
@@ -1133,24 +1185,32 @@
           <span class="cv-swatch" style="background:linear-gradient(135deg, ${cs.c1}, ${cs.c2})"></span>
           <span class="cv-name">${cs.name}</span>
         </button>`).join("");
+      const layouts = K.COVER_LAYOUTS.map(l => `
+        <button class="cv-chip ${o.layout === l.id ? "active" : ""}" data-act="cover-layout" data-arg="${l.id}" title="${U.escape(l.hint || "")}">${l.name}</button>`).join("");
       const patterns = K.COVER_PATTERNS.map(p => `
         <button class="cv-chip ${o.pattern === p.id ? "active" : ""}" data-act="cover-pattern" data-arg="${p.id}">${p.name}</button>`).join("");
       const texts = K.COVER_TEXT_MODES.map(t => `
         <button class="cv-chip ${o.text === t.id ? "active" : ""}" data-act="cover-text" data-arg="${t.id}">${t.name}</button>`).join("");
       const fonts = K.COVER_FONTS.map(f => `
         <button class="cv-chip ${o.font === f.id ? "active" : ""}" data-act="cover-font" data-arg="${f.id}" style="font-family:${f.family};font-weight:${f.weight}">${f.name}</button>`).join("");
-      const aligns = K.COVER_ALIGNS.map(a => `
-        <button class="cv-chip ${o.align === a.id ? "active" : ""}" data-act="cover-align" data-arg="${a.id}">${a.name}</button>`).join("");
       const shapes = K.COVER_SHAPES.map(s => `
         <button class="cv-chip ${o.shape === s.id ? "active" : ""}" data-act="cover-shape" data-arg="${s.id}">${s.name}</button>`).join("");
       wrap.innerHTML = `
         <div class="ctrl-group">
-          <label>Stil</label>
+          <label>Stil <span class="hint">${K.COVER_STYLES.length} palet</span></label>
           <div class="cv-styles">${styles}</div>
+        </div>
+        <div class="ctrl-group">
+          <label>Düzen <span class="hint">yazının kompozisyonu</span></label>
+          <div class="cv-chips">${layouts}</div>
         </div>
         <div class="ctrl-group">
           <label>Desen</label>
           <div class="cv-chips">${patterns}</div>
+        </div>
+        <div class="ctrl-group">
+          <label>Şekil</label>
+          <div class="cv-chips">${shapes}</div>
         </div>
         <div class="ctrl-group">
           <label>Yazı</label>
@@ -1159,14 +1219,6 @@
         <div class="ctrl-group">
           <label>Yazı Tipi</label>
           <div class="cv-chips">${fonts}</div>
-        </div>
-        <div class="ctrl-group">
-          <label>Yerleşim</label>
-          <div class="cv-chips">${aligns}</div>
-        </div>
-        <div class="ctrl-group">
-          <label>Şekil</label>
-          <div class="cv-chips">${shapes}</div>
         </div>
         <div class="ctrl-group">
           <label>Renk Tonu <span class="hint" id="st-hue-val">${o.hue < 0 ? "Otomatik" : o.hue + "°"}</span></label>
@@ -1179,7 +1231,16 @@
           <label>Ek</label>
           <div class="cv-chips">
             <button class="cv-chip ${o.showArtist ? "active" : ""}" data-act="cover-artist">Sanatçı adı</button>
-            <button class="cv-chip ${o.grain ? "active" : ""}" data-act="cover-grain">Grain ${o.grain ? "açık" : "kapalı"}</button>
+            <button class="cv-chip ${o.grain ? "active" : ""}" data-act="cover-grain">Grain</button>
+            <button class="cv-chip ${o.frame ? "active" : ""}" data-act="cover-frame">Çerçeve</button>
+            <button class="cv-chip ${o.explicit ? "active" : ""}" data-act="cover-explicit">Explicit (E)</button>
+            <button class="cv-chip ${o.year ? "active" : ""}" data-act="cover-year">Yıl${o.year ? " · " + U.escape(o.year) : ""}</button>
+          </div>
+        </div>
+        <div class="ctrl-group">
+          <label>Baştan</label>
+          <div class="cv-chips">
+            <button class="cv-chip" data-act="cover-reset">↺ Sıfırla</button>
           </div>
         </div>`;
     },
