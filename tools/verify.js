@@ -142,7 +142,10 @@ const SUITES = [
   { id: "silence",     script: "tools/smoke-silence.js",     label: "Katalog sönümü (unutulma · uyarı)" },
   /* gerçek uygulama düzeni (2. dalga) + pil kaldırma: beş uygulamanın
      alt sekmesi SVG kalmalı, pil mekaniği geri gelmemeli. */
-  { id: "v1037",       script: "tools/smoke-v1037.js",       label: "v10.37 gerçek uygulama düzeni + pil kaldırma" }
+  { id: "v1037",       script: "tools/smoke-v1037.js",       label: "v10.37 gerçek uygulama düzeni + pil kaldırma" },
+  /* kapak sistemi: yazı taşması, görünmez desen/şekil ve "Rastgele
+     Kapak" ayarları silme hatalarının kalıcı kilidi. */
+  { id: "cover",       script: "tools/smoke-cover.js",       label: "v10.38 kapak üreticisi + düzenleyici" }
 ];
 
 const suiteOut = {};
