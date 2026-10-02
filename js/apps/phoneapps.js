@@ -4,7 +4,7 @@
    • Kontrol Merkezi (K.cc)  — hızlı ayarlar
    • Spotlight arama (K.spotlight)
    • App Store (kilitli uygulamalar)
-   • Telefon Ayarları (duvar kağıdı / parlaklık / pil)
+   • Telefon Ayarları (duvar kağıdı / parlaklık)
    ============================================================ */
 (function (K) {
   "use strict";
@@ -18,7 +18,6 @@
 
     view() {
       const pr = K.phoneOS.prefs();
-      const bat = K.phoneOS.battery();
       const np = (K.audio && K.audio.isPlaying()) ? K.audio.current() : (K.interactions ? K.interactions.nowPlaying() : null);
       const playing = K.audio && K.audio.isPlaying();
       const on = v => (v ? "on" : "");
@@ -51,21 +50,11 @@
               <input type="range" id="cc-vol" min="0" max="100" value="${Math.round((K.audio ? K.audio.volume() : 0.28) * 100)}" />
             </div>
 
-            <div class="cc-tile cc-bat">
-              <div class="cc-label">Pil</div>
-              <div class="cc-bat-row">
-                <span class="battery big"><i style="width:${bat}%;${bat <= 15 ? "background:#ff5c7a" : ""}"></i></span>
-                <span class="cc-bat-val">${bat}%</span>
-              </div>
-              <button class="btn btn-sm ${bat <= 99 ? "btn-primary" : "btn-ghost"}" data-act="cc-charge" ${bat <= 99 ? "" : "disabled"}>${bat <= 99 ? "🔌 Şarj et" : "Dolu"}</button>
-            </div>
-
             <div class="cc-tile">
               <button class="cc-tgl ${on(pr.theme === "light")}" data-act="cc-theme">${pr.theme === "light" ? "☀️ Açık tema" : "🌙 Koyu tema"}</button>
               <button class="cc-tgl ${on(K.settings.all().reduceMotion)}" data-act="cc-motion">🌀 Hareketi azalt</button>
               <button class="cc-tgl ${on(K.settings.all().contrast)}" data-act="cc-contrast">◐ Yüksek kontrast</button>
               <button class="cc-tgl ${on(K.state.player.ytAutoplay !== false)}" data-act="cc-autoplay">🔁 Oto sıradaki</button>
-              <button class="cc-tgl ${on(pr.batterySaver)}" data-act="cc-saver">🔋 Pil tasarrufu</button>
             </div>
 
             <div class="cc-tile">
@@ -86,7 +75,7 @@
             let t = (K.queue && K.queue.size()) ? K.queue.shift() : null;
             if (!t) { const list = K.platforms.searchSongs("").slice(0, 20); t = U.pick(list); }
             K.interactions.play(t); K.phone.reRender();
-          } else if (act === "cc-charge") { K.phoneOS.charge(); K.phone.reRender(); }
+          }
           else if (act === "cc-theme") {
             K.phoneOS.setPref("theme", K.phoneOS.prefs().theme === "light" ? "dark" : "light");
             K.phone.reRender();
@@ -94,7 +83,6 @@
           else if (act === "cc-motion") { K.settings.set({ reduceMotion: !K.settings.all().reduceMotion }); K.phone.reRender(); }
           else if (act === "cc-contrast") { K.settings.set({ contrast: !K.settings.all().contrast }); K.phone.reRender(); }
           else if (act === "cc-autoplay") { K.state.player.ytAutoplay = !(K.state.player.ytAutoplay !== false); K.save(); K.phone.reRender(); }
-          else if (act === "cc-saver") { K.phoneOS.setPref("batterySaver", !K.phoneOS.prefs().batterySaver); K.phone.reRender(); }
           else if (act === "cc-phone-settings") { K.phone.openApp("phonesettings"); }
         }
       };
@@ -207,7 +195,6 @@
         title: "Ayarlar", sub: "Telefon", shellClass: "app-phset",
         render: () => {
           const pr = K.phoneOS.prefs();
-          const bat = K.phoneOS.battery();
           return `
             <div class="phset-row">
               <div class="phset-swatch" style="background:${K.phoneOS.wallpaper().css}"></div>
@@ -228,20 +215,11 @@
             </div>
 
             <div class="phset-card">
-              <div class="phset-row" style="padding:0;border:none;background:none">
-                <div class="grow"><div class="phset-name">Pil</div><div class="phset-sub">${bat}% ${bat <= 15 ? "· azaldı" : ""}</div></div>
-                <button class="btn btn-sm ${bat <= 99 ? "btn-primary" : "btn-ghost"}" data-pact="ph-charge" ${bat <= 99 ? "" : "disabled"}>${bat <= 99 ? "Şarj et" : "Dolu"}</button>
-              </div>
-              ${K.studio.bar(bat, { cls: "lg", color: bat <= 15 ? "linear-gradient(90deg,#f87171,#ff8a5c)" : "linear-gradient(90deg,#4ade80,#5ce89b)" })}
-            </div>
-
-            <div class="phset-card">
-              <button class="phset-item ${pr.batterySaver ? "on" : ""}" data-pact="ph-saver">🔋 Pil tasarrufu <span>${pr.batterySaver ? "Açık" : "Kapalı"}</span></button>
               <button class="phset-item ${K.settings.all().reduceMotion ? "on" : ""}" data-pact="ph-motion">🌀 Hareketi azalt <span>${K.settings.all().reduceMotion ? "Açık" : "Kapalı"}</span></button>
               <button class="phset-item ${K.settings.all().contrast ? "on" : ""}" data-pact="ph-contrast">◐ Yüksek kontrast <span>${K.settings.all().contrast ? "Açık" : "Kapalı"}</span></button>
             </div>
 
-            <div class="hint">Duvar kağıdı, parlaklık ve pil tercihleri kaydına işlenir.<br>🎛️ Oyun ayarları (kayıt & zorluk) tek yerden: <b>üst bardaki ⚙️</b>.</div>`;
+            <div class="hint">Duvar kağıdı ve parlaklık tercihleri kaydına işlenir.<br>🎛️ Oyun ayarları (kayıt & zorluk) tek yerden: <b>üst bardaki ⚙️</b>.</div>`;
         },
         onMount: (root) => {
           const br = root.querySelector("#ph-bright");
@@ -254,8 +232,6 @@
             K.phoneOS.setPref("theme", K.phoneOS.prefs().theme === "light" ? "dark" : "light");
             K.phone.reRender();
           }
-          else if (act === "ph-charge") { K.phoneOS.charge(); K.phone.reRender(); }
-          else if (act === "ph-saver") { K.phoneOS.setPref("batterySaver", !K.phoneOS.prefs().batterySaver); K.phone.reRender(); }
           else if (act === "ph-motion") { K.settings.set({ reduceMotion: !K.settings.all().reduceMotion }); K.phone.reRender(); }
           else if (act === "ph-contrast") { K.settings.set({ contrast: !K.settings.all().contrast }); K.phone.reRender(); }
         }
