@@ -7,6 +7,29 @@
 
   const U = K.util;
 
+  /* ---------- gerçek Apple Music simgeleri (SVG) ----------
+     v10.37 — emoji yerine SF Symbols tarzı Apple Music işaretleri.
+     .a-on = aktif (dolu) · .a-off = pasif (ince çizgi). */
+  const AI = {
+    listen: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+      <rect class="a-off" x="3.2" y="3.2" width="17.6" height="17.6" rx="5" fill="none"/>
+      <path class="a-off" d="M9.8 8.2 16 12l-6.2 3.8z" fill="currentColor" stroke="none"/>
+      <rect class="a-on" x="2.6" y="2.6" width="18.8" height="18.8" rx="5.4" fill="currentColor" stroke="none"/>
+      <path class="a-on" d="M9.4 7.6 16.4 12l-7 4.4z" fill="#000" stroke="none"/>
+    </svg>`,
+    charts: `<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><rect x="2.8" y="3.2" width="8" height="8" rx="2"/><rect x="13.2" y="3.2" width="8" height="8" rx="2"/><rect x="2.8" y="13.2" width="8" height="8" rx="2"/><rect x="13.2" y="13.2" width="8" height="8" rx="2"/></svg>`,
+    radio: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+      <circle cx="12" cy="12" r="2.3" fill="currentColor" stroke="none"/>
+      <path d="M7.4 7.4a6.5 6.5 0 0 0 0 9.2M16.6 7.4a6.5 6.5 0 0 1 0 9.2"/>
+      <path d="M4.3 4.3a11 11 0 0 0 0 15.4M19.7 4.3a11 11 0 0 1 0 15.4"/>
+    </svg>`,
+    library: `<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><rect x="3" y="3.4" width="4.2" height="17.2" rx="1.2"/><rect x="9" y="3.4" width="4.2" height="17.2" rx="1.2"/><path d="M15.6 4.2a1.1 1.1 0 0 1 1.3-.8l3.4.9a1.1 1.1 0 0 1 .8 1.3l-3.9 15a1.1 1.1 0 0 1-1.3.8l-3.4-.9a1.1 1.1 0 0 1-.8-1.3z"/></svg>`,
+    play: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5.2 19 12 8 18.8z"/></svg>`,
+    pause: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="7" y="5" width="3.6" height="14" rx="1"/><rect x="13.4" y="5" width="3.6" height="14" rx="1"/></svg>`,
+    refresh: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 11.4a8.4 8.4 0 1 0-1.6 5.6"/><path d="M20.4 5v6.4h-6.4"/></svg>`,
+    radioSmall: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4"/></svg>`
+  };
+
   /* v10.22 — Apple Music kitaplık filtresi (sekme değişince sıfırlanmasın) */
   let amFilter = "playlists";
 
@@ -53,10 +76,10 @@
         shellClass: "app-applemusic", musicBar: true,
         tabPos: "bottom",
         tabs: [
-          { id: "listen", label: "Şimdi Çal", icon: "🎧" },
-          { id: "charts", label: "Listeler", icon: "📊" },
-          { id: "radio", label: "Radyo", icon: "📻" },
-          { id: "lib", label: "Kitaplık", icon: "📚" }
+          { id: "listen", label: "Şimdi Çal", icon: AI.listen },
+          { id: "charts", label: "Listeler", icon: AI.charts },
+          { id: "radio", label: "Radyo", icon: AI.radio },
+          { id: "lib", label: "Kitaplık", icon: AI.library }
         ],
         activeTab: params.tab || "listen",
         render: (tab) => {
@@ -151,7 +174,7 @@
         ${p.songs.some(s => s.playlists && s.playlists.length) ? `
           ${K.ui.section("Listelerde")}
           ${p.songs.filter(s => s.playlists && s.playlists.length).slice(0, 5).map(s => `<div class="sp-track mine">
-            <span class="t-rank">📻</span>
+            <span class="t-rank">${AI.radioSmall}</span>
             <div class="grow"><div class="t-name">${U.escape(s.title)}</div><div class="t-artist">${s.playlists.length} editoryal liste</div></div>
             <span class="pill karma">SEN</span>
           </div>`).join("")}` : ""}
@@ -172,7 +195,7 @@
           <div class="h-listeners">${mine.length ? `Listede ${mine.length} şarkın var!` : "Şarkının listeye girmesi için dinlenme gerekiyor."}</div>
         </div>
         <div class="action-row">
-          <button class="btn btn-sm btn-primary" data-pact="refresh-live">🔄 Listeyi Canlı Yenile</button>
+          <button class="btn btn-sm btn-primary" data-pact="refresh-live">${AI.refresh} Listeyi Canlı Yenile</button>
         </div>
         ${charts.map((e, i) => chartRow(e, i)).join("")}`;
     },
@@ -201,7 +224,7 @@
             <div class="ss">${U.escape(s.desc)}</div>
             <div class="amx-live"><i></i> Canlı</div>
           </div>
-          <span style="color:var(--text-3);font-size:15px">▶</span>
+          <span style="color:var(--text-3)">${AI.play}</span>
         </div>`).join("")}`;
     },
 
