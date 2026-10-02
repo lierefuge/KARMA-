@@ -113,10 +113,7 @@
 .status-island { position: absolute; left: 50%; transform: translateX(-50%); }
 .status-right { display: flex; align-items: center; gap: 6px; font-size: 11px; }
 .sig { letter-spacing: -1px; font-size: 10px; }
-.battery { width: 24px; height: 12px; border: 1.4px solid #fff; border-radius: 3px; position: relative; display: inline-block; }
-.battery::after { content: ""; position: absolute; right: -4px; top: 3px; width: 2px; height: 4px; background: #fff; border-radius: 0 1px 1px 0; }
-.battery > i { display: block; height: 100%; width: 74%; background: #fff; border-radius: 1px; transition: width 0.3s, background 0.3s; }
-.battery > i.low { background: #ff5c7a; }
+/* v10.37 — pil göstergesi kaldırıldı (pil mekaniği yok). */
 
 /* ---------- viewport ---------- */
 .phone-viewport {
