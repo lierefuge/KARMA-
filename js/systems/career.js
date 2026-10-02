@@ -310,6 +310,22 @@
       /* --- ŞİRKET AKIŞI: sözleşmeliysen yayını şirket çıkarır; masrafın bir kısmını üstlenir --- */
       const myLabel = p.labelId ? K.labelById(p.labelId) : null;
       const viaLabel = !!myLabel;
+
+      /* --- v10.42 — DISTRIBÜTÖR: kim dağıtıyor? --------------------------
+         Bağımsızsan distribütörü sen seçersin. Şirket altındaysan iki
+         yol var: (a) şirketin distribütörü (masrafı şirket üstlenir),
+         (b) kendi distribütörün. Ayrıca master (yayın sahibi) sözleşmeden
+         gelir: "label" ise şirket adına, "artist" ise kendi adına çıkar. */
+      const wantOwnDist = !!(opts.distributorId && K.distributorById && K.distributorById(opts.distributorId));
+      const distDesc = (viaLabel && !wantOwnDist)
+        ? K.distro.descriptorFor(myLabel.distributor)
+        : K.distro.descriptorFor(wantOwnDist ? K.distributorById(opts.distributorId).name : K.distributorById(K.defaultDistributor()).name);
+      const distFee = distDesc.fee || 0;
+      const distCommission = distDesc.commission || 0;
+      const dealMaster = (p.labelDeal && p.labelDeal.master) || (viaLabel ? "label" : "artist");
+      const masterOwner = (opts.masterOwner === "artist" || opts.masterOwner === "label")
+        ? opts.masterOwner
+        : dealMaster;
       /* --- A&R TOPLANTISI: şirket revizyon isteyebilir --- */
       const arRequest = (viaLabel && Math.random() < 0.45)
         ? U.pick([
@@ -319,10 +335,13 @@
           ])
         : null;
 
+      /* v10.42 — distribütör ücreti maliyete girer; yıllık plan aktifse 0 */
       const payCost = viaLabel
-        ? Math.max(1000, Math.round(grossCost * (1 - (myLabel.cover || 0.3) * 0.55)))
-        : grossCost;
+        ? Math.max(1000, Math.round((grossCost + distFee) * (1 - (myLabel.cover || 0.3) * 0.55)))
+        : grossCost + distFee;
       const cost = payCost;
+      /* yıllık üyelik ödendiyse planı işaretle */
+      if (distFee > 0 && K.distro && K.distro.notePlan) K.distro.notePlan(distDesc.id, s.day);
       if (!K.economy.canAfford(payCost)) {
         K.toast("Yetersiz bakiye", `Bu yayın için ${U.money(payCost)} gerekiyor.`, "bad");
         return null;
@@ -405,7 +424,14 @@
         budget, marketing, cost, grossCost, progress: 0, stage: "prep",
         viaLabel: viaLabel, labelId: myLabel ? myLabel.id : null, labelName: myLabel ? myLabel.name : null,
         labelCover: myLabel ? (myLabel.cover || 0) : 0,
-        distributor: myLabel ? myLabel.distributor : "KARMA Dağıtım",
+        distributor: distDesc.name,
+        /* v10.42 — distribütör ticari modeli + master sahipliği */
+        distributorId: distDesc.id,
+        distCommission: distCommission,
+        distFee: distFee,
+        distLeadDays: distDesc.leadDays || 7,
+        distPremium: !!distDesc.premium,
+        masterOwner: masterOwner,
         coverSeed: opts.coverSeed || U.uid("cv"),
         /* v10.41 — B grubu METADATA
            Gerçek dağıtım formunun zorunlu alanları: bölge, dil,
@@ -498,6 +524,11 @@
           contentId: !!rel.contentId,
           releaseDayFit: rel.releaseDayFit || 1,
           releaseWeekday: rel.releaseWeekday != null ? rel.releaseWeekday : null,
+          /* v10.42 — distribütör + master sahipliği */
+          distributorId: rel.distributorId || "karma",
+          distributorName: rel.distributor || null,
+          distCommission: rel.distCommission || 0,
+          masterOwner: rel.masterOwner || "artist",
           albumTitle: rel.title,
           trackNo: i + 1,
           budget: (rel.trackBudgets && rel.trackBudgets[i] != null) ? rel.trackBudgets[i] : rel.budget,
@@ -575,6 +606,11 @@
           song.dailyStreams *= 1 + (K.meta ? K.meta.INSTRUMENTAL_BONUS : 0.05);
           song.syncIncome = true;
         }
+        /* v10.42 — MASTER SAHİPLİĞİ: şirket master'a sahipse daha çok
+           iter (yayın ×1.06); sanatçı master'a sahipse şirket desteği
+           azalır (×0.96) ama telif payı yüksek kalır. */
+        if (rel.viaLabel && rel.masterOwner === "label") song.dailyStreams *= 1.06;
+        else if (rel.viaLabel && rel.masterOwner === "artist") song.dailyStreams *= 0.96;
         /* yayın stratejisi: snippet beklenti kurar, surprise sessiz başlar */
         if (rel.strategy === "snippet") song.dailyStreams *= 1.18;
         else if (rel.strategy === "surprise") song.dailyStreams *= 0.88;
@@ -882,6 +918,11 @@
       const is360 = (l.power || 50) >= 55 && U.chance(0.55);
       const mgr = (K.team && K.team.bonus) ? K.team.bonus().advance : 1;   // menajer pazarlığı
       const advance = Math.round(l.fee * leverage / 3 * (is360 ? 1.45 : 1) * mgr);
+      /* v10.42 — MASTER SAHİPLİĞİ: güçlü şirketler master'ı ister;
+         küçük/orta şirketler bazen sanatçıda bırakır. Bu, yayının
+         "şirket adına" mı "kendi adına" mı çıkacağını belirler. */
+      const keepMaster = (l.power || 50) < 55 && U.chance(0.5);
+      const master = keepMaster ? "artist" : "label";
       return {
         labelId,
         labelName: l.name,
@@ -889,6 +930,8 @@
         royalty: l.royalty,          // şirketin streaming'den aldığı pay
         artistRoyalty: 100 - l.royalty,
         lengthDays: 180,
+        master: master,              // "label" | "artist"
+        distributor: l.distributor || "KARMA Dağıtım",
         dealType: is360 ? "360" : "standard",
         splits: is360
           ? { touring: U.randInt(12, 20), merch: U.randInt(18, 28), sync: U.randInt(20, 30) }
@@ -910,6 +953,9 @@
         labelId, advance: t.advance, recouped: 0,
         labelRoyalty: t.royalty, artistRoyalty: t.artistRoyalty,
         startDay: K.state.day, lengthDays: t.lengthDays,
+        /* v10.42 — sözleşme şartları: master sahipliği + distribütör */
+        master: t.master || "label",
+        distributor: t.distributor || null,
         dealType: t.dealType || "standard", splits: t.splits || { touring: 0, merch: 0, sync: 0 }
       };
       K.economy.earn(t.advance, "advance");
