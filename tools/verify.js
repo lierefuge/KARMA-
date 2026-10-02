@@ -146,7 +146,11 @@ const SUITES = [
   /* kapak sistemi: yazı taşması, görünmez desen/şekil ve "Rastgele
      Kapak" ayarları silme hatalarının kalıcı kilidi. */
   { id: "cover",       script: "tools/smoke-cover.js",       label: "v10.38 kapak üreticisi + düzenleyici" },
-  { id: "v1039",       script: "tools/smoke-v1039.js",       label: "v10.39 parça adımı + parça başına sözler" }
+  { id: "v1039",       script: "tools/smoke-v1039.js",       label: "v10.39 parça adımı + parça başına sözler" },
+  /* gerçek dağıtım formu: parça seviyesi (sıra/feat/explicit/ISRC/sample),
+     metadata (kredi/split/bölge/dil/etiket/barkod) ve teknik gereksinimler
+     (kapak px, format reddi, çuma çıkışı, Content ID, takedown). */
+  { id: "v1040",       script: "tools/smoke-v1040.js",       label: "v10.40 dağıtım formu (parça · metadata · teknik)" }
 ];
 
 const suiteOut = {};
