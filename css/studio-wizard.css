@@ -468,3 +468,191 @@
 }
 .trk-src.good { color: #6ff0aa; }
 .trk-src.weak { color: #ffb26b; }
+
+/* ============================================================
+   v10.40 — PARÇA SATIRI: sıralama · feat · explicit
+   Gerçek dağıtım formunun parça seviyesi alanları.
+   ============================================================ */
+.trk-card.trk-open { border-color: rgba(63,220,140,.30); }
+.trk-order { display: flex; align-items: center; gap: 2px; flex: 0 0 auto; }
+.trk-order .btn { padding: 4px 5px; }
+.trk-order .btn[disabled] { opacity: .25; pointer-events: none; }
+.trk-open-tag {
+  font-size: 9.5px; font-weight: 800; letter-spacing: .03em; text-transform: uppercase;
+  color: #6ff0aa; background: rgba(63,220,140,.13);
+  border: 1px solid rgba(63,220,140,.28); border-radius: 999px;
+  padding: 3px 8px; white-space: nowrap;
+}
+
+.trk-meta {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  padding: 0 14px 11px;
+}
+.trk-fld { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.trk-fld > span {
+  font-size: 9.5px; font-weight: 800; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--text-3);
+}
+.trk-fld select {
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12);
+  color: var(--text-1); border-radius: 8px; padding: 5px 8px;
+  font-size: 11.5px; max-width: 180px;
+}
+
+/* explicit düğmesi — mağaza bayrağı */
+.trk-exp {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.13);
+  color: var(--text-3); border-radius: 8px; padding: 5px 10px;
+  font-size: 10.5px; font-weight: 700; cursor: pointer; transition: .16s;
+}
+.trk-exp b {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 15px; height: 15px; border-radius: 3px; font-size: 10px; font-weight: 900;
+  background: rgba(255,255,255,.10); color: var(--text-3);
+}
+.trk-exp:hover { border-color: rgba(255,255,255,.24); color: var(--text-1); }
+.trk-exp.on {
+  background: rgba(255,92,122,.15); border-color: rgba(255,92,122,.45); color: #ff8fa3;
+}
+.trk-exp.on b { background: #ff5c7a; color: #fff; }
+.trk-exp.suggest { box-shadow: 0 0 0 1px rgba(255,92,122,.28); }
+
+/* örnek hakkı seçenekleri */
+.clr-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.clr-opt {
+  flex: 1 1 180px; display: flex; flex-direction: column; gap: 4px; text-align: left;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 11px; padding: 12px 14px; cursor: pointer; transition: .16s;
+  color: var(--text-1);
+}
+.clr-opt b { font-size: 12.5px; font-weight: 800; }
+.clr-opt span { font-size: 10.5px; color: var(--text-3); }
+.clr-opt:hover { border-color: rgba(255,255,255,.26); }
+.clr-opt.on { border-color: rgba(63,220,140,.5); background: rgba(63,220,140,.10); }
+.clr-opt.on b { color: #6ff0aa; }
+.clr-opt.on.risk { border-color: rgba(255,178,107,.5); background: rgba(255,178,107,.10); }
+.clr-opt.on.risk b { color: #ffb26b; }
+.clr-opt.wide { flex: 1 1 100%; }
+
+/* ISRC listesi (dağıtım adımı) */
+.isrc-list { display: flex; flex-direction: column; gap: 5px; }
+.isrc-row {
+  display: flex; align-items: center; gap: 9px;
+  background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.07);
+  border-radius: 8px; padding: 7px 11px;
+}
+.isrc-no {
+  flex: 0 0 auto; width: 18px; height: 18px; border-radius: 5px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800; background: rgba(255,255,255,.08); color: var(--text-3);
+}
+.isrc-nm {
+  flex: 1 1 auto; min-width: 0; font-size: 11.5px; color: var(--text-1);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.isrc-row code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px; letter-spacing: .04em; color: #8fd0ff;
+  background: rgba(110,195,255,.10); border-radius: 5px; padding: 2px 7px;
+}
+.exp-tag {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 15px; height: 15px; border-radius: 3px; font-style: normal;
+  font-size: 10px; font-weight: 900; background: #ff5c7a; color: #fff;
+}
+.warn-txt { color: #ffb26b; }
+
+/* ============================================================
+   v10.41 — METADATA: bölge · kredi · telif bölüşümü · barkod
+   ============================================================ */
+.region-chips {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 8px;
+}
+.region-opt {
+  display: flex; align-items: center; gap: 10px; text-align: left;
+  background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.10);
+  border-radius: 11px; padding: 10px 12px; cursor: pointer; transition: .16s; color: var(--text-1);
+}
+.region-opt:hover { border-color: rgba(255,255,255,.24); }
+.region-opt.on { border-color: rgba(110,195,255,.5); background: rgba(110,195,255,.10); }
+.ro-icon { font-size: 17px; flex: 0 0 auto; }
+.ro-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.ro-body b { font-size: 12px; font-weight: 700; }
+.ro-body span { font-size: 10px; color: var(--text-3); }
+.ro-check {
+  flex: 0 0 auto; width: 20px; height: 20px; border-radius: 6px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800;
+  background: rgba(255,255,255,.07); color: var(--text-3);
+}
+.region-opt.on .ro-check { background: rgba(110,195,255,.28); color: #8fd0ff; }
+
+/* kredi listesi */
+.cred-list { display: flex; flex-direction: column; gap: 6px; }
+.cred-row {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px; padding: 9px 12px; opacity: .55; transition: .16s;
+}
+.cred-row.on { opacity: 1; border-color: rgba(255,255,255,.16); }
+.cr-ico { font-size: 16px; flex: 0 0 auto; }
+.cr-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.cr-body b { font-size: 12px; font-weight: 700; }
+.cr-body span { font-size: 10px; color: var(--text-3); }
+.cred-row select {
+  flex: 0 0 auto; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12);
+  color: var(--text-1); border-radius: 8px; padding: 5px 8px; font-size: 11.5px; max-width: 150px;
+}
+.cr-share { display: inline-flex; align-items: center; gap: 3px; flex: 0 0 auto; }
+.cr-share input {
+  width: 52px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12);
+  color: var(--text-1); border-radius: 8px; padding: 5px 7px; font-size: 11.5px; text-align: right;
+}
+.cr-share input:disabled { opacity: .4; }
+.cr-share span { font-size: 11px; color: var(--text-3); font-weight: 700; }
+
+/* telif bölüşümü */
+.split-rows { display: flex; flex-direction: column; gap: 5px; }
+.split-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.07);
+  border-radius: 8px; padding: 8px 12px; font-size: 11.5px;
+}
+.split-row span { color: var(--text-2); }
+.split-row span em { font-style: normal; color: var(--text-3); font-size: 10.5px; }
+.split-row b { color: var(--text-1); font-size: 12px; }
+.split-row.mine { background: rgba(63,220,140,.10); border-color: rgba(63,220,140,.30); }
+.split-row.mine b { color: #6ff0aa; }
+
+/* barkod satırı */
+.upc-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.07);
+  border-radius: 8px; padding: 9px 12px; margin-bottom: 7px;
+}
+.upc-row > span { font-size: 11px; font-weight: 700; color: var(--text-3); letter-spacing: .04em; text-transform: uppercase; }
+.upc-row code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11.5px;
+  letter-spacing: .06em; color: #c8b6ff; background: rgba(150,90,255,.13);
+  border-radius: 5px; padding: 3px 9px;
+}
+
+/* ============================================================
+   v10.42 — TEKNİK GEREKSİNİMLER: kapak çözünürlüğü
+   ============================================================ */
+.cv-tech { margin: 10px 14px 0; }
+.px-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.px-opt {
+  flex: 1 1 130px; display: flex; flex-direction: column; gap: 3px; text-align: left;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 10px; padding: 10px 12px; cursor: pointer; transition: .16s; color: var(--text-1);
+}
+.px-opt b { font-size: 12.5px; font-weight: 800; }
+.px-opt span { font-size: 10px; color: var(--text-3); }
+.px-opt:hover { border-color: rgba(255,255,255,.26); }
+.px-opt.on { border-color: rgba(63,220,140,.5); background: rgba(63,220,140,.10); }
+.px-opt.on b { color: #6ff0aa; }
+.px-opt.bad { border-color: rgba(248,113,113,.42); background: rgba(248,113,113,.08); }
+.px-opt.bad b { color: #ff8fa3; }
+.px-opt.bad.on { border-color: rgba(248,113,113,.7); background: rgba(248,113,113,.16); }
