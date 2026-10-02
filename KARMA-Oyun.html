@@ -867,10 +867,7 @@ body::before {
 .status-island { position: absolute; left: 50%; transform: translateX(-50%); }
 .status-right { display: flex; align-items: center; gap: 6px; font-size: 11px; }
 .sig { letter-spacing: -1px; font-size: 10px; }
-.battery { width: 24px; height: 12px; border: 1.4px solid #fff; border-radius: 3px; position: relative; display: inline-block; }
-.battery::after { content: ""; position: absolute; right: -4px; top: 3px; width: 2px; height: 4px; background: #fff; border-radius: 0 1px 1px 0; }
-.battery > i { display: block; height: 100%; width: 74%; background: #fff; border-radius: 1px; transition: width 0.3s, background 0.3s; }
-.battery > i.low { background: #ff5c7a; }
+/* v10.37 — pil göstergesi kaldırıldı (pil mekaniği yok). */
 
 /* ---------- viewport ---------- */
 .phone-viewport {
@@ -4226,10 +4223,6 @@ body.hide-values .brand-sub::after {
 }
 .cc-tgl.on { background: rgba(176, 108, 255, .28); border-color: rgba(176, 108, 255, .5); color: #fff; }
 .cc-wide { margin-top: 6px; }
-.cc-bat-row { display: flex; align-items: center; gap: 9px; }
-.cc-bat-val { font-size: 15px; font-weight: 900; }
-.battery.big { width: 34px; height: 16px; border-color: #fff; }
-.battery.big > i { border-radius: var(--radius-xs); }
 
 /* ---- spotlight sonuçları ---- */
 .sp-res {
@@ -4304,8 +4297,6 @@ body.hide-values .brand-sub::after {
    ------------------------------------------------------------ */
 #phone-screen[data-theme="light"] { background: #e9ebf1; }
 #phone-screen[data-theme="light"] .status-bar { color: #16181d; }
-#phone-screen[data-theme="light"] .status-bar .battery { border-color: rgba(22,24,29,.45); }
-#phone-screen[data-theme="light"] .status-bar .battery i { background: #16181d; }
 
 #phone-screen[data-theme="light"] .app-shell { background: #eef0f5; color: #16181d; }
 #phone-screen[data-theme="light"] .app-shell .app-nav {
@@ -4366,25 +4357,7 @@ body.hide-values .brand-sub::after {
 #phone-screen[data-theme="light"] .phset-name { color: #16181d; }
 #phone-screen[data-theme="light"] .phset-sub { color: #6b7180; }
 
-/* ------------------------------------------------------------
-   PİL BİTTİ EKRANI — ESKİ HATA: pil %0 olsa bile hiçbir şey
-   olmuyordu; pil tamamen dekoratifti. Artık telefon kapanır ve
-   tek çıkış şarja takmaktır.
-   ------------------------------------------------------------ */
-#phone-dead-overlay {
-  position: absolute; inset: 0; z-index: 90;
-  display: grid; place-items: center;
-  background: #05060a; color: #e8eaf2; text-align: center;
-}
-#phone-dead-overlay .pd-in { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px; }
-#phone-dead-overlay .pd-ic { font-size: 54px; line-height: 1; opacity: .92; }
-#phone-dead-overlay .pd-t { font-size: 19px; font-weight: 800; }
-#phone-dead-overlay .pd-s { font-size: 12.5px; color: #9aa1b4; max-width: 215px; line-height: 1.5; }
-#phone-dead-overlay .pd-btn {
-  margin-top: 8px; font-family: inherit; font-size: 13.5px; font-weight: 800;
-  padding: 11px 22px; border: none; cursor: pointer; border-radius: var(--radius-pill);
-  background: linear-gradient(135deg, #5ce89b, #34b972); color: #04170d;
-}
+/* v10.37 — "pil bitti" ekranı kaldırıldı (pil mekaniği yok). */
 
 /* ------------------------------------------------------------
    ŞARKI KAPAĞI DUVAR KAĞIDI (gerçek albüm kapağı) + TEMA GEÇİŞİ
@@ -6004,6 +5977,161 @@ body.hide-values .brand-sub::after {
 </style>
 <!-- mobil/dokunmatik katman: EN SON yüklenir ki altta kalan 25 dosyayı ezebilsin -->
 <style>
+/* ==== css/apps-real.css ==== */
+/* ============================================================
+   KARMA — css/apps-real.css   (v10.37)
+   GERÇEK UYGULAMA DÜZENİ — 2. DALGA
+   X · YouTube · TikTok · Apple Music · Mesajlar
+
+   Neden bu dosya?
+   ---------------
+   v10.35 (Spotify) ve v10.36 (Instagram) alt sekmeleri emoji'den
+   gerçek SVG simgelere geçirdi. Diğer beş uygulama emoji sekme
+   ikonlarıyla kalmıştı — telefonun içinde iki uygulama gerçek,
+   beşi oyuncak gibi duruyordu. Bu dosya o tutarsızlığı kapatır.
+
+   Ortak kural: her uygulamanın alt sekmesinde
+     · pasif simge İNCE ÇİZGİ  (.x-off / .y-off / .t-off / .m-off / .a-off)
+     · aktif simge DOLU         (.x-on  / .y-on  / .t-on  / .m-on  / .a-on)
+   Gerçek uygulamaların hepsi bu davranışı kullanır.
+   ============================================================ */
+
+/* ============================================================
+   0) ORTAK — alt sekmede SVG simge ölçüsü ve hizası
+   ============================================================ */
+.seg-bottom .tb-ic { display: grid; place-items: center; line-height: 1; }
+.seg-bottom .tb-ic svg { width: 24px; height: 24px; display: block; }
+
+/* aktif/pasif simge değişimi (tüm gerçek-düzen uygulamaları) */
+.seg-bottom button svg .x-on,
+.seg-bottom button svg .y-on,
+.seg-bottom button svg .t-on,
+.seg-bottom button svg .m-on,
+.seg-bottom button svg .a-on { display: none; }
+.seg-bottom button.active svg .x-on,
+.seg-bottom button.active svg .y-on,
+.seg-bottom button.active svg .t-on,
+.seg-bottom button.active svg .m-on,
+.seg-bottom button.active svg .a-on { display: inline; }
+.seg-bottom button.active svg .x-off,
+.seg-bottom button.active svg .y-off,
+.seg-bottom button.active svg .t-off,
+.seg-bottom button.active svg .m-off,
+.seg-bottom button.active svg .a-off { display: none; }
+
+/* ============================================================
+   1) X (Twitter) — #000 · beyaz aktif · ETİKETSİZ alt bar
+   ============================================================ */
+.app-x { background: #000; }
+.app-x .app-nav { background: rgba(0, 0, 0, .92); border-bottom-color: rgba(255, 255, 255, .1); }
+.app-x .app-nav-title { font-weight: 900; letter-spacing: -.4px; }
+.app-x .seg.seg-bottom {
+  background: #000; border-top: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 0; padding: 10px 6px 12px; gap: 0;
+}
+.app-x .seg-bottom button { color: rgba(255, 255, 255, .5); padding: 0; }
+.app-x .seg-bottom button .tb-lb { display: none; }   /* gerçek X'te etiket yok */
+.app-x .seg-bottom button.active { color: #fff; }
+
+/* gönderi eylem satırı: SVG simge + sayı */
+.app-x .xp-actions {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 6px; margin-top: 10px;
+}
+.app-x .xp-act:last-child { flex: 0 0 auto; }
+.app-x .xp-act {
+  display: inline-flex; align-items: center; gap: 4px;
+  flex: 0 0 auto;
+  color: #71767b; font-size: 11.5px; font-weight: 500;
+  white-space: nowrap;            /* sayaç alt satıra kırılmasın */
+  transition: color .14s;
+}
+.app-x .xp-act b { font-weight: 500; white-space: nowrap; }
+.app-x .xp-act svg { display: block; width: 17px; height: 17px; flex: 0 0 auto; }
+.app-x .xp-act:hover { color: #1d9bf0; }
+.app-x .xp-act.xp-repost.on { color: #00ba7c; }
+.app-x .xp-act.xp-like.on { color: #f91880; }
+.app-x .xp-act.xp-save.on { color: #1d9bf0; }
+
+/* ============================================================
+   2) YOUTUBE — #0F0F0F · beyaz aktif · ETİKETLİ alt bar
+   ============================================================ */
+.app-youtube .seg.seg-bottom {
+  background: #0f0f0f; border-top: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 0; padding: 7px 4px 11px;
+}
+.app-youtube .seg-bottom button.active { color: #fff; }
+.app-youtube .seg-bottom .tb-lb { font-size: 9.5px; }
+
+/* üst çubuk zil simgesi */
+.app-youtube .nav-bell svg { width: 21px; height: 21px; display: block; }
+
+/* oynatma denetimleri: SVG + metin hizası */
+.app-youtube .yt-watch-actions button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.app-youtube .yt-chip svg { display: block; }
+.app-youtube .yt-chip { display: inline-flex; align-items: center; gap: 5px; }
+
+/* Shorts yan eylemleri */
+.app-youtube .short-side button svg { display: block; }
+.app-youtube .short-side button.on { color: #fff; }
+
+/* ============================================================
+   3) TIKTOK — siyah · beyaz/cyan aktif · ETİKETSİZ alt bar
+   ============================================================ */
+.app-tiktok { background: #000; }
+.app-tiktok .seg.seg-bottom {
+  background: #000; border-top: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 0; padding: 10px 6px 12px; gap: 0;
+}
+.app-tiktok .seg-bottom button { color: rgba(255, 255, 255, .55); padding: 0; }
+.app-tiktok .seg-bottom button .tb-lb { display: none; }   /* gerçek TikTok'ta etiket yok */
+.app-tiktok .seg-bottom button.active { color: #fff; }
+.app-tiktok .seg-bottom button.active svg { filter: drop-shadow(0 0 6px rgba(37, 244, 238, .45)); }
+
+/* sağ taraf eylemleri: beyaz dolu simgeler */
+.app-tiktok .tt-side .tt-act { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #fff; }
+.app-tiktok .tt-side .tt-act svg { display: block; filter: drop-shadow(0 1px 4px rgba(0, 0, 0, .55)); }
+.app-tiktok .tt-side .tt-act.on svg { color: #fe2c55; }
+.app-tiktok .tt-side .tt-act span { font-size: 11px; font-weight: 700; }
+.app-tiktok .tt-sound { display: flex; align-items: center; gap: 6px; }
+.app-tiktok .tt-sound svg { width: 13px; height: 13px; flex: 0 0 auto; }
+
+/* ============================================================
+   4) APPLE MUSIC — #000 · #FA233B aktif · ETİKETLİ alt bar
+   ============================================================ */
+.app-applemusic .seg.seg-bottom {
+  background: rgba(0, 0, 0, .96); border-top: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 0; padding: 7px 4px 11px;
+}
+.app-applemusic .seg-bottom button.active { color: #fa233b; }
+.app-applemusic .seg-bottom .tb-lb { font-size: 9.5px; }
+
+/* ============================================================
+   5) MESAJLAR — iOS kurgusu · #0a84ff aktif · ETİKETLİ alt bar
+   ============================================================ */
+.app-messages { background: #000; }
+.app-messages .app-nav { background: rgba(0, 0, 0, .92); border-bottom-color: rgba(255, 255, 255, .1); }
+.app-messages .seg.seg-bottom {
+  background: rgba(10, 10, 12, .97); border-top: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 0; padding: 7px 4px 11px;
+}
+.app-messages .seg-bottom button.active { color: #0a84ff; }
+.app-messages .seg-bottom .tb-lb { font-size: 9.5px; }
+
+/* ============================================================
+   6) MOBİL
+   ============================================================ */
+@container phone (max-width: 360px) {
+  .seg-bottom .tb-ic svg { width: 22px; height: 22px; }
+  /* dar telefonda X eylem satırı taşmasın: simge ve yazı bir tık küçülür */
+  .app-x .xp-act { font-size: 10.5px; gap: 3px; }
+  .app-x .xp-act svg { width: 15px; height: 15px; }
+}
+
+</style>
+<style>
 /* ==== css/mobile.css ==== */
 /* ============================================================
    KARMA — css/mobile.css   (v10.15)
@@ -6421,7 +6549,6 @@ html, body {
               <span class="status-right" id="status-cc" title="Kontrol Merkezi">
                 <span class="sig">▮▮▮</span>
                 <span class="wifi">✦</span>
-                <span class="battery"><i id="battery-level"></i></span>
               </span>
             </div>
 
@@ -6479,8 +6606,8 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.32.0";
-  K.VERSION_DATE = "2026-10-01";
+  K.VERSION = "10.37.0";
+  K.VERSION_DATE = "2026-10-02";
 })(window.K = window.K || {});
 
 </script>
@@ -9785,8 +9912,8 @@ window.K = window.K || {};
         tutorial: {},             // rehber adımları (id -> true)
 
         /* --- telefon (OS) --- */
-        battery: 100,
-        phone: { theme: "dark", wallpaper: "karma", brightness: 1, batterySaver: false, layout: null },
+        /* v10.37 — pil kaldırıldı; telefon her zaman açık */
+        phone: { theme: "dark", wallpaper: "karma", brightness: 1, layout: null },
         installed: null,          // yüklü (kilitli olmayan) uygulamalar; phoneOS doldurur
         /* v10.30 — GELEN ARAMALAR + YABANCI DM'LER */
         calls: [],                // çalan/cevaplanan aramalar (systems/calls.js)
@@ -10054,8 +10181,11 @@ window.K = window.K || {};
       K.state.player.team = K.state.player.team || { manager: 0, pr: 0, lawyer: 0, engineer: 0, stylist: 0 };
       K.state.player.sponsors = K.state.player.sponsors || [];
       K.state.player.tutorial = K.state.player.tutorial || {};
-      if (K.state.player.battery == null) K.state.player.battery = 100;
-      K.state.player.phone = K.state.player.phone || { theme: "dark", wallpaper: "karma", brightness: 1, batterySaver: false, layout: null };
+      /* v10.37 — eski kayıtlardaki pil alanlarını temizle */
+      delete K.state.player.battery;
+      delete K.state.player.phoneDead;
+      K.state.player.phone = K.state.player.phone || { theme: "dark", wallpaper: "karma", brightness: 1, layout: null };
+      delete K.state.player.phone.batterySaver;
       if (K.state.player.phone.layout === undefined) K.state.player.phone.layout = null;
       if (K.state.player.installed === undefined) K.state.player.installed = null;
       /* v10.30 — gelen aramalar + yabancı DM'ler (eski kayıt göçü) */
@@ -12705,9 +12835,15 @@ window.K = window.K || {};
 /* ============================================================
    KARMA — systems/phoneos.js
    TELEFON İŞLETİM SİSTEMİ EKSTRALARI
-   • Pil modeli (kullanımla azalır, şarj olur)
-   • Duvar kağıdı / parlaklık / pil tasarrufu tercihleri
+   • Duvar kağıdı / parlaklık tercihleri
    • Uygulama kilidi + mağaza (ilerlemeyle açılan uygulamalar)
+
+   v10.37 — PİL KALDIRILDI.
+   Pil mekaniği (günlük boşalma, "telefon kapandı" ekranı, şarj
+   düğmeleri) oyuncuya sürekli bakım yükü bindiriyordu; dahası kod
+   ile kendi yorumu çelişiyordu (yorum "telefon gece şarj olur"
+   diyordu ama daily() hiç şarj etmiyordu). Pil artık bir engel
+   değil — telefon her zaman açık.
    ============================================================ */
 (function (K) {
   "use strict";
@@ -12740,7 +12876,7 @@ window.K = window.K || {};
     /* ---------------- tercihler ---------------- */
     prefs() {
       const p = K.state.player;
-      p.phone = p.phone || { theme: "dark", wallpaper: "karma", brightness: 1, batterySaver: false };
+      p.phone = p.phone || { theme: "dark", wallpaper: "karma", brightness: 1 };
       return p.phone;
     },
 
@@ -12759,32 +12895,9 @@ window.K = window.K || {};
           scr.style.filter = pr.brightness && pr.brightness < 1 ? "brightness(" + pr.brightness + ")" : "";
           /* v10.11 — açık tema artık GERÇEKTEN uygulanıyor (CSS karşılığı var). */
           scr.setAttribute("data-theme", pr.theme === "light" ? "light" : "dark");
-          /* pil bitti → telefon kapalı ekranı (gerçek bir buton içerir) */
-          let dead = document.getElementById("phone-dead-overlay");
-          if (K.state.player.phoneDead) {
-            if (!dead) {
-              dead = document.createElement("div");
-              dead.id = "phone-dead-overlay";
-              dead.innerHTML = '<div class="pd-in"><div class="pd-ic">🪫</div>'
-                + '<div class="pd-t">Pil bitti</div>'
-                + '<div class="pd-s">Telefon kapandı. Şarja takman gerekiyor.</div>'
-                + '<button class="pd-btn" id="phone-dead-charge">🔌 Şarja tak</button></div>';
-              scr.appendChild(dead);
-              dead.querySelector("#phone-dead-charge").addEventListener("click", (ev) => {
-                ev.stopPropagation();
-                K.phoneOS.charge();
-                if (K.phone) K.phone.reRender();
-              });
-            }
-          } else if (dead && dead.parentNode) {
-            dead.parentNode.removeChild(dead);
-          }
         }
       } catch (e) {}
     },
-
-    /* pil bitti mi? (o gün telefon kullanılamaz) */
-    dead() { return !!K.state.player.phoneDead; },
 
     wallpaper() {
       const pr = K.phoneOS.prefs();
@@ -12808,23 +12921,6 @@ window.K = window.K || {};
         return sg ? `url('${sg.art}') center/cover no-repeat #0b0b12` : "linear-gradient(160deg,#1b1030,#0a0a12)";
       }
       return w.css;
-    },
-
-    /* ---------------- pil ---------------- */
-    battery() {
-      const p = K.state.player;
-      return p.battery == null ? 100 : Math.round(p.battery);
-    },
-
-    charge() {
-      const p = K.state.player;
-      if ((p.battery || 0) >= 99 && !p.phoneDead) { K.toast("🔋 Pil dolu", "Şarja gerek yok.", "warn"); return false; }
-      p.battery = 100;
-      p.phoneDead = false;                      // şarj edince telefon açılır
-      K.toast("🔌 Şarj edildi", "Pil %100", "ok");
-      K.save();
-      if (K.phone && K.phone.updateStatus) K.phone.updateStatus();
-      return true;
     },
 
     /* ---------------- uygulama kilidi / mağaza ---------------- */
@@ -12887,35 +12983,10 @@ window.K = window.K || {};
     },
 
     /* ---------------- günlük ---------------- */
-    /* v10.11 — PİL ARTIK ANLAMLI.
-       Eskiden pil dekoratifti: %0 olsa bile hiçbir şey olmuyordu ve
-       şarj ücretsiz/anındı, yani oyuncu için hiçbir sonucu yoktu.
-       Gerçek davranış: telefon GECE şarj olur, gün içi kullanım pili
-       tüketir; ağır kullanım (canlı yayın, müzik, yoğun gün) pili
-       bitirirse telefon o gün KAPANIR ve uygulamalar açılmaz. */
+    /* v10.37 — Pil kaldırıldı: günlük pil boşalması, uyarı ve
+       "telefon kapandı" durumu yok. Burada yalnızca mağaza
+       uygulamalarının kilidi güncellenir. */
     daily() {
-      const p = K.state.player;
-      if (p.battery == null) p.battery = 100;
-      const pr = K.phoneOS.prefs();
-      const heavy = (K.audio && K.audio.isPlaying()) ? 9 : 0;
-      const live = K.state.live ? 14 : 0;
-      let drain = 14 + heavy + live + U.randInt(0, 8);
-      if (pr.batterySaver) drain *= 0.55;                   // pil tasarrufu
-
-      p.battery = U.clamp(Math.round((p.battery - drain) * 10) / 10, 0, 100);
-
-      if (p.battery <= 0 && !p.phoneDead) {
-        p.phoneDead = true;
-        K.toast("🪫 Telefon kapandı", "Pil bitti. Kontrol Merkezi'nden şarja takman gerekiyor.", "bad");
-        K.state.notifications = (K.state.notifications || []).concat([{
-          title: "🪫 Telefon kapandı", msg: "Pil bitti — telefon kapandı. Şarja tak.", kind: "bad", day: K.state.day
-        }]).slice(-60);
-      } else if (p.battery <= 20 && p.battery > 0 && !K.phoneOS._warned) {
-        K.phoneOS._warned = true;
-        K.toast("🪫 Pil azaldı", "%" + Math.round(p.battery) + " — şarja takmayı unutma.", "warn");
-      }
-      if (p.battery > 35) K.phoneOS._warned = false;
-
       K.phoneOS.ensureInstalled();
     }
   };
@@ -31770,7 +31841,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       dots.forEach((dt, k) => dt.classList.toggle("on", k === i));
     },
 
-    /* ---------------- zaman / pil ---------------- */
+    /* ---------------- zaman ---------------- */
     updateStatus() {
       const s = K.state;
       const dow = U.dateForDay(s.day);
@@ -31780,12 +31851,6 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       const mm = String(minutes % 60).padStart(2, "0");
       const t = U.qs("#status-time");
       if (t) t.textContent = hh + ":" + mm;
-      const bat = U.qs("#battery-level");
-      if (bat) {
-        const level = K.phoneOS ? K.phoneOS.battery() : 100;
-        bat.style.width = level + "%";
-        bat.classList.toggle("low", level < 30);
-      }
       if (K.phoneOS) K.phoneOS.apply();   // parlaklık + telefon teması
     },
 
@@ -32754,6 +32819,29 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
   const U = K.util;
 
+  /* ---------- gerçek Apple Music simgeleri (SVG) ----------
+     v10.37 — emoji yerine SF Symbols tarzı Apple Music işaretleri.
+     .a-on = aktif (dolu) · .a-off = pasif (ince çizgi). */
+  const AI = {
+    listen: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+      <rect class="a-off" x="3.2" y="3.2" width="17.6" height="17.6" rx="5" fill="none"/>
+      <path class="a-off" d="M9.8 8.2 16 12l-6.2 3.8z" fill="currentColor" stroke="none"/>
+      <rect class="a-on" x="2.6" y="2.6" width="18.8" height="18.8" rx="5.4" fill="currentColor" stroke="none"/>
+      <path class="a-on" d="M9.4 7.6 16.4 12l-7 4.4z" fill="#000" stroke="none"/>
+    </svg>`,
+    charts: `<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><rect x="2.8" y="3.2" width="8" height="8" rx="2"/><rect x="13.2" y="3.2" width="8" height="8" rx="2"/><rect x="2.8" y="13.2" width="8" height="8" rx="2"/><rect x="13.2" y="13.2" width="8" height="8" rx="2"/></svg>`,
+    radio: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round">
+      <circle cx="12" cy="12" r="2.3" fill="currentColor" stroke="none"/>
+      <path d="M7.4 7.4a6.5 6.5 0 0 0 0 9.2M16.6 7.4a6.5 6.5 0 0 1 0 9.2"/>
+      <path d="M4.3 4.3a11 11 0 0 0 0 15.4M19.7 4.3a11 11 0 0 1 0 15.4"/>
+    </svg>`,
+    library: `<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><rect x="3" y="3.4" width="4.2" height="17.2" rx="1.2"/><rect x="9" y="3.4" width="4.2" height="17.2" rx="1.2"/><path d="M15.6 4.2a1.1 1.1 0 0 1 1.3-.8l3.4.9a1.1 1.1 0 0 1 .8 1.3l-3.9 15a1.1 1.1 0 0 1-1.3.8l-3.4-.9a1.1 1.1 0 0 1-.8-1.3z"/></svg>`,
+    play: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5.2 19 12 8 18.8z"/></svg>`,
+    pause: `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="7" y="5" width="3.6" height="14" rx="1"/><rect x="13.4" y="5" width="3.6" height="14" rx="1"/></svg>`,
+    refresh: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 11.4a8.4 8.4 0 1 0-1.6 5.6"/><path d="M20.4 5v6.4h-6.4"/></svg>`,
+    radioSmall: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4"/></svg>`
+  };
+
   /* v10.22 — Apple Music kitaplık filtresi (sekme değişince sıfırlanmasın) */
   let amFilter = "playlists";
 
@@ -32800,10 +32888,10 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         shellClass: "app-applemusic", musicBar: true,
         tabPos: "bottom",
         tabs: [
-          { id: "listen", label: "Şimdi Çal", icon: "🎧" },
-          { id: "charts", label: "Listeler", icon: "📊" },
-          { id: "radio", label: "Radyo", icon: "📻" },
-          { id: "lib", label: "Kitaplık", icon: "📚" }
+          { id: "listen", label: "Şimdi Çal", icon: AI.listen },
+          { id: "charts", label: "Listeler", icon: AI.charts },
+          { id: "radio", label: "Radyo", icon: AI.radio },
+          { id: "lib", label: "Kitaplık", icon: AI.library }
         ],
         activeTab: params.tab || "listen",
         render: (tab) => {
@@ -32898,7 +32986,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         ${p.songs.some(s => s.playlists && s.playlists.length) ? `
           ${K.ui.section("Listelerde")}
           ${p.songs.filter(s => s.playlists && s.playlists.length).slice(0, 5).map(s => `<div class="sp-track mine">
-            <span class="t-rank">📻</span>
+            <span class="t-rank">${AI.radioSmall}</span>
             <div class="grow"><div class="t-name">${U.escape(s.title)}</div><div class="t-artist">${s.playlists.length} editoryal liste</div></div>
             <span class="pill karma">SEN</span>
           </div>`).join("")}` : ""}
@@ -32919,7 +33007,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           <div class="h-listeners">${mine.length ? `Listede ${mine.length} şarkın var!` : "Şarkının listeye girmesi için dinlenme gerekiyor."}</div>
         </div>
         <div class="action-row">
-          <button class="btn btn-sm btn-primary" data-pact="refresh-live">🔄 Listeyi Canlı Yenile</button>
+          <button class="btn btn-sm btn-primary" data-pact="refresh-live">${AI.refresh} Listeyi Canlı Yenile</button>
         </div>
         ${charts.map((e, i) => chartRow(e, i)).join("")}`;
     },
@@ -32948,7 +33036,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             <div class="ss">${U.escape(s.desc)}</div>
             <div class="amx-live"><i></i> Canlı</div>
           </div>
-          <span style="color:var(--text-3);font-size:15px">▶</span>
+          <span style="color:var(--text-3)">${AI.play}</span>
         </div>`).join("")}`;
     },
 
@@ -33130,6 +33218,44 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
   const U = K.util;
 
+  /* ---------- gerçek YouTube simgeleri (SVG) ----------
+     v10.37 — emoji yerine gerçek YouTube işaretleri.
+     .y-on = aktif (dolu) · .y-off = pasif (ince çizgi). */
+  const YI = {
+    home: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <path class="y-off" d="M3.2 9.6 12 3l8.8 6.6V20a1.4 1.4 0 0 1-1.4 1.4H4.6A1.4 1.4 0 0 1 3.2 20z" fill="none"/>
+      <path class="y-on" d="M12.7 2.5a1.2 1.2 0 0 0-1.4 0L2.6 8.9A1.6 1.6 0 0 0 2 10.2V20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-9.8a1.6 1.6 0 0 0-.6-1.3z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    shorts: `<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M17.4 8.6a4.7 4.7 0 0 0-2.2-1.3l2.6-2.6a3.1 3.1 0 0 0-4.4-4.4L5.6 8.1a4.6 4.6 0 0 0 1.9 7.7l-2.6 2.6a3.1 3.1 0 0 0 4.4 4.4l7.8-7.8a4.6 4.6 0 0 0 .3-6.4zM10.5 4.1a1.1 1.1 0 0 1 1.6 1.6l-1.4 1.4-1.6-1.6zM5 12.9a2.6 2.6 0 0 1 1.7-2.5l2-2 1.6 1.6-2.9 2.9zm6.2 7.2a1.1 1.1 0 0 1-1.6-1.6l1.4-1.4 1.6 1.6zm3.3-3.3-2-2 2.9-2.9 2 2a2.6 2.6 0 0 1-2.9 2.9z"/></svg>`,
+    subs: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <path class="y-off" d="M18.4 8.2a6.4 6.4 0 1 0-12.8 0c0 6.8-2.6 8.4-2.6 8.4h18s-2.6-1.6-2.6-8.4" fill="none"/>
+      <path class="y-off" d="M13.9 20.6a2.2 2.2 0 0 1-3.8 0" fill="none"/>
+      <path class="y-on" d="M12 1.6a6.7 6.7 0 0 0-6.7 6.7c0 3.4-.6 5.6-1.2 7-.6 1.3-1.3 1.9-1.3 1.9a1 1 0 0 0 .6 1.8h17.2a1 1 0 0 0 .6-1.8s-.7-.6-1.3-1.9c-.6-1.4-1.2-3.6-1.2-7A6.7 6.7 0 0 0 12 1.6z" fill="currentColor" stroke="none"/>
+      <path class="y-on" d="M12 22.6a2.9 2.9 0 0 0 2.7-2h-5.4a2.9 2.9 0 0 0 2.7 2z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    library: `<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M3 4.6h9.4v1.9H3zm0 4.4h9.4v1.9H3zm0 4.4h9.4v1.9H3z"/><path d="M14.6 4.4a.9.9 0 0 1 1.1-.7l3.2.9a.9.9 0 0 1 .6 1.1l-3.7 13a.9.9 0 0 1-1.1.6l-3.2-.9a.9.9 0 0 1-.6-1.1z"/></svg>`,
+    user: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <circle class="y-off" cx="12" cy="8" r="4.2" fill="none"/>
+      <path class="y-off" d="M4.4 20.6c.6-3.6 3.8-6 7.6-6s7 2.4 7.6 6" fill="none"/>
+      <circle class="y-on" cx="12" cy="7.8" r="4.6" fill="currentColor" stroke="none"/>
+      <path class="y-on" d="M12 13.6c-4.4 0-8 2.8-8 6.4 0 .6.4 1 1 1h14c.6 0 1-.4 1-1 0-3.6-3.6-6.4-8-6.4z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    /* oynatma denetimleri */
+    play: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M8 5.2 19 12 8 18.8z"/></svg>`,
+    pause: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><rect x="7" y="5" width="3.6" height="14" rx="1"/><rect x="13.4" y="5" width="3.6" height="14" rx="1"/></svg>`,
+    next: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 5.6 15 12l-9 6.4z"/><rect x="16.4" y="5.4" width="2.4" height="13.2" rx="1"/></svg>`,
+    restart: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18 5.6 9 12l9 6.4z"/><rect x="5.2" y="5.4" width="2.4" height="13.2" rx="1"/></svg>`,
+    /* beğeni / kaydet / paylaş */
+    like: `<svg viewBox="0 0 24 24" width="19" height="19" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path class="y-off" d="M7.4 10.4 11 3.6a1 1 0 0 1 1.8.5v5.1h5.6a2 2 0 0 1 2 2.3l-1.2 7.6a2 2 0 0 1-2 1.7H7.4z" fill="none"/><path class="y-off" d="M3.2 10.4h4.2v10.4H3.2z" fill="none"/><path class="y-on" d="M7.4 10.4 11 3.6a1 1 0 0 1 1.8.5v5.1h5.6a2 2 0 0 1 2 2.3l-1.2 7.6a2 2 0 0 1-2 1.7H7.4z" fill="currentColor" stroke="none"/><path class="y-on" d="M3.2 10.4h4.2v10.4H3.2z" fill="currentColor" stroke="none"/></svg>`,
+    save: `<svg viewBox="0 0 24 24" width="19" height="19" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path class="y-off" d="M5.5 3h13a1 1 0 0 1 1 1v17l-7.5-5.2L4.5 21V4a1 1 0 0 1 1-1z" fill="none"/><path class="y-on" d="M5.5 3h13a1 1 0 0 1 1 1v17l-7.5-5.2L4.5 21V4a1 1 0 0 1 1-1z" fill="currentColor"/></svg>`,
+    share: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15.2V3.4"/><path d="M7.8 7.6 12 3.4l4.2 4.2"/><path d="M4.6 13v6.2a1.4 1.4 0 0 0 1.4 1.4h12a1.4 1.4 0 0 0 1.4-1.4V13"/></svg>`,
+    comment: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20.6 11.6c0 4.4-3.9 8-8.6 8a9.4 9.4 0 0 1-3.4-.6L3.6 20.7l1.6-4.7a7.7 7.7 0 0 1-1.2-4.4c0-4.4 3.9-8 8.6-8s8 3.6 8 8z"/></svg>`,
+    queue: `<svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor"><path d="M4 6.4h11v1.9H4zm0 4.4h11v1.9H4zm0 4.4h7.4v1.9H4z"/><path d="M17.6 12.4v6.9a2.4 2.4 0 1 1-1.6-2.3v-6.2l5-1.2v6.9a2.4 2.4 0 1 1-1.6-2.3v-2.6z"/></svg>`,
+    heart: `<svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor"><path d="M12 20.6 3.9 12.5a5.2 5.2 0 0 1 7.4-7.4l.7.7.7-.7a5.2 5.2 0 0 1 7.4 7.4z"/></svg>`,
+    bell: `<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M18.4 8.2a6.4 6.4 0 1 0-12.8 0c0 6.8-2.6 8.4-2.6 8.4h18s-2.6-1.6-2.6-8.4" fill="none"/><path d="M13.9 20.6a2.2 2.2 0 0 1-3.8 0" fill="none"/></svg>`,
+    loop: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2.5l3.6 3.6L17 9.7"/><path d="M3.4 11.6V10a3.9 3.9 0 0 1 3.9-3.9h13.3"/><path d="M7 21.5l-3.6-3.6L7 14.3"/><path d="M20.6 12.4V14a3.9 3.9 0 0 1-3.9 3.9H3.4"/></svg>`
+  };
+
   /* v10.20 — GERÇEK YOUTUBE YERLEŞİMİ
      Eskiden bu bir YATAY SATIRDI (solda 118×66 küçük görsel, sağda metin).
      Gerçek YouTube mobilde akış dikeydir: kenardan kenara 16:9 görsel,
@@ -33246,17 +33372,17 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         shellClass: "app-youtube",
         tabPos: "bottom",
         tabs: [
-          { id: "home", label: "Ana Sayfa", icon: "🏠" },
-          { id: "shorts", label: "Shorts", icon: "🎬" },
-          { id: "subs", label: "Abonelikler", icon: "🔔" },
-          { id: "library", label: "Kütüphane", icon: "📚" },
-          { id: "mine", label: "Kanalım", icon: "👤" }
+          { id: "home", label: "Ana Sayfa", icon: YI.home },
+          { id: "shorts", label: "Shorts", icon: YI.shorts },
+          { id: "subs", label: "Abonelikler", icon: YI.subs },
+          { id: "library", label: "Kütüphane", icon: YI.library },
+          { id: "mine", label: "Kanalım", icon: YI.user }
         ],
         activeTab: params.tab || "home",
         state: { q: "", filter: "all" },
         navRight: (() => {
           const n = K.ytnotif.unread();
-          return `<button class="nav-bell" data-pact="yt-notifs">🔔${n ? `<b>${Math.min(99, n)}</b>` : ""}</button>`;
+          return `<button class="nav-bell" data-pact="yt-notifs">${YI.bell}${n ? `<b>${Math.min(99, n)}</b>` : ""}</button>`;
         })(),
         render: (tab) => {
           const app = K.phone.appById("youtube");
@@ -33599,7 +33725,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       const likedAll = all.filter(v => K.interactions.isLiked("yt_" + v.id));
       return `${K.ui.section("Çalma Listeleri")}
         <div class="p-search" data-pact="yt-playlist" data-arg="liked" style="cursor:pointer">
-          <span>♥</span><span style="font-size:12.5px">Beğenilen Müzikler · ${likedAll.length} şarkı</span></div>
+          <span>${YI.heart}</span><span style="font-size:12.5px">Beğenilen Müzikler · ${likedAll.length} şarkı</span></div>
         <div class="p-search" data-pact="yt-playlist" data-arg="saved" style="cursor:pointer">
           <span>⤓</span><span style="font-size:12.5px">Kaydedilenler · ${all.filter(v => K.interactions.isSaved("yt_" + v.id)).length} video</span></div>`
         + block("İzlenenler", watched, "Henüz video izlemedin.")
@@ -33620,11 +33746,11 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         ${vids.map(v => `<div class="short-card" data-pact="watch" data-arg="${U.escape(v.id)}|${U.escape(v.channel)}|${v.channelId || ""}|${v.views}" style="${v.art ? `background-image:url('${v.art}')` : `background:${U.gradientFor(v.id)}`};background-size:cover;background-position:center">
           <div class="short-ov"></div>
           <div class="short-side">
-            <button class="${K.interactions.isLiked("yt_" + v.id) ? "on" : ""}" data-pact="like" data-arg="yt_${U.escape(v.id)}">${K.interactions.isLiked("yt_" + v.id) ? "♥" : "♡"}</button>
+            <button class="${K.interactions.isLiked("yt_" + v.id) ? "on" : ""}" data-pact="like" data-arg="yt_${U.escape(v.id)}">${YI.like}</button>
             <span>${U.compact(Math.round(v.views * 0.08))}</span>
-            <button data-pact="yt-shorts-cmt" data-arg="${U.escape(v.id)}|${U.escape(v.channel)}|${v.channelId || ""}">💬</button>
+            <button data-pact="yt-shorts-cmt" data-arg="${U.escape(v.id)}|${U.escape(v.channel)}|${v.channelId || ""}">${YI.comment}</button>
             <span>${U.compact(Math.round(v.views * 0.004))}</span>
-            <button class="${K.interactions.isSaved("yt_" + v.id) ? "on" : ""}" data-pact="yt-shorts-save" data-arg="${U.escape(v.id)}">${K.interactions.isSaved("yt_" + v.id) ? "🔖" : "🏷"}</button>
+            <button class="${K.interactions.isSaved("yt_" + v.id) ? "on" : ""}" data-pact="yt-shorts-save" data-arg="${U.escape(v.id)}">${YI.save}</button>
           </div>
           <div class="short-info">
             <div class="si-channel" data-pact="open-channel" data-arg="${v.channelId}">${U.escape(v.channel)}</div>
@@ -33730,27 +33856,27 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           ${hasReal ? `<div class="yt-embed-note">▶ Gerçek YouTube kaydı: <b>${U.escape(v.title || "")}</b> — yukarıdaki oynatıcıdan çalabilirsin.</div>` : ""}
 
           <div class="yt-watch-actions" style="justify-content:center">
-            <button data-pact="yt-restart">⏮</button>
-            <button class="${on ? "on" : ""}" data-pact="yt-toggle">${on ? "⏸ Duraklat" : "▶ Çal"}</button>
-            <button data-pact="yt-next">⏭ Sıradaki</button>
+            <button data-pact="yt-restart">${YI.restart}</button>
+            <button class="${on ? "on" : ""}" data-pact="yt-toggle">${on ? YI.pause + " Duraklat" : YI.play + " Çal"}</button>
+            <button data-pact="yt-next">${YI.next} Sıradaki</button>
           </div>
 
           <div class="yt-extras">
             <span class="muted">Hız</span>
             ${[0.75, 1, 1.25, 1.5].map(r => `<button class="yt-chip ${Math.abs((K.audio ? K.audio.rate() : 1) - r) < 0.01 ? "on" : ""}" data-pact="yt-speed" data-arg="${r}">${r}x</button>`).join("")}
             <span class="grow"></span>
-            <button class="yt-chip ${(K.state.player.ytAutoplay !== false) ? "on" : ""}" data-pact="yt-autoplay">🔁 Oto sıradaki</button>
+            <button class="yt-chip ${(K.state.player.ytAutoplay !== false) ? "on" : ""}" data-pact="yt-autoplay">${YI.loop} Oto sıradaki</button>
           </div>
 
           <div class="yt-watch-title">${U.escape(v.title)}</div>
           <div class="yt-watch-meta">${U.compact(v.views)} görüntülenme · ${U.ago(v.day || 1, K.state.day)}</div>
 
           <div class="yt-watch-actions" style="flex-wrap:wrap">
-            <button class="${liked ? "on" : ""}" data-pact="like" data-arg="yt_${U.escape(v.id)}">${liked ? "♥" : "♡"} ${U.compact(Math.round(v.views * 0.05))}</button>
-            <button data-pact="share">↗ Paylaş</button>
-            <button class="${savedVid ? "on" : ""}" data-pact="save">${savedVid ? "🔖 Kaydedildi" : "🔖 Kaydet"}</button>
-            <button data-pact="yt-queue-next">⏭ Sonra çal</button>
-            <button data-pact="yt-queue-add">🕒 Sıraya ekle</button>
+            <button class="${liked ? "on" : ""}" data-pact="like" data-arg="yt_${U.escape(v.id)}">${YI.like} ${U.compact(Math.round(v.views * 0.05))}</button>
+            <button data-pact="share">${YI.share} Paylaş</button>
+            <button class="${savedVid ? "on" : ""}" data-pact="save">${YI.save} ${savedVid ? "Kaydedildi" : "Kaydet"}</button>
+            <button data-pact="yt-queue-next">${YI.next} Sonra çal</button>
+            <button data-pact="yt-queue-add">${YI.queue} Sıraya ekle</button>
           </div>
 
           <div class="yt-channel-row">
@@ -33782,7 +33908,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
               <div class="yc-row"><span class="yc-time">${K.ui.fmtTime(pct * (v.duration || 180))}</span><span>${t}</span></div>`).join("")}
           </div>
 
-          ${K.ui.section("Yorumlar", `<button class="mini-btn" data-pact="yt-comments">💬 Yorum yaz</button>`)}
+          ${K.ui.section("Yorumlar", `<button class="mini-btn" data-pact="yt-comments">${YI.comment} Yorum yaz</button>`)}
           ${comments.map(c => `<div class="cmt">
             ${K.ui.avatar(c.user, 32, true)}
             <div class="grow"><div class="cmt-user">@${U.escape(c.user)} · ${U.ago(c.day, K.state.day)}</div>
@@ -34809,6 +34935,37 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
   const U = K.util;
 
+  /* ---------- gerçek TikTok simgeleri (SVG) ----------
+     v10.37 — emoji yerine gerçek TikTok işaretleri.
+     .t-on = aktif (dolu) · .t-off = pasif (ince çizgi). */
+  const TI = {
+    home: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <path class="t-off" d="M3.2 9.6 12 3l8.8 6.6V20a1.4 1.4 0 0 1-1.4 1.4H4.6A1.4 1.4 0 0 1 3.2 20z" fill="none"/>
+      <path class="t-on" d="M12.7 2.5a1.2 1.2 0 0 0-1.4 0L2.6 8.9A1.6 1.6 0 0 0 2 10.2V20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-9.8a1.6 1.6 0 0 0-.6-1.3z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    users: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <circle class="t-off" cx="9.4" cy="8.4" r="3.7" fill="none"/>
+      <path class="t-off" d="M2.8 19.8c.5-3.1 3.3-5.2 6.6-5.2s6.1 2.1 6.6 5.2" fill="none"/>
+      <path class="t-off" d="M16.4 5.2a3.3 3.3 0 0 1 0 6.4M18 14.9c2 .6 3.4 2.2 3.7 4.4" fill="none"/>
+      <circle class="t-on" cx="9.4" cy="8.2" r="4.1" fill="currentColor" stroke="none"/>
+      <path class="t-on" d="M9.4 13.4c-3.9 0-7 2.5-7 5.6 0 .5.4.9.9.9h12.2c.5 0 .9-.4.9-.9 0-3.1-3.1-5.6-7-5.6z" fill="currentColor" stroke="none"/>
+      <path class="t-on" d="M16.7 5.5a3 3 0 0 1 0 5.6v-1.7a1.4 1.4 0 0 0 0-2.2zM17.9 15.3c1.8.6 3 2 3.3 4a1 1 0 0 1-2 .3c-.2-1.4-1-2.4-2.2-2.9z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    music: `<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M20.6 2.4a1 1 0 0 0-1.2-.8l-9.6 2.2a1 1 0 0 0-.8 1v11.4a3.9 3.9 0 1 0 2 3.4V7.6l8-1.8v8.4a3.9 3.9 0 1 0 2 3.4z"/></svg>`,
+    user: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <circle class="t-off" cx="12" cy="8" r="4.2" fill="none"/>
+      <path class="t-off" d="M4.4 20.6c.6-3.6 3.8-6 7.6-6s7 2.4 7.6 6" fill="none"/>
+      <circle class="t-on" cx="12" cy="7.8" r="4.6" fill="currentColor" stroke="none"/>
+      <path class="t-on" d="M12 13.6c-4.4 0-8 2.8-8 6.4 0 .6.4 1 1 1h14c.6 0 1-.4 1-1 0-3.6-3.6-6.4-8-6.4z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    /* sağ taraf eylemleri — gerçek TikTok beyaz DOLU simgeler kullanır */
+    heart: `<svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path class="t-off" d="M12 20.6 3.9 12.5a5.2 5.2 0 0 1 7.4-7.4l.7.7.7-.7a5.2 5.2 0 0 1 7.4 7.4z" fill="none"/><path class="t-on" d="M12 20.6 3.9 12.5a5.2 5.2 0 0 1 7.4-7.4l.7.7.7-.7a5.2 5.2 0 0 1 7.4 7.4z" fill="currentColor"/></svg>`,
+    comment: `<svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M12 2.6C6.4 2.6 2 6.3 2 11c0 2.6 1.4 4.9 3.7 6.5-.2 1.3-.8 2.6-1.7 3.7 1.8-.2 3.6-.9 4.9-2 .9.2 2 .3 3.1.3 5.6 0 10-3.7 10-8.5S17.6 2.6 12 2.6z"/></svg>`,
+    share: `<svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M13.5 3.4a1 1 0 0 0-1.6.8v3C6.3 8 2.6 11.8 1.6 19.2a1 1 0 0 0 1.7.8c2.4-2.8 5.1-4 8.6-4.3v3a1 1 0 0 0 1.6.8l8.4-7.1a1 1 0 0 0 0-1.5z"/></svg>`,
+    bookmark: `<svg viewBox="0 0 24 24" width="30" height="30" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path class="t-off" d="M5.5 3h13a1 1 0 0 1 1 1v17l-7.5-5.2L4.5 21V4a1 1 0 0 1 1-1z" fill="none"/><path class="t-on" d="M5.5 3h13a1 1 0 0 1 1 1v17l-7.5-5.2L4.5 21V4a1 1 0 0 1 1-1z" fill="currentColor"/></svg>`,
+    plus: `<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>`
+  };
+
   function ttCard(v, i) {
     const liked = K.interactions.isLiked("tt_" + v.id);
     const saved = K.interactions.isSaved("tt_" + v.id);
@@ -34817,15 +34974,15 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       <div class="tt-ov"></div>
       <div class="tt-side">
         <div class="tt-av" data-pact="open-profile" data-arg="${v.channelId}">${v.channelId && v.channelId !== "player" ? K.ui.artistAvatar(v.channelId, 40, true) : K.ui.avatar(v.channel, 40, true)}</div>
-        <button class="tt-act ${liked ? "on" : ""}" data-pact="like" data-arg="tt_${U.escape(v.id)}">${liked ? "♥" : "♡"}<span>${U.compact(Math.round(v.views * 0.1))}</span></button>
-        <button class="tt-act" data-pact="tt-comments" data-arg="${U.escape(v.id)}">💬<span>${U.compact(Math.round(v.views * 0.004))}</span></button>
-        <button class="tt-act" data-pact="tt-share">↗<span>${U.compact(Math.round(v.views * 0.002))}</span></button>
-        <button class="tt-act ${saved ? "on" : ""}" data-pact="save" data-arg="tt_${U.escape(v.id)}">${saved ? "★" : "☆"}</button>
+        <button class="tt-act ${liked ? "on" : ""}" data-pact="like" data-arg="tt_${U.escape(v.id)}">${TI.heart}<span>${U.compact(Math.round(v.views * 0.1))}</span></button>
+        <button class="tt-act" data-pact="tt-comments" data-arg="${U.escape(v.id)}">${TI.comment}<span>${U.compact(Math.round(v.views * 0.004))}</span></button>
+        <button class="tt-act" data-pact="tt-share">${TI.share}<span>${U.compact(Math.round(v.views * 0.002))}</span></button>
+        <button class="tt-act ${saved ? "on" : ""}" data-pact="save" data-arg="tt_${U.escape(v.id)}">${TI.bookmark}</button>
       </div>
       <div class="tt-bottom">
         <div class="tt-user">@${U.escape(v.channel.toLowerCase().replace(/\s/g, ""))}${v.mine ? ' <span class="pill hot" style="font-size:8px">SEN</span>' : ""}</div>
         <div class="tt-desc">${U.escape(v.title.replace(" (Official Video)", ""))} 🔥 #fyp #rap</div>
-        <div class="tt-sound" data-pact="sound" data-arg="${U.escape(v.title.replace(" (Official Video)", ""))}">♫ Orijinal ses · ${U.escape(v.channel)}</div>
+        <div class="tt-sound" data-pact="sound" data-arg="${U.escape(v.title.replace(" (Official Video)", ""))}">${TI.music} Orijinal ses · ${U.escape(v.channel)}</div>
       </div>
     </div>`;
   }
@@ -34844,10 +35001,10 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           left: () => K.toast("🎬 Oluştur", "Kamera açılıyor… (demo)", "ok")
         },
         tabs: [
-          { id: "foryou", label: "Senin İçin", icon: "🏠" },
-          { id: "following", label: "Takip", icon: "👥" },
-          { id: "trend", label: "Trend Sesler", icon: "🎵" },
-          { id: "mine", label: "Profilim", icon: "👤" }
+          { id: "foryou", label: "Senin İçin", icon: TI.home },
+          { id: "following", label: "Takip", icon: TI.users },
+          { id: "trend", label: "Trend Sesler", icon: TI.music },
+          { id: "mine", label: "Profilim", icon: TI.user }
         ],
         activeTab: params.tab || "trend",
         render: (tab) => {
@@ -35208,6 +35365,38 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
   const U = K.util;
 
+  /* ---------- gerçek X simgeleri (SVG) ----------
+     v10.37 — emoji yerine gerçek X işaretleri.
+     .x-off = pasif (ince çizgi) · .x-on = aktif (dolu).
+     Gerçek X'te alt sekmede aktif simge DOLAR, pasif ince kalır. */
+  const XI = {
+    home: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <path class="x-off" d="M3.2 9.6 12 3l8.8 6.6V20a1.4 1.4 0 0 1-1.4 1.4h-4.9v-6.6H9.5v6.6H4.6A1.4 1.4 0 0 1 3.2 20z" fill="none"/>
+      <path class="x-on" d="M12.7 2.5a1.2 1.2 0 0 0-1.4 0L2.6 8.9A1.6 1.6 0 0 0 2 10.2V20a2 2 0 0 0 2 2h4.3v-6.4h7.4V22H20a2 2 0 0 0 2-2v-9.8a1.6 1.6 0 0 0-.6-1.3z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    search: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.6" cy="10.6" r="7"/><path d="m15.8 15.8 5 5"/></svg>`,
+    bell: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <path class="x-off" d="M18.4 8.2a6.4 6.4 0 1 0-12.8 0c0 6.8-2.6 8.4-2.6 8.4h18s-2.6-1.6-2.6-8.4" fill="none"/>
+      <path class="x-off" d="M13.9 20.6a2.2 2.2 0 0 1-3.8 0" fill="none"/>
+      <path class="x-on" d="M12 1.6a6.7 6.7 0 0 0-6.7 6.7c0 3.4-.6 5.6-1.2 7-.6 1.3-1.3 1.9-1.3 1.9a1 1 0 0 0 .6 1.8h17.2a1 1 0 0 0 .6-1.8s-.7-.6-1.3-1.9c-.6-1.4-1.2-3.6-1.2-7A6.7 6.7 0 0 0 12 1.6z" fill="currentColor" stroke="none"/>
+      <path class="x-on" d="M12 22.6a2.9 2.9 0 0 0 2.7-2h-5.4a2.9 2.9 0 0 0 2.7 2z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    user: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <circle class="x-off" cx="12" cy="8" r="4.2" fill="none"/>
+      <path class="x-off" d="M4.4 20.6c.6-3.6 3.8-6 7.6-6s7 2.4 7.6 6" fill="none"/>
+      <circle class="x-on" cx="12" cy="7.8" r="4.6" fill="currentColor" stroke="none"/>
+      <path class="x-on" d="M12 13.6c-4.4 0-8 2.8-8 6.4 0 .6.4 1 1 1h14c.6 0 1-.4 1-1 0-3.6-3.6-6.4-8-6.4z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    /* gönderi eylemleri */
+    reply: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20.6 11.5a8.2 8.2 0 0 1-8.3 8.3 9 9 0 0 1-3.3-.6L3.6 20.7l1.6-4.7a8.2 8.2 0 0 1-1-4.5A8.2 8.2 0 0 1 12.5 3.2a8.2 8.2 0 0 1 8.1 8.3z"/></svg>`,
+    repost: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2.5l3.6 3.6L17 9.7"/><path d="M3.4 11.6V10a3.9 3.9 0 0 1 3.9-3.9h13.3"/><path d="M7 21.5l-3.6-3.6L7 14.3"/><path d="M20.6 12.4V14a3.9 3.9 0 0 1-3.9 3.9H3.4"/></svg>`,
+    heart: `<svg viewBox="0 0 24 24" width="19" height="19" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path class="x-off" d="M12 20.6 3.9 12.5a5.2 5.2 0 0 1 7.4-7.4l.7.7.7-.7a5.2 5.2 0 0 1 7.4 7.4z" fill="none"/><path class="x-on" d="M12 20.6 3.9 12.5a5.2 5.2 0 0 1 7.4-7.4l.7.7.7-.7a5.2 5.2 0 0 1 7.4 7.4z" fill="currentColor"/></svg>`,
+    chart: `<svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor"><rect x="3.2" y="10.5" width="2.7" height="10.5" rx=".6"/><rect x="8.1" y="3" width="2.7" height="18" rx=".6"/><rect x="13" y="6.8" width="2.7" height="14.2" rx=".6"/><rect x="17.9" y="12.8" width="2.7" height="8.2" rx=".6"/></svg>`,
+    bookmark: `<svg viewBox="0 0 24 24" width="19" height="19" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path class="x-off" d="M5.5 3h13a1 1 0 0 1 1 1v17l-7.5-5.2L4.5 21V4a1 1 0 0 1 1-1z" fill="none"/><path class="x-on" d="M5.5 3h13a1 1 0 0 1 1 1v17l-7.5-5.2L4.5 21V4a1 1 0 0 1 1-1z" fill="currentColor"/></svg>`,
+    share: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15.2V3.4"/><path d="M7.8 7.6 12 3.4l4.2 4.2"/><path d="M4.6 13v6.2a1.4 1.4 0 0 0 1.4 1.4h12a1.4 1.4 0 0 0 1.4-1.4V13"/></svg>`,
+    compose: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 12.6v6.6a1.8 1.8 0 0 1-1.8 1.8H4.8A1.8 1.8 0 0 1 3 19.2V5.4A1.8 1.8 0 0 1 4.8 3.6h6.6"/><path d="M18.1 2.9a2 2 0 0 1 2.8 2.8L12.6 14l-3.7 1 1-3.7z"/></svg>`
+  };
+
   function postHTML(post, opts) {
     opts = opts || {};
     const a = post.authorId !== "player" ? K.artistById(post.authorId) : null;
@@ -35227,12 +35416,12 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         </div>
         <div class="xp-text" ${opts.clickable ? `data-pact="post-open" data-arg="${post.id}" style="cursor:pointer"` : ""}>${U.escape(post.text)}</div>
         <div class="xp-actions">
-          <span data-pact="post-open" data-arg="${post.id}" style="cursor:pointer">💬 ${U.compact(post.comments || 0)}</span>
-          <span class="xp-repost ${reposted ? "on" : ""}" data-pact="x-repost" data-arg="${post.id}">↻ ${U.compact(K.interactions.repostCount(key, post.shares))}</span>
-          <span class="xp-like ${liked ? "on" : ""}" data-pact="like" data-arg="${key}">${liked ? "♥" : "♡"} ${U.compact(K.interactions.likeCount(key, baseLikes))}</span>
-          <span class="xp-save ${saved ? "on" : ""}" data-pact="x-save" data-arg="${post.id}">${saved ? "🔖" : "🏷"}</span>
-          <span data-pact="x-share" data-arg="${post.id}" style="cursor:pointer">↗</span>
-          <span class="muted">📊 ${U.compact(post.views || Math.round((post.likes || 0) * 12))}</span>
+          <span class="xp-act" data-pact="post-open" data-arg="${post.id}" style="cursor:pointer">${XI.reply}<b>${U.compact(post.comments || 0)}</b></span>
+          <span class="xp-act xp-repost ${reposted ? "on" : ""}" data-pact="x-repost" data-arg="${post.id}">${XI.repost}<b>${U.compact(K.interactions.repostCount(key, post.shares))}</b></span>
+          <span class="xp-act xp-like ${liked ? "on" : ""}" data-pact="like" data-arg="${key}">${XI.heart}<b>${U.compact(K.interactions.likeCount(key, baseLikes))}</b></span>
+          <span class="xp-act xp-save ${saved ? "on" : ""}" data-pact="x-save" data-arg="${post.id}">${XI.bookmark}</span>
+          <span class="xp-act" data-pact="x-share" data-arg="${post.id}" style="cursor:pointer">${XI.share}</span>
+          <span class="xp-act muted">${XI.chart}<b>${U.compact(post.views || Math.round((post.likes || 0) * 12))}</b></span>
         </div>
       </div>
     </div>`;
@@ -35247,10 +35436,10 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         shellClass: "app-x",
         tabPos: "bottom",
         tabs: [
-          { id: "feed", label: "Akış", icon: "🏠" },
-          { id: "explore", label: "Keşfet", icon: "🔍" },
-          { id: "notif", label: "Bildirimler", icon: "🔔" },
-          { id: "mine", label: "Profilim", icon: "👤" }
+          { id: "feed", label: "Akış", icon: XI.home },
+          { id: "explore", label: "Keşfet", icon: XI.search },
+          { id: "notif", label: "Bildirimler", icon: XI.bell },
+          { id: "mine", label: "Profilim", icon: XI.user }
         ],
         activeTab: params.tab || "feed",
         render: (tab) => {
@@ -35287,7 +35476,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
     feedHTML() {
       const posts = K.social.feedFor("x").slice().sort((a, b) => b.day - a.day);
-      return `<button class="btn btn-ghost btn-sm" data-pact="new-post" style="align-self:flex-start">✏️ Gönderi Yaz</button>` +
+      return `<button class="btn btn-ghost btn-sm" data-pact="new-post" style="align-self:flex-start">${XI.compose} Gönderi Yaz</button>` +
         posts.map(p => postHTML(p, { clickable: true })).join("");
     },
 
@@ -35363,7 +35552,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           </div>
         </div>
         <div class="action-row">
-          <button class="btn btn-sm btn-primary" data-pact="new-post">✏️ Gönderi Yaz</button>
+          <button class="btn btn-sm btn-primary" data-pact="new-post">${XI.compose} Gönderi Yaz</button>
           <button class="btn btn-sm btn-ghost" data-pact="promote">🎵 Şarkı Paylaş</button>
         </div>
         ${myPosts.map(p2 => postHTML(p2, { clickable: true })).join("") || `<div class="mini-empty">Gönderin yok.</div>`}`;
@@ -36023,6 +36212,40 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
   const U = K.util;
 
+  /* ---------- iOS Mesajlar simgeleri (SVG) ----------
+     v10.37 — emoji yerine iOS Mesajlar işaretleri.
+     .m-on = aktif (dolu) · .m-off = pasif (ince çizgi). */
+  const MI = {
+    all: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+      <path class="m-off" d="M20.6 11.6c0 4.4-3.9 8-8.6 8a9.4 9.4 0 0 1-3.4-.6L3.6 20.7l1.6-4.7a7.7 7.7 0 0 1-1.2-4.4c0-4.4 3.9-8 8.6-8s8 3.6 8 8z" fill="none"/>
+      <path class="m-on" d="M12 3.2c-5.4 0-9.8 3.6-9.8 8.1 0 2.4 1.2 4.5 3.1 6-.2 1.2-.7 2.3-1.5 3.3-.2.3 0 .7.4.7 2.1-.2 4-.9 5.4-1.9 1 .2 2 .3 3.1.3 5.4 0 9.8-3.6 9.8-8.1S17.4 3.2 12 3.2z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    groups: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+      <circle class="m-off" cx="9.4" cy="8.4" r="3.7" fill="none"/>
+      <path class="m-off" d="M2.8 19.8c.5-3.1 3.3-5.2 6.6-5.2s6.1 2.1 6.6 5.2" fill="none"/>
+      <path class="m-off" d="M16.4 5.2a3.3 3.3 0 0 1 0 6.4M18 14.9c2 .6 3.4 2.2 3.7 4.4" fill="none"/>
+      <circle class="m-on" cx="9.4" cy="8.2" r="4.1" fill="currentColor" stroke="none"/>
+      <path class="m-on" d="M9.4 13.4c-3.9 0-7 2.5-7 5.6 0 .5.4.9.9.9h12.2c.5 0 .9-.4.9-.9 0-3.1-3.1-5.6-7-5.6z" fill="currentColor" stroke="none"/>
+      <path class="m-on" d="M16.7 5.5a3 3 0 0 1 0 5.6v-1.7a1.4 1.4 0 0 0 0-2.2zM17.9 15.3c1.8.6 3 2 3.3 4a1 1 0 0 1-2 .3c-.2-1.4-1-2.4-2.2-2.9z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    requests: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+      <path class="m-off" d="M3.4 5.2A2.2 2.2 0 0 1 5.6 3h12.8a2.2 2.2 0 0 1 2.2 2.2v13.6a2.2 2.2 0 0 1-2.2 2.2H5.6a2.2 2.2 0 0 1-2.2-2.2z" fill="none"/>
+      <path class="m-off" d="M3.4 14.2h5l1.2 2h4.8l1.2-2h5" fill="none"/>
+      <path class="m-on" d="M5.6 3h12.8a2.2 2.2 0 0 1 2.2 2.2v13.6a2.2 2.2 0 0 1-2.2 2.2H5.6a2.2 2.2 0 0 1-2.2-2.2V5.2A2.2 2.2 0 0 1 5.6 3z" fill="currentColor" stroke="none"/>
+      <path class="m-on" d="M3.4 13.6h4.4l1.3 2.2h5.8l1.3-2.2h4.4" fill="none" stroke="#000" stroke-width="1.8"/>
+    </svg>`,
+    offers: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+      <path class="m-off" d="M2.6 6.4a2 2 0 0 1 2-2h14.8a2 2 0 0 1 2 2v11.2a2 2 0 0 1-2 2H4.6a2 2 0 0 1-2-2z" fill="none"/>
+      <path class="m-off" d="m3.2 6.2 8.8 6.4 8.8-6.4" fill="none"/>
+      <path class="m-on" d="M2.6 6.4a2 2 0 0 1 2-2h14.8a2 2 0 0 1 2 2v11.2a2 2 0 0 1-2 2H4.6a2 2 0 0 1-2-2z" fill="currentColor" stroke="none"/>
+      <path class="m-on" d="m3.4 6.6 8.6 6.2 8.6-6.2" fill="none" stroke="#000" stroke-width="1.7"/>
+    </svg>`,
+    new: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20.4 12.6v6.6a1.8 1.8 0 0 1-1.8 1.8H4.8A1.8 1.8 0 0 1 3 19.2V5.4A1.8 1.8 0 0 1 4.8 3.6h6.6"/>
+      <path d="M18.1 2.9a2 2 0 0 1 2.8 2.8L12.6 14l-3.7 1 1-3.7z"/>
+    </svg>`
+  };
+
   function offerCard(offer, thread) {
     const a = offer.artistId ? K.artistById(offer.artistId) : null;
     let tag = "Teklif", title = "", desc = "", terms = "";
@@ -36084,11 +36307,11 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         shellClass: "app-messages",
         tabPos: "bottom",
         tabs: [
-          { id: "all", label: "Tümü", icon: "💬" },
-          { id: "groups", label: "Gruplar", icon: "👥" },
-          { id: "requests", label: (() => { const n = Object.keys(K.state.dmRequests || {}).length; return n ? ("İstekler (" + n + ")") : "İstekler"; })(), icon: "📥" },
-          { id: "offers", label: (() => { const n = K.state.offers.filter(o => o.status === "pending").length; return n ? ("Teklifler (" + n + ")") : "Teklifler"; })(), icon: "📨" },
-          { id: "new", label: "Yeni DM", icon: "✏️" }
+          { id: "all", label: "Tümü", icon: MI.all },
+          { id: "groups", label: "Gruplar", icon: MI.groups },
+          { id: "requests", label: (() => { const n = Object.keys(K.state.dmRequests || {}).length; return n ? ("İstekler (" + n + ")") : "İstekler"; })(), icon: MI.requests },
+          { id: "offers", label: (() => { const n = K.state.offers.filter(o => o.status === "pending").length; return n ? ("Teklifler (" + n + ")") : "Teklifler"; })(), icon: MI.offers },
+          { id: "new", label: "Yeni DM", icon: MI.new }
         ],
         activeTab: params.tab || "all",
         render: (tab) => {
@@ -37363,7 +37586,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
    • Kontrol Merkezi (K.cc)  — hızlı ayarlar
    • Spotlight arama (K.spotlight)
    • App Store (kilitli uygulamalar)
-   • Telefon Ayarları (duvar kağıdı / parlaklık / pil)
+   • Telefon Ayarları (duvar kağıdı / parlaklık)
    ============================================================ */
 (function (K) {
   "use strict";
@@ -37377,7 +37600,6 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
     view() {
       const pr = K.phoneOS.prefs();
-      const bat = K.phoneOS.battery();
       const np = (K.audio && K.audio.isPlaying()) ? K.audio.current() : (K.interactions ? K.interactions.nowPlaying() : null);
       const playing = K.audio && K.audio.isPlaying();
       const on = v => (v ? "on" : "");
@@ -37410,21 +37632,11 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
               <input type="range" id="cc-vol" min="0" max="100" value="${Math.round((K.audio ? K.audio.volume() : 0.28) * 100)}" />
             </div>
 
-            <div class="cc-tile cc-bat">
-              <div class="cc-label">Pil</div>
-              <div class="cc-bat-row">
-                <span class="battery big"><i style="width:${bat}%;${bat <= 15 ? "background:#ff5c7a" : ""}"></i></span>
-                <span class="cc-bat-val">${bat}%</span>
-              </div>
-              <button class="btn btn-sm ${bat <= 99 ? "btn-primary" : "btn-ghost"}" data-act="cc-charge" ${bat <= 99 ? "" : "disabled"}>${bat <= 99 ? "🔌 Şarj et" : "Dolu"}</button>
-            </div>
-
             <div class="cc-tile">
               <button class="cc-tgl ${on(pr.theme === "light")}" data-act="cc-theme">${pr.theme === "light" ? "☀️ Açık tema" : "🌙 Koyu tema"}</button>
               <button class="cc-tgl ${on(K.settings.all().reduceMotion)}" data-act="cc-motion">🌀 Hareketi azalt</button>
               <button class="cc-tgl ${on(K.settings.all().contrast)}" data-act="cc-contrast">◐ Yüksek kontrast</button>
               <button class="cc-tgl ${on(K.state.player.ytAutoplay !== false)}" data-act="cc-autoplay">🔁 Oto sıradaki</button>
-              <button class="cc-tgl ${on(pr.batterySaver)}" data-act="cc-saver">🔋 Pil tasarrufu</button>
             </div>
 
             <div class="cc-tile">
@@ -37445,7 +37657,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             let t = (K.queue && K.queue.size()) ? K.queue.shift() : null;
             if (!t) { const list = K.platforms.searchSongs("").slice(0, 20); t = U.pick(list); }
             K.interactions.play(t); K.phone.reRender();
-          } else if (act === "cc-charge") { K.phoneOS.charge(); K.phone.reRender(); }
+          }
           else if (act === "cc-theme") {
             K.phoneOS.setPref("theme", K.phoneOS.prefs().theme === "light" ? "dark" : "light");
             K.phone.reRender();
@@ -37453,7 +37665,6 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           else if (act === "cc-motion") { K.settings.set({ reduceMotion: !K.settings.all().reduceMotion }); K.phone.reRender(); }
           else if (act === "cc-contrast") { K.settings.set({ contrast: !K.settings.all().contrast }); K.phone.reRender(); }
           else if (act === "cc-autoplay") { K.state.player.ytAutoplay = !(K.state.player.ytAutoplay !== false); K.save(); K.phone.reRender(); }
-          else if (act === "cc-saver") { K.phoneOS.setPref("batterySaver", !K.phoneOS.prefs().batterySaver); K.phone.reRender(); }
           else if (act === "cc-phone-settings") { K.phone.openApp("phonesettings"); }
         }
       };
@@ -37566,7 +37777,6 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         title: "Ayarlar", sub: "Telefon", shellClass: "app-phset",
         render: () => {
           const pr = K.phoneOS.prefs();
-          const bat = K.phoneOS.battery();
           return `
             <div class="phset-row">
               <div class="phset-swatch" style="background:${K.phoneOS.wallpaper().css}"></div>
@@ -37587,20 +37797,11 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             </div>
 
             <div class="phset-card">
-              <div class="phset-row" style="padding:0;border:none;background:none">
-                <div class="grow"><div class="phset-name">Pil</div><div class="phset-sub">${bat}% ${bat <= 15 ? "· azaldı" : ""}</div></div>
-                <button class="btn btn-sm ${bat <= 99 ? "btn-primary" : "btn-ghost"}" data-pact="ph-charge" ${bat <= 99 ? "" : "disabled"}>${bat <= 99 ? "Şarj et" : "Dolu"}</button>
-              </div>
-              ${K.studio.bar(bat, { cls: "lg", color: bat <= 15 ? "linear-gradient(90deg,#f87171,#ff8a5c)" : "linear-gradient(90deg,#4ade80,#5ce89b)" })}
-            </div>
-
-            <div class="phset-card">
-              <button class="phset-item ${pr.batterySaver ? "on" : ""}" data-pact="ph-saver">🔋 Pil tasarrufu <span>${pr.batterySaver ? "Açık" : "Kapalı"}</span></button>
               <button class="phset-item ${K.settings.all().reduceMotion ? "on" : ""}" data-pact="ph-motion">🌀 Hareketi azalt <span>${K.settings.all().reduceMotion ? "Açık" : "Kapalı"}</span></button>
               <button class="phset-item ${K.settings.all().contrast ? "on" : ""}" data-pact="ph-contrast">◐ Yüksek kontrast <span>${K.settings.all().contrast ? "Açık" : "Kapalı"}</span></button>
             </div>
 
-            <div class="hint">Duvar kağıdı, parlaklık ve pil tercihleri kaydına işlenir.<br>🎛️ Oyun ayarları (kayıt & zorluk) tek yerden: <b>üst bardaki ⚙️</b>.</div>`;
+            <div class="hint">Duvar kağıdı ve parlaklık tercihleri kaydına işlenir.<br>🎛️ Oyun ayarları (kayıt & zorluk) tek yerden: <b>üst bardaki ⚙️</b>.</div>`;
         },
         onMount: (root) => {
           const br = root.querySelector("#ph-bright");
@@ -37613,8 +37814,6 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             K.phoneOS.setPref("theme", K.phoneOS.prefs().theme === "light" ? "dark" : "light");
             K.phone.reRender();
           }
-          else if (act === "ph-charge") { K.phoneOS.charge(); K.phone.reRender(); }
-          else if (act === "ph-saver") { K.phoneOS.setPref("batterySaver", !K.phoneOS.prefs().batterySaver); K.phone.reRender(); }
           else if (act === "ph-motion") { K.settings.set({ reduceMotion: !K.settings.all().reduceMotion }); K.phone.reRender(); }
           else if (act === "ph-contrast") { K.settings.set({ contrast: !K.settings.all().contrast }); K.phone.reRender(); }
         }
