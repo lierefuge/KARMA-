@@ -17,6 +17,11 @@
 
   K.career = {
 
+    /* v10.39 — PARÇA TAVANI tek yerde durur. Slider, "Parça Ekle",
+       tip kartları ve createRelease hepsi bunu okur. (Eskiden 14'tü ve
+       dört ayrı yerde kopyalanmıştı.) */
+    MAX_TRACKS: 30,
+
     /* ---------------- kimlik ---------------- */
     setIdentity(data) {
       const p = K.state.player;
@@ -25,15 +30,35 @@
     },
 
     /* ---------------- şarkı adı öner ---------------- */
+    /* v10.39 — BOŞLUK HATASI: eski hâli
+         A + (koşul ? " " + B.trim() : "").trim()
+       yazıyordu; dıştaki .trim() birleştirme boşluğunu da siliyordu ve
+       adların %37'si "SisliSonu", "KalbimHâlâ" gibi birleşik çıkıyordu.
+       Artık boşluk parçanın kendisinde; dış trim yok. */
     suggestTitle() {
-      return U.pick(TITLE_A) + (U.chance(0.55) ? " " + U.pick(TITLE_B).trim() : "").trim();
+      const a = U.pick(TITLE_A);
+      const b = U.chance(0.55) ? U.pick(TITLE_B).trim() : "";
+      return b ? a + " " + b : a;
     },
     suggestTracks(n) {
       const set = new Set();
-      while (set.size < n) {
+      let guard = 0;
+      while (set.size < n && guard++ < n * 40) {
         set.add(K.career.suggestTitle());
       }
       return Array.from(set);
+    },
+
+    /* parça süresi — her parçanın kendi süresi olur (eskiden hepsi 3:24'tü) */
+    suggestDuration() {
+      const total = U.randInt(148, 312);          // 2:28 – 5:12
+      return Math.floor(total / 60) + ":" + String(total % 60).padStart(2, "0");
+    },
+
+    /* yayın türünün SADE adı — "Albüm (5 parça)" değil "Albüm" */
+    typeName(n) {
+      const t = K.RELEASE_TYPES[K.career.typeForCount(n)];
+      return t ? t.name : "";
     },
 
     /* çok parçalı projeler için proje/albüm adı öner */
@@ -43,7 +68,7 @@
         "Pencere", "Zaman", "Hâlâ", "Yarın Yok", "Geri Dönüş", "Aynalar"];
       const base = U.pick(pool);
       const kind = K.career.typeForCount(n);
-      const suffix = kind === "album" ? "" : kind === "deluxe" ? " (Deluxe)" : kind === "ep" ? " EP" : "";
+      const suffix = kind === "ep" ? " EP" : "";
       return base + suffix;
     },
 
@@ -143,18 +168,23 @@
        5-11 parça   → Albüm        (5 şarkı koyarsan ALBÜM olur)
        12+ parça    → Deluxe Albüm
        Oyuncu formatı elle seçmez; parça sayısı formatı belirler. */
+    /* v10.39 — YENİ KURAL (kullanıcı kararı):
+         1 → Single · 2-8 → EP · 9+ → Albüm (tavan 30)
+       Eskiden 2 "Çift", 3-4 "EP", 5-11 "Albüm", 12+ "Deluxe" diyordu ve
+       arayüzdeki üç kart bununla çelişiyordu (Albüm kartı "5+ parça"
+       yazıyordu ama 12 parça aslında Deluxe oluyordu).
+       RELEASE_TYPES'ta double/mixtape/deluxe kayıtları DURUYOR: eski
+       kayıtlardaki yayınlar onları hâlâ gösterebilsin. */
     typeForCount(n) {
-      n = Math.max(1, Math.min(14, Math.round(+n || 1)));
+      n = Math.max(1, Math.min(K.career.MAX_TRACKS, Math.round(+n || 1)));
       if (n <= 1) return "single";
-      if (n === 2) return "double";
-      if (n <= 4) return "ep";
-      if (n <= 11) return "album";
-      return "deluxe";
+      if (n <= 8) return "ep";
+      return "album";
     },
 
     /* format kuralını insan diline çevirir (arayüzde gösterilir) */
     formatRule() {
-      return "1 → Single · 2 → Çift · 3-4 → EP · 5-11 → Albüm · 12+ → Deluxe";
+      return "1 → Single · 2-8 → EP · 9+ → Albüm (en fazla " + K.career.MAX_TRACKS + " parça)";
     },
 
     formatLabel(n) {
@@ -174,7 +204,7 @@
         return null;
       }
       const type = opts.trackCount ? K.career.typeForCount(opts.trackCount) : (opts.type || "single");
-      const trackCount = opts.trackCount ? U.clamp(Math.round(opts.trackCount), 1, 14) : (K.RELEASE_TYPES[type] || K.RELEASE_TYPES.single).tracks;
+      const trackCount = opts.trackCount ? U.clamp(Math.round(opts.trackCount), 1, K.career.MAX_TRACKS) : (K.RELEASE_TYPES[type] || K.RELEASE_TYPES.single).tracks;
       const genre = opts.genre || p.genre;
       const budget = opts.budget || 15000;
       const marketing = opts.marketing || 0;
@@ -187,11 +217,21 @@
       const kind = K.kindById(opts.kind).id;
       const license = K.licenseById(opts.licenseId);
 
-      /* --- sözler (bölümlü ya da düz metin) --- */
+      /* --- sözler: ARTIK PARÇA BAŞINA (v10.39) ---
+         Eskiden tek bir lyricSections vardı ve 14 parçalı bir albümde
+         14 şarkının sözü de aynı oluyordu. opts.trackLyrics[i] verilirse
+         her parça kendi sözünü alır; verilmezse eski davranış korunur
+         (tüm parçalar aynı bölümü paylaşır) — eski kayıtlar bozulmasın. */
       const lyricTheme = K.lyricThemeById(opts.lyricsTheme).id;
-      const lyricSections = (opts.lyricSections && typeof opts.lyricSections === "object") ? opts.lyricSections : null;
-      const lyricText = (K.lyrics.flatten(lyricSections || opts.lyricsText || "") || "").slice(0, 2400);
-      const lyr = K.lyrics.analyze(lyricSections || lyricText, lyricTheme, genre, kind);
+      const inLyrics = Array.isArray(opts.trackLyrics) ? opts.trackLyrics : null;
+      const legacySec = (opts.lyricSections && typeof opts.lyricSections === "object")
+        ? opts.lyricSections : (opts.lyricsText || null);
+      const secAt = (i) => (inLyrics && inLyrics[i] != null) ? inLyrics[i] : legacySec;
+      const lyrList = [];
+      for (let i = 0; i < trackCount; i++) lyrList.push(K.lyrics.analyze(secAt(i), lyricTheme, genre, kind));
+      const lyr = lyrList[0] || K.lyrics.analyze("", lyricTheme, genre, kind);   // öncü parça
+      const avgLyricScore = Math.round(U.sum(lyrList, x => x.score) / Math.max(1, lyrList.length));
+      const lyricText = lyrList.map((_, i) => K.lyrics.flatten(secAt(i)) || "").join("\n").slice(0, 4000);
 
       /* --- albüm konsepti (çok parçalı yayınlarda) --- */
       const isProject = trackCount >= 4;
@@ -267,9 +307,13 @@
         conceptId, cohesion, dissTarget,
         agenda: { score: agenda.score, hits: agenda.hits.map(h => ({ id: h.id, cat: h.cat, title: h.title, heat: h.heat, gain: h.gain })) },
         lyrics: {
-          themeId: lyricTheme, text: lyricText, score: lyr.score, lines: lyr.lines, words: lyr.words,
-          sections: lyricSections, rhyme: lyr.rhyme || null, angle: lyr.angle || null,
-          structure: lyr.structure || null, feedback: K.lyrics.feedback(lyr)
+          themeId: lyricTheme, text: lyricText, score: avgLyricScore, lines: lyr.lines, words: lyr.words,
+          sections: secAt(0), rhyme: lyr.rhyme || null, angle: lyr.angle || null,
+          structure: lyr.structure || null, feedback: K.lyrics.feedback(lyr),
+          /* yayın seviyesi skor = parçaların ORTALAMASI; öncü parçanınki
+             ayrıca duruyor ki tek parçalı yayınlar hiç değişmesin. */
+          lead: lyr.score,
+          perTrack: lyrList.map((x, i) => ({ score: x.score, lines: x.lines, words: x.words, angle: x.angle || null }))
         },
         mentions: mentions.map(m => ({ artistId: m.artistId, name: m.name, tone: m.tone })),
         trackBudgets, trackSources, stores, storeReach, storeCost,
@@ -285,8 +329,16 @@
             file: { type: src.file, bit: src.bit, size: src.size },
             quality: U.clamp(K.career.estimateQuality(genre, tb, {
               beatId, vocalId, beatQuality: U.clamp(beatQuality + beatBoost, 0, 100), vocalQuality, mixQuality, kind, licenseId: license.id,
-              lyricScore: lyr.score, cohesion, agendaScore: agenda.score, sourceQAdd: src.qAdd
-            }) + (i === 0 ? 2 : 0), 18, 99)
+              lyricScore: (lyrList[i] || lyr).score, cohesion, agendaScore: agenda.score, sourceQAdd: src.qAdd
+            }) + (i === 0 ? 2 : 0), 18, 99),
+            /* parça kendi söz skorunu taşır — albümde kalite artık
+               parçadan parçaya değişir */
+            lyrics: {
+              score: (lyrList[i] || lyr).score,
+              lines: (lyrList[i] || lyr).lines,
+              words: (lyrList[i] || lyr).words,
+              sections: secAt(i)
+            }
           };
         }),
         featWith: opts.featWith || null,
@@ -337,7 +389,7 @@
           vocalId: rel.vocalId || "rap",
           viralBonus: kindDef.viral * (themeEff.viral || 1),
           mass: kindDef.mass * (themeEff.mass || 1),
-          lyricScore: rel.lyrics ? rel.lyrics.score : 50,
+          lyricScore: (t.lyrics && t.lyrics.score != null) ? t.lyrics.score : (rel.lyrics ? rel.lyrics.score : 50),
           lyricTheme: rel.lyrics ? rel.lyrics.themeId : null,
           lyricBoost,
           lyricLoyalty: themeEff.loyalty || 1,
