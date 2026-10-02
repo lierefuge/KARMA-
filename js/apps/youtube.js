@@ -8,6 +8,44 @@
 
   const U = K.util;
 
+  /* ---------- gerçek YouTube simgeleri (SVG) ----------
+     v10.37 — emoji yerine gerçek YouTube işaretleri.
+     .y-on = aktif (dolu) · .y-off = pasif (ince çizgi). */
+  const YI = {
+    home: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <path class="y-off" d="M3.2 9.6 12 3l8.8 6.6V20a1.4 1.4 0 0 1-1.4 1.4H4.6A1.4 1.4 0 0 1 3.2 20z" fill="none"/>
+      <path class="y-on" d="M12.7 2.5a1.2 1.2 0 0 0-1.4 0L2.6 8.9A1.6 1.6 0 0 0 2 10.2V20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-9.8a1.6 1.6 0 0 0-.6-1.3z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    shorts: `<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M17.4 8.6a4.7 4.7 0 0 0-2.2-1.3l2.6-2.6a3.1 3.1 0 0 0-4.4-4.4L5.6 8.1a4.6 4.6 0 0 0 1.9 7.7l-2.6 2.6a3.1 3.1 0 0 0 4.4 4.4l7.8-7.8a4.6 4.6 0 0 0 .3-6.4zM10.5 4.1a1.1 1.1 0 0 1 1.6 1.6l-1.4 1.4-1.6-1.6zM5 12.9a2.6 2.6 0 0 1 1.7-2.5l2-2 1.6 1.6-2.9 2.9zm6.2 7.2a1.1 1.1 0 0 1-1.6-1.6l1.4-1.4 1.6 1.6zm3.3-3.3-2-2 2.9-2.9 2 2a2.6 2.6 0 0 1-2.9 2.9z"/></svg>`,
+    subs: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <path class="y-off" d="M18.4 8.2a6.4 6.4 0 1 0-12.8 0c0 6.8-2.6 8.4-2.6 8.4h18s-2.6-1.6-2.6-8.4" fill="none"/>
+      <path class="y-off" d="M13.9 20.6a2.2 2.2 0 0 1-3.8 0" fill="none"/>
+      <path class="y-on" d="M12 1.6a6.7 6.7 0 0 0-6.7 6.7c0 3.4-.6 5.6-1.2 7-.6 1.3-1.3 1.9-1.3 1.9a1 1 0 0 0 .6 1.8h17.2a1 1 0 0 0 .6-1.8s-.7-.6-1.3-1.9c-.6-1.4-1.2-3.6-1.2-7A6.7 6.7 0 0 0 12 1.6z" fill="currentColor" stroke="none"/>
+      <path class="y-on" d="M12 22.6a2.9 2.9 0 0 0 2.7-2h-5.4a2.9 2.9 0 0 0 2.7 2z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    library: `<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M3 4.6h9.4v1.9H3zm0 4.4h9.4v1.9H3zm0 4.4h9.4v1.9H3z"/><path d="M14.6 4.4a.9.9 0 0 1 1.1-.7l3.2.9a.9.9 0 0 1 .6 1.1l-3.7 13a.9.9 0 0 1-1.1.6l-3.2-.9a.9.9 0 0 1-.6-1.1z"/></svg>`,
+    user: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <circle class="y-off" cx="12" cy="8" r="4.2" fill="none"/>
+      <path class="y-off" d="M4.4 20.6c.6-3.6 3.8-6 7.6-6s7 2.4 7.6 6" fill="none"/>
+      <circle class="y-on" cx="12" cy="7.8" r="4.6" fill="currentColor" stroke="none"/>
+      <path class="y-on" d="M12 13.6c-4.4 0-8 2.8-8 6.4 0 .6.4 1 1 1h14c.6 0 1-.4 1-1 0-3.6-3.6-6.4-8-6.4z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    /* oynatma denetimleri */
+    play: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M8 5.2 19 12 8 18.8z"/></svg>`,
+    pause: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><rect x="7" y="5" width="3.6" height="14" rx="1"/><rect x="13.4" y="5" width="3.6" height="14" rx="1"/></svg>`,
+    next: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 5.6 15 12l-9 6.4z"/><rect x="16.4" y="5.4" width="2.4" height="13.2" rx="1"/></svg>`,
+    restart: `<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18 5.6 9 12l9 6.4z"/><rect x="5.2" y="5.4" width="2.4" height="13.2" rx="1"/></svg>`,
+    /* beğeni / kaydet / paylaş */
+    like: `<svg viewBox="0 0 24 24" width="19" height="19" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path class="y-off" d="M7.4 10.4 11 3.6a1 1 0 0 1 1.8.5v5.1h5.6a2 2 0 0 1 2 2.3l-1.2 7.6a2 2 0 0 1-2 1.7H7.4z" fill="none"/><path class="y-off" d="M3.2 10.4h4.2v10.4H3.2z" fill="none"/><path class="y-on" d="M7.4 10.4 11 3.6a1 1 0 0 1 1.8.5v5.1h5.6a2 2 0 0 1 2 2.3l-1.2 7.6a2 2 0 0 1-2 1.7H7.4z" fill="currentColor" stroke="none"/><path class="y-on" d="M3.2 10.4h4.2v10.4H3.2z" fill="currentColor" stroke="none"/></svg>`,
+    save: `<svg viewBox="0 0 24 24" width="19" height="19" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path class="y-off" d="M5.5 3h13a1 1 0 0 1 1 1v17l-7.5-5.2L4.5 21V4a1 1 0 0 1 1-1z" fill="none"/><path class="y-on" d="M5.5 3h13a1 1 0 0 1 1 1v17l-7.5-5.2L4.5 21V4a1 1 0 0 1 1-1z" fill="currentColor"/></svg>`,
+    share: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15.2V3.4"/><path d="M7.8 7.6 12 3.4l4.2 4.2"/><path d="M4.6 13v6.2a1.4 1.4 0 0 0 1.4 1.4h12a1.4 1.4 0 0 0 1.4-1.4V13"/></svg>`,
+    comment: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20.6 11.6c0 4.4-3.9 8-8.6 8a9.4 9.4 0 0 1-3.4-.6L3.6 20.7l1.6-4.7a7.7 7.7 0 0 1-1.2-4.4c0-4.4 3.9-8 8.6-8s8 3.6 8 8z"/></svg>`,
+    queue: `<svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor"><path d="M4 6.4h11v1.9H4zm0 4.4h11v1.9H4zm0 4.4h7.4v1.9H4z"/><path d="M17.6 12.4v6.9a2.4 2.4 0 1 1-1.6-2.3v-6.2l5-1.2v6.9a2.4 2.4 0 1 1-1.6-2.3v-2.6z"/></svg>`,
+    heart: `<svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor"><path d="M12 20.6 3.9 12.5a5.2 5.2 0 0 1 7.4-7.4l.7.7.7-.7a5.2 5.2 0 0 1 7.4 7.4z"/></svg>`,
+    bell: `<svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M18.4 8.2a6.4 6.4 0 1 0-12.8 0c0 6.8-2.6 8.4-2.6 8.4h18s-2.6-1.6-2.6-8.4" fill="none"/><path d="M13.9 20.6a2.2 2.2 0 0 1-3.8 0" fill="none"/></svg>`,
+    loop: `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2.5l3.6 3.6L17 9.7"/><path d="M3.4 11.6V10a3.9 3.9 0 0 1 3.9-3.9h13.3"/><path d="M7 21.5l-3.6-3.6L7 14.3"/><path d="M20.6 12.4V14a3.9 3.9 0 0 1-3.9 3.9H3.4"/></svg>`
+  };
+
   /* v10.20 — GERÇEK YOUTUBE YERLEŞİMİ
      Eskiden bu bir YATAY SATIRDI (solda 118×66 küçük görsel, sağda metin).
      Gerçek YouTube mobilde akış dikeydir: kenardan kenara 16:9 görsel,
@@ -124,17 +162,17 @@
         shellClass: "app-youtube",
         tabPos: "bottom",
         tabs: [
-          { id: "home", label: "Ana Sayfa", icon: "🏠" },
-          { id: "shorts", label: "Shorts", icon: "🎬" },
-          { id: "subs", label: "Abonelikler", icon: "🔔" },
-          { id: "library", label: "Kütüphane", icon: "📚" },
-          { id: "mine", label: "Kanalım", icon: "👤" }
+          { id: "home", label: "Ana Sayfa", icon: YI.home },
+          { id: "shorts", label: "Shorts", icon: YI.shorts },
+          { id: "subs", label: "Abonelikler", icon: YI.subs },
+          { id: "library", label: "Kütüphane", icon: YI.library },
+          { id: "mine", label: "Kanalım", icon: YI.user }
         ],
         activeTab: params.tab || "home",
         state: { q: "", filter: "all" },
         navRight: (() => {
           const n = K.ytnotif.unread();
-          return `<button class="nav-bell" data-pact="yt-notifs">🔔${n ? `<b>${Math.min(99, n)}</b>` : ""}</button>`;
+          return `<button class="nav-bell" data-pact="yt-notifs">${YI.bell}${n ? `<b>${Math.min(99, n)}</b>` : ""}</button>`;
         })(),
         render: (tab) => {
           const app = K.phone.appById("youtube");
@@ -477,7 +515,7 @@
       const likedAll = all.filter(v => K.interactions.isLiked("yt_" + v.id));
       return `${K.ui.section("Çalma Listeleri")}
         <div class="p-search" data-pact="yt-playlist" data-arg="liked" style="cursor:pointer">
-          <span>♥</span><span style="font-size:12.5px">Beğenilen Müzikler · ${likedAll.length} şarkı</span></div>
+          <span>${YI.heart}</span><span style="font-size:12.5px">Beğenilen Müzikler · ${likedAll.length} şarkı</span></div>
         <div class="p-search" data-pact="yt-playlist" data-arg="saved" style="cursor:pointer">
           <span>⤓</span><span style="font-size:12.5px">Kaydedilenler · ${all.filter(v => K.interactions.isSaved("yt_" + v.id)).length} video</span></div>`
         + block("İzlenenler", watched, "Henüz video izlemedin.")
@@ -498,11 +536,11 @@
         ${vids.map(v => `<div class="short-card" data-pact="watch" data-arg="${U.escape(v.id)}|${U.escape(v.channel)}|${v.channelId || ""}|${v.views}" style="${v.art ? `background-image:url('${v.art}')` : `background:${U.gradientFor(v.id)}`};background-size:cover;background-position:center">
           <div class="short-ov"></div>
           <div class="short-side">
-            <button class="${K.interactions.isLiked("yt_" + v.id) ? "on" : ""}" data-pact="like" data-arg="yt_${U.escape(v.id)}">${K.interactions.isLiked("yt_" + v.id) ? "♥" : "♡"}</button>
+            <button class="${K.interactions.isLiked("yt_" + v.id) ? "on" : ""}" data-pact="like" data-arg="yt_${U.escape(v.id)}">${YI.like}</button>
             <span>${U.compact(Math.round(v.views * 0.08))}</span>
-            <button data-pact="yt-shorts-cmt" data-arg="${U.escape(v.id)}|${U.escape(v.channel)}|${v.channelId || ""}">💬</button>
+            <button data-pact="yt-shorts-cmt" data-arg="${U.escape(v.id)}|${U.escape(v.channel)}|${v.channelId || ""}">${YI.comment}</button>
             <span>${U.compact(Math.round(v.views * 0.004))}</span>
-            <button class="${K.interactions.isSaved("yt_" + v.id) ? "on" : ""}" data-pact="yt-shorts-save" data-arg="${U.escape(v.id)}">${K.interactions.isSaved("yt_" + v.id) ? "🔖" : "🏷"}</button>
+            <button class="${K.interactions.isSaved("yt_" + v.id) ? "on" : ""}" data-pact="yt-shorts-save" data-arg="${U.escape(v.id)}">${YI.save}</button>
           </div>
           <div class="short-info">
             <div class="si-channel" data-pact="open-channel" data-arg="${v.channelId}">${U.escape(v.channel)}</div>
@@ -608,27 +646,27 @@
           ${hasReal ? `<div class="yt-embed-note">▶ Gerçek YouTube kaydı: <b>${U.escape(v.title || "")}</b> — yukarıdaki oynatıcıdan çalabilirsin.</div>` : ""}
 
           <div class="yt-watch-actions" style="justify-content:center">
-            <button data-pact="yt-restart">⏮</button>
-            <button class="${on ? "on" : ""}" data-pact="yt-toggle">${on ? "⏸ Duraklat" : "▶ Çal"}</button>
-            <button data-pact="yt-next">⏭ Sıradaki</button>
+            <button data-pact="yt-restart">${YI.restart}</button>
+            <button class="${on ? "on" : ""}" data-pact="yt-toggle">${on ? YI.pause + " Duraklat" : YI.play + " Çal"}</button>
+            <button data-pact="yt-next">${YI.next} Sıradaki</button>
           </div>
 
           <div class="yt-extras">
             <span class="muted">Hız</span>
             ${[0.75, 1, 1.25, 1.5].map(r => `<button class="yt-chip ${Math.abs((K.audio ? K.audio.rate() : 1) - r) < 0.01 ? "on" : ""}" data-pact="yt-speed" data-arg="${r}">${r}x</button>`).join("")}
             <span class="grow"></span>
-            <button class="yt-chip ${(K.state.player.ytAutoplay !== false) ? "on" : ""}" data-pact="yt-autoplay">🔁 Oto sıradaki</button>
+            <button class="yt-chip ${(K.state.player.ytAutoplay !== false) ? "on" : ""}" data-pact="yt-autoplay">${YI.loop} Oto sıradaki</button>
           </div>
 
           <div class="yt-watch-title">${U.escape(v.title)}</div>
           <div class="yt-watch-meta">${U.compact(v.views)} görüntülenme · ${U.ago(v.day || 1, K.state.day)}</div>
 
           <div class="yt-watch-actions" style="flex-wrap:wrap">
-            <button class="${liked ? "on" : ""}" data-pact="like" data-arg="yt_${U.escape(v.id)}">${liked ? "♥" : "♡"} ${U.compact(Math.round(v.views * 0.05))}</button>
-            <button data-pact="share">↗ Paylaş</button>
-            <button class="${savedVid ? "on" : ""}" data-pact="save">${savedVid ? "🔖 Kaydedildi" : "🔖 Kaydet"}</button>
-            <button data-pact="yt-queue-next">⏭ Sonra çal</button>
-            <button data-pact="yt-queue-add">🕒 Sıraya ekle</button>
+            <button class="${liked ? "on" : ""}" data-pact="like" data-arg="yt_${U.escape(v.id)}">${YI.like} ${U.compact(Math.round(v.views * 0.05))}</button>
+            <button data-pact="share">${YI.share} Paylaş</button>
+            <button class="${savedVid ? "on" : ""}" data-pact="save">${YI.save} ${savedVid ? "Kaydedildi" : "Kaydet"}</button>
+            <button data-pact="yt-queue-next">${YI.next} Sonra çal</button>
+            <button data-pact="yt-queue-add">${YI.queue} Sıraya ekle</button>
           </div>
 
           <div class="yt-channel-row">
@@ -660,7 +698,7 @@
               <div class="yc-row"><span class="yc-time">${K.ui.fmtTime(pct * (v.duration || 180))}</span><span>${t}</span></div>`).join("")}
           </div>
 
-          ${K.ui.section("Yorumlar", `<button class="mini-btn" data-pact="yt-comments">💬 Yorum yaz</button>`)}
+          ${K.ui.section("Yorumlar", `<button class="mini-btn" data-pact="yt-comments">${YI.comment} Yorum yaz</button>`)}
           ${comments.map(c => `<div class="cmt">
             ${K.ui.avatar(c.user, 32, true)}
             <div class="grow"><div class="cmt-user">@${U.escape(c.user)} · ${U.ago(c.day, K.state.day)}</div>
