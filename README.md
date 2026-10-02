@@ -5,6 +5,82 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.38 — Kapak üreticisi: taşma bitti, düzenler geldi
+
+Kapak üreticisi çalışıyordu ama ürettiği kapaklar "garip" duruyordu. Üç ayrı
+kök neden bulundu ve üçü de kapatıldı. Yeni test paketi: `tools/smoke-cover.js`
+(**72 kontrol**). Boru hattı: **25/25 → 26/26 adım**.
+
+### Bulgu 1 — Yazı kapağa sığmıyordu
+
+`coverSVG` başlığı boşluklardan bölüyordu ama **genişliği hiç ölçmüyordu**.
+`Mono` fontunda (`letter-spacing: 1`) 74px punto ile "Sokak Işıkları" 600px
+tuvali aşıp sağdan kesiliyordu; uzun tek kelimeler ("Anadolu") her fontta
+taşıyordu.
+
+**Çözüm:** punto artık **ölçülerek** seçiliyor.
+`textW(str, size, font)` her fontun karakter başına genişlik katsayısıyla
+tahmini genişliği hesaplar; `fitLines` önce satırları sarar, sığmazsa puntoyu
+2'şer küçültür ve son çare olarak genişlikten geriye ölçekler — **taşma
+matematiksel olarak imkânsız**. Test, 16 × 12 × 8 × 7 = **10.752 kombinasyonu**
+ve uzun tek kelime senaryolarını tarayıp sıfır taşma doğruluyor.
+
+### Bulgu 2 — Desenler ve şekiller görünmüyordu
+
+12 desenin 11'i `0.07–0.13`, 11 şeklin tamamı `0.16` opaklıktaydı. Galeri
+çıkarıldığında "Düz" ile "Izgara" arasında gözle fark yoktu — yani
+seçeneklerin çoğu **ölü**ydü.
+
+**Çözüm:** desenler `0.13–0.26`, şekiller `0.30–0.50` bandına çıkarıldı.
+Test artık her desenin ve şeklin çıktıyı gerçekten değiştirdiğini ve görünür
+opaklıkta olduğunu kilitliyor.
+
+### Bulgu 3 — "Rastgele Kapak" oyuncunun ayarlarını siliyordu
+
+`st.coverOpts = { style, pattern, text, hue, grain }` — tüm nesne
+değiştirildiği için **font, hizalama, şekil ve "Sanatçı adı" sessizce
+sıfırlanıyordu**. Aynı hata kenar çubuğunda da vardı: stil değiştirildiğinde
+özet "Gece · Merkez" yazmaya devam ediyordu.
+
+**Çözüm:** rastgele artık yalnız stil/desen/şekil/ton/grain değiştirir;
+font, düzen ve ek katmanlar korunur. Kenar çubuğu özeti `renderStepList()`
+ile her değişimde tazelenir. Mağaza önizlemesindeki 🟢🍎▶️ emojileri de
+v10.34'te eklenen gerçek marka SVG'leriyle değiştirildi.
+
+### Yeni seçenekler
+
+| Grup | Önce | Sonra |
+|---|---|---|
+| Palet | 8 | **16** (Mor · Kan · Okyanus · Gül · Retro · Zehir · Gün Batımı · Kâğıt) |
+| Düzen | — (hiza) | **8 kompozisyon** |
+| Desen | 6 | **12** |
+| Şekil | 5 | **12** |
+| Yazı | 3 | **5** |
+| Font | 4 | **7** |
+| Ek katman | 2 | **5** |
+
+**Düzenler (yeni):** Merkez · Üst · Alt · Şerit · Alt Blok · Dev Harf · Köşe ·
+Dergi (büyük başlık + ince ayırıcı çizgi).
+
+**Ek katmanlar (yeni):** çerçeve · **explicit (E) işareti** · yıl etiketi
+(oyun takviminden otomatik) · grain · sanatçı adı.
+
+Kapak üreticisi `js/ui/components.js` içinden çıkarılıp kendi modülüne taşındı:
+`js/ui/cover.js`. Eski 7 ve 11 parçalı kapak kayıtları bozulmadan çözülür
+(hiza alanı düzene çevrilir).
+
+### Fontlar hakkında bir not
+
+Kapak bir `data:` **SVG görüntüsü** olarak çizilir ve görüntü bağlamındaki SVG
+sayfanın web fontlarına **erişemez** — adı geçen font bulunamazsa render motoru
+serif'e düşer. Bu yüzden fontlar yalnız `sans-serif` / `serif` / `monospace`
+ailelerinden kurulur; ayrışma ağırlık, harf aralığı ve `textLength`
+sıkıştırmasıyla üretilir. Böylece her platformda **aynı** görünür. (Eski
+"İnce" Inter 300 istiyordu ama 300 yüklü değildi, "Dar" ise sistemde
+bulunmayan Arial Narrow'a güveniyordu — ikisi de Blok'tan ayırt edilemiyordu.)
+
+---
+
 ## GÜNCELLEME v10.37 — Gerçek uygulama düzeni (2. dalga) · pil kaldırıldı
 
 v10.35 (Spotify) ve v10.36 (Instagram) alt sekmeleri emoji'den gerçek SVG
