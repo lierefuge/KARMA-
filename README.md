@@ -5,6 +5,92 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.41 — Şarkı biçimi: parça artık gerçek bir yapı
+
+Söz atölyesinde **her parça sabit yedi bölümden** oluşuyordu: giriş · verse ·
+hook · nakarat · köprü · outro. Gerçek bir şarkı böyle değildir — iki verse
+olur, nakarat üç kez tekrar eder, son nakarat farklı biter, pre-nakarat girer.
+Bu sürüm **bölüm yapısını oyuncunun kararı** hâline getirdi. Yeni test paketi:
+`tools/smoke-v1041.js` (**142 kontrol**). Boru hattı: **28/28 → 29/29 adım**.
+
+Yeni modül: `js/data/song-form.js` — yuva→anahtar çözümü, 8 hazır biçim,
+süre ve biçim puanı.
+
+### Bölüm artık bir DİZİ, sabit liste değil
+
+Her parçanın kendi **yuva dizisi** var (`slots`). `verse` yuvası sırayla
+`verse` → `verse2` → `verse3` anahtarlarına açılır; `chorus` yuvası ilk geçişte
+`chorus`, **son geçişte `chorusLast`** olur (son nakarat farklı yazılabilsin);
+`prechorus` da `prechorus` → `prechorus2` diye çoğalır.
+
+| Anahtar | Etiket |
+|---|---|
+| `verse` / `verse2` / `verse3` | Verse 1 / 2 / 3 |
+| `chorus` | Nakarat |
+| `chorusLast` | Nakarat (son) |
+| `prechorus` / `prechorus2` | Pre-Nakarat |
+| `bridge` · `intro` · `outro` | Köprü · Giriş · Çıkış |
+
+**Nakarat paylaşılır:** aynı nakarat bütün geçişlerde tek metinden okunur
+(`×3` rozeti). Son nakarat boş bırakılırsa normal nakarattan devralır — yani
+"sonu farklı yazmak" opsiyonel bir karardır, zorunluluk değil.
+
+### 8 hazır biçim
+
+| Biçim | Yapı |
+|---|---|
+| **Klasik** | Giriş · Verse · Nakarat · Verse · Nakarat (son) · Çıkış |
+| **Üçlü nakarat** | 3 verse + 3 nakarat (uzun, ticari) |
+| **Hook önce** | Nakarat başta — TikTok/pitch düzeni |
+| **Köprülü** | Klasik + köprü |
+| **Bar'lar** | Nakaratsız, saf rap akışı |
+| **Epik** | Pre-nakarat + köprü, en uzun |
+| **Kısa** | 4 yuva — tek single |
+| **Serbest** | Boş tuval, kendin kur |
+
+Zaman çizelgesinden yuva **ekleyip çıkarabilir** (en az 2), yuvaları **← →**
+ile **taşıyabilirsin**. "Biçimi tümüne uygula" tek tuşla bütün parçalara yayar.
+
+### Süre artık yapıdan TÜRER
+
+Eskiden parça süresi sözlerden bağımsız, sabit bir aralıkta üretiliyordu.
+Artık **bölüm yapısı süreyi belirler** (`durationForSlots`): 4 yuvalı kısa
+parça 2 dakikanın altında kalır, epik yapı 6 dakikaya yaklaşır. Süre
+deterministiktir (parça adına bağlı ±15 sn) ve **90–420 sn** aralığına
+kıstırılır.
+
+### Biçim puanı
+
+`lyricStructureScore` yapıyı değerlendirir: dengeli nakarat/verse dağılımı
+puan kazandırır; **tekrar şişmesi** ve **nakaratsız yapı** puan kaybettirir.
+Söz analizine girer (`formScore` × 0.6) ve yayın kalitesini etkiler.
+
+### Arayüz
+
+- **Biçim çipleri** (`.lyr-tmpl`) — 8 hazır biçim, aktif olan işaretli
+- **Zaman çizelgesi** (`.sl-slot`) — bölüm sırası, taşı/sil, renk kodlu
+- **`+ bölüm` düğmeleri** (`.sl-add`) — istediğin bölümü ekle
+- **İstatistik şeridi** (`.sl-stats`) — tahmini süre · biçim puanı · yazılacak bölüm sayısı
+- Her bölüm için ayrı kart; `chorusLast` kartı **opsiyonel** (kesik çerçeve)
+- Kenar çubuğu "X/Y parçanın sözü tam" sayacı yapıyı bilir
+
+### Geriye uyum
+
+Eski kayıtlar (sabit yedi bölüm) bozulmaz: temel bölümler doluysa parça yine
+"tam" sayılır; yapı anahtarları yoksa düz liste gibi davranır.
+
+### Doğrulama
+
+```
+node tools/build-single.js && node tools/verify.js
+→ 29/29 adım geçti
+
+node tools/smoke-v1041.js
+→ 142/142 kontrol geçti
+```
+
+---
+
 ## GÜNCELLEME v10.40 — Gerçek dağıtım formu: parça · metadata · teknik
 
 Stüdyonun **dağıtım adımı** gerçek distribütörlerin (DistroKid / TuneCore /
