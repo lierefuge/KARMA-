@@ -150,7 +150,10 @@ const SUITES = [
   /* gerçek dağıtım formu: parça seviyesi (sıra/feat/explicit/ISRC/sample),
      metadata (kredi/split/bölge/dil/etiket/barkod) ve teknik gereksinimler
      (kapak px, format reddi, çuma çıkışı, Content ID, takedown). */
-  { id: "v1040",       script: "tools/smoke-v1040.js",       label: "v10.40 dağıtım formu (parça · metadata · teknik)" }
+  { id: "v1040",       script: "tools/smoke-v1040.js",       label: "v10.40 dağıtım formu (parça · metadata · teknik)" },
+  /* şarkı biçimi: parça başına sıralı bölüm dizisi (verse2/verse3,
+     chorusLast), 8 hazır biçim, süre + biçim puanı yapıdan türer. */
+  { id: "v1041",       script: "tools/smoke-v1041.js",       label: "v10.41 şarkı biçimi (yuva · şablon · süre · puan)" }
 ];
 
 const suiteOut = {};
