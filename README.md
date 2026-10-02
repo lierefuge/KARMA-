@@ -5,6 +5,76 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.37 — Gerçek uygulama düzeni (2. dalga) · pil kaldırıldı
+
+v10.35 (Spotify) ve v10.36 (Instagram) alt sekmeleri emoji'den gerçek SVG
+simgelere geçirmişti ama diğer beş uygulama emoji sekme ikonlarıyla kalmıştı:
+telefonun içinde iki uygulama gerçek, beşi oyuncak gibi duruyordu. Bu sürüm o
+tutarsızlığı kapatır ve pil mekaniğini tamamen kaldırır.
+
+### 📱 Beş uygulama gerçek düzene geçti
+
+Her uygulama kendi SVG simge takımını ve alt sekme davranışını aldı
+(pasif = ince çizgi, aktif = **dolu** simge — gerçek uygulamaların ortak kuralı):
+
+| Uygulama | Alt sekme | Etiket | Aktif renk |
+|---|---|---|---|
+| **X** | 4 SVG sekme + SVG gönderi eylemleri (yanıt · repost · beğeni · kaydet · paylaş · görüntüleme) | yok (gerçek X gibi) | beyaz |
+| **YouTube** | 5 SVG sekme + SVG oynatma denetimleri, Shorts yan eylemleri, zil | var | beyaz |
+| **TikTok** | 4 SVG sekme + beyaz dolu sağ eylemler (kalp · yorum · paylaş · kaydet) | yok (gerçek TikTok gibi) | beyaz + cyan parıltı |
+| **Apple Music** | 4 SF-Symbols tarzı SVG sekme | var | `#fa233b` |
+| **Mesajlar** | 5 iOS SVG sekme (sohbet · gruplar · istekler · teklifler · yeni DM) | var | `#0a84ff` |
+
+Yeni katman: **`css/apps-real.css`** — beş uygulamanın alt barını, simge
+değişimini ve gönderi eylem satırını tek yerde tanımlar. Mevcut içerik/render
+fonksiyonlarına dokunulmadı; yalnızca görsel katman değişti.
+
+### 🔋 Pil mekaniği tamamen kaldırıldı
+
+Pil, oyuncuya sürekli bakım yükü bindiriyordu ve **kod kendi yorumuyla
+çelişiyordu**: `phoneos.js` yorumu *"telefon GECE şarj olur"* diyordu ama
+`daily()` hiçbir zaman şarj etmiyordu — yalnızca günde %14–22 boşaltıyordu.
+Yani ~5–7 günde telefon kapanıyor, oyuncu her gün elle şarj etmek zorunda
+kalıyordu. Pil artık bir engel değil; telefon her zaman açık.
+
+Kaldırılanlar: `battery()` · `charge()` · günlük boşalma · "telefon kapandı"
+ekranı · durum çubuğu pil göstergesi · Kontrol Merkezi ve Ayarlar'daki pil
+kartları/şarj düğmeleri/"pil tasarrufu" anahtarı. Eski kayıtlardaki `battery`,
+`phoneDead` ve `phone.batterySaver` alanları yüklemede silinir.
+
+### 🏷️ Sürüm etiketi gerçeğe çekildi
+
+Kod v10.36'ya kadar gelmişti ama `package.json`, `js/version.js`,
+`version.json` ve `sw.js` hâlâ **10.32.0** diyordu. Sebep: `tools/release.js`
+sürümü **yalnızca argüman verilirse** artırıyor; sürümler argümansız
+çalıştırıldığı için yalnızca önbellek damgası tazelenmişti. Bu sürümden
+itibaren meta veri kodla aynı hizada.
+
+---
+
+## GÜNCELLEME v10.36 — Instagram gerçek uygulama düzeni
+
+- Alt sekmede aktif simge **dolar** (gerçek IG davranışı)
+- Gönderi eylemleri SVG: kalp · yorum · paylaş · kaydet
+- Hikâye "+" rozeti, başlıkta "kullanıcı · süre" tek satır
+
+## GÜNCELLEME v10.35 — Spotify gerçek uygulama düzeni
+
+- SVG alt sekme simgeleri (emoji yerine), sekmesiz sanatçı sayfası
+- **Beğenilen Şarkılar** (mor→beyaz kalp karosu) ve çalma listesi başlığı
+
+## GÜNCELLEME v10.34 — Gerçek marka logoları
+
+- Telefon ana ekranı uygulamaları emoji/karakter yerine **inline SVG marka
+  işaretleri** kullanıyor (`js/ui/brand-icons.js`)
+
+## GÜNCELLEME v10.33 — Olay/skandal gerçekçiliği
+
+- Olay sıklığı azaltıldı, ün eşiği + tekrar engeli + çakışma temizliği
+  (`systems/crisis.js` · `systems/incidents.js`)
+
+---
+
 ## GÜNCELLEME v10.32 — Katalog sönümü: "yayın yapmazsan kitle erir"
 
 Denge simülasyonunun bulduğu **son ORTA bulgu** kapatıldı ve neden olduğu
