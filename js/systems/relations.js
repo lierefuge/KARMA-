@@ -1093,6 +1093,9 @@
               labelId: offer.labelId, advance: offer.terms.advance, recouped: 0,
               labelRoyalty: offer.terms.royalty, artistRoyalty: offer.terms.artistRoyalty,
               startDay: s.day, lengthDays: offer.terms.lengthDays,
+              /* v10.42 — master sahipliği + distribütör */
+              master: offer.terms.master || "label",
+              distributor: offer.terms.distributor || null,
               dealType: offer.terms.dealType || "standard",
               splits: offer.terms.splits || { touring: 0, merch: 0, sync: 0 }
             };
