@@ -267,6 +267,8 @@
       const paidN = { spotify: 0, apple: 0, youtube: 0, other: 0 };
       const grossBy = { spotify: 0, apple: 0, youtube: 0, other: 0 };
       let artistPool = 0, producerCutTotal = 0, featureCutTotal = 0, masterCutTotal = 0, waiting = 0;
+      /* v10.42 — distribütör kesintisi ve parça bazında şirket payı */
+      let distCutTotal = 0, labelCutTotal = 0;
 
       p.royalties.forEach(r => {
         const song = songById[r.songId];
@@ -280,7 +282,16 @@
           const g = n * K.econ.rate(st) * dm;            // kur + enflasyon burada uygulanır
           grossBy[st] += g;
           if (song && song.masterSold) { masterCutTotal += g; return; }   // master satıldı → telif alıcının
-          let pool = g * (1 - labelPct / 100);
+          /* v10.42 — DISTRIBÜTÖR KESİNTİSİ: mağaza brütünden distribütörün
+             payı düşer (gerçekte önce distribütör alır, kalan paylaşılır). */
+          const distTake = g * (((song && song.distCommission) || 0) / 100);
+          distCutTotal += distTake;
+          const afterDist = g - distTake;
+          /* master sanatçıda ise şirket "dağıtım" rolüne düşer → payı yarıya iner */
+          let songLabelPct = labelPct;
+          if (song && song.masterOwner === "artist" && song.distributorId && labelPct > 0) songLabelPct = labelPct * 0.5;
+          labelCutTotal += afterDist * (songLabelPct / 100);
+          let pool = afterDist * (1 - songLabelPct / 100);
           const pp = ((song && song.producerPoints) || 0) / 100;
           if (pp > 0) { const c = pool * pp; pool -= c; producerCutTotal += c; }
           const share = (song && song.revenueShare != null) ? song.revenueShare : 1;
@@ -294,7 +305,7 @@
       const sp = Math.round(paidN.spotify), ap = Math.round(paidN.apple);
       const yt = Math.round(paidN.youtube), ot = Math.round(paidN.other);
       const gross = grossBy.spotify + grossBy.apple + grossBy.youtube + grossBy.other;
-      const labelCut = Math.round(gross * labelPct / 100);
+      const labelCut = Math.round(labelCutTotal);
       artistPool = Math.round(artistPool);
       producerCutTotal = Math.round(producerCutTotal);
       featureCutTotal = Math.round(featureCutTotal);
@@ -334,6 +345,7 @@
         day: s.day, period: K.ECON.payoutPeriodDays,
         spotify: sp, apple: ap, youtube: yt, other: ot,
         gross: Math.round(gross), net, labelCut, recoup, publishing,
+        distCut: Math.round(distCutTotal),
         producerCut: producerCutTotal, featureCut: featureCutTotal,
         masterCut: masterCutTotal,
         queued: Math.round(queued), waiting: Math.round(waiting),
