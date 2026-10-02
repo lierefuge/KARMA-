@@ -121,7 +121,13 @@ function run() {
     ok("S1 · package.json sürümü okunuyor", !!pkg, pkg);
     ok("S1 · js/version.js ile package.json aynı", pkg === vjs, pkg + " ≠ " + vjs);
     ok("S1 · version.json ile package.json aynı", pkg === vjson, pkg + " ≠ " + vjson);
-    ok("S1 · sürüm 10.37.x", /^10\.37\./.test(String(pkg)), String(pkg));
+    /* Sürüm en az 10.37 olmalı: v10.33–v10.36 işleri yapıldığı hâlde
+       etiket 10.32'de kalmıştı. Bu kontrol o gerilemeyi kilitler. */
+    const verNum = String(pkg).split(".").map(Number);
+    const atLeast = (verNum[0] > 10) ||
+      (verNum[0] === 10 && verNum[1] > 37) ||
+      (verNum[0] === 10 && verNum[1] === 37 && (verNum[2] || 0) >= 0);
+    ok("S1 · sürüm en az 10.37 (10.32 gerilemesi yok)", atLeast, String(pkg));
     ok("S1 · README'de v10.37 başlığı var", /GÜNCELLEME v10\.37/.test(read("README.md")));
     ok("S1 · README'de v10.33–v10.36 başlıkları var",
       /v10\.36/.test(read("README.md")) && /v10\.33/.test(read("README.md")));
