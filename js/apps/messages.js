@@ -12,6 +12,40 @@
 
   const U = K.util;
 
+  /* ---------- iOS Mesajlar simgeleri (SVG) ----------
+     v10.37 — emoji yerine iOS Mesajlar işaretleri.
+     .m-on = aktif (dolu) · .m-off = pasif (ince çizgi). */
+  const MI = {
+    all: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+      <path class="m-off" d="M20.6 11.6c0 4.4-3.9 8-8.6 8a9.4 9.4 0 0 1-3.4-.6L3.6 20.7l1.6-4.7a7.7 7.7 0 0 1-1.2-4.4c0-4.4 3.9-8 8.6-8s8 3.6 8 8z" fill="none"/>
+      <path class="m-on" d="M12 3.2c-5.4 0-9.8 3.6-9.8 8.1 0 2.4 1.2 4.5 3.1 6-.2 1.2-.7 2.3-1.5 3.3-.2.3 0 .7.4.7 2.1-.2 4-.9 5.4-1.9 1 .2 2 .3 3.1.3 5.4 0 9.8-3.6 9.8-8.1S17.4 3.2 12 3.2z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    groups: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+      <circle class="m-off" cx="9.4" cy="8.4" r="3.7" fill="none"/>
+      <path class="m-off" d="M2.8 19.8c.5-3.1 3.3-5.2 6.6-5.2s6.1 2.1 6.6 5.2" fill="none"/>
+      <path class="m-off" d="M16.4 5.2a3.3 3.3 0 0 1 0 6.4M18 14.9c2 .6 3.4 2.2 3.7 4.4" fill="none"/>
+      <circle class="m-on" cx="9.4" cy="8.2" r="4.1" fill="currentColor" stroke="none"/>
+      <path class="m-on" d="M9.4 13.4c-3.9 0-7 2.5-7 5.6 0 .5.4.9.9.9h12.2c.5 0 .9-.4.9-.9 0-3.1-3.1-5.6-7-5.6z" fill="currentColor" stroke="none"/>
+      <path class="m-on" d="M16.7 5.5a3 3 0 0 1 0 5.6v-1.7a1.4 1.4 0 0 0 0-2.2zM17.9 15.3c1.8.6 3 2 3.3 4a1 1 0 0 1-2 .3c-.2-1.4-1-2.4-2.2-2.9z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    requests: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+      <path class="m-off" d="M3.4 5.2A2.2 2.2 0 0 1 5.6 3h12.8a2.2 2.2 0 0 1 2.2 2.2v13.6a2.2 2.2 0 0 1-2.2 2.2H5.6a2.2 2.2 0 0 1-2.2-2.2z" fill="none"/>
+      <path class="m-off" d="M3.4 14.2h5l1.2 2h4.8l1.2-2h5" fill="none"/>
+      <path class="m-on" d="M5.6 3h12.8a2.2 2.2 0 0 1 2.2 2.2v13.6a2.2 2.2 0 0 1-2.2 2.2H5.6a2.2 2.2 0 0 1-2.2-2.2V5.2A2.2 2.2 0 0 1 5.6 3z" fill="currentColor" stroke="none"/>
+      <path class="m-on" d="M3.4 13.6h4.4l1.3 2.2h5.8l1.3-2.2h4.4" fill="none" stroke="#000" stroke-width="1.8"/>
+    </svg>`,
+    offers: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round">
+      <path class="m-off" d="M2.6 6.4a2 2 0 0 1 2-2h14.8a2 2 0 0 1 2 2v11.2a2 2 0 0 1-2 2H4.6a2 2 0 0 1-2-2z" fill="none"/>
+      <path class="m-off" d="m3.2 6.2 8.8 6.4 8.8-6.4" fill="none"/>
+      <path class="m-on" d="M2.6 6.4a2 2 0 0 1 2-2h14.8a2 2 0 0 1 2 2v11.2a2 2 0 0 1-2 2H4.6a2 2 0 0 1-2-2z" fill="currentColor" stroke="none"/>
+      <path class="m-on" d="m3.4 6.6 8.6 6.2 8.6-6.2" fill="none" stroke="#000" stroke-width="1.7"/>
+    </svg>`,
+    new: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20.4 12.6v6.6a1.8 1.8 0 0 1-1.8 1.8H4.8A1.8 1.8 0 0 1 3 19.2V5.4A1.8 1.8 0 0 1 4.8 3.6h6.6"/>
+      <path d="M18.1 2.9a2 2 0 0 1 2.8 2.8L12.6 14l-3.7 1 1-3.7z"/>
+    </svg>`
+  };
+
   function offerCard(offer, thread) {
     const a = offer.artistId ? K.artistById(offer.artistId) : null;
     let tag = "Teklif", title = "", desc = "", terms = "";
@@ -73,11 +107,11 @@
         shellClass: "app-messages",
         tabPos: "bottom",
         tabs: [
-          { id: "all", label: "Tümü", icon: "💬" },
-          { id: "groups", label: "Gruplar", icon: "👥" },
-          { id: "requests", label: (() => { const n = Object.keys(K.state.dmRequests || {}).length; return n ? ("İstekler (" + n + ")") : "İstekler"; })(), icon: "📥" },
-          { id: "offers", label: (() => { const n = K.state.offers.filter(o => o.status === "pending").length; return n ? ("Teklifler (" + n + ")") : "Teklifler"; })(), icon: "📨" },
-          { id: "new", label: "Yeni DM", icon: "✏️" }
+          { id: "all", label: "Tümü", icon: MI.all },
+          { id: "groups", label: "Gruplar", icon: MI.groups },
+          { id: "requests", label: (() => { const n = Object.keys(K.state.dmRequests || {}).length; return n ? ("İstekler (" + n + ")") : "İstekler"; })(), icon: MI.requests },
+          { id: "offers", label: (() => { const n = K.state.offers.filter(o => o.status === "pending").length; return n ? ("Teklifler (" + n + ")") : "Teklifler"; })(), icon: MI.offers },
+          { id: "new", label: "Yeni DM", icon: MI.new }
         ],
         activeTab: params.tab || "all",
         render: (tab) => {
