@@ -284,6 +284,10 @@
         projectTitle: "",
         coverOpts: K.careerUI.defaultCoverOpts(),
         stores: (K.defaultStores ? K.defaultStores() : []),
+        /* v10.42 — distribütör seçimi + master sahipliği */
+        distributor: (K.defaultDistributor ? K.defaultDistributor() : "karma"),
+        useLabelDist: true,
+        masterOwner: null,
         inventoryBeat: null,
         strategy: "standard",
         ghost: false,
@@ -806,6 +810,32 @@
         return;
       }
 
+      /* v10.42 — distribütör seçimi + master sahipliği */
+      if (act === "dist-pick") {
+        const id = btn.dataset.arg;
+        if (K.distro.canUse(id, K.state.day)) {
+          st.distributor = id;
+          st.useLabelDist = false;
+          K.careerUI.renderDistributorChips();
+          K.careerUI.renderStoreChips();
+          K.careerUI.updateStudioEstimate();
+        }
+        return;
+      }
+      if (act === "dist-label-mode") {
+        st.useLabelDist = btn.dataset.arg === "1";
+        K.careerUI.renderDistributorChips();
+        K.careerUI.renderStoreChips();
+        K.careerUI.updateStudioEstimate();
+        return;
+      }
+      if (act === "master-pick") {
+        st.masterOwner = btn.dataset.arg === "label" ? "label" : "artist";
+        K.careerUI.renderDistributorChips();
+        K.careerUI.updateStudioEstimate();
+        return;
+      }
+
       /* parça listesi */
       if (act === "trk-add") {
         if (st.tracks.length >= K.career.MAX_TRACKS) { K.toast("En fazla " + K.career.MAX_TRACKS + " parça", "", "warn"); return; }
@@ -1221,18 +1251,105 @@
         'stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
     },
 
+    /* v10.42 — etkin distribütör (şirket modu dahil) */
+    effectiveDistId(st) {
+      const s = K.state;
+      const myLabel = s.player.labelId ? K.labelById(s.player.labelId) : null;
+      if (myLabel && st.useLabelDist !== false) {
+        return K.distro.descriptorFor(myLabel.distributor).id;
+      }
+      return st.distributor || K.defaultDistributor();
+    },
+    effectiveDistDesc(st) {
+      return K.distro.descById(K.careerUI.effectiveDistId(st));
+    },
+
+    /* v10.42 — distribütör seçimi. Bağımsızsan distribütörü seçersin;
+       şirket altındaysan "şirketin distribütörü" ya da "kendi
+       distribütörün" arasında karar verirsin. Master sahipliği de burada. */
+    renderDistributorChips() {
+      const wrap = U.qs("#st-dist-chips");
+      if (!wrap) return;
+      const st = K.careerUI._studio;
+      if (!st) return;
+      const s = K.state;
+      const myLabel = s.player.labelId ? K.labelById(s.player.labelId) : null;
+      const dealMaster = (s.player.labelDeal && s.player.labelDeal.master) || (myLabel ? "label" : "artist");
+      const usingLabelDist = !!(myLabel && st.useLabelDist !== false);
+      const opts = K.distro.options(s.day);
+
+      let html = "";
+      if (myLabel) {
+        const ld = K.distro.descriptorFor(myLabel.distributor);
+        html += `<button class="dist-opt ${usingLabelDist ? "on" : ""}" data-act="dist-label-mode" data-arg="1">
+          <span class="do-icon">🏢</span>
+          <span class="do-body"><b>${U.escape(myLabel.name)} distribütörü · ${U.escape(ld.name)}</b>
+            <span>kesinti %${ld.commission} · teslim ${ld.leadDays} gün · masrafı şirket üstlenir</span></span>
+          <span class="do-check">${usingLabelDist ? "✓" : "+"}</span>
+        </button>`;
+        html += `<button class="dist-opt ${!usingLabelDist ? "on" : ""}" data-act="dist-label-mode" data-arg="0">
+          <span class="do-icon">🎛️</span>
+          <span class="do-body"><b>Kendi distribütörün</b><span>Ücretini sen ödersin; şirket payı yine geçerli.</span></span>
+          <span class="do-check">${!usingLabelDist ? "✓" : "+"}</span>
+        </button>`;
+      }
+      if (!myLabel || !usingLabelDist) {
+        html += opts.map(d => {
+          const active = d.id === (st.distributor || K.defaultDistributor());
+          return `<button class="dist-opt ${active ? "on" : ""}${d.locked ? " locked" : ""}" data-act="dist-pick" data-arg="${d.id}" ${d.locked ? "disabled" : ""}>
+            <span class="do-icon">${d.icon}</span>
+            <span class="do-body"><b>${U.escape(d.name)}</b>
+              <span>${K.distroModelLabel(d.id)} · kesinti %${d.commission} · teslim ${d.leadDays} gün${d.premium ? " · premium ✓" : " · premium ✗"}</span></span>
+            <span class="do-check">${d.locked ? "🔒" : (active ? "✓" : "+")}</span>
+          </button>`;
+        }).join("");
+      }
+      wrap.innerHTML = html;
+
+      /* master sahipliği (yayın kime ait?) */
+      const masterWrap = U.qs("#st-master");
+      if (masterWrap) {
+        const mo = st.masterOwner || dealMaster;
+        const lockLabel = myLabel && dealMaster === "label";
+        masterWrap.innerHTML = `<div class="master-row">
+          <span class="mr-lbl">Yayın sahibi (master)</span>
+          <button class="mr-opt ${mo === "label" ? "on" : ""}" data-act="master-pick" data-arg="label" ${(!myLabel || lockLabel) ? "disabled" : ""}>Şirket adına</button>
+          <button class="mr-opt ${mo === "artist" ? "on" : ""}" data-act="master-pick" data-arg="artist">Kendi adına</button>
+        </div>`;
+      }
+
+      const info = U.qs("#st-dist-info");
+      if (info) {
+        const desc = K.careerUI.effectiveDistDesc(st);
+        const fee = usingLabelDist ? 0 : K.distro.feeFor(st.distributor || K.defaultDistributor(), s.day);
+        info.textContent = "Dağıtım: " + desc.name + " · kesinti %" + desc.commission + " · teslim " + desc.leadDays +
+          " gün · ücret " + (fee ? U.money(fee) : "yok") +
+          (desc.premium ? " · premium mağazalar açık" : " · premium mağazalar kapalı");
+      }
+    },
+
     renderStoreChips() {
       const wrap = U.qs("#st-store-chips");
       if (!wrap) return;
       const st = K.careerUI._studio;
       if (!st) return;
+      /* v10.42 — premium mağaza erişimi distribütöre bağlı */
+      const premiumOk = K.distro.premiumAllowed(K.careerUI.effectiveDistId(st));
+      if (!premiumOk) {
+        const bad = new Set(K.meta.premiumStores(st.stores || []));
+        if (bad.size) st.stores = (st.stores || []).filter(id => !bad.has(id));
+      }
       const sel = new Set(st.stores || []);
-      wrap.innerHTML = K.DISTRO_STORES.map(s => `
-        <button class="store-opt ${sel.has(s.id) ? "on" : ""}" data-act="store-toggle" data-arg="${s.id}">
+      wrap.innerHTML = K.DISTRO_STORES.map(s => {
+        const isPrem = K.meta.PREMIUM_STORES.indexOf(s.id) >= 0;
+        const blocked = isPrem && !premiumOk;
+        return `
+        <button class="store-opt ${sel.has(s.id) ? "on" : ""}${blocked ? " locked" : ""}" data-act="store-toggle" data-arg="${s.id}" ${blocked ? "disabled" : ""}>
           <span class="so-icon">${s.icon}</span>
-          <span class="so-body"><b>${s.name}</b><span>${U.money(s.cost)} · erişim ${s.reach.toFixed(2)}</span></span>
-          <span class="so-check">${sel.has(s.id) ? "✓" : "+"}</span>
-        </button>`).join("");
+          <span class="so-body"><b>${s.name}</b><span>${U.money(s.cost)} · erişim ${s.reach.toFixed(2)}${blocked ? " · distribütör desteklemiyor" : ""}</span></span>
+          <span class="so-check">${blocked ? "🔒" : (sel.has(s.id) ? "✓" : "+")}</span>
+        </button>`;
+      }).join("");
       const info = U.qs("#st-store-info");
       if (info) info.textContent = (st.stores || []).length + " mağaza seçili · dağıtım ücreti " +
         U.money(K.distroCost(st.stores)) + " · erişim ×" + K.distroReach(st.stores).toFixed(2);
@@ -1445,6 +1562,7 @@
       K.careerUI.renderProjectField();
       K.careerUI.renderCoverControls();
       K.careerUI.renderCoverPreview();
+      K.careerUI.renderDistributorChips();
       K.careerUI.renderStoreChips();
       K.careerUI.renderRegionChips();
       K.careerUI.renderCredits();
@@ -1963,8 +2081,15 @@
       const row = (k, v) => `<div class="sum-row"><span>${k}</span><b>${v}</b></div>`;
 
       const myLabel = s.player.labelId ? K.labelById(s.player.labelId) : null;
+      /* v10.42 — distribütör + teslim süresi + master sahipliği */
+      const distDesc = K.careerUI.effectiveDistDesc(st);
+      const distLead = distDesc.leadDays || 7;
+      const dealMaster = (s.player.labelDeal && s.player.labelDeal.master) || (myLabel ? "label" : "artist");
+      const masterOwner = st.masterOwner || dealMaster;
+      const curRelDay = K.meta.snapToWeekday(s.day + (st.wait || 18), st.releaseWeekday != null ? st.releaseWeekday : 5);
+      const leadShort = curRelDay < s.day + distLead;
       return `
-        ${myLabel ? `<div class="note-line ok">🏢 <b>${U.escape(myLabel.name)}</b> bünyesindesin: bu yayını şirket çıkarır. Distribütör: <b>${U.escape(myLabel.distributor || "—")}</b> · masrafın bir kısmını şirket üstlenir.</div>` : ""}
+        ${myLabel ? `<div class="note-line ok">🏢 <b>${U.escape(myLabel.name)}</b> bünyesindesin: bu yayını şirket çıkarır. Distribütör: <b>${U.escape(distDesc.name)}</b> · masrafın bir kısmını şirket üstlenir.</div>` : ""}
         <div class="publish-hero">
           <div class="ph-art">${K.ui.cover(st.coverSeed, "", 140)}</div>
           <div class="ph-info">
@@ -1975,7 +2100,15 @@
         </div>
 
         <div class="form-block">
-          <div class="form-block-head"><span class="fb-no">1</span><div><h4>Dağıtım Yapılacak Mağazalar</h4><p>Mağaza seçimi erişimini ve dağıtım ücretini belirler. Liste ve sıralama yine performansa bağlıdır.</p></div></div>
+          <div class="form-block-head"><span class="fb-no">🚚</span><div><h4>Distribütör</h4><p>Yayınını mağazalara kim gönderiyor? Ücretsiz distribütör çok keser ve geç teslim eder; pahalısı az keser, hızlı teslim eder, tüm mağazalara sokar.</p></div></div>
+          <div class="dist-chips" id="st-dist-chips"></div>
+          <div class="master" id="st-master"></div>
+          <div class="helper" id="st-dist-info"></div>
+          ${leadShort ? `<div class="note-line gold">⏳ <b>${U.escape(distDesc.name)}</b> teslim süresi <b>${distLead} gün</b>. Seçili çıkış Gün ${curRelDay}; en erken <b>Gün ${s.day + distLead}</b>. Yayın otomatik olarak ${distLead} güne kaydırılır.</div>` : ""}
+        </div>
+
+        <div class="form-block">
+          <div class="form-block-head"><span class="fb-no">1</span><div><h4>Dağıtım Yapılacak Mağazalar</h4><p>Mağaza seçimi erişimini ve dağıtım ücretini belirler. Liste ve sıralama yine performansa bağlıdır. Premium mağazalar distribütöre bağlıdır.</p></div></div>
           <div class="store-opts" id="st-store-chips"></div>
           <div class="helper" id="st-store-info"></div>
         </div>
@@ -2053,6 +2186,8 @@
             ${row("Explicit", st.count > 1 ? K.careerUI.explicitCount(st) + "/" + st.count + " parça" : (st.tracks[0] && st.tracks[0].explicit ? "<em class='exp-tag'>E</em> Var" : "Yok"))}
             ${st.beatId === "sample" ? row("Örnek Hakkı", st.clearSample ? "Ödendi ✓" : "<span class='warn-txt'>Riskli</span>") : ""}
             ${st.instrumental ? row("Enstrümantal", "Dahil ✓") : ""}
+            ${row("Distribütör", U.escape(distDesc.name) + " · %" + distDesc.commission + " kesinti")}
+            ${row("Yayın Sahibi", masterOwner === "label" ? "Şirket adına" : "Kendi adına")}
           </div>
         </div>
 
@@ -2062,6 +2197,7 @@
             ${row("Prodüksiyon", hide ? "🔒" : U.money(U.sum(trackBudgets)))}
             ${row("Pazarlama", U.money(st.marketing))}
             ${row("Dağıtım (" + (st.stores || []).length + " mağaza)", U.money(((K.RELEASE_TYPES[type] || {}).dist || 0) + storeCost))}
+            ${row("Distribütör ücreti", K.distro.feeFor(K.careerUI.effectiveDistId(st), s.day) ? U.money(K.distro.feeFor(K.careerUI.effectiveDistId(st), s.day)) : "yok")}
             ${row("Erişim", "×" + storeReach.toFixed(2))}
             ${row("Toplam", "<em class='total'>" + U.money(cost) + "</em>")}
             ${row("Kasa Sonrası", U.money(s.balance - cost))}
@@ -2223,9 +2359,17 @@
       }));
       const title = K.careerUI.projectName(st) || tracks[0].name;
       K.careerUI._syncCover(st);
+      /* v10.42 — distribütör: premium mağaza filtresi + teslim süresi.
+         Distribütör premium mağazaları desteklemiyorsa onlar düşürülür;
+         teslim süresi kısa seçilirse çıkış tarihi otomatik kaydırılır. */
+      const distDesc = K.careerUI.effectiveDistDesc(st);
+      const usingLabelDist = !!(K.state.player.labelId && st.useLabelDist !== false);
+      let stores = (st.stores || []).slice();
+      if (!distDesc.premium) stores = stores.filter(id => K.meta.PREMIUM_STORES.indexOf(id) < 0);
       /* v10.42 — C3: hazırlık süresi en az st.wait, ama takvim hedef
          hafta gününe (varsayılan cuma) kaydırılır. */
-      const relDay = K.meta.snapToWeekday(K.state.day + (st.wait || 18), st.releaseWeekday != null ? st.releaseWeekday : 5);
+      const relDay0 = K.meta.snapToWeekday(K.state.day + (st.wait || 18), st.releaseWeekday != null ? st.releaseWeekday : 5);
+      const relDay = Math.max(relDay0, K.state.day + (distDesc.leadDays || 0));
       const waitDays = Math.max(1, relDay - K.state.day);
 
       const rel = K.career.createRelease({
@@ -2241,7 +2385,10 @@
         lyricSections: K.careerUI.trackLyrics(st, 0),
         conceptId: st.conceptId, coverSeed: st.coverSeed,
         strategy: st.strategy, ghost: st.ghost, inventoryBeat: st.inventoryBeat,
-        stores: st.stores,
+        stores: stores,
+        /* v10.42 — distribütör + master sahipliği */
+        distributorId: usingLabelDist ? null : (st.distributor || K.defaultDistributor()),
+        masterOwner: st.masterOwner || null,
         /* v10.40 — A5/A6: örnek hakkı kararı + enstrümantal sürüm */
         clearSample: !!st.clearSample,
         instrumental: !!st.instrumental,
@@ -2493,21 +2640,39 @@
       return bar + `<div class="label-console">` + K.careerUI.renderMyDeal() + body + `</div>`;
     },
 
-    /* oyuncunun bağlı olduğu şirket (sözleşme) kartı */
+    /* oyuncunun bağlı olduğu şirket SÖZLEŞMESİ (v10.42 — tam metin + imza) */
     renderMyDeal() {
       const d = (K.label && K.label.myDeal) ? K.label.myDeal() : null;
       if (!d) return "";
       const l = d.label || {};
       const sp = d.deal.splits || {};
       const is360 = d.deal.dealType === "360";
+      const master = d.deal.master || "label";
+      const dist = d.deal.distributor || l.distributor || "—";
+      const row = (k, v) => `<div class="sum-row"><span>${k}</span><b>${v}</b></div>`;
       return `<div class="c-block">
-        <div class="c-head"><div><h2>Bağlı Olduğun Şirket</h2><div class="sub">Sözleşme şartları ve yükümlülükler</div></div></div>
-        <div class="crisis-card" style="border-color:rgba(110,195,255,.4)">
-          <div class="cr-tag">🏢 ${U.escape(l.name || "Şirket")}${is360 ? " · 360 ANLAŞMA" : ""}</div>
-          <div class="cr-desc">Şirket payı: <b>%${d.deal.labelRoyalty || 0}</b> · sana kalan: <b>%${d.deal.artistRoyalty || 100}</b>${is360 ? ` · turne %${sp.touring || 0} / merch %${sp.merch || 0} / sync %${sp.sync || 0}` : ""}</div>
+        <div class="c-head"><div><h2>Sözleşme</h2><div class="sub">İmzalı anlaşma şartları ve yükümlülükler</div></div></div>
+        <div class="contract">
+          <div class="ct-head">
+            <span class="ct-seal">✍️</span>
+            <div><b>KAYIT VE LİSANS SÖZLEŞMESİ</b><span>${U.escape(l.name || "Şirket")} ↔ ${U.escape(K.state.player.stageName)}</span></div>
+          </div>
+          <div class="sum-rows ct-rows">
+            ${row("Anlaşma türü", is360 ? "360 Anlaşma" : "Standart")}
+            ${row("Avans", U.money(d.deal.advance || 0))}
+            ${row("Şirket payı", "%" + (d.deal.labelRoyalty || 0))}
+            ${row("Sanatçı payı", "%" + (d.deal.artistRoyalty || 100))}
+            ${row("Master (yayın sahibi)", master === "label" ? "Şirket" : "Sanatçı (sen)")}
+            ${row("Distribütör", U.escape(dist))}
+            ${row("Süre", (d.deal.lengthDays || 180) + " gün · bitiş Gün " + d.endDay)}
+            ${is360 ? row("360 payları", "turne %" + (sp.touring || 0) + " · merch %" + (sp.merch || 0) + " · sync %" + (sp.sync || 0)) : ""}
+          </div>
           ${K.studio.row("Avans recoup", d.recoupPct, U.money(d.recoupLeft) + " kaldı", { color: "linear-gradient(90deg,#ffcb5c,#5ce89b)" })}
-          <div class="cr-desc" style="margin-top:8px">Sözleşme bitişi: <b>Gün ${d.endDay}</b> · ${Math.max(0, d.endDay - K.state.day)} gün kaldı</div>
-          ${K.studio.note("📌", "Şirket destek verir (A&R kalite +2). Karşılığında 60 günde bir yeni yayın bekler; çıkmazsa itibar düşer.", "info")}
+          <div class="ct-note">📌 Şirket destek verir (A&R kalite +2) ve yayınını kendi distribütörüyle çıkarır. Karşılığında 60 günde bir yeni yayın bekler; çıkmazsa itibar düşer.</div>
+          <div class="ct-sign">
+            <span>İmza: <b>${U.escape(K.state.player.stageName)}</b></span>
+            <span>Gün ${d.deal.startDay || 0} · <em class="ct-ok">İMZALANDI ✓</em></span>
+          </div>
         </div>
       </div>`;
     },
@@ -3268,14 +3433,25 @@
       const s = K.state, p = s.player;
       const cond = K.jobs.condition();
       const jobs = K.jobs.list();
+      const shiftsLeft = K.jobs.shiftsLeft();
+      const restBtn = K.jobs.canRest()
+        ? `<button class="btn btn-sm btn-ghost" data-act="rest-day">😴 Bugünü dinlenmeye ayır</button>`
+        : `<span class="pill">😴 bugün dinlendin</span>`;
       return `
         <div class="c-block">
           <div class="c-head"><div><h2>Yan İşler</h2><div class="sub">Müzikten geçinmek yıllar sürer — kiranı ve ekipmanı bunlarla çıkarırsın</div></div></div>
           <div class="stat-grid">
             <div class="stat-card"><span class="k">Bugünkü Kazanç</span><span class="v money">${U.money(K.jobs.dailyTotal())}</span><span class="d">yan işlerden</span></div>
+            <div class="stat-card"><span class="k">Vardiya Hakkı</span><span class="v ${shiftsLeft ? "" : "hot"}">${shiftsLeft}/${K.jobs.MAX_SHIFTS}</span><span class="d">bugün kalan</span></div>
+            <div class="stat-card"><span class="k">Durum</span><span class="v ${cond.color}">${cond.label}</span><span class="d">ücret & kalite cezası ${cond.penalty}</span></div>
             <div class="stat-card"><span class="k">Toplam Yan İş</span><span class="v">${U.money(p.jobEarnings || 0)}</span><span class="d">kariyer boyunca</span></div>
-            <div class="stat-card"><span class="k">Durum</span><span class="v ${cond.color}">${cond.label}</span><span class="d">üretim cezası ${cond.penalty}</span></div>
-            <div class="stat-card"><span class="k">Yaş</span><span class="v">${p.age}</span><span class="d">15 yaşında başladın</span></div>
+          </div>
+          <div class="job-fatigue">
+            ${K.studio.row("Yorgunluk", Math.round(p.fatigue || 0), Math.round(p.fatigue || 0) + "/100", { color: "linear-gradient(90deg,#5ce89b,#ffcb5c,#ff6b6b)" })}
+            <div class="jf-row">
+              <span class="helper">Vardiya yorgunluk biriktirir. <b>${K.jobs.FATIGUE_CAP}+</b> yorgunlukta iş yapamazsın; ücret de yorgunlukla düşer.</span>
+              ${restBtn}
+            </div>
           </div>
           <div class="c-head" style="margin-top:4px"><div><h2 style="font-size:15px">Beceriler</h2><div class="sub">Her iş bir beceri geliştirir; beceri ücretini ve şarkı kaliteni artırır</div></div></div>
           <div class="skill-grid">
@@ -3297,29 +3473,40 @@
           </div>
 
           <div class="job-grid">
-            ${jobs.map(j => `
+            ${jobs.map(j => {
+              const pill = j.status === "self" ? `<span class="pill karma">serbest</span>`
+                : j.hired ? `<span class="pill money">kadroda ✓</span>`
+                : j.status === "pending" ? `<span class="pill gold">başvuru bekliyor</span>`
+                : j.status === "rejected" ? `<span class="pill">reddedildi</span>`
+                : `<span class="pill">başvurulmadı</span>`;
+              const action = j.canWork
+                ? `<button class="btn btn-sm btn-primary" data-act="work-job" data-arg="${j.id}">💼 Vardiyaya gir</button>`
+                : j.canApply
+                  ? `<button class="btn btn-sm btn-primary" data-act="apply-job" data-arg="${j.id}">📨 Başvur</button>`
+                  : `<button class="btn btn-sm btn-ghost" data-act="work-job" data-arg="${j.id}" disabled>${U.escape(j.reason || j.applyReason || "kilitli")}</button>`;
+              return `
               <div class="job-card ${j.unlocked ? "" : "locked"}">
                 <div class="jc-head">
                   <span class="jc-icon">${j.emoji}</span>
                   <div class="grow">
-                    <div class="jc-name">${U.escape(j.name)}</div>
+                    <div class="jc-name">${U.escape(j.name)} ${pill}</div>
                     <div class="jc-desc">${U.escape(j.desc)}</div>
                   </div>
                   <span class="pill money">${U.money(j.effectivePay || j.pay)}</span>
                 </div>
                 <div class="jc-meta">
+                  <span>${U.escape(j.shift || "")}</span>
                   <span>Yaş ${j.minAge}+</span><span>Yorgunluk +${j.fatigue}</span>
                   <span>Bugün ${j.count}/${j.perDay}</span>
                   ${j.quality ? `<span class="pill karma">kalite +${j.quality}</span>` : ""}
                   ${j.fans ? `<span class="pill">+${j.fans} hayran</span>` : ""}
                   <span class="pill">${K.SKILLS[j.skill] ? K.SKILLS[j.skill].icon + " " + K.SKILLS[j.skill].name + " +" + j.xp : ""}</span>
                 </div>
-                <button class="btn btn-sm ${j.canWork ? "btn-primary" : "btn-ghost"}" data-act="work-job" data-arg="${j.id}" ${j.canWork ? "" : "disabled"}>
-                  ${j.canWork ? "💼 Çalış" : U.escape(j.reason || "kilitli")}
-                </button>
-              </div>`).join("")}
+                ${action}
+              </div>`;
+            }).join("")}
           </div>
-          <div class="hint">Yorgunluk arttıkça o gün yaptığın şarkıların kalitesi ve dinlenmesi düşer. Dinlenmek için gün geçir.</div>
+          <div class="hint">Vardiya hakkın günde ${K.jobs.MAX_SHIFTS}. Üst üste çalışırsan verim düşer (×0,75 · ×0,56 …). Başvurun ertesi gün yanıtlanır; reddedilirsen birkaç gün bekle.</div>
         </div>`;
     },
 
@@ -3606,6 +3793,8 @@
       else if (act === "open-wrapped") K.yearwrap.open();
       else if (act === "hire-staff") K.label.hireStaff(btn.dataset.arg);
       else if (act === "work-job") K.jobs.work(btn.dataset.arg);
+      else if (act === "apply-job") K.jobs.apply(btn.dataset.arg);
+      else if (act === "rest-day") K.jobs.rest();
       else if (act === "crisis-choice") K.crisis.resolve(+btn.dataset.arg);
       else if (act === "incident-choice") K.incidents.resolve(+btn.dataset.arg);
       else if (act === "beef-action") { const parts = String(btn.dataset.arg || "").split(":"); K.beef.respond(parts[0], parts[1]); }
