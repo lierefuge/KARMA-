@@ -187,6 +187,10 @@
         fatigue: 0,
         jobLog: {},
         jobEarnings: 0,
+        /* v10.43 — yan işler: başvuru durumu + günlük vardiya/dinlenme */
+        jobApps: {},
+        shiftsToday: 0,
+        restedToday: false,
         skills: { work: 4, studio: 0, music: 6, network: 2 },
         /* B-6: OYUNCUNUN kimlik id'si (data/player-persona.js → K.PLAYER_PERSONAS).
            NPC kişilik katmanı (data/npc-personality.js → K.npcPersonality)
