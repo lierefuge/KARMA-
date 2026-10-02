@@ -8,6 +8,38 @@
 
   const U = K.util;
 
+  /* ---------- gerçek X simgeleri (SVG) ----------
+     v10.37 — emoji yerine gerçek X işaretleri.
+     .x-off = pasif (ince çizgi) · .x-on = aktif (dolu).
+     Gerçek X'te alt sekmede aktif simge DOLAR, pasif ince kalır. */
+  const XI = {
+    home: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <path class="x-off" d="M3.2 9.6 12 3l8.8 6.6V20a1.4 1.4 0 0 1-1.4 1.4h-4.9v-6.6H9.5v6.6H4.6A1.4 1.4 0 0 1 3.2 20z" fill="none"/>
+      <path class="x-on" d="M12.7 2.5a1.2 1.2 0 0 0-1.4 0L2.6 8.9A1.6 1.6 0 0 0 2 10.2V20a2 2 0 0 0 2 2h4.3v-6.4h7.4V22H20a2 2 0 0 0 2-2v-9.8a1.6 1.6 0 0 0-.6-1.3z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    search: `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.6" cy="10.6" r="7"/><path d="m15.8 15.8 5 5"/></svg>`,
+    bell: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <path class="x-off" d="M18.4 8.2a6.4 6.4 0 1 0-12.8 0c0 6.8-2.6 8.4-2.6 8.4h18s-2.6-1.6-2.6-8.4" fill="none"/>
+      <path class="x-off" d="M13.9 20.6a2.2 2.2 0 0 1-3.8 0" fill="none"/>
+      <path class="x-on" d="M12 1.6a6.7 6.7 0 0 0-6.7 6.7c0 3.4-.6 5.6-1.2 7-.6 1.3-1.3 1.9-1.3 1.9a1 1 0 0 0 .6 1.8h17.2a1 1 0 0 0 .6-1.8s-.7-.6-1.3-1.9c-.6-1.4-1.2-3.6-1.2-7A6.7 6.7 0 0 0 12 1.6z" fill="currentColor" stroke="none"/>
+      <path class="x-on" d="M12 22.6a2.9 2.9 0 0 0 2.7-2h-5.4a2.9 2.9 0 0 0 2.7 2z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    user: `<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round">
+      <circle class="x-off" cx="12" cy="8" r="4.2" fill="none"/>
+      <path class="x-off" d="M4.4 20.6c.6-3.6 3.8-6 7.6-6s7 2.4 7.6 6" fill="none"/>
+      <circle class="x-on" cx="12" cy="7.8" r="4.6" fill="currentColor" stroke="none"/>
+      <path class="x-on" d="M12 13.6c-4.4 0-8 2.8-8 6.4 0 .6.4 1 1 1h14c.6 0 1-.4 1-1 0-3.6-3.6-6.4-8-6.4z" fill="currentColor" stroke="none"/>
+    </svg>`,
+    /* gönderi eylemleri */
+    reply: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20.6 11.5a8.2 8.2 0 0 1-8.3 8.3 9 9 0 0 1-3.3-.6L3.6 20.7l1.6-4.7a8.2 8.2 0 0 1-1-4.5A8.2 8.2 0 0 1 12.5 3.2a8.2 8.2 0 0 1 8.1 8.3z"/></svg>`,
+    repost: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2.5l3.6 3.6L17 9.7"/><path d="M3.4 11.6V10a3.9 3.9 0 0 1 3.9-3.9h13.3"/><path d="M7 21.5l-3.6-3.6L7 14.3"/><path d="M20.6 12.4V14a3.9 3.9 0 0 1-3.9 3.9H3.4"/></svg>`,
+    heart: `<svg viewBox="0 0 24 24" width="19" height="19" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path class="x-off" d="M12 20.6 3.9 12.5a5.2 5.2 0 0 1 7.4-7.4l.7.7.7-.7a5.2 5.2 0 0 1 7.4 7.4z" fill="none"/><path class="x-on" d="M12 20.6 3.9 12.5a5.2 5.2 0 0 1 7.4-7.4l.7.7.7-.7a5.2 5.2 0 0 1 7.4 7.4z" fill="currentColor"/></svg>`,
+    chart: `<svg viewBox="0 0 24 24" width="19" height="19" fill="currentColor"><rect x="3.2" y="10.5" width="2.7" height="10.5" rx=".6"/><rect x="8.1" y="3" width="2.7" height="18" rx=".6"/><rect x="13" y="6.8" width="2.7" height="14.2" rx=".6"/><rect x="17.9" y="12.8" width="2.7" height="8.2" rx=".6"/></svg>`,
+    bookmark: `<svg viewBox="0 0 24 24" width="19" height="19" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path class="x-off" d="M5.5 3h13a1 1 0 0 1 1 1v17l-7.5-5.2L4.5 21V4a1 1 0 0 1 1-1z" fill="none"/><path class="x-on" d="M5.5 3h13a1 1 0 0 1 1 1v17l-7.5-5.2L4.5 21V4a1 1 0 0 1 1-1z" fill="currentColor"/></svg>`,
+    share: `<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15.2V3.4"/><path d="M7.8 7.6 12 3.4l4.2 4.2"/><path d="M4.6 13v6.2a1.4 1.4 0 0 0 1.4 1.4h12a1.4 1.4 0 0 0 1.4-1.4V13"/></svg>`,
+    compose: `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 12.6v6.6a1.8 1.8 0 0 1-1.8 1.8H4.8A1.8 1.8 0 0 1 3 19.2V5.4A1.8 1.8 0 0 1 4.8 3.6h6.6"/><path d="M18.1 2.9a2 2 0 0 1 2.8 2.8L12.6 14l-3.7 1 1-3.7z"/></svg>`
+  };
+
   function postHTML(post, opts) {
     opts = opts || {};
     const a = post.authorId !== "player" ? K.artistById(post.authorId) : null;
@@ -27,12 +59,12 @@
         </div>
         <div class="xp-text" ${opts.clickable ? `data-pact="post-open" data-arg="${post.id}" style="cursor:pointer"` : ""}>${U.escape(post.text)}</div>
         <div class="xp-actions">
-          <span data-pact="post-open" data-arg="${post.id}" style="cursor:pointer">💬 ${U.compact(post.comments || 0)}</span>
-          <span class="xp-repost ${reposted ? "on" : ""}" data-pact="x-repost" data-arg="${post.id}">↻ ${U.compact(K.interactions.repostCount(key, post.shares))}</span>
-          <span class="xp-like ${liked ? "on" : ""}" data-pact="like" data-arg="${key}">${liked ? "♥" : "♡"} ${U.compact(K.interactions.likeCount(key, baseLikes))}</span>
-          <span class="xp-save ${saved ? "on" : ""}" data-pact="x-save" data-arg="${post.id}">${saved ? "🔖" : "🏷"}</span>
-          <span data-pact="x-share" data-arg="${post.id}" style="cursor:pointer">↗</span>
-          <span class="muted">📊 ${U.compact(post.views || Math.round((post.likes || 0) * 12))}</span>
+          <span class="xp-act" data-pact="post-open" data-arg="${post.id}" style="cursor:pointer">${XI.reply}<b>${U.compact(post.comments || 0)}</b></span>
+          <span class="xp-act xp-repost ${reposted ? "on" : ""}" data-pact="x-repost" data-arg="${post.id}">${XI.repost}<b>${U.compact(K.interactions.repostCount(key, post.shares))}</b></span>
+          <span class="xp-act xp-like ${liked ? "on" : ""}" data-pact="like" data-arg="${key}">${XI.heart}<b>${U.compact(K.interactions.likeCount(key, baseLikes))}</b></span>
+          <span class="xp-act xp-save ${saved ? "on" : ""}" data-pact="x-save" data-arg="${post.id}">${XI.bookmark}</span>
+          <span class="xp-act" data-pact="x-share" data-arg="${post.id}" style="cursor:pointer">${XI.share}</span>
+          <span class="xp-act muted">${XI.chart}<b>${U.compact(post.views || Math.round((post.likes || 0) * 12))}</b></span>
         </div>
       </div>
     </div>`;
@@ -47,10 +79,10 @@
         shellClass: "app-x",
         tabPos: "bottom",
         tabs: [
-          { id: "feed", label: "Akış", icon: "🏠" },
-          { id: "explore", label: "Keşfet", icon: "🔍" },
-          { id: "notif", label: "Bildirimler", icon: "🔔" },
-          { id: "mine", label: "Profilim", icon: "👤" }
+          { id: "feed", label: "Akış", icon: XI.home },
+          { id: "explore", label: "Keşfet", icon: XI.search },
+          { id: "notif", label: "Bildirimler", icon: XI.bell },
+          { id: "mine", label: "Profilim", icon: XI.user }
         ],
         activeTab: params.tab || "feed",
         render: (tab) => {
@@ -87,7 +119,7 @@
 
     feedHTML() {
       const posts = K.social.feedFor("x").slice().sort((a, b) => b.day - a.day);
-      return `<button class="btn btn-ghost btn-sm" data-pact="new-post" style="align-self:flex-start">✏️ Gönderi Yaz</button>` +
+      return `<button class="btn btn-ghost btn-sm" data-pact="new-post" style="align-self:flex-start">${XI.compose} Gönderi Yaz</button>` +
         posts.map(p => postHTML(p, { clickable: true })).join("");
     },
 
@@ -163,7 +195,7 @@
           </div>
         </div>
         <div class="action-row">
-          <button class="btn btn-sm btn-primary" data-pact="new-post">✏️ Gönderi Yaz</button>
+          <button class="btn btn-sm btn-primary" data-pact="new-post">${XI.compose} Gönderi Yaz</button>
           <button class="btn btn-sm btn-ghost" data-pact="promote">🎵 Şarkı Paylaş</button>
         </div>
         ${myPosts.map(p2 => postHTML(p2, { clickable: true })).join("") || `<div class="mini-empty">Gönderin yok.</div>`}`;
