@@ -68,7 +68,10 @@
       // günlük dinlenme: yorgunluk azalır, iş kaydı sıfırlanır
       s.player.fatigue = Math.max(0, (s.player.fatigue || 0) - 6);
       s.player.jobLog = {};
-      if (K.jobs && K.jobs.resetDaily) K.jobs.resetDaily();
+      /* v10.43 — yan işler: vardiya/yorgunluk sayaçları sıfırlanır ve
+         bekleyen iş başvuruları sonuçlanır (kabul/ret). */
+      if (K.jobs && K.jobs.onNewDay) K.jobs.onNewDay();
+      else if (K.jobs && K.jobs.resetDaily) K.jobs.resetDaily();
 
       // gündem/haberler tazele (kendi içinde 30 günde bir yenilenir)
       if (K.news && K.news.refresh) K.news.refresh();
