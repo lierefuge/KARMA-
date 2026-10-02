@@ -145,7 +145,8 @@ const SUITES = [
   { id: "v1037",       script: "tools/smoke-v1037.js",       label: "v10.37 gerçek uygulama düzeni + pil kaldırma" },
   /* kapak sistemi: yazı taşması, görünmez desen/şekil ve "Rastgele
      Kapak" ayarları silme hatalarının kalıcı kilidi. */
-  { id: "cover",       script: "tools/smoke-cover.js",       label: "v10.38 kapak üreticisi + düzenleyici" }
+  { id: "cover",       script: "tools/smoke-cover.js",       label: "v10.38 kapak üreticisi + düzenleyici" },
+  { id: "v1039",       script: "tools/smoke-v1039.js",       label: "v10.39 parça adımı + parça başına sözler" }
 ];
 
 const suiteOut = {};
