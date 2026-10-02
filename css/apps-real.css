@@ -1,0 +1,151 @@
+/* ============================================================
+   KARMA — css/apps-real.css   (v10.37)
+   GERÇEK UYGULAMA DÜZENİ — 2. DALGA
+   X · YouTube · TikTok · Apple Music · Mesajlar
+
+   Neden bu dosya?
+   ---------------
+   v10.35 (Spotify) ve v10.36 (Instagram) alt sekmeleri emoji'den
+   gerçek SVG simgelere geçirdi. Diğer beş uygulama emoji sekme
+   ikonlarıyla kalmıştı — telefonun içinde iki uygulama gerçek,
+   beşi oyuncak gibi duruyordu. Bu dosya o tutarsızlığı kapatır.
+
+   Ortak kural: her uygulamanın alt sekmesinde
+     · pasif simge İNCE ÇİZGİ  (.x-off / .y-off / .t-off / .m-off / .a-off)
+     · aktif simge DOLU         (.x-on  / .y-on  / .t-on  / .m-on  / .a-on)
+   Gerçek uygulamaların hepsi bu davranışı kullanır.
+   ============================================================ */
+
+/* ============================================================
+   0) ORTAK — alt sekmede SVG simge ölçüsü ve hizası
+   ============================================================ */
+.seg-bottom .tb-ic { display: grid; place-items: center; line-height: 1; }
+.seg-bottom .tb-ic svg { width: 24px; height: 24px; display: block; }
+
+/* aktif/pasif simge değişimi (tüm gerçek-düzen uygulamaları) */
+.seg-bottom button svg .x-on,
+.seg-bottom button svg .y-on,
+.seg-bottom button svg .t-on,
+.seg-bottom button svg .m-on,
+.seg-bottom button svg .a-on { display: none; }
+.seg-bottom button.active svg .x-on,
+.seg-bottom button.active svg .y-on,
+.seg-bottom button.active svg .t-on,
+.seg-bottom button.active svg .m-on,
+.seg-bottom button.active svg .a-on { display: inline; }
+.seg-bottom button.active svg .x-off,
+.seg-bottom button.active svg .y-off,
+.seg-bottom button.active svg .t-off,
+.seg-bottom button.active svg .m-off,
+.seg-bottom button.active svg .a-off { display: none; }
+
+/* ============================================================
+   1) X (Twitter) — #000 · beyaz aktif · ETİKETSİZ alt bar
+   ============================================================ */
+.app-x { background: #000; }
+.app-x .app-nav { background: rgba(0, 0, 0, .92); border-bottom-color: rgba(255, 255, 255, .1); }
+.app-x .app-nav-title { font-weight: 900; letter-spacing: -.4px; }
+.app-x .seg.seg-bottom {
+  background: #000; border-top: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 0; padding: 10px 6px 12px; gap: 0;
+}
+.app-x .seg-bottom button { color: rgba(255, 255, 255, .5); padding: 0; }
+.app-x .seg-bottom button .tb-lb { display: none; }   /* gerçek X'te etiket yok */
+.app-x .seg-bottom button.active { color: #fff; }
+
+/* gönderi eylem satırı: SVG simge + sayı */
+.app-x .xp-actions {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 6px; margin-top: 10px;
+}
+.app-x .xp-act:last-child { flex: 0 0 auto; }
+.app-x .xp-act {
+  display: inline-flex; align-items: center; gap: 4px;
+  flex: 0 0 auto;
+  color: #71767b; font-size: 11.5px; font-weight: 500;
+  white-space: nowrap;            /* sayaç alt satıra kırılmasın */
+  transition: color .14s;
+}
+.app-x .xp-act b { font-weight: 500; white-space: nowrap; }
+.app-x .xp-act svg { display: block; width: 17px; height: 17px; flex: 0 0 auto; }
+.app-x .xp-act:hover { color: #1d9bf0; }
+.app-x .xp-act.xp-repost.on { color: #00ba7c; }
+.app-x .xp-act.xp-like.on { color: #f91880; }
+.app-x .xp-act.xp-save.on { color: #1d9bf0; }
+
+/* ============================================================
+   2) YOUTUBE — #0F0F0F · beyaz aktif · ETİKETLİ alt bar
+   ============================================================ */
+.app-youtube .seg.seg-bottom {
+  background: #0f0f0f; border-top: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 0; padding: 7px 4px 11px;
+}
+.app-youtube .seg-bottom button.active { color: #fff; }
+.app-youtube .seg-bottom .tb-lb { font-size: 9.5px; }
+
+/* üst çubuk zil simgesi */
+.app-youtube .nav-bell svg { width: 21px; height: 21px; display: block; }
+
+/* oynatma denetimleri: SVG + metin hizası */
+.app-youtube .yt-watch-actions button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.app-youtube .yt-chip svg { display: block; }
+.app-youtube .yt-chip { display: inline-flex; align-items: center; gap: 5px; }
+
+/* Shorts yan eylemleri */
+.app-youtube .short-side button svg { display: block; }
+.app-youtube .short-side button.on { color: #fff; }
+
+/* ============================================================
+   3) TIKTOK — siyah · beyaz/cyan aktif · ETİKETSİZ alt bar
+   ============================================================ */
+.app-tiktok { background: #000; }
+.app-tiktok .seg.seg-bottom {
+  background: #000; border-top: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 0; padding: 10px 6px 12px; gap: 0;
+}
+.app-tiktok .seg-bottom button { color: rgba(255, 255, 255, .55); padding: 0; }
+.app-tiktok .seg-bottom button .tb-lb { display: none; }   /* gerçek TikTok'ta etiket yok */
+.app-tiktok .seg-bottom button.active { color: #fff; }
+.app-tiktok .seg-bottom button.active svg { filter: drop-shadow(0 0 6px rgba(37, 244, 238, .45)); }
+
+/* sağ taraf eylemleri: beyaz dolu simgeler */
+.app-tiktok .tt-side .tt-act { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #fff; }
+.app-tiktok .tt-side .tt-act svg { display: block; filter: drop-shadow(0 1px 4px rgba(0, 0, 0, .55)); }
+.app-tiktok .tt-side .tt-act.on svg { color: #fe2c55; }
+.app-tiktok .tt-side .tt-act span { font-size: 11px; font-weight: 700; }
+.app-tiktok .tt-sound { display: flex; align-items: center; gap: 6px; }
+.app-tiktok .tt-sound svg { width: 13px; height: 13px; flex: 0 0 auto; }
+
+/* ============================================================
+   4) APPLE MUSIC — #000 · #FA233B aktif · ETİKETLİ alt bar
+   ============================================================ */
+.app-applemusic .seg.seg-bottom {
+  background: rgba(0, 0, 0, .96); border-top: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 0; padding: 7px 4px 11px;
+}
+.app-applemusic .seg-bottom button.active { color: #fa233b; }
+.app-applemusic .seg-bottom .tb-lb { font-size: 9.5px; }
+
+/* ============================================================
+   5) MESAJLAR — iOS kurgusu · #0a84ff aktif · ETİKETLİ alt bar
+   ============================================================ */
+.app-messages { background: #000; }
+.app-messages .app-nav { background: rgba(0, 0, 0, .92); border-bottom-color: rgba(255, 255, 255, .1); }
+.app-messages .seg.seg-bottom {
+  background: rgba(10, 10, 12, .97); border-top: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 0; padding: 7px 4px 11px;
+}
+.app-messages .seg-bottom button.active { color: #0a84ff; }
+.app-messages .seg-bottom .tb-lb { font-size: 9.5px; }
+
+/* ============================================================
+   6) MOBİL
+   ============================================================ */
+@container phone (max-width: 360px) {
+  .seg-bottom .tb-ic svg { width: 22px; height: 22px; }
+  /* dar telefonda X eylem satırı taşmasın: simge ve yazı bir tık küçülür */
+  .app-x .xp-act { font-size: 10.5px; gap: 3px; }
+  .app-x .xp-act svg { width: 15px; height: 15px; }
+}
