@@ -294,7 +294,16 @@
 .store-title { font-size: 10px; text-transform: uppercase; letter-spacing: .4px; color: var(--text-3); margin-bottom: 6px; }
 .store-row { display: flex; align-items: center; gap: 9px; padding: 7px 4px; }
 .store-row + .store-row { border-top: 1px solid var(--stroke); }
-.store-row .st-icon { font-size: 13px; flex: 0 0 auto; }
+.store-row .st-icon {
+  font-size: 13px; flex: 0 0 auto;
+  display: inline-block; width: 17px; height: 17px;
+  border-radius: 4px; overflow: hidden;
+}
+.store-row .st-icon .brand-svg { width: 100%; height: 100%; }
+/* seçenek sayısı arttı (v10.38) — kontroller biraz daha derli toplu */
+.cv-controls .ctrl-group > label .hint {
+  text-transform: none; letter-spacing: 0; font-size: 10px; opacity: .8;
+}
 .store-row .cover { border-radius: var(--radius-xs); flex: 0 0 auto; }
 .store-row .grow { display: flex; flex-direction: column; min-width: 0; }
 .store-row .grow b { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
