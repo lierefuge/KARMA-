@@ -90,3 +90,62 @@
   .lyr-grid { grid-template-columns: 1fr; }
   .persona-card { flex-wrap: wrap; }
 }
+
+/* ============================================================
+   v10.41 — ŞARKI BİÇİMİ (song structure) arayüzü
+   ============================================================ */
+.lyr-tmpl-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.lyr-tmpl {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 11px; border-radius: 10px; cursor: pointer;
+  border: 1px solid var(--stroke-1, rgba(255,255,255,.12));
+  background: rgba(255,255,255,.03); color: var(--text-2, #cfd3dc);
+  font-size: 12px; font-weight: 600; transition: all .14s;
+}
+.lyr-tmpl:hover { border-color: var(--stroke-2, rgba(255,255,255,.24)); color: var(--text-1, #fff); }
+.lyr-tmpl.active { border-color: var(--karma, #b06cff); background: rgba(176,108,255,.16); color: #fff; }
+.lyr-tmpl .lt-ic { font-size: 14px; }
+
+.sl-timeline {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  padding: 10px; border-radius: 12px;
+  background: rgba(0,0,0,.22); border: 1px solid var(--stroke-1, rgba(255,255,255,.08));
+}
+.sl-slot {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 5px 6px 5px 9px; border-radius: 8px;
+  background: rgba(255,255,255,.06); font-size: 11px; font-weight: 700;
+  border-left: 3px solid var(--stroke-2, rgba(255,255,255,.2));
+}
+.sl-slot[data-kind="chorus"] { border-left-color: #ffcb5c; background: rgba(255,203,92,.12); }
+.sl-slot[data-kind="verse"] { border-left-color: #6ec3ff; }
+.sl-slot[data-kind="prechorus"] { border-left-color: #b06cff; }
+.sl-slot[data-kind="bridge"] { border-left-color: #ff5c7a; }
+.sl-slot[data-kind="intro"], .sl-slot[data-kind="outro"] { border-left-color: #4ade80; }
+.sl-slot .ss-name { white-space: nowrap; }
+.sl-slot .ss-mv { display: inline-flex; gap: 1px; }
+.sl-slot .ss-mv button, .sl-slot .ss-del {
+  border: 0; background: rgba(255,255,255,.08); color: var(--text-2, #cfd3dc);
+  width: 18px; height: 18px; border-radius: 5px; cursor: pointer; font-size: 11px; line-height: 1;
+}
+.sl-slot .ss-mv button:disabled, .sl-slot .ss-del:disabled { opacity: .3; cursor: default; }
+.sl-slot .ss-del { color: #ff8a9c; }
+.sl-add-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.sl-add {
+  padding: 5px 9px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 600;
+  border: 1px dashed var(--stroke-2, rgba(255,255,255,.24));
+  background: transparent; color: var(--text-2, #cfd3dc);
+}
+.sl-add:hover { border-color: var(--karma, #b06cff); color: #fff; }
+.sl-stats {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;
+  padding: 9px 11px; border-radius: 10px;
+  background: rgba(176,108,255,.08); border: 1px solid rgba(176,108,255,.2);
+  font-size: 11px; color: var(--text-2, #cfd3dc);
+}
+.sl-stat b { color: #fff; font-size: 13px; margin-right: 3px; }
+.lyr-rep {
+  font-size: 10px; font-weight: 800; padding: 2px 6px; border-radius: 999px;
+  background: rgba(255,203,92,.18); color: #ffcb5c;
+}
+.lyr-card.opt { border-style: dashed; opacity: .92; }
