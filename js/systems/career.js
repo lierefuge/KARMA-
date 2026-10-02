@@ -155,10 +155,21 @@
       // üretim maliyeti her parçanın KENDİ bütçesinden hesaplanır
       const prod = g.prodCost * totalProd * beat.costMult * vocal.costMult * kind.costMult * srcMult;
       const licenseCost = Math.round(totalProd * license.costMult * 0.5);
-      const clearance = (opts.beatId === "sample") ? 15000 : 0;   // örnek (sample) izin bedeli
+      /* v10.40 — A5: örnek hakkı artık OYUNCU KARARI. Eskiden sample
+         altyapısı seçilince 15.000 sabit ücret sessizce ekleniyordu;
+         oyuncunun "öde / riske gir" seçeneği yoktu. */
+      const clearance = (opts.beatId === "sample" && opts.clearSample)
+        ? (K.meta ? K.meta.clearanceCost : 15000) : 0;
+      /* v10.40 — A6: enstrümantal sürüm üretimi */
+      const instCost = opts.instrumental
+        ? (K.meta ? K.meta.INSTRUMENTAL_COST : 5000) : 0;
+      /* v10.42 — C4: YouTube Content ID kaydı */
+      const cidCost = opts.contentId ? (K.meta ? K.meta.CONTENT_ID_COST : 3500) : 0;
       const storeCost = opts.storeCost != null ? opts.storeCost : 0;   // mağaza dağıtım ücreti
+      /* v10.41 — B3: bölge kapsamı dağıtım tarafını çarpar (üretimi değil) */
+      const regionMult = opts.regionMult != null ? +opts.regionMult : 1;
       const dm = K.settings ? K.settings.diffMult().cost : 1;
-      return Math.round((prod + marketing + dist + licenseCost + clearance + storeCost) * dm);
+      return Math.round((prod + marketing + (dist + storeCost) * regionMult + licenseCost + clearance + instCost + cidCost) * dm);
     },
 
     /* ---------------- FORMAT ↔ PARÇA SAYISI (SİSTEM OTOMATİK ALGILAR) ----------------
@@ -301,8 +312,16 @@
         id: U.uid("rel"),
         title, genre, type, kind, beatId, vocalId,
         licenseId: license.id, licensePoints: license.points, exclusiveBeat: license.exclusive,
-        sampleClearance: (beatId === "sample"),
-        featureShare: opts.featWith ? U.clamp(opts.featureShare != null ? +opts.featureShare : 50, 10, 100) : 100,
+        /* v10.40 — A5: sample hakkı ödendi mi? (oyuncu kararı) */
+        sampleClearance: (beatId === "sample") ? !!opts.clearSample : true,
+        sampleRisk: (beatId === "sample" && !opts.clearSample),
+        /* v10.40 — A3: müstehcen içerik bayrağı (mağazaya bildirilir) */
+        explicit: tracks.some(t => !!t.explicit),
+        explicitCount: tracks.filter(t => !!t.explicit).length,
+        /* v10.40 — A6: enstrümantal sürüm */
+        instrumental: !!opts.instrumental,
+        /* v10.40 — A2: per-track feat varsa yayın seviyesi de dolu görünür */
+        featureShare: (opts.featWith || tracks.some(t => t.feat)) ? U.clamp(opts.featureShare != null ? +opts.featureShare : 50, 10, 100) : 100,
         beatQuality, vocalQuality, mixQuality, beatBoost,
         conceptId, cohesion, dissTarget,
         agenda: { score: agenda.score, hits: agenda.hits.map(h => ({ id: h.id, cat: h.cat, title: h.title, heat: h.heat, gain: h.gain })) },
@@ -327,6 +346,16 @@
             budget: tb,
             source: src.id,
             file: { type: src.file, bit: src.bit, size: src.size },
+            /* v10.40 — A2: parça bazında featuring (yayın seviyesine düşer) */
+            featWith: tr.feat || opts.featWith || null,
+            /* v10.40 — A3: parça bazında explicit bayrağı */
+            explicit: !!tr.explicit,
+            /* v10.40 — A4: ISRC parça kayıt kodu (distribütör atar) */
+            isrc: (K.meta && K.meta.isrc)
+              ? K.meta.isrc(U.dateForDay(s.day).y, ((p.releases || []).length * 100) + i + 1)
+              : null,
+            /* v10.40 — A6: sözsüz sürüm üretildi mi */
+            instrumental: !!opts.instrumental,
             quality: U.clamp(K.career.estimateQuality(genre, tb, {
               beatId, vocalId, beatQuality: U.clamp(beatQuality + beatBoost, 0, 100), vocalQuality, mixQuality, kind, licenseId: license.id,
               lyricScore: (lyrList[i] || lyr).score, cohesion, agendaScore: agenda.score, sourceQAdd: src.qAdd
@@ -347,7 +376,24 @@
         viaLabel: viaLabel, labelId: myLabel ? myLabel.id : null, labelName: myLabel ? myLabel.name : null,
         labelCover: myLabel ? (myLabel.cover || 0) : 0,
         distributor: myLabel ? myLabel.distributor : "KARMA Dağıtım",
-        coverSeed: opts.coverSeed || U.uid("cv")
+        coverSeed: opts.coverSeed || U.uid("cv"),
+        /* v10.41 — B grubu METADATA
+           Gerçek dağıtım formunun zorunlu alanları: bölge, dil,
+           krediler, etiket adı, telif yılı, barkod. */
+        regions: (opts.regions && opts.regions.length) ? opts.regions.slice() : (K.defaultRegions ? K.defaultRegions() : ["world"]),
+        lang: opts.lang || "tr",
+        credits: opts.credits || (K.meta ? K.meta.defaultCredits({}) : {}),
+        labelName: String(opts.labelName || "").trim() || (myLabel ? myLabel.name : (p.stageName + " Müzik")),
+        copyrightYear: String(opts.copyrightYear || U.dateForDay(s.day).y),
+        upc: (K.meta && K.meta.upc) ? K.meta.upc(title + s.day + trackCount) : null,
+        regionReach: (K.meta && K.meta.regionReach) ? K.meta.regionReach(opts.regions) : 1,
+        langFit: (K.meta && K.meta.languageFit) ? K.meta.languageFit(opts.lang, opts.regions) : 1,
+        copyright: (myLabel ? myLabel.name : (p.stageName + " Müzik")) + " ℗ " + String(opts.copyrightYear || U.dateForDay(s.day).y),
+        /* v10.42 — C grubu teknik alanlar */
+        coverPx: U.clamp(+opts.coverPx || 1400, 200, 6000),
+        contentId: !!opts.contentId,
+        releaseWeekday: (K.meta ? K.meta.weekdayOf(s.day + waitDays) : null),
+        releaseDayFit: (K.meta ? K.meta.releaseDayFit(s.day + waitDays) : 1)
       };
 
       p.releases.push(rel);
@@ -400,7 +446,28 @@
           storeReach: rel.storeReach || 1,
           quality,
           type: rel.type,
-          featWith: rel.featWith || null,
+          /* v10.40 — A2: parça bazında feat (yayın seviyesi yedek) */
+          featWith: t.featWith || rel.featWith || null,
+          /* v10.40 — A3: explicit bayrağı mağazaya bildirilir */
+          explicit: !!(t.explicit || rel.explicit),
+          /* v10.40 — A4: ISRC kayıt kodu */
+          isrc: t.isrc || null,
+          /* v10.40 — A6: enstrümantal sürüm */
+          instrumental: !!rel.instrumental,
+          /* v10.40 — A5: temizlenmemiş sample riski */
+          sampleRisk: !!rel.sampleRisk,
+          /* v10.41 — B grubu metadata şarkıya işlenir */
+          upc: rel.upc || null,
+          labelName: rel.labelName || null,
+          copyrightYear: rel.copyrightYear || null,
+          credits: rel.credits || null,
+          lang: rel.lang || null,
+          regions: rel.regions || null,
+          /* v10.42 — C grubu teknik */
+          coverPx: rel.coverPx || 1400,
+          contentId: !!rel.contentId,
+          releaseDayFit: rel.releaseDayFit || 1,
+          releaseWeekday: rel.releaseWeekday != null ? rel.releaseWeekday : null,
           albumTitle: rel.title,
           trackNo: i + 1,
           budget: (rel.trackBudgets && rel.trackBudgets[i] != null) ? rel.trackBudgets[i] : rel.budget,
@@ -451,7 +518,8 @@
           agendaTopics: liveHits.map(h => ({ cat: h.cat, title: h.title, gain: h.gain }))
         };
         // ilk gün ivmesi (parça türü katsayısıyla)
-        song.dailyStreams = K.game.initialDaily(song) * (1 + rel.marketing / 60000) * kindDef.mass * lyricBoost * cohesionMult * (rel.storeReach || 1);
+        /* v10.41 — B3/B4: bölge kapsamı ve dil uyumu erişimi belirler */
+        song.dailyStreams = K.game.initialDaily(song) * (1 + rel.marketing / 60000) * kindDef.mass * lyricBoost * cohesionMult * (rel.storeReach || 1) * (rel.regionReach || 1) * (rel.langFit || 1) * (rel.releaseDayFit || 1);
         /* persona uyumu: tutarlıysa güçlenir, tutarsızsa ses getirmez */
         if (pfit) {
           if (pfit.score >= 0.5) {
@@ -461,6 +529,21 @@
           } else {
             song.dailyStreams *= 0.9;
           }
+        }
+        /* v10.40 — A3: EXPLICIT BAYRAĞI. Mağaza editoryal listeleri ve
+           radyo explicit parçaları atlar; buna karşılık çekirdek kitle
+           (sokak) daha sadık olur. Oyuncunun yeni bir denge ekseni. */
+        if (song.explicit) {
+          const eff = K.meta ? K.meta.explicitEffect(true) : { reach: 0.94, core: 1.12 };
+          song.dailyStreams *= eff.reach;
+          song.viralBonus = (song.viralBonus || 1) * eff.core;
+          song.lyricLoyalty = (song.lyricLoyalty || 1) * 1.06;
+          song.mass = (song.mass || 1) * 1.05;
+        }
+        /* v10.40 — A6: enstrümantal sürüm küçük ama istikrarlı katkı */
+        if (song.instrumental) {
+          song.dailyStreams *= 1 + (K.meta ? K.meta.INSTRUMENTAL_BONUS : 0.05);
+          song.syncIncome = true;
         }
         /* yayın stratejisi: snippet beklenti kurar, surprise sessiz başlar */
         if (rel.strategy === "snippet") song.dailyStreams *= 1.18;
@@ -480,6 +563,12 @@
             song.dailyStreams *= (1 + fa.popularity / 90);
             song.featName = fa.stageName;
           }
+        }
+        // v10.40 — explicit parçalar editoryal listelere daha zor girer
+        if (song.explicit && song.playlists && song.playlists.length) {
+          const keep = (K.meta ? K.meta.explicitEffect(true).playlistPenalty : 0.68);
+          const n2 = Math.max(0, Math.round(song.playlists.length * keep));
+          song.playlists = song.playlists.slice(0, n2);
         }
         // EDİTORYAL PLAYLIST (yayın öncesi pitch sonucu)
         if (rel.playlistPitch && rel.playlistPitch.accepted && rel.playlistPitch.playlists.length) {
@@ -641,7 +730,9 @@
       const timing = win.remaining >= 10 && win.remaining <= 22 ? 1 : 0.65;
       const q = (rel.tracks && rel.tracks[0]) ? rel.tracks[0].quality : 55;
       const ar = (K.label && K.label.hasLabel()) ? K.label.staffBonus().signing : 0;
-      const score = U.clamp(q * 0.6 + (p.popularity || 0) * 0.9 + ar * 0.5 + timing * 30 + U.rand(-15, 18), 0, 100);
+      /* v10.40 — A3: explicit yayınlar editoryal ekipte daha zor kabul alır */
+      const expPen = (rel.explicit ? 14 : 0);
+      const score = U.clamp(q * 0.6 + (p.popularity || 0) * 0.9 + ar * 0.5 + timing * 30 + U.rand(-15, 18) - expPen, 0, 100);
       const accepted = score >= 55;
       const pool = ["rapturkiye", "traptr", "drilltr", "newmusic", "nightmode", "popturkiye"];
       const playlists = [];
@@ -657,6 +748,54 @@
         msg: `${rel.title} · puan ${Math.round(score)}${accepted ? " · " + playlists.join(", ") : ""}`,
         kind: accepted ? "ok" : "warn", day: s.day
       }]).slice(-60);
+      K.save(); K.refresh();
+      return true;
+    },
+
+    /* ---------------- v10.42 — C5: TAKEDOWN / YENİDEN YÜKLEME ------------
+       Yayınlanmış bir işi mağazalardan çekebilir (isteğe bağlı ya da
+       örnek hakkı nedeniyle zorunlu) ve düzeltip tekrar gönderebilirsin. */
+    takedownSong(songId, reason) {
+      const s = K.state, p = s.player;
+      const song = (p.songs || []).find(x => x.id === songId);
+      if (!song) return false;
+      if (song.takenDown) { K.toast("Zaten kaldırıldı", "", "warn"); return false; }
+      song.takenDown = true;
+      song.takenDownDay = s.day;
+      song.takedownReason = reason || "manual";
+      song.dailyStreams = 0;
+      song.lastDaily = 0;
+      song.playlists = [];
+      song.chartRank = null;
+      s.notifications = (s.notifications || []).concat([{
+        title: "🚫 Yayın kaldırıldı",
+        msg: `"${song.title}" mağazalardan çekildi.${reason === "sample" ? " Örnek hakkı ödenmemişti." : ""}`,
+        kind: "warn", day: s.day
+      }]).slice(-60);
+      K.toast("🚫 Yayın kaldırıldı", `"${song.title}" artık mağazalarda yok.`, "warn");
+      K.save(); K.refresh();
+      return true;
+    },
+
+    reuploadSong(songId) {
+      const s = K.state, p = s.player;
+      const song = (p.songs || []).find(x => x.id === songId);
+      if (!song || !song.takenDown) return false;
+      const cost = (K.meta ? K.meta.REUPLOAD_COST : 6000);
+      if (!K.economy.canAfford(cost)) {
+        K.toast("Yetersiz bakiye", U.money(cost) + " gerekiyor.", "bad");
+        return false;
+      }
+      K.economy.spend(cost, "reupload");
+      song.takenDown = false;
+      song.takedownReason = null;
+      song.sampleRisk = false;                 // düzeltilmiş sürüm gönderildi
+      song.publishedDay = s.day;
+      song.decayRate = 1.6;
+      song.dailyStreams = Math.max(200, Math.round(K.game.initialDaily(song) * 0.55));
+      song.boosts = song.boosts || {};
+      song.boosts.reupload = 0.10;
+      K.toast("♻️ Yeniden yüklendi", `"${song.title}" düzeltilmiş sürümle mağazalara döndü.`, "ok");
       K.save(); K.refresh();
       return true;
     },
