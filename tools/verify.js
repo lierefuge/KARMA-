@@ -159,7 +159,10 @@ const SUITES = [
   { id: "v1042",       script: "tools/smoke-v1042.js",       label: "v10.42 distribütör & sözleşme (ücret · kesinti · teslim)" },
   /* yan işler: başvuru akışı, günlük vardiya bütçesi, yorgunluk yönetimi
      ve gelir dengesi. Yan iş "tek tık" olmaktan çıkıp işe girme sürecine bağlandı. */
-  { id: "v1043",       script: "tools/smoke-v1043.js",       label: "v10.43 yan işler (başvuru · vardiya · yorgunluk)" }
+  { id: "v1043",       script: "tools/smoke-v1043.js",       label: "v10.43 yan işler (başvuru · vardiya · yorgunluk)" },
+  /* prodüksiyon süreci: kayıt oturumu, mix-master ve revizyon kararları
+     kaliteyi/maliyeti/gecikmeyi belirler; revizyon azalan verimle çalışır. */
+  { id: "v1044",       script: "tools/smoke-v1044.js",       label: "v10.44 prodüksiyon süreci (kayıt · mix · revizyon)" }
 ];
 
 const suiteOut = {};
