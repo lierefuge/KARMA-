@@ -305,7 +305,7 @@
 
       const grossCost = K.career.releaseCost(type, budget, marketing, {
         genre, beatId, vocalId, kind, licenseId: license.id, trackCount, trackBudgets, trackSources, storeCost
-      }) + strategyCost;
+      }) + strategyCost + (opts.prodCost || 0);
 
       /* --- ŞİRKET AKIŞI: sözleşmeliysen yayını şirket çıkarır; masrafın bir kısmını üstlenir --- */
       const myLabel = p.labelId ? K.labelById(p.labelId) : null;
@@ -377,6 +377,8 @@
         mentions: mentions.map(m => ({ artistId: m.artistId, name: m.name, tone: m.tone })),
         trackBudgets, trackSources, stores, storeReach, storeCost,
         strategy, ghost, inventoryBeat: opts.inventoryBeat || null,
+        /* v10.44 — prodüksiyon süreci: kayıt oturumu · mix · master · revizyon */
+        prodPlan: opts.prodPlan || null,
         arRequest: arRequest, arResolved: !arRequest,
         /* v10.41 — parça biçimleri yayına taşınır */
         trackSlots: inSlots ? inSlots.slice(0, trackCount).map(s => (Array.isArray(s) ? s.slice() : null)) : null,
