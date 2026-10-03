@@ -358,3 +358,30 @@
 .beef-log .bl-row em { color: var(--text-3); font-style: normal; font-size: 9.5px; }
 .beef-log .bl-row.me b { color: var(--karma-2); }
 .beef-log .bl-row.them b { color: var(--hot); }
+
+/* ===== v10.45 — Yayın sonrası kariyer (klip · radyo · remix) ===== */
+.camp-row {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px dashed rgba(255,255,255,.1);
+}
+.camp-label {
+  font-size: 10px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase;
+  color: var(--text-3); min-width: 84px;
+}
+.camp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.camp-chip {
+  display: inline-flex; align-items: baseline; gap: 6px;
+  padding: 5px 9px; border-radius: 8px; cursor: pointer;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.1);
+  color: inherit; font: inherit; transition: border-color .15s, background .15s;
+}
+.camp-chip:hover { border-color: rgba(255,203,92,.5); background: rgba(255,203,92,.08); }
+.camp-chip b { font-size: 11px; font-weight: 700; }
+.camp-chip em { font-size: 10px; font-style: normal; color: rgba(255,203,92,.85); font-weight: 700; }
+.camp-done {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 9px; border-radius: 8px; font-size: 11px; font-weight: 700;
+  background: rgba(92,232,155,.1); border: 1px solid rgba(92,232,155,.28); color: #9beec0;
+}
+.camp-done.hot { background: rgba(255,120,90,.12); border-color: rgba(255,120,90,.32); color: #ffb3a0; }
