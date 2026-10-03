@@ -165,7 +165,9 @@ const SUITES = [
   { id: "v1044",       script: "tools/smoke-v1044.js",       label: "v10.44 prodüksiyon süreci (kayıt · mix · revizyon)" },
   /* yayın sonrası kariyer: radyo kampanyası, remix yayını ve klip;
      şarkı yayınlandıktan sonra da kariyer devam eder. */
-  { id: "v1045",       script: "tools/smoke-v1045.js",       label: "v10.45 yayın sonrası kariyer (radyo · remix · klip)" }
+  { id: "v1045",       script: "tools/smoke-v1045.js",       label: "v10.45 yayın sonrası kariyer (radyo · remix · klip)" },
+  /* katalog yönetimi: eski işi yeniden canlandırma (remaster, deluxe, yıldönümü) */
+  { id: "v1046",       script: "tools/smoke-v1046.js",       label: "v10.46 katalog (remaster · deluxe · yıldönümü)" }
 ];
 
 const suiteOut = {};
