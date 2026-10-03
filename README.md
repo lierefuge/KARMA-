@@ -5,6 +5,62 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.44 — Prodüksiyon süreci: kayıt · mix · master · revizyon
+
+Eskiden prodüksiyon üç kaydırıcıydı (altyapı / vokal / mix kalitesi). Gerçekte
+bir şarkı böyle çıkmaz: beat'i seçersin, **kayıt oturumuna** girersin, mix'i
+kime yaptırdığına karar verirsin, master'dan geçirirsin ve mix raporundaki
+sorunları **kabul mü edip revize mi istediğine** karar verirsin. Bu sürüm o
+zinciri stüdyoya ekliyor. Yeni motor: `js/data/production.js`.
+Yeni test paketi: `tools/smoke-v1044.js` (**63 kontrol**).
+
+Değişen dosyalar: `js/data/production.js` (yeni motor), `js/ui/career-ui.js`
+(stüdyo Adım 2 bloğu + işleyiciler + tahmin), `js/systems/career.js`
+(maliyet + yayına `prodPlan`), `css/studio-wizard.css`, `index.html`.
+
+### Dört aşama
+
+| # | Aşama | Seçenekler | Etki |
+|---|---|---|---|
+| **1** | **Kayıt oturumu** | Tek alış · Katmanlı kayıt · Stüdyo oturumu | Vokal kalitesi (+0/+8/+16), maliyet ve gün |
+| **2** | **Mix** | Kendi mix'in · Stüdyo mix · Usta mix | Mix kalitesi (+0/+10/+18), maliyet ve gün |
+| **3** | **Master** | Master yok · Dijital · Analog | Yükseklik (−4/0/+3); "yok" sesi geriye çeker |
+| **4** | **Revizyon** | Mix'i kabul et · Revize iste | Azalan verimle kalite artışı (0 → +5 → +8), para + gecikme |
+
+### Revizyon kararı
+
+Seçtiğin mix'e göre **deterministik bir mix raporu** üretilir (vokal geride,
+bas boğuk, nakarat yükselmiyor…). Riskli mix'te daha çok sorun çıkar. Her
+revizyon bir sorunu kapatır, kaliteyi yükseltir (ilk revizyon **+5**, ikincisi
+**+8** — azalan verim) ama **₺5.000** ve **2 gün** ekler. En fazla **2** revizyon.
+
+### Entegrasyon
+
+- Seçtiğin süreç, mevcut kalite kaydırıcılarının **üstüne eklenir** ve gerçek
+yayın kalitesine (`vocalQuality` / `mixQuality`) yansır.
+- Süreç maliyeti yayın maliyetine girer (`prodCost`) ve bakiye ödemesi buna
+göre hesaplanır.
+- Seçim `prodPlan` olarak yayına işlenir (üretim puanı dâhil).
+
+### Arayüz
+
+- Stüdyo **Adım 2 · Prodüksiyon** altında **"Kayıt & Mix Süreci"** bloğu
+- Üç sıra seçim çipi (oturum / mix / master) — seçili olan vurgulanır
+- **Revizyon kararı** paneli: mix notları + *kabul et* / *revize iste* düğmeleri
+- Alt satırda zincir özeti: `Stüdyo oturumu → Usta mix → Analog master · üretim +₺… · +N gün · üretim puanı X/100`
+
+### Doğrulama
+
+```
+node tools/smoke-v1044.js
+→ 63/63 kontrol geçti
+
+node tools/verify.js
+→ tüm adımlar geçti
+```
+
+---
+
 ## GÜNCELLEME v10.43 — Yan işler: başvuru · vardiya · yorgunluk · denge
 
 Yan işler vardı ama fazla kolaydı: her "açık" iş tek tıkla yapılıyor, oyuncu
