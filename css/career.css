@@ -394,3 +394,24 @@
   border-color: rgba(255,255,255,.1); background: rgba(255,255,255,.03);
 }
 .album-card .camp-chips { justify-content: flex-start; }
+
+/* ===== v10.48 — Editoryal listeler (küratörlü, gerçek şarkılar) ===== */
+.edito-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.edito-card {
+  border: 1px solid rgba(255,255,255,.09); border-radius: 12px; padding: 11px 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012));
+  border-top: 2px solid var(--ed, #888);
+}
+.ed-head { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
+.ed-head b { font-size: 12.5px; font-weight: 800; letter-spacing: .2px; }
+.ed-head .pill { margin-left: auto; }
+.ed-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ed, #888); flex: 0 0 auto; }
+.ed-desc { font-size: 10.5px; color: var(--text-3); margin-bottom: 8px; }
+.ed-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.ed-list li { display: flex; align-items: baseline; gap: 6px; font-size: 11px; line-height: 1.35; }
+.ed-list li.me { color: var(--karma-2); font-weight: 700; }
+.ed-list li.me .ed-t::after { content: " ★"; color: var(--karma-2); }
+.ed-rank { width: 14px; flex: 0 0 auto; text-align: right; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.ed-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 130px; }
+.ed-a { margin-left: auto; color: var(--text-3); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; }
+.ed-foot { margin-top: 8px; padding-top: 7px; border-top: 1px dashed rgba(255,255,255,.08); font-size: 9.5px; color: var(--text-3); letter-spacing: .2px; }
