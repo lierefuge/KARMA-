@@ -385,3 +385,12 @@
   background: rgba(92,232,155,.1); border: 1px solid rgba(92,232,155,.28); color: #9beec0;
 }
 .camp-done.hot { background: rgba(255,120,90,.12); border-color: rgba(255,120,90,.32); color: #ffb3a0; }
+/* v10.46 — katalog: yaş eşiğini bekleyen (pasif) çipler */
+.camp-chip.dim, .camp-chip:disabled {
+  opacity: .45; cursor: not-allowed;
+  border-style: dashed;
+}
+.camp-chip.dim:hover, .camp-chip:disabled:hover {
+  border-color: rgba(255,255,255,.1); background: rgba(255,255,255,.03);
+}
+.album-card .camp-chips { justify-content: flex-start; }
