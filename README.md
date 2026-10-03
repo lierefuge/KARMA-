@@ -5,6 +5,46 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.46 — Katalog: remaster · deluxe sürüm · yıldönümü
+
+Yayınlanmış iş zamanla yaşlanıp dinlenmesi düşerken oyuncunun elinde hiçbir
+araç yoktu. Bu sürüm **katalog yönetimini** ekliyor: eski işi yeniden
+canlandırmak artık bir strateji. Yeni motor: `js/data/reissue.js`.
+Yeni test paketi: `tools/smoke-v1046.js` (**56 kontrol**).
+
+Değişen dosyalar: `js/data/reissue.js` (yeni motor), `js/ui/career-ui.js`
+(şarkı + albüm kartları), `css/career.css`, `index.html`.
+
+### Üç işlem
+
+| # | İşlem | Kapsam | Ne yapar |
+|---|---|---|---|
+| **🎚️** | **Remaster** | Şarkı | Stüdyo (₺30k, +3 kalite) / Analog (₺75k, +6 kalite). Kalite yükselir, ivme eklenir, **çürüme yavaşlar**. Şarkı başına 1. |
+| **💎** | **Deluxe Sürüm** | Albüm | Albümü **2 bonus parça** ile yeniden yayınlar; mevcut parçalara ivme ekler, itibar getirir. Albüm başına 1. |
+| **🎂** | **Yıldönümü** | Albüm | Bir yılını (365 gün) dolduran albümü kutlar; bütün parçalar güçlü bir **nostalji ivmesi** kazanır. Albüm başına 1. |
+
+### Yaş eşikleri
+
+Katalog, taze işin değil **geçmişin** işidir. Her işlem bir yaş eşiği ister:
+remaster **90 gün** (analog **120 gün**), deluxe **120 gün**, yıldönümü **365 gün**.
+Eşiği gelmemiş işlemler arayüzde **pasif (kesik çerçeveli)** çip olarak görünür
+ve kalan günü gösterir.
+
+### Arayüz
+
+- **Yayınlar** sekmesinde her şarkının "Yayın sonrası" satırına **remaster** çipleri eklendi.
+- **Albümler** sekmesinde her albüm kartına **Deluxe Sürüm** ve **Yıldönümü** çipleri eklendi.
+- Tamamlanan işlemler **"✓ … yenilendi / yayınlandı / kutlandı"** rozetiyle görünür.
+
+### Doğrulama
+
+```
+node tools/smoke-v1046.js
+→ 56/56 kontrol geçti
+```
+
+---
+
 ## GÜNCELLEME v10.45 — Yayın sonrası kariyer: radyo · remix · klip
 
 Bir şarkı yayınlandığında iş bitmiyordu; oyuncunun yayın sonrası elinde hiçbir
