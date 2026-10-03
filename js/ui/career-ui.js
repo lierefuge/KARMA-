@@ -2672,6 +2672,27 @@
               ? `<button class="btn btn-sm btn-primary" data-act="song-reupload" data-song="${song.id}" style="margin-left:6px">♻️ Yeniden yükle · ${U.money(K.meta.REUPLOAD_COST)}</button>`
               : `<button class="btn btn-sm btn-ghost" data-act="song-takedown" data-song="${song.id}" style="margin-left:6px" title="Yayını mağazalardan çek">🚫 Kaldır</button>`}
           </div>
+          ${!song.takenDown ? `
+          <div class="camp-row">
+            <span class="camp-label">Yayın sonrası</span>
+            <div class="camp-chips">
+              ${song.mv
+                ? `<span class="camp-done">🎬 ${U.escape(song.mv.name)}</span>`
+                : K.video.TIERS.map(t => `<button class="camp-chip" data-act="song-video" data-song="${song.id}" data-arg="${t.id}" title="${U.escape(t.note)}"><b>🎬 ${U.escape(t.name)}</b><em>${U.money(t.cost)}</em></button>`).join("")}
+            </div>
+            <div class="camp-chips">
+              ${K.postRelease.radioActive(song)
+                ? `<span class="camp-done hot">📻 ${U.escape(song.radioCampaign.name)} · ${K.postRelease.radioDaysLeft(song)} gün kaldı</span>`
+                : K.postRelease.RADIO.map(t => `<button class="camp-chip" data-act="song-radio" data-song="${song.id}" data-arg="${t.id}" title="${U.escape(t.note)}"><b>${t.icon} ${U.escape(t.name)}</b><em>${U.money(t.cost)} · ${t.days}g</em></button>`).join("")}
+            </div>
+            <div class="camp-chips">
+              ${song.isRemix
+                ? `<span class="camp-done">🔀 Remix sürümü</span>`
+                : K.postRelease.hasRemix(song)
+                  ? `<span class="camp-done hot">🔀 ${U.escape(song.remix.name)} yayınlandı</span>`
+                  : K.postRelease.REMIX.map(t => `<button class="camp-chip" data-act="song-remix" data-song="${song.id}" data-arg="${t.id}" title="${U.escape(t.note)}"><b>${t.icon} ${U.escape(t.name)}</b><em>${U.money(t.cost)}</em></button>`).join("")}
+            </div>
+          </div>` : ""}
         </div>`;
       }).join("")}</div>`
         : `<div class="empty-note"><b>Henüz yayınlanan şarkın yok</b>Yayın hattı tamamlandığında şarkıların burada görünür.</div>`;
@@ -3802,6 +3823,10 @@
       else if (act === "song-takedown") K.career.takedownSong(btn.dataset.song, "manual");
       else if (act === "song-reupload") K.career.reuploadSong(btn.dataset.song);
       else if (act === "snippet") K.shortform.startSnippet(btn.dataset.song, "tiktok");
+      /* v10.45 — yayın sonrası kariyer: klip · radyo · remix */
+      else if (act === "song-video") K.video.shoot(btn.dataset.song, btn.dataset.arg);
+      else if (act === "song-radio") K.postRelease.runRadio(btn.dataset.song, btn.dataset.arg);
+      else if (act === "song-remix") K.postRelease.makeRemix(btn.dataset.song, btn.dataset.arg);
       else if (act === "practice") K.skills.practice(btn.dataset.arg);
       else if (act === "preview-song") {
         const song = K.platforms.findSong(btn.dataset.song);
