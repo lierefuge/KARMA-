@@ -223,6 +223,51 @@ function run() {
       relRich.prodPlan && relRich.prodPlan.revisions === 2);
   }
 
+  /* ============ D) ÇIKIŞ GÜNÜ TUTARLILIĞI ============ */
+  {
+    const st = openStudio(1, 6);
+    st.wait = 18;
+    const day = K.state.day;
+    const sel = doc.getElementById("st-weekday");
+    const seen = {};
+    ok("D-0 · hedef gün seçicisi var", !!sel);
+    for (const w of [5, 4, 1, 0]) {
+      sel.value = String(w);
+      sel.dispatchEvent(new dom.window.Event("change", { bubbles: true }));
+      K.careerUI.updateStudioEstimate();
+      const sum = doc.querySelector("#st-summary");
+      const txt = sum ? sum.textContent : "";
+      const m = txt.match(/ÇıkışGün\s*(\d+)/);
+      const shown = m ? +m[1] : null;
+      const expected = K.meta.snapToWeekday(day + 18, w);
+      seen[w] = shown;
+      ok("D-1 · hedef " + K.meta.WEEKDAYS[w] + " → özet doğru günü gösterir",
+        shown === expected, shown + " ≈ " + expected);
+      ok("D-2 · hedef " + K.meta.WEEKDAYS[w] + " → hafta günü doğru",
+        K.meta.weekdayOf(expected) === w, K.meta.weekdayName(expected));
+    }
+    const vals = Object.keys(seen).map(k => seen[k]);
+    ok("D-3 · farklı hedef günler farklı çıkış günü verir",
+      new Set(vals).size === vals.length, JSON.stringify(seen));
+    ok("D-3 · plannedRelDay tek kaynak",
+      K.careerUI.plannedRelDay({ wait: 18, releaseWeekday: 5 }) === K.meta.snapToWeekday(day + 18, 5));
+
+    /* gerçek yayın da aynı mantığı kullanır */
+    st.releaseWeekday = 1;                 // Pazartesi
+    st.distributor = "karma";
+    const before = K.state.player.releases.length;
+    K.careerUI.collectStudio();
+    K.careerUI.createReleaseFromStudio();
+    const rel = K.state.player.releases[K.state.player.releases.length - 1];
+    ok("D-4 · yayın oluştu", K.state.player.releases.length === before + 1 && !!rel);
+    if (rel) {
+      ok("D-4 · yayın hafta günü kayda işlendi",
+        rel.releaseWeekday === K.meta.weekdayOf(rel.startDay + rel.waitDays),
+        rel.releaseWeekday + " = " + K.meta.weekdayOf(rel.startDay + rel.waitDays));
+      ok("D-4 · hazırlık süresi en az wait", rel.waitDays >= 18, rel.waitDays);
+    }
+  }
+
   /* ---- rapor ---- */
   const runtime = (errors || []).filter(m => !/fonts|Not implemented/i.test(m));
   console.log("=".repeat(56));
