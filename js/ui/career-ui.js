@@ -276,6 +276,8 @@
         beatId: "digital", beatQ: 55,
         vocalId: "rap", vocalQ: 55,
         mixQ: 55,
+        /* v10.44 — prodüksiyon süreci: kayıt oturumu · mix · master · revizyon */
+        prod: K.production.defaultPlan(),
         feat: null,
         lyricsTheme: topicTheme || "street",
         topic: topic,
@@ -800,6 +802,30 @@
         return;
       }
 
+      /* v10.44 — prodüksiyon süreci: kayıt · mix · master · revizyon */
+      if (act === "prod-session") {
+        st.prod = K.production.normalize(st.prod); st.prod.session = btn.dataset.arg;
+        K.careerUI.renderStudioStep(); K.careerUI.updateStudioEstimate(); return;
+      }
+      if (act === "prod-mix") {
+        st.prod = K.production.normalize(st.prod); st.prod.mix = btn.dataset.arg;
+        st.prod.revisions = 0; st.prod.accepted = false;
+        K.careerUI.renderStudioStep(); K.careerUI.updateStudioEstimate(); return;
+      }
+      if (act === "prod-master") {
+        st.prod = K.production.normalize(st.prod); st.prod.master = btn.dataset.arg;
+        K.careerUI.renderStudioStep(); K.careerUI.updateStudioEstimate(); return;
+      }
+      if (act === "prod-revise") {
+        st.prod = K.production.normalize(st.prod);
+        if (st.prod.revisions < K.PROD.MAX_REVISIONS) st.prod.revisions++;
+        st.prod.accepted = false;
+        K.careerUI.renderStudioStep(); K.careerUI.updateStudioEstimate(); return;
+      }
+      if (act === "prod-accept") {
+        st.prod = K.production.normalize(st.prod); st.prod.accepted = true;
+        K.careerUI.renderStudioStep(); K.careerUI.updateStudioEstimate(); return;
+      }
       if (act === "store-toggle") {
         const id = btn.dataset.arg;
         const set = new Set(st.stores || []);
@@ -1756,6 +1782,39 @@
           <div class="form-block-head"><span class="fb-no">${++bn}</span><div><h4>Feature</h4><p>Yalnızca samimiyet kurduğun isimler listelenir. Bu seçim <b>tüm parçalara</b> uygulanır; tek tek değiştirmek için Parçalar adımındaki satırları kullan.</p></div></div>
           ${K.ui.field("Tüm parçalara ortak sanatçı", `<select id="st-feat">${featOptions}</select>`)}
           <div class="helper">${K.careerUI.featSummary(st)}</div>
+        </div>
+
+        <div class="form-block">
+          <div class="form-block-head"><span class="fb-no">${++bn}</span><div><h4>Kayıt & Mix Süreci</h4><p>Beat seçildikten sonra kayıt oturumu, mix-master ve revizyon kararları kaliteyi, bütçeyi ve gecikmeyi belirler.</p></div></div>
+          ${(st.prod = st.prod || K.production.defaultPlan(), "")}
+          <div class="prod-sec">
+            <div class="ps-title">🎤 Kayıt oturumu</div>
+            <div class="prod-chips">
+              ${K.PROD.SESSIONS.map(x => `<button class="prod-chip${st.prod.session === x.id ? " on" : ""}" data-act="prod-session" data-arg="${x.id}"><b>${x.icon} ${x.name}</b><span>${x.desc}</span><em>${x.cost ? U.money(x.cost) : "ücretsiz"} · ${x.days} gün · vokal +${x.vocal}</em></button>`).join("")}
+            </div>
+          </div>
+          <div class="prod-sec">
+            <div class="ps-title">🎚️ Mix</div>
+            <div class="prod-chips">
+              ${K.PROD.MIXES.map(x => `<button class="prod-chip${st.prod.mix === x.id ? " on" : ""}" data-act="prod-mix" data-arg="${x.id}"><b>${x.icon} ${x.name}</b><span>${x.desc}</span><em>${x.cost ? U.money(x.cost) : "ücretsiz"} · ${x.days} gün · mix +${x.mix}</em></button>`).join("")}
+            </div>
+          </div>
+          <div class="prod-sec">
+            <div class="ps-title">💿 Master</div>
+            <div class="prod-chips">
+              ${K.PROD.MASTERS.map(x => `<button class="prod-chip${st.prod.master === x.id ? " on" : ""}" data-act="prod-master" data-arg="${x.id}"><b>${x.icon} ${x.name}</b><span>${x.desc}</span><em>${x.cost ? U.money(x.cost) : "ücretsiz"} · ${x.days} gün · ses ${x.loud >= 0 ? "+" : ""}${x.loud}</em></button>`).join("")}
+            </div>
+          </div>
+          <div class="prod-rev">
+            <div class="ps-title">📝 Revizyon kararı</div>
+            <div class="prod-notes">${K.production.issues(st.prod, (st.tracks[0] && st.tracks[0].name) || "karma").map(n => `<span class="prod-note">⚠ ${n.text}</span>`).join("") || `<span class="prod-note ok">✓ Mix temiz görünüyor</span>`}</div>
+            <div class="prod-actions">
+              <button class="btn btn-sm${st.prod.accepted ? " btn-ghost" : " btn-primary"}" data-act="prod-accept">${st.prod.accepted ? "✓ Mix kabul edildi" : "✓ Mix'i kabul et"}</button>
+              <button class="btn btn-sm btn-ghost" data-act="prod-revise" ${st.prod.revisions >= K.PROD.MAX_REVISIONS ? "disabled" : ""}>🔁 Revize iste (${U.money(K.production.revisionCost())})</button>
+            </div>
+            <div class="helper">Revizyon ${st.prod.revisions}/${K.PROD.MAX_REVISIONS} · her revizyon kaliteyi artırır ama maliyet ve gecikme ekler (azalan verim).</div>
+          </div>
+          <div class="helper" id="st-prod-info"></div>
         </div>`;
     },
 
@@ -2068,13 +2127,14 @@
       const badList = badSrcTracks.map(t => (t.name || "?") + " (" + K.sourceById(t.source).file + ")").join(", ");
       /* v10.40 — A5/A6: örnek hakkı ve enstrümantal sürüm maliyete girer
          v10.41 — B3: bölge kapsamı dağıtım maliyetini çarpar */
-      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: st.vocalQ, mixQuality: st.mixQ, kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost, clearSample: !!st.clearSample, instrumental: !!st.instrumental, regionMult: K.meta.regionCost(st.regions) };
+      const pr = K.production.resolve(st.prod || K.production.defaultPlan());
+      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: U.clamp(st.vocalQ + pr.vocalQ, 0, 100), mixQuality: U.clamp(st.mixQ + pr.mixQ, 0, 100), kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost, clearSample: !!st.clearSample, instrumental: !!st.instrumental, regionMult: K.meta.regionCost(st.regions) };
       const qList = trackBudgets.map((tb, i) => K.career.estimateQuality(st.genre, tb, Object.assign({}, opts, {
         sourceQAdd: K.sourceById(trackSources[i]).qAdd,
         lyricScore: (lyrList[i] || lyrics).score
       })));
       const qMin = Math.min.apply(null, qList), qMax = Math.max.apply(null, qList);
-      const cost = K.career.releaseCost(type, st.budget, st.marketing, opts);
+      const cost = K.career.releaseCost(type, st.budget, st.marketing, opts) + pr.cost;
       const canAfford = s.balance >= cost;
       const title = K.careerUI.projectName(st);
       const featArtist = st.feat ? K.artistById(st.feat) : null;
@@ -2262,13 +2322,14 @@
       const badList = badSrcTracks.map(t => (t.name || "?") + " (" + K.sourceById(t.source).file + ")").join(", ");
       /* v10.40 — A5/A6: örnek hakkı ve enstrümantal sürüm maliyete girer
          v10.41 — B3: bölge kapsamı dağıtım maliyetini çarpar */
-      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: st.vocalQ, mixQuality: st.mixQ, kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost, clearSample: !!st.clearSample, instrumental: !!st.instrumental, regionMult: K.meta.regionCost(st.regions) };
+      const pr = K.production.resolve(st.prod || K.production.defaultPlan());
+      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: U.clamp(st.vocalQ + pr.vocalQ, 0, 100), mixQuality: U.clamp(st.mixQ + pr.mixQ, 0, 100), kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost, clearSample: !!st.clearSample, instrumental: !!st.instrumental, regionMult: K.meta.regionCost(st.regions) };
       const qList = trackBudgets.map((tb, i) => K.career.estimateQuality(st.genre, tb, Object.assign({}, opts, {
         sourceQAdd: K.sourceById(trackSources[i]).qAdd,
         lyricScore: (lyrList[i] || lyrics).score
       })));
       const qMin = Math.min.apply(null, qList), qMax = Math.max.apply(null, qList);
-      const cost = K.career.releaseCost(type, st.budget, st.marketing, opts);
+      const cost = K.career.releaseCost(type, st.budget, st.marketing, opts) + pr.cost;
 
       /* kenar özeti */
       const sum = q("#st-summary");
@@ -2289,7 +2350,8 @@
       setLine("#st-beat-info", `${beat.icon} ${beat.name} — ${beat.note} · kalite ${st.beatQ}/100 · maliyet ×${beat.costMult.toFixed(2)}`);
       setLine("#st-vocal-info", `${vocal.icon} ${vocal.name} — ${vocal.note} · kalite ${st.vocalQ}/100 · maliyet ×${vocal.costMult.toFixed(2)}`);
       const mixNote = st.mixQ < 35 ? "Ham mix; ses zayıf kalır." : st.mixQ < 65 ? "Dengeli ama mütevazı." : st.mixQ < 85 ? "Temiz ve güçlü." : "Radyo standardı, en yüksek netlik.";
-      setLine("#st-mix-info", `🎚️ Mix ${st.mixQ}/100 — ${mixNote} · ${kind.icon} ${kind.name}: ${kind.note}`);
+      setLine("#st-mix-info", `🎚️ Mix ${U.clamp(st.mixQ + pr.mixQ, 0, 100)}/100 — ${mixNote} · ${kind.icon} ${kind.name}: ${kind.note}`);
+      setLine("#st-prod-info", `🎙️ ${pr.labels.session} → ${pr.labels.mix} → ${pr.labels.master} · üretim +${U.money(pr.cost)} · +${pr.days} gün · üretim puanı ${pr.score}/100${st.prod && st.prod.accepted ? " · mix onaylı" : ""}`);
       setLine("#st-theme-info", `${theme.icon} ${theme.name} — ${theme.desc || ""}`);
       const li = q("#st-lyric-info");
       if (li) li.textContent = lyrics.empty
@@ -2371,11 +2433,13 @@
       const relDay0 = K.meta.snapToWeekday(K.state.day + (st.wait || 18), st.releaseWeekday != null ? st.releaseWeekday : 5);
       const relDay = Math.max(relDay0, K.state.day + (distDesc.leadDays || 0));
       const waitDays = Math.max(1, relDay - K.state.day);
+      const pr = K.production.resolve(st.prod || K.production.defaultPlan());
 
       const rel = K.career.createRelease({
         title, genre: st.genre, type, kind: st.kind,
         beatId: st.beatId, vocalId: st.vocalId,
-        beatQuality: st.beatQ, vocalQuality: st.vocalQ, mixQuality: st.mixQ,
+        beatQuality: st.beatQ, vocalQuality: U.clamp(st.vocalQ + pr.vocalQ, 0, 100), mixQuality: U.clamp(st.mixQ + pr.mixQ, 0, 100),
+        prodCost: pr.cost, prodPlan: Object.assign({}, K.production.normalize(st.prod), { score: pr.score }),
         waitDays: waitDays, budget: st.budget, marketing: st.marketing,
         featWith: st.feat, lyricsTheme: st.lyricsTheme,
         /* parça başına sözler — albümde her şarkı kendi sözünü alır */
