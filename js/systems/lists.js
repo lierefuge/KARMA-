@@ -119,6 +119,9 @@
         song.lists = song.lists || [];
         const age = s.day - (song.publishedDay || s.day);
 
+        /* v10.48 — LİSTE BAKIMI: aktifse şarkı listeden düşmez, sırası iyileşir */
+        const care = (K.editorial && K.editorial.careActive) ? K.editorial.careActive(song) : false;
+
         /* 1) mevcut liste üyeliğini güncelle */
         song.lists.forEach(entry => {
           const def = listById(entry.id);
@@ -129,9 +132,17 @@
           entry.rank = U.clamp(Math.round(entry.rank + (target - entry.rank) * 0.35 + U.rand(-2, 2)), 1, def.cap * 30);
           entry.days = (entry.days || 0) + 1;
           entry.pull = pull;
-          // çok düşük çekiş ya da süre aşımı → listeden düşer
+          entry.care = false;
+          /* bakım: şarkıyı listenin üst sıralarına çek ve düşüşü engelle */
+          if (care) {
+            const boost = (song.listCare && song.listCare.boost) || 0.1;
+            const good = Math.max(1, Math.round(def.cap * (2 - boost) + U.rand(0, 2)));
+            entry.rank = U.clamp(good, 1, def.cap * 30);
+            entry.care = true;
+          }
+          // çok düşük çekiş ya da süre aşımı → listeden düşer (bakım varken düşmez)
           const [mn, mx] = def.days;
-          if (pull < def.chi * 0.6 || entry.days > mx + Math.round(pull / 12)) {
+          if (!care && (pull < def.chi * 0.6 || entry.days > mx + Math.round(pull / 12))) {
             entry.exitDay = entry.exitDay || s.day;
           }
         });
