@@ -2692,6 +2692,16 @@
                   ? `<span class="camp-done hot">🔀 ${U.escape(song.remix.name)} yayınlandı</span>`
                   : K.postRelease.REMIX.map(t => `<button class="camp-chip" data-act="song-remix" data-song="${song.id}" data-arg="${t.id}" title="${U.escape(t.note)}"><b>${t.icon} ${U.escape(t.name)}</b><em>${U.money(t.cost)}</em></button>`).join("")}
             </div>
+            <div class="camp-chips">
+              ${song.remaster
+                ? `<span class="camp-done hot">${song.remaster.icon} ${U.escape(song.remaster.name)}</span>`
+                : song.isBonus
+                  ? `<span class="camp-done">📀 Bonus parça</span>`
+                  : K.reissue.REMASTER.map(t => {
+                      const okAge = K.reissue.songAge(song) >= t.minAge;
+                      return `<button class="camp-chip ${okAge ? "" : "dim"}" ${okAge ? `data-act="song-remaster" data-song="${song.id}" data-arg="${t.id}"` : "disabled"} title="${U.escape(okAge ? t.note : "En az " + t.minAge + " günlük olmalı")}"><b>${t.icon} ${U.escape(t.name)}</b><em>${okAge ? U.money(t.cost) : t.minAge + "g"}</em></button>`;
+                    }).join("")}
+            </div>
           </div>` : ""}
         </div>`;
       }).join("")}</div>`
@@ -2827,6 +2837,18 @@
                   <span class="pill ${a.risingRank && a.risingRank <= 10 ? "money" : ""}">yükselen ${a.risingRank ? "#" + a.risingRank : "—"}</span>
                 </div>
                 <div class="bar"><i style="width:${a.cohesion}%"></i></div>
+                <div class="camp-chips" style="margin-top:8px">
+                  ${K.reissue.hasDeluxe(a)
+                    ? `<span class="camp-done hot">💎 Deluxe · ${a.deluxe.bonus} bonus parça</span>`
+                    : K.reissue.canDeluxe(a)
+                      ? `<button class="camp-chip" data-act="album-deluxe" data-album="${a.id}" title="Bonus parçalarla yeniden yayınla"><b>💎 Deluxe Sürüm</b><em>${U.money(K.reissue.DELUXE.cost)}</em></button>`
+                      : `<span class="camp-chip dim" title="Albüm en az ${K.reissue.DELUXE.minAge} günlük olmalı"><b>💎 Deluxe Sürüm</b><em>${K.reissue.albumAge(a)}/${K.reissue.DELUXE.minAge}g</em></span>`}
+                  ${K.reissue.hasAnniversary(a)
+                    ? `<span class="camp-done hot">🎂 Yıldönümü kutlandı</span>`
+                    : K.reissue.canAnniversary(a)
+                      ? `<button class="camp-chip" data-act="album-anniv" data-album="${a.id}" title="Bir yaşını dolduran albümü kutla"><b>🎂 Yıldönümü</b><em>ücretsiz</em></button>`
+                      : `<span class="camp-chip dim" title="Yıldönümü için ${K.reissue.ANNIV.minAge} gün"><b>🎂 Yıldönümü</b><em>${K.reissue.albumAge(a)}/${K.reissue.ANNIV.minAge}g</em></span>`}
+                </div>
               </div>
             </div>`).join("")}</div>`
             : `<div class="empty-note"><b>Henüz albümün yok</b>Stüdyoda <b>EP / Mixtape / Albüm / Deluxe</b> seç, bir konsept belirle ve projeyi çıkar.</div>`}
@@ -3827,6 +3849,10 @@
       else if (act === "song-video") K.video.shoot(btn.dataset.song, btn.dataset.arg);
       else if (act === "song-radio") K.postRelease.runRadio(btn.dataset.song, btn.dataset.arg);
       else if (act === "song-remix") K.postRelease.makeRemix(btn.dataset.song, btn.dataset.arg);
+      /* v10.46 — katalog: remaster · deluxe sürüm · yıldönümü */
+      else if (act === "song-remaster") K.reissue.remaster(btn.dataset.song, btn.dataset.arg);
+      else if (act === "album-deluxe") K.reissue.deluxe(btn.dataset.album);
+      else if (act === "album-anniv") K.reissue.anniversary(btn.dataset.album);
       else if (act === "practice") K.skills.practice(btn.dataset.arg);
       else if (act === "preview-song") {
         const song = K.platforms.findSong(btn.dataset.song);
