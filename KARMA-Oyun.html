@@ -785,6 +785,27 @@ body::before {
 }
 .album-card .camp-chips { justify-content: flex-start; }
 
+/* ===== v10.48 — Editoryal listeler (küratörlü, gerçek şarkılar) ===== */
+.edito-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.edito-card {
+  border: 1px solid rgba(255,255,255,.09); border-radius: 12px; padding: 11px 12px;
+  background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012));
+  border-top: 2px solid var(--ed, #888);
+}
+.ed-head { display: flex; align-items: center; gap: 7px; margin-bottom: 3px; }
+.ed-head b { font-size: 12.5px; font-weight: 800; letter-spacing: .2px; }
+.ed-head .pill { margin-left: auto; }
+.ed-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ed, #888); flex: 0 0 auto; }
+.ed-desc { font-size: 10.5px; color: var(--text-3); margin-bottom: 8px; }
+.ed-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.ed-list li { display: flex; align-items: baseline; gap: 6px; font-size: 11px; line-height: 1.35; }
+.ed-list li.me { color: var(--karma-2); font-weight: 700; }
+.ed-list li.me .ed-t::after { content: " ★"; color: var(--karma-2); }
+.ed-rank { width: 14px; flex: 0 0 auto; text-align: right; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.ed-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 130px; }
+.ed-a { margin-left: auto; color: var(--text-3); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; }
+.ed-foot { margin-top: 8px; padding-top: 7px; border-top: 1px dashed rgba(255,255,255,.08); font-size: 9.5px; color: var(--text-3); letter-spacing: .2px; }
+
 </style>
 <style>
 /* ==== css/phone.css ==== */
@@ -7067,7 +7088,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.46.0";
+  K.VERSION = "10.48.0";
   K.VERSION_DATE = "2026-10-03";
 })(window.K = window.K || {});
 
@@ -9916,6 +9937,174 @@ html, body {
       p.reputation = Math.min(100, (p.reputation || 0) + ANNIV.rep);
       if (K.game && K.game.addFame) K.game.addFame(ANNIV.fame);
       K.toast("🎂 Yıldönümü kutlaması", `"${album.title}" bir yaşında! Katalog yeniden canlandı.`, "good");
+      if (K.refresh) K.refresh();
+      return true;
+    }
+  };
+})(window.K = window.K || {});
+
+</script>
+  <script>
+/* ==== js/data/editorial.js ==== */
+/* ============================================================
+   KARMA — data/editorial.js   (v10.48)
+   EDİTORYAL LİSTELER · PITCH STRATEJİSİ · LİSTE BAKIMI
+
+   Üç katman:
+
+     1) 📋 EDİTORYAL LİSTELER — gerçek sanatçıların gerçek şarkılarından
+        derlenmiş, küratörlü listeler (liste başına ~10 parça). Oyuncunun
+        şarkısı editoryal bir listeye girdiyse veya pitch'ten kabul aldıysa
+        o listede gerçek sanatçıların arasında görünür.
+     2) ✉️ PITCH STRATEJİSİ — yayın öncesi editoryal ekibe nasıl
+        başvurduğun: standart / veri destekli / plugger. Maliyet ve kabul
+        şansı değişir.
+     3) 🔄 LİSTE BAKIMI — listeye girdikten sonra orada KALMAK ayrı bir iş.
+        Curator'a taze veri gönderir, promosyon yapar ya da ilişki kurarsın;
+        bakım sürdükçe şarkı listeden düşmez ve sırası iyileşir.
+
+   Liste mekaniği `systems/lists.js`, pitch akışı `systems/career.js`
+   tarafından kullanılır.
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  function hash(str) {
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  }
+
+  /* ---------------- EDİTORYAL LİSTELER (küratörlü) ---------------- */
+  const PLAYLISTS = [
+    { id: "rapturkiye", name: "Rap Türkiye", desc: "Türkiye'nin en güncel rap seçkisi", color: "#1ed760", curator: "Karma Editoryal", genre: "rap",
+      artists: ["ceza", "sagopa", "mavi", "saniser", "normender", "gazapizm", "patron", "defkhan", "contra", "hidra", "joker"] },
+    { id: "traptr", name: "Trap Zone TR", desc: "Sert trap sound'ları ve yeni jenerasyon", color: "#8a4dff", curator: "Karma Editoryal", genre: "trap",
+      artists: ["sehinsah", "ezhel", "motive", "uzi", "reckol", "cakal", "heijan", "muti", "ati242", "murda", "weghrumi", "khontkar"] },
+    { id: "drilltr", name: "Drill Türkiye", desc: "Drill'in yükselen dalgası", color: "#ff5c7a", curator: "Karma Editoryal", genre: "drill",
+      artists: ["lvbelc5", "blok3", "era7capone", "benfero", "khontkar", "weghrumi", "muti", "cakal"] },
+    { id: "newmusic", name: "Yeni Çıkanlar", desc: "Bu hafta öne çıkan yeni işler", color: "#6ec3ff", curator: "Karma Editoryal", genre: null,
+      artists: ["ceza", "ezhel", "blok3", "uzi", "sila", "edis", "lilzey", "mavi", "motive", "sehinsah"] },
+    { id: "nightmode", name: "Gece Modu", desc: "Gece için R&B ve melankolik işler", color: "#b06cff", curator: "Karma Editoryal", genre: "rnb",
+      artists: ["lilzey", "sila", "edis", "mavi", "normender", "saniser", "ezhel", "sagopa"] },
+    { id: "popturkiye", name: "Pop Türkiye", desc: "Bugünün en çok dinlenenleri", color: "#ffcb5c", curator: "Karma Editoryal", genre: "pop",
+      artists: ["sila", "edis", "lvbelc5", "blok3", "uzi", "motive", "lilzey", "murda"] }
+  ];
+
+  /* editoryal listenin mekanik karşılıkları (systems/lists.js DEFS) */
+  const EDITORIAL_LIST_IDS = ["sp_newmusic", "sp_rapcaviar", "ap_new", "yt_new"];
+
+  /* ---------------- PITCH STRATEJİLERİ ---------------- */
+  const PITCH_STRATEGIES = [
+    { id: "standart", name: "Standart Pitch", icon: "✉️", cost: 9000,  bonus: 0,  accept: 1.00, note: "Kısa tanıtım notu; editoryal kuyruğa girer." },
+    { id: "veri",     name: "Veri Destekli",  icon: "📊", cost: 28000, bonus: 8,  accept: 1.25, note: "Dinlenme ve demografi verisiyle güçlendirilmiş dosya." },
+    { id: "plugger",  name: "Plugger",        icon: "🤝", cost: 70000, bonus: 16, accept: 1.60, note: "Bağımsız playlist avukatı devrede; kabul şansı yüksek." }
+  ];
+
+  /* ---------------- LİSTE BAKIMI ---------------- */
+  const MAINT = [
+    { id: "refresh", name: "Liste Tazeleme", icon: "🔄", cost: 15000, days: 6,  boost: 0.10, note: "Curator'a güncel veri gönder; sıralamayı korur." },
+    { id: "promo",   name: "Liste Promosyonu", icon: "📣", cost: 40000, days: 10, boost: 0.20, note: "Playlist içi görünürlük kampanyası." },
+    { id: "curator", name: "Curator İlişkisi", icon: "🤝", cost: 80000, days: 20, boost: 0.30, note: "Editoryal ekiple ilişki; uzun süreli yer garantisi." }
+  ];
+
+  K.EDITORIAL = { PLAYLISTS, PITCH_STRATEGIES, MAINT, EDITORIAL_LIST_IDS };
+
+  K.editorial = {
+    PLAYLISTS: PLAYLISTS,
+    PITCH_STRATEGIES: PITCH_STRATEGIES,
+    MAINT: MAINT,
+    EDITORIAL_LIST_IDS: EDITORIAL_LIST_IDS,
+
+    byId(id) { return PLAYLISTS.find(p => p.id === id) || null; },
+    strategyById(id) { return PITCH_STRATEGIES.find(s => s.id === id) || PITCH_STRATEGIES[0]; },
+    maintById(id) { return MAINT.find(m => m.id === id) || MAINT[0]; },
+    ids() { return PLAYLISTS.map(p => p.id); },
+
+    /* ---- küratörlü gerçek parçalar (deterministik) ---- */
+    realTracks(def) {
+      const out = [];
+      (def.artists || []).forEach(aid => {
+        const arr = (K.REAL_SONGS || {})[aid] || [];
+        if (!arr.length) return;
+        const pick = arr[hash(def.id + "|" + aid) % arr.length];
+        out.push({
+          id: "ed_" + def.id + "_" + aid,
+          title: pick.title, artistName: pick.artistName, artistId: aid,
+          art: pick.art || null, album: pick.album || null,
+          coverSeed: "ed" + aid, streams: 0, mine: false
+        });
+      });
+      return out;
+    },
+
+    /* ---- oyuncunun editoryal liste girişleri (aktif) ---- */
+    onEditorial(song) {
+      if (!song || !song.lists) return [];
+      return song.lists.filter(e => !e.exitDay && EDITORIAL_LIST_IDS.indexOf(e.id) >= 0);
+    },
+
+    /* ---- bir listeyi kur (gerçek parçalar + hak eden oyuncu şarkıları) ---- */
+    build(id) {
+      const def = K.editorial.byId(id);
+      if (!def) return { id: id, name: id, desc: "", color: "#888", curator: "Karma Editoryal", songs: [] };
+      const songs = K.editorial.realTracks(def);
+      /* deterministik karıştırma + azalan dinlenme ölçeği (gerçek liste hissi) */
+      songs.sort((a, b) => (hash(def.id + a.artistId) - hash(def.id + b.artistId)));
+      songs.forEach((s, i) => { s.streams = Math.round(950000 * Math.pow(0.9, i)); });
+
+      /* oyuncu şarkıları: pitch kabulü ya da editoryal liste girişi */
+      const onEd = K.editorial;
+      (K.state.player.songs || []).forEach(sg => {
+        const pitched = (sg.playlists || []).indexOf(def.id) >= 0;
+        const genreOk = !def.genre || sg.genre === def.genre;
+        const entered = onEd.onEditorial(sg).length > 0;
+        if (pitched || (entered && genreOk)) {
+          songs.push({
+            id: sg.id, title: sg.title, artistName: K.state.player.stageName,
+            artistId: "player", streams: sg.streams || 0, mine: true,
+            coverSeed: sg.coverSeed
+          });
+        }
+      });
+      songs.sort((a, b) => (b.streams || 0) - (a.streams || 0));
+      return { id: def.id, name: def.name, desc: def.desc, color: def.color, curator: def.curator, genre: def.genre, songs: songs.slice(0, 12) };
+    },
+
+    /* ---- oyuncunun bir listedeki yeri ---- */
+    placement(song) {
+      const mine = K.editorial.onEditorial(song);
+      return mine.map(e => ({ id: e.id, name: e.name, rank: e.rank, platform: e.platform })).sort((a, b) => a.rank - b.rank);
+    },
+
+    /* ---- liste bakımı ---- */
+    careActive(song) {
+      return !!(song && song.listCare && song.listCare.untilDay > K.state.day);
+    },
+    canMaintain(song) {
+      if (!song || song.takenDown) return false;
+      if (!K.editorial.onEditorial(song).length) return false;
+      return !K.editorial.careActive(song);
+    },
+    maintain(songId, tierId) {
+      const song = K.platforms.findSong(songId);
+      if (!song) { K.toast("Şarkı bulunamadı", "", "warn"); return false; }
+      if (!K.editorial.onEditorial(song).length) {
+        K.toast("Listede değil", `"${song.title}" şu an editoryal bir listede değil.`, "warn");
+        return false;
+      }
+      if (K.editorial.careActive(song)) {
+        K.toast("Bakım sürüyor", `"${song.title}" için aktif bakım var.`, "warn");
+        return false;
+      }
+      const t = K.editorial.maintById(tierId);
+      if (!K.economy.canAfford(t.cost)) {
+        K.toast("Yetersiz bakiye", `${t.name} için ${K.util.money(t.cost)} gerekiyor.`, "bad");
+        return false;
+      }
+      K.economy.spend(t.cost, "list_maintenance");
+      song.listCare = { tier: t.id, name: t.name, icon: t.icon, day: K.state.day, untilDay: K.state.day + t.days, boost: t.boost };
+      K.toast("🔄 Liste bakımı", `"${song.title}" ${t.days} gün boyunca listede tutulacak.`, "good");
       if (K.refresh) K.refresh();
       return true;
     }
@@ -18512,6 +18701,9 @@ window.K = window.K || {};
         song.lists = song.lists || [];
         const age = s.day - (song.publishedDay || s.day);
 
+        /* v10.48 — LİSTE BAKIMI: aktifse şarkı listeden düşmez, sırası iyileşir */
+        const care = (K.editorial && K.editorial.careActive) ? K.editorial.careActive(song) : false;
+
         /* 1) mevcut liste üyeliğini güncelle */
         song.lists.forEach(entry => {
           const def = listById(entry.id);
@@ -18522,9 +18714,17 @@ window.K = window.K || {};
           entry.rank = U.clamp(Math.round(entry.rank + (target - entry.rank) * 0.35 + U.rand(-2, 2)), 1, def.cap * 30);
           entry.days = (entry.days || 0) + 1;
           entry.pull = pull;
-          // çok düşük çekiş ya da süre aşımı → listeden düşer
+          entry.care = false;
+          /* bakım: şarkıyı listenin üst sıralarına çek ve düşüşü engelle */
+          if (care) {
+            const boost = (song.listCare && song.listCare.boost) || 0.1;
+            const good = Math.max(1, Math.round(def.cap * (2 - boost) + U.rand(0, 2)));
+            entry.rank = U.clamp(good, 1, def.cap * 30);
+            entry.care = true;
+          }
+          // çok düşük çekiş ya da süre aşımı → listeden düşer (bakım varken düşmez)
           const [mn, mx] = def.days;
-          if (pull < def.chi * 0.6 || entry.days > mx + Math.round(pull / 12)) {
+          if (!care && (pull < def.chi * 0.6 || entry.days > mx + Math.round(pull / 12))) {
             entry.exitDay = entry.exitDay || s.day;
           }
         });
@@ -19417,14 +19617,17 @@ window.K = window.K || {};
       return { ok: true, label: "Pitch için uygun", remaining };
     },
 
-    pitchPlaylist(relId) {
+    pitchPlaylist(relId, strategyId) {
       const s = K.state, p = s.player;
       const rel = (p.releases || []).find(r => r.id === relId);
       if (!rel) return false;
       if (rel.playlistPitch) { K.toast("Zaten pitch yapıldı", "", "warn"); return false; }
       const win = K.career.pitchWindow(rel);
       if (!win.ok) { K.toast("Pitch zamanı değil", win.label, "warn"); return false; }
-      const cost = 9000;
+      /* v10.48 — PITCH STRATEJİSİ: standart / veri destekli / plugger.
+         Strateji hem maliyeti hem kabul eşiğini değiştirir. */
+      const strat = (K.editorial && K.editorial.strategyById) ? K.editorial.strategyById(strategyId) : { id: "standart", name: "Standart Pitch", cost: 9000, bonus: 0, accept: 1 };
+      const cost = strat.cost;
       if (!K.economy.canAfford(cost)) { K.toast("Yetersiz bakiye", U.money(cost) + " gerekiyor.", "bad"); return false; }
       K.economy.spend(cost, "playlist_pitch");
 
@@ -19434,20 +19637,21 @@ window.K = window.K || {};
       const ar = (K.label && K.label.hasLabel()) ? K.label.staffBonus().signing : 0;
       /* v10.40 — A3: explicit yayınlar editoryal ekipte daha zor kabul alır */
       const expPen = (rel.explicit ? 14 : 0);
-      const score = U.clamp(q * 0.6 + (p.popularity || 0) * 0.9 + ar * 0.5 + timing * 30 + U.rand(-15, 18) - expPen, 0, 100);
-      const accepted = score >= 55;
-      const pool = ["rapturkiye", "traptr", "drilltr", "newmusic", "nightmode", "popturkiye"];
+      const score = U.clamp(q * 0.6 + (p.popularity || 0) * 0.9 + ar * 0.5 + timing * 30 + (strat.bonus || 0) + U.rand(-15, 18) - expPen, 0, 100);
+      /* strateji kabul eşiğini düşürür: plugger daha kolay kabul alır */
+      const accepted = score >= (55 / (strat.accept || 1));
+      const pool = (K.editorial && K.editorial.ids) ? K.editorial.ids() : ["rapturkiye", "traptr", "drilltr", "newmusic", "nightmode", "popturkiye"];
       const playlists = [];
       if (accepted) {
         const n = U.clamp(Math.round(score / 30), 1, 3);
         while (playlists.length < n) { const x = U.pick(pool); if (!playlists.includes(x)) playlists.push(x); }
       }
-      rel.playlistPitch = { day: s.day, remaining: win.remaining, score: Math.round(score), accepted, playlists };
-      if (accepted) K.toast("📻 Playlist kabulü!", `${rel.title}: ${playlists.length} editoryal liste (puan ${Math.round(score)}).`, "ok");
-      else K.toast("📻 Pitch reddedildi", `${rel.title}: editoryal ekip eklemedi (puan ${Math.round(score)}).`, "warn");
+      rel.playlistPitch = { day: s.day, remaining: win.remaining, score: Math.round(score), accepted, playlists, strategy: strat.id, strategyName: strat.name };
+      if (accepted) K.toast("📻 Playlist kabulü!", `${rel.title}: ${playlists.length} editoryal liste · ${strat.name} (puan ${Math.round(score)}).`, "ok");
+      else K.toast("📻 Pitch reddedildi", `${rel.title}: editoryal ekip eklemedi · ${strat.name} (puan ${Math.round(score)}).`, "warn");
       s.notifications = (s.notifications || []).concat([{
         title: accepted ? "📻 Playlist kabulü" : "📻 Pitch reddi",
-        msg: `${rel.title} · puan ${Math.round(score)}${accepted ? " · " + playlists.join(", ") : ""}`,
+        msg: `${rel.title} · ${strat.name} · puan ${Math.round(score)}${accepted ? " · " + playlists.join(", ") : ""}`,
         kind: accepted ? "ok" : "warn", day: s.day
       }]).slice(-60);
       K.save(); K.refresh();
@@ -21441,6 +21645,12 @@ window.K = window.K || {};
       };
     },
 
+    /* ---------- bir editoryal listenin kurulmuş hâli ---------- */
+    editorialPlaylist(id) {
+      if (K.editorial && K.editorial.build) return K.editorial.build(id);
+      return null;
+    },
+
     /* ---------- Spotify sanatçı şarkıları (popülerlik sıralı) ---------- */
     spotifyTopSongs(artistId) {
       const prof = K.platforms.artistProfile(artistId);
@@ -21448,41 +21658,16 @@ window.K = window.K || {};
       return (prof.songs || []).slice().sort((a, b) => (b.streams || 0) - (a.streams || 0)).slice(0, 10);
     },
 
-    /* ---------- editoryal / platform listeleri ---------- */
+    /* ---------- editoryal / platform listeleri ----------
+       v10.48 — listeler artık `data/editorial.js` içindeki KÜRATÖRLÜ
+       tanımlardan kurulur: her liste gerçek sanatçıların gerçek
+       şarkılarından derlenir (~10 parça). Oyuncunun şarkısı o listeye
+       girdiyse/pitch'ten kabul aldıysa gerçek sanatçıların arasında görünür. */
     editorialPlaylists() {
-      const mk = (id, name, desc, color, genreFilter) => {
-        let songs = [];
-        K.artistList().forEach(a => {
-          if (genreFilter && a.genre !== genreFilter) return;
-          songs = songs.concat(K.platforms.npcSongs(a.id, 3));
-        });
-        // gerçek listelerden de karıştır
-        (K.REAL_CHART || []).slice(0, 20).forEach((e, i) => {
-          if (!genreFilter || genreFilter === "rap" || genreFilter === "trap") {
-            songs.push({ id: "real_pl_" + i, title: e.title, artistName: e.artistName, artistId: "real", streams: Math.round(600000 * Math.pow(0.96, i)), coverSeed: "rp" + i, art: e.art });
-          }
-        });
-        // oyuncunun şarkıları (promo veya chart ile girebilir)
-        K.state.player.songs.forEach(sg => {
-          const boosted = sg.boosts && (sg.boosts.playlist || sg.boosts.radio);
-          if (boosted || (sg.chartRank && sg.chartRank <= 25) || (genreFilter && sg.genre !== genreFilter)) {
-            if (!genreFilter || sg.genre === genreFilter || boosted) {
-              songs.push({ id: sg.id, title: sg.title, artistName: K.state.player.stageName, artistId: "player", streams: sg.streams, mine: true, coverSeed: sg.coverSeed });
-            }
-          }
-        });
-        songs.sort((a, b) => b.streams - a.streams);
-        return { id, name, desc, color, songs: songs.slice(0, 12) };
-      };
-
-      return [
-        mk("rapturkiye", "Rap Türkiye", "Türkiye'nin en güncel rap seçkisi", "#1ed760", "rap"),
-        mk("traptr", "Trap Zone TR", "Sert trap sound'ları ve yeni jenerasyon", "#8a4dff", "trap"),
-        mk("drilltr", "Drill Türkiye", "Drill'in yükselen dalgası", "#ff5c7a", "drill"),
-        mk("newmusic", "Yeni Çıkanlar", "Bu hafta öne çıkan yeni işler", "#6ec3ff", null),
-        mk("nightmode", "Gece Modu", "Gece için R&B ve melankolik işler", "#b06cff", "rnb"),
-        mk("popturkiye", "Pop Türkiye", "Bugünün en çok dinlenenleri", "#ffcb5c", "pop")
-      ];
+      if (K.editorial && K.editorial.build) {
+        return K.editorial.PLAYLISTS.map(p => K.editorial.build(p.id));
+      }
+      return [];
     },
 
     /* ---------- Apple Music chart ---------- */
@@ -33564,8 +33749,9 @@ window.K = window.K || {};
           <div class="release-stages">${chips}</div>
           <div class="action-row" style="margin-top:8px">
             ${r.playlistPitch
-              ? `<span class="pill ${r.playlistPitch.accepted ? "hot" : ""}">📻 ${r.playlistPitch.accepted ? r.playlistPitch.playlists.length + " editoryal liste ✓" : "Pitch reddedildi"}</span>`
-              : `<button class="btn btn-sm ${pw.ok ? "btn-primary" : "btn-ghost"}" data-act="pitch-playlist" data-rel="${r.id}" ${pw.ok ? "" : "disabled"}>📻 Playlist Pitch · ₺9.000</button>
+              ? `<span class="pill ${r.playlistPitch.accepted ? "hot" : ""}">📻 ${r.playlistPitch.accepted ? r.playlistPitch.playlists.length + " editoryal liste ✓" : "Pitch reddedildi"}${r.playlistPitch.strategyName ? " · " + U.escape(r.playlistPitch.strategyName) : ""}</span>`
+              : `<span style="font-size:10px;color:var(--text-3);align-self:center">📻 Pitch:</span>
+                 ${K.editorial.PITCH_STRATEGIES.map(t => `<button class="camp-chip" data-act="pitch-playlist" data-rel="${r.id}" data-arg="${t.id}" ${pw.ok ? "" : "disabled"} title="${U.escape(t.note)}"><b>${t.icon} ${U.escape(t.name)}</b><em>${U.money(t.cost)}</em></button>`).join("")}
                  <span style="font-size:10px;color:var(--text-3);align-self:center;margin-left:6px">${pw.label}</span>`}
           </div>
         </div>`;
@@ -33629,6 +33815,12 @@ window.K = window.K || {};
                       return `<button class="camp-chip ${okAge ? "" : "dim"}" ${okAge ? `data-act="song-remaster" data-song="${song.id}" data-arg="${t.id}"` : "disabled"} title="${U.escape(okAge ? t.note : "En az " + t.minAge + " günlük olmalı")}"><b>${t.icon} ${U.escape(t.name)}</b><em>${okAge ? U.money(t.cost) : t.minAge + "g"}</em></button>`;
                     }).join("")}
             </div>
+            ${K.editorial.onEditorial(song).length ? `
+            <div class="camp-chips">
+              ${K.editorial.careActive(song)
+                ? `<span class="camp-done hot">🔄 ${U.escape(song.listCare.name)} · ${song.listCare.untilDay - K.state.day} gün</span>`
+                : K.editorial.MAINT.map(t => `<button class="camp-chip" data-act="list-care" data-song="${song.id}" data-arg="${t.id}" title="${U.escape(t.note)}"><b>${t.icon} ${U.escape(t.name)}</b><em>${U.money(t.cost)}</em></button>`).join("")}
+            </div>` : ""}
           </div>` : ""}
         </div>`;
       }).join("")}</div>`
@@ -33648,7 +33840,22 @@ window.K = window.K || {};
           </div>`).join("")}
         </div>` : "";
 
-      return K.careerUI.rolloutHTML() + arBlock + `
+      const editoHTML = `<div class="c-block">
+        <div class="c-head"><div><h2>Editoryal Listeler</h2><div class="sub">Gerçek sanatçıların şarkılarından derlenen küratörlü listeler · şarkın girdiyse aralarında görünür</div></div></div>
+        <div class="edito-grid">${K.editorial.PLAYLISTS.map(p => {
+          const pl = K.editorial.build(p.id);
+          const mine = pl.songs.filter(x => x.mine).length;
+          const top = pl.songs.slice(0, 5);
+          return `<div class="edito-card" style="--ed:${p.color}">
+            <div class="ed-head"><span class="ed-dot"></span><b>${U.escape(pl.name)}</b>${mine ? `<span class="pill hot">${mine} şarkın</span>` : ""}</div>
+            <div class="ed-desc">${U.escape(pl.desc)}</div>
+            <ol class="ed-list">${top.map((t, i) => `<li class="${t.mine ? "me" : ""}"><span class="ed-rank">${i + 1}</span><span class="ed-t">${U.escape(t.title)}</span><span class="ed-a">${U.escape(t.artistName)}</span></li>`).join("")}</ol>
+            <div class="ed-foot">${pl.songs.length} parça · ${U.escape(pl.curator || "")}</div>
+          </div>`;
+        }).join("")}</div>
+      </div>`;
+
+      return K.careerUI.rolloutHTML() + arBlock + editoHTML + `
         <div class="c-block">
           <div class="c-head"><div><h2>Yayın Hattı</h2><div class="sub">Hazırlık → Kuyruk → Editoryal → Yayın süreci</div></div></div>
           ${pipelineHTML}
@@ -34767,7 +34974,9 @@ window.K = window.K || {};
 
       /* not: stüdyo sihirbazı kendi olay yöneticisini kullanır (openStudioModal) */
       if (act === "promo-social") K.social.promoteSong(btn.dataset.song, btn.dataset.platform);
-      else if (act === "pitch-playlist") K.career.pitchPlaylist(btn.dataset.rel);
+      else if (act === "pitch-playlist") K.career.pitchPlaylist(btn.dataset.rel, btn.dataset.arg);
+      /* v10.48 — liste bakımı: şarkıyı editoryal listede tut */
+      else if (act === "list-care") K.editorial.maintain(btn.dataset.song, btn.dataset.arg);
       /* v10.42 — C5: takedown / yeniden yükleme */
       else if (act === "song-takedown") K.career.takedownSong(btn.dataset.song, "manual");
       else if (act === "song-reupload") K.career.reuploadSong(btn.dataset.song);
