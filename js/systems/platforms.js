@@ -145,6 +145,12 @@
       };
     },
 
+    /* ---------- bir editoryal listenin kurulmuş hâli ---------- */
+    editorialPlaylist(id) {
+      if (K.editorial && K.editorial.build) return K.editorial.build(id);
+      return null;
+    },
+
     /* ---------- Spotify sanatçı şarkıları (popülerlik sıralı) ---------- */
     spotifyTopSongs(artistId) {
       const prof = K.platforms.artistProfile(artistId);
@@ -152,41 +158,16 @@
       return (prof.songs || []).slice().sort((a, b) => (b.streams || 0) - (a.streams || 0)).slice(0, 10);
     },
 
-    /* ---------- editoryal / platform listeleri ---------- */
+    /* ---------- editoryal / platform listeleri ----------
+       v10.48 — listeler artık `data/editorial.js` içindeki KÜRATÖRLÜ
+       tanımlardan kurulur: her liste gerçek sanatçıların gerçek
+       şarkılarından derlenir (~10 parça). Oyuncunun şarkısı o listeye
+       girdiyse/pitch'ten kabul aldıysa gerçek sanatçıların arasında görünür. */
     editorialPlaylists() {
-      const mk = (id, name, desc, color, genreFilter) => {
-        let songs = [];
-        K.artistList().forEach(a => {
-          if (genreFilter && a.genre !== genreFilter) return;
-          songs = songs.concat(K.platforms.npcSongs(a.id, 3));
-        });
-        // gerçek listelerden de karıştır
-        (K.REAL_CHART || []).slice(0, 20).forEach((e, i) => {
-          if (!genreFilter || genreFilter === "rap" || genreFilter === "trap") {
-            songs.push({ id: "real_pl_" + i, title: e.title, artistName: e.artistName, artistId: "real", streams: Math.round(600000 * Math.pow(0.96, i)), coverSeed: "rp" + i, art: e.art });
-          }
-        });
-        // oyuncunun şarkıları (promo veya chart ile girebilir)
-        K.state.player.songs.forEach(sg => {
-          const boosted = sg.boosts && (sg.boosts.playlist || sg.boosts.radio);
-          if (boosted || (sg.chartRank && sg.chartRank <= 25) || (genreFilter && sg.genre !== genreFilter)) {
-            if (!genreFilter || sg.genre === genreFilter || boosted) {
-              songs.push({ id: sg.id, title: sg.title, artistName: K.state.player.stageName, artistId: "player", streams: sg.streams, mine: true, coverSeed: sg.coverSeed });
-            }
-          }
-        });
-        songs.sort((a, b) => b.streams - a.streams);
-        return { id, name, desc, color, songs: songs.slice(0, 12) };
-      };
-
-      return [
-        mk("rapturkiye", "Rap Türkiye", "Türkiye'nin en güncel rap seçkisi", "#1ed760", "rap"),
-        mk("traptr", "Trap Zone TR", "Sert trap sound'ları ve yeni jenerasyon", "#8a4dff", "trap"),
-        mk("drilltr", "Drill Türkiye", "Drill'in yükselen dalgası", "#ff5c7a", "drill"),
-        mk("newmusic", "Yeni Çıkanlar", "Bu hafta öne çıkan yeni işler", "#6ec3ff", null),
-        mk("nightmode", "Gece Modu", "Gece için R&B ve melankolik işler", "#b06cff", "rnb"),
-        mk("popturkiye", "Pop Türkiye", "Bugünün en çok dinlenenleri", "#ffcb5c", "pop")
-      ];
+      if (K.editorial && K.editorial.build) {
+        return K.editorial.PLAYLISTS.map(p => K.editorial.build(p.id));
+      }
+      return [];
     },
 
     /* ---------- Apple Music chart ---------- */
