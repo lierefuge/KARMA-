@@ -749,6 +749,33 @@ body::before {
 .beef-log .bl-row.me b { color: var(--karma-2); }
 .beef-log .bl-row.them b { color: var(--hot); }
 
+/* ===== v10.45 — Yayın sonrası kariyer (klip · radyo · remix) ===== */
+.camp-row {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px dashed rgba(255,255,255,.1);
+}
+.camp-label {
+  font-size: 10px; font-weight: 800; letter-spacing: .4px; text-transform: uppercase;
+  color: var(--text-3); min-width: 84px;
+}
+.camp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.camp-chip {
+  display: inline-flex; align-items: baseline; gap: 6px;
+  padding: 5px 9px; border-radius: 8px; cursor: pointer;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.1);
+  color: inherit; font: inherit; transition: border-color .15s, background .15s;
+}
+.camp-chip:hover { border-color: rgba(255,203,92,.5); background: rgba(255,203,92,.08); }
+.camp-chip b { font-size: 11px; font-weight: 700; }
+.camp-chip em { font-size: 10px; font-style: normal; color: rgba(255,203,92,.85); font-weight: 700; }
+.camp-done {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 9px; border-radius: 8px; font-size: 11px; font-weight: 700;
+  background: rgba(92,232,155,.1); border: 1px solid rgba(92,232,155,.28); color: #9beec0;
+}
+.camp-done.hot { background: rgba(255,120,90,.12); border-color: rgba(255,120,90,.32); color: #ffb3a0; }
+
 </style>
 <style>
 /* ==== css/phone.css ==== */
@@ -7031,7 +7058,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.44.1";
+  K.VERSION = "10.45.0";
   K.VERSION_DATE = "2026-10-03";
 })(window.K = window.K || {});
 
@@ -9569,6 +9596,142 @@ html, body {
         cost: K.production.cost(p), days: K.production.days(p),
         labels: { session: se.name, mix: mi.name, master: ma.name }
       };
+    }
+  };
+})(window.K);
+
+</script>
+  <script>
+/* ==== js/data/postrelease.js ==== */
+/* ============================================================
+   KARMA — data/postrelease.js   (v10.45)
+   YAYIN SONRASI KARİYER: radyo kampanyası · remix · klip
+
+   Bir şarkı yayınlandıktan sonra kariyer bitmez; asıl iş orada başlar.
+   Oyuncu üç kaldıraç kullanır:
+
+     1) 📻 RADYO KAMPANYASI — belirli bir süre airplay desteği satın alır.
+        Şarkıya radyo ivmesi (boosts.radio) ve liste çekişi ekler.
+     2) 🔀 REMİX — şarkının yeni bir sürümünü katalogda yayınlar; remix
+        kendi dinlenmesini toplar, orijinal şarkıya da can suyu olur.
+     3) 🎬 KLİP — mevcut K.video sistemi (telefon uygulaması) burada da
+        yüzeye çıkarılır.
+
+   Radyo kampanyası biter (süre dolar), remix kalıcıdır (şarkı başına 1).
+   ============================================================ */
+(function (K) {
+  "use strict";
+  const clamp = (v, a, b) => K.util.clamp(v, a, b);
+
+  /* ---------------- RADYO KAMPANYASI ---------------- */
+  const RADIO = [
+    { id: "yerel",    name: "Yerel Radyo",     icon: "📻", cost: 20000, days: 10, boost: 0.14, pull: 6,  note: "Bölgesel istasyonlar + mahalli DJ desteği." },
+    { id: "internet", name: "Dijital Airplay", icon: "🛰️", cost: 35000, days: 12, boost: 0.20, pull: 10, note: "İnternet radyoları ve çalma listesi servisleri." },
+    { id: "ulusal",   name: "Ulusal Radyo",    icon: "📡", cost: 75000, days: 14, boost: 0.28, pull: 16, note: "Ulusal müzik kanalları; geniş erişim." }
+  ];
+
+  /* ---------------- REMİX ---------------- */
+  const REMIX = [
+    { id: "prod",  name: "Prodüktör Remixi", icon: "🎛️", cost: 18000,  boost: 0.16, streams: 0.12, quality: -2, note: "Beat yeniden işlenir; kulüp remixi." },
+    { id: "feat",  name: "Feat. Remix",      icon: "🤝", cost: 55000,  boost: 0.28, streams: 0.22, quality: 2,  note: "Başka bir sanatçıyla düet remix." },
+    { id: "buyuk", name: "Büyük Remix",      icon: "🌟", cost: 160000, boost: 0.42, streams: 0.38, quality: 4,  note: "Yıldız prodüktör/düet; şarkıyı yeniden canlandırır." }
+  ];
+
+  K.POSTRELEASE = { RADIO, REMIX };
+
+  K.postRelease = {
+    RADIO: RADIO, REMIX: REMIX,
+
+    radioById(id) { return RADIO.find(x => x.id === id) || RADIO[0]; },
+    remixById(id) { return REMIX.find(x => x.id === id) || REMIX[0]; },
+
+    /* ---- radyo kampanyası durumu ---- */
+    radioActive(song) {
+      return !!(song && song.radioCampaign && song.radioCampaign.untilDay > K.state.day);
+    },
+    radioDaysLeft(song) {
+      return K.postRelease.radioActive(song) ? song.radioCampaign.untilDay - K.state.day : 0;
+    },
+    canRadio(song) {
+      return !!song && !song.takenDown && !K.postRelease.radioActive(song);
+    },
+
+    runRadio(songId, tierId) {
+      const song = K.platforms.findSong(songId);
+      if (!song) { K.toast("Şarkı bulunamadı", "", "warn"); return false; }
+      if (!K.postRelease.canRadio(song)) {
+        K.toast("Kampanya sürüyor", `"${song.title}" için aktif bir radyo kampanyası var.`, "warn");
+        return false;
+      }
+      const t = K.postRelease.radioById(tierId);
+      if (!K.economy.canAfford(t.cost)) {
+        K.toast("Yetersiz bakiye", `${t.name} için ${K.util.money(t.cost)} gerekiyor.`, "bad");
+        return false;
+      }
+      K.economy.spend(t.cost, "radio_campaign");
+      song.radioCampaign = { tier: t.id, name: t.name, icon: t.icon, day: K.state.day, untilDay: K.state.day + t.days };
+      song.boosts = song.boosts || {};
+      song.boosts.radio = (song.boosts.radio || 0) + t.boost;
+      K.toast("📻 Radyo kampanyası başladı",
+        `"${song.title}" ${t.days} gün boyunca ${t.name} desteğinde.`, "good");
+      if (K.refresh) K.refresh();
+      return true;
+    },
+
+    /* ---- remix ---- */
+    hasRemix(song) { return !!(song && song.remix); },
+    canRemix(song) {
+      return !!song && !song.takenDown && !song.isRemix && !K.postRelease.hasRemix(song);
+    },
+
+    makeRemix(songId, tierId) {
+      const song = K.platforms.findSong(songId);
+      if (!song) { K.toast("Şarkı bulunamadı", "", "warn"); return false; }
+      if (!K.postRelease.canRemix(song)) {
+        K.toast("Remix zaten var", `"${song.title}" için zaten remix yayınladın.`, "warn");
+        return false;
+      }
+      const t = K.postRelease.remixById(tierId);
+      if (!K.economy.canAfford(t.cost)) {
+        K.toast("Yetersiz bakiye", `${t.name} için ${K.util.money(t.cost)} gerekiyor.`, "bad");
+        return false;
+      }
+      K.economy.spend(t.cost, "remix");
+
+      const s = K.state;
+      /* remix, orijinalin klonu olarak doğar; kimlik ve ivme alanları
+         sıfırlanır, kalite kademeye göre kayar. */
+      const remix = Object.assign({}, song);
+      remix.id = K.util.uid("sng");
+      remix.title = song.title + " (Remix)";
+      remix.isRemix = true;
+      remix.remixOf = song.id;
+      remix.remixTier = t.id;
+      remix.publishedDay = s.day;
+      remix.streams = 0; remix.spotifyStreams = 0; remix.appleStreams = 0; remix.youtubeViews = 0;
+      remix.lastDaily = 0;
+      remix.dailyStreams = Math.max(40, (song.dailyStreams || 0) * t.streams + (song.streams || 0) * 0.0015);
+      remix.boosts = {};
+      remix.chartRank = null; remix.chartPeak = 999;
+      remix.lists = []; remix.listPeak = 999; remix.listLift = 0;
+      remix.playlists = [];
+      remix.viral = false; remix.mv = null; remix.sound = null; remix.takenDown = false;
+      remix.socialPromo = {};
+      remix.quality = clamp((song.quality || 50) + t.quality, 18, 99);
+      remix.decayRate = clamp(2.4 - remix.quality / 60, 0.7, 2.2);
+      remix.remixDay = s.day;
+      (s.player.songs = s.player.songs || []).push(remix);
+
+      /* orijinal şarkı can suyu alır */
+      song.remix = { tier: t.id, name: t.name, icon: t.icon, day: s.day, songId: remix.id };
+      song.boosts = song.boosts || {};
+      song.boosts.remix = (song.boosts.remix || 0) + t.boost * 0.6;
+      song.dailyStreams = (song.dailyStreams || 0) * (1 + t.streams * 0.5);
+
+      K.toast("🔀 Remix yayınlandı",
+        `"${song.title} (Remix)" katalogda — orijinal şarkı da ivme kazandı.`, "good");
+      if (K.refresh) K.refresh();
+      return true;
     }
   };
 })(window.K);
@@ -33250,6 +33413,27 @@ window.K = window.K || {};
               ? `<button class="btn btn-sm btn-primary" data-act="song-reupload" data-song="${song.id}" style="margin-left:6px">♻️ Yeniden yükle · ${U.money(K.meta.REUPLOAD_COST)}</button>`
               : `<button class="btn btn-sm btn-ghost" data-act="song-takedown" data-song="${song.id}" style="margin-left:6px" title="Yayını mağazalardan çek">🚫 Kaldır</button>`}
           </div>
+          ${!song.takenDown ? `
+          <div class="camp-row">
+            <span class="camp-label">Yayın sonrası</span>
+            <div class="camp-chips">
+              ${song.mv
+                ? `<span class="camp-done">🎬 ${U.escape(song.mv.name)}</span>`
+                : K.video.TIERS.map(t => `<button class="camp-chip" data-act="song-video" data-song="${song.id}" data-arg="${t.id}" title="${U.escape(t.note)}"><b>🎬 ${U.escape(t.name)}</b><em>${U.money(t.cost)}</em></button>`).join("")}
+            </div>
+            <div class="camp-chips">
+              ${K.postRelease.radioActive(song)
+                ? `<span class="camp-done hot">📻 ${U.escape(song.radioCampaign.name)} · ${K.postRelease.radioDaysLeft(song)} gün kaldı</span>`
+                : K.postRelease.RADIO.map(t => `<button class="camp-chip" data-act="song-radio" data-song="${song.id}" data-arg="${t.id}" title="${U.escape(t.note)}"><b>${t.icon} ${U.escape(t.name)}</b><em>${U.money(t.cost)} · ${t.days}g</em></button>`).join("")}
+            </div>
+            <div class="camp-chips">
+              ${song.isRemix
+                ? `<span class="camp-done">🔀 Remix sürümü</span>`
+                : K.postRelease.hasRemix(song)
+                  ? `<span class="camp-done hot">🔀 ${U.escape(song.remix.name)} yayınlandı</span>`
+                  : K.postRelease.REMIX.map(t => `<button class="camp-chip" data-act="song-remix" data-song="${song.id}" data-arg="${t.id}" title="${U.escape(t.note)}"><b>${t.icon} ${U.escape(t.name)}</b><em>${U.money(t.cost)}</em></button>`).join("")}
+            </div>
+          </div>` : ""}
         </div>`;
       }).join("")}</div>`
         : `<div class="empty-note"><b>Henüz yayınlanan şarkın yok</b>Yayın hattı tamamlandığında şarkıların burada görünür.</div>`;
@@ -34380,6 +34564,10 @@ window.K = window.K || {};
       else if (act === "song-takedown") K.career.takedownSong(btn.dataset.song, "manual");
       else if (act === "song-reupload") K.career.reuploadSong(btn.dataset.song);
       else if (act === "snippet") K.shortform.startSnippet(btn.dataset.song, "tiktok");
+      /* v10.45 — yayın sonrası kariyer: klip · radyo · remix */
+      else if (act === "song-video") K.video.shoot(btn.dataset.song, btn.dataset.arg);
+      else if (act === "song-radio") K.postRelease.runRadio(btn.dataset.song, btn.dataset.arg);
+      else if (act === "song-remix") K.postRelease.makeRemix(btn.dataset.song, btn.dataset.arg);
       else if (act === "practice") K.skills.practice(btn.dataset.arg);
       else if (act === "preview-song") {
         const song = K.platforms.findSong(btn.dataset.song);
