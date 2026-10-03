@@ -716,3 +716,31 @@
   font-size: 12px; flex-wrap: wrap;
 }
 .contract .ct-sign .ct-ok { color: #5ce89b; font-weight: 800; font-style: normal; }
+
+/* ===== v10.44 — Kayıt & Mix Süreci ===== */
+.prod-sec { margin-bottom: 14px; }
+.prod-sec:last-of-type { margin-bottom: 8px; }
+.ps-title { font-size: 12px; font-weight: 800; color: #ffcb5c; margin-bottom: 7px; letter-spacing: .2px; }
+.prod-chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+@media (max-width: 720px) { .prod-chips { grid-template-columns: 1fr; } }
+.prod-chip {
+  display: flex; flex-direction: column; gap: 4px; text-align: left;
+  padding: 10px 11px; border-radius: 10px; cursor: pointer;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.09);
+  color: inherit; font: inherit; transition: border-color .15s, background .15s, transform .1s;
+}
+.prod-chip:hover { border-color: rgba(255,203,92,.45); transform: translateY(-1px); }
+.prod-chip.on { border-color: #ffcb5c; background: rgba(255,203,92,.12); box-shadow: 0 0 0 1px rgba(255,203,92,.35) inset; }
+.prod-chip b { font-size: 12.5px; }
+.prod-chip span { font-size: 11px; line-height: 1.35; color: rgba(255,255,255,.62); }
+.prod-chip em { font-size: 10.5px; font-style: normal; color: rgba(255,203,92,.9); font-weight: 700; }
+.prod-rev { margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(255,255,255,.12); }
+.prod-notes { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.prod-note {
+  font-size: 11px; padding: 5px 9px; border-radius: 999px;
+  background: rgba(255,120,90,.12); border: 1px solid rgba(255,120,90,.3); color: #ffb3a0;
+}
+.prod-note.ok { background: rgba(92,232,155,.1); border-color: rgba(92,232,155,.3); color: #9beec0; }
+.prod-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.prod-actions .btn[disabled] { opacity: .4; cursor: not-allowed; }
+#st-prod-info { margin-top: 8px; }
