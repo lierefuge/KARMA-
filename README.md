@@ -49,11 +49,23 @@ göre hesaplanır.
 - **Revizyon kararı** paneli: mix notları + *kabul et* / *revize iste* düğmeleri
 - Alt satırda zincir özeti: `Stüdyo oturumu → Usta mix → Analog master · üretim +₺… · +N gün · üretim puanı X/100`
 
+### Düzeltme — 10.44.1 (çıkış günü tutarlılığı)
+
+Hedef çıkış günü seçimi yan özet ile çelişiyordu: hazırlık süresi "18 gün"
+görünürken seçilen gün ne olursa olsun çıkış hep "18 gün sonra" sanılıyordu.
+Sebep, bazı gösterimlerin **kaydırılmamış** günü (`gün + bekleme`), bazılarının
+ise hedef hafta gününe **kaydırılmış** günü göstermesiydi.
+
+Artık planlanan çıkış günü **tek yerde** (`plannedRelDay`) hesaplanıyor;
+yan özet, okuma alanları ve gerçek yayın hep aynı günü kullanıyor. Yani hedef
+hafta günü değiştiğinde çıkış günü ve hafta günü birlikte değişir
+(örn. gün 1'de: Cuma → Gün 25 · Perşembe → Gün 24 · Pazartesi → Gün 21).
+
 ### Doğrulama
 
 ```
 node tools/smoke-v1044.js
-→ 63/63 kontrol geçti
+→ 77/77 kontrol geçti
 
 node tools/verify.js
 → tüm adımlar geçti
