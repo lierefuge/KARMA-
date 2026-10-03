@@ -162,7 +162,10 @@ const SUITES = [
   { id: "v1043",       script: "tools/smoke-v1043.js",       label: "v10.43 yan işler (başvuru · vardiya · yorgunluk)" },
   /* prodüksiyon süreci: kayıt oturumu, mix-master ve revizyon kararları
      kaliteyi/maliyeti/gecikmeyi belirler; revizyon azalan verimle çalışır. */
-  { id: "v1044",       script: "tools/smoke-v1044.js",       label: "v10.44 prodüksiyon süreci (kayıt · mix · revizyon)" }
+  { id: "v1044",       script: "tools/smoke-v1044.js",       label: "v10.44 prodüksiyon süreci (kayıt · mix · revizyon)" },
+  /* yayın sonrası kariyer: radyo kampanyası, remix yayını ve klip;
+     şarkı yayınlandıktan sonra da kariyer devam eder. */
+  { id: "v1045",       script: "tools/smoke-v1045.js",       label: "v10.45 yayın sonrası kariyer (radyo · remix · klip)" }
 ];
 
 const suiteOut = {};
