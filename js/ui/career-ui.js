@@ -1651,7 +1651,7 @@
             ${K.ui.field("Sanatçı", `<input type="text" value="${U.escape(s.player.stageName)}" readonly />`)}
             ${K.ui.field("🎼 Tür", `<select id="st-genre">${genres}</select>`)}
             ${K.ui.field("📦 Format", `<div class="readout" id="st-format">${K.career.formatLabel(st.count)}</div>`)}
-            ${K.ui.field("📅 Tahmini Çıkış", `<div class="readout" id="st-releaseday">Gün ${s.day + st.wait}</div>`)}
+            ${K.ui.field("📅 Tahmini Çıkış", `<div class="readout" id="st-releaseday">Gün ${K.careerUI.plannedRelDay(st)} · ${K.meta.weekdayName(K.careerUI.plannedRelDay(st))}</div>`)}
           </div>
         </div>
 
@@ -2088,7 +2088,7 @@
           <div class="form-block-head"><span class="fb-no">2</span><div><h4>Çıkış Planı</h4><p>Yayına hazırlık süresi. Uzun hazırlık daha güçlü çıkış sağlar.</p></div></div>
           <div class="form-grid">
             ${K.ui.field("⏳ Lansman Süresi", `<select id="st-wait">${waits}</select>`)}
-            ${K.ui.field("📅 Çıkış Günü", `<div class="readout" id="st-releaseday2">Gün ${s.day + st.wait}</div>`)}
+            ${K.ui.field("📅 Çıkış Günü", `<div class="readout" id="st-releaseday2">Gün ${K.careerUI.plannedRelDay(st)} · ${K.meta.weekdayName(K.careerUI.plannedRelDay(st))}</div>`)}
           </div>
           <div class="helper">Yayın sırasına girdikten sonra <b>Yayınlar</b> sekmesinden editoryal listelere pitch gönderebilirsin. Pitch yayından 7–22 gün önce yapılmalıdır.</div>
         </div>
@@ -2155,7 +2155,7 @@
           <div class="ph-info">
             <span class="ph-badge">${K.career.formatLabel(st.count)}</span>
             <h3>${U.escape(title)}</h3>
-            <div class="ph-sub">${genre.icon} ${genre.name} · ${st.count} parça · Gün ${s.day + st.wait}${featArtist ? " · feat. " + U.escape(featArtist.stageName) : ""}</div>
+            <div class="ph-sub">${genre.icon} ${genre.name} · ${st.count} parça · Gün ${curRelDay} · ${K.meta.weekdayName(curRelDay)}${featArtist ? " · feat. " + U.escape(featArtist.stageName) : ""}</div>
           </div>
         </div>
 
@@ -2267,6 +2267,17 @@
         ${canAfford ? "" : `<div class="note-line bad">⚠️ Kasan yetersiz. Bu yayın için <b>${U.money(cost)}</b> gerekiyor, kasanda <b>${U.money(s.balance)}</b> var.</div>`}`;
     },
 
+    /* v10.44.1 — planlanan çıkış günü TEK yerde hesaplanır:
+       hazırlık süresi (st.wait) bir alt sınırdır, takvim hedef hafta gününe
+       kaydırılır. Özet, okuma alanları ve yayın oluşturma hep bunu kullanır;
+       böylece "18 gün sonra" ile seçilen gün çelişmez. */
+    plannedRelDay(st) {
+      st = st || K.careerUI._studio || {};
+      return K.meta.snapToWeekday(
+        K.state.day + (st.wait || 18),
+        st.releaseWeekday != null ? st.releaseWeekday : 5);
+    },
+
     /* ---------------- canlı özet + bilgi satırları ---------------- */
     updateStudioEstimate() {
       const st = K.careerUI._studio;
@@ -2277,7 +2288,7 @@
       if (q("#st-count-val")) q("#st-count-val").textContent = st.count;
       if (q("#st-format")) q("#st-format").textContent = K.career.formatLabel(st.count);
       /* v10.42 — C3: gerçek çıkış günü hedef hafta gününe kaydırılır */
-      const relDay = K.meta.snapToWeekday(K.state.day + st.wait, st.releaseWeekday != null ? st.releaseWeekday : 5);
+      const relDay = K.careerUI.plannedRelDay(st);
       const relDayTxt = "Gün " + relDay + " · " + K.meta.weekdayName(relDay);
       if (q("#st-releaseday")) q("#st-releaseday").textContent = relDayTxt;
       if (q("#st-releaseday2")) q("#st-releaseday2").textContent = relDayTxt;
@@ -2340,7 +2351,7 @@
           <div class="side-sum-row"><span>Kalite</span><b>${qTxt}</b></div>
           <div class="side-sum-row"><span>Mağaza</span><b>${(st.stores || []).length} · ×${storeReach.toFixed(2)}</b></div>
           <div class="side-sum-row"><span>Maliyet</span><b class="money">${U.money(cost)}</b></div>
-          <div class="side-sum-row"><span>Çıkış</span><b>Gün ${K.state.day + st.wait}</b></div>`;
+          <div class="side-sum-row"><span>Çıkış</span><b>Gün ${relDay} · ${K.meta.weekdayName(relDay)}</b></div>`;
       }
       const navInfo = U.qs(".st-nav-info");
       if (navInfo) navInfo.textContent = "Adım " + st.step + "/" + K.careerUI.WIZ_STEPS.length + " · " + K.career.formatLabel(st.count).replace(/^\S+\s/, "");
@@ -2430,7 +2441,7 @@
       if (!distDesc.premium) stores = stores.filter(id => K.meta.PREMIUM_STORES.indexOf(id) < 0);
       /* v10.42 — C3: hazırlık süresi en az st.wait, ama takvim hedef
          hafta gününe (varsayılan cuma) kaydırılır. */
-      const relDay0 = K.meta.snapToWeekday(K.state.day + (st.wait || 18), st.releaseWeekday != null ? st.releaseWeekday : 5);
+      const relDay0 = K.careerUI.plannedRelDay(st);
       const relDay = Math.max(relDay0, K.state.day + (distDesc.leadDays || 0));
       const waitDays = Math.max(1, relDay - K.state.day);
       const pr = K.production.resolve(st.prod || K.production.defaultPlan());
