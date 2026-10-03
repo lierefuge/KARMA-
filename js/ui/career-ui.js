@@ -2637,8 +2637,9 @@
           <div class="release-stages">${chips}</div>
           <div class="action-row" style="margin-top:8px">
             ${r.playlistPitch
-              ? `<span class="pill ${r.playlistPitch.accepted ? "hot" : ""}">📻 ${r.playlistPitch.accepted ? r.playlistPitch.playlists.length + " editoryal liste ✓" : "Pitch reddedildi"}</span>`
-              : `<button class="btn btn-sm ${pw.ok ? "btn-primary" : "btn-ghost"}" data-act="pitch-playlist" data-rel="${r.id}" ${pw.ok ? "" : "disabled"}>📻 Playlist Pitch · ₺9.000</button>
+              ? `<span class="pill ${r.playlistPitch.accepted ? "hot" : ""}">📻 ${r.playlistPitch.accepted ? r.playlistPitch.playlists.length + " editoryal liste ✓" : "Pitch reddedildi"}${r.playlistPitch.strategyName ? " · " + U.escape(r.playlistPitch.strategyName) : ""}</span>`
+              : `<span style="font-size:10px;color:var(--text-3);align-self:center">📻 Pitch:</span>
+                 ${K.editorial.PITCH_STRATEGIES.map(t => `<button class="camp-chip" data-act="pitch-playlist" data-rel="${r.id}" data-arg="${t.id}" ${pw.ok ? "" : "disabled"} title="${U.escape(t.note)}"><b>${t.icon} ${U.escape(t.name)}</b><em>${U.money(t.cost)}</em></button>`).join("")}
                  <span style="font-size:10px;color:var(--text-3);align-self:center;margin-left:6px">${pw.label}</span>`}
           </div>
         </div>`;
@@ -2702,6 +2703,12 @@
                       return `<button class="camp-chip ${okAge ? "" : "dim"}" ${okAge ? `data-act="song-remaster" data-song="${song.id}" data-arg="${t.id}"` : "disabled"} title="${U.escape(okAge ? t.note : "En az " + t.minAge + " günlük olmalı")}"><b>${t.icon} ${U.escape(t.name)}</b><em>${okAge ? U.money(t.cost) : t.minAge + "g"}</em></button>`;
                     }).join("")}
             </div>
+            ${K.editorial.onEditorial(song).length ? `
+            <div class="camp-chips">
+              ${K.editorial.careActive(song)
+                ? `<span class="camp-done hot">🔄 ${U.escape(song.listCare.name)} · ${song.listCare.untilDay - K.state.day} gün</span>`
+                : K.editorial.MAINT.map(t => `<button class="camp-chip" data-act="list-care" data-song="${song.id}" data-arg="${t.id}" title="${U.escape(t.note)}"><b>${t.icon} ${U.escape(t.name)}</b><em>${U.money(t.cost)}</em></button>`).join("")}
+            </div>` : ""}
           </div>` : ""}
         </div>`;
       }).join("")}</div>`
@@ -2721,7 +2728,22 @@
           </div>`).join("")}
         </div>` : "";
 
-      return K.careerUI.rolloutHTML() + arBlock + `
+      const editoHTML = `<div class="c-block">
+        <div class="c-head"><div><h2>Editoryal Listeler</h2><div class="sub">Gerçek sanatçıların şarkılarından derlenen küratörlü listeler · şarkın girdiyse aralarında görünür</div></div></div>
+        <div class="edito-grid">${K.editorial.PLAYLISTS.map(p => {
+          const pl = K.editorial.build(p.id);
+          const mine = pl.songs.filter(x => x.mine).length;
+          const top = pl.songs.slice(0, 5);
+          return `<div class="edito-card" style="--ed:${p.color}">
+            <div class="ed-head"><span class="ed-dot"></span><b>${U.escape(pl.name)}</b>${mine ? `<span class="pill hot">${mine} şarkın</span>` : ""}</div>
+            <div class="ed-desc">${U.escape(pl.desc)}</div>
+            <ol class="ed-list">${top.map((t, i) => `<li class="${t.mine ? "me" : ""}"><span class="ed-rank">${i + 1}</span><span class="ed-t">${U.escape(t.title)}</span><span class="ed-a">${U.escape(t.artistName)}</span></li>`).join("")}</ol>
+            <div class="ed-foot">${pl.songs.length} parça · ${U.escape(pl.curator || "")}</div>
+          </div>`;
+        }).join("")}</div>
+      </div>`;
+
+      return K.careerUI.rolloutHTML() + arBlock + editoHTML + `
         <div class="c-block">
           <div class="c-head"><div><h2>Yayın Hattı</h2><div class="sub">Hazırlık → Kuyruk → Editoryal → Yayın süreci</div></div></div>
           ${pipelineHTML}
@@ -3840,7 +3862,9 @@
 
       /* not: stüdyo sihirbazı kendi olay yöneticisini kullanır (openStudioModal) */
       if (act === "promo-social") K.social.promoteSong(btn.dataset.song, btn.dataset.platform);
-      else if (act === "pitch-playlist") K.career.pitchPlaylist(btn.dataset.rel);
+      else if (act === "pitch-playlist") K.career.pitchPlaylist(btn.dataset.rel, btn.dataset.arg);
+      /* v10.48 — liste bakımı: şarkıyı editoryal listede tut */
+      else if (act === "list-care") K.editorial.maintain(btn.dataset.song, btn.dataset.arg);
       /* v10.42 — C5: takedown / yeniden yükleme */
       else if (act === "song-takedown") K.career.takedownSong(btn.dataset.song, "manual");
       else if (act === "song-reupload") K.career.reuploadSong(btn.dataset.song);
