@@ -5,6 +5,48 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.45 — Yayın sonrası kariyer: radyo · remix · klip
+
+Bir şarkı yayınlandığında iş bitmiyordu; oyuncunun yayın sonrası elinde hiçbir
+kaldıraç yoktu. Bu sürüm **Yayınlar** sekmesindeki her yayınlanmış şarkıya bir
+**"Yayın sonrası"** satırı ekliyor: klip, radyo kampanyası ve remix.
+Yeni motor: `js/data/postrelease.js`. Yeni test paketi: `tools/smoke-v1045.js`
+(**49 kontrol**).
+
+Değişen dosyalar: `js/data/postrelease.js` (yeni motor), `js/ui/career-ui.js`
+(yayın kartı + işleyiciler), `css/career.css`, `index.html`.
+
+### Üç kaldıraç
+
+| # | Kaldıraç | Ne yapar |
+|---|---|---|
+| **📻** | **Radyo kampanyası** | Yerel / Dijital / Ulusal olmak üzere 3 kademe. Belirli bir süre airplay desteği satın alır; şarkıya radyo ivmesi (`boosts.radio`) ve liste çekişi ekler. Kampanya bitince tekrar açılabilir. |
+| **🔀** | **Remix** | Prodüktör / Feat. / Büyük Remix olmak üzere 3 kademe. Katalogda **yeni bir sürüm** doğurur (kendi dinlenmesini toplar) ve orijinal şarkıya can suyu verir. Şarkı başına **1 remix**. |
+| **🎬** | **Klip** | Mevcut `K.video` sistemi artık yayın kartından da erişilebilir (Sokak / Stüdyo / Sinematik). |
+
+### Denge
+
+- **Radyo** geçicidir: 10–14 gün sürer, maliyeti kademeyle artar (₺20.000 → ₺75.000).
+- **Remix** kalıcıdır: kaliteyi kademeye göre kaydırır (prodüktör −2, büyük +4),
+  yeni sürüm orijinalin temposundan beslenir ama sıfırdan başlar.
+- Kaldırılmış (takedown) şarkılara kampanya uygulanamaz; remix'in kendisi
+  yeniden remixlenemez.
+
+### Arayüz
+
+Yayınlanan şarkı kartının altında **"Yayın sonrası"** satırı: klip / radyo /
+remix çipleri. Aktif kampanya **"📻 … · N gün kaldı"**, tamamlanan işlemler
+**"✓ … yayınlandı"** rozetiyle görünür; düğmeler otomatik gizlenir.
+
+### Doğrulama
+
+```
+node tools/smoke-v1045.js
+→ 49/49 kontrol geçti
+```
+
+---
+
 ## GÜNCELLEME v10.44 — Prodüksiyon süreci: kayıt · mix · master · revizyon
 
 Eskiden prodüksiyon üç kaydırıcıydı (altyapı / vokal / mix kalitesi). Gerçekte
