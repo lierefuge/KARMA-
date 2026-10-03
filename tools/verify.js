@@ -167,7 +167,9 @@ const SUITES = [
      şarkı yayınlandıktan sonra da kariyer devam eder. */
   { id: "v1045",       script: "tools/smoke-v1045.js",       label: "v10.45 yayın sonrası kariyer (radyo · remix · klip)" },
   /* katalog yönetimi: eski işi yeniden canlandırma (remaster, deluxe, yıldönümü) */
-  { id: "v1046",       script: "tools/smoke-v1046.js",       label: "v10.46 katalog (remaster · deluxe · yıldönümü)" }
+  { id: "v1046",       script: "tools/smoke-v1046.js",       label: "v10.46 katalog (remaster · deluxe · yıldönümü)" },
+  /* editoryal/playlist derinliği: küratörlü listeler, pitch stratejisi, liste bakımı */
+  { id: "v1048",       script: "tools/smoke-v1048.js",       label: "v10.48 editoryal/playlist (pitch stratejisi · liste bakımı)" }
 ];
 
 const suiteOut = {};
