@@ -5,6 +5,67 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.48 — Editoryal/playlist derinliği: pitch stratejisi · liste bakımı
+
+Listeler artık sadece bir eşik değil; **editoryal ekibe nasıl başvurduğun** ve
+**listeye girdikten sonra orada nasıl kaldığın** ayrı birer karar. Yeni motor:
+`js/data/editorial.js`. Yeni test paketi: `tools/smoke-v1048.js` (**57 kontrol**).
+
+Değişen dosyalar: `js/data/editorial.js` (yeni motor), `js/systems/platforms.js`,
+`js/systems/career.js`, `js/systems/lists.js`, `js/ui/career-ui.js`,
+`css/career.css`, `index.html`.
+
+### 1 · 📋 Editoryal listeler artık gerçek
+
+`Rap Türkiye`, `Trap Zone TR`, `Drill Türkiye`, `Yeni Çıkanlar`, `Gece Modu`,
+`Pop Türkiye` — her biri **gerçek sanatçıların gerçek şarkılarından** (504 gerçek
+parçalık arşivden) derlenen, **~10 parçalık küratörlü listeler**. Liste sırası ve
+kadro deterministiktir. Şarkın editoryal bir listeye girdiyse veya pitch'ten kabul
+aldıysa **gerçek sanatçıların arasında** listelenir (`★` ile işaretli).
+
+### 2 · ✉️ Pitch stratejisi
+
+Yayın öncesi editoryal ekibe üç farklı şekilde başvurabilirsin:
+
+| Strateji | Maliyet | Etki |
+|---|---|---|
+| ✉️ **Standart Pitch** | ₺9.000 | Temel başvuru |
+| 📊 **Veri Destekli** | ₺28.000 | +8 puan, kabul eşiği ×1.25 |
+| 🤝 **Plugger** | ₺70.000 | +16 puan, kabul eşiği ×1.60 (bağımsız playlist avukatı) |
+
+Strateji hem puanı hem kabul eşiğini değiştirir; plugger ile kabul oranı belirgin
+şekilde yükselir (test: 40 denemede standart < plugger).
+
+### 3 · 🔄 Liste bakımı
+
+Listeye girmek yetmez — **kalmak** gerekir. Editoryal bir listede olan şarkına
+bakım yapabilirsin:
+
+| Bakım | Maliyet | Süre |
+|---|---|---|
+| 🔄 **Liste Tazeleme** | ₺15.000 | 6 gün |
+| 📣 **Liste Promosyonu** | ₺40.000 | 10 gün |
+| 🤝 **Curator İlişkisi** | ₺80.000 | 20 gün |
+
+Bakım sürerken şarkı **listeden düşmez** ve **listenin üst sıralarına çekilir**
+(`systems/lists.js` günlük değerlendirmesi bakımı dikkate alır).
+
+### Arayüz
+
+- **Yayınlar** sekmesinin başında **Editoryal Listeler** ızgarası: 6 küratörlü
+  liste, ilk 5 parça, şarkın varsa `★` ve "N şarkın" rozeti.
+- Yayın hattında **3 pitch stratejisi çipi** (pencere uygun değilse pasif).
+- Şarkı kartında, editoryal listedeyse **3 bakım çipi**; bakım sürerken kalan gün rozeti.
+
+### Doğrulama
+
+```
+node tools/smoke-v1048.js
+→ 57/57 kontrol geçti
+```
+
+---
+
 ## GÜNCELLEME v10.46 — Katalog: remaster · deluxe sürüm · yıldönümü
 
 Yayınlanmış iş zamanla yaşlanıp dinlenmesi düşerken oyuncunun elinde hiçbir
