@@ -783,14 +783,17 @@
       return { ok: true, label: "Pitch için uygun", remaining };
     },
 
-    pitchPlaylist(relId) {
+    pitchPlaylist(relId, strategyId) {
       const s = K.state, p = s.player;
       const rel = (p.releases || []).find(r => r.id === relId);
       if (!rel) return false;
       if (rel.playlistPitch) { K.toast("Zaten pitch yapıldı", "", "warn"); return false; }
       const win = K.career.pitchWindow(rel);
       if (!win.ok) { K.toast("Pitch zamanı değil", win.label, "warn"); return false; }
-      const cost = 9000;
+      /* v10.48 — PITCH STRATEJİSİ: standart / veri destekli / plugger.
+         Strateji hem maliyeti hem kabul eşiğini değiştirir. */
+      const strat = (K.editorial && K.editorial.strategyById) ? K.editorial.strategyById(strategyId) : { id: "standart", name: "Standart Pitch", cost: 9000, bonus: 0, accept: 1 };
+      const cost = strat.cost;
       if (!K.economy.canAfford(cost)) { K.toast("Yetersiz bakiye", U.money(cost) + " gerekiyor.", "bad"); return false; }
       K.economy.spend(cost, "playlist_pitch");
 
@@ -800,20 +803,21 @@
       const ar = (K.label && K.label.hasLabel()) ? K.label.staffBonus().signing : 0;
       /* v10.40 — A3: explicit yayınlar editoryal ekipte daha zor kabul alır */
       const expPen = (rel.explicit ? 14 : 0);
-      const score = U.clamp(q * 0.6 + (p.popularity || 0) * 0.9 + ar * 0.5 + timing * 30 + U.rand(-15, 18) - expPen, 0, 100);
-      const accepted = score >= 55;
-      const pool = ["rapturkiye", "traptr", "drilltr", "newmusic", "nightmode", "popturkiye"];
+      const score = U.clamp(q * 0.6 + (p.popularity || 0) * 0.9 + ar * 0.5 + timing * 30 + (strat.bonus || 0) + U.rand(-15, 18) - expPen, 0, 100);
+      /* strateji kabul eşiğini düşürür: plugger daha kolay kabul alır */
+      const accepted = score >= (55 / (strat.accept || 1));
+      const pool = (K.editorial && K.editorial.ids) ? K.editorial.ids() : ["rapturkiye", "traptr", "drilltr", "newmusic", "nightmode", "popturkiye"];
       const playlists = [];
       if (accepted) {
         const n = U.clamp(Math.round(score / 30), 1, 3);
         while (playlists.length < n) { const x = U.pick(pool); if (!playlists.includes(x)) playlists.push(x); }
       }
-      rel.playlistPitch = { day: s.day, remaining: win.remaining, score: Math.round(score), accepted, playlists };
-      if (accepted) K.toast("📻 Playlist kabulü!", `${rel.title}: ${playlists.length} editoryal liste (puan ${Math.round(score)}).`, "ok");
-      else K.toast("📻 Pitch reddedildi", `${rel.title}: editoryal ekip eklemedi (puan ${Math.round(score)}).`, "warn");
+      rel.playlistPitch = { day: s.day, remaining: win.remaining, score: Math.round(score), accepted, playlists, strategy: strat.id, strategyName: strat.name };
+      if (accepted) K.toast("📻 Playlist kabulü!", `${rel.title}: ${playlists.length} editoryal liste · ${strat.name} (puan ${Math.round(score)}).`, "ok");
+      else K.toast("📻 Pitch reddedildi", `${rel.title}: editoryal ekip eklemedi · ${strat.name} (puan ${Math.round(score)}).`, "warn");
       s.notifications = (s.notifications || []).concat([{
         title: accepted ? "📻 Playlist kabulü" : "📻 Pitch reddi",
-        msg: `${rel.title} · puan ${Math.round(score)}${accepted ? " · " + playlists.join(", ") : ""}`,
+        msg: `${rel.title} · ${strat.name} · puan ${Math.round(score)}${accepted ? " · " + playlists.join(", ") : ""}`,
         kind: accepted ? "ok" : "warn", day: s.day
       }]).slice(-60);
       K.save(); K.refresh();
