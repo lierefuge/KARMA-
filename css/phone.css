@@ -129,12 +129,18 @@
   bottom: 7px; left: 50%;
   transform: translateX(-50%);
   width: 130px; height: 5px;
+  /* v10.55 — erişilebilirlik için <button> oldu; UA varsayılanlarını sıfırla */
+  border: 0;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
   border-radius: var(--radius-pill);
   background: rgba(255,255,255,0.7);
   z-index: 60;
   cursor: pointer;
   transition: width 0.2s, background 0.2s;
 }
+.home-indicator:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 .home-indicator:hover { width: 150px; background: #fff; }
 
 /* ================= HOME SCREEN ================= */
