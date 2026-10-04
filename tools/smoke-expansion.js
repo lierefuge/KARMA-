@@ -64,6 +64,8 @@ function run() {
   /* ortak test kurulumu: bilinen bir oyuncu durumu */
   s.balance = 8_000_000;
   p.popularity = 60;
+  /* v10.56 — varlık alımı artık reşit olmayı gerektirir; test yetişkin oyuncu kurar. */
+  p.age = 25;
   /* ÖNEMLİ: `K.game.addFame()` şöhreti `listenerTarget()` ile sınırlar
      (dinleyicinin HAK ETTIĞİ tavan). Aylık dinleyici verilmezse tavan ~8
      kalır ve yeni sistemlerin verdiği şöhret popülerliği DÜŞÜRÜRDÜ.
