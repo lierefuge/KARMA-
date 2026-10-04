@@ -77,7 +77,10 @@
     realTracks(def) {
       const out = [];
       (def.artists || []).forEach(aid => {
-        const arr = (K.REAL_SONGS || {})[aid] || [];
+        /* K.lazy.songs güvenli erişimcidir: veri yüklü değilse yüklemeyi
+           tetikler ve boş dizi döner. K.REAL_SONGS'a doğrudan bakmak
+           modüler modda (veri henüz gelmemişken) boş liste verirdi. */
+        const arr = K.lazy && K.lazy.songs ? K.lazy.songs(aid) : ((K.REAL_SONGS || {})[aid] || []);
         if (!arr.length) return;
         const pick = arr[hash(def.id + "|" + aid) % arr.length];
         out.push({
