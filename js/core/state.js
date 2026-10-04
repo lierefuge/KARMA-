@@ -204,7 +204,7 @@
            `loadGame` göç bloğunda da varsayılır (state.js alt kısmı). */
         merch: { brand: null, active: null, drops: [], brandValue: 0, cooldownDay: 0, totalRevenue: 0 },
         assets: [],
-        writing: { offers: [], done: [], credited: 0, exposed: 0, totalEarned: 0 },
+        writing: { offers: [], done: [], sent: [], credited: 0, exposed: 0, totalEarned: 0 },
         stress: 10,
         mental: { therapyUntil: 0, sessions: 0, hiatusUntil: 0, burnoutCount: 0, spokeOut: false },
         shady: { botStreams: 0, suspicion: 0, strikes: 0, bannedUntil: 0, curatorDeals: [], everUsed: false },
@@ -496,8 +496,10 @@
       }
       K.state.player.assets = K.state.player.assets || [];
       if (!K.state.player.writing) {
-        K.state.player.writing = { offers: [], done: [], credited: 0, exposed: 0, totalEarned: 0 };
+        K.state.player.writing = { offers: [], done: [], sent: [], credited: 0, exposed: 0, totalEarned: 0 };
       }
+      /* v10.54 — eski kayıtlarda 'sent' (başkasına gönderilen sözler) yok */
+      K.state.player.writing.sent = K.state.player.writing.sent || [];
       if (K.state.player.stress == null) K.state.player.stress = 10;
       if (!K.state.player.mental) {
         K.state.player.mental = { therapyUntil: 0, sessions: 0, hiatusUntil: 0, burnoutCount: 0, spokeOut: false };
