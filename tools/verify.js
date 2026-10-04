@@ -171,7 +171,9 @@ const SUITES = [
   /* editoryal/playlist derinliği: küratörlü listeler, pitch stratejisi, liste bakımı */
   { id: "v1048",       script: "tools/smoke-v1048.js",       label: "v10.48 editoryal/playlist (pitch stratejisi · liste bakımı)" },
   /* RPG zihin katmanı: hafıza · ruh hali · dedikodu · yay + Lia Shine */
-  { id: "v1050",       script: "tools/smoke-v1050.js",       label: "v10.50 NPC zihin katmanı + Lia Shine" }
+  { id: "v1050",       script: "tools/smoke-v1050.js",       label: "v10.50 NPC zihin katmanı + Lia Shine" },
+  /* v10.52 — gündelik rutin + anlayan DM + kalıcı FT anlaşmaları */
+  { id: "v1052",       script: "tools/smoke-v1052.js",       label: "v10.52 gündelik rutin + anlayan DM + FT işleme" }
 ];
 
 const suiteOut = {};
