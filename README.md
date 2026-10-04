@@ -5,6 +5,60 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.50 — NPC ZİHİN KATMANI (RPG) · Lia Shine
+
+DM artık **tek atışlık cevap havuzu değil**: her sanatçının bir **iç durumu**
+var. Yeni motor: `js/systems/npcmind.js`. Yeni test: `tools/smoke-v1050.js`
+(**44 kontrol**).
+
+Değişen dosyalar: `js/systems/npcmind.js` (yeni motor), `js/systems/chat.js`,
+`js/systems/relations.js`, `js/apps/messages.js`, `css/apps.css`, `index.html`,
+`js/data/artists.js`, `js/data/artist-photos.js`, `js/data/labels.js`,
+`js/data/chat-profiles.js`, `js/data/personality.js`, `js/data/real-songs.js`,
+`js/data/discography.js`, `js/data/real-previews.js`.
+
+### 1 · 🧠 Konuşma hafızası (artık hatırlıyor)
+
+Sanatçı ne konuştuğunuzu, ne söz verdiğini ve **cevaplanmamış sorusunu**
+hatırlar. Bir sonraki sohbette laf arasında açar:
+“Geçen konuştuğumuz yeni iş ne oldu, çıktı mı?” Bekleyen bir sorusu varsa
+kısa **evet/hayır** cevabın onu çözer. Tümü `rel._mind` içinde kalıcıdır.
+
+### 2 · 🌡️ Ruh hali (her gün değişir)
+
+Her sanatçının **günlük** bir ruh hali olur: 😌 Sakin · 🔥 Hype · 🥱 Yorgun ·
+😤 Gergin · 🥀 Üzgün · 😠 Öfkeli. Ruh hali üç şeyi etkiler:
+· **cevap tonu** (durum cümlesi) · **samimiyet çarpanı** (üzgünken 1.10,
+öfkeliyken 0.55) · **cevap gecikmesi** (hype anında, yorgun saatler sonra).
+Yüksek beef ısısı sanatçıyı öfkeli yapar; ruh hali DM başlığında rozet olarak
+görünür.
+
+### 3 · 🗣️ Dedikodu ağı + hikâye yayları
+
+Bir ilişki dönüm noktasına gelince (aşama atlama) veya birine hakaret edince,
+**aynı şirketteki/türdeki** sanatçılar bunu duyar ve bir sonraki sohbette açar.
+Amiral sanatçılara (Şehinşah, wegh Rumi, Lie Refuge, Lia Shine) özel
+**3 beat'lik ilişki yayı** aşamaya gelince bir kez oynar.
+
+### 4 · 💬 Önerilen cevaplar (RPG hızlı seçenek)
+
+Serbest yazışma korunur; üstüne **bağlamsal öneriler** gelir — her biri bir
+ton etiketiyle (sıcak · net · cesur · empatik · profesyonel). Bekleyen soru,
+ruh hali ve aşamaya göre üretilir.
+
+### 5 · 🎤 Yeni sanatçı: **Lia Shine**
+
+Sivas doğumlu, Şehinşah'ın keşfettiği emotional / sad trap sanatçısı.
+· **Gerçek veri**: 31 gerçek şarkı + 25 gerçek albüm/single + 31 gerçek önizleme
+· **Kendi ağzı** (`chat-profiles.js`) ve **kişilik profili** (`personality.js`,
+  “Yaralı Yıldız”) — kırılgan, samimi, sadık; boş övgü onu soğutur
+· Hypers Music kadrosunda; Şehinşah'ın yanında konumlanır
+
+### Doğrulama
+`node tools/verify.js` — 36 adımlı zincir. v10.50 testi: `tools/smoke-v1050.js`.
+
+---
+
 ## GÜNCELLEME v10.49 — Hata avı: çıkış günü takvimi · ölü kodlar · görsel/veri
 
 Oyunun genel gözden geçirmesinde bulunan, çoğu **sessizce yanlış çalışan**
