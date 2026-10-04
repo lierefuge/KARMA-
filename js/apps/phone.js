@@ -185,13 +185,10 @@
     /* ---------------- zaman ---------------- */
     updateStatus() {
       const s = K.state;
-      const dow = U.dateForDay(s.day);
-      // 09:41 temelli, gün ilerledikçe saat ilerler
-      const minutes = (9 * 60 + 41 + (s.day * 47)) % (24 * 60);
-      const hh = String(Math.floor(minutes / 60)).padStart(2, "0");
-      const mm = String(minutes % 60).padStart(2, "0");
+      /* v10.52 — saat artık TEK kaynaktan gelir (systems/time.js).
+         Böylece durum çubuğu ile NPC rutinleri AYNI zamanı kullanır. */
       const t = U.qs("#status-time");
-      if (t) t.textContent = hh + ":" + mm;
+      if (t) t.textContent = (K.time ? K.time.label() : "09:41");
       if (K.phoneOS) K.phoneOS.apply();   // parlaklık + telefon teması
     },
 
