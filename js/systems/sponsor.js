@@ -58,7 +58,9 @@
          demekti, yani sponsorluk müziği eziyordu. Artık ücret, oyuncunun
          gerçek büyüklüğüne göre ölçeklenir. */
       const scale = U.clamp(0.25 + (p.popularity || 0) / 70, 0.25, 2.0);
-      const fee = Math.round(b.fee * scale);
+      /* v10.57 — marka ücreti de enflasyonla artar (nominal gelir). */
+      const infl = K.econ ? K.econ.infl() : 1;
+      const fee = Math.round(b.fee * scale * infl);
       s.pendingSponsor = {
         id: U.uid("spo"), brandId: b.id, name: b.name, cat: b.cat, icon: b.icon,
         fee, img: b.img, note: b.note, day: s.day
