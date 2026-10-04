@@ -19,7 +19,7 @@
       note: "Türkiye'nin en köklü bağımsız etiketlerinden." },
 
     { id: "hypers", name: "Hypers Music", power: 74, reach: 80, fee: 140000, royalty: 45, focus: "Rap / Trap", color: "#b06cff",
-      distributor: "Believe", cover: 0.5, roster: ["sehinsah", "weghrumi", "lilzey"],
+      distributor: "Believe", cover: 0.5, roster: ["sehinsah", "weghrumi", "lilzey", "liashine"],
       note: "Yeni nesil rap sound'una odaklı." },
 
     { id: "pmc", name: "PMC Music", power: 70, reach: 76, fee: 120000, royalty: 46, focus: "Rap / Trap", color: "#ff5c7a",
