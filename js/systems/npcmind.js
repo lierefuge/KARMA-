@@ -271,8 +271,11 @@
       if (!m.lastTopic || m.lastTopic === currentIntent) return null;
       if (gap < 1 || gap > 5) return null;
       if (!U.chance(0.34)) return null;
-      /* v10.52 — konuşulmuş bir FT anlaşması varsa öncelik ondadır */
+      /* v10.52/53 — konuşulmuş bir FT anlaşması varsa öncelik ondadır */
       const rel = K.relation(artistId);
+      if (rel.deal && rel.deal.type === "feature" && rel.deal.status === "agreed" && U.chance(0.6)) {
+        return "Anlaşmıştık ya — şarkıyı stüdyoda hazırlayınca bana haber ver.";
+      }
       if (rel.deal && rel.deal.type === "feature" && rel.deal.status === "pending" && U.chance(0.6)) {
         return "Feature konusunu kapatalım; stüdyo tarihini ne zaman belirleyelim?";
       }
@@ -325,7 +328,12 @@
         return out.slice(0, 4);
       }
 
-      /* v10.52 — konuşulmuş FT anlaşması varsa tamamlamaya yönlendir */
+      /* v10.52/53 — konuşulmuş FT anlaşması varsa tamamlamaya yönlendir */
+      if (rel.deal && rel.deal.type === "feature" && rel.deal.status === "agreed") {
+        out.push({ text: "Şarkıyı stüdyoda hazırlayıp yayınlıyorum.", tone: "profesyonel" });
+        out.push({ text: "Ne zaman müsait olursun, tarihi netleştirelim?", tone: "sicak" });
+        return out.slice(0, 4);
+      }
       if (rel.deal && rel.deal.type === "feature" && rel.deal.status === "pending") {
         out.push({ text: "Tamam, stüdyo teklifini başlatıyorum.", tone: "profesyonel" });
         out.push({ text: "Şartları konuşalım.", tone: "net" });
