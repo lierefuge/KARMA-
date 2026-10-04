@@ -5,6 +5,58 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.56 — GERÇEKLİK DENETİMİ (takvim · ekonomi · yaş · husumet)
+
+Oyun gerçekçilik üzerine kurulu olduğu için, bağımsız bir denetim “gerçek
+dünyayla çelişen” özellikleri aradı. Bulunanlar giderildi. Yeni test:
+`tools/smoke-v1056.js` (**34 kontrol**).
+
+### 1 · 🗓️ Zaman çizelgesi artık tek takvim
+Oyun **gerçek tarihten** başlıyor (`dateStart = todayISO`) ama NPC şarkı
+yılları `2008 + gün/365` ile üretiliyordu: gün 400'de (gerçek 2027) şarkı
+“2009” etiketi alıyordu. Ayrıca `util.fromISO` varsayılanı ve `index.html`
+statik yer tutucusu 2008'e sabitti. Hepsi gerçek takvime bağlandı.
+
+### 2 · 💸 Ekonomi gerçek değerlere yaklaştırıldı
+- **YouTube telifi:** `0,008 $` → `0,0018 $`. YouTube reklam geliri
+  Spotify'ın ~1/3'üdür; eski değer gerçeğin 4–8 katıydı ve YouTube'u
+  haksız biçimde en kârlı platform yapıyordu.
+- **Enflasyon:** aylık `%2,1` (≈%28/yıl) → `%3,0` (≈%43/yıl). Türkiye
+  2024–26 gerçeğine yakın.
+- **Vergi dilimleri:** uydurma “₺15.000'e kadar %0” yerine asgari ücret
+  düzeyi muafiyeti + kademeli gelir vergisi (%15/20/27/35).
+
+### 3 · 🔞 Yaş artık bir kapı
+15 yaşındaki oyuncu **plak şirketi kurabiliyor**, gece kulübü/kafe ve
+lüks araba alıyor, **alkol ve bahis sponsorluğu** imzalayabiliyordu.
+Artık: şirket kurma 18+, mülk/araç/işletme 18+ (küçük gösteriş ürünleri
+16+), alkol ve bahis sponsorluğu 18+ (teklif bile gösterilmez).
+
+### 4 · 📉 Sınırsız büyüme ve “dinleyicisiz dinleyici”
+- **NPC tavanı:** `_base` her gün çarpımsal büyüyordu (pop 88 için
+  ≈%31/yıl), tavan yoktu; 5 oyun yılında Şehinşah 4,2M → ~16M oluyordu.
+  Artık lojistik büyüme: popülerliğe bağlı tavana yaklaşırken hız sıfıra
+  iner.
+- **Dinleyici tabanı:** hiç yayın yapmayan sanatçının aylık dinleyicisi
+  olmaz; taban yalnızca katalog varsa uygulanır (55 → 30).
+
+### 5 · ⚖️ Gerçek sanatçılarla husumet — güvenlik anahtarı
+Gerçek sanatçılar kurgusal diss/beef senaryolarında yer alıyordu (isim/
+benzerlik ve itibar riski). Yeni ayar **“Gerçek sanatçılarla husumet/diss”
+varsayılan KAPALI**: oyun gerçek kişiler hakkında husumet içeriği
+üretmez; gerçek sanatçılar yalnızca **saygı/anılma** bağlamında geçer.
+İsteyen oyuncu ayarlardan açabilir.
+
+> **İçerik notu:** KARMA bir kurgudur. Oyunda adı geçen gerçek
+> sanatçılar yalnızca referans/temsil amaçlıdır; onlara atfedilen
+> hiçbir söz, olay veya ilişki gerçeği yansıtmaz. Sayısal değerler
+> temsilîdir.
+
+### Doğrulama
+`node tools/verify.js` → tüm adımlar · denge simülasyonu: 0 yüksek bulgu.
+
+---
+
 ## GÜNCELLEME v10.55 — SAĞLAMLIK & ERİŞİLEBİLİRLİK (bağımsız inceleme düzeltmeleri)
 
 Bağımsız bir kod incelemesinin bulduğu kusurlar giderildi. Dördü de
