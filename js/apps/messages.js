@@ -643,6 +643,9 @@
           if (canFeature && !dealBusy) acts.push(`<button class="dm-chip gold" data-pact="feature">🎵 Feature Teklif Et</button>`);
           if (K.relations.canCollabProject(artistId) && !dealBusy) acts.push(`<button class="dm-chip gold" data-pact="collab">🎤 Ortak Proje (EP)</button>`);
           if (hasLabel && stage >= 5) acts.push(`<button class="dm-chip gold" data-pact="contract">🏢 Şirket Teklifi</button>`);
+          /* v10.54 — sözünü gönder, sanatçı kendi adına yayınlasın */
+          if (K.writing && K.writing.canSendLyrics && K.writing.canSendLyrics(artistId))
+            acts.push(`<button class="dm-chip gold" data-pact="send-lyrics">✍️ Söz Gönder</button>`);
           if (dealBusy && _deal.status === "agreed" && K.careerUI && K.careerUI.openStudioModal)
             acts.push(`<button class="dm-chip gold" data-pact="open-studio">🎧 Ortak İşi Hazırla</button>`);
 
@@ -711,6 +714,7 @@
           else if (act === "gift") { K.relations.sendGift(artistId); K.phone.reRender(); }
           else if (act === "hangout") { K.relations.hangout(artistId); K.phone.reRender(); }
           else if (act === "feature") app.featurePrompt(artistId);
+          else if (act === "send-lyrics") app.lyricsPrompt(artistId);
           else if (act === "collab") app.collabPrompt(artistId);
           else if (act === "contract") K.careerUI.openContractModal(artistId);
           else if (act === "msg-actions") {
@@ -931,6 +935,33 @@
         calis: "Beraber bir şey yapmak isterim, uygun olduğunda konuşalım."
       };
       K.phone.appById("messages").send(artistId, map[kind] || kind);
+    },
+
+    /* v10.54 — oyuncu kendi sözünü sanatçıya gönderir; sanatçı kendi
+       adına yayınlar, oyuncu söz yazarı olarak kredilenir. */
+    lyricsPrompt(artistId) {
+      const a = K.artistById(artistId);
+      const themes = (K.LYRIC_THEMES || []).map(t =>
+        `<option value="${t.id}">${t.icon ? t.icon + " " : ""}${U.escape(t.name)}</option>`).join("");
+      const craft = K.writing.craft();
+      const body = K.ui.field("Sözler", `<textarea id="lz-text" rows="9" placeholder="Sözlerini buraya yaz ya da yapıştır... (en az 12 kelime)" style="width:100%;font-family:inherit"></textarea>`) +
+        K.ui.field("Tema", `<select id="lz-theme">${themes}</select>`) +
+        `<div style="font-size:11.5px;color:var(--text-2);line-height:1.6">Ustalığın <b>${craft}</b>. ${U.escape(a.stageName)} sözlerini değerlendirir. Kabul ederse şarkıyı <b>kendi adına</b> yayınlar, sen <b>söz yazarı</b> olarak kredilenirsin — peşin ücret + 40 gün yayın telifi.</div>`;
+      K.ui.modal({
+        title: "✍️ Söz Gönder", desc: a.stageName + " için söz yaz", wide: true,
+        body,
+        actions: [
+          { label: "Vazgeç" },
+          { label: "Gönder", cls: "btn-primary", onClick: () => {
+            const res = K.writing.sendLyrics(artistId, U.qs("#lz-text").value, U.qs("#lz-theme").value);
+            K.phone.reRender();
+            if (res && res.reason === "short") {
+              K.toast("Sözler çok kısa", "En az 12 kelime yaz — bir kıta yeter.", "warn");
+              return false;   // modal açık kalsın, düzeltebilsin
+            }
+          }}
+        ]
+      });
     },
 
     featurePrompt(artistId) {
