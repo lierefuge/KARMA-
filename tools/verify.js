@@ -173,7 +173,9 @@ const SUITES = [
   /* RPG zihin katmanı: hafıza · ruh hali · dedikodu · yay + Lia Shine */
   { id: "v1050",       script: "tools/smoke-v1050.js",       label: "v10.50 NPC zihin katmanı + Lia Shine" },
   /* v10.52 — gündelik rutin + anlayan DM + kalıcı FT anlaşmaları */
-  { id: "v1052",       script: "tools/smoke-v1052.js",       label: "v10.52 gündelik rutin + anlayan DM + FT işleme" }
+  { id: "v1052",       script: "tools/smoke-v1052.js",       label: "v10.52 gündelik rutin + anlayan DM + FT işleme" },
+  /* v10.53 — FT anlaşması artık otomatik şarkı üretmez; oyuncu stüdyoda hazırlar */
+  { id: "v1053",       script: "tools/smoke-v1053.js",       label: "v10.53 FT stüdyo akışı (oyuncu kontrollü ortak iş)" }
 ];
 
 const suiteOut = {};
