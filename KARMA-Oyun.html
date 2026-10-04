@@ -6993,7 +6993,7 @@ html, body {
         </div>
         <div class="stat" title="Oyun içi tarih">
           <span class="stat-label">TARİH</span>
-          <span class="stat-value" id="stat-date">1 Oca 2008</span>
+          <span class="stat-value" id="stat-date">—</span>
         </div>
         <div class="stat" title="Oyuncu yaşı">
           <span class="stat-label">YAŞ</span>
@@ -7129,7 +7129,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.55.0";
+  K.VERSION = "10.56.0";
   K.VERSION_DATE = "2026-10-04";
 })(window.K = window.K || {});
 
@@ -11487,7 +11487,9 @@ window.K = window.K || {};
     },
     fromISO(iso) {
       const p = String(iso || K.util.todayISO()).split("-").map(Number);
-      return { y: p[0] || 2008, m: p[1] || 1, d: p[2] || 1 };
+      /* v10.56 — varsayılan yıl 2008 DEĞİL, o anki gerçek yıldır (oyun
+         gerçek takvimden başlar; bkz. state.dateStart = todayISO()). */
+      return { y: p[0] || new Date().getFullYear(), m: p[1] || 1, d: p[2] || 1 };
     },
     toISO(o) {
       return o.y + "-" + String(o.m).padStart(2, "0") + "-" + String(o.d).padStart(2, "0");
@@ -11681,7 +11683,12 @@ window.K = window.K || {};
        uygulanmadığı için şirket gelirini gerçekçi değerin ~1/200'üne
        düşürüyordu. Artık tüm gelir yolları `streamRates` (+ `econ.avgRate()`)
        üzerinden hesaplanır. */
-    streamRates: { spotify: 0.005, apple: 0.015, youtube: 0.008, other: 0.004 },
+    /* v10.56 GERÇEKLİK DÜZELTMESİ: YouTube dinlenme başına geliri
+       diğer platformlara göre fahiş yüksekti (0,008 $ ≈ gerçek 0,001–0,002 $'ın
+       4–8 katı). YouTube reklam geliri "monetize görüntüleme" başına ödenir ve
+       müzikte tipik olarak Spotify'ın ~1/3'üdür. 0,0018 $ ≈ Spotify 0,005 $'ın
+       %36'sı — gerçekçi oran. */
+    streamRates: { spotify: 0.005, apple: 0.015, youtube: 0.0018, other: 0.004 },
     /* platform karması — gelir dağılımı platform ayrımı yapmayan yollarda
        (şirket kadrosu, tahmin) ağırlıklı ortalama kur için kullanılır */
     storeMix: { spotify: 0.46, apple: 0.19, youtube: 0.28, other: 0.07 },
@@ -11727,7 +11734,10 @@ window.K = window.K || {};
     fxShockChance: 0.07,           // aylık ani kur şoku olasılığı
     fxShockMin: 0.08,              // şok alt sınırı
     fxShockMax: 0.30,              // şok üst sınırı
-    inflationMonthly: 0.021,       // aylık enflasyon: maliyet VE telif nominal artışı
+    /* v10.56: aylık %2,1 (≈%28/yıl) Türkiye gerçeğinin (2024–26: %45–70) çok
+       altındaydı. %3,0 → ≈%43/yıl. Telif ve gider aynı katsayıyla nominal
+       büyüdüğü için denge büyük ölçüde korunur. */
+    inflationMonthly: 0.030,       // aylık enflasyon: maliyet VE telif nominal artışı
     /* TELİF ÖDEME GECİKMESİ (gün) — mağazalar dinlenmeyi geç raporlar.
        Dinlenme bu süre dolmadan ödenmez. */
     payoutLag: { spotify: 60, apple: 45, youtube: 75, other: 55 },
@@ -11735,11 +11745,16 @@ window.K = window.K || {};
     skipRateMin: 0.08,             // en iyi durumda bile %8 atlanır
     skipRateMax: 0.34,             // kötü/uzun girişli şarkıda %34 atlanır
     /* GELİR VERGİSİ DİLİMLERİ (aylık, kümülatif değil kademeli) */
+    /* v10.56 GERÇEKLİK DÜZELTMESİ: eski dilimler Türkiye'ye uymuyordu
+       (₺15.000'e kadar %0 gibi bir muafiyet gerçekte yok). Artık asgari
+       ücret düzeyi vergiden muaf (asgari ücret istisnasının karşılığı),
+       üstü kademeli gelir vergisi oranlarıyla (%15/20/27/35) vergilenir. */
     taxBrackets: [
-      { upTo: 15000, rate: 0 },
-      { upTo: 60000, rate: 0.15 },
-      { upTo: 150000, rate: 0.22 },
-      { upTo: Infinity, rate: 0.30 }
+      { upTo: 17000, rate: 0 },
+      { upTo: 40000, rate: 0.15 },
+      { upTo: 100000, rate: 0.20 },
+      { upTo: 400000, rate: 0.27 },
+      { upTo: Infinity, rate: 0.35 }
     ],
     debtPenaltyMonthly: 0.035,     // ödenmeyen borca aylık gecikme faizi
     /* v10.8 — ŞİRKET KURMA EŞİĞİ GERÇEKÇİLEŞTİRİLDİ.
@@ -11750,6 +11765,12 @@ window.K = window.K || {};
        biraz sermaye yeterlidir. */
     labelFoundCost: 120000,       // kendi şirketini kurma
     labelFoundMinPop: 28,
+    /* v10.56 — ŞİRKET KURMAK İÇİN REŞİT OLMAK GEREKİR. Eskiden 15 yaşındaki
+       oyuncu plak şirketi kurabiliyordu; gerçekçilik iddiasıyla çelişiyordu. */
+    labelFoundMinAge: 18,
+    /* Varlık ve sponsorluk için asgari yaş (aşağıda varlık/teşvik bazında
+       geçersiz kılınabilir; alkol ve bahis 18+). */
+    assetMinAge: 18,
     /* v10.24 — ŞİRKET EKONOMİSİ (gerçekçi kâr/zarar)
        labelBillableShare: kadro dinlenmesinin gelir sayılan oranı. 30 saniye
          eşiği şirket kataloğu için de geçerlidir; oyuncunun kendi şarkılarındaki
@@ -11794,6 +11815,15 @@ window.K = window.K || {};
        Böylece bir TV programı seni geçici olarak öne taşır ama iki yıl
        boyunca hak etmediğin bir şöhreti taşımazsın. */
     fameHeadroom: 8
+  };
+
+  /* ---------- oyuncunun güncel yaşı ----------
+     Kapı kontrolleri (şirket kurma, varlık, alkol/bahis sponsorluğu) için
+     tek kaynak. `p.age` her gün doğum gününden yeniden hesaplanır. */
+  K.playerAge = function () {
+    const p = K.state && K.state.player;
+    if (!p) return 0;
+    return (p.age != null) ? p.age : K.ECON.startAge;
   };
 
   /* ---------- new game ---------- */
@@ -12783,7 +12813,13 @@ window.K = window.K || {};
         /* temel çizgi + sönümlenen yayın etkisi */
         a._base = a._base || a.monthly;
         a._boost = (a._boost || 0) * 0.97;                 // yayın etkisi ~3 haftada söner
-        a._base = a._base * (1 + 0.0004 * (1 + (a.popularity || 50) / 100));  // yavaş kariyer büyümesi
+        /* v10.56 — TAVAN: eskiden `_base` her gün çarpımsal büyüyordu (pop 88
+           için ≈%31/yıl) ve hiçbir sınır yoktu; 5 oyun yılında Şehinşah
+           4,2M → ~16M oluyordu. Artık lojistik büyüme: popülerliğe bağlı bir
+           tavana yaklaşırken hız sıfıra iner. */
+        const _cap = 500000 + (a.popularity || 50) * 110000;
+        const _grow = 0.0004 * (1 + (a.popularity || 50) / 100);
+        a._base = a._base * (1 + _grow * Math.max(0, 1 - a._base / _cap));
         const drift = U.rand(-0.004, 0.006);
         a.monthly = Math.max(50000, Math.round(a._base * (1 + a._boost) * (1 + drift)));
         a.streams = Math.round(a.streams + a.monthly / 30 * U.rand(0.6, 1.5));
@@ -12820,7 +12856,11 @@ window.K = window.K || {};
         const names = ["Gece Yarısı", "Beton Çiçek", "Sessiz Şehir", "Son Mektup", "Kör Nokta",
           "Yalnız Değilim", "Ağır Gelir", "Bırakma", "Uzak İhtimal", "Kirli Hava",
           "Sabaha Karşı", "Kayıp Frekans", "Islak Sokak", "Aynı Yer", "Yeni Bir Gün"];
-        song = { title: U.pick(names) + (U.chance(0.3) ? " (feat. " + U.pick(K.artistList()).stageName + ")" : ""), art: null, album: "Single", year: String(2008 + Math.floor((s.day || 1) / 365)) };
+        /* v10.56 — yıl artık GERÇEK takvimden türetilir. Eskiden `2008 +
+           gün/365` idi; oysa oyun gerçek tarihten (dateStart) başlıyor, yani
+           gün 400'de şarkı "2009" etiketi alırken gerçek tarih 2027 oluyordu. */
+        const relYear = (K.util.dateForDay ? K.util.dateForDay(s.day || 1).y : new Date().getFullYear());
+        song = { title: U.pick(names) + (U.chance(0.3) ? " (feat. " + U.pick(K.artistList()).stageName + ")" : ""), art: null, album: "Single", year: String(relYear) };
       }
       used.push(song.title);
 
@@ -12906,7 +12946,11 @@ window.K = window.K || {};
       // üstüne eklenmez; dinlenme düşerse dinleyici de düşer.
       const win = (p.dailyHistory || []).slice(-28);
       const windowStreams = U.sum(win);
-      const baseline = p.popularity * 55;                        // organik taban
+      /* v10.56 — "dinleyicisiz dinleyici" düzeltmesi: hiç yayın yapmamış bir
+         sanatçının aylık dinleyicisi olmaz. Taban yalnızca yayın geçmişi
+         varsa uygulanır ve daha ölçülüdür (55 → 30). */
+      const hasCatalog = (p.songs || []).length > 0;
+      const baseline = hasCatalog ? p.popularity * 30 : 0;
       p.monthly = Math.round(Math.max(windowStreams * 0.5, 0) + baseline);
 
       // popülerlik: GÜNCEL dinleyiciye bağlı (birikmez, düşebilir)
@@ -14883,8 +14927,10 @@ window.K = window.K || {};
     { id: "drink",   name: "Buzsu İçecek",     cat: "İçecek",         icon: "🥤", fee: 30000,  img: 0,  minPop: 10, note: "Nötr; geniş kitle." },
     { id: "energy",  name: "Turbo Enerji",     cat: "Enerji İçeceği", icon: "⚡", fee: 55000,  img: -1, minPop: 25, note: "Çok görünür ama biraz yıpratır." },
     { id: "fashion", name: "Hızlı Moda",       cat: "Moda",           icon: "👕", fee: 40000,  img: -1, minPop: 18, note: "Trend odaklı; imaj dalgalanır." },
-    { id: "alc",     name: "Kadey Alkol",      cat: "Alkol",          icon: "🍺", fee: 90000,  img: -3, minPop: 30, note: "Yüksek gelir; imajı zedeler." },
-    { id: "bet",     name: "Şans Bahis",       cat: "Bahis",          icon: "🎲", fee: 140000, img: -6, minPop: 40, note: "En yüksek gelir; itibar/imaj riski büyük." }
+    /* v10.56 — alkol ve bahis sponsorluğu 18+ (Türkiye'de alkol satışı ve
+       bahis 18 yaş sınırına tabidir). */
+    { id: "alc",     name: "Kadey Alkol",      cat: "Alkol",          icon: "🍺", fee: 90000,  img: -3, minPop: 30, minAge: 18, note: "Yüksek gelir; imajı zedeler." },
+    { id: "bet",     name: "Şans Bahis",       cat: "Bahis",          icon: "🎲", fee: 140000, img: -6, minPop: 40, minAge: 18, note: "En yüksek gelir; itibar/imaj riski büyük." }
   ];
 
   K.sponsor = {
@@ -14909,7 +14955,10 @@ window.K = window.K || {};
       if (s.pendingSponsor) return;
       // zaten aktif olan markayı önermeyelim
       const has = (s.player.sponsors || []).map(x => x.id);
-      const pool = BRANDS.filter(b => (p.popularity || 0) >= b.minPop && !has.includes(b.id));
+      /* v10.56 — yaş kapısı: reşit olmayan oyuncuya alkol/bahis teklifi GİTMEZ. */
+      const age = K.playerAge();
+      const pool = BRANDS.filter(b => (p.popularity || 0) >= b.minPop && !has.includes(b.id) &&
+        (!b.minAge || age >= b.minAge));
       if (!pool.length) return;
       const chance = 0.02 + (p.popularity || 0) / 1600 + (p.image || 50) / 4000;
       if (!U.chance(chance)) return;
@@ -14954,6 +15003,14 @@ window.K = window.K || {};
     resolve(accept) {
       const s = K.state, o = s.pendingSponsor;
       if (!o) return;
+      /* v10.56 — yaş kapısı (teklif sonradan yaş düşse bile güvenlik ağı). */
+      const _b = K.sponsor.brand(o.brandId);
+      if (accept && _b && _b.minAge && K.playerAge() < _b.minAge) {
+        K.toast("Yaş yetersiz", `${o.name} anlaşması için ${_b.minAge} yaşında olmalısın.`, "bad");
+        s.pendingSponsor = null;
+        K.save(); if (K.refresh) K.refresh();
+        return;
+      }
       if (accept) {
         const signing = Math.round(o.fee * 0.5);   // ilk peşin (yarım ay)
         K.economy.earn(signing, "sponsor");
@@ -16110,7 +16167,12 @@ window.K = window.K || {};
   const SKEY = "karma_settings_v1";
   const SLOTS = [1, 2, 3];
 
-  let cfg = { difficulty: "normal", reduceMotion: false, autosave: true, accent: "karma", contrast: false };
+  /* v10.56 — `beefReal` VARSAYILAN KAPALI.
+     Gerçek sanatçıların kurgusal diss/beef senaryolarında yer alması
+     isim/benzerlik kullanımı ve itibar zedeleyici içerik riski taşır.
+     Kapalıyken oyun gerçek kişiler hakkında husumet içeriği ÜRETMEZ
+     (gerçek sanatçılar yalnızca saygı/anılma bağlamında geçer). */
+  let cfg = { difficulty: "normal", reduceMotion: false, autosave: true, accent: "karma", contrast: false, beefReal: false };
   try { Object.assign(cfg, JSON.parse(localStorage.getItem(SKEY) || "{}")); } catch (e) {}
 
   function key(n) { return "karma_save_slot_" + n; }
@@ -16119,6 +16181,8 @@ window.K = window.K || {};
   K.settings = {
     get difficulty() { return cfg.difficulty; },
     all() { return Object.assign({}, cfg); },
+    /* Gerçek sanatçılarla husumet içeriği üretilsin mi? (varsayılan: hayır) */
+    beefReal() { return !!cfg.beefReal; },
 
     set(patch) {
       Object.assign(cfg, patch);
@@ -16270,7 +16334,9 @@ window.K = window.K || {};
           <label class="switch-row"><span>Otomatik kayıt</span><input type="checkbox" id="set-autosave" ${cfg.autosave ? "checked" : ""} /></label>
           <label class="switch-row"><span>Hareketleri azalt</span><input type="checkbox" id="set-motion" ${cfg.reduceMotion ? "checked" : ""} /></label>
           <label class="switch-row"><span>Yüksek kontrast (erişilebilirlik)</span><input type="checkbox" id="set-contrast" ${cfg.contrast ? "checked" : ""} /></label>
+          <label class="switch-row"><span>Gerçek sanatçılarla husumet/diss</span><input type="checkbox" id="set-beefreal" ${cfg.beefReal ? "checked" : ""} /></label>
         </div>
+        <div class="hint" style="margin-top:-6px">Kapalıyken oyun gerçek sanatçılar hakkında husumet içeriği üretmez; yalnızca saygı/anılma geçer.</div>
 
         <div class="set-section">
           <div class="set-title">Yedekleme</div>
@@ -16331,6 +16397,7 @@ window.K = window.K || {};
         if (e.target.id === "set-autosave") K.settings.set({ autosave: e.target.checked });
         if (e.target.id === "set-motion") K.settings.set({ reduceMotion: e.target.checked });
         if (e.target.id === "set-contrast") K.settings.set({ contrast: e.target.checked });
+        if (e.target.id === "set-beefreal") K.settings.set({ beefReal: e.target.checked });
         if (e.target.id === "set-import-file") K.settings.importSave(e.target.files && e.target.files[0]);
       });
       root.addEventListener("click", e => {
@@ -20411,7 +20478,8 @@ window.K = window.K || {};
     canFound() {
       const s = K.state;
       return !s.label && s.balance >= K.ECON.labelFoundCost &&
-        s.player.popularity >= K.ECON.labelFoundMinPop;
+        s.player.popularity >= K.ECON.labelFoundMinPop &&
+        K.playerAge() >= (K.ECON.labelFoundMinAge || 18);
     },
 
     found(name) {
@@ -20423,6 +20491,12 @@ window.K = window.K || {};
       }
       if (s.player.popularity < K.ECON.labelFoundMinPop) {
         K.toast("Popülerlik yetersiz", `Şirket kurmak için en az ${K.ECON.labelFoundMinPop} popülerlik gerekli.`, "bad");
+        return false;
+      }
+      /* v10.56 — yaş kapısı: 18 yaşından küçükken şirket kurulamaz. */
+      const _minAge = K.ECON.labelFoundMinAge || 18;
+      if (K.playerAge() < _minAge) {
+        K.toast("Yaş yetersiz", `Şirket kurmak için ${_minAge} yaşında olmalısın (şu an ${K.playerAge()}).`, "bad");
         return false;
       }
       K.economy.spend(K.ECON.labelFoundCost, "label_found");
@@ -26112,6 +26186,13 @@ window.K = window.K || {};
   }
   function statusFor(heat) { return stageInfo(heat).name; }
 
+  /* v10.56 — GERÇEK SANATÇI HUSUMETİ GÜVENLİK ANAHTARI.
+     Varsayılan KAPALI: oyun gerçek kişiler hakkında diss/beef içeriği
+     üretmez (isim/benzerlik ve itibar riski). Oyuncu ayarlardan açabilir. */
+  function realBeefOn() {
+    return !!(K.settings && K.settings.beefReal && K.settings.beefReal());
+  }
+
   K.beef = {
     statusFor,
 
@@ -26145,6 +26226,7 @@ window.K = window.K || {};
 
     /* sözlerde bir sanatçının adını/mahlasını bul → diss hedefi */
     detectTarget(text) {
+      if (!realBeefOn()) return null;   // v10.56 — gerçek sanatçıyı hedef alma kapalı
       const t = (text || "").toLocaleLowerCase("tr");
       if (!t.trim()) return null;
       const players = K.artistList().filter(a => a.id !== "player");
@@ -26211,7 +26293,10 @@ window.K = window.K || {};
         let bad = 0, good = 0;
         BAD.forEach(w => { if (near.indexOf(w) >= 0) bad++; });
         GOOD.forEach(w => { if (near.indexOf(w) >= 0) good++; });
-        const tone = bad > good ? "diss" : (good > bad ? "respect" : "mention");
+        let tone = bad > good ? "diss" : (good > bad ? "respect" : "mention");
+        /* v10.56 — husumet kapalıysa gerçek sanatçıya yönelik "diss" etkisi
+           uygulanmaz; sadece anılma sayılır (saygı/anılma serbest). */
+        if (tone === "diss" && !realBeefOn()) tone = "mention";
         out.push({ artistId: a.id, name: a.stageName, tone });
       });
       return out;
@@ -26271,6 +26356,7 @@ window.K = window.K || {};
 
     /* ---------------- sanatçı oyuncuya diss atar ---------------- */
     attack(artistId, opts) {
+      if (!realBeefOn()) return null;   // v10.56 — güvenlik ağı
       opts = opts || {};
       const s = K.state, p = s.player;
       const a = K.artistById(artistId);
@@ -26335,6 +26421,7 @@ window.K = window.K || {};
     },
 
     attackRandom(reason) {
+      if (!realBeefOn()) return null;   // v10.56 — gerçek sanatçı otomatik diss kapalı
       const s = K.state, p = s.player;
       const cands = K.beef.list().filter(b => b.heat >= 30).map(b => b.artistId);
       (s.rivals || []).forEach(r => { if (!cands.includes(r.artistId)) cands.push(r.artistId); });
@@ -27917,19 +28004,21 @@ window.K = window.K || {};
   const U = K.util;
 
   const ASSETS = [
-    { id: "watch",    name: "Kol Saati",      icon: "⌚", cost: 180000,  upkeep: 900,   img: 4,  rep: 1,  minPop: 15,
+    /* v10.56 — minAge: mülk/araç/işletme edinmek yasal olarak reşit olmayı
+       gerektirir. Küçük gösteriş ürünleri 16+, diğerleri 18+. */
+    { id: "watch",    name: "Kol Saati",      icon: "⌚", cost: 180000,  upkeep: 900,   img: 4,  rep: 1,  minPop: 15, minAge: 16,
       note: "Sessiz gösteriş; imajı yükseltir.", effect: "flex" },
-    { id: "chain",    name: "Elmas Zincir",   icon: "💎", cost: 260000,  upkeep: 1200,  img: 6,  rep: 2,  minPop: 18,
+    { id: "chain",    name: "Elmas Zincir",   icon: "💎", cost: 260000,  upkeep: 1200,  img: 6,  rep: 2,  minPop: 18, minAge: 16,
       note: "Gösterişin zirvesi — ama soyulma riski var.", effect: "flex", risk: "theft" },
-    { id: "studio",   name: "Kendi Stüdyosu", icon: "🎛️", cost: 350000,  upkeep: 6000,  img: 3,  rep: 6,  minPop: 22,
+    { id: "studio",   name: "Kendi Stüdyosu", icon: "🎛️", cost: 350000,  upkeep: 6000,  img: 3,  rep: 6,  minPop: 22, minAge: 18,
       note: "Kayıt maliyeti düşer, kayıt kalitesi artar.", effect: "studio" },
-    { id: "business", name: "Kafe / Kulüp",   icon: "☕", cost: 700000,  upkeep: 8000,  img: 1,  rep: 3,  minPop: 28,
+    { id: "business", name: "Kafe / Kulüp",   icon: "☕", cost: 700000,  upkeep: 8000,  img: 1,  rep: 3,  minPop: 28, minAge: 18,
       note: "Aylık pasif gelir getirir.", effect: "income", income: 26000 },
-    { id: "car",      name: "Lüks Araba",     icon: "🏎️", cost: 900000,  upkeep: 9000,  img: 5,  rep: 4,  minPop: 30,
+    { id: "car",      name: "Lüks Araba",     icon: "🏎️", cost: 900000,  upkeep: 9000,  img: 5,  rep: 4,  minPop: 30, minAge: 18,
       note: "Gösteriş; imajı belirgin yükseltir.", effect: "flex" },
-    { id: "label",    name: "Şirket Binası",  icon: "🏢", cost: 1200000, upkeep: 18000, img: 2,  rep: 10, minPop: 32,
+    { id: "label",    name: "Şirket Binası",  icon: "🏢", cost: 1200000, upkeep: 18000, img: 2,  rep: 10, minPop: 32, minAge: 18,
       note: "Şirket gücünü ve prestijini artırır.", effect: "label" },
-    { id: "house",    name: "Şehir Evi",      icon: "🏠", cost: 1400000, upkeep: 14000, img: 2,  rep: 8,  minPop: 34,
+    { id: "house",    name: "Şehir Evi",      icon: "🏠", cost: 1400000, upkeep: 14000, img: 2,  rep: 8,  minPop: 34, minAge: 18,
       note: "Huzur: her gün stres azaltır.", effect: "calm" }
   ];
 
@@ -27969,6 +28058,11 @@ window.K = window.K || {};
       if (K.assets.owns(id)) return { ok: false, why: "Zaten sende" };
       if ((K.state.player.popularity || 0) < a.minPop) {
         return { ok: false, why: `Popülerlik ${a.minPop} olmalı` };
+      }
+      /* v10.56 — yaş kapısı (mülk/araç/işletme için reşit olmak gerekir). */
+      const _ma = a.minAge || K.ECON.assetMinAge || 18;
+      if (K.playerAge() < _ma) {
+        return { ok: false, why: `Bu varlık için ${_ma} yaşında olmalısın` };
       }
       if (!K.economy.canAfford(a.cost)) return { ok: false, why: `Yetersiz bakiye (${U.money(a.cost)})` };
       return { ok: true };
