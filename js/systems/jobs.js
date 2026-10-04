@@ -217,7 +217,11 @@
     payMult(job) {
       const lvl = K.skillLevel(job.skill);
       const dm = K.settings ? K.settings.diffMult().jobPay : 1;
-      return (1 + lvl / 140) * dm * K.jobs.fameDampen() * K.jobs.fatigueMult();
+      /* v10.57 — NOMİNAL ÜCRET: 43%/yıl enflasyonda sabit 620 ₺'lik bir
+         vardiya birkaç yılda değersizleşiyordu. Ücret artık endeksle
+         birlikte artar (giderler de artıyor). */
+      const infl = K.econ ? K.econ.infl() : 1;
+      return (1 + lvl / 140) * dm * K.jobs.fameDampen() * K.jobs.fatigueMult() * infl;
     },
 
     /* gün içi azalan verim: 1. iş tam, sonrakiler kademeli */
