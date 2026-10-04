@@ -4242,11 +4242,12 @@
           <div class="xg-head">
             <span class="xg-ico">✍️</span>
             <div class="xg-txt"><h3>Başkası İçin Yazmak</h3>
-              <p>Hook/verse yaz, para kazan, network kur. <b>Gölge</b> seçersen adın geçmez (ücret ×1,35) ama açığa çıkma riski birikir.</p></div>
+              <p>Hook/verse yaz, para kazan, network kur. <b>Gölge</b> seçersen adın geçmez (ücret ×1,35) ama açığa çıkma riski birikir. DM'den <b>✍️ Söz Gönder</b> ile kendi sözünü bir sanatçıya yollayabilirsin — o kendi adına yayınlar, sen söz yazarı olarak kredilenirsin.</p></div>
             <div class="xg-big">${w.craft}</div>
           </div>
           <div class="xg-stats">
             <div class="xg-stat"><div class="k">Ustalık</div><div class="v">${w.craft}</div></div>
+            <div class="xg-stat"><div class="k">Yayınlanan söz</div><div class="v">${w.publishedCount}</div></div>
             <div class="xg-stat"><div class="k">Kredili iş</div><div class="v">${w.credited}</div></div>
             <div class="xg-stat"><div class="k">Gölge iş</div><div class="v hot">${w.ghostJobs}</div></div>
             <div class="xg-stat"><div class="k">Toplam</div><div class="v money">${U.money(w.totalEarned)}</div></div>
@@ -4265,6 +4266,13 @@
               <button class="btn btn-ghost btn-xs" data-act="wr-accept" data-arg="${o.id}" data-mode="ghost">Gölge</button>
               <button class="btn btn-ghost btn-xs" data-act="wr-decline" data-arg="${o.id}">Ret</button>
             </div>`).join("")}</div>` : `<div class="helper">Şu an teklif yok. Şöhretin ve ustalığın arttıkça daha çok iş gelir.</div>`)}
+          ${w.publishedCount ? `<div class="helper">✍️ <b>${w.publishedCount}</b> sözün başka sanatçılarca yayınlandı · günlük telif <b class="money">${U.money(w.publishingDaily)}</b></div>
+          <div class="xg-rows">${w.sent.slice(0, 6).map(sg => `
+            <div class="xg-row">
+              <span class="xg-row-ico">🎵</span>
+              <div class="xg-row-main"><b>${U.escape(sg.artistName)} — "${U.escape(sg.title)}"</b>
+                <span>söz yazarı: <b>SEN</b> · kalite ${sg.quality} · peşin ${U.money(sg.fee)} · kazanç ${U.money(sg.earned)}${sg.daysLeft > 0 ? ` · ${sg.daysLeft} gün telif` : " · telif bitti"}</span></div>
+            </div>`).join("")}</div>` : ""}
         </div>`);
       }
 
