@@ -255,6 +255,8 @@
 
       /* Diss / gündem girişleri */
       const dissArtist = opts.dissArtistId ? K.artistById(opts.dissArtistId) : null;
+      /* v10.53 — FT anlaşmasından gelindiyse ortak sanatçı önceden seçili */
+      const featArtist = opts.featArtistId ? K.artistById(opts.featArtistId) : null;
       const topic = opts.topic || null;
       const topicTheme = topic ? (K.NEWS_CAT_THEME[topic.cat] || null) : null;
       let lyrics = "";
@@ -268,7 +270,8 @@
         /* v10.39 — parça artık kendi SÖZÜNÜ taşır (eskiden tek bir
            lyricSections vardı ve albümdeki her şarkı aynı sözü alıyordu) */
         tracks: [{
-          name: K.career.suggestTitle(), budget: 12000, source: "ev",
+          name: (opts.featureTitle || K.career.suggestTitle()), budget: 12000, source: "ev",
+          feat: featArtist ? featArtist.id : null,
           lyrics: { intro: "", verse: lyrics || "", hook: "", chorus: "", bridge: "", outro: "" }
         }],
         lyrTrack: 0,
@@ -278,7 +281,8 @@
         mixQ: 55,
         /* v10.44 — prodüksiyon süreci: kayıt oturumu · mix · master · revizyon */
         prod: K.production.defaultPlan(),
-        feat: null,
+        feat: featArtist ? featArtist.id : null,
+        featDeal: featArtist ? { artistId: featArtist.id, title: opts.featureTitle || null } : null,
         lyricsTheme: topicTheme || "street",
         topic: topic,
         dissArtist: dissArtist,
@@ -1708,6 +1712,7 @@
       return `
         ${st.dissArtist ? `<div class="note-line hot">🔥 Diss modu: <b>${U.escape(st.dissArtist.stageName)}</b> hedef alındı. Sözlerinde adı geçerse husumet sayılır.</div>` : ""}
         ${st.topic ? `<div class="note-line gold">📰 Gündemden geldin: <b>${U.escape(st.topic.title)}</b> · sıcaklık ${st.topic.heat}°</div>` : ""}
+        ${st.featDeal ? `<div class="note-line gold">🤝 Ortak iş: <b>${U.escape((K.artistById(st.featDeal.artistId) || {}).stageName || "")}</b> ile feature anlaşman var. Ortak sanatçı önceden seçildi — sözü, beat'i ve kaliteyi sen belirle. Yayınlanınca anlaşma tamamlanır.</div>` : ""}
 
         <div class="form-block">
           <div class="form-block-head"><span class="fb-no">1</span><div><h4>Altyapı</h4><p>Beat türü ve işçilik kalitesi.</p></div></div>
@@ -2474,6 +2479,14 @@
         coverPx: st.coverPx, contentId: !!st.contentId, releaseWeekday: st.releaseWeekday,
         trackCount: count, trackBudgets: tracks.map(t => t.budget), tracks
       });
+      /* v10.53 — stüdyoda yayınlanan feature/ortak iş anlaşmayı tamamlar.
+         Böylece aynı sanatçıyla bekleyen ortak iş "askıda" kalmaz. */
+      if (rel && K.relations && K.relations.completeDeal) {
+        const featIds = {};
+        if (st.feat) featIds[st.feat] = true;
+        (st.tracks || []).forEach(t => { if (t.feat) featIds[t.feat] = true; });
+        Object.keys(featIds).forEach(id => K.relations.completeDeal(id, null, rel.id));
+      }
       if (rel) K.refresh();
       return !!rel;
     },
