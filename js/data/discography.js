@@ -8,6 +8,33 @@
 (function (K) {
   "use strict";
   K.DISCOGRAPHY = {
+  "liashine": [
+    {"title": "Affetmem - Single", "type": "Single", "year": "2022", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/c0/e9/7e/c0e97e26-ff59-127c-a9ff-da991813818a/196864631822.jpg/600x600bb.jpg", "tracks": ["Affetmem"]},
+    {"title": "Değiştin - Single", "type": "Single", "year": "2020", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/14/6f/8d/146f8d90-3d29-7922-a462-09a717006baf/artwork.jpg/600x600bb.jpg", "tracks": ["Değiştin"]},
+    {"title": "Bipolar - Single", "type": "Single", "year": "2022", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/7d/6f/05/7d6f05c2-50e5-ed8c-ded1-000e6b8d83dd/cover.jpg/600x600bb.jpg", "tracks": ["Bipolar"]},
+    {"title": "Beni Hiç Anlamadın - Single", "type": "Single", "year": "2024", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/72/41/11/724111b8-71cb-3eea-5929-30cb66ad4173/cover.jpg/600x600bb.jpg", "tracks": ["Beni Hiç Anlamadın"]},
+    {"title": "Sen Lazım - Single", "type": "Single", "year": "2020", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/25/c7/b7/25c7b72e-9b4e-53b2-7c38-2fc9609a888c/cover.jpg/600x600bb.jpg", "tracks": ["Sen Lazım"]},
+    {"title": "Benim İçin Daha Zor - Single", "type": "Single", "year": "2020", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/3e/5e/e2/3e5ee243-2970-13c6-7b94-5114b348f1c2/cover.jpg/600x600bb.jpg", "tracks": ["Benim İçin Daha Zor"]},
+    {"title": "Değiştim - Single", "type": "Single", "year": "2025", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/92/66/f7/9266f74f-4ff1-94c4-fcc8-c77082c37493/artwork.jpg/600x600bb.jpg", "tracks": ["Değiştim"]},
+    {"title": "ÇALIKUŞU - Single", "type": "Single", "year": "2021", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/9c/62/a4/9c62a4ec-baf1-119b-2c79-6b69357f4b3c/21UMGIM12632.rgb.jpg/600x600bb.jpg", "tracks": ["ÇALIKUŞU"]},
+    {"title": "Kalbime Gömdüm - Single", "type": "Single", "year": "2023", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/d6/01/17/d601170b-3f54-276c-9b18-0fbd1deef00e/0.jpg/600x600bb.jpg", "tracks": ["Kalbime Gömdüm"]},
+    {"title": "Kalbim Sana Ait - Single", "type": "Single", "year": "2024", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/2b/c2/80/2bc280a1-5d7f-770c-925b-3d6e3c3a62e0/cover.jpg/600x600bb.jpg", "tracks": ["Kalbim Sana Ait"]},
+    {"title": "Rol - Single", "type": "Single", "year": "2021", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a5/b9/81/a5b98177-b0b7-60a5-fc10-678e18f0e505/cover.jpg/600x600bb.jpg", "tracks": ["Rol"]},
+    {"title": "Aden - Single", "type": "Single", "year": "2019", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/f7/18/d8/f718d8da-8278-023c-27f7-dad71b56d89d/cover.jpg/600x600bb.jpg", "tracks": ["Aden"]},
+    {"title": "Benimle Ateş Et - Single", "type": "Single", "year": "2020", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/ff/de/02/ffde027f-2828-25d5-a536-f54ff50ca486/artwork.jpg/600x600bb.jpg", "tracks": []},
+    {"title": "Kaybettik - Single", "type": "Single", "year": "2021", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/7d/53/5a/7d535aaa-76d5-f815-f19e-a33eda1369c4/artwork.jpg/600x600bb.jpg", "tracks": ["Kaybettik"]},
+    {"title": "Aden P2 - Single", "type": "Single", "year": "2020", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/6e/52/72/6e527213-1fa6-1e96-2d4a-578b86ece778/artwork.jpg/600x600bb.jpg", "tracks": ["Aden P2"]},
+    {"title": "MI AMOR - Single", "type": "Single", "year": "2025", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/b5/96/fd/b596fd0e-d16e-5d0b-1c03-486d249d4b7f/0.jpg/600x600bb.jpg", "tracks": ["MI AMOR"]},
+    {"title": "Seni Değiştirmişler - Single", "type": "Single", "year": "2025", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/21/cd/f7/21cdf75b-61f8-7736-72ea-72f3f9c1bc8e/cover.jpg/600x600bb.jpg", "tracks": ["Seni Değiştirmişler"]},
+    {"title": "Yıldızlara Erişmek - Single", "type": "Single", "year": "2020", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/da/60/49/da6049de-9a4a-2595-c80c-7ac499c2fd29/cover.jpg/600x600bb.jpg", "tracks": ["Yıldızlara Erişmek"]},
+    {"title": "Beni Yanına Al - Single", "type": "Single", "year": "2026", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/00/6d/cf/006dcf18-70b4-03fc-fcd8-f1afae777a9d/cover.jpg/600x600bb.jpg", "tracks": ["Beni Yanına Al"]},
+    {"title": "N.A.O.A - Single", "type": "Single", "year": "2025", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/64/d4/1b/64d41b29-6950-1ec0-7e1b-bab1ccffa7a2/cover.jpg/600x600bb.jpg", "tracks": ["N.A.O.A"]},
+    {"title": "Ahtım Var - Single", "type": "Single", "year": "2026", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f0/34/08/f0340893-217d-06db-786f-e09a4c1d33f1/artwork.jpg/600x600bb.jpg", "tracks": ["Ahtım Var"]},
+    {"title": "Hiç - Single", "type": "Single", "year": "2024", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/2e/da/f5/2edaf55d-a89b-3b11-4940-726259689567/cover.jpg/600x600bb.jpg", "tracks": ["Hiç"]},
+    {"title": "bir kez sarılamadık - Single", "type": "Single", "year": "2026", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/31/00/83/31008398-bd88-5b45-c95d-0d1956c48c83/cover.jpg/600x600bb.jpg", "tracks": ["bir kez sarılamadık"]},
+    {"title": "Hikayem - Single", "type": "Single", "year": "2025", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/38/ee/c0/38eec033-3698-c04b-3623-1c2c785d0fb9/cover.jpg/600x600bb.jpg", "tracks": ["Hikayem"]},
+    {"title": "Aden P2 (Akustik) - Single", "type": "Single", "year": "2024", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/59/57/6c/59576c10-a8d2-2059-7c6b-b763455e2af8/cover.jpg/600x600bb.jpg", "tracks": ["Aden P2 (Akustik)"]},
+  ],
   "sehinsah": [
     {
       "title": "mavi ay - Single",
