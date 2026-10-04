@@ -246,8 +246,19 @@
   K.meta.WEEKDAYS = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
   K.meta.WEEKDAYS_SHORT = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
   K.meta.weekdayOf = function (day) {
-    /* oyun günü 0'dan başlar; Gün 0 = Pazartesi kabul edilir */
-    return ((Math.round(day || 0) + 1) % 7 + 7) % 7;
+    /* v10.49 — DÜZELTME: hafta günü artık GERÇEK takvimden türetilir.
+       Eskiden sentetik bir varsayım vardı (Gün 0 = Pazartesi) ve telefon
+       takvimiyle çelişiyordu: oyun "Cuma" derken gerçek tarih Salı'ya
+       düşebiliyordu. Artık `dateStart`'a göre gerçek hafta günü okunur;
+       WEEKDAYS dizisiyle aynı indeks (0=Pazar … 6=Cumartesi). */
+    const d = Math.round(day || 0);
+    try {
+      if (K.util && K.util.dateObjForDay && K.state && K.state.dateStart) {
+        const o = K.util.dateObjForDay(d);
+        return new Date(o.y, o.m - 1, o.d).getDay();   // 0=Pazar … 6=Cumartesi
+      }
+    } catch (e) { /* util henüz yüklenmediyse sentetik yedeğe düş */ }
+    return ((d + 1) % 7 + 7) % 7;
   };
   K.meta.weekdayName = function (day) { return K.meta.WEEKDAYS[K.meta.weekdayOf(day)]; };
   /* cuma çıkışı = 1.00, diğer günler cezalı */
