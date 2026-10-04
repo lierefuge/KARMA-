@@ -22,19 +22,21 @@
   const U = K.util;
 
   const ASSETS = [
-    { id: "watch",    name: "Kol Saati",      icon: "⌚", cost: 180000,  upkeep: 900,   img: 4,  rep: 1,  minPop: 15,
+    /* v10.56 — minAge: mülk/araç/işletme edinmek yasal olarak reşit olmayı
+       gerektirir. Küçük gösteriş ürünleri 16+, diğerleri 18+. */
+    { id: "watch",    name: "Kol Saati",      icon: "⌚", cost: 180000,  upkeep: 900,   img: 4,  rep: 1,  minPop: 15, minAge: 16,
       note: "Sessiz gösteriş; imajı yükseltir.", effect: "flex" },
-    { id: "chain",    name: "Elmas Zincir",   icon: "💎", cost: 260000,  upkeep: 1200,  img: 6,  rep: 2,  minPop: 18,
+    { id: "chain",    name: "Elmas Zincir",   icon: "💎", cost: 260000,  upkeep: 1200,  img: 6,  rep: 2,  minPop: 18, minAge: 16,
       note: "Gösterişin zirvesi — ama soyulma riski var.", effect: "flex", risk: "theft" },
-    { id: "studio",   name: "Kendi Stüdyosu", icon: "🎛️", cost: 350000,  upkeep: 6000,  img: 3,  rep: 6,  minPop: 22,
+    { id: "studio",   name: "Kendi Stüdyosu", icon: "🎛️", cost: 350000,  upkeep: 6000,  img: 3,  rep: 6,  minPop: 22, minAge: 18,
       note: "Kayıt maliyeti düşer, kayıt kalitesi artar.", effect: "studio" },
-    { id: "business", name: "Kafe / Kulüp",   icon: "☕", cost: 700000,  upkeep: 8000,  img: 1,  rep: 3,  minPop: 28,
+    { id: "business", name: "Kafe / Kulüp",   icon: "☕", cost: 700000,  upkeep: 8000,  img: 1,  rep: 3,  minPop: 28, minAge: 18,
       note: "Aylık pasif gelir getirir.", effect: "income", income: 26000 },
-    { id: "car",      name: "Lüks Araba",     icon: "🏎️", cost: 900000,  upkeep: 9000,  img: 5,  rep: 4,  minPop: 30,
+    { id: "car",      name: "Lüks Araba",     icon: "🏎️", cost: 900000,  upkeep: 9000,  img: 5,  rep: 4,  minPop: 30, minAge: 18,
       note: "Gösteriş; imajı belirgin yükseltir.", effect: "flex" },
-    { id: "label",    name: "Şirket Binası",  icon: "🏢", cost: 1200000, upkeep: 18000, img: 2,  rep: 10, minPop: 32,
+    { id: "label",    name: "Şirket Binası",  icon: "🏢", cost: 1200000, upkeep: 18000, img: 2,  rep: 10, minPop: 32, minAge: 18,
       note: "Şirket gücünü ve prestijini artırır.", effect: "label" },
-    { id: "house",    name: "Şehir Evi",      icon: "🏠", cost: 1400000, upkeep: 14000, img: 2,  rep: 8,  minPop: 34,
+    { id: "house",    name: "Şehir Evi",      icon: "🏠", cost: 1400000, upkeep: 14000, img: 2,  rep: 8,  minPop: 34, minAge: 18,
       note: "Huzur: her gün stres azaltır.", effect: "calm" }
   ];
 
@@ -74,6 +76,11 @@
       if (K.assets.owns(id)) return { ok: false, why: "Zaten sende" };
       if ((K.state.player.popularity || 0) < a.minPop) {
         return { ok: false, why: `Popülerlik ${a.minPop} olmalı` };
+      }
+      /* v10.56 — yaş kapısı (mülk/araç/işletme için reşit olmak gerekir). */
+      const _ma = a.minAge || K.ECON.assetMinAge || 18;
+      if (K.playerAge() < _ma) {
+        return { ok: false, why: `Bu varlık için ${_ma} yaşında olmalısın` };
       }
       if (!K.economy.canAfford(a.cost)) return { ok: false, why: `Yetersiz bakiye (${U.money(a.cost)})` };
       return { ok: true };
