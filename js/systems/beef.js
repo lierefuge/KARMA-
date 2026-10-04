@@ -34,6 +34,13 @@
   }
   function statusFor(heat) { return stageInfo(heat).name; }
 
+  /* v10.56 — GERÇEK SANATÇI HUSUMETİ GÜVENLİK ANAHTARI.
+     Varsayılan KAPALI: oyun gerçek kişiler hakkında diss/beef içeriği
+     üretmez (isim/benzerlik ve itibar riski). Oyuncu ayarlardan açabilir. */
+  function realBeefOn() {
+    return !!(K.settings && K.settings.beefReal && K.settings.beefReal());
+  }
+
   K.beef = {
     statusFor,
 
@@ -67,6 +74,7 @@
 
     /* sözlerde bir sanatçının adını/mahlasını bul → diss hedefi */
     detectTarget(text) {
+      if (!realBeefOn()) return null;   // v10.56 — gerçek sanatçıyı hedef alma kapalı
       const t = (text || "").toLocaleLowerCase("tr");
       if (!t.trim()) return null;
       const players = K.artistList().filter(a => a.id !== "player");
@@ -133,7 +141,10 @@
         let bad = 0, good = 0;
         BAD.forEach(w => { if (near.indexOf(w) >= 0) bad++; });
         GOOD.forEach(w => { if (near.indexOf(w) >= 0) good++; });
-        const tone = bad > good ? "diss" : (good > bad ? "respect" : "mention");
+        let tone = bad > good ? "diss" : (good > bad ? "respect" : "mention");
+        /* v10.56 — husumet kapalıysa gerçek sanatçıya yönelik "diss" etkisi
+           uygulanmaz; sadece anılma sayılır (saygı/anılma serbest). */
+        if (tone === "diss" && !realBeefOn()) tone = "mention";
         out.push({ artistId: a.id, name: a.stageName, tone });
       });
       return out;
@@ -193,6 +204,7 @@
 
     /* ---------------- sanatçı oyuncuya diss atar ---------------- */
     attack(artistId, opts) {
+      if (!realBeefOn()) return null;   // v10.56 — güvenlik ağı
       opts = opts || {};
       const s = K.state, p = s.player;
       const a = K.artistById(artistId);
@@ -257,6 +269,7 @@
     },
 
     attackRandom(reason) {
+      if (!realBeefOn()) return null;   // v10.56 — gerçek sanatçı otomatik diss kapalı
       const s = K.state, p = s.player;
       const cands = K.beef.list().filter(b => b.heat >= 30).map(b => b.artistId);
       (s.rivals || []).forEach(r => { if (!cands.includes(r.artistId)) cands.push(r.artistId); });
