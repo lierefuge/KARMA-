@@ -16,8 +16,20 @@
      · Albümler de toplam dinlenmeden plak alır.
      · Her plak bir "tören anı" bildirimi üretir.
 
-   Eşikler gerçek RIAA ölçeğinden oyuna uyarlanmıştır (şarkı başına
-   toplam dinlenme).
+   EŞİKLER HAKKINDA (dürüst not)
+   ----------------------------
+   RIAA sertifikaları SATIŞ BİRİMİ üzerinden verilir ve 1 birim =
+   1.500 dinlenme sayılır:
+       Altın    =   500.000 birim ≈   750 milyon dinlenme
+       Platin   = 1.000.000 birim ≈ 1,5 milyar dinlenme
+       Elmas    = 10.000.000 birim ≈ 15 milyar dinlenme
+   Oyunun eşikleri (1M / 5M / 25M) RIAA'nın BİREBİR kopyası DEĞİLDİR;
+   RIAA MANTIĞINDAN esinlenip Türkiye pazarı ve oyun ölçeğine
+   uyarlanmıştır. Türkiye'de yayın çağı için resmî bir akış sertifikası
+   olmadığından (MÜYAP tarihsel olarak fiziksel satış sayardı) daha
+   küçük, oyuncunun kariyeri boyunca ulaşabileceği eşikler seçildi.
+   Yani buradaki "Platin", global RIAA platininden çok daha kolaydır —
+   bilinçli bir tasarım kararıdır, hata değildir.
    ============================================================ */
 (function (K) {
   "use strict";
