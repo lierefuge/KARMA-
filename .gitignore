@@ -1,6 +1,9 @@
 # --- bağımlılıklar ---
 node_modules/
-package-lock.json
+# package-lock.json ARTIK TAKİP EDİLİR (v10.55): devDependency'ler (jsdom)
+# ortamlar arası tekrarlanabilir olsun. jsdom sürümü kritik: 30+ zorunlu,
+# aksi hâlde uzun simülasyonlar heap'i tüketiyor. Kilit dosyası olmadan
+# CI ile yerel makine farklı sürüm kurabiliyordu.
 
 # --- üretilen geçici dosyalar ---
 /tmp/
