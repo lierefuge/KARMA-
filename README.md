@@ -5,6 +5,51 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.49 — Hata avı: çıkış günü takvimi · ölü kodlar · görsel/veri
+
+Oyunun genel gözden geçirmesinde bulunan, çoğu **sessizce yanlış çalışan**
+hatalar kapatıldı. Yeni regresyon testi: `tools/smoke-v1049.js` (**17 kontrol**).
+
+Değişen dosyalar: `js/data/release-meta.js`, `js/data/editorial.js`,
+`js/systems/career.js`, `js/systems/platforms.js`, `js/systems/relations.js`,
+`js/systems/imagery.js`, `js/apps/messages.js`, `js/apps/youtube.js`,
+`js/core/game.js`, `js/core/state.js`.
+
+### 1 · 📅 Çıkış günü takvimi artık gerçek (en önemli)
+
+Oyunun **iki takvimi** vardı: telefon takvimi gerçek hafta gününü gösterirken
+çıkış sistemi **sentetik** bir hafta günü varsayıyordu (`Gün 0 = Pazartesi`).
+İkisi **4 güne kadar kayabiliyordu**: “Gün 25 · Cuma” denen bir yayın gerçek
+takvimde **Salı**'ya düşüyordu. `K.meta.weekdayOf` artık tarihi gerçek takvimden
+(`dateForDay`) türetir; “Cuma” hedefi gerçekten Cuma'ya oturur ve liste
+fit'i de doğru günü ödüllendirir.
+
+### 2 · 🧹 Ölü kodlar (hiç etki etmeyen kurallar)
+
+- **Explicit liste cezası:** explicit parçaların editoryal listeleri kısması
+gereken blok, pitch listeleri **atanmadan önce** çalıştığı için hiç devreye
+girmiyordu. Artık pitch listelerinden sonra uygulanır.
+- **Grup sohbet satırları:** `groupLine` `artist.genre === "rap" ? "genel" : "genel"`
+idi — kadro/ortak proje havuzları hiç görünmüyordu. Artık grubun türü (`kind`)
+kullanılır.
+- **iTunes görsel arama terimi:** `aliases[0] ? stageName : stageName` her iki
+durumda da sahne adını veriyordu; alias yok sayılıyordu.
+
+### 3 · 🐛 Görsel & veri
+
+- **YouTube kanal banner'ı** `style="linear-gradient(...)"` üretiyordu — geçersiz
+CSS. Artık `background:linear-gradient(...)`.
+- **Platform arama sonucu “yıl” alanı** `? 2024 : 2024` ile **hep 2024**
+dönüyordu; artık şarkının gerçek yayın yılı.
+- **Bildirim kuyruğu:** bazı sistemler 60 ile sınırlıyor, bazıları sınırlamıyordu;
+uzun kariyerde dizi sınırsız büyüyüp kaydı şişiriyordu. `game.nextDay` sonunda
+merkezî kapak.
+- **Taze oyun bildirim alanı:** üst düzey `notifications` tanımlı değildi (yalnızca
+kullanılmayan `player.notifications` vardı); `(x || [])` korumalarına güveniyordu.
+Artık açıkça tanımlı.
+
+---
+
 ## GÜNCELLEME v10.48 — Editoryal/playlist derinliği: pitch stratejisi · liste bakımı
 
 Listeler artık sadece bir eşik değil; **editoryal ekibe nasıl başvurduğun** ve
