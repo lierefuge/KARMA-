@@ -31,8 +31,12 @@
     },
 
     setActive() {
-      U.qsa("#career-tabs .tab").forEach(t =>
-        t.classList.toggle("active", t.dataset.tab === currentTab));
+      U.qsa("#career-tabs .tab").forEach(t => {
+        const on = t.dataset.tab === currentTab;
+        t.classList.toggle("active", on);
+        /* v10.55 — erişilebilirlik: seçili sekme ekran okuyucuya bildirilir */
+        t.setAttribute("aria-selected", on ? "true" : "false");
+      });
     },
 
     render() {
@@ -3160,7 +3164,46 @@
         }
       }
 
-      if (!chart.length) return listsHTML + `<div class="empty-note"><b>Liste oluşuyor</b>Bir gün ilerlet ve listeleri gör.</div>`;
+      /* ---------- 1.5) YÜKSELEN 20 (erken kariyer basamağı, v10.55) ----------
+         Ulusal KARMA Top 30'a girmek günlük ~58.000 dinlenme ister; oyuncu
+         normal oynayışta oraya aylarca ulaşamaz. Bu liste, henüz ulusal çapa
+         ulaşmamış işleri sıralar ve oyuncunun ilk günden tırmandığı bir tablo
+         sunar (ulusal liste hedef olarak kalır). */
+      let risingBlock = "";
+      const rising = s.chartRising || [];
+      if (rising.length) {
+        const rr = rising.map(e => {
+          const d = e.delta > 0 ? `<span class="chart-delta up">▲${e.delta}</span>`
+            : e.delta < 0 ? `<span class="chart-delta down">▼${Math.abs(e.delta)}</span>`
+            : `<span class="chart-delta same">—</span>`;
+          const artistLabel = e.mine ? s.player.stageName : e.artistName;
+          return `<div class="chart-row ${e.mine ? "me" : ""}">
+            <span class="chart-rank ${e.rank <= 3 ? "top" : ""}">${e.rank}</span>
+            ${K.ui.cover(e.cover, (e.title[0] || "?").toUpperCase(), 38, e.art)}
+            <div class="grow">
+              <div class="title" style="font-size:12.5px;font-weight:700">${U.escape(e.title)}</div>
+              <div class="sub" style="font-size:10.5px;color:var(--text-2)">${U.escape(artistLabel)}</div>
+            </div>
+            ${d}
+            <span style="font-size:10.5px;color:var(--text-3);font-weight:700;width:70px;text-align:right">${hideV ? "🔒" : U.compact(e.daily) + "/g"}</span>
+          </div>`;
+        }).join("");
+        risingBlock = `
+          <div class="c-block">
+            <div class="c-head">
+              <div>
+                <h2>Yükselen 20</h2>
+                <div class="sub">Ulusal çapa henüz ulaşmamış işler — kariyerinin ilk basamağı</div>
+              </div>
+            </div>
+            <div class="chart-list">${rr}</div>
+          </div>`;
+      }
+
+      if (!chart.length) {
+        return listsHTML + risingBlock +
+          `<div class="empty-note"><b>Liste oluşuyor</b>Bir gün ilerlet ve listeleri gör.</div>`;
+      }
 
       const rows = chart.slice(0, 30).map(e => {
         const d = e.delta > 0 ? `<span class="chart-delta up">▲${e.delta}</span>`
@@ -3180,7 +3223,7 @@
       }).join("");
 
       const st = K.live ? K.live.status() : null;
-      return listsHTML + `
+      return listsHTML + risingBlock + `
         <div class="c-block">
           <div class="c-head">
             <div>
