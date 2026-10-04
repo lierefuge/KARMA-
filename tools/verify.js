@@ -175,7 +175,9 @@ const SUITES = [
   /* v10.52 — gündelik rutin + anlayan DM + kalıcı FT anlaşmaları */
   { id: "v1052",       script: "tools/smoke-v1052.js",       label: "v10.52 gündelik rutin + anlayan DM + FT işleme" },
   /* v10.53 — FT anlaşması artık otomatik şarkı üretmez; oyuncu stüdyoda hazırlar */
-  { id: "v1053",       script: "tools/smoke-v1053.js",       label: "v10.53 FT stüdyo akışı (oyuncu kontrollü ortak iş)" }
+  { id: "v1053",       script: "tools/smoke-v1053.js",       label: "v10.53 FT stüdyo akışı (oyuncu kontrollü ortak iş)" },
+  /* v10.54 — oyuncu sözünü sanatçıya gönderir; sanatçı yayınlar, oyuncu kredilenir */
+  { id: "v1054",       script: "tools/smoke-v1054.js",       label: "v10.54 söz gönder (söz yazarı kredisi + yayın telifi)" }
 ];
 
 const suiteOut = {};
