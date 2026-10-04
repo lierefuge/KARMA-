@@ -318,6 +318,31 @@
 .dm-chip:hover { background: rgba(255,255,255,0.16); border-color: var(--karma); }
 .dm-chip.gold { background: rgba(255,203,92,0.14); border-color: rgba(255,203,92,0.35); color: #ffdd9c; }
 
+/* v10.50 — ruh hali rozeti (DM başlığı) */
+.dm-mood {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10.5px; font-weight: 800; padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
+  color: var(--text-1);
+}
+
+/* v10.50 — önerilen cevaplar (RPG hızlı seçenekler) */
+.dm-suggest { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 2px; }
+.dm-sug {
+  font-family: inherit; text-align: left; cursor: pointer;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; padding: 9px 12px; border-radius: 12px;
+  background: rgba(43,143,255,0.08); border: 1px solid rgba(43,143,255,0.22);
+  color: var(--text-0); transition: all 0.14s;
+}
+.dm-sug:hover { background: rgba(43,143,255,0.18); border-color: #2b8fff; }
+.dm-sug .dms-t {
+  flex: 0 0 auto; font-size: 9px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.04em; padding: 2px 7px; border-radius: var(--radius-pill);
+  background: rgba(255,255,255,0.09); color: var(--text-3);
+}
+
 /* message composer */
 .dm-composer {
   flex: 0 0 auto;
