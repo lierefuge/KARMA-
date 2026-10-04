@@ -7123,7 +7123,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.52.0";
+  K.VERSION = "10.53.0";
   K.VERSION_DATE = "2026-10-04";
 })(window.K = window.K || {});
 
@@ -21396,6 +21396,18 @@ window.K = window.K || {};
       return rel.deal;
     },
 
+    /* v10.53 — stüdyoda yayınlanınca anlaşmayı tamamlandı olarak işaretle.
+       Böylece aynı sanatçıyla bekleyen ortak iş "askıda" kalmaz. */
+    completeDeal(artistId, type, releaseId) {
+      const rel = K.relation(artistId);
+      if (!rel || !rel.deal) return null;
+      if (type && rel.deal.type !== type) return null;
+      rel.deal.status = "released";
+      rel.deal.releaseId = releaseId || null;
+      rel.deal.releasedDay = K.state.day;
+      return rel.deal;
+    },
+
     /* ---------------- FEATURE TEKLİFİ (oyuncu → sanatçı) ---------------- */
     canProposeFeature(artistId) {
       const rel = K.relation(artistId);
@@ -21404,16 +21416,16 @@ window.K = window.K || {};
 
     proposeFeature(artistId, songTitle) {
       const e = K.relations._ensure(artistId);
-      if (!e) return;
+      if (!e) return { accepted: false };
       const rel = e.rel;
       const a = e.a;
       if (K.stageIndexFor(rel.affinity) < 4) {
         K.toast("Feature için erken", "Samimiyet 'Feature Teklifi' aşamasına gelmeli.", "warn");
-        return;
+        return { accepted: false };
       }
       const p = K.state.player;
       const cost = 15000;
-      if (!K.economy.canAfford(cost)) { K.toast("Yetersiz bakiye", `Stüdyo için ${U.money(cost)} gerekiyor.`, "bad"); return; }
+      if (!K.economy.canAfford(cost)) { K.toast("Yetersiz bakiye", `Stüdyo için ${U.money(cost)} gerekiyor.`, "bad"); return { accepted: false }; }
 
       // kabul olasılığı
       let prob = U.clamp(
@@ -21423,6 +21435,7 @@ window.K = window.K || {};
       /* v10.52 — DM'de zaten anlaşıldıysa (pending deal) teklif neredeyse kesin */
       if (rel.deal && rel.deal.type === "feature" && rel.deal.status === "pending") prob = Math.max(prob, 0.95);
       const accepted = Math.random() < prob;
+      const dealTitle = songTitle || (K.career.suggestTitle() + " (feat. " + a.stageName + ")");
 
       K.economy.spend(cost, "feature_studio");
       rel.lastInteract = K.state.day;
@@ -21436,23 +21449,21 @@ window.K = window.K || {};
         K.toast("Feature teklifi beklemeye alındı", `${a.stageName} şu an müsait değil.`, "warn");
       } else {
         K.relations.addAffinity(artistId, 6, "feature_kabul", { uncapped: true });
-        rel.flags.feature = true;
-        const dealTitle = songTitle || (K.career.suggestTitle() + " (feat. " + a.stageName + ")");
         K.relations.pushArtistMessage(artistId, U.pick([
           "Tamam kardeşim, gel yapalım. Sen beat hazırla, ben yazarım.",
           "Onay! Stüdyo ayarları bende. Şu başlıkla girelim.",
           "Anlaştık. Bu şarkı güzel olacak, hissediyorum."
         ]), "system");
-        // ortak yayın oluştur
-        K.career.createRelease({
-          title: dealTitle,
-          genre: p.genre, type: "single", waitDays: 13,
-          budget: 30000, marketing: 5000, featWith: artistId
-        });
-        K.relations._recordDeal(artistId, "feature", { songTitle: dealTitle, source: "outgoing" });
-        K.toast("🔥 Feature anlaşması!", `${a.stageName} ile ortak şarkı yayın sırasına girdi.`, "ok");
+        /* v10.53 — ARTIK ŞARKI OTOMATİK ÜRETİLMİYOR.
+           Eskiden burada createRelease çağrılıyordu ama söz/beat/kalite
+           verilmediği için ortak şarkı hep aynı vasat sonuçla çıkıyordu.
+           Artık anlaşma kaydedilir, oyuncu stüdyoya yönlendirilir:
+           sözü, beat'i, kaliteyi ve çıkış tarihini oyuncu seçer. */
+        K.relations._recordDeal(artistId, "feature", { songTitle: dealTitle, source: "outgoing", status: "agreed" });
+        K.toast("🔥 Feature anlaşması!", `${a.stageName} ile anlaştın — şimdi stüdyoda hazırla.`, "ok");
       }
       K.save(); K.refresh();
+      return { accepted: accepted, artistId: artistId, title: dealTitle, cost: cost };
     },
 
     /* ---------------- ORTAK PROJE (EP düzeyi iş birliği) ---------------- */
@@ -21470,7 +21481,7 @@ window.K = window.K || {};
         return;
       }
       const cost = 60000;
-      if (!K.economy.canAfford(cost)) { K.toast("Yetersiz bakiye", `Ortak EP için ${U.money(cost)} gerekiyor.`, "bad"); return; }
+      if (!K.economy.canAfford(cost)) { K.toast("Yetersiz bakiye", `Ortak EP için ${U.money(cost)} gerekiyor.`, "bad"); return { accepted: false }; }
 
       const prob = U.clamp((rel.affinity - 60) / 60 + a.traits.work / 18, 0.2, 0.95);
       const accepted = Math.random() < prob;
@@ -21481,19 +21492,15 @@ window.K = window.K || {};
         K.relations.pushArtistMessage(artistId, "Ortak EP fikrini sevdim ama şu an kendi albümüme odaklıyım. Sonra oturalım.", "system");
         K.toast("Ortak proje ertelendi", a.stageName + " şu an müsait değil.", "warn");
       } else {
-        rel.flags.collab = true;
         K.relations.addAffinity(artistId, 9, "ortak_proje", { uncapped: true });
         K.relations.pushArtistMessage(artistId, "Ortak proje için varım! Bir EP çıkaralım, ikimizin sound'u uyar.", "system");
         const collabTitle = projectTitle || ("Ortak Proje: " + a.stageName);
-        K.career.createRelease({
-          title: collabTitle,
-          genre: K.state.player.genre, type: "ep", trackCount: 4, waitDays: 24,
-          budget: 18000, marketing: 8000, featWith: artistId
-        });
-        K.relations._recordDeal(artistId, "collab", { songTitle: collabTitle, source: "outgoing" });
-        K.toast("🤝 Ortak proje başladı!", a.stageName + " ile ortak EP yayın sırasına girdi.", "ok");
+        /* v10.53 — ortak EP de otomatik üretilmiyor; stüdyoda hazırlanır. */
+        K.relations._recordDeal(artistId, "collab", { songTitle: collabTitle, source: "outgoing", status: "agreed" });
+        K.toast("🤝 Ortak proje anlaşması!", a.stageName + " ile anlaştın — stüdyoda EP'yi hazırla.", "ok");
       }
       K.save(); K.refresh();
+      return { accepted: accepted, artistId: artistId, title: projectTitle || ("Ortak Proje: " + a.stageName), type: "collab" };
     },
 
     /* ---------------- sanatçıdan gelen feature teklifi (DM) ---------------- */
@@ -21719,19 +21726,23 @@ window.K = window.K || {};
       if (offer.type === "feature") {
         if (accept) {
           const a = K.artistById(offer.artistId);
+          const dealTitle = offer.terms.title + (a ? " (feat. " + a.stageName + ")" : "");
           offer.status = "accepted";
           K.relations.addAffinity(offer.artistId, 5, "feature_ortak", { uncapped: true });
           K.relations.pushArtistMessage(offer.artistId,
             "Harika! O zaman stüdyo senin, ben geliyorum.", "system");
-          K.career.createRelease({
-            title: offer.terms.title + (a ? " (feat. " + a.stageName + ")" : ""),
-            genre: s.player.genre, type: "single", waitDays: 13,
-            budget: 25000, marketing: 0, featWith: offer.artistId
-          });
+          /* v10.53 — gelen feature teklifi de otomatik yayın ÜRETMEZ.
+             Anlaşma kaydedilir; şarkıyı oyuncu stüdyoda kendi sözü/
+             beat'i/kalitesiyle hazırlar. (Eskiden burada createRelease
+             çağrılıp hep aynı vasat sonucu üretiyordu.) */
           K.relations._recordDeal(offer.artistId, "feature", {
-            songTitle: offer.terms.title + (a ? " (feat. " + a.stageName + ")" : ""), source: "incoming"
+            songTitle: dealTitle, source: "incoming", status: "agreed"
           });
-          K.toast("🔥 Feature kabul edildi", "Ortak şarkı yayın sırasına eklendi.", "ok");
+          K.toast("🔥 Feature kabul edildi", "Şimdi stüdyoda hazırla — söz ve beat senin.", "ok");
+          offer.handledDay = s.day;
+          K.save(); K.refresh();
+          K.bus.emit("offer:resolved", offer);
+          return { accepted: true, artistId: offer.artistId, title: dealTitle, feature: true };
         } else {
           offer.status = "declined";
           K.relations.addAffinity(offer.artistId, -1, "feature_red");
@@ -21863,7 +21874,7 @@ window.K = window.K || {};
         const rel = s.relations[a.id];
         /* v10.52 — anlaşma varsa VEYA feature konuşulduysa aynı
            sanatçıdan yeniden feature teklifi gelmez. */
-        if (rel && rel.deal && rel.deal.type === "feature" && rel.deal.status === "pending") return false;
+        if (rel && rel.deal && rel.deal.type === "feature" && rel.deal.status !== "released") return false;
         if (rel && rel.flags && rel.flags.featureTalked) return false;
         return rel && rel.met && K.stageIndexFor(rel.affinity) >= 4 && !rel.flags.feature
           && K.relations.reach(a.id) >= 0.25;
@@ -22253,8 +22264,11 @@ window.K = window.K || {};
       if (!m.lastTopic || m.lastTopic === currentIntent) return null;
       if (gap < 1 || gap > 5) return null;
       if (!U.chance(0.34)) return null;
-      /* v10.52 — konuşulmuş bir FT anlaşması varsa öncelik ondadır */
+      /* v10.52/53 — konuşulmuş bir FT anlaşması varsa öncelik ondadır */
       const rel = K.relation(artistId);
+      if (rel.deal && rel.deal.type === "feature" && rel.deal.status === "agreed" && U.chance(0.6)) {
+        return "Anlaşmıştık ya — şarkıyı stüdyoda hazırlayınca bana haber ver.";
+      }
       if (rel.deal && rel.deal.type === "feature" && rel.deal.status === "pending" && U.chance(0.6)) {
         return "Feature konusunu kapatalım; stüdyo tarihini ne zaman belirleyelim?";
       }
@@ -22307,7 +22321,12 @@ window.K = window.K || {};
         return out.slice(0, 4);
       }
 
-      /* v10.52 — konuşulmuş FT anlaşması varsa tamamlamaya yönlendir */
+      /* v10.52/53 — konuşulmuş FT anlaşması varsa tamamlamaya yönlendir */
+      if (rel.deal && rel.deal.type === "feature" && rel.deal.status === "agreed") {
+        out.push({ text: "Şarkıyı stüdyoda hazırlayıp yayınlıyorum.", tone: "profesyonel" });
+        out.push({ text: "Ne zaman müsait olursun, tarihi netleştirelim?", tone: "sicak" });
+        return out.slice(0, 4);
+      }
       if (rel.deal && rel.deal.type === "feature" && rel.deal.status === "pending") {
         out.push({ text: "Tamam, stüdyo teklifini başlatıyorum.", tone: "profesyonel" });
         out.push({ text: "Şartları konuşalım.", tone: "net" });
@@ -32711,6 +32730,8 @@ window.K = window.K || {};
 
       /* Diss / gündem girişleri */
       const dissArtist = opts.dissArtistId ? K.artistById(opts.dissArtistId) : null;
+      /* v10.53 — FT anlaşmasından gelindiyse ortak sanatçı önceden seçili */
+      const featArtist = opts.featArtistId ? K.artistById(opts.featArtistId) : null;
       const topic = opts.topic || null;
       const topicTheme = topic ? (K.NEWS_CAT_THEME[topic.cat] || null) : null;
       let lyrics = "";
@@ -32724,7 +32745,8 @@ window.K = window.K || {};
         /* v10.39 — parça artık kendi SÖZÜNÜ taşır (eskiden tek bir
            lyricSections vardı ve albümdeki her şarkı aynı sözü alıyordu) */
         tracks: [{
-          name: K.career.suggestTitle(), budget: 12000, source: "ev",
+          name: (opts.featureTitle || K.career.suggestTitle()), budget: 12000, source: "ev",
+          feat: featArtist ? featArtist.id : null,
           lyrics: { intro: "", verse: lyrics || "", hook: "", chorus: "", bridge: "", outro: "" }
         }],
         lyrTrack: 0,
@@ -32734,7 +32756,8 @@ window.K = window.K || {};
         mixQ: 55,
         /* v10.44 — prodüksiyon süreci: kayıt oturumu · mix · master · revizyon */
         prod: K.production.defaultPlan(),
-        feat: null,
+        feat: featArtist ? featArtist.id : null,
+        featDeal: featArtist ? { artistId: featArtist.id, title: opts.featureTitle || null } : null,
         lyricsTheme: topicTheme || "street",
         topic: topic,
         dissArtist: dissArtist,
@@ -34164,6 +34187,7 @@ window.K = window.K || {};
       return `
         ${st.dissArtist ? `<div class="note-line hot">🔥 Diss modu: <b>${U.escape(st.dissArtist.stageName)}</b> hedef alındı. Sözlerinde adı geçerse husumet sayılır.</div>` : ""}
         ${st.topic ? `<div class="note-line gold">📰 Gündemden geldin: <b>${U.escape(st.topic.title)}</b> · sıcaklık ${st.topic.heat}°</div>` : ""}
+        ${st.featDeal ? `<div class="note-line gold">🤝 Ortak iş: <b>${U.escape((K.artistById(st.featDeal.artistId) || {}).stageName || "")}</b> ile feature anlaşman var. Ortak sanatçı önceden seçildi — sözü, beat'i ve kaliteyi sen belirle. Yayınlanınca anlaşma tamamlanır.</div>` : ""}
 
         <div class="form-block">
           <div class="form-block-head"><span class="fb-no">1</span><div><h4>Altyapı</h4><p>Beat türü ve işçilik kalitesi.</p></div></div>
@@ -34930,6 +34954,14 @@ window.K = window.K || {};
         coverPx: st.coverPx, contentId: !!st.contentId, releaseWeekday: st.releaseWeekday,
         trackCount: count, trackBudgets: tracks.map(t => t.budget), tracks
       });
+      /* v10.53 — stüdyoda yayınlanan feature/ortak iş anlaşmayı tamamlar.
+         Böylece aynı sanatçıyla bekleyen ortak iş "askıda" kalmaz. */
+      if (rel && K.relations && K.relations.completeDeal) {
+        const featIds = {};
+        if (st.feat) featIds[st.feat] = true;
+        (st.tracks || []).forEach(t => { if (t.feat) featIds[t.feat] = true; });
+        Object.keys(featIds).forEach(id => K.relations.completeDeal(id, null, rel.id));
+      }
       if (rel) K.refresh();
       return !!rel;
     },
@@ -41635,9 +41667,20 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
               K.phone.pushView(M.groupView(g.id));
             }
           }
-          else if (act === "offer-accept") { K.relations.respondOffer(el.dataset.arg, true); K.phone.reRender(); }
+          else if (act === "offer-accept") {
+            const res = K.relations.respondOffer(el.dataset.arg, true);
+            K.phone.reRender();
+            /* v10.53 — kabul edilen feature teklifi için stüdyoyu aç */
+            if (res && res.accepted && res.feature && K.careerUI && K.careerUI.openStudioModal) {
+              K.careerUI.openStudioModal({ featArtistId: res.artistId, featureTitle: res.title });
+            }
+          }
           else if (act === "offer-decline") { K.relations.respondOffer(el.dataset.arg, false); K.phone.reRender(); }
           else if (act === "offer-negotiate") { M.offerNegotiatePrompt(el.dataset.arg); }
+          else if (act === "open-studio") {
+            const d = K.relation(artistId).deal;
+            K.careerUI.openStudioModal({ featArtistId: artistId, featureTitle: d && d.songTitle });
+          }
         }
       };
       return view;
@@ -41995,15 +42038,20 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     collabPrompt(artistId) {
       const a = K.artistById(artistId);
       const body = K.ui.field("Proje adı", `<input id="cp-title" value="Ortak Proje: ${U.escape(a.stageName)}" />`) +
-        `<div style="font-size:11.5px;color:var(--text-2);line-height:1.6">Bütçe ${U.money(60000)}. Kabul ederse ${U.escape(a.stageName)} ile ortak EP (4 track) yayın sırasına eklenir.</div>`;
+        `<div style="font-size:11.5px;color:var(--text-2);line-height:1.6">Bütçe ${U.money(60000)}. Kabul ederse <b>stüdyo açılır</b> — ortak EP'yi (4 parça) sen hazırlarsın.</div>`;
       K.ui.modal({
         title: "Ortak Proje", desc: a.stageName + " ile EP düzeyinde iş birliği",
         body,
         actions: [
           { label: "Vazgeç" },
           { label: "Teklif Et", cls: "btn-primary", onClick: () => {
-            K.relations.proposeCollabProject(artistId, U.qs("#cp-title").value.trim());
+            const res = K.relations.proposeCollabProject(artistId, U.qs("#cp-title").value.trim());
             K.phone.reRender();
+            if (res && res.accepted && K.careerUI && K.careerUI.openStudioModal) {
+              K.ui.closeModal();
+              K.careerUI.openStudioModal({ featArtistId: artistId, featureTitle: res.title });
+              return false;
+            }
           }}
         ]
       });
@@ -42071,9 +42119,15 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           const acts = [];
           acts.push(`<button class="dm-chip" data-pact="gift">🎁 Hediye (${U.money(K.ECON.giftCost)})</button>`);
           if (canHangout) acts.push(`<button class="dm-chip gold" data-pact="hangout">🎉 Hangout Teklif Et</button>`);
-          if (canFeature) acts.push(`<button class="dm-chip gold" data-pact="feature">🎵 Feature Teklif Et</button>`);
-          if (K.relations.canCollabProject(artistId)) acts.push(`<button class="dm-chip gold" data-pact="collab">🎤 Ortak Proje (EP)</button>`);
+          /* v10.53 — bekleyen ortak iş varsa yeni feature/collab teklifi çıkmaz;
+             onun yerine stüdyoya dönüş düğmesi gösterilir. */
+          const _deal = K.relation(artistId).deal;
+          const dealBusy = !!(_deal && _deal.status !== "released" && (_deal.type === "feature" || _deal.type === "collab"));
+          if (canFeature && !dealBusy) acts.push(`<button class="dm-chip gold" data-pact="feature">🎵 Feature Teklif Et</button>`);
+          if (K.relations.canCollabProject(artistId) && !dealBusy) acts.push(`<button class="dm-chip gold" data-pact="collab">🎤 Ortak Proje (EP)</button>`);
           if (hasLabel && stage >= 5) acts.push(`<button class="dm-chip gold" data-pact="contract">🏢 Şirket Teklifi</button>`);
+          if (dealBusy && _deal.status === "agreed" && K.careerUI && K.careerUI.openStudioModal)
+            acts.push(`<button class="dm-chip gold" data-pact="open-studio">🎧 Ortak İşi Hazırla</button>`);
 
           const reach = K.relations.reach(artistId);
           const reachCls = reach >= 0.45 ? "money" : reach >= 0.2 ? "gold" : "hot";
@@ -42161,8 +42215,19 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           else if (act === "send-media") app.mediaPicker(artistId);
           else if (act === "send-voice") app.voicePicker(artistId);
           else if (act === "reply-cancel") { app._reply = null; K.phone.reRender(); }
-          else if (act === "offer-accept") { K.relations.respondOffer(el.dataset.arg, true); K.phone.reRender(); }
+          else if (act === "offer-accept") {
+            const res = K.relations.respondOffer(el.dataset.arg, true);
+            K.phone.reRender();
+            /* v10.53 — kabul edilen feature teklifi için stüdyoyu aç */
+            if (res && res.accepted && res.feature && K.careerUI && K.careerUI.openStudioModal) {
+              K.careerUI.openStudioModal({ featArtistId: res.artistId, featureTitle: res.title });
+            }
+          }
           else if (act === "offer-decline") { K.relations.respondOffer(el.dataset.arg, false); K.phone.reRender(); }
+          else if (act === "open-studio") {
+            const d = K.relation(artistId).deal;
+            K.careerUI.openStudioModal({ featArtistId: artistId, featureTitle: d && d.songTitle });
+          }
         }
       };
     },
@@ -42354,15 +42419,21 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     featurePrompt(artistId) {
       const a = K.artistById(artistId);
       const body = K.ui.field("Ortak şarkı adı önerisi", `<input id="ft-title" value="${U.escape(K.career.suggestTitle() + " (feat. " + a.stageName + ")")}" />`) +
-        `<div style="font-size:11.5px;color:var(--text-2);line-height:1.6">Stüdyo masrafı ${U.money(15000)}. ${U.escape(a.stageName)} kabul ederse şarkı yayın sırasına eklenir.</div>`;
+        `<div style="font-size:11.5px;color:var(--text-2);line-height:1.6">Stüdyo masrafı ${U.money(15000)}. ${U.escape(a.stageName)} kabul ederse <b>stüdyo açılır</b> — sözü, beat'i, kaliteyi ve çıkış tarihini sen belirlersin.</div>`;
       K.ui.modal({
         title: "Feature Teklifi", desc: a.stageName + " ile ortak şarkı",
         body,
         actions: [
           { label: "Vazgeç" },
           { label: "Teklif Et", cls: "btn-primary", onClick: () => {
-            K.relations.proposeFeature(artistId, U.qs("#ft-title").value.trim());
+            const res = K.relations.proposeFeature(artistId, U.qs("#ft-title").value.trim());
             K.phone.reRender();
+            /* v10.53 — anlaşıldıysa otomatik yayın yerine stüdyoyu aç */
+            if (res && res.accepted && K.careerUI && K.careerUI.openStudioModal) {
+              K.ui.closeModal();
+              K.careerUI.openStudioModal({ featArtistId: artistId, featureTitle: res.title });
+              return false;
+            }
           }}
         ]
       });
