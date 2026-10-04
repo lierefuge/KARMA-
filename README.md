@@ -5,6 +5,57 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.55 — SAĞLAMLIK & ERİŞİLEBİLİRLİK (bağımsız inceleme düzeltmeleri)
+
+Bağımsız bir kod incelemesinin bulduğu kusurlar giderildi. Dördü de
+"oyuncunun göremediği" hata sınıfındandı: kayıt sessizce kaybolabiliyor,
+kayıt dosyası gereksiz şişiyor, listeler erken kariyerde ölü kalıyor ve
+arayüz ekran okuyuculara kapalıydı. Yeni test: `tools/smoke-v1055.js`
+(**31 kontrol**).
+
+### 1 · 💾 Kayıt artık dürüst ve hafif
+- **Şişme:** `_npcSongs` TÜRETİLMİŞ bir önbellekti ama state kökünde
+  yaşadığı için her kayıtta diske yazılıyordu. Ölçüm: 500 günlük oyunda
+  kaydın **~%30'u (194 KB)** yalnızca bu önbellekti. Artık türetilmiş
+  alanlar serileştirmeden çıkarılır (slot kaydı + dışa aktarma dâhil).
+- **Sessiz hata:** Kota dolduğunda `K.save()` `false` dönüyordu ama arayüz
+  yine de “Kaydedildi” diyordu. Artık başarısızlık kırmızı uyarıyla
+  bildirilir; kota hâlinde bir kez **kırpılmış kayıt** denenir ki ilerleme
+  tamamen kaybolmasın.
+
+### 2 · 📈 “Yükselen 20” — erken kariyer basamağı
+- **Sorun:** Ulusal KARMA Top 30 gerçek liste anlık görüntüsüyle kurulur;
+  en alt sıra bile günlük ~58.000 dinlenme ister. Normal oynayışta oyuncu
+  bu listeye **hiç** giremiyordu — “Listeler” sekmesinin ana vaadi ilk
+  ~1,5 yıl ölüydü.
+- **Çözüm:** Ulusal listenin ALTINA bir basamak eklendi. “Yükselen 20”,
+  oyuncunun ilk yayınlarıyla aynı ölçekte yarışan anonim çıkış
+  sanatçılarından ve oyuncunun kendi işlerinden kurulur (~15–1.600/gün
+  merdiven). Oyuncu ilk günden tırmandığı bir tablo görür; ulusal liste
+  hak edilmiş hedef olarak kalır.
+
+### 3 · ♿ Erişilebilirlik
+- Sekmelere `role="tablist"/"tab"` + `aria-selected`, bölüm paneline
+  `role="tabpanel"`, toast yığınına `aria-live="polite"`, ikon
+  düğmelerine `aria-label`, telefon ekranına `role="region"`.
+- Ana ekran çubuğu gerçek bir `<button>` oldu (klavye ile erişilebilir,
+  odak halkası eklendi).
+
+### 4 · ⚠️ Çalışma anı hataları görünür
+- Yakalanmamış hatalar ve reddedilen promise'ler artık **bir kez** toast
+  ile duyurulur ve `K.lastError`'da saklanır. Önceden yalnızca konsola
+  düşüyordu; oyuncu oyunun sessizce bozulduğunu fark etmiyordu.
+
+### 5 · 🧹 Hijyen
+- `package-lock.json` artık takip edilir (jsdom sürümü kritik — ortamlar
+  arası tekrarlanabilirlik).
+- `state.js`'teki mükerrer/bayat B-6 yorumu kaldırıldı.
+
+### Doğrulama
+`node tools/verify.js` → **40/40 adım** · denge simülasyonu: 0 yüksek bulgu.
+
+---
+
 ## GÜNCELLEME v10.54 — SÖZ GÖNDER (söz yazarı kredisi + yayın telifi)
 
 Artık DM'den bir sanatçıya **kendi sözünü gönderebilirsin**. Sanatçı kabul
