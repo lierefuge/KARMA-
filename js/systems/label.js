@@ -19,7 +19,8 @@
     canFound() {
       const s = K.state;
       return !s.label && s.balance >= K.ECON.labelFoundCost &&
-        s.player.popularity >= K.ECON.labelFoundMinPop;
+        s.player.popularity >= K.ECON.labelFoundMinPop &&
+        K.playerAge() >= (K.ECON.labelFoundMinAge || 18);
     },
 
     found(name) {
@@ -31,6 +32,12 @@
       }
       if (s.player.popularity < K.ECON.labelFoundMinPop) {
         K.toast("Popülerlik yetersiz", `Şirket kurmak için en az ${K.ECON.labelFoundMinPop} popülerlik gerekli.`, "bad");
+        return false;
+      }
+      /* v10.56 — yaş kapısı: 18 yaşından küçükken şirket kurulamaz. */
+      const _minAge = K.ECON.labelFoundMinAge || 18;
+      if (K.playerAge() < _minAge) {
+        K.toast("Yaş yetersiz", `Şirket kurmak için ${_minAge} yaşında olmalısın (şu an ${K.playerAge()}).`, "bad");
         return false;
       }
       K.economy.spend(K.ECON.labelFoundCost, "label_found");
