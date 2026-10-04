@@ -37,8 +37,12 @@
   function setView(v) {
     document.body.classList.remove("view-career", "view-phone");
     document.body.classList.add("view-" + v);
-    U.qsa("#view-switch .vs-btn").forEach(x =>
-      x.classList.toggle("active", x.dataset.view === v));
+    U.qsa("#view-switch .vs-btn").forEach(x => {
+      const on = x.dataset.view === v;
+      x.classList.toggle("active", on);
+      /* v10.55 — erişilebilirlik: seçili görünüm ekran okuyucuya bildirilir */
+      x.setAttribute("aria-pressed", on ? "true" : "false");
+    });
   }
 
   K.appSetView = setView;
@@ -52,19 +56,35 @@
     });
   }
 
+  /* v10.55 — kayıt sonucunu oyuncuya DÜRÜSTÇE bildir.
+     Eskiden `K.save()` false dönse bile "Kaydedildi" deniyordu; kota
+     dolduğunda oyuncu kaydının gittiğini anlamıyordu. Artık:
+       · başarısız → kırmızı uyarı + ayarlardan dışa aktarma önerisi
+       · kota nedeniyle kırpılmış → sarı bilgi (ilerleme kurtarıldı) */
+  function saveWithFeedback(silent) {
+    const ok = K.save();
+    if (!ok) {
+      K.toast("⚠️ Kaydedilemedi",
+        "Depolama dolu olabilir. Ayarlar → Kayıt dışa aktarma ile yedek al.", "bad");
+      return false;
+    }
+    if (K.lastSaveError === "quota") {
+      K.toast("💾 Kaydedildi (kırpılmış)",
+        "Depolama doldu; eski geçmiş kırpılarak kaydedildi.", "warn");
+      return true;
+    }
+    if (!silent) K.toast("💾 Kaydedildi", "Oyun durumu kaydedildi.", "ok");
+    return true;
+  }
+
   function bindTopbar() {
     U.on(U.qs("#btn-next-day"), "click", () => {
       K.game.nextDay();
-      if (K.settings && K.settings.all().autosave) {
-        try { K.save(); } catch (e) {}
-      }
+      if (K.settings && K.settings.all().autosave) saveWithFeedback(true);
       // NOT: oyuncu bulunduğu yerden koparılmaz; 
       // olaylar bildirim merkezine düşer, telefonda zil rozeti görünür.
     });
-    U.on(U.qs("#btn-save"), "click", () => {
-      K.save();
-      K.toast("💾 Kaydedildi", "Oyun durumu kaydedildi.", "ok");
-    });
+    U.on(U.qs("#btn-save"), "click", () => saveWithFeedback(false));
     U.on(U.qs("#btn-settings"), "click", () => K.settings.openUI());
   }
 
@@ -125,6 +145,36 @@
   }
 
   /* ---------------- boot ---------------- */
+  /* v10.55 — GLOBAL HATA GÖRÜNÜRLÜĞÜ
+     Önceden çalışma anı hataları yalnızca konsola düşüyordu; oyuncu
+     oyunun sessizce bozulduğunu fark etmiyordu. Artık yakalanmamış
+     hatalar bir kez toast ile duyurulur ve `K.lastError`'da saklanır
+     (test paneli / hata ayıklama için). Tekrarlayan hatalar toast'ı
+     spam'lemez. */
+  function installErrorReporting() {
+    let shown = 0;
+    const report = (label, detail) => {
+      K.lastError = { label, detail: String(detail || ""), at: Date.now() };
+      try { console.error("[KARMA] " + label, detail); } catch (e) {}
+      if (shown < 3) {
+        shown++;
+        try {
+          K.toast("⚠️ Beklenmedik hata",
+            "Oyun bir hata yakaladı; kaydını yedekleyip devam edebilirsin.", "bad");
+        } catch (e) { /* hata bildirimi başarısız olsa bile döngüye girmeyiz */ }
+      }
+    };
+    window.addEventListener("error", (e) => {
+      if (!e) return;
+      if (e.message) report("hata", (e.error && e.error.stack) || e.message);
+      /* kaynak (img/script) yükleme hatalarını sessizce geç */
+    });
+    window.addEventListener("unhandledrejection", (e) => {
+      const r = e && e.reason;
+      report("promise", (r && (r.stack || r.message)) || r);
+    });
+  }
+
   function boot() {
     const loaded = K.load();
     if (!loaded) {
@@ -134,6 +184,7 @@
     K.state.settings = K.state.settings || K.settings.all();
 
     K.ui.initToasts();
+    installErrorReporting();
     // 🧪 TEST PANELİ kısayolu: Ctrl+Shift+D
     document.addEventListener("keydown", (e) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "D" || e.key === "d")) {
@@ -163,6 +214,7 @@
     if (K.live && K.live.restore) K.live.restore();
     if (K.news && K.news.refresh) K.news.refresh();
     K.game.buildChart();
+    if (K.game.buildRisingChart) K.game.buildRisingChart();
     K.game.tickTrends();
 
     // yenileme sinyali
