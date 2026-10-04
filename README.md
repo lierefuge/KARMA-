@@ -5,6 +5,39 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.57 — GERÇEKLİK DENETİMİ 2 (enflasyon tutarlılığı · sezon · ödül sezonu)
+
+İkinci gerçekçilik turu dört konuyu ele aldı. Yeni test: `tools/smoke-v1057.js`
+(**20 kontrol**).
+
+### 1 ·  Enflasyon tutarlılığı
+Oyun 43%/yıl enflasyon simüle ediyor ve **giderler** endeksle artıyordu; ama
+birçok **nominal tutar sabit** kalmıştı ve yıllar geçtikçe gerçekte ucuzluyordu:
+- **Varlık alım fiyatı** (bakım zaten endeksliydi) → artık `K.assets.costNow()`.
+  Satışta da gerçekten ödenen (enflasyonlu) fiyat esas alınır.
+- **Konser** mekân kirası, sahne prodüksiyonu, merch birim fiyatı ve
+  **bilet tabanı** → hepsi endekse bağlandı.
+- **Yan iş ücreti**, **sponsorluk** ve **yazarlık** ücretleri → nominal gelir
+  olarak endeksle artar (yoksa sabit 620 ₺’lik vardiya değersizleşiyordu).
+
+### 2 ·  Sezonluk konser talebi (yaz turnesi)
+Konser/turne talebi takvimden bağımsızdı. Artık **yaz aylarında (Haz–Ağu)
+×1,15**, geçiş aylarında ×1,06, **kışın (Ara–Şub) ×0,90**. Ulusal bir turne
+planlarken zamanlama gerçekten önemlidir.
+
+### 3 ·  Ödül sezonu takvime bağlandı
+Tören eskiden gün sayacıyla (her 360 gün) yılın rastgele bir ortasında
+yapılıyordu. Gerçekte ödüller yıl sonunda (Kas–Oca) toplanır; artık tören her
+**takvim yılının Ocak ayında (15’i)** yapılır.
+
+### 4 ·  Sertifika notu dürüstleştirildi
+Kod, eşiklerin “gerçek RIAA ölçeğinden uyarlandığını” söylüyordu. Oysa RIAA
+1.500 dinlenme = 1 birim sayar (platin ≈ **1,5 milyar** dinlenme). Eşikler
+bilinçli olarak Türkiye/oyun ölçeğine uyarlanmıştır; not artık bunu açıkça ve
+RIAA’nın gerçek sayılarıyla birlikte anlatıyor.
+
+---
+
 ## GÜNCELLEME v10.56 — GERÇEKLİK DENETİMİ (takvim · ekonomi · yaş · husumet)
 
 Oyun gerçekçilik üzerine kurulu olduğu için, bağımsız bir denetim “gerçek
