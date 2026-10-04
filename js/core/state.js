@@ -192,9 +192,6 @@
         shiftsToday: 0,
         restedToday: false,
         skills: { work: 4, studio: 0, music: 6, network: 2 },
-        /* B-6: OYUNCUNUN kimlik id'si (data/player-persona.js → K.PLAYER_PERSONAS).
-           NPC kişilik katmanı (data/npc-personality.js → K.npcPersonality)
-           ile İLGİSİZDİR. Alan adı kayıt uyumluluğu için `persona` kaldı. */
         /* B-6: OYUNCUNUN kimlik id'si (data/persona.js → K.PLAYER_PERSONAS).
            NPC kişilik katmanı (data/personality.js → K.npcPersonality)
            ile İLGİSİZDİR. Alan adı kayıt uyumluluğu için `persona` kaldı. */
@@ -293,6 +290,7 @@
       userPlaylists: [],          // kullanıcı çalma listeleri
       queue: [],                  // çalma kuyruğu
       chart: [],
+      chartRising: [],           // v10.55 — "Yükselen 20" (erken kariyer ulusal listesi)
       log: [],
       /* --- genişletilmiş sistemler --- */
       history: [],
@@ -411,13 +409,66 @@
   };
 
   /* ---------- save / load ---------- */
+  /* v10.55 — KAYIT ŞİŞMESİ ve SESSİZ HATA
+     Sorunlar:
+       1) `_npcSongs`, platforms.js'in ürettiği TÜRETİLMİŞ bir önbellekti
+          ama state kökünde yaşadığı için her kayıtta diske yazılıyordu.
+          Ölçüm: 500 günlük oyunda kaydın ~%30'u (194 KB) yalnızca bu
+          önbellekti. Her açılışta yeniden üretilebildiği için diske
+          yazmak saf israf; uzun oyunda localStorage kotasını (≈5 MB)
+          doldurup kaydı bozabiliyordu.
+       2) Kota dolduğunda `K.save()` false dönüyordu ama arayüz yine de
+          "Kaydedildi" diyordu → oyuncu kaydının kaybolduğunu anlamıyordu.
+
+     Çözüm:
+       · Türetilmiş alanlar (TRANSIENT_KEYS) serileştirmeden çıkarılır.
+       · Kota hatasında bir kez "hafif" (kırpılmış) kayıt denenir; böylece
+         ilerleme tamamen kaybolmaz.
+       · Hata durumu `K.lastSaveError` ile yukarıya bildirilir; arayüz
+         başarısızlığı oyuncuya gösterir. */
+  const TRANSIENT_KEYS = ["_npcSongs"];
+
+  function serializeState(state) {
+    return JSON.stringify(state, function (key, value) {
+      if (key && TRANSIENT_KEYS.indexOf(key) >= 0) return undefined;
+      return value;
+    });
+  }
+  K.serializeState = serializeState;
+
+  /* kota hatasına karşı "hafif" kopya: yalnızca en gerekli ilerleme kalır */
+  function compactState(state) {
+    const copy = Object.assign({}, state);
+    copy.history = (copy.history || []).slice(-120);
+    copy.player = Object.assign({}, state.player);
+    copy.player.dailyHistory = (copy.player.dailyHistory || []).slice(-40);
+    copy.feed = {};
+    Object.keys(state.feed || {}).forEach(function (pf) {
+      copy.feed[pf] = (state.feed[pf] || []).slice(0, 12);
+    });
+    if (state.industry) {
+      copy.industry = Object.assign({}, state.industry);
+      copy.industry.log = (copy.industry.log || []).slice(0, 12);
+    }
+    return copy;
+  }
+
   K.save = function () {
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify(K.state));
+      localStorage.setItem(SAVE_KEY, serializeState(K.state));
+      K.lastSaveError = null;
       return true;
     } catch (e) {
-      console.warn("kayıt hatası", e);
-      return false;
+      /* Kota dolu olabilir: geçmişi/akışı kırpıp ilerlemeyi kurtarmayı dene. */
+      try {
+        localStorage.setItem(SAVE_KEY, serializeState(compactState(K.state)));
+        K.lastSaveError = "quota";
+        return true;
+      } catch (e2) {
+        K.lastSaveError = String((e2 && e2.message) || e2);
+        console.warn("kayıt hatası", e2);
+        return false;
+      }
     }
   };
 
@@ -550,6 +601,8 @@
       if (K.state.pendingCatalogOffer === undefined) K.state.pendingCatalogOffer = null;
       if (K.state.catalogSold === undefined) K.state.catalogSold = false;
       K.state.notifications = K.state.notifications || [];
+      K.state.chart = K.state.chart || [];
+      K.state.chartRising = K.state.chartRising || [];
       K.state.albumChart = K.state.albumChart || [];
       K.state.albumChartRising = K.state.albumChartRising || [];
       K.state.player.likes = K.state.player.likes || {};
