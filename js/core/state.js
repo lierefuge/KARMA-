@@ -54,7 +54,12 @@
        uygulanmadığı için şirket gelirini gerçekçi değerin ~1/200'üne
        düşürüyordu. Artık tüm gelir yolları `streamRates` (+ `econ.avgRate()`)
        üzerinden hesaplanır. */
-    streamRates: { spotify: 0.005, apple: 0.015, youtube: 0.008, other: 0.004 },
+    /* v10.56 GERÇEKLİK DÜZELTMESİ: YouTube dinlenme başına geliri
+       diğer platformlara göre fahiş yüksekti (0,008 $ ≈ gerçek 0,001–0,002 $'ın
+       4–8 katı). YouTube reklam geliri "monetize görüntüleme" başına ödenir ve
+       müzikte tipik olarak Spotify'ın ~1/3'üdür. 0,0018 $ ≈ Spotify 0,005 $'ın
+       %36'sı — gerçekçi oran. */
+    streamRates: { spotify: 0.005, apple: 0.015, youtube: 0.0018, other: 0.004 },
     /* platform karması — gelir dağılımı platform ayrımı yapmayan yollarda
        (şirket kadrosu, tahmin) ağırlıklı ortalama kur için kullanılır */
     storeMix: { spotify: 0.46, apple: 0.19, youtube: 0.28, other: 0.07 },
@@ -100,7 +105,10 @@
     fxShockChance: 0.07,           // aylık ani kur şoku olasılığı
     fxShockMin: 0.08,              // şok alt sınırı
     fxShockMax: 0.30,              // şok üst sınırı
-    inflationMonthly: 0.021,       // aylık enflasyon: maliyet VE telif nominal artışı
+    /* v10.56: aylık %2,1 (≈%28/yıl) Türkiye gerçeğinin (2024–26: %45–70) çok
+       altındaydı. %3,0 → ≈%43/yıl. Telif ve gider aynı katsayıyla nominal
+       büyüdüğü için denge büyük ölçüde korunur. */
+    inflationMonthly: 0.030,       // aylık enflasyon: maliyet VE telif nominal artışı
     /* TELİF ÖDEME GECİKMESİ (gün) — mağazalar dinlenmeyi geç raporlar.
        Dinlenme bu süre dolmadan ödenmez. */
     payoutLag: { spotify: 60, apple: 45, youtube: 75, other: 55 },
@@ -108,11 +116,16 @@
     skipRateMin: 0.08,             // en iyi durumda bile %8 atlanır
     skipRateMax: 0.34,             // kötü/uzun girişli şarkıda %34 atlanır
     /* GELİR VERGİSİ DİLİMLERİ (aylık, kümülatif değil kademeli) */
+    /* v10.56 GERÇEKLİK DÜZELTMESİ: eski dilimler Türkiye'ye uymuyordu
+       (₺15.000'e kadar %0 gibi bir muafiyet gerçekte yok). Artık asgari
+       ücret düzeyi vergiden muaf (asgari ücret istisnasının karşılığı),
+       üstü kademeli gelir vergisi oranlarıyla (%15/20/27/35) vergilenir. */
     taxBrackets: [
-      { upTo: 15000, rate: 0 },
-      { upTo: 60000, rate: 0.15 },
-      { upTo: 150000, rate: 0.22 },
-      { upTo: Infinity, rate: 0.30 }
+      { upTo: 17000, rate: 0 },
+      { upTo: 40000, rate: 0.15 },
+      { upTo: 100000, rate: 0.20 },
+      { upTo: 400000, rate: 0.27 },
+      { upTo: Infinity, rate: 0.35 }
     ],
     debtPenaltyMonthly: 0.035,     // ödenmeyen borca aylık gecikme faizi
     /* v10.8 — ŞİRKET KURMA EŞİĞİ GERÇEKÇİLEŞTİRİLDİ.
@@ -123,6 +136,12 @@
        biraz sermaye yeterlidir. */
     labelFoundCost: 120000,       // kendi şirketini kurma
     labelFoundMinPop: 28,
+    /* v10.56 — ŞİRKET KURMAK İÇİN REŞİT OLMAK GEREKİR. Eskiden 15 yaşındaki
+       oyuncu plak şirketi kurabiliyordu; gerçekçilik iddiasıyla çelişiyordu. */
+    labelFoundMinAge: 18,
+    /* Varlık ve sponsorluk için asgari yaş (aşağıda varlık/teşvik bazında
+       geçersiz kılınabilir; alkol ve bahis 18+). */
+    assetMinAge: 18,
     /* v10.24 — ŞİRKET EKONOMİSİ (gerçekçi kâr/zarar)
        labelBillableShare: kadro dinlenmesinin gelir sayılan oranı. 30 saniye
          eşiği şirket kataloğu için de geçerlidir; oyuncunun kendi şarkılarındaki
@@ -167,6 +186,15 @@
        Böylece bir TV programı seni geçici olarak öne taşır ama iki yıl
        boyunca hak etmediğin bir şöhreti taşımazsın. */
     fameHeadroom: 8
+  };
+
+  /* ---------- oyuncunun güncel yaşı ----------
+     Kapı kontrolleri (şirket kurma, varlık, alkol/bahis sponsorluğu) için
+     tek kaynak. `p.age` her gün doğum gününden yeniden hesaplanır. */
+  K.playerAge = function () {
+    const p = K.state && K.state.player;
+    if (!p) return 0;
+    return (p.age != null) ? p.age : K.ECON.startAge;
   };
 
   /* ---------- new game ---------- */
