@@ -5,6 +5,38 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.54 — SÖZ GÖNDER (söz yazarı kredisi + yayın telifi)
+
+Artık DM'den bir sanatçıya **kendi sözünü gönderebilirsin**. Sanatçı kabul
+ederse şarkıyı **kendi adına** yayınlar, sen **söz yazarı** olarak kredilenirsin.
+Peşin ücret + 40 gün boyunca azalan **yayın telifi** kazanırsın.
+Yeni test: `tools/smoke-v1054.js` (**27 kontrol**).
+
+### 1 · ✍️ Söz Gönder
+- DM'de **“✍️ Söz Gönder”** çipi (tanışmış + samimiyet ≥45 iken).
+- Açılan modalda sözlerini yaz/yapıştır ve **tema** seç (Aşk, Sokak, Para…).
+- Söz gerçek `K.lyrics.analyze` ile puanlanır; ustalığın ve metnin kalitesi
+  şarkının kalitesine yansır.
+
+### 2 · 🤝 Sanatçı değerlendirir
+- Kabul olasılığı: **samimiyet + söz kalitesi + sanatçının çalışkanlığı**,
+  ayrıca sanatçının **müsaitliği** (turne/albüm/uyku iken daha zor).
+- Reddedilirse DM'de nazik bir cevap gelir; samimiyet azıcık düşer.
+
+### 3 · 🎤 Sanatçı kendi adına yayınlar
+- Kabul edilirse şarkı **senin yayının olmaz**; sanatçı çıkarır (listede yükselir,
+  popülerliği artar — tıpkı gerçek bir çıkış gibi).
+- Sen **söz yazarı** olarak kredilenirsin: bildirim, endüstri kaydı ve
+  sanatçının DM'inde teşekkür mesajı.
+
+### 4 · 💰 Peşin ücret + yayın telifi
+- Peşin ücret: sanatçı büyüklüğü × söz kalitesi.
+- Ardından **40 gün** boyunca günlük telif (yayın döngüsü gibi azalarak).
+- Tüm kazanç **Kariyer → Başkası İçin Yazmak** panelinde listelenir:
+  her yayınlanan sözün sanatçısı, kalitesi, peşin ücreti ve toplam kazancı.
+
+---
+
 ## GÜNCELLEME v10.53 — FT ARTIK STÜDYODA (oyuncu kontrollü ortak iş)
 
 **Sorun:** Bir sanatçı sana feature (FT) teklif edip kabul edince ortak şarkı
