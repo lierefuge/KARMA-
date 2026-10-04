@@ -5,6 +5,64 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.52 — GÜNDELİK RUTİN · ANLAYAN DM · FT İŞLEME
+
+Sanatçılar artık **her an hazır değil**: kendi günlük rutinleri var. Ayrıca DM
+motoru bağlamı **anlayan** ve oyuncunun yazımından **öğrenen** bir katmana
+yükseldi; feature (FT) anlaşmaları da nihayet **kalıcı olarak işleniyor**.
+Yeni test: `tools/smoke-v1052.js` (**36 kontrol**).
+
+Yeni dosyalar: `js/systems/time.js` (oyun-içi saat), `js/systems/routine.js`
+(rutin + müsaitlik), `js/systems/dmai.js` (anlayan/öğrenen DM katmanı).
+Değişenler: `js/systems/chat.js`, `js/systems/relations.js`,
+`js/systems/npcmind.js`, `js/apps/messages.js`, `js/apps/phone.js`,
+`js/core/state.js`, `css/apps.css`, `index.html`.
+
+### 1 · 🕐 Gündelik rutin (karaktere göre cevap saatleri)
+Telefonda zaten görünen saat artık **tek kaynaktan** gelir (`systems/time.js`:
+gün 0 → 09:41, her gün +47 dk). Her sanatçının bir **kronotipi** var:
+trap/drill sanatçıları **gece kuşu**, pop sanatçıları **gündüzcü**, rap ise
+ağırlıkla **akşamcı**. Günün saatine göre sanatçı ya **müsait** (🟢) ya da
+**uyuyor** (😴) olur.
+
+### 2 · 🎤 Meşguliyet: turne / albüm / stüdyo
+Haftalık deterministik pencere + yaz/turne mevsimi etkisiyle sanatçılar
+**turnede** (🎤), **albüm döneminde** (🎧) veya **stüdyoda** (🎚️) olabilir.
+Bu durumlar cevap **şansını** düşürür, cevap **gecikmesini** uzatır ve önce
+kısa bir **"şu an müsait değilim, sonra dönerim"** yanıtı getirir; gerçek
+cevap gelince başına "yeni gördüm, uyuyordum" tonu eklenir.
+
+### 3 · 🧩 Anlayan DM katmanı (`dmai.js`)
+- **Çoklu niyet** + **varlık çıkarımı**: mesajdan şarkı adı, geçen sanatçı,
+  para miktarı ("5 bin lira" → 5000) ve zaman ifadesi çekilir; cevap bu
+  somut bilgiye bağlanır.
+- **Duygu tonu**: heyecanlı / öfkeli / üzgün / aceleci ayrımı.
+- **Öğrenme**: oyuncunun kullandığı kelimeler niyete bağlanır ve **kayıtla
+  saklanır** (`state.dmLex`). "Yeni iş" deyip duran oyuncu için motor zamanla
+  o ifadeyi müzik niyeti olarak tanır.
+
+> Dürüst not: Bu bir **dil modeli değil**. Gerçek üretken bir yapay zeka
+> model/sunucu gerektirir; tarayıcıda çevrimdışı çalışan oyun bunu koşturamaz.
+> Buradaki "öğrenme", oyuncunun kendi yazımından kelime-niyet istatistiği
+> tutan hafif bir çevrimiçi öğrenmedir — belirgin şekilde akıllanır, ama
+> sınırları vardır.
+
+### 4 · 🔥 FT anlaşmaları artık işleniyor
+Eskiden DM'de feature konuşulup kabul edilse bile bu **kaydedilmiyordu**;
+üstelik gelen feature teklifi kabul edildiğinde `rel.flags.feature`
+işaretlenmediği için aynı sanatçı **tekrar tekrar** teklif gönderiyordu.
+Artık her anlaşma `rel.deal` altında **kalıcı** tutulur (tür · durum · şarkı ·
+gün), hafızaya yazılır ve günlük tick aynı sanatçıdan yeniden teklif üretmez.
+DM'de feature önerildiği anda bir **bekleyen anlaşma** açılır; buton onu
+tamamlar.
+
+### 5 · 💬 Tutarlılık
+"Naber/nasılsın" artık sabit havuzdan değil, sanatçının **kendi sesi**
+korunarak **gerçek durumundan** (rutin + ruh hali + son işler) cevaplanır.
+Anlaşma varsa sanatçı konuyu **hatırlar ve sürdürür**.
+
+---
+
 ## GÜNCELLEME v10.50 — NPC ZİHİN KATMANI (RPG) · Lia Shine
 
 DM artık **tek atışlık cevap havuzu değil**: her sanatçının bir **iç durumu**
