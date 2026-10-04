@@ -16,11 +16,30 @@
       { id: "feature", name: "En İyi Feature", icon: "🤝" }
     ],
 
+    /* v10.57 — ÖDÜL SEZONU. Eskiden tören gün sayacıyla (her 360 gün)
+       yılın rastgele bir ortasında yapılıyordu. Gerçekte ödül törenleri
+       yıl sonunda (Kasım–Ocak) toplanır. Artık tören her takvim yılının
+       OCAK ayında (15'i) yapılır — kariyer ritmi takvime oturur. */
+    CEREMONY_MONTH: 1,   // Ocak
+    CEREMONY_DOM: 15,
+
+    /* verilen takvim tarihinin oyun günü (1 tabanlı) */
+    dayForCal(y, m, d) {
+      const sd = U.fromISO((K.state && K.state.dateStart) || U.todayISO());
+      const a = Date.UTC(sd.y, sd.m - 1, sd.d);
+      const b = Date.UTC(y, m - 1, d);
+      return Math.round((b - a) / 86400000) + 1;
+    },
+
     yearsPassed() { return Math.floor((K.state.day - 1) / K.awards.YEAR); },
 
     nextCeremony() {
-      const passed = K.awards.yearsPassed();
-      return (passed + 1) * K.awards.YEAR + 1;
+      const cur = U.dateObjForDay(K.state.day);
+      for (let y = cur.y; y <= cur.y + 3; y++) {
+        const day = K.awards.dayForCal(y, K.awards.CEREMONY_MONTH, K.awards.CEREMONY_DOM);
+        if (day >= K.state.day) return day;
+      }
+      return K.state.day + K.awards.YEAR;
     },
 
     // tamamlanan yıl sayısı (tören sayacı)
@@ -57,15 +76,15 @@
     tick() {
       const s = K.state;
       s.awards = s.awards || { lastDay: 0, lastYear: 0, history: [] };
-      const yp = K.awards.completedYears();
-      if (yp < 1) return;
-      if ((s.awards.lastYear || 0) >= yp) return;
-      s.awards.lastYear = yp;
-      s.awards.lastDay = s.day;
+      const cday = K.awards.nextCeremony();
+      if (s.day < cday) return;
+      if ((s.awards.lastDay || 0) >= cday) return;   // bu tören zaten yapıldı
+      s.awards.lastDay = cday;
 
       const p = s.player;
       const noms = K.awards.nominations();
-      const year = yp;
+      const year = ((s.awards.history || []).length) + 1;
+      s.awards.lastYear = year;
       const results = [];
       let wins = 0;
 
@@ -96,7 +115,7 @@
       });
 
       s.awards.history = s.awards.history || [];
-      s.awards.history.unshift({ year: year + 1, day: s.day, wins, results });
+      s.awards.history.unshift({ year, day: s.day, wins, results });
 
       if (wins > 0) {
         K.game.addFame(wins * 2.2);
@@ -109,7 +128,7 @@
       /* TÖREN KONUŞMASI: oyuncu seçim yapar */
       const nominated = results.some(r => r.nominated);
       if (nominated) {
-        s.pendingAward = { year: year + 1, wins, results, day: s.day };
+        s.pendingAward = { year, wins, results, day: s.day };
         K.toast(wins > 0 ? "🏆 ÖDÜL KAZANDIN!" : "🎬 Ödül Töreni",
           (wins > 0 ? wins + " ödül · " : "Adaylık aldın · ") + "Konuşmanı seç (Olaylar sekmesi).", wins > 0 ? "ok" : "warn");
       } else {
