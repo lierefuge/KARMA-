@@ -52,7 +52,7 @@
 
     saveTo(n) {
       try {
-        localStorage.setItem(key(n), JSON.stringify(K.state));
+        localStorage.setItem(key(n), (K.serializeState || JSON.stringify)(K.state));
         localStorage.setItem(metaKey(n), JSON.stringify({
           day: K.state.day,
           stageName: K.state.player.stageName,
@@ -100,7 +100,8 @@
     /* ---------------- yedekleme (dışa / içe aktarma) ---------------- */
     exportSave() {
       try {
-        const data = JSON.stringify(K.state);
+        /* türetilmiş önbellekleri dışa aktarmayız — dosya küçük kalsın */
+        const data = (K.serializeState || JSON.stringify)(K.state);
         const blob = new Blob([data], { type: "application/json" });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
