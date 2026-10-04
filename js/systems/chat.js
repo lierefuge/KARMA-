@@ -641,12 +641,39 @@
         intent = chat.lastIntent;
       }
 
+      /* ---- v10.52: ANLAYAN KATMAN — çoklu niyet · varlık · ton · öğrenme ---- */
+      let an = null;
+      if (K.dmAI) {
+        an = K.dmAI.analyze(text, artistId);
+        /* taban sınıflama zayıfsa öğrenilmiş kelimeden niyet devral */
+        if (intent0 === "generic" && an.learned) intent = an.learned;
+      }
+
+      /* ---- v10.52: FT ANLAŞMASI İŞLEME ----
+         Oyuncu DM'de feature önerdiğinde bu artık KAYDEDİLİR (rel.deal).
+         Sanatçı bir daha sıfırdan teklif göndermez; buton anlaşmayı tamamlar. */
+      if (intent === "feature" && stage >= 4) {
+        const d = rel.deal;
+        if (!d || d.type !== "feature") {
+          rel.deal = { type: "feature", status: "pending", day: K.state.day, source: "dm" };
+          rel.flags.featureTalked = true;
+        }
+      }
+
       const song = theirSong(artist, rel._usedSongs || []);
       rel._usedSongs = rel._usedSongs || [];
       if (song && song !== "yeni bir iş") rel._usedSongs.push(song);
 
       let msgs = forcedMsgs || poolFor(intent, stage, prof, artist).map(m => m.replace("{song}", song));
       let chosen = pickFresh(msgs, chat.recent);
+
+      /* v10.52 — "naber / nasılsın": sanatçının KENDİ sesi korunur, üstüne
+         gerçek durumu (rutin + ruh hali + son işler) anlatan cümle eklenir. */
+      if (intent === "howareyou" && K.dmAI) {
+        const situ = K.dmAI.howAreYou(artistId);
+        if (situ && chosen && situ !== chosen) chosen = chosen + " " + situ;
+        else if (situ) chosen = situ;
+      }
 
       // genel mesaja BAĞLAMLI cevap (rastgele kelime yansıtma yok)
       if (intent0 === "generic" && !forcedMsgs) {
@@ -662,6 +689,23 @@
 
       /* ---- ek mesajlar (gerçek sohbet hissi + tutarlılık) ---- */
       const extras = [];
+
+      /* v10.52 — ANLAŞMA farkındalığı: konuşulan işi hatırla ve sürdür */
+      const deal = rel.deal;
+      if (deal && deal.type === "feature") {
+        if (deal.status === "agreed") {
+          extras.push(deal.songTitle
+            ? `"${deal.songTitle}" işini konuşmuştuk; stüdyo tarihini netleştirelim mi?`
+            : "Zaten anlaşmıştık; stüdyo tarihini netleştirelim mi?");
+        } else {
+          extras.push("Anlaştık say; aşağıdaki butondan stüdyo teklifini başlat, gerisini ben hallederim.");
+        }
+      }
+      /* v10.52 — VARLIK farkındalığı: mesajda geçen somut bilgiye bağlan */
+      if (an) {
+        const ack = K.dmAI.acknowledge(artistId, an);
+        if (ack && U.chance(0.7)) extras.push(ack);
+      }
 
       /* ---- v10.50: ZİHİN KATMANI — ruh hali / hafıza / dedikodu / yay ----
          Bu dört katman, cevabı "rastgele havuz" olmaktan çıkarıp
@@ -822,6 +866,8 @@
           K.npcMind.promise(artistId, "me", text);
         if (/[?？]/.test(msg) && U.chance(0.5)) K.npcMind.setPending(artistId, intent, msg);
       }
+      /* v10.52 — ÖĞRENME: oyuncunun kelimelerini niyete bağla (kayıtla kalıcı) */
+      if (K.dmAI) K.dmAI.learn(text, intent);
       return { msgs: [msg], delta, intent, action, stressed: !!stressTone, dmMult: +dmMult.toFixed(2),
                mood: mindMood ? { key: mindMood.key, label: mindMood.label, icon: mindMood.icon } : null };
     },
