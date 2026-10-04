@@ -199,6 +199,81 @@
         ],
         note: "İşe yatırım yapınca açar; lafla değil ürünle ikna olur."
       }
+    },
+
+    /* ==========================================================
+       LIA SHINE — "Yaralı Yıldız"
+       Sivas doğumlu genç rapçi. 22 yaşında (2020 röportajı) müziğe
+       sıfırdan girdi; emotional / sad trap çizgisinde yazıyor.
+       Şehinşah'ın keşfettiği, ona “abim” dediği tek kişiye yaslanan
+       bir hikâyesi var. Sahne en büyük hayali; sahtelikten nefret
+       eder. Sesi içten ve savunmasız — kırılganlığını saklamaz.
+       ========================================================== */
+    liashine: {
+      id: "liashine",
+      name: "Lia Shine",
+      archetype: "Yaralı Yıldız",
+      code: "LSH-3",
+      tagline: "Acısını şarkıya çeviren, sahteliğe tahammülü olmayan bir ses.",
+      essence:
+        "İçten ve savunmasız. Kendini gizlemez; iyi değilse 'iyi değilim' der. " +
+        "Bu yüzden samimiyeti hemen sezer, boş iltifatı da hemen hisseder. " +
+        "Bir kişiye güvenmesi yıllar alır ama güvenince bırakmaz.",
+
+      facts: [
+        "Sivas doğumlu; genç yaşta müziğe sıfırdan girdi",
+        "Emotional / sad trap çizgisinde yazıyor; Lil Skies ve Juice WRLD'den ilham alır",
+        "Şehinşah'ın keşfettiği genç rapçi; ona 'abim' der",
+        "Babasını kaybetti; aile konusu hassas bir kırmızı çizgi",
+        "En büyük hayali: şarkılarını sahnede seslendirmek"
+      ],
+
+      loves: [
+        "samimiyet", "gerçeklik", "sadakat", "duygusal derinlik",
+        "sahne hayali", "emek", "yalnız yazmak"
+      ],
+      redLines: [
+        "sahtelik", "alay", "'yapamazsın' demek", "boş iltifat",
+        "aile hakkında ısrar", "para odaklı yaklaşım"
+      ],
+
+      speech: {
+        tempo: "yavaş, duraksayan, içten cümleler",
+        markers: [
+          "duygusunu doğrudan söyler: 'iyi değilim', 'ağır bir gün'",
+          "'gerçek', 'samimi', 'sahne' kelimelerini sık kullanır",
+          "konuyu kendi iç dünyasına bağlar",
+          "övgü karşısında alçakgönüllü ama mesafeli kalır"
+        ],
+        avoids: ["kibir", "sertlik gösterisi", "kulis lafı", "küçümseme"]
+      },
+
+      bias: {
+        compliment: 0.45, feature: 0.35, music: 0.55, career: 0.45,
+        market: 0.20, news: 0.25, beef: -0.10, hard: 0.70, health: 0.50,
+        support: 0.60, thanks: 0.40, question: 0.25, howareyou: 0.20,
+        laugh: 0.15, critique: 0.10, diss: -0.30, insult: -0.70,
+        flirt: -0.55, personal: -0.40, askmoney: -0.45, money: -0.30,
+        hangout: 0.25, company: 0.10, family: -0.20, bye: 0.10,
+        generic: 0.10, shortyes: 0.10, shortno: -0.05
+      },
+
+      openings: [
+        "Şunu söyleyeyim:",
+        "Bilmiyorum ama...",
+        "İçimden geldi, söylüyorum:",
+        "Kimseye demem ama,"
+      ],
+      quote: "Ben sahte olamam; ya gerçeğim ya yokum.",
+
+      test: {
+        title: "Yaralı Yıldız",
+        rows: [
+          ["Samimiyet", 10], ["Empati", 9], ["Sadakat", 9],
+          ["Kırılganlık", 8], ["Sahne hayali", 9], ["Mesafe", 7]
+        ],
+        note: "Boş övgü onu soğutur; gerçek bir empati bağ kurar."
+      }
     }
   };
 
