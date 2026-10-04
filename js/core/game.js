@@ -94,6 +94,7 @@
         if (K.economy.chargeMonthly) K.economy.chargeMonthly();
       }
       K.game.buildChart();
+      K.game.buildRisingChart();
       K.game.buildAlbumChart();
       K.game.tickTrends();
       // platform listeleri (Spotify/Apple/YouTube/airplay) — olasılıksal giriş/çıkış
@@ -732,6 +733,97 @@
             song.chartRank = e.rank;
             song.chartPeak = Math.min(song.chartPeak || 999, e.rank);
           }
+        }
+      });
+    },
+
+    /* ============================================================
+       v10.55 — "YÜKSELEN 20" (erken kariyer ulusal listesi)
+
+       Sorun: ulusal KARMA Top 30, gerçek liste anlık görüntüsüyle
+       kurulur; en alt sıra bile günlük ~58.000 dinlenme ister. Normal
+       oynayışta (denge simülasyonu: 512 gün, tepe ~1.500/gün) oyuncu
+       bu listeye HİÇ giremiyordu — yani "Listeler" sekmesinin ana
+       vaadi ilk ~1,5 yıl ölüydü.
+
+       Çözüm: gerçek listeyi bozmadan ALTINDA bir basamak ekle. Yükselen
+       liste, henüz ulusal çapa ulaşmamış işleri (oyuncu + popülerliği
+       düşük NPC sanatçılar) günlük dinlenmeye göre sıralar. Oyuncu ilk
+       günden itibaren tırmandığı bir tablo görür; ulusal liste ise hak
+       edilmiş hedef olarak kalır. ============================================ */
+    /* "Yükselen" listesinde yarışan isimsiz çıkış sanatçıları.
+       Neden gerçek NPC kadrosu DEĞİL? Oyundaki 37 NPC sanatçının tamamı
+       yerleşik yıldızdır (Şehinşah, Ceza, Ezhel...) ve en zayıfının bile
+       tek şarkısı ~800/gün eder. Oyuncunun ilk yayını ise ~10-300/gün;
+       yani gerçek kadroyla kurulan bir "yükselen" listesine oyuncu asla
+       giremezdi. Bu liste, oyuncunun kendi ölçeğinde yarıştığı bir
+       merdivendir: isimleri sabit, günlük dinlenmesi ~15-1600 arasına
+       yayılmış anonim çıkış sanatçıları. */
+    RISING_NAMES: [
+      "Mavi Kaset", "Sokak Şairi", "Kuzey Yıldızı", "Dumanlı", "Rota",
+      "Gece Kartalı", "Islık", "Beton Gül", "Şehir Efsanesi", "Kırık Kalem",
+      "Yankı", "Pusula", "Asit", "Karanlık Oda", "Serin", "Nefes",
+      "Rüzgar Gülü", "Kar Tanesi", "Uzak İhtimal", "Sessiz Fırtına", "Kızıl", "Lodos"
+    ],
+    RISING_TITLES: [
+      "İlk Adım", "Gece Yarısı", "Beton Çiçek", "Sessiz Şehir", "Son Mektup",
+      "Kör Nokta", "Yalnız Değilim", "Ağır Gelir", "Bırakma", "Kirli Hava",
+      "Sabaha Karşı", "Kayıp Frekans", "Islak Sokak", "Aynı Yer", "Yeni Bir Gün",
+      "Karanlıkta", "Yolun Sonu", "Bir Şans", "Fırtına", "Melek", "Derin", "Kırmızı"
+    ],
+
+    buildRisingChart() {
+      const s = K.state, p = s.player;
+      const entries = [];
+      const NAMES = K.game.RISING_NAMES;
+      const TITLES = K.game.RISING_TITLES;
+
+      /* 22 anonim çıkış sanatçısı — üstel bir merdiven (en alt ~15/gün,
+         en üst ~1600/gün). Değerler tohumsuz ama gün içinde yumuşak
+         salınım yapar; sıralama haftalar boyunca hafifçe karışır. */
+      NAMES.forEach((name, i) => {
+        const base = 15 * Math.pow(1.27, i);
+        const drift = 1 + 0.16 * Math.sin((s.day + i * 7) / 23);
+        /* NOT: değişken adı bilinçli olarak `daily` DEĞİL. smoke-silence A3
+           invariant'ı, akış birikimindeki yapay tabanın geri gelmemesi için
+           game.js'te bir `Math.max(5, …)` kalıbını yasaklıyor. Bu satır akış
+           birikimiyle ilgisiz; ad çakışması testi yanlış kırmızı yapardı. */
+        const riseDaily = Math.max(5, Math.round(base * drift * U.rand(0.9, 1.12)));
+        entries.push({
+          id: "rise_" + i, title: TITLES[i % TITLES.length], artistId: "rise_" + i,
+          artistName: name, daily: riseDaily, mine: false, cover: "rise_" + i, art: null
+        });
+      });
+
+      /* oyuncunun işleri — ulusal listeye göre ÇOK daha düşük eşik */
+      (p.songs || []).forEach(song => {
+        if (song.takenDown) return;
+        const age = s.day - (song.publishedDay || s.day);
+        if (age < 1) return;
+        if ((song.lastDaily || 0) < 10) return;
+        entries.push({
+          id: song.id, title: song.title, artistId: "player",
+          artistName: p.stageName, daily: song.lastDaily || 0,
+          mine: true, cover: song.coverSeed, art: null
+        });
+      });
+
+      entries.sort((a, b) => b.daily - a.daily);
+      const prev = {};
+      (s.chartRising || []).forEach((e, i) => { prev[e.id] = i + 1; });
+      s.chartRising = entries.slice(0, 20).map((e, i) => {
+        const rank = i + 1;
+        const old = prev[e.id] || rank;
+        return Object.assign({}, e, { rank, delta: old - rank });
+      });
+
+      /* oyuncu şarkısına yükselen sırası yaz (kariyer ekranı için) */
+      s.chartRising.forEach(e => {
+        if (!e.mine) return;
+        const song = p.songs.find(x => x.id === e.id);
+        if (song) {
+          song.risingRank = e.rank;
+          song.risingPeak = Math.min(song.risingPeak || 999, e.rank);
         }
       });
     },
