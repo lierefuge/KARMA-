@@ -378,6 +378,16 @@
       traits: { openness: 8, loyalty: 7, ego: 5, work: 8 },
       affinityStart: 13,
       bio: "Arabesk-pop çizgisinde geniş kitleye ulaşan güçlü bir ses."
+    },
+    {
+      id: "liashine", stageName: "Lia Shine", aliases: ["Lia"],
+      realName: "—", age: 28, city: "Sivas", genre: "trap",
+      labelId: "hypers", popularity: 41, monthly: 280000, streams: 52000000,
+      ytSubs: 95000, ig: 180000, x: 42000, tiktok: 240000,
+      chartPeak: 34,
+      traits: { openness: 9, loyalty: 8, ego: 3, work: 9 },
+      affinityStart: 6,
+      bio: "Sivas doğumlu genç rapçi. Şehinşah'ın keşfettiği, emotional / sad trap çizgisinde kırılgan ama kararlı bir ses. Müzik dışında hayatı yok; sahnede söylemek en büyük hayali."
     }
   ];
 
