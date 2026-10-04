@@ -571,6 +571,11 @@
     classify,
     greetForm,
 
+    /* v10.50 — RPG katmanı: bağlamsal önerilen cevaplar (serbest metin korunur) */
+    suggestions(artistId) {
+      return K.npcMind ? K.npcMind.suggestions(artistId) : [];
+    },
+
     /* ---------------- ana cevap ---------------- */
     reply(artistId, text, pol) {
       const artist = K.artistById(artistId);
@@ -620,6 +625,12 @@
                  stressed: !!mTone(), dmMult: +mdScale().toFixed(2) };
       }
 
+      /* --- v10.50: NPC ZİHNİ — bekleyen soruya kısa evet/hayır cevabı --- */
+      const mindOn = !!K.npcMind;
+      if (mindOn && K.npcMind.pending(artistId) && (intent0 === "shortyes" || intent0 === "shortno")) {
+        K.npcMind.resolvePending(artistId, intent0 === "shortyes");
+      }
+
       /* --- bağlamlı takip: kısa evet/hayır --- */
       let intent = intent0;
       let forcedMsgs = null;
@@ -651,6 +662,22 @@
 
       /* ---- ek mesajlar (gerçek sohbet hissi + tutarlılık) ---- */
       const extras = [];
+
+      /* ---- v10.50: ZİHİN KATMANI — ruh hali / hafıza / dedikodu / yay ----
+         Bu dört katman, cevabı "rastgele havuz" olmaktan çıkarıp
+         geçmişi olan bir sohbete dönüştürür. ---- */
+      let mindMood = null;
+      if (mindOn) {
+        mindMood = K.npcMind.moodOf(artistId);
+        const ml = K.npcMind.moodLine(artistId);
+        if (ml) extras.push(ml);
+        const fu = K.npcMind.followUp(artistId, intent);
+        if (fu) extras.push(fu);
+        const gl = K.npcMind.gossipLine(artistId);
+        if (gl && U.chance(0.6)) extras.push(gl);
+        const arc = K.npcMind.arcBeat(artistId, stage);
+        if (arc) extras.push(arc);
+      }
       const profExtras = prof && prof.extras ? prof.extras : null;
       if (U.chance(0.30) && ["feature", "music", "career", "market", "compliment", "diss", "news"].includes(intent)) {
         extras.push(pickFresh(profExtras || [
@@ -752,6 +779,9 @@
          uygulanır ki nihai kazancı ölçeklesin. */
       const dmMult = mdScale();
       delta *= dmMult;   // 100 streste ≈ 0,55
+      /* v10.50 — ruh hali çarpanı: üzgünken içtenlik daha çok işler,
+         öfkeli/gerginken en iyi mesaj bile soğuk karşılanır. */
+      if (mindMood) delta *= mindMood.delta;
 
       /* ---- hafızayı güncelle ---- */
       chat.lastIntent = intent;
@@ -783,7 +813,17 @@
         const op = K.npcPersonality.opening(artistId);
         if (op && msg.indexOf(op) !== 0 && (op.length + msg.length) < 240) msg = op + msg;
       }
-      return { msgs: [msg], delta, intent, action, stressed: !!stressTone, dmMult: +dmMult.toFixed(2) };
+
+      /* ---- v10.50: hafızaya yaz + söz/soru takibi ---- */
+      if (mindOn) {
+        K.npcMind.note(artistId, intent, text);
+        const lt = norm(text);
+        if (/(gönder(eceğim|icem)|atacağım|yollayacağım|yapacağım|söz ver)/.test(lt))
+          K.npcMind.promise(artistId, "me", text);
+        if (/[?？]/.test(msg) && U.chance(0.5)) K.npcMind.setPending(artistId, intent, msg);
+      }
+      return { msgs: [msg], delta, intent, action, stressed: !!stressTone, dmMult: +dmMult.toFixed(2),
+               mood: mindMood ? { key: mindMood.key, label: mindMood.label, icon: mindMood.icon } : null };
     },
 
     /* -------- bağlamlı genel cevap --------
