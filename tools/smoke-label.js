@@ -72,7 +72,11 @@ function run() {
     ok("B · avgRate tek bir mağaza oranına eşit değil", near(got, K.econ.rate("spotify")) === false);
     /* kur ve enflasyon avgrRate içinde */
     const fx0 = K.econ.ensure().fx;
-    ok("B · avgRate ≈ streamRates×fx (enflasyon 1 iken)", near(got, 0.00767 * fx0, 0.0002), got.toFixed(5));
+    /* v10.56 — beklenen değer artık sabit değil, streamRates×storeMix'ten
+       türetilir; oranlar değişince test kendiliğinden uyum sağlar. */
+    const _expRate = K.econ.STORES.reduce((n, st) => n + (K.ECON.streamRates[st] || 0) * (mix[st] || 0), 0) /
+      K.econ.STORES.reduce((n, st) => n + (mix[st] || 0), 0);
+    ok("B · avgRate ≈ streamRates×fx (enflasyon 1 iken)", near(got, _expRate * fx0, 1e-6), got.toFixed(6) + " vs " + (_expRate * fx0).toFixed(6));
   }
 
   /* ---------- C) SIFIR ---------- */
@@ -81,6 +85,8 @@ function run() {
   /* ---------- D) GELİR ---------- */
   s.balance = 5_000_000;
   s.player.popularity = 40;
+  /* v10.56 — şirket kurmak artık 18+ gerektirir; test yetişkin oyuncu kurar. */
+  s.player.age = 25;
   const founded = K.label.found("Test Müzik");
   ok("D · şirket kurulabildi", founded === true && !!s.label);
 
