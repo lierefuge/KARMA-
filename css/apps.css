@@ -327,6 +327,16 @@
   color: var(--text-1);
 }
 
+/* v10.52 — gündelik rutin rozeti (DM başlığı) */
+.dm-routine {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10.5px; font-weight: 800; padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  background: rgba(43,143,255,0.10); border: 1px solid rgba(43,143,255,0.25);
+  color: var(--text-1);
+}
+.dm-clock { font-variant-numeric: tabular-nums; }
+
 /* v10.50 — önerilen cevaplar (RPG hızlı seçenekler) */
 .dm-suggest { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 2px; }
 .dm-sug {
