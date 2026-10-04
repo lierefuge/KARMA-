@@ -168,7 +168,10 @@
           else {
             rel._typing = true;
             K.bus.emit("dm:typing", { artistId, on: true });
-            setTimeout(() => K.relations.artistReply(artistId, text, pol), U.randInt(900, 2000));
+            /* v10.50 — cevap gecikmesi ruh haline bağlı: hype anında,
+               yorgun/gergin sanatçı saatler sonra döner. */
+            const wait = K.npcMind ? K.npcMind.replyWait(artistId) : U.randInt(900, 2000);
+            setTimeout(() => K.relations.artistReply(artistId, text, pol), wait);
           }
         }
       }
@@ -646,6 +649,8 @@
         const st = K.AFFINITY_STAGES[afterStage];
         const a = K.artistById(artistId);
         K.toast("🤝 İlişki gelişti", `${a.stageName} ile yeni aşama: ${st.label}`, "ok");
+        /* v10.50 — dedikodu ağı: aynı şirketteki/türdeki sanatçılar duyar */
+        if (K.npcMind) K.npcMind.spread(artistId, "stage_up", st.label);
       }
       K.bus.emit("affinity", { artistId, before, after: rel.affinity });
       return rel.affinity;
@@ -1133,6 +1138,8 @@
     /* ---------------- günlük tick: sanatçılar kendiliğinden yazar ---------------- */
     dailyTick() {
       const s = K.state;
+      /* v10.50 — NPC zihin katmanı günlük bakımı (bekleyen soru, dedikodu, söz) */
+      if (K.npcMind) K.npcMind.dailyTick();
 
       /* v10.12 — yeni DM katmanları */
       try { K.relations._demoTick(); } catch (e) {}      // demo dinleme sonuçları
