@@ -626,11 +626,15 @@
 
           const reach = K.relations.reach(artistId);
           const reachCls = reach >= 0.45 ? "money" : reach >= 0.2 ? "gold" : "hot";
+          /* v10.50 — RPG katmanı: ruh hali + bağlamsal önerilen cevaplar */
+          const sug = (K.chat && K.chat.suggestions) ? K.chat.suggestions(artistId) : [];
+          appR._sugs = sug;
 
           return `
             ${K.ui.affinityBar(artistId)}
             <div class="dm-reach">
               <span>Cevap alma şansın: <b class="pill ${reachCls}">${U.escape(K.relations.reachLabel(artistId))}</b></span>
+              ${K.npcMind ? `<span class="dm-mood">${U.escape(K.npcMind.moodLabel(artistId))}</span>` : ""}
               <span class="muted">${rel.met ? "seni tanıyor" : "seni henüz tanımıyor"} · ${U.compact(a.monthly)} dinleyici</span>
             </div>
             <div class="dm-thread">
@@ -639,6 +643,7 @@
               ${offers.map(o => offerCard(o)).join("")}
             </div>
             ${appR._reply && appR._reply.artistId === artistId ? `<div class="dm-reply-bar">↩ <b>${U.escape(a.stageName)}</b>: ${U.escape(appR._reply.text.slice(0, 44))} <button data-pact="reply-cancel">✕</button></div>` : ""}
+            ${sug.length ? `<div class="dm-suggest">${sug.map((s, i) => `<button class="dm-sug" data-pact="suggest" data-arg="${i}"><span class="dms-t">${U.escape(s.tone)}</span>${U.escape(s.text)}</button>`).join("")}</div>` : ""}
             <div style="margin-top:auto;padding-top:12px">
               <div style="font-size:10.5px;color:var(--text-3);margin-bottom:6px">Aksiyonlar (mekanik) · serbest yazışma için alttaki kutuyu kullan</div>
               <div class="dm-quick">${acts.join("")}</div>
@@ -675,6 +680,10 @@
             if (input) { app.send(artistId, input.value); input.value = ""; }
           }
           else if (act === "quick") app.quick(artistId, el.dataset.arg);
+          else if (act === "suggest") {
+            const s = app._sugs && app._sugs[+el.dataset.arg];
+            if (s) app.send(artistId, s.text);
+          }
           else if (act === "gift") { K.relations.sendGift(artistId); K.phone.reRender(); }
           else if (act === "hangout") { K.relations.hangout(artistId); K.phone.reRender(); }
           else if (act === "feature") app.featurePrompt(artistId);
