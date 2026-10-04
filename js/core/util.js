@@ -65,7 +65,9 @@ window.K = window.K || {};
     },
     fromISO(iso) {
       const p = String(iso || K.util.todayISO()).split("-").map(Number);
-      return { y: p[0] || 2008, m: p[1] || 1, d: p[2] || 1 };
+      /* v10.56 — varsayılan yıl 2008 DEĞİL, o anki gerçek yıldır (oyun
+         gerçek takvimden başlar; bkz. state.dateStart = todayISO()). */
+      return { y: p[0] || new Date().getFullYear(), m: p[1] || 1, d: p[2] || 1 };
     },
     toISO(o) {
       return o.y + "-" + String(o.m).padStart(2, "0") + "-" + String(o.d).padStart(2, "0");
