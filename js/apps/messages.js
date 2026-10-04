@@ -635,7 +635,9 @@
             <div class="dm-reach">
               <span>Cevap alma şansın: <b class="pill ${reachCls}">${U.escape(K.relations.reachLabel(artistId))}</b></span>
               ${K.npcMind ? `<span class="dm-mood">${U.escape(K.npcMind.moodLabel(artistId))}</span>` : ""}
+              ${K.routine ? `<span class="dm-routine">${U.escape(K.routine.statusLabel(artistId))}</span>` : ""}
               <span class="muted">${rel.met ? "seni tanıyor" : "seni henüz tanımıyor"} · ${U.compact(a.monthly)} dinleyici</span>
+              ${K.time ? `<span class="muted dm-clock">🕐 ${U.escape(K.time.label())}</span>` : ""}
             </div>
             <div class="dm-thread">
               ${msgs || `<div class="dm-system">${U.escape(a.stageName)} ile henüz konuşmadınız. İlk mesajı sen at — cevap gelmeyebilir.</div>`}
