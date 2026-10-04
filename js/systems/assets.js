@@ -47,6 +47,15 @@
 
     list() { return K.state.player.assets || []; },
     def(id) { return ASSETS.find(a => a.id === id); },
+    /* v10.57 — ALIM FİYATI enflasyona bağlı. Bakım gideri zaten
+       `upkeepTotal` içinde enflasyonla artıyordu; ama alım fiyatı sabit
+       nominal kaldığı için yıllar geçtikçe mülk/araç gerçekte
+       ucuzluyordu. Artık ikisi de aynı endeksi kullanır. */
+    costNow(id) {
+      const a = K.assets.def(id);
+      if (!a) return 0;
+      return Math.round(a.cost * (K.econ ? K.econ.infl() : 1));
+    },
     owns(id) { return K.assets.list().some(x => x.id === id); },
     count() { return K.assets.list().length; },
 
@@ -59,9 +68,10 @@
       return Math.round(K.assets.list().reduce((n, x) => n + ((K.assets.def(x.id) || {}).upkeep || 0), 0) * infl);
     },
 
-    /* aylık pasif gelir */
+    /* aylık pasif gelir (v10.57: gider gibi gelir de enflasyona bağlı) */
     incomeTotal() {
-      return K.assets.list().reduce((n, x) => n + ((K.assets.def(x.id) || {}).income || 0), 0);
+      const infl = K.econ ? K.econ.infl() : 1;
+      return Math.round(K.assets.list().reduce((n, x) => n + ((K.assets.def(x.id) || {}).income || 0), 0) * infl);
     },
 
     /* stüdyo bonusu: kayıt maliyeti çarpanı + kalite */
@@ -82,7 +92,7 @@
       if (K.playerAge() < _ma) {
         return { ok: false, why: `Bu varlık için ${_ma} yaşında olmalısın` };
       }
-      if (!K.economy.canAfford(a.cost)) return { ok: false, why: `Yetersiz bakiye (${U.money(a.cost)})` };
+      if (!K.economy.canAfford(K.assets.costNow(id))) return { ok: false, why: `Yetersiz bakiye (${U.money(K.assets.costNow(id))})` };
       return { ok: true };
     },
 
@@ -90,10 +100,11 @@
       const a = K.assets.def(id);
       const c = K.assets.canBuy(id);
       if (!c.ok) { K.toast("Alınamadı", c.why, "warn"); return false; }
-      K.economy.spend(a.cost, "asset");
+      const price = K.assets.costNow(id);
+      K.economy.spend(price, "asset");
       const p = K.state.player;
       p.assets = p.assets || [];
-      p.assets.push({ id: a.id, day: K.state.day, price: a.cost });
+      p.assets.push({ id: a.id, day: K.state.day, price });
       p.image = U.clamp((p.image || 50) + (a.img || 0), 0, 100);
       p.reputation = (p.reputation || 0) + (a.rep || 0);
       K.toast(a.icon + " Alındı", `${a.name} · imaj +${a.img} · itibar +${a.rep} · aylık bakım ${U.money(a.upkeep)}`, "ok");
@@ -109,7 +120,9 @@
     sell(id) {
       const a = K.assets.def(id);
       if (!a || !K.assets.owns(id)) return false;
-      const back = Math.round(a.cost * SELL_RATIO);
+      /* Satışta gerçekten ÖDENEN fiyat esas alınır (enflasyonlu alım). */
+      const rec = K.assets.list().find(x => x.id === id) || {};
+      const back = Math.round((rec.price || K.assets.costNow(id)) * SELL_RATIO);
       const p = K.state.player;
       p.assets = (p.assets || []).filter(x => x.id !== id);
       K.economy.earn(back, "asset_sale");
