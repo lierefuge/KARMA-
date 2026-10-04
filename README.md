@@ -5,6 +5,43 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.53 — FT ARTIK STÜDYODA (oyuncu kontrollü ortak iş)
+
+**Sorun:** Bir sanatçı sana feature (FT) teklif edip kabul edince ortak şarkı
+**otomatik** üretiliyordu — söz, beat ve kalite verilmediği için hep aynı vasat
+sonuç çıkıyordu. Sen teklif edince de aynıydı. Şarkı üzerinde hiçbir kontrolün
+yoktu.
+
+**Çözüm:** FT/ortak iş anlaşmaları artık şarkı **üretmiyor**; seni **stüdyoya**
+yönlendiriyor. Sözü, beat'i, kaliteyi ve çıkış tarihini sen belirliyorsun.
+Yeni test: `tools/smoke-v1053.js` (**24 kontrol**).
+
+### 1 · 🎧 Anlaşma → stüdyo
+- Sanatçı kabul edince (ister sen teklif et, ister o teklif etsin) şarkı
+  **otomatik yayınlanmaz**. Anlaşma `rel.deal = { status: "agreed" }` olarak
+  kaydedilir ve **stüdyo sihirbazı** ortak sanatçı önceden seçili şekilde açılır.
+- Stüdyoda sözü yazarsın, beat/kalite/prodüksiyon planını seçersin, çıkış
+  tarihini belirlersin. Yayınlanan parça artık **senin emeğinle** çıkar.
+- Ortak iş beklerken DM'de **“🎧 Ortak İşi Hazırla”** düğmesi kalır; dilediğin an
+  stüdyoya dönersin.
+
+### 2 · 🤝 Anlaşma tamamlama
+- Stüdyoda yayınlanan ortak iş, o sanatçıyla anlaşmayı otomatik **“released”**
+  yapar. Böylece aynı sanatçıyla iş **askıda kalmaz** ve tekrar teklif gelmez.
+- Anlaşma “agreed” durumundayken o sanatçıya yeni FT/ortak proje teklifi
+  düğmesi çıkmaz (çift anlaşma olmaz).
+
+### 3 · 🎤 Ortak EP de aynı yoldan
+- `Ortak Proje (EP)` anlaşması da artık otomatik üretmiyor; stüdyoda 4 parçalık
+  EP'yi kendin hazırlıyorsun.
+
+### 4 · 💬 Zihin katmanı uyumu
+- NPC zihin katmanı “agreed” anlaşmayı tanır: takip mesajı ve önerilen cevaplar
+  artık *“şarkıyı stüdyoda hazırlayınca haber ver”* / *“stüdyoyu açıp
+  hazırlıyorum”* yönünde.
+
+---
+
 ## GÜNCELLEME v10.52 — GÜNDELİK RUTİN · ANLAYAN DM · FT İŞLEME
 
 Sanatçılar artık **her an hazır değil**: kendi günlük rutinleri var. Ayrıca DM
