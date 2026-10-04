@@ -38,6 +38,26 @@
        arena 1.800–5.000 ₺, stadyum 2.500–7.000 ₺). Taban 850 ₺. */
     BASE_TICKET: 850,
 
+    /* v10.57 — ENFLASYON TUTARLILIĞI. Bilet tabanı, mekân/prodüksiyon
+       maliyeti, merch ve açılış ücreti SABİT nominal değerlerdi; oysa
+       bakım/gider kalemleri `K.econ.infl()` ile artıyordu. 43%/yıl
+       enflasyonda konserler yıllar geçtikçe gerçekte bedava kâra
+       dönüşüyordu. Artık hepsi enflasyon endeksiyle çarpılır. */
+    infl() { return (K.econ && K.econ.infl) ? K.econ.infl() : 1; },
+    baseTicket() { return Math.round(K.concerts.BASE_TICKET * K.concerts.infl()); },
+
+    /* v10.57 — SEZON. Gerçek turnede katılım yaz aylarında zirve yapar
+       (okul tatili, açık hava mekânları, festival sezonu), kışın düşer.
+       Ulusal bir turne planlarken zamanlama artık gerçekten önemlidir. */
+    seasonMult(day) {
+      const d = U.dateObjForDay(day == null ? K.state.day : day);
+      const m = d.m;
+      if (m >= 6 && m <= 8) return 1.15;                     // yaz zirvesi
+      if (m === 5 || m === 9) return 1.06;                   // yaz geçişi
+      if (m === 12 || m === 1 || m === 2) return 0.90;       // kış durgunluğu
+      return 1.0;
+    },
+
     production(id) { return K.concerts.PRODUCTIONS.find(p => p.id === id) || K.concerts.PRODUCTIONS[0]; },
     venue(id) { return K.concerts.VENUES.find(v => v.id === id) || K.concerts.VENUES[0]; },
     city(name) { return K.concerts.CITIES.find(c => c.name === name) || K.concerts.CITIES[0]; },
@@ -52,8 +72,9 @@
       const guarantee = Math.round(gross * U.clamp(0.5 + (pop || 0) / 220, 0.45, 0.8));
       const ticket = dealType === "guarantee" ? guarantee : Math.round(gross * 0.62);
       const merchUnits = merchOn ? Math.round(attendance * 0.18) : 0;
-      const merchGross = merchUnits * 250;
-      const merchCost = merchUnits * 90;
+      const mInfl = K.concerts.infl();
+      const merchGross = Math.round(merchUnits * 250 * mInfl);
+      const merchCost = Math.round(merchUnits * 90 * mInfl);
       return { gross, guarantee, ticket, merchGross, merchCost, merchUnits };
     },
 
@@ -65,11 +86,11 @@
         .filter(a => roster.includes(a.id) || (s.relations[a.id] && s.relations[a.id].met))
         .sort((a, b) => b.popularity - a.popularity)
         .slice(0, 10)
-        .map(a => ({ artist: a, fee: Math.round(a.popularity * 900 + 8000) }));
+        .map(a => ({ artist: a, fee: Math.round((a.popularity * 900 + 8000) * K.concerts.infl()) }));
     },
     openerFee(id) {
       const a = K.artistById(id);
-      return a ? Math.round(a.popularity * 900 + 8000) : 0;
+      return a ? Math.round((a.popularity * 900 + 8000) * K.concerts.infl()) : 0;
     },
 
     /* ---------------- katılım & gelir tahmini ---------------- */
@@ -91,11 +112,11 @@
            47 bin → ~2.100 kişi (salon)
            1 milyon → ~37.000 kişi (arena)  */
       const monthly = Math.max(0, p.monthly || 0);
-      const demandBase = (monthly * 0.035 + Math.sqrt(monthly) * 2) * c.mult;
+      const demandBase = (monthly * 0.035 + Math.sqrt(monthly) * 2) * c.mult * K.concerts.seasonMult();
       /* Fiyat esnekliği (v10.9): eskiden 2× fiyat katılımı %12'ye
          düşürüyordu — gerçekte bilet fiyatı iki katına çıkınca katılım
          %40-50 civarında azalır. Eğri yumuşatıldı. */
-      const priceRatio = price / (K.concerts.BASE_TICKET * (1 + pop / 120));
+      const priceRatio = price / (K.concerts.baseTicket() * (1 + pop / 120));
       const priceFactor = U.clamp(1.3 - priceRatio * 0.5, 0.3, 1.15);
       const openerBoost = opener ? U.clamp(opener.popularity / 260, 0.03, 0.18) : 0;
 
@@ -106,8 +127,10 @@
       const merchOn = !(opts && opts.merch === false);
       const nums = K.concerts.settleNumbers(attendance, price, dealType, pop, merchOn);
       const openerFee = opener ? K.concerts.openerFee(openerId) : 0;
-      const venueCost = Math.round(v.cost * c.mult);
-      const cost = venueCost + prod.cost + openerFee + nums.merchCost;
+      const infl = K.concerts.infl();
+      const venueCost = Math.round(v.cost * c.mult * infl);
+      const prodCost = Math.round(prod.cost * infl);
+      const cost = venueCost + prodCost + openerFee + nums.merchCost;
       const revenue = nums.ticket + nums.merchGross;
       const net = revenue - cost;
       const fame = +(attendance / v.capacity * (v.prestige + prod.prestige) * 1.35).toFixed(2);
@@ -118,7 +141,7 @@
 
       return {
         attendance, capacity: v.capacity, revenue, cost, net, fame, hype, fans,
-        openerFee, prodCost: prod.cost, venueCost, dealType, merch: merchOn,
+        openerFee, prodCost, venueCost, dealType, merch: merchOn,
         gross: nums.gross, ticket: nums.ticket, guarantee: nums.guarantee, merchGross: nums.merchGross, merchCost: nums.merchCost,
         venue: v, city: c, production: prod, opener,
         soldOut: attendance >= v.capacity * 0.97
