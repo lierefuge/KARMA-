@@ -859,7 +859,7 @@
       K.phone.pushView({
         title: a.stageName, sub: "Kanal", shellClass: "app-youtube",
         render: () => `
-          <div class="yt-banner" style="${a.ytSubs && false ? "" : U.gradientFor(a.id)}"></div>
+          <div class="yt-banner" style="background:${U.gradientFor(a.id)}"></div>
           <div class="yt-channel">
             <div class="yt-channel-head">
               ${K.ui.artistAvatar(a.id, 54, true)}
