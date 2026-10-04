@@ -88,7 +88,7 @@
 
       /* ücret: müşterinin büyüklüğü × kapsam × senin ustalığın */
       const size = 1 + (a.popularity || 0) / 26;
-      const fee = Math.round(K.ECON.writingBase * sc.base * size * (0.7 + K.writing.craft() / 100));
+      const fee = Math.round(K.ECON.writingBase * sc.base * size * (0.7 + K.writing.craft() / 100) * (K.econ ? K.econ.infl() : 1));
       const offer = {
         id: U.uid("wr"), artistId: a.id, artistName: a.stageName, icon: sc.icon,
         scope: sc.id, scopeName: sc.name, fee, days: sc.days, day: s.day,
@@ -194,7 +194,7 @@
       /* --- KABUL: sanatçı kendi adına yayınlar, oyuncu söz yazarı --- */
       const title = K.career.suggestTitle();
       const size = 1 + (a.popularity || 0) / 26;
-      const fee = Math.round(K.ECON.writingBase * size * (0.8 + quality / 120));
+      const fee = Math.round(K.ECON.writingBase * size * (0.8 + quality / 120) * (K.econ ? K.econ.infl() : 1));
       const royaltyDays = 40;
       const royaltyPerDay = Math.round((a.popularity || 30) * 14 * (0.5 + quality / 140));
 
