@@ -11,6 +11,7 @@
   K.ARTIST_PHOTOS = {
  "sehinsah": "https://cdn-images.dzcdn.net/images/artist/39b2e6d49de9a33fbc6ba6f2f87a59ff/500x500-000000-80-0-0.jpg",
  "weghrumi": "https://cdn-images.dzcdn.net/images/artist/581f037adccfedcae5a9dab2a0861368/500x500-000000-80-0-0.jpg",
+ "liashine": "https://cdn-images.dzcdn.net/images/artist/66b5d6fc351c4e8217c664a90c8afb33/1000x1000-000000-80-0-0.jpg",
  "ceza": "https://cdn-images.dzcdn.net/images/artist/2af230afdd9e93989d7d7288e93fb536/500x500-000000-80-0-0.jpg",
  "sagopa": "https://cdn-images.dzcdn.net/images/artist/b532395d78190bc78ef3a257bedd4e04/500x500-000000-80-0-0.jpg",
  "ezhel": "https://cdn-images.dzcdn.net/images/artist/86897403b02175990e9d84322a94654a/500x500-000000-80-0-0.jpg",
