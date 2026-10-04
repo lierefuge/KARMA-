@@ -8,7 +8,12 @@
   const SKEY = "karma_settings_v1";
   const SLOTS = [1, 2, 3];
 
-  let cfg = { difficulty: "normal", reduceMotion: false, autosave: true, accent: "karma", contrast: false };
+  /* v10.56 — `beefReal` VARSAYILAN KAPALI.
+     Gerçek sanatçıların kurgusal diss/beef senaryolarında yer alması
+     isim/benzerlik kullanımı ve itibar zedeleyici içerik riski taşır.
+     Kapalıyken oyun gerçek kişiler hakkında husumet içeriği ÜRETMEZ
+     (gerçek sanatçılar yalnızca saygı/anılma bağlamında geçer). */
+  let cfg = { difficulty: "normal", reduceMotion: false, autosave: true, accent: "karma", contrast: false, beefReal: false };
   try { Object.assign(cfg, JSON.parse(localStorage.getItem(SKEY) || "{}")); } catch (e) {}
 
   function key(n) { return "karma_save_slot_" + n; }
@@ -17,6 +22,8 @@
   K.settings = {
     get difficulty() { return cfg.difficulty; },
     all() { return Object.assign({}, cfg); },
+    /* Gerçek sanatçılarla husumet içeriği üretilsin mi? (varsayılan: hayır) */
+    beefReal() { return !!cfg.beefReal; },
 
     set(patch) {
       Object.assign(cfg, patch);
@@ -168,7 +175,9 @@
           <label class="switch-row"><span>Otomatik kayıt</span><input type="checkbox" id="set-autosave" ${cfg.autosave ? "checked" : ""} /></label>
           <label class="switch-row"><span>Hareketleri azalt</span><input type="checkbox" id="set-motion" ${cfg.reduceMotion ? "checked" : ""} /></label>
           <label class="switch-row"><span>Yüksek kontrast (erişilebilirlik)</span><input type="checkbox" id="set-contrast" ${cfg.contrast ? "checked" : ""} /></label>
+          <label class="switch-row"><span>Gerçek sanatçılarla husumet/diss</span><input type="checkbox" id="set-beefreal" ${cfg.beefReal ? "checked" : ""} /></label>
         </div>
+        <div class="hint" style="margin-top:-6px">Kapalıyken oyun gerçek sanatçılar hakkında husumet içeriği üretmez; yalnızca saygı/anılma geçer.</div>
 
         <div class="set-section">
           <div class="set-title">Yedekleme</div>
@@ -229,6 +238,7 @@
         if (e.target.id === "set-autosave") K.settings.set({ autosave: e.target.checked });
         if (e.target.id === "set-motion") K.settings.set({ reduceMotion: e.target.checked });
         if (e.target.id === "set-contrast") K.settings.set({ contrast: e.target.checked });
+        if (e.target.id === "set-beefreal") K.settings.set({ beefReal: e.target.checked });
         if (e.target.id === "set-import-file") K.settings.importSave(e.target.files && e.target.files[0]);
       });
       root.addEventListener("click", e => {
