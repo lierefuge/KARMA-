@@ -1530,6 +1530,16 @@ body::before {
   color: var(--text-1);
 }
 
+/* v10.52 — gündelik rutin rozeti (DM başlığı) */
+.dm-routine {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10.5px; font-weight: 800; padding: 3px 9px;
+  border-radius: var(--radius-pill);
+  background: rgba(43,143,255,0.10); border: 1px solid rgba(43,143,255,0.25);
+  color: var(--text-1);
+}
+.dm-clock { font-variant-numeric: tabular-nums; }
+
 /* v10.50 — önerilen cevaplar (RPG hızlı seçenekler) */
 .dm-suggest { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 2px; }
 .dm-sug {
@@ -7113,7 +7123,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.50.0";
+  K.VERSION = "10.52.0";
   K.VERSION_DATE = "2026-10-04";
 })(window.K = window.K || {});
 
@@ -11886,6 +11896,7 @@ window.K = window.K || {};
       threads: {},
       dmRequests: {},            // v10.12 — tanımadığından gelen istekler
       groups: {},                // v10.12 — grup sohbetleri (kadro / ortak proje)
+      dmLex: {},                 // v10.52 — DM öğrenilen sözlük (kelime → niyet)
       contacts: [],          // mahalle/semt çevresi (systems/contacts.js)
       offers: [],
       feed: { ig: [], x: [], tiktok: [], yt: [] },
@@ -11936,6 +11947,7 @@ window.K = window.K || {};
         interactions: 0,
         history: [],
         flags: { hangout: false, feature: false, collab: false, contractOffered: false },
+        deal: null,              // v10.52 — kalıcı anlaşma kaydı (feature / collab)
         giftCooldown: 0,
         hangoutCooldown: 0
       };
@@ -18607,12 +18619,39 @@ window.K = window.K || {};
         intent = chat.lastIntent;
       }
 
+      /* ---- v10.52: ANLAYAN KATMAN — çoklu niyet · varlık · ton · öğrenme ---- */
+      let an = null;
+      if (K.dmAI) {
+        an = K.dmAI.analyze(text, artistId);
+        /* taban sınıflama zayıfsa öğrenilmiş kelimeden niyet devral */
+        if (intent0 === "generic" && an.learned) intent = an.learned;
+      }
+
+      /* ---- v10.52: FT ANLAŞMASI İŞLEME ----
+         Oyuncu DM'de feature önerdiğinde bu artık KAYDEDİLİR (rel.deal).
+         Sanatçı bir daha sıfırdan teklif göndermez; buton anlaşmayı tamamlar. */
+      if (intent === "feature" && stage >= 4) {
+        const d = rel.deal;
+        if (!d || d.type !== "feature") {
+          rel.deal = { type: "feature", status: "pending", day: K.state.day, source: "dm" };
+          rel.flags.featureTalked = true;
+        }
+      }
+
       const song = theirSong(artist, rel._usedSongs || []);
       rel._usedSongs = rel._usedSongs || [];
       if (song && song !== "yeni bir iş") rel._usedSongs.push(song);
 
       let msgs = forcedMsgs || poolFor(intent, stage, prof, artist).map(m => m.replace("{song}", song));
       let chosen = pickFresh(msgs, chat.recent);
+
+      /* v10.52 — "naber / nasılsın": sanatçının KENDİ sesi korunur, üstüne
+         gerçek durumu (rutin + ruh hali + son işler) anlatan cümle eklenir. */
+      if (intent === "howareyou" && K.dmAI) {
+        const situ = K.dmAI.howAreYou(artistId);
+        if (situ && chosen && situ !== chosen) chosen = chosen + " " + situ;
+        else if (situ) chosen = situ;
+      }
 
       // genel mesaja BAĞLAMLI cevap (rastgele kelime yansıtma yok)
       if (intent0 === "generic" && !forcedMsgs) {
@@ -18628,6 +18667,23 @@ window.K = window.K || {};
 
       /* ---- ek mesajlar (gerçek sohbet hissi + tutarlılık) ---- */
       const extras = [];
+
+      /* v10.52 — ANLAŞMA farkındalığı: konuşulan işi hatırla ve sürdür */
+      const deal = rel.deal;
+      if (deal && deal.type === "feature") {
+        if (deal.status === "agreed") {
+          extras.push(deal.songTitle
+            ? `"${deal.songTitle}" işini konuşmuştuk; stüdyo tarihini netleştirelim mi?`
+            : "Zaten anlaşmıştık; stüdyo tarihini netleştirelim mi?");
+        } else {
+          extras.push("Anlaştık say; aşağıdaki butondan stüdyo teklifini başlat, gerisini ben hallederim.");
+        }
+      }
+      /* v10.52 — VARLIK farkındalığı: mesajda geçen somut bilgiye bağlan */
+      if (an) {
+        const ack = K.dmAI.acknowledge(artistId, an);
+        if (ack && U.chance(0.7)) extras.push(ack);
+      }
 
       /* ---- v10.50: ZİHİN KATMANI — ruh hali / hafıza / dedikodu / yay ----
          Bu dört katman, cevabı "rastgele havuz" olmaktan çıkarıp
@@ -18788,6 +18844,8 @@ window.K = window.K || {};
           K.npcMind.promise(artistId, "me", text);
         if (/[?？]/.test(msg) && U.chance(0.5)) K.npcMind.setPending(artistId, intent, msg);
       }
+      /* v10.52 — ÖĞRENME: oyuncunun kelimelerini niyete bağla (kayıtla kalıcı) */
+      if (K.dmAI) K.dmAI.learn(text, intent);
       return { msgs: [msg], delta, intent, action, stressed: !!stressTone, dmMult: +dmMult.toFixed(2),
                mood: mindMood ? { key: mindMood.key, label: mindMood.label, icon: mindMood.icon } : null };
     },
@@ -20740,14 +20798,26 @@ window.K = window.K || {};
         rel.met = true;
         rel.discovered = true;
         K.bus.emit("dm:seen", { artistId });
-        if (isGreet || Math.random() < pol.replyChance) {
+        /* v10.52 — RUTİN: sanatçı müsait değilse (uyuyor / turnede /
+           stüdyoda) cevap şansı düşer; önce kısa bir "müsait değilim"
+           bilgisi gelir, gerçek cevap gecikmeli ulaşır. */
+        const avail = K.routine ? K.routine.availability(artistId) : 1;
+        const replyChance = U.clamp(pol.replyChance * (0.35 + avail * 0.65), 0.02, 0.95);
+        if (isGreet || Math.random() < replyChance) {
           if (sync) { K.relations.artistReply(artistId, text, pol); }
           else {
             rel._typing = true;
             K.bus.emit("dm:typing", { artistId, on: true });
-            /* v10.50 — cevap gecikmesi ruh haline bağlı: hype anında,
-               yorgun/gergin sanatçı saatler sonra döner. */
-            const wait = K.npcMind ? K.npcMind.replyWait(artistId) : U.randInt(900, 2000);
+            if (K.routine && avail < 0.55 && rel._lastAuto !== K.state.day && U.chance(0.7)) {
+              const ar = K.routine.autoReply(artistId);
+              if (ar) {
+                rel._lastAuto = K.state.day;
+                setTimeout(() => K.relations.pushArtistMessage(artistId, ar, "chat", { silent: true }), 350);
+              }
+            }
+            /* v10.50/52 — gecikme = ruh hali + gündelik rutin */
+            const wait = K.routine ? K.routine.replyWait(artistId)
+              : (K.npcMind ? K.npcMind.replyWait(artistId) : U.randInt(900, 2000));
             setTimeout(() => K.relations.artistReply(artistId, text, pol), wait);
           }
         }
@@ -20764,6 +20834,15 @@ window.K = window.K || {};
       const out = K.chat.reply(artistId, playerText || "", pol || K.relations.replyPolicy(artistId));
       K.relations.addAffinity(artistId, out.delta, "sohbet:" + out.intent);
       e.rel.lastInteract = K.state.day;
+
+      /* v10.52 — uykudan/turnedен dönen sanatçı önce durumunu açar */
+      if (K.routine && out.msgs && out.msgs.length) {
+        const st = K.routine.status(artistId);
+        if (st.available < 0.55) {
+          const wp = K.routine.wakePrefix(artistId);
+          if (wp && out.msgs[0].indexOf(wp) !== 0) out.msgs[0] = wp + " " + out.msgs[0];
+        }
+      }
 
       out.msgs.forEach((m, i) => {
         if (i === 0) K.relations.pushArtistMessage(artistId, m, "chat");
@@ -21288,6 +21367,35 @@ window.K = window.K || {};
       K.save(); K.refresh();
     },
 
+    /* ============================================================
+       v10.52 — ANLAŞMA KAYDI
+       Feature / ortak proje anlaşmaları artık KALICI olarak işlenir:
+         · rel.deal altında saklanır (tür, durum, şarkı, gün)
+         · hafızaya yazılır (npcMind)
+         · günlük tick'in aynı sanatçıdan tekrar teklif üretmesini engeller
+       Böylece "kabul etti ama işlenmiyor" durumu ortadan kalkar.
+       ============================================================ */
+    _recordDeal(artistId, type, info) {
+      const rel = K.relation(artistId);
+      if (!rel) return null;
+      info = info || {};
+      rel.deal = {
+        type: type,
+        status: info.status || "agreed",
+        songTitle: info.songTitle || null,
+        day: K.state.day,
+        source: info.source || "dm"
+      };
+      rel.flags = rel.flags || {};
+      if (type === "feature") rel.flags.feature = true;
+      if (type === "collab") rel.flags.collab = true;
+      if (K.npcMind) {
+        const label = type === "feature" ? "Ortak şarkı" : "Ortak proje";
+        K.npcMind.promise(artistId, "them", label + (info.songTitle ? ': "' + info.songTitle + '"' : ""));
+      }
+      return rel.deal;
+    },
+
     /* ---------------- FEATURE TEKLİFİ (oyuncu → sanatçı) ---------------- */
     canProposeFeature(artistId) {
       const rel = K.relation(artistId);
@@ -21308,10 +21416,12 @@ window.K = window.K || {};
       if (!K.economy.canAfford(cost)) { K.toast("Yetersiz bakiye", `Stüdyo için ${U.money(cost)} gerekiyor.`, "bad"); return; }
 
       // kabul olasılığı
-      const prob = U.clamp(
+      let prob = U.clamp(
         (rel.affinity - 55) / 70 + a.traits.work / 22 + (p.popularity - a.popularity) / 260,
         0.05, 0.94
       );
+      /* v10.52 — DM'de zaten anlaşıldıysa (pending deal) teklif neredeyse kesin */
+      if (rel.deal && rel.deal.type === "feature" && rel.deal.status === "pending") prob = Math.max(prob, 0.95);
       const accepted = Math.random() < prob;
 
       K.economy.spend(cost, "feature_studio");
@@ -21327,6 +21437,7 @@ window.K = window.K || {};
       } else {
         K.relations.addAffinity(artistId, 6, "feature_kabul", { uncapped: true });
         rel.flags.feature = true;
+        const dealTitle = songTitle || (K.career.suggestTitle() + " (feat. " + a.stageName + ")");
         K.relations.pushArtistMessage(artistId, U.pick([
           "Tamam kardeşim, gel yapalım. Sen beat hazırla, ben yazarım.",
           "Onay! Stüdyo ayarları bende. Şu başlıkla girelim.",
@@ -21334,10 +21445,11 @@ window.K = window.K || {};
         ]), "system");
         // ortak yayın oluştur
         K.career.createRelease({
-          title: songTitle || (K.career.suggestTitle() + " (feat. " + a.stageName + ")"),
+          title: dealTitle,
           genre: p.genre, type: "single", waitDays: 13,
           budget: 30000, marketing: 5000, featWith: artistId
         });
+        K.relations._recordDeal(artistId, "feature", { songTitle: dealTitle, source: "outgoing" });
         K.toast("🔥 Feature anlaşması!", `${a.stageName} ile ortak şarkı yayın sırasına girdi.`, "ok");
       }
       K.save(); K.refresh();
@@ -21372,11 +21484,13 @@ window.K = window.K || {};
         rel.flags.collab = true;
         K.relations.addAffinity(artistId, 9, "ortak_proje", { uncapped: true });
         K.relations.pushArtistMessage(artistId, "Ortak proje için varım! Bir EP çıkaralım, ikimizin sound'u uyar.", "system");
+        const collabTitle = projectTitle || ("Ortak Proje: " + a.stageName);
         K.career.createRelease({
-          title: projectTitle || ("Ortak Proje: " + a.stageName),
+          title: collabTitle,
           genre: K.state.player.genre, type: "ep", trackCount: 4, waitDays: 24,
           budget: 18000, marketing: 8000, featWith: artistId
         });
+        K.relations._recordDeal(artistId, "collab", { songTitle: collabTitle, source: "outgoing" });
         K.toast("🤝 Ortak proje başladı!", a.stageName + " ile ortak EP yayın sırasına girdi.", "ok");
       }
       K.save(); K.refresh();
@@ -21614,6 +21728,9 @@ window.K = window.K || {};
             genre: s.player.genre, type: "single", waitDays: 13,
             budget: 25000, marketing: 0, featWith: offer.artistId
           });
+          K.relations._recordDeal(offer.artistId, "feature", {
+            songTitle: offer.terms.title + (a ? " (feat. " + a.stageName + ")" : ""), source: "incoming"
+          });
           K.toast("🔥 Feature kabul edildi", "Ortak şarkı yayın sırasına eklendi.", "ok");
         } else {
           offer.status = "declined";
@@ -21744,6 +21861,10 @@ window.K = window.K || {};
       // 2) Feature teklifi (samimiyet yüksekse)
       const featureCandidates = K.artistList().filter(a => {
         const rel = s.relations[a.id];
+        /* v10.52 — anlaşma varsa VEYA feature konuşulduysa aynı
+           sanatçıdan yeniden feature teklifi gelmez. */
+        if (rel && rel.deal && rel.deal.type === "feature" && rel.deal.status === "pending") return false;
+        if (rel && rel.flags && rel.flags.featureTalked) return false;
         return rel && rel.met && K.stageIndexFor(rel.affinity) >= 4 && !rel.flags.feature
           && K.relations.reach(a.id) >= 0.25;
       });
@@ -22132,6 +22253,11 @@ window.K = window.K || {};
       if (!m.lastTopic || m.lastTopic === currentIntent) return null;
       if (gap < 1 || gap > 5) return null;
       if (!U.chance(0.34)) return null;
+      /* v10.52 — konuşulmuş bir FT anlaşması varsa öncelik ondadır */
+      const rel = K.relation(artistId);
+      if (rel.deal && rel.deal.type === "feature" && rel.deal.status === "pending" && U.chance(0.6)) {
+        return "Feature konusunu kapatalım; stüdyo tarihini ne zaman belirleyelim?";
+      }
       const T = {
         music:   "Geçen konuştuğumuz yeni iş ne oldu, çıktı mı?",
         career:  "Sana verdiğim tavsiyeyi düşündün mü?",
@@ -22181,6 +22307,13 @@ window.K = window.K || {};
         return out.slice(0, 4);
       }
 
+      /* v10.52 — konuşulmuş FT anlaşması varsa tamamlamaya yönlendir */
+      if (rel.deal && rel.deal.type === "feature" && rel.deal.status === "pending") {
+        out.push({ text: "Tamam, stüdyo teklifini başlatıyorum.", tone: "profesyonel" });
+        out.push({ text: "Şartları konuşalım.", tone: "net" });
+        return out.slice(0, 4);
+      }
+
       if (stage <= 1) {
         out.push({ text: "Kendimi tanıtayım: yeni başlıyorum, işler yapıyorum.", tone: "sicak" });
         out.push({ text: "Son işlerini dinledim, çok sağlam.", tone: "sicak" });
@@ -22214,6 +22347,496 @@ window.K = window.K || {};
 
   function now2(day, cur) { return cur - day; }
 
+})(window.K = window.K || {});
+
+</script>
+  <!-- v10.52 — gündelik rutin + anlayan DM katmanı -->
+  <script>
+/* ==== js/systems/time.js ==== */
+/* ============================================================
+   KARMA — systems/time.js   (v10.52)
+   OYUN-İÇİ SAAT (tek kaynak).
+
+   Neden gerekli?
+   --------------
+   Oyun gün bazlı ilerliyor ama NPC rutinlerinin anlamlı olması
+   için "günün hangi saatinde olduğumuz" lazım. Telefonun durum
+   çubuğunda zaten bir saat vardı (09:41 temelli, gün ilerledikçe
+   kayar) ama bu hesap phone.js içine gömülüydü ve başka hiçbir
+   sistem ondan haberdar değildi.
+
+   Artık saat TEK yerde: gün 0 → 09:41, her gün +47 dk. Böylece
+   günler geçtikçe günün farklı saatlerini yaşarız (bazen gece,
+   bazen sabah) ve "trap'çi gece ayakta, popçu gündüz" gibi
+   rutinler gerçekten hissedilir.
+
+   NOT: Saat SALT OKUNUR bir türetmedir — gün döngüsünü değiştirmez,
+   yalnızca görünüm ve davranış (müsaitlik/gecikme) için kullanılır.
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  const BASE_MIN = 9 * 60 + 41;   // gün 0'da 09:41
+  const PER_DAY  = 47;            // her gün saat bu kadar ileri kayar
+
+  K.time = {
+    /* günün kaçıncı dakikası (0-1439) */
+    minutes() {
+      const day = (K.state && K.state.day) || 0;
+      const m = (BASE_MIN + day * PER_DAY) % 1440;
+      return (m + 1440) % 1440;
+    },
+
+    hour() { return Math.floor(K.time.minutes() / 60); },
+
+    /* "HH:MM" — telefon durum çubuğu bunu kullanır */
+    label() {
+      const m = K.time.minutes();
+      return String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
+    },
+
+    /* günün bölümü: gece / sabah / gunduz / aksam */
+    phase() {
+      const h = K.time.hour();
+      if (h < 6)  return "gece";
+      if (h < 12) return "sabah";
+      if (h < 18) return "gunduz";
+      if (h < 23) return "aksam";
+      return "gece";
+    },
+
+    phaseLabel() {
+      return { gece: "Gece", sabah: "Sabah", gunduz: "Gündüz", aksam: "Akşam" }[K.time.phase()];
+    },
+
+    /* "şu an" insan okunur: "23:14 · Gece" */
+    stamp() { return K.time.label() + " · " + K.time.phaseLabel(); }
+  };
+})(window.K = window.K || {});
+
+</script>
+  <script>
+/* ==== js/systems/routine.js ==== */
+/* ============================================================
+   KARMA — systems/routine.js   (v10.52)
+   SANATÇI GÜNDELİK RUTİNİ + MÜSAİTLİK.
+
+   Günümüz RPG'lerinde NPC'ler "her an hazır" değildir; kendi
+   hayatları vardır. Bu dosya o hayatı kurar:
+
+     · KRONOTİP  → sanatçı günün hangi saatlerinde ayakta?
+                   (trap/drill → gece kuşu, pop → gündüzcü)
+     · MEŞGULİYET → turne / albüm dönemi / stüdyo haftaları
+     · DURUM      → "🟢 müsait" · "😴 uyuyor" · "🎤 turnede" …
+     · ETKİ       → cevap şansı, cevap GECİKMESİ ve gerektiğinde
+                    "şu an müsait değilim" otomatik yanıtı
+
+   Tümü deterministiktir: aynı gün aynı durum. Böylece oyuncu
+   "bugün Şehinşah uyuyor, yarın yazar" diye plan yapabilir.
+
+   Bu dosya karar VERMEZ; yalnızca durumu bildirir. Karar
+   relations._deliver ve chat motorunda verilir.
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  const U = K.util;
+
+  /* deterministik karma (aynı girdi → aynı sayı) */
+  function hash(str) {
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return (h >>> 0);
+  }
+  const frac = (str) => (hash(str) % 10000) / 10000;   // 0-1
+
+  /* ---------------- KRONOTİP ----------------
+     Aktif saat penceresi. `active` dizisi hangi saatlerde
+     ulaşılabilir olduğunu söyler. */
+  const CHRONO = {
+    gece:    { key: "gece",    label: "Gece kuşu",  icon: "🌙", active: [19, 20, 21, 22, 23, 0, 1, 2, 3] },
+    aksam:   { key: "aksam",   label: "Akşamcı",    icon: "🌆", active: [14, 15, 16, 17, 18, 19, 20, 21, 22] },
+    gunduz:  { key: "gunduz",  label: "Gündüzcü",   icon: "☀️", active: [9, 10, 11, 12, 13, 14, 15, 16, 17, 18] },
+    sabahci: { key: "sabahci", label: "Erkenci",    icon: "🌅", active: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16] }
+  };
+
+  /* Amiral isimlere elle atama — kişilikleriyle tutarlı olsun.
+     (Gerçek hayattaki çalışma ritimlerine yakın bir temsil.) */
+  const OVERRIDE = {
+    sehinsah: "gece", weghrumi: "gece", lierefuge: "gece", liashine: "gece",
+    uzi: "gece", ezhel: "gece", murda: "gece", khontkar: "gece", lilzey: "gece",
+    sagopa: "gece", normender: "gece", contra: "gece", joker: "aksam",
+    ceza: "aksam", saniser: "aksam", melekmosso: "aksam", hidra: "aksam",
+    hadise: "gunduz", edis: "gunduz", sila: "gunduz", aleynatilki: "gunduz"
+  };
+
+  function chronotype(artistId) {
+    const o = OVERRIDE[artistId];
+    if (o) return CHRONO[o];
+    const a = K.artistById(artistId) || {};
+    const g = a.genre || "rap";
+    if (g === "trap" || g === "drill" || g === "rnb") return CHRONO.gece;
+    if (g === "pop") return CHRONO.gunduz;
+    if (g === "indie") return CHRONO.aksam;
+    /* rap: ego/dinçlik yüksekse gece, değilse akşam */
+    const t = a.traits || {};
+    return ((t.ego || 5) >= 7) ? CHRONO.gece : CHRONO.aksam;
+  }
+
+  /* ---------------- MEŞGULİYET ----------------
+     Haftalık deterministik pencere + yaz/turne mevsimi etkisi.
+     Popüler sanatçı yazın daha çok turnede olur. */
+  const BUSY = {
+    turnede:  { key: "turnede",  label: "Turnede",         icon: "🎤", available: 0.15 },
+    album:    { key: "album",    label: "Albüm döneminde", icon: "🎧", available: 0.40 },
+    studyoda: { key: "studyoda", label: "Stüdyoda",        icon: "🎚️", available: 0.45 }
+  };
+
+  function weekOf() { return Math.floor(((K.state && K.state.day) || 0) / 7); }
+
+  function isSummer() {
+    if (!K.util.dateForDay) return false;
+    const mi = (K.util.dateForDay((K.state && K.state.day) || 0).monthIndex) || 0;
+    return mi >= 5 && mi <= 7;   // Haziran–Ağustos
+  }
+
+  function busyOf(artistId) {
+    const a = K.artistById(artistId) || {};
+    const h = frac(a.id + "|w" + weekOf());
+    const pop = a.popularity || 0;
+    const tourP = (pop / 200) * (isSummer() ? 0.55 : 0.18);   // turne olasılığı
+    if (h < tourP) return BUSY.turnede;
+    if (h < tourP + 0.14) return BUSY.album;
+    if (h < tourP + 0.26) return BUSY.studyoda;
+    return null;
+  }
+
+  /* ---------------- DURUM ----------------
+     Öncelik sırası: turne > uyku > meşguliyet > yorgunluk > müsait */
+  function status(artistId) {
+    const ch = chronotype(artistId);
+    const busy = busyOf(artistId);
+    const hour = K.time ? K.time.hour() : 12;
+
+    /* turne: bütün gün ulaşılamaz (sahne/hareket) */
+    if (busy && busy.key === "turnede") return Object.assign({ chrono: ch }, busy);
+
+    const awake = ch.active.indexOf(hour) >= 0;
+    if (!awake) return { key: "uyuyor", label: "Uyuyor", icon: "😴", available: 0.20, chrono: ch };
+
+    if (busy) return Object.assign({ chrono: ch }, busy);
+
+    const mo = K.npcMind ? K.npcMind.moodOf(artistId) : null;
+    if (mo && mo.key === "yorgun") {
+      return { key: "dinleniyor", label: "Dinleniyor", icon: "🛋️", available: 0.50, chrono: ch };
+    }
+    return { key: "musait", label: "Müsait", icon: "🟢", available: 1, chrono: ch };
+  }
+
+  /* insan okunur rozet: "🎤 Turnede" */
+  function statusLabel(artistId) {
+    const st = status(artistId);
+    return st.icon + " " + st.label;
+  }
+
+  /* ulaşılabilirlik çarpanı (0-1) */
+  function availability(artistId) { return status(artistId).available; }
+
+  /* ---------------- CEVAP GECİKMESİ ----------------
+     Ruh halinin gecikmesini rutinle genişletir. Uyuyan/turnedeki
+     sanatçı çok daha geç döner. */
+  function replyWait(artistId) {
+    const st = status(artistId);
+    const mo = K.npcMind ? K.npcMind.moodOf(artistId) : { wait: [1, 3] };
+    let lo = mo.wait[0], hi = mo.wait[1];
+
+    if (st.key === "uyuyor")       { lo = 12; hi = 32; }
+    else if (st.key === "turnede") { lo = 16; hi = 42; }
+    else if (st.available < 0.6)   { lo = Math.max(lo, 6); hi = Math.max(hi, 18); }
+
+    return U.randInt(lo * 1000, hi * 1000);
+  }
+
+  /* ---------------- OTOMATİK "MÜSAİT DEĞİL" YANITI ----------------
+     Sanatçı gerçekten müsait değilse kısa bir bilgi verir; gerçek
+     cevap yine gecikmeli olarak gelir. */
+  const AUTO = {
+    uyuyor:    ["Şu an uyuyorum, sabah dönerim.", "Gece geç oldu, yarın yazarım.", "Uyku vakti, sabah konuşuruz."],
+    turnede:   ["Turnedeyim, sahnedeyim şu an. Dönünce yazarım.", "Şehir dışındayım, konser var. Sonra bakarım.", "Sahnede olacağım bugün, müsait değilim."],
+    album:     ["Albüm dönemindeyim, kafam dolu. Sonra dönerim.", "Stüdyoya kapandım, müsait değilim şu an.", "Albüm üstünde çalışıyorum, biraz sabret."],
+    studyoda:  ["Stüdyodayım, kayıttayım. Çıkınca yazarım.", "Kayıt var şu an, sonra dönerim.", "Mikrofon başındayım, müsait değilim."],
+    dinleniyor:["Biraz dinleniyorum, sonra dönerim.", "Bugün kafamı dinliyorum, yarın yazarım.", "Yorgunum, biraz ara verdim."]
+  };
+
+  function autoReply(artistId) {
+    const st = status(artistId);
+    if (st.available >= 0.6) return null;
+    const pool = AUTO[st.key] || AUTO.dinleniyor;
+    return U.pick(pool);
+  }
+
+  /* gecikmeli cevabın başına "yeni gördüm" tonu (uykudan dönüş) */
+  function wakePrefix(artistId) {
+    const st = status(artistId);
+    if (st.key === "uyuyor") return U.pick(["Yeni gördüm, uyuyordum.", "Sabah baktım mesajına.", "Gece yazmışsın, yeni okuyabildim."]);
+    if (st.key === "turnede") return U.pick(["Turneden yeni döndüm.", "Konserden sonra ancak bakabildim.", "Şehir dışındaydım, kusura bakma."]);
+    if (st.key === "album" || st.key === "studyoda") return U.pick(["Stüdyodan yeni çıktım.", "Kayıt arasında bakabildim.", "Kafam stüdyodaydı, kusura bakma."]);
+    return null;
+  }
+
+  K.routine = {
+    CHRONO, BUSY,
+    chronotype, busyOf, status, statusLabel, availability, replyWait, autoReply, wakePrefix,
+    /* test/arayüz için: bir sanatçının tüm rutin özeti */
+    summary(artistId) {
+      const ch = chronotype(artistId);
+      const st = status(artistId);
+      return { chrono: ch.key, chronoLabel: ch.label, chronoIcon: ch.icon,
+               status: st.key, statusLabel: st.label, statusIcon: st.icon, available: st.available };
+    }
+  };
+})(window.K = window.K || {});
+
+</script>
+  <script>
+/* ==== js/systems/dmai.js ==== */
+/* ============================================================
+   KARMA — systems/dmai.js   (v10.52)
+   ANLAYAN DM KATMANI.
+
+   Amaç: DM motorunu "kelime eşleştiren" olmaktan çıkarıp
+   BAĞLAMI ANLAYAN bir katmana yükseltmek.
+
+   Ne yapar?
+     1) ÇOKLU NİYET  — bir mesajda birden çok niyet olabilir
+                       ("feature yapalım ama bütçem kısıtlı").
+                       Birincil niyet seçilir, ikinciller not edilir.
+     2) VARLIK ÇIKARIMI — mesajdan somut bilgi çeker: şarkı adı,
+                       geçen sanatçı, para miktarı, zaman ifadesi.
+                       Cevap bu bilgiye bağlanabilir.
+     3) DUYGU TONU   — heyecanlı / öfkeli / üzgün / aceleci / nötr.
+     4) ÖĞRENME      — oyuncunun KULLANDIĞI kelimeleri niyete bağlar.
+                       "Yeni iş" deyip duran oyuncu için motor zamanla
+                       "yeni iş"i müzik niyeti olarak tanır. Bu sözlük
+                       kayıtla birlikte saklanır; oyun ilerledikçe
+                       motor o oyuncuya özel "anlamaya" başlar.
+
+   DÜRÜST NOT: Bu bir dil modeli DEĞİL. Gerçek üretken bir yapay
+   zeka bir model/sunucu gerektirir; tarayıcıda çevrimdışı çalışan
+   bir oyun bunu koşturamaz. Buradaki "öğrenme", oyuncunun kendi
+   yazım alışkanlığından kelime-niyet istatistiği tutan hafif bir
+   çevrimiçi öğrenmedir — zamanla belirgin şekilde akıllanır ama
+   sınırları vardır.
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  const U = K.util;
+
+  const norm = s => (s || "").toLocaleLowerCase("tr")
+    .replace(/[.,!?;:()\[\]{}]/g, " ").replace(/\s+/g, " ").trim();
+
+  /* öğrenmeye değmeyen çok sık kelimeler */
+  const STOP = {};
+  ("bir bu şu o ve ile de da ki mi mı mu mü ne nasıl çok daha en gibi ama ancak için ise ya sen ben beni bana sana seni sizin bizim "
+   + "var yok olan olarak diye dedim dedi ki ya da nasılsın naber merhaba selam tamam evet hayır peki").split(" ").forEach(w => STOP[w] = 1);
+
+  /* öğrenmeye kapalı, anlamı zaten sabit niyetler */
+  const NO_LEARN = { empty: 1, generic: 1, greet: 1, howareyou: 1, shortyes: 1, shortno: 1, question: 1, bye: 1, thanks: 1 };
+
+  function lex() {
+    const s = K.state;
+    if (!s) return {};
+    if (!s.dmLex) s.dmLex = {};
+    return s.dmLex;
+  }
+
+  function tokens(text) {
+    return norm(text).split(" ").filter(w => w.length >= 3 && !STOP[w]);
+  }
+
+  /* küçük yardımcı: yakın geçmişte kullanılanları atlayan seçim */
+  function pickAvoid(arr, recent) {
+    if (!arr || !arr.length) return "";
+    const fresh = arr.filter(x => (recent || []).indexOf(x) < 0);
+    return U.pick(fresh.length ? fresh : arr);
+  }
+
+  K.dmAI = {
+    norm: norm,
+    tokens: tokens,
+
+    /* ---------- ÖĞRENME ---------- */
+    learn(text, intent) {
+      if (!intent || NO_LEARN[intent]) return;
+      const L = lex();
+      const toks = tokens(text);
+      toks.forEach(w => {
+        const e = L[w] = L[w] || {};
+        e[intent] = (e[intent] || 0) + 1;
+      });
+      /* sözlüğü sınırlı tut (kayıt şişmesin) */
+      const keys = Object.keys(L);
+      if (keys.length > 500) keys.slice(0, 120).forEach(k => delete L[k]);
+    },
+
+    /* öğrenilmiş kelimelerden niyet tahmini (oy toplamı) */
+    learnedIntent(text) {
+      const L = lex();
+      const toks = tokens(text);
+      const score = {};
+      toks.forEach(w => {
+        const e = L[w];
+        if (!e) return;
+        for (const it in e) score[it] = (score[it] || 0) + Math.min(3, e[it]);
+      });
+      let best = null, bs = 0;
+      for (const it in score) if (score[it] > bs) { bs = score[it]; best = it; }
+      return bs >= 3 ? best : null;
+    },
+
+    /* öğrenilen sözlüğün özeti (test/arayüz) */
+    stats() {
+      const L = lex();
+      const keys = Object.keys(L);
+      let pairs = 0;
+      keys.forEach(k => { pairs += Object.keys(L[k]).length; });
+      return { words: keys.length, pairs: pairs };
+    },
+
+    /* ---------- VARLIK ÇIKARIMI ---------- */
+    entities(text, artistId) {
+      const raw = String(text || "");
+      const low = norm(raw);
+      const out = { songs: [], artists: [], money: null, when: null, proposing: false };
+
+      /* tırnak içi → şarkı adı */
+      const quoted = raw.match(/["“”'']([^"“”'']{2,40})["“”'']/g);
+      if (quoted) quoted.forEach(q => out.songs.push(q.replace(/["“”'']/g, "").trim()));
+
+      /* oyuncunun kendi şarkı adı geçiyor mu */
+      const mySongs = ((K.state && K.state.player && K.state.player.songs) || []);
+      mySongs.forEach(s => { if (s.title && low.indexOf(norm(s.title)) >= 0) out.songs.push(s.title); });
+
+      /* bilinen sanatçı adları */
+      const list = K.artistList ? K.artistList() : (K.ARTISTS || []);
+      list.forEach(a => {
+        if (!a || a.id === artistId || !a.stageName) return;
+        if (low.indexOf(norm(a.stageName)) >= 0) out.artists.push(a.stageName);
+      });
+
+      /* para: "5000 tl", "5 bin lira", "2 milyon" */
+      const m = low.match(/(\d+(?:[.,]\d+)?)\s*(bin|milyon|k|m)?\s*(tl|lira|₺|para|bütçe)/);
+      if (m) {
+        let n = parseFloat(m[1].replace(",", "."));
+        if (m[2] === "bin" || m[2] === "k") n *= 1000;
+        if (m[2] === "milyon" || m[2] === "m") n *= 1000000;
+        out.money = Math.round(n);
+      }
+
+      /* zaman */
+      if (/yarın/.test(low)) out.when = "yarın";
+      else if (/bugün/.test(low)) out.when = "bugün";
+      else if (/bu akşam|akşam/.test(low)) out.when = "akşam";
+      else if (/bu hafta|haftaya/.test(low)) out.when = "hafta";
+      else if (/sonra|müsait olunca/.test(low)) out.when = "sonra";
+
+      /* teklif mi, laf arası mı? */
+      out.proposing = /(yapalım|yapalım mı|olur mu|var mısın|ister misin|düşünür müsün|ne dersin|başlayalım|girelim mi)/.test(low);
+
+      return out;
+    },
+
+    /* ---------- DUYGU TONU ---------- */
+    tone(text) {
+      const t = norm(text);
+      if (/!{2,}|heyecan|muhteşem|efsane|inanılmaz|harika/.test(t)) return "heyecanli";
+      if (/nefret|berbat|saçma|rezalet|salak|aptal|beceriksiz/.test(t)) return "ofkeli";
+      if (/üzgün|yalnız|mutsuz|dibe|çöktüm|kötüyüm|ağla|bıktım/.test(t)) return "uzgun";
+      if (/acil|hemen|şimdi|bugün|yarın|hızlı|çabuk/.test(t)) return "aceleci";
+      return "notr";
+    },
+
+    /* ---------- BİRLEŞİK ANALİZ ---------- */
+    analyze(text, artistId) {
+      const base = (K.chat && K.chat.classify) ? K.chat.classify(text) : "generic";
+      const learned = K.dmAI.learnedIntent(text);
+      /* taban niyet zayıfsa (generic/question) öğrenilmiş tahmin devralır */
+      const primary = ((base === "generic" || base === "question") && learned) ? learned : base;
+      return {
+        base: base,
+        learned: learned,
+        primary: primary,
+        entities: K.dmAI.entities(text, artistId),
+        tone: K.dmAI.tone(text),
+        question: /\?/.test(text || "")
+      };
+    },
+
+    /* ---------- DURUM FARKINDALIKLI "NASILSIN" ----------
+       Sabit havuz yerine sanatçının GERÇEK durumuna göre cevap:
+       rutin (turne/albüm/uyku), ruh hali, son işler ve oyuncunun
+       son şarkısı. */
+    howAreYou(artistId) {
+      const rel = K.relation(artistId);
+      const p = K.state.player;
+      const pool = [];
+
+      /* NOT: bu cümleler bir DURUM bildirir; kapanış sorusu sanatçının
+         kendi ağız havuzundan gelir. Böylece bağlam eklenir ama
+         kişisel ses korunur (iki sanatçı asla aynı cümleyi kurmaz). */
+      const st = K.routine ? K.routine.status(artistId) : null;
+      if (st) {
+        if (st.key === "turnede")        pool.push("Turnedeyim, bir şehirden bir şehre; yorucu ama sahne güzel.");
+        else if (st.key === "album")     pool.push("Albüm üstünde çalışıyorum, kafam orada.");
+        else if (st.key === "studyoda")  pool.push("Stüdyodayım, kayıt var.");
+        else if (st.key === "uyuyor")    pool.push("Yeni uyandım sayılır, gece kuşuyum malum.");
+        else if (st.key === "dinleniyor")pool.push("Biraz yorgunum ama iyiyim, dinleniyorum.");
+      }
+      const mo = K.npcMind ? K.npcMind.moodOf(artistId) : null;
+      if (mo) {
+        if (mo.key === "hype")        pool.push("Enerjim yüksek, işler iyi gidiyor.");
+        else if (mo.key === "uzgun")  pool.push("Açıkçası biraz durgunum.");
+        else if (mo.key === "gergin") pool.push("Bugün pek iyi değilim, kusura bakma.");
+        else if (mo.key === "ofkeli") pool.push("Bugün sinirlerim bozuk.");
+      }
+      const last = (p.songs || []).slice().sort((a, b) => (b.publishedDay || 0) - (a.publishedDay || 0))[0];
+      if (last && (K.state.day - (last.publishedDay || 0)) <= 7) {
+        pool.push(`Bu arada "${last.title}" işini gördüm, güzel.`);
+      }
+      if (!pool.length) pool.push("İş güç devam, bildiğin gibi.");
+
+      const chat = rel._chat = rel._chat || { recent: [] };
+      const msg = pickAvoid(pool, chat.recent);
+      chat.recent.push(msg); if (chat.recent.length > 8) chat.recent.shift();
+      return msg;
+    },
+
+    /* ---------- VARLIK FARKINDALIKLI EK CÜMLE ----------
+       Oyuncunun mesajında geçen somut bilgiye bağlanır. */
+    acknowledge(artistId, an) {
+      const e = (an && an.entities) || {};
+      const rel = K.relation(artistId);
+      const chat = rel._chat = rel._chat || { recent: [] };
+      const lines = [];
+      if (e.songs && e.songs.length) {
+        lines.push(`"${e.songs[0]}" işini not aldım, dinleyeceğim.`);
+        lines.push(`"${e.songs[0]}" demişken, o iş güzel olmuş.`);
+      }
+      if (e.artists && e.artists.length) {
+        lines.push(`${e.artists[0]} ile bir iş mi düşünüyorsun? İlginç.`);
+      }
+      if (e.when === "yarın") lines.push("Yarın için tamam, not aldım.");
+      else if (e.when === "bu hafta" || e.when === "hafta") lines.push("Bu hafta içi ayarlayabiliriz.");
+      if (!lines.length) return null;
+      const msg = pickAvoid(lines, chat.recent);
+      chat.recent.push(msg); if (chat.recent.length > 8) chat.recent.shift();
+      return msg;
+    }
+  };
 })(window.K = window.K || {});
 
 </script>
@@ -36475,13 +37098,10 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     /* ---------------- zaman ---------------- */
     updateStatus() {
       const s = K.state;
-      const dow = U.dateForDay(s.day);
-      // 09:41 temelli, gün ilerledikçe saat ilerler
-      const minutes = (9 * 60 + 41 + (s.day * 47)) % (24 * 60);
-      const hh = String(Math.floor(minutes / 60)).padStart(2, "0");
-      const mm = String(minutes % 60).padStart(2, "0");
+      /* v10.52 — saat artık TEK kaynaktan gelir (systems/time.js).
+         Böylece durum çubuğu ile NPC rutinleri AYNI zamanı kullanır. */
       const t = U.qs("#status-time");
-      if (t) t.textContent = hh + ":" + mm;
+      if (t) t.textContent = (K.time ? K.time.label() : "09:41");
       if (K.phoneOS) K.phoneOS.apply();   // parlaklık + telefon teması
     },
 
@@ -41466,7 +42086,9 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             <div class="dm-reach">
               <span>Cevap alma şansın: <b class="pill ${reachCls}">${U.escape(K.relations.reachLabel(artistId))}</b></span>
               ${K.npcMind ? `<span class="dm-mood">${U.escape(K.npcMind.moodLabel(artistId))}</span>` : ""}
+              ${K.routine ? `<span class="dm-routine">${U.escape(K.routine.statusLabel(artistId))}</span>` : ""}
               <span class="muted">${rel.met ? "seni tanıyor" : "seni henüz tanımıyor"} · ${U.compact(a.monthly)} dinleyici</span>
+              ${K.time ? `<span class="muted dm-clock">🕐 ${U.escape(K.time.label())}</span>` : ""}
             </div>
             <div class="dm-thread">
               ${msgs || `<div class="dm-system">${U.escape(a.stageName)} ile henüz konuşmadınız. İlk mesajı sen at — cevap gelmeyebilir.</div>`}
