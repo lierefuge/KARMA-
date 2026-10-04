@@ -177,7 +177,10 @@ const SUITES = [
   /* v10.53 — FT anlaşması artık otomatik şarkı üretmez; oyuncu stüdyoda hazırlar */
   { id: "v1053",       script: "tools/smoke-v1053.js",       label: "v10.53 FT stüdyo akışı (oyuncu kontrollü ortak iş)" },
   /* v10.54 — oyuncu sözünü sanatçıya gönderir; sanatçı yayınlar, oyuncu kredilenir */
-  { id: "v1054",       script: "tools/smoke-v1054.js",       label: "v10.54 söz gönder (söz yazarı kredisi + yayın telifi)" }
+  { id: "v1054",       script: "tools/smoke-v1054.js",       label: "v10.54 söz gönder (söz yazarı kredisi + yayın telifi)" },
+  /* v10.55 — kayıt şişmesi + sessiz kayıt hatası + erişilebilirlik +
+     erken kariyer "Yükselen 20" listesi (ulaşılamaz ulusal liste düzeltmesi) */
+  { id: "v1055",       script: "tools/smoke-v1055.js",       label: "v10.55 kayıt sağlamlığı · erişilebilirlik · yükselen liste" }
 ];
 
 const suiteOut = {};
