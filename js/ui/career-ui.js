@@ -3376,6 +3376,8 @@
       const upcoming = (s.concerts || []).filter(c => c.status === "planlandı").sort((a, b) => a.day - b.day);
       const done = (s.concerts || []).filter(c => c.status === "tamamlandı").sort((a, b) => b.day - a.day).slice(0, 4);
       const tp = K.concerts.tourProgress();
+      /* v10.57 — bilet fiyat aralığı enflasyona bağlı (taban fiyat artıyor) */
+      const bt = K.concerts.baseTicket();
 
       return `
         <div class="c-block">
@@ -3403,7 +3405,7 @@
               </select></div>
             </div>
             <div class="field"><label>Bilet Fiyatı</label>
-              <div class="range-row"><input id="cn-price" type="range" min="100" max="3500" step="50" value="450" /><span class="range-val" id="cn-price-val">₺450</span></div>
+              <div class="range-row"><input id="cn-price" type="range" min="100" max="${Math.round(bt * 4.1)}" step="50" value="${Math.round(bt * 0.53)}" /><span class="range-val" id="cn-price-val">${U.money(Math.round(bt * 0.53))}</span></div>
             </div>
             <div class="stat-grid" id="cn-est">
               <div class="stat-card"><span class="k">Katılım</span><span class="v" id="cn-att">—</span><span class="d" id="cn-cap">—</span></div>
@@ -3426,7 +3428,7 @@
               <div class="field"><label>Mekân</label><select id="tr-venue">${venues}</select></div>
               <div class="field"><label>Prodüksiyon</label><select id="tr-prod">${prods}</select></div>
               <div class="field"><label>Açılış Act</label><select id="tr-opener">${openers}</select></div>
-              <div class="field"><label>Bilet</label><input id="tr-price" type="number" min="100" step="50" value="450" /></div>
+              <div class="field"><label>Bilet</label><input id="tr-price" type="number" min="100" step="50" value="${Math.round(bt * 0.53)}" /></div>
               <div class="field"><label>Duraklar arası</label><select id="tr-gap"><option value="2">2 gün</option><option value="3" selected>3 gün</option><option value="5">5 gün</option></select></div>
             </div>
             <div class="action-row">
@@ -3769,7 +3771,7 @@
       const totalWins = K.awards.totalWins();
       return `
         <div class="c-block">
-          <div class="c-head"><div><h2>Müzik Ödülleri</h2><div class="sub">Her 360 günde bir tören · toplam ${totalWins} ödül</div></div></div>
+          <div class="c-head"><div><h2>Müzik Ödülleri</h2><div class="sub">Her yıl Ocak ayında tören · toplam ${totalWins} ödül</div></div></div>
           <div class="label-hero">
             <h3>🏆 Sıradaki Tören</h3>
             <div class="stat-grid">
@@ -3795,7 +3797,7 @@
               <span>${r.icon}</span><span class="grow">${U.escape(r.cat)}</span>
               <span class="muted">${U.escape(r.winner)}</span>${r.won ? '<span class="pill gold">SEN</span>' : ""}
             </div>`).join("")}</div>
-          </div>`).join("") : `<div class="empty-note"><b>Henüz tören yapılmadı</b>İlk tören Gün ${360 + 1}'de.</div>`}
+          </div>`).join("") : `<div class="empty-note"><b>Henüz tören yapılmadı</b>İlk tören ${U.dateForDay(next).label} tarihinde (Gün ${next}).</div>`}
         </div>`;
     },
 
@@ -4270,7 +4272,7 @@
               const c = K.assets.canBuy(x.id);
               return `<button class="xg-opt ${c.ok ? "" : "locked"}" ${c.ok ? `data-act="ast-buy" data-arg="${x.id}"` : "disabled"}>
                 <b>${x.icon} ${U.escape(x.name)}</b>
-                <span class="xg-cost">${U.money(x.cost)}</span>
+                <span class="xg-cost">${U.money(K.assets.costNow(x.id))}</span>
                 <span>bakım ${U.money(x.upkeep)}/ay · imaj +${x.img}</span>
                 <span>${c.ok ? U.escape(x.note) : U.escape(c.why)}</span>
               </button>`; }).join("")}
