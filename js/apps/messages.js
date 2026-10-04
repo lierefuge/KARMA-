@@ -494,7 +494,7 @@
         const who = members[Math.floor(Math.random() * members.length)];
         const a = K.artistById(who);
         setTimeout(() => {
-          K.groupPost(groupId, who, K.relations.groupLine(a), { fromName: a.stageName });
+          K.groupPost(groupId, who, K.relations.groupLine(a, g.kind), { fromName: a.stageName });
           if (K.phone.appById("messages")) K.phone.reRender();
         }, 900 + Math.random() * 1200);
       }
