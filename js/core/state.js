@@ -275,6 +275,7 @@
       threads: {},
       dmRequests: {},            // v10.12 — tanımadığından gelen istekler
       groups: {},                // v10.12 — grup sohbetleri (kadro / ortak proje)
+      dmLex: {},                 // v10.52 — DM öğrenilen sözlük (kelime → niyet)
       contacts: [],          // mahalle/semt çevresi (systems/contacts.js)
       offers: [],
       feed: { ig: [], x: [], tiktok: [], yt: [] },
@@ -325,6 +326,7 @@
         interactions: 0,
         history: [],
         flags: { hangout: false, feature: false, collab: false, contractOffered: false },
+        deal: null,              // v10.52 — kalıcı anlaşma kaydı (feature / collab)
         giftCooldown: 0,
         hangoutCooldown: 0
       };
