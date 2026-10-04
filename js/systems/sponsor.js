@@ -16,8 +16,10 @@
     { id: "drink",   name: "Buzsu İçecek",     cat: "İçecek",         icon: "🥤", fee: 30000,  img: 0,  minPop: 10, note: "Nötr; geniş kitle." },
     { id: "energy",  name: "Turbo Enerji",     cat: "Enerji İçeceği", icon: "⚡", fee: 55000,  img: -1, minPop: 25, note: "Çok görünür ama biraz yıpratır." },
     { id: "fashion", name: "Hızlı Moda",       cat: "Moda",           icon: "👕", fee: 40000,  img: -1, minPop: 18, note: "Trend odaklı; imaj dalgalanır." },
-    { id: "alc",     name: "Kadey Alkol",      cat: "Alkol",          icon: "🍺", fee: 90000,  img: -3, minPop: 30, note: "Yüksek gelir; imajı zedeler." },
-    { id: "bet",     name: "Şans Bahis",       cat: "Bahis",          icon: "🎲", fee: 140000, img: -6, minPop: 40, note: "En yüksek gelir; itibar/imaj riski büyük." }
+    /* v10.56 — alkol ve bahis sponsorluğu 18+ (Türkiye'de alkol satışı ve
+       bahis 18 yaş sınırına tabidir). */
+    { id: "alc",     name: "Kadey Alkol",      cat: "Alkol",          icon: "🍺", fee: 90000,  img: -3, minPop: 30, minAge: 18, note: "Yüksek gelir; imajı zedeler." },
+    { id: "bet",     name: "Şans Bahis",       cat: "Bahis",          icon: "🎲", fee: 140000, img: -6, minPop: 40, minAge: 18, note: "En yüksek gelir; itibar/imaj riski büyük." }
   ];
 
   K.sponsor = {
@@ -42,7 +44,10 @@
       if (s.pendingSponsor) return;
       // zaten aktif olan markayı önermeyelim
       const has = (s.player.sponsors || []).map(x => x.id);
-      const pool = BRANDS.filter(b => (p.popularity || 0) >= b.minPop && !has.includes(b.id));
+      /* v10.56 — yaş kapısı: reşit olmayan oyuncuya alkol/bahis teklifi GİTMEZ. */
+      const age = K.playerAge();
+      const pool = BRANDS.filter(b => (p.popularity || 0) >= b.minPop && !has.includes(b.id) &&
+        (!b.minAge || age >= b.minAge));
       if (!pool.length) return;
       const chance = 0.02 + (p.popularity || 0) / 1600 + (p.image || 50) / 4000;
       if (!U.chance(chance)) return;
@@ -87,6 +92,14 @@
     resolve(accept) {
       const s = K.state, o = s.pendingSponsor;
       if (!o) return;
+      /* v10.56 — yaş kapısı (teklif sonradan yaş düşse bile güvenlik ağı). */
+      const _b = K.sponsor.brand(o.brandId);
+      if (accept && _b && _b.minAge && K.playerAge() < _b.minAge) {
+        K.toast("Yaş yetersiz", `${o.name} anlaşması için ${_b.minAge} yaşında olmalısın.`, "bad");
+        s.pendingSponsor = null;
+        K.save(); if (K.refresh) K.refresh();
+        return;
+      }
       if (accept) {
         const signing = Math.round(o.fee * 0.5);   // ilk peşin (yarım ay)
         K.economy.earn(signing, "sponsor");
