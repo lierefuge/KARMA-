@@ -180,7 +180,10 @@ const SUITES = [
   { id: "v1054",       script: "tools/smoke-v1054.js",       label: "v10.54 söz gönder (söz yazarı kredisi + yayın telifi)" },
   /* v10.55 — kayıt şişmesi + sessiz kayıt hatası + erişilebilirlik +
      erken kariyer "Yükselen 20" listesi (ulaşılamaz ulusal liste düzeltmesi) */
-  { id: "v1055",       script: "tools/smoke-v1055.js",       label: "v10.55 kayıt sağlamlığı · erişilebilirlik · yükselen liste" }
+  { id: "v1055",       script: "tools/smoke-v1055.js",       label: "v10.55 kayıt sağlamlığı · erişilebilirlik · yükselen liste" },
+  /* v10.56 — gerçekçilik denetimi: zaman çizelgesi · ekonomi · yaş kapıları
+     · NPC tavanı/dinleyici tabanı · gerçek sanatçı husumeti güvenlik anahtarı */
+  { id: "v1056",       script: "tools/smoke-v1056.js",       label: "v10.56 gerçekçilik denetimi (takvim · ekonomi · yaş · husumet)" }
 ];
 
 const suiteOut = {};
