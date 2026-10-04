@@ -514,7 +514,13 @@
         /* temel çizgi + sönümlenen yayın etkisi */
         a._base = a._base || a.monthly;
         a._boost = (a._boost || 0) * 0.97;                 // yayın etkisi ~3 haftada söner
-        a._base = a._base * (1 + 0.0004 * (1 + (a.popularity || 50) / 100));  // yavaş kariyer büyümesi
+        /* v10.56 — TAVAN: eskiden `_base` her gün çarpımsal büyüyordu (pop 88
+           için ≈%31/yıl) ve hiçbir sınır yoktu; 5 oyun yılında Şehinşah
+           4,2M → ~16M oluyordu. Artık lojistik büyüme: popülerliğe bağlı bir
+           tavana yaklaşırken hız sıfıra iner. */
+        const _cap = 500000 + (a.popularity || 50) * 110000;
+        const _grow = 0.0004 * (1 + (a.popularity || 50) / 100);
+        a._base = a._base * (1 + _grow * Math.max(0, 1 - a._base / _cap));
         const drift = U.rand(-0.004, 0.006);
         a.monthly = Math.max(50000, Math.round(a._base * (1 + a._boost) * (1 + drift)));
         a.streams = Math.round(a.streams + a.monthly / 30 * U.rand(0.6, 1.5));
@@ -551,7 +557,11 @@
         const names = ["Gece Yarısı", "Beton Çiçek", "Sessiz Şehir", "Son Mektup", "Kör Nokta",
           "Yalnız Değilim", "Ağır Gelir", "Bırakma", "Uzak İhtimal", "Kirli Hava",
           "Sabaha Karşı", "Kayıp Frekans", "Islak Sokak", "Aynı Yer", "Yeni Bir Gün"];
-        song = { title: U.pick(names) + (U.chance(0.3) ? " (feat. " + U.pick(K.artistList()).stageName + ")" : ""), art: null, album: "Single", year: String(2008 + Math.floor((s.day || 1) / 365)) };
+        /* v10.56 — yıl artık GERÇEK takvimden türetilir. Eskiden `2008 +
+           gün/365` idi; oysa oyun gerçek tarihten (dateStart) başlıyor, yani
+           gün 400'de şarkı "2009" etiketi alırken gerçek tarih 2027 oluyordu. */
+        const relYear = (K.util.dateForDay ? K.util.dateForDay(s.day || 1).y : new Date().getFullYear());
+        song = { title: U.pick(names) + (U.chance(0.3) ? " (feat. " + U.pick(K.artistList()).stageName + ")" : ""), art: null, album: "Single", year: String(relYear) };
       }
       used.push(song.title);
 
@@ -637,7 +647,11 @@
       // üstüne eklenmez; dinlenme düşerse dinleyici de düşer.
       const win = (p.dailyHistory || []).slice(-28);
       const windowStreams = U.sum(win);
-      const baseline = p.popularity * 55;                        // organik taban
+      /* v10.56 — "dinleyicisiz dinleyici" düzeltmesi: hiç yayın yapmamış bir
+         sanatçının aylık dinleyicisi olmaz. Taban yalnızca yayın geçmişi
+         varsa uygulanır ve daha ölçülüdür (55 → 30). */
+      const hasCatalog = (p.songs || []).length > 0;
+      const baseline = hasCatalog ? p.popularity * 30 : 0;
       p.monthly = Math.round(Math.max(windowStreams * 0.5, 0) + baseline);
 
       // popülerlik: GÜNCEL dinleyiciye bağlı (birikmez, düşebilir)
