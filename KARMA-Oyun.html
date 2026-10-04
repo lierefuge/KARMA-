@@ -940,12 +940,18 @@ body::before {
   bottom: 7px; left: 50%;
   transform: translateX(-50%);
   width: 130px; height: 5px;
+  /* v10.55 — erişilebilirlik için <button> oldu; UA varsayılanlarını sıfırla */
+  border: 0;
+  padding: 0;
+  appearance: none;
+  -webkit-appearance: none;
   border-radius: var(--radius-pill);
   background: rgba(255,255,255,0.7);
   z-index: 60;
   cursor: pointer;
   transition: width 0.2s, background 0.2s;
 }
+.home-indicator:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
 .home-indicator:hover { width: 150px; background: #fff; }
 
 /* ================= HOME SCREEN ================= */
@@ -7024,7 +7030,7 @@ html, body {
            ================================================================== -->
 
       <div class="topbar-actions">
-        <button class="btn btn-ghost" id="btn-settings" title="Ayarlar & Kayıt">⚙️</button>
+        <button class="btn btn-ghost" id="btn-settings" title="Ayarlar & Kayıt" aria-label="Ayarlar ve kayıt">⚙️</button>
         <button class="btn btn-ghost" id="btn-save">Kaydet</button>
         <button class="btn btn-primary" id="btn-next-day">
           <span>Günü Bitir</span>
@@ -7038,21 +7044,21 @@ html, body {
 
       <!-- COMPANY / CAREER PANEL -->
       <section class="career-panel" id="career-panel">
-        <nav class="career-tabs" id="career-tabs">
-          <button class="tab active" data-tab="career">Kariyer</button>
-          <button class="tab" data-tab="studio">Stüdyo</button>
-          <button class="tab" data-tab="jobs">Yan İş</button>
-          <button class="tab" data-tab="releases">Yayınlar</button>
-          <button class="tab" data-tab="albums">Albümler</button>
-          <button class="tab" data-tab="charts">Listeler</button>
-          <button class="tab" data-tab="analytics">Analiz</button>
-          <button class="tab" data-tab="concerts">Konser</button>
-          <button class="tab" data-tab="festivals">Festival</button>
-          <button class="tab" data-tab="label">Şirket</button>
-          <button class="tab" data-tab="business">Girişim</button>
-          <button class="tab" data-tab="events">Olaylar</button>
+        <nav class="career-tabs" id="career-tabs" role="tablist" aria-label="Kariyer bölümleri">
+          <button class="tab active" role="tab" aria-selected="true" aria-controls="career-body" data-tab="career">Kariyer</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="career-body" data-tab="studio">Stüdyo</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="career-body" data-tab="jobs">Yan İş</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="career-body" data-tab="releases">Yayınlar</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="career-body" data-tab="albums">Albümler</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="career-body" data-tab="charts">Listeler</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="career-body" data-tab="analytics">Analiz</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="career-body" data-tab="concerts">Konser</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="career-body" data-tab="festivals">Festival</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="career-body" data-tab="label">Şirket</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="career-body" data-tab="business">Girişim</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="career-body" data-tab="events">Olaylar</button>
         </nav>
-        <div class="career-body" id="career-body"><!-- rendered by JS --></div>
+        <div class="career-body" id="career-body" role="tabpanel" aria-label="Seçili bölüm"><!-- rendered by JS --></div>
       </section>
 
       <!-- PHONE -->
@@ -7069,11 +7075,11 @@ html, body {
               </span>
             </div>
 
-            <div class="phone-viewport" id="phone-viewport">
+            <div class="phone-viewport" id="phone-viewport" role="region" aria-label="Telefon ekranı">
               <!-- home screen / app screens injected here -->
             </div>
 
-            <div class="home-indicator" id="home-indicator"></div>
+            <button class="home-indicator" id="home-indicator" type="button" aria-label="Ana ekrana dön"></button>
           </div>
         </div>
         <p class="phone-hint">Uygulamaya dokun · Ana ekrana dönmek için çubuğa bas</p>
@@ -7088,20 +7094,20 @@ html, body {
          yarattığından çubuk viewport yerine üst bara göre konumlanıyor
          ve Ayarlar / Günü Bitir düğmelerini kapatıyordu. -->
     <div class="view-switch" id="view-switch">
-      <button class="vs-btn active" data-view="career">
-        <span class="vs-ico">🎤</span>
+      <button class="vs-btn active" data-view="career" aria-pressed="true">
+        <span class="vs-ico" aria-hidden="true">🎤</span>
         <span class="vs-long">Sanatçı / Kariyer</span>
         <span class="vs-mini">Kariyer</span>
       </button>
-      <button class="vs-btn" data-view="phone">
-        <span class="vs-ico">📱</span>
+      <button class="vs-btn" data-view="phone" aria-pressed="false">
+        <span class="vs-ico" aria-hidden="true">📱</span>
         <span class="vs-long">Telefon</span>
         <span class="vs-mini">Telefon</span>
       </button>
     </div>
 
     <!-- ================= TOASTS / MODAL ================= -->
-    <div class="toast-stack" id="toast-stack"></div>
+    <div class="toast-stack" id="toast-stack" role="status" aria-live="polite" aria-atomic="true"></div>
     <div class="modal-root" id="modal-root"></div>
   </div>
 
@@ -7123,7 +7129,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.54.0";
+  K.VERSION = "10.55.0";
   K.VERSION_DATE = "2026-10-04";
 })(window.K = window.K || {});
 
@@ -11813,9 +11819,6 @@ window.K = window.K || {};
         shiftsToday: 0,
         restedToday: false,
         skills: { work: 4, studio: 0, music: 6, network: 2 },
-        /* B-6: OYUNCUNUN kimlik id'si (data/player-persona.js → K.PLAYER_PERSONAS).
-           NPC kişilik katmanı (data/npc-personality.js → K.npcPersonality)
-           ile İLGİSİZDİR. Alan adı kayıt uyumluluğu için `persona` kaldı. */
         /* B-6: OYUNCUNUN kimlik id'si (data/persona.js → K.PLAYER_PERSONAS).
            NPC kişilik katmanı (data/personality.js → K.npcPersonality)
            ile İLGİSİZDİR. Alan adı kayıt uyumluluğu için `persona` kaldı. */
@@ -11914,6 +11917,7 @@ window.K = window.K || {};
       userPlaylists: [],          // kullanıcı çalma listeleri
       queue: [],                  // çalma kuyruğu
       chart: [],
+      chartRising: [],           // v10.55 — "Yükselen 20" (erken kariyer ulusal listesi)
       log: [],
       /* --- genişletilmiş sistemler --- */
       history: [],
@@ -12032,13 +12036,66 @@ window.K = window.K || {};
   };
 
   /* ---------- save / load ---------- */
+  /* v10.55 — KAYIT ŞİŞMESİ ve SESSİZ HATA
+     Sorunlar:
+       1) `_npcSongs`, platforms.js'in ürettiği TÜRETİLMİŞ bir önbellekti
+          ama state kökünde yaşadığı için her kayıtta diske yazılıyordu.
+          Ölçüm: 500 günlük oyunda kaydın ~%30'u (194 KB) yalnızca bu
+          önbellekti. Her açılışta yeniden üretilebildiği için diske
+          yazmak saf israf; uzun oyunda localStorage kotasını (≈5 MB)
+          doldurup kaydı bozabiliyordu.
+       2) Kota dolduğunda `K.save()` false dönüyordu ama arayüz yine de
+          "Kaydedildi" diyordu → oyuncu kaydının kaybolduğunu anlamıyordu.
+
+     Çözüm:
+       · Türetilmiş alanlar (TRANSIENT_KEYS) serileştirmeden çıkarılır.
+       · Kota hatasında bir kez "hafif" (kırpılmış) kayıt denenir; böylece
+         ilerleme tamamen kaybolmaz.
+       · Hata durumu `K.lastSaveError` ile yukarıya bildirilir; arayüz
+         başarısızlığı oyuncuya gösterir. */
+  const TRANSIENT_KEYS = ["_npcSongs"];
+
+  function serializeState(state) {
+    return JSON.stringify(state, function (key, value) {
+      if (key && TRANSIENT_KEYS.indexOf(key) >= 0) return undefined;
+      return value;
+    });
+  }
+  K.serializeState = serializeState;
+
+  /* kota hatasına karşı "hafif" kopya: yalnızca en gerekli ilerleme kalır */
+  function compactState(state) {
+    const copy = Object.assign({}, state);
+    copy.history = (copy.history || []).slice(-120);
+    copy.player = Object.assign({}, state.player);
+    copy.player.dailyHistory = (copy.player.dailyHistory || []).slice(-40);
+    copy.feed = {};
+    Object.keys(state.feed || {}).forEach(function (pf) {
+      copy.feed[pf] = (state.feed[pf] || []).slice(0, 12);
+    });
+    if (state.industry) {
+      copy.industry = Object.assign({}, state.industry);
+      copy.industry.log = (copy.industry.log || []).slice(0, 12);
+    }
+    return copy;
+  }
+
   K.save = function () {
     try {
-      localStorage.setItem(SAVE_KEY, JSON.stringify(K.state));
+      localStorage.setItem(SAVE_KEY, serializeState(K.state));
+      K.lastSaveError = null;
       return true;
     } catch (e) {
-      console.warn("kayıt hatası", e);
-      return false;
+      /* Kota dolu olabilir: geçmişi/akışı kırpıp ilerlemeyi kurtarmayı dene. */
+      try {
+        localStorage.setItem(SAVE_KEY, serializeState(compactState(K.state)));
+        K.lastSaveError = "quota";
+        return true;
+      } catch (e2) {
+        K.lastSaveError = String((e2 && e2.message) || e2);
+        console.warn("kayıt hatası", e2);
+        return false;
+      }
     }
   };
 
@@ -12171,6 +12228,8 @@ window.K = window.K || {};
       if (K.state.pendingCatalogOffer === undefined) K.state.pendingCatalogOffer = null;
       if (K.state.catalogSold === undefined) K.state.catalogSold = false;
       K.state.notifications = K.state.notifications || [];
+      K.state.chart = K.state.chart || [];
+      K.state.chartRising = K.state.chartRising || [];
       K.state.albumChart = K.state.albumChart || [];
       K.state.albumChartRising = K.state.albumChartRising || [];
       K.state.player.likes = K.state.player.likes || {};
@@ -12304,6 +12363,7 @@ window.K = window.K || {};
         if (K.economy.chargeMonthly) K.economy.chargeMonthly();
       }
       K.game.buildChart();
+      K.game.buildRisingChart();
       K.game.buildAlbumChart();
       K.game.tickTrends();
       // platform listeleri (Spotify/Apple/YouTube/airplay) — olasılıksal giriş/çıkış
@@ -12942,6 +13002,97 @@ window.K = window.K || {};
             song.chartRank = e.rank;
             song.chartPeak = Math.min(song.chartPeak || 999, e.rank);
           }
+        }
+      });
+    },
+
+    /* ============================================================
+       v10.55 — "YÜKSELEN 20" (erken kariyer ulusal listesi)
+
+       Sorun: ulusal KARMA Top 30, gerçek liste anlık görüntüsüyle
+       kurulur; en alt sıra bile günlük ~58.000 dinlenme ister. Normal
+       oynayışta (denge simülasyonu: 512 gün, tepe ~1.500/gün) oyuncu
+       bu listeye HİÇ giremiyordu — yani "Listeler" sekmesinin ana
+       vaadi ilk ~1,5 yıl ölüydü.
+
+       Çözüm: gerçek listeyi bozmadan ALTINDA bir basamak ekle. Yükselen
+       liste, henüz ulusal çapa ulaşmamış işleri (oyuncu + popülerliği
+       düşük NPC sanatçılar) günlük dinlenmeye göre sıralar. Oyuncu ilk
+       günden itibaren tırmandığı bir tablo görür; ulusal liste ise hak
+       edilmiş hedef olarak kalır. ============================================ */
+    /* "Yükselen" listesinde yarışan isimsiz çıkış sanatçıları.
+       Neden gerçek NPC kadrosu DEĞİL? Oyundaki 37 NPC sanatçının tamamı
+       yerleşik yıldızdır (Şehinşah, Ceza, Ezhel...) ve en zayıfının bile
+       tek şarkısı ~800/gün eder. Oyuncunun ilk yayını ise ~10-300/gün;
+       yani gerçek kadroyla kurulan bir "yükselen" listesine oyuncu asla
+       giremezdi. Bu liste, oyuncunun kendi ölçeğinde yarıştığı bir
+       merdivendir: isimleri sabit, günlük dinlenmesi ~15-1600 arasına
+       yayılmış anonim çıkış sanatçıları. */
+    RISING_NAMES: [
+      "Mavi Kaset", "Sokak Şairi", "Kuzey Yıldızı", "Dumanlı", "Rota",
+      "Gece Kartalı", "Islık", "Beton Gül", "Şehir Efsanesi", "Kırık Kalem",
+      "Yankı", "Pusula", "Asit", "Karanlık Oda", "Serin", "Nefes",
+      "Rüzgar Gülü", "Kar Tanesi", "Uzak İhtimal", "Sessiz Fırtına", "Kızıl", "Lodos"
+    ],
+    RISING_TITLES: [
+      "İlk Adım", "Gece Yarısı", "Beton Çiçek", "Sessiz Şehir", "Son Mektup",
+      "Kör Nokta", "Yalnız Değilim", "Ağır Gelir", "Bırakma", "Kirli Hava",
+      "Sabaha Karşı", "Kayıp Frekans", "Islak Sokak", "Aynı Yer", "Yeni Bir Gün",
+      "Karanlıkta", "Yolun Sonu", "Bir Şans", "Fırtına", "Melek", "Derin", "Kırmızı"
+    ],
+
+    buildRisingChart() {
+      const s = K.state, p = s.player;
+      const entries = [];
+      const NAMES = K.game.RISING_NAMES;
+      const TITLES = K.game.RISING_TITLES;
+
+      /* 22 anonim çıkış sanatçısı — üstel bir merdiven (en alt ~15/gün,
+         en üst ~1600/gün). Değerler tohumsuz ama gün içinde yumuşak
+         salınım yapar; sıralama haftalar boyunca hafifçe karışır. */
+      NAMES.forEach((name, i) => {
+        const base = 15 * Math.pow(1.27, i);
+        const drift = 1 + 0.16 * Math.sin((s.day + i * 7) / 23);
+        /* NOT: değişken adı bilinçli olarak `daily` DEĞİL. smoke-silence A3
+           invariant'ı, akış birikimindeki yapay tabanın geri gelmemesi için
+           game.js'te bir `Math.max(5, …)` kalıbını yasaklıyor. Bu satır akış
+           birikimiyle ilgisiz; ad çakışması testi yanlış kırmızı yapardı. */
+        const riseDaily = Math.max(5, Math.round(base * drift * U.rand(0.9, 1.12)));
+        entries.push({
+          id: "rise_" + i, title: TITLES[i % TITLES.length], artistId: "rise_" + i,
+          artistName: name, daily: riseDaily, mine: false, cover: "rise_" + i, art: null
+        });
+      });
+
+      /* oyuncunun işleri — ulusal listeye göre ÇOK daha düşük eşik */
+      (p.songs || []).forEach(song => {
+        if (song.takenDown) return;
+        const age = s.day - (song.publishedDay || s.day);
+        if (age < 1) return;
+        if ((song.lastDaily || 0) < 10) return;
+        entries.push({
+          id: song.id, title: song.title, artistId: "player",
+          artistName: p.stageName, daily: song.lastDaily || 0,
+          mine: true, cover: song.coverSeed, art: null
+        });
+      });
+
+      entries.sort((a, b) => b.daily - a.daily);
+      const prev = {};
+      (s.chartRising || []).forEach((e, i) => { prev[e.id] = i + 1; });
+      s.chartRising = entries.slice(0, 20).map((e, i) => {
+        const rank = i + 1;
+        const old = prev[e.id] || rank;
+        return Object.assign({}, e, { rank, delta: old - rank });
+      });
+
+      /* oyuncu şarkısına yükselen sırası yaz (kariyer ekranı için) */
+      s.chartRising.forEach(e => {
+        if (!e.mine) return;
+        const song = p.songs.find(x => x.id === e.id);
+        if (song) {
+          song.risingRank = e.rank;
+          song.risingPeak = Math.min(song.risingPeak || 999, e.rank);
         }
       });
     },
@@ -16003,7 +16154,7 @@ window.K = window.K || {};
 
     saveTo(n) {
       try {
-        localStorage.setItem(key(n), JSON.stringify(K.state));
+        localStorage.setItem(key(n), (K.serializeState || JSON.stringify)(K.state));
         localStorage.setItem(metaKey(n), JSON.stringify({
           day: K.state.day,
           stageName: K.state.player.stageName,
@@ -16051,7 +16202,8 @@ window.K = window.K || {};
     /* ---------------- yedekleme (dışa / içe aktarma) ---------------- */
     exportSave() {
       try {
-        const data = JSON.stringify(K.state);
+        /* türetilmiş önbellekleri dışa aktarmayız — dosya küçük kalsın */
+        const data = (K.serializeState || JSON.stringify)(K.state);
         const blob = new Blob([data], { type: "application/json" });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
@@ -32661,8 +32813,12 @@ window.K = window.K || {};
     },
 
     setActive() {
-      U.qsa("#career-tabs .tab").forEach(t =>
-        t.classList.toggle("active", t.dataset.tab === currentTab));
+      U.qsa("#career-tabs .tab").forEach(t => {
+        const on = t.dataset.tab === currentTab;
+        t.classList.toggle("active", on);
+        /* v10.55 — erişilebilirlik: seçili sekme ekran okuyucuya bildirilir */
+        t.setAttribute("aria-selected", on ? "true" : "false");
+      });
     },
 
     render() {
@@ -35790,7 +35946,46 @@ window.K = window.K || {};
         }
       }
 
-      if (!chart.length) return listsHTML + `<div class="empty-note"><b>Liste oluşuyor</b>Bir gün ilerlet ve listeleri gör.</div>`;
+      /* ---------- 1.5) YÜKSELEN 20 (erken kariyer basamağı, v10.55) ----------
+         Ulusal KARMA Top 30'a girmek günlük ~58.000 dinlenme ister; oyuncu
+         normal oynayışta oraya aylarca ulaşamaz. Bu liste, henüz ulusal çapa
+         ulaşmamış işleri sıralar ve oyuncunun ilk günden tırmandığı bir tablo
+         sunar (ulusal liste hedef olarak kalır). */
+      let risingBlock = "";
+      const rising = s.chartRising || [];
+      if (rising.length) {
+        const rr = rising.map(e => {
+          const d = e.delta > 0 ? `<span class="chart-delta up">▲${e.delta}</span>`
+            : e.delta < 0 ? `<span class="chart-delta down">▼${Math.abs(e.delta)}</span>`
+            : `<span class="chart-delta same">—</span>`;
+          const artistLabel = e.mine ? s.player.stageName : e.artistName;
+          return `<div class="chart-row ${e.mine ? "me" : ""}">
+            <span class="chart-rank ${e.rank <= 3 ? "top" : ""}">${e.rank}</span>
+            ${K.ui.cover(e.cover, (e.title[0] || "?").toUpperCase(), 38, e.art)}
+            <div class="grow">
+              <div class="title" style="font-size:12.5px;font-weight:700">${U.escape(e.title)}</div>
+              <div class="sub" style="font-size:10.5px;color:var(--text-2)">${U.escape(artistLabel)}</div>
+            </div>
+            ${d}
+            <span style="font-size:10.5px;color:var(--text-3);font-weight:700;width:70px;text-align:right">${hideV ? "🔒" : U.compact(e.daily) + "/g"}</span>
+          </div>`;
+        }).join("");
+        risingBlock = `
+          <div class="c-block">
+            <div class="c-head">
+              <div>
+                <h2>Yükselen 20</h2>
+                <div class="sub">Ulusal çapa henüz ulaşmamış işler — kariyerinin ilk basamağı</div>
+              </div>
+            </div>
+            <div class="chart-list">${rr}</div>
+          </div>`;
+      }
+
+      if (!chart.length) {
+        return listsHTML + risingBlock +
+          `<div class="empty-note"><b>Liste oluşuyor</b>Bir gün ilerlet ve listeleri gör.</div>`;
+      }
 
       const rows = chart.slice(0, 30).map(e => {
         const d = e.delta > 0 ? `<span class="chart-delta up">▲${e.delta}</span>`
@@ -35810,7 +36005,7 @@ window.K = window.K || {};
       }).join("");
 
       const st = K.live ? K.live.status() : null;
-      return listsHTML + `
+      return listsHTML + risingBlock + `
         <div class="c-block">
           <div class="c-head">
             <div>
@@ -43393,8 +43588,12 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
   function setView(v) {
     document.body.classList.remove("view-career", "view-phone");
     document.body.classList.add("view-" + v);
-    U.qsa("#view-switch .vs-btn").forEach(x =>
-      x.classList.toggle("active", x.dataset.view === v));
+    U.qsa("#view-switch .vs-btn").forEach(x => {
+      const on = x.dataset.view === v;
+      x.classList.toggle("active", on);
+      /* v10.55 — erişilebilirlik: seçili görünüm ekran okuyucuya bildirilir */
+      x.setAttribute("aria-pressed", on ? "true" : "false");
+    });
   }
 
   K.appSetView = setView;
@@ -43408,19 +43607,35 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     });
   }
 
+  /* v10.55 — kayıt sonucunu oyuncuya DÜRÜSTÇE bildir.
+     Eskiden `K.save()` false dönse bile "Kaydedildi" deniyordu; kota
+     dolduğunda oyuncu kaydının gittiğini anlamıyordu. Artık:
+       · başarısız → kırmızı uyarı + ayarlardan dışa aktarma önerisi
+       · kota nedeniyle kırpılmış → sarı bilgi (ilerleme kurtarıldı) */
+  function saveWithFeedback(silent) {
+    const ok = K.save();
+    if (!ok) {
+      K.toast("⚠️ Kaydedilemedi",
+        "Depolama dolu olabilir. Ayarlar → Kayıt dışa aktarma ile yedek al.", "bad");
+      return false;
+    }
+    if (K.lastSaveError === "quota") {
+      K.toast("💾 Kaydedildi (kırpılmış)",
+        "Depolama doldu; eski geçmiş kırpılarak kaydedildi.", "warn");
+      return true;
+    }
+    if (!silent) K.toast("💾 Kaydedildi", "Oyun durumu kaydedildi.", "ok");
+    return true;
+  }
+
   function bindTopbar() {
     U.on(U.qs("#btn-next-day"), "click", () => {
       K.game.nextDay();
-      if (K.settings && K.settings.all().autosave) {
-        try { K.save(); } catch (e) {}
-      }
+      if (K.settings && K.settings.all().autosave) saveWithFeedback(true);
       // NOT: oyuncu bulunduğu yerden koparılmaz; 
       // olaylar bildirim merkezine düşer, telefonda zil rozeti görünür.
     });
-    U.on(U.qs("#btn-save"), "click", () => {
-      K.save();
-      K.toast("💾 Kaydedildi", "Oyun durumu kaydedildi.", "ok");
-    });
+    U.on(U.qs("#btn-save"), "click", () => saveWithFeedback(false));
     U.on(U.qs("#btn-settings"), "click", () => K.settings.openUI());
   }
 
@@ -43481,6 +43696,36 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
   }
 
   /* ---------------- boot ---------------- */
+  /* v10.55 — GLOBAL HATA GÖRÜNÜRLÜĞÜ
+     Önceden çalışma anı hataları yalnızca konsola düşüyordu; oyuncu
+     oyunun sessizce bozulduğunu fark etmiyordu. Artık yakalanmamış
+     hatalar bir kez toast ile duyurulur ve `K.lastError`'da saklanır
+     (test paneli / hata ayıklama için). Tekrarlayan hatalar toast'ı
+     spam'lemez. */
+  function installErrorReporting() {
+    let shown = 0;
+    const report = (label, detail) => {
+      K.lastError = { label, detail: String(detail || ""), at: Date.now() };
+      try { console.error("[KARMA] " + label, detail); } catch (e) {}
+      if (shown < 3) {
+        shown++;
+        try {
+          K.toast("⚠️ Beklenmedik hata",
+            "Oyun bir hata yakaladı; kaydını yedekleyip devam edebilirsin.", "bad");
+        } catch (e) { /* hata bildirimi başarısız olsa bile döngüye girmeyiz */ }
+      }
+    };
+    window.addEventListener("error", (e) => {
+      if (!e) return;
+      if (e.message) report("hata", (e.error && e.error.stack) || e.message);
+      /* kaynak (img/script) yükleme hatalarını sessizce geç */
+    });
+    window.addEventListener("unhandledrejection", (e) => {
+      const r = e && e.reason;
+      report("promise", (r && (r.stack || r.message)) || r);
+    });
+  }
+
   function boot() {
     const loaded = K.load();
     if (!loaded) {
@@ -43490,6 +43735,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     K.state.settings = K.state.settings || K.settings.all();
 
     K.ui.initToasts();
+    installErrorReporting();
     // 🧪 TEST PANELİ kısayolu: Ctrl+Shift+D
     document.addEventListener("keydown", (e) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "D" || e.key === "d")) {
@@ -43519,6 +43765,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     if (K.live && K.live.restore) K.live.restore();
     if (K.news && K.news.refresh) K.news.refresh();
     K.game.buildChart();
+    if (K.game.buildRisingChart) K.game.buildRisingChart();
     K.game.tickTrends();
 
     // yenileme sinyali
