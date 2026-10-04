@@ -169,7 +169,9 @@ const SUITES = [
   /* katalog yönetimi: eski işi yeniden canlandırma (remaster, deluxe, yıldönümü) */
   { id: "v1046",       script: "tools/smoke-v1046.js",       label: "v10.46 katalog (remaster · deluxe · yıldönümü)" },
   /* editoryal/playlist derinliği: küratörlü listeler, pitch stratejisi, liste bakımı */
-  { id: "v1048",       script: "tools/smoke-v1048.js",       label: "v10.48 editoryal/playlist (pitch stratejisi · liste bakımı)" }
+  { id: "v1048",       script: "tools/smoke-v1048.js",       label: "v10.48 editoryal/playlist (pitch stratejisi · liste bakımı)" },
+  /* RPG zihin katmanı: hafıza · ruh hali · dedikodu · yay + Lia Shine */
+  { id: "v1050",       script: "tools/smoke-v1050.js",       label: "v10.50 NPC zihin katmanı + Lia Shine" }
 ];
 
 const suiteOut = {};
