@@ -163,14 +163,26 @@
         rel.met = true;
         rel.discovered = true;
         K.bus.emit("dm:seen", { artistId });
-        if (isGreet || Math.random() < pol.replyChance) {
+        /* v10.52 — RUTİN: sanatçı müsait değilse (uyuyor / turnede /
+           stüdyoda) cevap şansı düşer; önce kısa bir "müsait değilim"
+           bilgisi gelir, gerçek cevap gecikmeli ulaşır. */
+        const avail = K.routine ? K.routine.availability(artistId) : 1;
+        const replyChance = U.clamp(pol.replyChance * (0.35 + avail * 0.65), 0.02, 0.95);
+        if (isGreet || Math.random() < replyChance) {
           if (sync) { K.relations.artistReply(artistId, text, pol); }
           else {
             rel._typing = true;
             K.bus.emit("dm:typing", { artistId, on: true });
-            /* v10.50 — cevap gecikmesi ruh haline bağlı: hype anında,
-               yorgun/gergin sanatçı saatler sonra döner. */
-            const wait = K.npcMind ? K.npcMind.replyWait(artistId) : U.randInt(900, 2000);
+            if (K.routine && avail < 0.55 && rel._lastAuto !== K.state.day && U.chance(0.7)) {
+              const ar = K.routine.autoReply(artistId);
+              if (ar) {
+                rel._lastAuto = K.state.day;
+                setTimeout(() => K.relations.pushArtistMessage(artistId, ar, "chat", { silent: true }), 350);
+              }
+            }
+            /* v10.50/52 — gecikme = ruh hali + gündelik rutin */
+            const wait = K.routine ? K.routine.replyWait(artistId)
+              : (K.npcMind ? K.npcMind.replyWait(artistId) : U.randInt(900, 2000));
             setTimeout(() => K.relations.artistReply(artistId, text, pol), wait);
           }
         }
@@ -187,6 +199,15 @@
       const out = K.chat.reply(artistId, playerText || "", pol || K.relations.replyPolicy(artistId));
       K.relations.addAffinity(artistId, out.delta, "sohbet:" + out.intent);
       e.rel.lastInteract = K.state.day;
+
+      /* v10.52 — uykudan/turnedен dönen sanatçı önce durumunu açar */
+      if (K.routine && out.msgs && out.msgs.length) {
+        const st = K.routine.status(artistId);
+        if (st.available < 0.55) {
+          const wp = K.routine.wakePrefix(artistId);
+          if (wp && out.msgs[0].indexOf(wp) !== 0) out.msgs[0] = wp + " " + out.msgs[0];
+        }
+      }
 
       out.msgs.forEach((m, i) => {
         if (i === 0) K.relations.pushArtistMessage(artistId, m, "chat");
@@ -711,6 +732,35 @@
       K.save(); K.refresh();
     },
 
+    /* ============================================================
+       v10.52 — ANLAŞMA KAYDI
+       Feature / ortak proje anlaşmaları artık KALICI olarak işlenir:
+         · rel.deal altında saklanır (tür, durum, şarkı, gün)
+         · hafızaya yazılır (npcMind)
+         · günlük tick'in aynı sanatçıdan tekrar teklif üretmesini engeller
+       Böylece "kabul etti ama işlenmiyor" durumu ortadan kalkar.
+       ============================================================ */
+    _recordDeal(artistId, type, info) {
+      const rel = K.relation(artistId);
+      if (!rel) return null;
+      info = info || {};
+      rel.deal = {
+        type: type,
+        status: info.status || "agreed",
+        songTitle: info.songTitle || null,
+        day: K.state.day,
+        source: info.source || "dm"
+      };
+      rel.flags = rel.flags || {};
+      if (type === "feature") rel.flags.feature = true;
+      if (type === "collab") rel.flags.collab = true;
+      if (K.npcMind) {
+        const label = type === "feature" ? "Ortak şarkı" : "Ortak proje";
+        K.npcMind.promise(artistId, "them", label + (info.songTitle ? ': "' + info.songTitle + '"' : ""));
+      }
+      return rel.deal;
+    },
+
     /* ---------------- FEATURE TEKLİFİ (oyuncu → sanatçı) ---------------- */
     canProposeFeature(artistId) {
       const rel = K.relation(artistId);
@@ -731,10 +781,12 @@
       if (!K.economy.canAfford(cost)) { K.toast("Yetersiz bakiye", `Stüdyo için ${U.money(cost)} gerekiyor.`, "bad"); return; }
 
       // kabul olasılığı
-      const prob = U.clamp(
+      let prob = U.clamp(
         (rel.affinity - 55) / 70 + a.traits.work / 22 + (p.popularity - a.popularity) / 260,
         0.05, 0.94
       );
+      /* v10.52 — DM'de zaten anlaşıldıysa (pending deal) teklif neredeyse kesin */
+      if (rel.deal && rel.deal.type === "feature" && rel.deal.status === "pending") prob = Math.max(prob, 0.95);
       const accepted = Math.random() < prob;
 
       K.economy.spend(cost, "feature_studio");
@@ -750,6 +802,7 @@
       } else {
         K.relations.addAffinity(artistId, 6, "feature_kabul", { uncapped: true });
         rel.flags.feature = true;
+        const dealTitle = songTitle || (K.career.suggestTitle() + " (feat. " + a.stageName + ")");
         K.relations.pushArtistMessage(artistId, U.pick([
           "Tamam kardeşim, gel yapalım. Sen beat hazırla, ben yazarım.",
           "Onay! Stüdyo ayarları bende. Şu başlıkla girelim.",
@@ -757,10 +810,11 @@
         ]), "system");
         // ortak yayın oluştur
         K.career.createRelease({
-          title: songTitle || (K.career.suggestTitle() + " (feat. " + a.stageName + ")"),
+          title: dealTitle,
           genre: p.genre, type: "single", waitDays: 13,
           budget: 30000, marketing: 5000, featWith: artistId
         });
+        K.relations._recordDeal(artistId, "feature", { songTitle: dealTitle, source: "outgoing" });
         K.toast("🔥 Feature anlaşması!", `${a.stageName} ile ortak şarkı yayın sırasına girdi.`, "ok");
       }
       K.save(); K.refresh();
@@ -795,11 +849,13 @@
         rel.flags.collab = true;
         K.relations.addAffinity(artistId, 9, "ortak_proje", { uncapped: true });
         K.relations.pushArtistMessage(artistId, "Ortak proje için varım! Bir EP çıkaralım, ikimizin sound'u uyar.", "system");
+        const collabTitle = projectTitle || ("Ortak Proje: " + a.stageName);
         K.career.createRelease({
-          title: projectTitle || ("Ortak Proje: " + a.stageName),
+          title: collabTitle,
           genre: K.state.player.genre, type: "ep", trackCount: 4, waitDays: 24,
           budget: 18000, marketing: 8000, featWith: artistId
         });
+        K.relations._recordDeal(artistId, "collab", { songTitle: collabTitle, source: "outgoing" });
         K.toast("🤝 Ortak proje başladı!", a.stageName + " ile ortak EP yayın sırasına girdi.", "ok");
       }
       K.save(); K.refresh();
@@ -1037,6 +1093,9 @@
             genre: s.player.genre, type: "single", waitDays: 13,
             budget: 25000, marketing: 0, featWith: offer.artistId
           });
+          K.relations._recordDeal(offer.artistId, "feature", {
+            songTitle: offer.terms.title + (a ? " (feat. " + a.stageName + ")" : ""), source: "incoming"
+          });
           K.toast("🔥 Feature kabul edildi", "Ortak şarkı yayın sırasına eklendi.", "ok");
         } else {
           offer.status = "declined";
@@ -1167,6 +1226,10 @@
       // 2) Feature teklifi (samimiyet yüksekse)
       const featureCandidates = K.artistList().filter(a => {
         const rel = s.relations[a.id];
+        /* v10.52 — anlaşma varsa VEYA feature konuşulduysa aynı
+           sanatçıdan yeniden feature teklifi gelmez. */
+        if (rel && rel.deal && rel.deal.type === "feature" && rel.deal.status === "pending") return false;
+        if (rel && rel.flags && rel.flags.featureTalked) return false;
         return rel && rel.met && K.stageIndexFor(rel.affinity) >= 4 && !rel.flags.feature
           && K.relations.reach(a.id) >= 0.25;
       });
