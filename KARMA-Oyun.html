@@ -7129,7 +7129,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.56.0";
+  K.VERSION = "10.57.0";
   K.VERSION_DATE = "2026-10-04";
 })(window.K = window.K || {});
 
@@ -14969,7 +14969,9 @@ window.K = window.K || {};
          demekti, yani sponsorluk müziği eziyordu. Artık ücret, oyuncunun
          gerçek büyüklüğüne göre ölçeklenir. */
       const scale = U.clamp(0.25 + (p.popularity || 0) / 70, 0.25, 2.0);
-      const fee = Math.round(b.fee * scale);
+      /* v10.57 — marka ücreti de enflasyonla artar (nominal gelir). */
+      const infl = K.econ ? K.econ.infl() : 1;
+      const fee = Math.round(b.fee * scale * infl);
       s.pendingSponsor = {
         id: U.uid("spo"), brandId: b.id, name: b.name, cat: b.cat, icon: b.icon,
         fee, img: b.img, note: b.note, day: s.day
@@ -15898,7 +15900,11 @@ window.K = window.K || {};
     payMult(job) {
       const lvl = K.skillLevel(job.skill);
       const dm = K.settings ? K.settings.diffMult().jobPay : 1;
-      return (1 + lvl / 140) * dm * K.jobs.fameDampen() * K.jobs.fatigueMult();
+      /* v10.57 — NOMİNAL ÜCRET: 43%/yıl enflasyonda sabit 620 ₺'lik bir
+         vardiya birkaç yılda değersizleşiyordu. Ücret artık endeksle
+         birlikte artar (giderler de artıyor). */
+      const infl = K.econ ? K.econ.infl() : 1;
+      return (1 + lvl / 140) * dm * K.jobs.fameDampen() * K.jobs.fatigueMult() * infl;
     },
 
     /* gün içi azalan verim: 1. iş tam, sonrakiler kademeli */
@@ -24432,6 +24438,26 @@ window.K = window.K || {};
        arena 1.800–5.000 ₺, stadyum 2.500–7.000 ₺). Taban 850 ₺. */
     BASE_TICKET: 850,
 
+    /* v10.57 — ENFLASYON TUTARLILIĞI. Bilet tabanı, mekân/prodüksiyon
+       maliyeti, merch ve açılış ücreti SABİT nominal değerlerdi; oysa
+       bakım/gider kalemleri `K.econ.infl()` ile artıyordu. 43%/yıl
+       enflasyonda konserler yıllar geçtikçe gerçekte bedava kâra
+       dönüşüyordu. Artık hepsi enflasyon endeksiyle çarpılır. */
+    infl() { return (K.econ && K.econ.infl) ? K.econ.infl() : 1; },
+    baseTicket() { return Math.round(K.concerts.BASE_TICKET * K.concerts.infl()); },
+
+    /* v10.57 — SEZON. Gerçek turnede katılım yaz aylarında zirve yapar
+       (okul tatili, açık hava mekânları, festival sezonu), kışın düşer.
+       Ulusal bir turne planlarken zamanlama artık gerçekten önemlidir. */
+    seasonMult(day) {
+      const d = U.dateObjForDay(day == null ? K.state.day : day);
+      const m = d.m;
+      if (m >= 6 && m <= 8) return 1.15;                     // yaz zirvesi
+      if (m === 5 || m === 9) return 1.06;                   // yaz geçişi
+      if (m === 12 || m === 1 || m === 2) return 0.90;       // kış durgunluğu
+      return 1.0;
+    },
+
     production(id) { return K.concerts.PRODUCTIONS.find(p => p.id === id) || K.concerts.PRODUCTIONS[0]; },
     venue(id) { return K.concerts.VENUES.find(v => v.id === id) || K.concerts.VENUES[0]; },
     city(name) { return K.concerts.CITIES.find(c => c.name === name) || K.concerts.CITIES[0]; },
@@ -24446,8 +24472,9 @@ window.K = window.K || {};
       const guarantee = Math.round(gross * U.clamp(0.5 + (pop || 0) / 220, 0.45, 0.8));
       const ticket = dealType === "guarantee" ? guarantee : Math.round(gross * 0.62);
       const merchUnits = merchOn ? Math.round(attendance * 0.18) : 0;
-      const merchGross = merchUnits * 250;
-      const merchCost = merchUnits * 90;
+      const mInfl = K.concerts.infl();
+      const merchGross = Math.round(merchUnits * 250 * mInfl);
+      const merchCost = Math.round(merchUnits * 90 * mInfl);
       return { gross, guarantee, ticket, merchGross, merchCost, merchUnits };
     },
 
@@ -24459,11 +24486,11 @@ window.K = window.K || {};
         .filter(a => roster.includes(a.id) || (s.relations[a.id] && s.relations[a.id].met))
         .sort((a, b) => b.popularity - a.popularity)
         .slice(0, 10)
-        .map(a => ({ artist: a, fee: Math.round(a.popularity * 900 + 8000) }));
+        .map(a => ({ artist: a, fee: Math.round((a.popularity * 900 + 8000) * K.concerts.infl()) }));
     },
     openerFee(id) {
       const a = K.artistById(id);
-      return a ? Math.round(a.popularity * 900 + 8000) : 0;
+      return a ? Math.round((a.popularity * 900 + 8000) * K.concerts.infl()) : 0;
     },
 
     /* ---------------- katılım & gelir tahmini ---------------- */
@@ -24485,11 +24512,11 @@ window.K = window.K || {};
            47 bin → ~2.100 kişi (salon)
            1 milyon → ~37.000 kişi (arena)  */
       const monthly = Math.max(0, p.monthly || 0);
-      const demandBase = (monthly * 0.035 + Math.sqrt(monthly) * 2) * c.mult;
+      const demandBase = (monthly * 0.035 + Math.sqrt(monthly) * 2) * c.mult * K.concerts.seasonMult();
       /* Fiyat esnekliği (v10.9): eskiden 2× fiyat katılımı %12'ye
          düşürüyordu — gerçekte bilet fiyatı iki katına çıkınca katılım
          %40-50 civarında azalır. Eğri yumuşatıldı. */
-      const priceRatio = price / (K.concerts.BASE_TICKET * (1 + pop / 120));
+      const priceRatio = price / (K.concerts.baseTicket() * (1 + pop / 120));
       const priceFactor = U.clamp(1.3 - priceRatio * 0.5, 0.3, 1.15);
       const openerBoost = opener ? U.clamp(opener.popularity / 260, 0.03, 0.18) : 0;
 
@@ -24500,8 +24527,10 @@ window.K = window.K || {};
       const merchOn = !(opts && opts.merch === false);
       const nums = K.concerts.settleNumbers(attendance, price, dealType, pop, merchOn);
       const openerFee = opener ? K.concerts.openerFee(openerId) : 0;
-      const venueCost = Math.round(v.cost * c.mult);
-      const cost = venueCost + prod.cost + openerFee + nums.merchCost;
+      const infl = K.concerts.infl();
+      const venueCost = Math.round(v.cost * c.mult * infl);
+      const prodCost = Math.round(prod.cost * infl);
+      const cost = venueCost + prodCost + openerFee + nums.merchCost;
       const revenue = nums.ticket + nums.merchGross;
       const net = revenue - cost;
       const fame = +(attendance / v.capacity * (v.prestige + prod.prestige) * 1.35).toFixed(2);
@@ -24512,7 +24541,7 @@ window.K = window.K || {};
 
       return {
         attendance, capacity: v.capacity, revenue, cost, net, fame, hype, fans,
-        openerFee, prodCost: prod.cost, venueCost, dealType, merch: merchOn,
+        openerFee, prodCost, venueCost, dealType, merch: merchOn,
         gross: nums.gross, ticket: nums.ticket, guarantee: nums.guarantee, merchGross: nums.merchGross, merchCost: nums.merchCost,
         venue: v, city: c, production: prod, opener,
         soldOut: attendance >= v.capacity * 0.97
@@ -25467,8 +25496,20 @@ window.K = window.K || {};
      · Albümler de toplam dinlenmeden plak alır.
      · Her plak bir "tören anı" bildirimi üretir.
 
-   Eşikler gerçek RIAA ölçeğinden oyuna uyarlanmıştır (şarkı başına
-   toplam dinlenme).
+   EŞİKLER HAKKINDA (dürüst not)
+   ----------------------------
+   RIAA sertifikaları SATIŞ BİRİMİ üzerinden verilir ve 1 birim =
+   1.500 dinlenme sayılır:
+       Altın    =   500.000 birim ≈   750 milyon dinlenme
+       Platin   = 1.000.000 birim ≈ 1,5 milyar dinlenme
+       Elmas    = 10.000.000 birim ≈ 15 milyar dinlenme
+   Oyunun eşikleri (1M / 5M / 25M) RIAA'nın BİREBİR kopyası DEĞİLDİR;
+   RIAA MANTIĞINDAN esinlenip Türkiye pazarı ve oyun ölçeğine
+   uyarlanmıştır. Türkiye'de yayın çağı için resmî bir akış sertifikası
+   olmadığından (MÜYAP tarihsel olarak fiziksel satış sayardı) daha
+   küçük, oyuncunun kariyeri boyunca ulaşabileceği eşikler seçildi.
+   Yani buradaki "Platin", global RIAA platininden çok daha kolaydır —
+   bilinçli bir tasarım kararıdır, hata değildir.
    ============================================================ */
 (function (K) {
   "use strict";
@@ -25818,11 +25859,30 @@ window.K = window.K || {};
       { id: "feature", name: "En İyi Feature", icon: "🤝" }
     ],
 
+    /* v10.57 — ÖDÜL SEZONU. Eskiden tören gün sayacıyla (her 360 gün)
+       yılın rastgele bir ortasında yapılıyordu. Gerçekte ödül törenleri
+       yıl sonunda (Kasım–Ocak) toplanır. Artık tören her takvim yılının
+       OCAK ayında (15'i) yapılır — kariyer ritmi takvime oturur. */
+    CEREMONY_MONTH: 1,   // Ocak
+    CEREMONY_DOM: 15,
+
+    /* verilen takvim tarihinin oyun günü (1 tabanlı) */
+    dayForCal(y, m, d) {
+      const sd = U.fromISO((K.state && K.state.dateStart) || U.todayISO());
+      const a = Date.UTC(sd.y, sd.m - 1, sd.d);
+      const b = Date.UTC(y, m - 1, d);
+      return Math.round((b - a) / 86400000) + 1;
+    },
+
     yearsPassed() { return Math.floor((K.state.day - 1) / K.awards.YEAR); },
 
     nextCeremony() {
-      const passed = K.awards.yearsPassed();
-      return (passed + 1) * K.awards.YEAR + 1;
+      const cur = U.dateObjForDay(K.state.day);
+      for (let y = cur.y; y <= cur.y + 3; y++) {
+        const day = K.awards.dayForCal(y, K.awards.CEREMONY_MONTH, K.awards.CEREMONY_DOM);
+        if (day >= K.state.day) return day;
+      }
+      return K.state.day + K.awards.YEAR;
     },
 
     // tamamlanan yıl sayısı (tören sayacı)
@@ -25859,15 +25919,15 @@ window.K = window.K || {};
     tick() {
       const s = K.state;
       s.awards = s.awards || { lastDay: 0, lastYear: 0, history: [] };
-      const yp = K.awards.completedYears();
-      if (yp < 1) return;
-      if ((s.awards.lastYear || 0) >= yp) return;
-      s.awards.lastYear = yp;
-      s.awards.lastDay = s.day;
+      const cday = K.awards.nextCeremony();
+      if (s.day < cday) return;
+      if ((s.awards.lastDay || 0) >= cday) return;   // bu tören zaten yapıldı
+      s.awards.lastDay = cday;
 
       const p = s.player;
       const noms = K.awards.nominations();
-      const year = yp;
+      const year = ((s.awards.history || []).length) + 1;
+      s.awards.lastYear = year;
       const results = [];
       let wins = 0;
 
@@ -25898,7 +25958,7 @@ window.K = window.K || {};
       });
 
       s.awards.history = s.awards.history || [];
-      s.awards.history.unshift({ year: year + 1, day: s.day, wins, results });
+      s.awards.history.unshift({ year, day: s.day, wins, results });
 
       if (wins > 0) {
         K.game.addFame(wins * 2.2);
@@ -25911,7 +25971,7 @@ window.K = window.K || {};
       /* TÖREN KONUŞMASI: oyuncu seçim yapar */
       const nominated = results.some(r => r.nominated);
       if (nominated) {
-        s.pendingAward = { year: year + 1, wins, results, day: s.day };
+        s.pendingAward = { year, wins, results, day: s.day };
         K.toast(wins > 0 ? "🏆 ÖDÜL KAZANDIN!" : "🎬 Ödül Töreni",
           (wins > 0 ? wins + " ödül · " : "Adaylık aldın · ") + "Konuşmanı seç (Olaylar sekmesi).", wins > 0 ? "ok" : "warn");
       } else {
@@ -27518,7 +27578,7 @@ window.K = window.K || {};
 
       /* ücret: müşterinin büyüklüğü × kapsam × senin ustalığın */
       const size = 1 + (a.popularity || 0) / 26;
-      const fee = Math.round(K.ECON.writingBase * sc.base * size * (0.7 + K.writing.craft() / 100));
+      const fee = Math.round(K.ECON.writingBase * sc.base * size * (0.7 + K.writing.craft() / 100) * (K.econ ? K.econ.infl() : 1));
       const offer = {
         id: U.uid("wr"), artistId: a.id, artistName: a.stageName, icon: sc.icon,
         scope: sc.id, scopeName: sc.name, fee, days: sc.days, day: s.day,
@@ -27624,7 +27684,7 @@ window.K = window.K || {};
       /* --- KABUL: sanatçı kendi adına yayınlar, oyuncu söz yazarı --- */
       const title = K.career.suggestTitle();
       const size = 1 + (a.popularity || 0) / 26;
-      const fee = Math.round(K.ECON.writingBase * size * (0.8 + quality / 120));
+      const fee = Math.round(K.ECON.writingBase * size * (0.8 + quality / 120) * (K.econ ? K.econ.infl() : 1));
       const royaltyDays = 40;
       const royaltyPerDay = Math.round((a.popularity || 30) * 14 * (0.5 + quality / 140));
 
@@ -28029,6 +28089,15 @@ window.K = window.K || {};
 
     list() { return K.state.player.assets || []; },
     def(id) { return ASSETS.find(a => a.id === id); },
+    /* v10.57 — ALIM FİYATI enflasyona bağlı. Bakım gideri zaten
+       `upkeepTotal` içinde enflasyonla artıyordu; ama alım fiyatı sabit
+       nominal kaldığı için yıllar geçtikçe mülk/araç gerçekte
+       ucuzluyordu. Artık ikisi de aynı endeksi kullanır. */
+    costNow(id) {
+      const a = K.assets.def(id);
+      if (!a) return 0;
+      return Math.round(a.cost * (K.econ ? K.econ.infl() : 1));
+    },
     owns(id) { return K.assets.list().some(x => x.id === id); },
     count() { return K.assets.list().length; },
 
@@ -28041,9 +28110,10 @@ window.K = window.K || {};
       return Math.round(K.assets.list().reduce((n, x) => n + ((K.assets.def(x.id) || {}).upkeep || 0), 0) * infl);
     },
 
-    /* aylık pasif gelir */
+    /* aylık pasif gelir (v10.57: gider gibi gelir de enflasyona bağlı) */
     incomeTotal() {
-      return K.assets.list().reduce((n, x) => n + ((K.assets.def(x.id) || {}).income || 0), 0);
+      const infl = K.econ ? K.econ.infl() : 1;
+      return Math.round(K.assets.list().reduce((n, x) => n + ((K.assets.def(x.id) || {}).income || 0), 0) * infl);
     },
 
     /* stüdyo bonusu: kayıt maliyeti çarpanı + kalite */
@@ -28064,7 +28134,7 @@ window.K = window.K || {};
       if (K.playerAge() < _ma) {
         return { ok: false, why: `Bu varlık için ${_ma} yaşında olmalısın` };
       }
-      if (!K.economy.canAfford(a.cost)) return { ok: false, why: `Yetersiz bakiye (${U.money(a.cost)})` };
+      if (!K.economy.canAfford(K.assets.costNow(id))) return { ok: false, why: `Yetersiz bakiye (${U.money(K.assets.costNow(id))})` };
       return { ok: true };
     },
 
@@ -28072,10 +28142,11 @@ window.K = window.K || {};
       const a = K.assets.def(id);
       const c = K.assets.canBuy(id);
       if (!c.ok) { K.toast("Alınamadı", c.why, "warn"); return false; }
-      K.economy.spend(a.cost, "asset");
+      const price = K.assets.costNow(id);
+      K.economy.spend(price, "asset");
       const p = K.state.player;
       p.assets = p.assets || [];
-      p.assets.push({ id: a.id, day: K.state.day, price: a.cost });
+      p.assets.push({ id: a.id, day: K.state.day, price });
       p.image = U.clamp((p.image || 50) + (a.img || 0), 0, 100);
       p.reputation = (p.reputation || 0) + (a.rep || 0);
       K.toast(a.icon + " Alındı", `${a.name} · imaj +${a.img} · itibar +${a.rep} · aylık bakım ${U.money(a.upkeep)}`, "ok");
@@ -28091,7 +28162,9 @@ window.K = window.K || {};
     sell(id) {
       const a = K.assets.def(id);
       if (!a || !K.assets.owns(id)) return false;
-      const back = Math.round(a.cost * SELL_RATIO);
+      /* Satışta gerçekten ÖDENEN fiyat esas alınır (enflasyonlu alım). */
+      const rec = K.assets.list().find(x => x.id === id) || {};
+      const back = Math.round((rec.price || K.assets.costNow(id)) * SELL_RATIO);
       const p = K.state.player;
       p.assets = (p.assets || []).filter(x => x.id !== id);
       K.economy.earn(back, "asset_sale");
@@ -36252,6 +36325,8 @@ window.K = window.K || {};
       const upcoming = (s.concerts || []).filter(c => c.status === "planlandı").sort((a, b) => a.day - b.day);
       const done = (s.concerts || []).filter(c => c.status === "tamamlandı").sort((a, b) => b.day - a.day).slice(0, 4);
       const tp = K.concerts.tourProgress();
+      /* v10.57 — bilet fiyat aralığı enflasyona bağlı (taban fiyat artıyor) */
+      const bt = K.concerts.baseTicket();
 
       return `
         <div class="c-block">
@@ -36279,7 +36354,7 @@ window.K = window.K || {};
               </select></div>
             </div>
             <div class="field"><label>Bilet Fiyatı</label>
-              <div class="range-row"><input id="cn-price" type="range" min="100" max="3500" step="50" value="450" /><span class="range-val" id="cn-price-val">₺450</span></div>
+              <div class="range-row"><input id="cn-price" type="range" min="100" max="${Math.round(bt * 4.1)}" step="50" value="${Math.round(bt * 0.53)}" /><span class="range-val" id="cn-price-val">${U.money(Math.round(bt * 0.53))}</span></div>
             </div>
             <div class="stat-grid" id="cn-est">
               <div class="stat-card"><span class="k">Katılım</span><span class="v" id="cn-att">—</span><span class="d" id="cn-cap">—</span></div>
@@ -36302,7 +36377,7 @@ window.K = window.K || {};
               <div class="field"><label>Mekân</label><select id="tr-venue">${venues}</select></div>
               <div class="field"><label>Prodüksiyon</label><select id="tr-prod">${prods}</select></div>
               <div class="field"><label>Açılış Act</label><select id="tr-opener">${openers}</select></div>
-              <div class="field"><label>Bilet</label><input id="tr-price" type="number" min="100" step="50" value="450" /></div>
+              <div class="field"><label>Bilet</label><input id="tr-price" type="number" min="100" step="50" value="${Math.round(bt * 0.53)}" /></div>
               <div class="field"><label>Duraklar arası</label><select id="tr-gap"><option value="2">2 gün</option><option value="3" selected>3 gün</option><option value="5">5 gün</option></select></div>
             </div>
             <div class="action-row">
@@ -36645,7 +36720,7 @@ window.K = window.K || {};
       const totalWins = K.awards.totalWins();
       return `
         <div class="c-block">
-          <div class="c-head"><div><h2>Müzik Ödülleri</h2><div class="sub">Her 360 günde bir tören · toplam ${totalWins} ödül</div></div></div>
+          <div class="c-head"><div><h2>Müzik Ödülleri</h2><div class="sub">Her yıl Ocak ayında tören · toplam ${totalWins} ödül</div></div></div>
           <div class="label-hero">
             <h3>🏆 Sıradaki Tören</h3>
             <div class="stat-grid">
@@ -36671,7 +36746,7 @@ window.K = window.K || {};
               <span>${r.icon}</span><span class="grow">${U.escape(r.cat)}</span>
               <span class="muted">${U.escape(r.winner)}</span>${r.won ? '<span class="pill gold">SEN</span>' : ""}
             </div>`).join("")}</div>
-          </div>`).join("") : `<div class="empty-note"><b>Henüz tören yapılmadı</b>İlk tören Gün ${360 + 1}'de.</div>`}
+          </div>`).join("") : `<div class="empty-note"><b>Henüz tören yapılmadı</b>İlk tören ${U.dateForDay(next).label} tarihinde (Gün ${next}).</div>`}
         </div>`;
     },
 
@@ -37146,7 +37221,7 @@ window.K = window.K || {};
               const c = K.assets.canBuy(x.id);
               return `<button class="xg-opt ${c.ok ? "" : "locked"}" ${c.ok ? `data-act="ast-buy" data-arg="${x.id}"` : "disabled"}>
                 <b>${x.icon} ${U.escape(x.name)}</b>
-                <span class="xg-cost">${U.money(x.cost)}</span>
+                <span class="xg-cost">${U.money(K.assets.costNow(x.id))}</span>
                 <span>bakım ${U.money(x.upkeep)}/ay · imaj +${x.img}</span>
                 <span>${c.ok ? U.escape(x.note) : U.escape(c.why)}</span>
               </button>`; }).join("")}
