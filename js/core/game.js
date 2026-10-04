@@ -124,6 +124,8 @@
       if (K.crisis && K.crisis.maybeStart) K.crisis.maybeStart();
       /* v10.28 — genişleme paketi (altı sistem) */
       if (K.writing && K.writing.tick) K.writing.tick();
+      /* v10.54 — başkasına gönderilen sözlerin yayın telifi */
+      if (K.writing && K.writing.publishingTick) K.writing.publishingTick();
       if (K.merch && K.merch.tick) K.merch.tick();
       if (K.assets && K.assets.tick) K.assets.tick();
       if (K.mental && K.mental.tick) K.mental.tick();
