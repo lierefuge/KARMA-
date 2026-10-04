@@ -666,6 +666,195 @@
       ]
     },
 
+    /* ---- LIA SHINE → duygusal, kırılgan, sadık ----
+       Sivas doğumlu, emotional / sad trap. Şehinşah'ın keşfettiği genç
+       rapçi. Sesi içten ve savunmasız; sahteliğe tahammülü yok. */
+    liashine: {
+      label: "duygusal",
+      selam: {
+        islamic: ["Aleyküm selam. İyi ki yazdın.", "Ve aleyküm selam, naber?", "Aleyküm selam, hoş geldin."],
+        shortIslamic: ["as", "as, naber?"],
+        reply: ["Eyvallah, sağ ol.", "Ne demek, sen de iyi bak.", "Rica ederim."]
+      },
+      pool: {
+        greet: [
+          "Selam. Bugün biraz durgunum ama yazman iyi geldi.",
+          "Selam, iyi ki yazdın.",
+          "Naber? Kayıttaydım, yeni çıktım.",
+          "Selam. Bu aralar kafam karışık, sen naber?"
+        ],
+        howareyou: [
+          "İdare ederim; iyi görünüyorum ama içim karışık. Sen?",
+          "Şükür, müzikle uğraşıyorum. Sen nasılsın?",
+          "Bugün biraz ağır bir gün ama iyiyim. Sen?",
+          "Sorma, dalgalı bir dönem. Ama müzik iyi geliyor."
+        ],
+        music: [
+          "\"{song}\" benim için çok özel; içimden geldi, uydurmadım.",
+          "\"{song}\" üstünde çok ağladım, sonunda çıktı.",
+          "\"{song}\" gibi şeyler yazarken gerçek olmak istiyorum, sahne gösterisi değil.",
+          "\"{song}\" benim gerçeğim; beğenmeyen olabilir, sorun değil."
+        ],
+        feature: [
+          "Ortak iş olur ama sahte olmasın; gerçekten anlaşmamız lazım.",
+          "Feature veririm, yeter ki samimi olsun.",
+          "Beraber yaparsak sesim kaybolmasın; olduğum gibi kalayım."
+        ],
+        career: [
+          "Ben müziğe her şeyimi verdim; başka hayatım yok. Sen de böyleysen anlaşırız.",
+          "Bana 'yapamazsın' dediler, ben de daha çok çalıştım.",
+          "Bir kişi inansa yetiyor. Bana abim inandı, ben de kendime.",
+          "Hayalim sahnede şarkılarımı söylemek; gerisi detay."
+        ],
+        market: [
+          "Piyasa hızlı ama ben yine de gerçek olanı yazıyorum.",
+          "Herkes trend peşinde; ben kendi acımı yazıyorum.",
+          "Sad trap burada zor iş, ama dinleyen sadık kalıyor."
+        ],
+        compliment: [
+          "Sağ ol, gerçekten iyi geldi. Böyle şeylere alışık değilim.",
+          "Teşekkür ederim... Bunu unutmam.",
+          "Sağ ol. Bugün buna ihtiyacım vardı."
+        ],
+        critique: [
+          "Anladım. Neyini sevmedin, söyle; kaldırabilirim.",
+          "Eleştiri alırım ama kalbimi kırmadan söyle.",
+          "Tamam, not aldım. Yine de o şarkı benim gerçeğim."
+        ],
+        insult: [
+          "Neden böyle konuşuyorsun? Ben sana bir şey mi yaptım?",
+          "Bu lafları hak etmedim ama canımı sıkmayacağım.",
+          "Sinirlisin galiba. Ben bu tonda konuşmam."
+        ],
+        diss: [
+          "Ben diss yazmam, acımı yazarım.",
+          "Kavga istemiyorum; cevap kayıtta verilir.",
+          "Sataşmak yerine şarkı yapalım."
+        ],
+        money: [
+          "Para konuşmak istemiyorum açıkçası; ben işin ruhundayım.",
+          "Bütçe varsa konuşulur ama ben parayla motive olmuyorum."
+        ],
+        hangout: [
+          "Olur, stüdyoda görüşelim; kalabalık sevmiyorum.",
+          "Gelebilirim ama bugünlerde pek iyi değilim, kusura bakma.",
+          "Tamam, bir çay içelim. İyi gelir."
+        ],
+        company: [
+          "Sözleşme mi? Abim ne derse o. Güven benim için her şeyden önemli.",
+          "Şirket işi ciddi; beni anlayan biriyle olmalı."
+        ],
+        family: [
+          "Ailemi konuşmak beni yoruyor... Babamı kaybettim, orası hassas.",
+          "Aile konusunda kırılganım, kusura bakma."
+        ],
+        personal: [
+          "Özel hayatımı pek açmam. Sivaslıyım, genç yaşta başladım bu işe.",
+          "İsmim bile iki insandan geliyor; uzun hikâye. Şimdilik kalsın."
+        ],
+        health: [
+          "Uyku düzenim yok, gece yazıyorum. Ama sesim iyi.",
+          "Bazen çöküyorum ama müzik beni ayağa kaldırıyor."
+        ],
+        hard: [
+          "Ben de dibi gördüm. Yaz, sadece yaz. Geçiyor.",
+          "Yalnız değilsin. En kötü günümde bir şarkı kurtardı beni.",
+          "Anlat, dinliyorum. Burada yargı yok."
+        ],
+        news: [
+          "Gündem ağır, bu yüzden şarkılar da ağır oluyor.",
+          "Her şeye yorum yapmam; hissettiğimi yazarım."
+        ],
+        beef: [
+          "Kavga gürültü bana göre değil.",
+          "Herkes birbirini yiyor; ben kendi köşemde yazıyorum."
+        ],
+        askmoney: [
+          "Borç veremem, kusura bakma. Ama derdini dinlerim.",
+          "Para işine girmeyelim."
+        ],
+        flirt: ["O tarafa gitmeyelim. Müzik konuşalım.", "Sağ ol ama ben o modda değilim."],
+        thanks: ["Ne demek, sağ ol sen.", "Eyvallah, iyi ki varsın."],
+        laugh: ["Ha, güldüm 😄 iyi geldi.", "İlk defa bugün güldüm, sağ ol."],
+        question: ["İyi soru. Ben de bunu çok düşündüm.", "Cevap basit: gerçek olmak."],
+        support: ["Sağ ol... Bunu unutmam, ciddiyim.", "Desteğin çok kıymetli, teşekkür ederim."],
+        bye: ["Görüşürüz, kendine iyi bak.", "İyi geceler. Yine yaz."],
+        generic: ["Anladım. Sen anlat, ben dinliyorum.", "Tamam. Devam et.", "Bunu biraz düşünmem lazım."]
+      },
+      suffix: [
+        " Kalbimle yazıyorum.",
+        " Ben sahte olamam.",
+        " Bunu sahnede söylemek istiyorum."
+      ],
+      ambient: {
+        low: [
+          "Selam, iyi misin? Bugün biraz durgunum, seni görmek iyi geldi.",
+          "Naber? Uzun zamandır yazışmadık."
+        ],
+        mid: [
+          "Yeni bir şey yazdım, kimseye dinletmedim. Sana açar mıyım bilmiyorum ama...",
+          "Bu aralar kafam çok dolu; yazmak iyi geliyor."
+        ],
+        high: [
+          "Sana bir şey söyleyeceğim: bu işi seninle yapmak isterim.",
+          "Sen beni anlıyorsun. Bu bana çok az insanda oluyor."
+        ]
+      },
+      cold: {
+        generic: ["Seni tanımıyorum... Kimsin?", "Yoğunum, kusura bakma."],
+        feature: ["Önce bir tanışalım, öyle feature konuşulur."],
+        money: ["Para işi erken."],
+        personal: ["Özel hayatımı açmam."],
+        insult: ["Böyle konuşma lütfen."],
+        flirt: ["Gerek yok."]
+      },
+      extras: [
+        "Bu arada senin işlerini dinliyorum, takipteyim.",
+        "Bir şey çıkarınca bana yolla, dinlerim.",
+        "Gerçek olan her şeyi severim.",
+        "Sahnede söylemek en büyük hayalim."
+      ],
+      followup: {
+        feature: {
+          yes: ["Tamam. Samimi olacaksa varım, gerçekten.", "Olur. Bir oturalım, telefonda olmaz."],
+          no: ["Peki, zorlamam. Hazır olunca yaz.", "Anladım, kendi akışında ilerle."]
+        },
+        music: {
+          yes: ["Süper. Bitince ilk sana dinleteceğim.", "Tamam, kulağını açık tut."],
+          no: ["Olur, herkesin damarı ayrı.", "Anladım."]
+        },
+        career: {
+          yes: ["İşte bu. Bugün bir şey yaz, sadece yaz.", "Doğru. Bana da böyle dediler, dinlemedim, iyi ki."],
+          no: ["Tamam, kendi yolun.", "Anladım, acele etme."]
+        },
+        hard: {
+          yes: ["Anlat, dinliyorum. Yargılamam.", "Burada güvendesin. Dök içini."],
+          no: ["Tamam, zorlamam. Ama kapım açık.", "Peki. İyi olduğunda yaz."]
+        }
+      },
+      reaction: {
+        praise: [
+          "\"{s}\" içime dokundu, gerçekten güzel olmuş 💔",
+          "\"{s}\" için @{p} gerçek bir şey yapmış, dinleyin.",
+          "\"{s}\" beni ağlattı, tebrikler @{p}."
+        ],
+        shade: [
+          "\"{s}\" olmamış; biraz daha gerçek olsa iyi olurdu.",
+          "\"{s}\" dinledim. Kalpten değil, kalıptan çıkmış.",
+          "@{p} daha iyisini yapabilir; \"{s}\" aceleye gelmiş."
+        ],
+        neutral: [
+          "\"{s}\" çıktı, dinleyin.",
+          "@{p} yeni bir iş atmış, bir bakın."
+        ]
+      },
+      diss: [
+        "@{t} senin derdin ne? Ben kimseye bulaşmadım.",
+        "@{t} lafla olmuyor; gel şarkıyla konuşalım.",
+        "@{t} için kalbimi bozmam; tek satır bile ayırmam."
+      ]
+    },
+
     /* ---- NORM ENDER → ilkeli, eleştirel, öğretici ---- */
     normender: {
       label: "ilkeli",
