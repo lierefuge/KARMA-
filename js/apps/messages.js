@@ -184,9 +184,20 @@
               K.phone.pushView(M.groupView(g.id));
             }
           }
-          else if (act === "offer-accept") { K.relations.respondOffer(el.dataset.arg, true); K.phone.reRender(); }
+          else if (act === "offer-accept") {
+            const res = K.relations.respondOffer(el.dataset.arg, true);
+            K.phone.reRender();
+            /* v10.53 — kabul edilen feature teklifi için stüdyoyu aç */
+            if (res && res.accepted && res.feature && K.careerUI && K.careerUI.openStudioModal) {
+              K.careerUI.openStudioModal({ featArtistId: res.artistId, featureTitle: res.title });
+            }
+          }
           else if (act === "offer-decline") { K.relations.respondOffer(el.dataset.arg, false); K.phone.reRender(); }
           else if (act === "offer-negotiate") { M.offerNegotiatePrompt(el.dataset.arg); }
+          else if (act === "open-studio") {
+            const d = K.relation(artistId).deal;
+            K.careerUI.openStudioModal({ featArtistId: artistId, featureTitle: d && d.songTitle });
+          }
         }
       };
       return view;
@@ -544,15 +555,20 @@
     collabPrompt(artistId) {
       const a = K.artistById(artistId);
       const body = K.ui.field("Proje adı", `<input id="cp-title" value="Ortak Proje: ${U.escape(a.stageName)}" />`) +
-        `<div style="font-size:11.5px;color:var(--text-2);line-height:1.6">Bütçe ${U.money(60000)}. Kabul ederse ${U.escape(a.stageName)} ile ortak EP (4 track) yayın sırasına eklenir.</div>`;
+        `<div style="font-size:11.5px;color:var(--text-2);line-height:1.6">Bütçe ${U.money(60000)}. Kabul ederse <b>stüdyo açılır</b> — ortak EP'yi (4 parça) sen hazırlarsın.</div>`;
       K.ui.modal({
         title: "Ortak Proje", desc: a.stageName + " ile EP düzeyinde iş birliği",
         body,
         actions: [
           { label: "Vazgeç" },
           { label: "Teklif Et", cls: "btn-primary", onClick: () => {
-            K.relations.proposeCollabProject(artistId, U.qs("#cp-title").value.trim());
+            const res = K.relations.proposeCollabProject(artistId, U.qs("#cp-title").value.trim());
             K.phone.reRender();
+            if (res && res.accepted && K.careerUI && K.careerUI.openStudioModal) {
+              K.ui.closeModal();
+              K.careerUI.openStudioModal({ featArtistId: artistId, featureTitle: res.title });
+              return false;
+            }
           }}
         ]
       });
@@ -620,9 +636,15 @@
           const acts = [];
           acts.push(`<button class="dm-chip" data-pact="gift">🎁 Hediye (${U.money(K.ECON.giftCost)})</button>`);
           if (canHangout) acts.push(`<button class="dm-chip gold" data-pact="hangout">🎉 Hangout Teklif Et</button>`);
-          if (canFeature) acts.push(`<button class="dm-chip gold" data-pact="feature">🎵 Feature Teklif Et</button>`);
-          if (K.relations.canCollabProject(artistId)) acts.push(`<button class="dm-chip gold" data-pact="collab">🎤 Ortak Proje (EP)</button>`);
+          /* v10.53 — bekleyen ortak iş varsa yeni feature/collab teklifi çıkmaz;
+             onun yerine stüdyoya dönüş düğmesi gösterilir. */
+          const _deal = K.relation(artistId).deal;
+          const dealBusy = !!(_deal && _deal.status !== "released" && (_deal.type === "feature" || _deal.type === "collab"));
+          if (canFeature && !dealBusy) acts.push(`<button class="dm-chip gold" data-pact="feature">🎵 Feature Teklif Et</button>`);
+          if (K.relations.canCollabProject(artistId) && !dealBusy) acts.push(`<button class="dm-chip gold" data-pact="collab">🎤 Ortak Proje (EP)</button>`);
           if (hasLabel && stage >= 5) acts.push(`<button class="dm-chip gold" data-pact="contract">🏢 Şirket Teklifi</button>`);
+          if (dealBusy && _deal.status === "agreed" && K.careerUI && K.careerUI.openStudioModal)
+            acts.push(`<button class="dm-chip gold" data-pact="open-studio">🎧 Ortak İşi Hazırla</button>`);
 
           const reach = K.relations.reach(artistId);
           const reachCls = reach >= 0.45 ? "money" : reach >= 0.2 ? "gold" : "hot";
@@ -710,8 +732,19 @@
           else if (act === "send-media") app.mediaPicker(artistId);
           else if (act === "send-voice") app.voicePicker(artistId);
           else if (act === "reply-cancel") { app._reply = null; K.phone.reRender(); }
-          else if (act === "offer-accept") { K.relations.respondOffer(el.dataset.arg, true); K.phone.reRender(); }
+          else if (act === "offer-accept") {
+            const res = K.relations.respondOffer(el.dataset.arg, true);
+            K.phone.reRender();
+            /* v10.53 — kabul edilen feature teklifi için stüdyoyu aç */
+            if (res && res.accepted && res.feature && K.careerUI && K.careerUI.openStudioModal) {
+              K.careerUI.openStudioModal({ featArtistId: res.artistId, featureTitle: res.title });
+            }
+          }
           else if (act === "offer-decline") { K.relations.respondOffer(el.dataset.arg, false); K.phone.reRender(); }
+          else if (act === "open-studio") {
+            const d = K.relation(artistId).deal;
+            K.careerUI.openStudioModal({ featArtistId: artistId, featureTitle: d && d.songTitle });
+          }
         }
       };
     },
@@ -903,15 +936,21 @@
     featurePrompt(artistId) {
       const a = K.artistById(artistId);
       const body = K.ui.field("Ortak şarkı adı önerisi", `<input id="ft-title" value="${U.escape(K.career.suggestTitle() + " (feat. " + a.stageName + ")")}" />`) +
-        `<div style="font-size:11.5px;color:var(--text-2);line-height:1.6">Stüdyo masrafı ${U.money(15000)}. ${U.escape(a.stageName)} kabul ederse şarkı yayın sırasına eklenir.</div>`;
+        `<div style="font-size:11.5px;color:var(--text-2);line-height:1.6">Stüdyo masrafı ${U.money(15000)}. ${U.escape(a.stageName)} kabul ederse <b>stüdyo açılır</b> — sözü, beat'i, kaliteyi ve çıkış tarihini sen belirlersin.</div>`;
       K.ui.modal({
         title: "Feature Teklifi", desc: a.stageName + " ile ortak şarkı",
         body,
         actions: [
           { label: "Vazgeç" },
           { label: "Teklif Et", cls: "btn-primary", onClick: () => {
-            K.relations.proposeFeature(artistId, U.qs("#ft-title").value.trim());
+            const res = K.relations.proposeFeature(artistId, U.qs("#ft-title").value.trim());
             K.phone.reRender();
+            /* v10.53 — anlaşıldıysa otomatik yayın yerine stüdyoyu aç */
+            if (res && res.accepted && K.careerUI && K.careerUI.openStudioModal) {
+              K.ui.closeModal();
+              K.careerUI.openStudioModal({ featArtistId: artistId, featureTitle: res.title });
+              return false;
+            }
           }}
         ]
       });
