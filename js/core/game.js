@@ -114,6 +114,8 @@
       if (K.label && K.label.dailyTick) K.label.dailyTick();
       if (K.label && K.label.playerContractTick) K.label.playerContractTick();
       if (K.social && K.social.dailyTick) K.social.dailyTick();
+      /* v10.58 — yaşayan endüstri: NPC ağı + dünya olayları + oyuncu yankısı */
+      if (K.industry && K.industry.tick) K.industry.tick();
       if (K.concerts && K.concerts.tick) K.concerts.tick();
       if (K.festivals && K.festivals.tick) K.festivals.tick();
       if (K.rollout && K.rollout.tick) K.rollout.tick();
@@ -568,6 +570,9 @@
       /* etki: küçük sanatçıda oransal sıçrama büyük, yıldızda küçük */
       const big = (a.popularity || 50) >= 75;
       let gain = big ? U.rand(0.04, 0.11) : U.rand(0.10, 0.32);
+      /* v10.58 — her yayın tutmaz: yaşayan endüstri katmanı ara sıra
+         "tutmayan iş" ya da "patlayan iş" sonucu uygular (deterministik). */
+      if (K.industry && K.industry.adjustNpcRelease) gain = K.industry.adjustNpcRelease(a, gain);
 
       /* OYUNCUNUN ŞİRKETİNDEYSE: gerçek destek.
          Şirket gücü + personel → daha büyük sıçrama; yani "kadroya
