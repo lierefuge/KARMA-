@@ -526,8 +526,19 @@
         const _grow = 0.0004 * (1 + (a.popularity || 50) / 100);
         a._base = a._base * (1 + _grow * Math.max(0, 1 - a._base / _cap));
         const drift = U.rand(-0.004, 0.006);
+        /* v10.61 — bu satır artık yalnızca geriye dönük uyum içindir;
+           birazdan monthly GERÇEK 28 günlük stream penceresinden türetilir. */
         a.monthly = Math.max(50000, Math.round(a._base * (1 + a._boost) * (1 + drift)));
-        a.streams = Math.round(a.streams + a.monthly / 30 * U.rand(0.6, 1.5));
+        /* ÖMÜR BOYU AKIŞ: v10.60 formülü BİREBİR korunur (yan etki yok). */
+        const _r = U.rand(0.6, 1.5);
+        a.streams = Math.round((a.streams || 0) + a.monthly / 30 * _r);
+        /* v10.61 — katalog günlük akışı (pencere için). Aynı RNG değeri
+           kullanılır; ortalama 1,0 olacak biçimde normalize edilir, yani
+           EK RNG çağrısı YOK ve akış sırası bozulmaz. */
+        const _npcDiv = (K.industry && K.industry.NPC_MONTHLY) ? K.industry.NPC_MONTHLY.CATALOG_DIV : 14;
+        const _catDaily = Math.max(1, Math.round((a._base || a.monthly) / _npcDiv * (_r / 1.05)));
+        /* v10.61 — flop sonrası kısa süreli katalog hasarı */
+        const _catAdj = (a._flopUntil && s.day <= a._flopUntil) ? 0.85 : 1;
         a.popularity = U.clamp(a.popularity + U.rand(-0.15, 0.22) + a._boost * 0.5, 30, 99);
         // sosyal
         a.ig = Math.round(a.ig + a.popularity * U.rand(0.1, 0.5));
@@ -538,6 +549,9 @@
         /* v10.60 — yayın sonrası dinlenme akışı (deterministik, RNG'siz).
            Release → günlük stream → sanatçı toplamı zincirini kurar. */
         if (K.industry && K.industry.decayReleaseStreams) K.industry.decayReleaseStreams(a);
+        /* v10.61 — 28 günlük pencere → NPC aylık dinleyici (yaşayan değer).
+           Katalog akışı da pencereye yazılır; monthly buradan türetilir. */
+        if (K.industry && K.industry.npcMonthlyTick) K.industry.npcMonthlyTick(a, _catDaily * _catAdj);
 
         /* --- YAYIN KADANSI --- */
         if (a._nextRelease == null) {
@@ -597,7 +611,10 @@
       }
       a._boost = Math.min(0.6, (a._boost || 0) + gain);
       a.popularity = U.clamp((a.popularity || 50) + (big ? U.rand(0.3, 1.1) : U.rand(0.6, 2.4)), 30, 99);
-      a.monthly = Math.round(a.monthly * (1 + gain));
+      /* v10.61 — ESKİDEN burada `a.monthly = a.monthly * (1 + gain)` ile
+         aylık dinleyici DOĞRUDAN yayın bonusuyla şişiyordu. O yapay
+         sıçrama kaldırıldı; aylık dinleyici artık applyNpcRelease içinde
+         28 günlük GERÇEK stream penceresinden türetiliyor. */
 
       /* sonraki yayına kadar: popüler sanatçı sık, diğeri seyrek */
       const gap = Math.round(U.rand(50, 150) * (1.7 - (a.popularity || 50) / 100));
