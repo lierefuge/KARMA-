@@ -325,7 +325,7 @@
       settings: {},
       /* v10.58 — YAŞAYAN ENDÜSTRİ: NPC–NPC ilişki ağı + dünya olayları.
          Ayrıntı: systems/industry.js */
-      industry: { released: {}, log: [], ties: {}, events: [], label: {}, awards: {}, momentum: 0, lastLabelOfferDay: 0, awardsDay: 0 },
+      industry: { released: {}, log: [], ties: {}, events: [], label: {}, awards: {}, momentum: 0, lastLabelOfferDay: 0, awardsDay: 0, memory: {}, memSum: {}, career: {}, history: [], notifDay: 0, notifCount: 0 },
       concerts: [],
       festivals: [],          // yaz festivali line-up kayıtları (systems/festivals.js)
       tour: null,
@@ -480,6 +480,12 @@
     if (state.industry) {
       copy.industry = Object.assign({}, state.industry);
       copy.industry.log = (copy.industry.log || []).slice(0, 12);
+      /* v10.59 — kota için hafıza/kariyer/tarih de kırpılır */
+      copy.industry.events = (copy.industry.events || []).slice(0, 10);
+      copy.industry.history = (copy.industry.history || []).slice(0, 20);
+      const _mem = {};
+      Object.keys(copy.industry.memory || {}).forEach(k => { _mem[k] = (copy.industry.memory[k] || []).slice(0, 6); });
+      copy.industry.memory = _mem;
     }
     return copy;
   }
@@ -645,6 +651,13 @@
         if (_ind.momentum == null) _ind.momentum = 0;
         if (_ind.lastLabelOfferDay == null) _ind.lastLabelOfferDay = 0;
         if (_ind.awardsDay == null) _ind.awardsDay = 0;
+        /* v10.59 — hafıza, kariyer ve sektör tarihi (eski kayıt göçü) */
+        _ind.memory = _ind.memory || {};
+        _ind.memSum = _ind.memSum || {};
+        _ind.career = _ind.career || {};
+        _ind.history = _ind.history || [];
+        if (_ind.notifDay == null) _ind.notifDay = 0;
+        if (_ind.notifCount == null) _ind.notifCount = 0;
       }
       K.state.chart = K.state.chart || [];
       K.state.chartRising = K.state.chartRising || [];
