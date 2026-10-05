@@ -5,6 +5,64 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.60 — NPC RELEASE → EKONOMİ ENTEGRASYONU
+
+v10.59'un üzerine inşa edilir; **hiçbir sistem yeniden yazılmadı**, mevcut
+UI/CSS/menü/denge korundu. Yeni test: `tools/smoke-v1060.js` (**76 kontrol**,
+16 senaryo). Sorun şuydu: NPC yayını oyuncunun dünyasından kopuk bir sayı
+sistemiydi — ilk stream hesaplanmıyor, flop'ta bile aylık dinleyici artıyor,
+NPC kendi şarkısıyla listeye giremiyor, trend/label/feature etkisi yoktu.
+
+### 1 · 🔗 Ortak release hattı
+NPC yayını artık oyuncunun kullandığı zinciri izler: **ilk stream → günlük
+akış → popülerlik → aylık dinleyici → chart → kariyer**. Tüm ek hesaplar
+deterministiktir; mevcut RNG akışı **bire bir korunur** (denge bozulmaz).
+
+### 2 · 🌊 İlk stream + günlük akış
+Aylık dinleyiciden günlük taban akış türetilir; kalite, momentum, trend, label,
+sosyal güç ve zamanlama ile modüle edilir. Akış her gün %7 söner ve sanatçının
+toplam stream'ine yazılır (60 gün / 200 dinlenme altı temizlenir).
+
+### 3 · 📈 Popülerlik + aylık dinleyici
+Hit popülerliği artırır, flop azaltır. Aylık dinleyici tabanı **yumuşakça**
+kayar (hit ×1,006 · flop ×0,988) — ani sıçrama yok, düşüş kalıcı ama ılımlı.
+
+### 4 · 🏆 Chart'ta gerçek rekabet
+NPC yayınları günlük dinlenmeye göre ulusal listeye **girer** (≥20.000/gün,
+≤45 gün). Böylece NPC hit'i oyuncunun sırasını aşağı itebilir, oyuncunun hit'i
+NPC'leri geriye itebilir. UI değişmedi — mevcut chart satırları kullanılır.
+
+### 5 · 🔥 Trend bağlantısı
+Sanatçının türü gündemdeyse yayın ivme kazanır (`TREND_TAGS`). Büyük NPC
+hit'leri ertesi gün gündeme **trend etiketi** olarak düşer.
+
+### 6 · 🏢 Label etkisi (garanti değil)
+Şirketin gücü + itibarı ilk görünürlüğü artırır (faktör 0,9–1,25). Güçlü label
+avantaj sağlar ama **başarıyı garanti etmez**; kaliteli iş zayıf label'da da patlar.
+
+### 7 · 🤝 Feature kitlesi
+Ortak iş, iki sanatçının kitlelerini birleştirir: ilk stream artar, iki taraftan
+takipçi akar. Feature ortağı artık **kimlik olarak** kaydedilir.
+
+### 8 · 📊 Kariyer geçmişi + yay
+Her yayın kariyer geçmişine **başlık · stream · sonuç** olarak yazılır
+(`releaseLog`, 10 kayıt). Hit/flop serileri mevcut `arcOf()` yaylarını besler.
+
+### 9 · 📱 Platforma özel sosyal etkileşim
+Gönderi artık ilgili platformun kitlesini kullanır: X→X, TikTok→TikTok,
+YouTube→abone, Instagram→IG. Veri yoksa güvenli geri dönüş.
+
+### 10 · ⚙️ Performans · save · determinizm
+Ağır iş yok (yalnızca yayın yapan sanatçı işlenir). Yeni alanlar `ensure()` ve
+`state.js` göç bloğuyla eski kayıtlara eklenir; `compactState` kırpar. Günlük
+simülasyon yolu **`Math.random()` kullanmaz**.
+
+### Doğrulama
+`npm run verify` — **45/45 adım**. Denge simülasyonu 0 yüksek / 0 orta bulgu.
+Build bayt bayt aynı; eski kayıtlar bozulmaz.
+
+---
+
 ## GÜNCELLEME v10.59 — ENDÜSTRİ HAFIZASI · NPC KARİYER · YAŞAYAN LABEL
 
 v10.58'in üzerine inşa edilir; hiçbir mevcut sistem yeniden yazılmadı. Yeni
