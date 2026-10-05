@@ -207,6 +207,8 @@
     if (K.dms && K.dms.ensure) K.dms.ensure();
     // v10.58 — yaşayan endüstri: NPC ilişki ağını kur, bus dinleyicilerini bağla
     if (K.industry && K.industry.init) K.industry.init();
+    // v10.59 — yaşayan label: şirket itibarlarını tohumla
+    if (K.labelSim && K.labelSim.init) K.labelSim.init();
     // ZOR MOD: sayısal değerler gizli
     document.body.classList.toggle("hide-values", !!(K.settings && K.settings.valuesHidden && K.settings.valuesHidden()));
     K.careerUI.init();
