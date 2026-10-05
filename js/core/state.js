@@ -325,7 +325,7 @@
       settings: {},
       /* v10.58 — YAŞAYAN ENDÜSTRİ: NPC–NPC ilişki ağı + dünya olayları.
          Ayrıntı: systems/industry.js */
-      industry: { released: {}, log: [], ties: {}, events: [], label: {}, awards: {}, momentum: 0, lastLabelOfferDay: 0, awardsDay: 0, memory: {}, memSum: {}, career: {}, history: [], notifDay: 0, notifCount: 0, lastRelease: {}, npcStreams: {} },
+      industry: { released: {}, log: [], ties: {}, events: [], label: {}, awards: {}, momentum: 0, lastLabelOfferDay: 0, awardsDay: 0, memory: {}, memSum: {}, career: {}, history: [], notifDay: 0, notifCount: 0, lastRelease: {}, npcStreams: {}, npcRel: {}, viral: {} },
       concerts: [],
       festivals: [],          // yaz festivali line-up kayıtları (systems/festivals.js)
       tour: null,
@@ -351,6 +351,11 @@
         affinity: a ? (a.affinityStart || 5) : 5,
         discovered: false,       // profil keşfedildi mi (affinity görünür mü)
         met: false,
+        /* v10.62 — TANIŞMA AŞAMASI: 0 tanımıyor · 1 ilk karşılaşma ·
+           2 tanışıyor · 3 iletişim · 4 düzenli etkileşim. İlişki
+           samimiyetten (affinity) bağımsız bir "geçmiş" katmanıdır. */
+        meetStage: 0,
+        metDay: 0,
         lastInteract: 0,
         interactions: 0,
         history: [],
@@ -394,7 +399,11 @@
     th.lastDay = s.day;
     delete s.dmRequests[artistId];
     const rel = K.relation(artistId);
-    if (rel) { rel.met = true; rel.discovered = true; }
+    if (rel) {
+      rel.met = true; rel.discovered = true;
+      /* v10.62 — istek kabulü bir TANIŞMAdır */
+      if (!rel.meetStage) { rel.meetStage = 1; rel.metDay = s.day; }
+    }
     return th;
   };
 
@@ -498,6 +507,11 @@
         _ns[k] = { last: w.last, vals: w.vals.slice(-14) };
       });
       copy.industry.npcStreams = _ns;
+      /* v10.62 — ilişki aşamaları ve viraller (kota için sınırla) */
+      const _nr = {};
+      Object.keys(copy.industry.npcRel || {}).slice(0, 400).forEach(k => { _nr[k] = copy.industry.npcRel[k]; });
+      copy.industry.npcRel = _nr;
+      copy.industry.viral = copy.industry.viral || {};
     }
     return copy;
   }
@@ -675,6 +689,9 @@
         /* v10.61 — NPC stream penceresi (eski kayıtta yok → boş;
            ilk erişimde mevcut monthly'den tohumlanır) */
         _ind.npcStreams = _ind.npcStreams || {};
+        /* v10.62 — NPC↔NPC ilişki aşamaları + viral olaylar (eski kayıt göçü) */
+        _ind.npcRel = _ind.npcRel || {};
+        _ind.viral = _ind.viral || {};
       }
       K.state.chart = K.state.chart || [];
       K.state.chartRising = K.state.chartRising || [];
