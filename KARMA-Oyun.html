@@ -7129,8 +7129,8 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.57.0";
-  K.VERSION_DATE = "2026-10-04";
+  K.VERSION = "10.58.0";
+  K.VERSION_DATE = "2026-10-05";
 })(window.K = window.K || {});
 
 </script>
@@ -11952,6 +11952,9 @@ window.K = window.K || {};
       /* --- genişletilmiş sistemler --- */
       history: [],
       settings: {},
+      /* v10.58 — YAŞAYAN ENDÜSTRİ: NPC–NPC ilişki ağı + dünya olayları.
+         Ayrıntı: systems/industry.js */
+      industry: { released: {}, log: [], ties: {}, events: [], label: {}, awards: {}, momentum: 0, lastLabelOfferDay: 0, awardsDay: 0 },
       concerts: [],
       festivals: [],          // yaz festivali line-up kayıtları (systems/festivals.js)
       tour: null,
@@ -12258,6 +12261,20 @@ window.K = window.K || {};
       if (K.state.pendingCatalogOffer === undefined) K.state.pendingCatalogOffer = null;
       if (K.state.catalogSold === undefined) K.state.catalogSold = false;
       K.state.notifications = K.state.notifications || [];
+      /* v10.58 — YAŞAYAN ENDÜSTRİ alanları (eski kayıt göçü) */
+      K.state.industry = K.state.industry || {};
+      {
+        const _ind = K.state.industry;
+        _ind.released = _ind.released || {};
+        _ind.log = _ind.log || [];
+        _ind.ties = _ind.ties || {};
+        _ind.events = _ind.events || [];
+        _ind.label = _ind.label || {};
+        _ind.awards = _ind.awards || {};
+        if (_ind.momentum == null) _ind.momentum = 0;
+        if (_ind.lastLabelOfferDay == null) _ind.lastLabelOfferDay = 0;
+        if (_ind.awardsDay == null) _ind.awardsDay = 0;
+      }
       K.state.chart = K.state.chart || [];
       K.state.chartRising = K.state.chartRising || [];
       K.state.albumChart = K.state.albumChart || [];
@@ -12413,6 +12430,8 @@ window.K = window.K || {};
       if (K.label && K.label.dailyTick) K.label.dailyTick();
       if (K.label && K.label.playerContractTick) K.label.playerContractTick();
       if (K.social && K.social.dailyTick) K.social.dailyTick();
+      /* v10.58 — yaşayan endüstri: NPC ağı + dünya olayları + oyuncu yankısı */
+      if (K.industry && K.industry.tick) K.industry.tick();
       if (K.concerts && K.concerts.tick) K.concerts.tick();
       if (K.festivals && K.festivals.tick) K.festivals.tick();
       if (K.rollout && K.rollout.tick) K.rollout.tick();
@@ -12867,6 +12886,9 @@ window.K = window.K || {};
       /* etki: küçük sanatçıda oransal sıçrama büyük, yıldızda küçük */
       const big = (a.popularity || 50) >= 75;
       let gain = big ? U.rand(0.04, 0.11) : U.rand(0.10, 0.32);
+      /* v10.58 — her yayın tutmaz: yaşayan endüstri katmanı ara sıra
+         "tutmayan iş" ya da "patlayan iş" sonucu uygular (deterministik). */
+      if (K.industry && K.industry.adjustNpcRelease) gain = K.industry.adjustNpcRelease(a, gain);
 
       /* OYUNCUNUN ŞİRKETİNDEYSE: gerçek destek.
          Şirket gücü + personel → daha büyük sıçrama; yani "kadroya
@@ -23903,6 +23925,649 @@ window.K = window.K || {};
     }
   };
 })(window.K);
+
+</script>
+  <script>
+/* ==== js/systems/industry.js ==== */
+/* ============================================================
+   KARMA — systems/industry.js   (v10.58 · YAŞAYAN ENDÜSTRİ)
+   NPC–NPC ilişki ağı + sanatçı kariyer olayları + oyuncu etkisi.
+
+   NEDEN AYRI DOSYA?
+   -----------------
+   Mevcut sistemler dünyayı zaten canlandırıyordu ama PARÇA PARÇA:
+     · game.accrueArtistWorld  → her sanatçı kendi kadansıyla yayın yapar
+     · social.js               → NPC'ler kendi sesiyle paylaşım yapar
+     · npcmind.js / routine.js → NPC'nin iç durumu (ruh hali, rutin)
+     · beef.js / rivalry.js    → OYUNCU ile sanatçı arasındaki gerilim
+   Eksik olan halka şuydu: sanatçıların BİRBİRİYLE olan ilişkisi ve
+   kariyerlerinin oyuncudan bağımsız akışı. Yani:
+
+     · Kim kimin dostu, kim kimin rakibi? (kalıcı bir ağ)
+     · İki NPC birbirine feature yapar mı, şirket değiştirir mi,
+       konser verir mi, bir işi tutmaz mı, ödül alır mı?
+     · Oyuncunun bir hamlesi (feature / husumet) bu ağda nasıl yankılanır?
+
+   Bu dosya o ağı kurar, olayları üretir ve oyuncunun eylemlerini
+   dünyaya bağlar. Amaç: oyuncu hiçbir şey yapmasa da sektör yaşasın.
+
+   TASARIM İLKESİ — DETERMİNİZM (önemli!)
+   --------------------------------------
+   Bu modül günlük akışta Math.random() KULLANMAZ. Tüm kararlar
+   (sanatçı, gün) ikilisinden türeyen kendi hash'li RNG'siyle verilir.
+   Nedeni: mevcut sistemlerin RNG akışını kaydırmamak. Denge/kariyer
+   testleri aynı tohumla aynı eğriyi bekler; buraya Math.random()
+   serpiştirmek o eğriyi sessizce kaydırırdı. Oyuncunun doğrudan
+   tetiklediği yollar (feature/husumet) ise zaten oyun dışı test
+   senaryolarında çalışmadığı için orada serbestçe K API'leri kullanılır.
+
+   KALICILIK
+   ---------
+   Tüm ağ ve olay geçmişi `state.industry` altında yaşar ve kayıtla
+   birlikte yazılır. Eski kayıtlar için state.js göç bloğu varsayılan
+   üretir; `ensure()` her alanı savunmacı biçimde tamamlar.
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  const U = K.util;
+
+  /* ---------- deterministik karma (npcmind.js ile aynı desen) ---------- */
+  function hash(str) {
+    let h = 2166136261;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return (h >>> 0);
+  }
+  const frac = (str) => (hash(str) % 100000) / 100000;         // 0-1
+  const hChance = (seed, p) => frac(seed) < p;
+  function hPick(seed, arr) {
+    if (!arr || !arr.length) return null;
+    return arr[Math.floor(frac(seed) * arr.length) % arr.length];
+  }
+
+  /* olay türleri — arayüz ve akış bunları ikonla gösterir */
+  const KINDS = {
+    feature:       { icon: "🎤", label: "Ortak iş" },
+    label:         { icon: "🏢", label: "Şirket" },
+    concert:       { icon: "🎫", label: "Konser" },
+    tension:       { icon: "⚡", label: "Gerilim" },
+    flop:          { icon: "📉", label: "Tutmayan iş" },
+    hit:           { icon: "🔥", label: "Patlayan iş" },
+    award:         { icon: "🏆", label: "Ödül" },
+    player_feature:{ icon: "🤝", label: "Ortak işin" },
+    player_beef:   { icon: "💥", label: "Husumet" }
+  };
+
+  K.industry = {
+
+    KINDS: KINDS,
+
+    /* ============================================================
+       ENSURE — her alanı güvence altına al (eski kayıt uyumu)
+       ============================================================ */
+    ensure() {
+      const s = K.state;
+      if (!s) return { released: {}, log: [], ties: {}, events: [], label: {}, awards: {}, momentum: 0, lastLabelOfferDay: 0, awardsDay: 0 };
+      s.industry = s.industry || {};
+      const I = s.industry;
+      I.released = I.released || {};
+      I.log = I.log || [];
+      I.ties = I.ties || {};
+      I.events = I.events || [];
+      I.label = I.label || {};
+      I.awards = I.awards || {};
+      if (I.momentum == null) I.momentum = 0;
+      if (I.lastLabelOfferDay == null) I.lastLabelOfferDay = 0;
+      if (I.awardsDay == null) I.awardsDay = 0;
+      return I;
+    },
+
+    /* ============================================================
+       INIT — ağı kur, bus dinleyicilerini bağla (idempotent)
+       ============================================================ */
+    init() {
+      K.industry.ensure();
+      K.industry._seedTies();
+      if (K.industry._inited) return;
+      K.industry._inited = true;
+      /* Oyuncunun feature'lı yayını yayınlanır yayınlanmaz sektöre yayılır.
+         (game.advanceReleases → K.bus.emit("release:published")) */
+      if (K.bus && K.bus.on) {
+        K.bus.on("release:published", (song) => {
+          try { if (song && song.featWith) K.industry.onPlayerRelease(song); } catch (e) {}
+        });
+      }
+    },
+
+    /* ============================================================
+       İLİŞKİ AĞI (ties)
+       Her sanatçının `friend` ve `rival` ağırlık haritaları vardır.
+       Kenarlar ÇİFT YÖNLÜ yazılır (a→b ve b→a aynı ağırlık).
+       ============================================================ */
+    tiesFor(artistId) {
+      const I = K.industry.ensure();
+      if (!I.ties[artistId]) I.ties[artistId] = { friend: {}, rival: {} };
+      const t = I.ties[artistId];
+      t.friend = t.friend || {};
+      t.rival = t.rival || {};
+      return t;
+    },
+
+    relationship(aId, bId) {
+      const t = K.industry.tiesFor(aId);
+      return { friend: (t.friend[bId] || 0), rival: (t.rival[bId] || 0) };
+    },
+
+    setTie(aId, bId, kind, delta) {
+      if (!aId || !bId || aId === bId) return;
+      const I = K.industry.ensure();
+      const mk = (x) => (I.ties[x] = I.ties[x] || { friend: {}, rival: {} });
+      const A = mk(aId), B = mk(bId);
+      A.friend = A.friend || {}; A.rival = A.rival || {};
+      B.friend = B.friend || {}; B.rival = B.rival || {};
+      const cl = (w) => U.clamp(w, 0, 10);
+      if (kind === "friend") {
+        A.friend[bId] = cl((A.friend[bId] || 0) + delta);
+        B.friend[aId] = A.friend[bId];
+        A.rival[bId] = cl((A.rival[bId] || 0) - delta * 0.5);
+        B.rival[aId] = A.rival[bId];
+      } else {
+        A.rival[bId] = cl((A.rival[bId] || 0) + delta);
+        B.rival[aId] = A.rival[bId];
+        A.friend[bId] = cl((A.friend[bId] || 0) - delta * 0.5);
+        B.friend[aId] = A.friend[bId];
+      }
+    },
+
+    friendsOf(artistId, n) {
+      const t = K.industry.tiesFor(artistId);
+      return Object.keys(t.friend)
+        .map(id => ({ id, w: t.friend[id], artist: K.artistById(id) }))
+        .filter(x => x.artist && x.w > 0)
+        .sort((a, b) => b.w - a.w)
+        .slice(0, n || 3);
+    },
+
+    rivalsOf(artistId, n) {
+      const t = K.industry.tiesFor(artistId);
+      return Object.keys(t.rival)
+        .map(id => ({ id, w: t.rival[id], artist: K.artistById(id) }))
+        .filter(x => x.artist && x.w > 0)
+        .sort((a, b) => b.w - a.w)
+        .slice(0, n || 3);
+    },
+
+    /* ---- ağı bir kez tohumla: tür/şirket yakınlığı dostluk ya da
+       rekabet doğurur. Deterministik; kayıtta zaten varsa tekrar çalışmaz. */
+    _seedTies() {
+      const I = K.industry.ensure();
+      if (I._tiesSeeded) return;
+      const artists = K.artistList().filter(a => a && !a.mergedInto);
+      if (!artists.length) return;
+      artists.forEach(a => { if (!I.ties[a.id]) I.ties[a.id] = { friend: {}, rival: {} }; });
+
+      for (let i = 0; i < artists.length; i++) {
+        const a = artists[i];
+        for (let j = i + 1; j < artists.length; j++) {
+          const b = artists[j];
+          const seed = "tie|" + a.id + "|" + b.id;
+          const sameGenre = a.genre && a.genre === b.genre;
+          const sameLabel = a.labelId && a.labelId === b.labelId;
+          const r = frac(seed);
+          let kind = null, w = 0;
+          if (sameLabel) { kind = "friend"; w = 1.5 + frac(seed + "w") * 2.2; }
+          else if (sameGenre && r > 0.62) { kind = "friend"; w = 0.8 + frac(seed + "w") * 1.6; }
+          else if (sameGenre && r < 0.22) { kind = "rival"; w = 0.8 + frac(seed + "w") * 1.9; }
+          else if (!sameGenre && r < 0.06) { kind = "rival"; w = 0.6 + frac(seed + "w") * 1.2; }
+          if (kind) K.industry.setTie(a.id, b.id, kind, w);
+        }
+      }
+      I._tiesSeeded = true;
+    },
+
+    /* ---- kenar listeleri (ağırlıklı seçim için) ---- */
+    _edges(kind) {
+      const I = K.industry.ensure();
+      const out = [];
+      Object.keys(I.ties).forEach(a => {
+        const map = I.ties[a] && I.ties[a][kind];
+        if (!map) return;
+        Object.keys(map).forEach(b => {
+          if (a < b && map[b] > 0) out.push([a, b, map[b]]);
+        });
+      });
+      return out;
+    },
+
+    _pickPair(seed, kind) {
+      const edges = K.industry._edges(kind);
+      if (!edges.length) return null;
+      const total = edges.reduce((s, e) => s + e[2], 0);
+      let r = frac(seed) * total;
+      let chosen = edges[edges.length - 1];
+      for (const e of edges) { r -= e[2]; if (r <= 0) { chosen = e; break; } }
+      const a = K.artistById(chosen[0]), b = K.artistById(chosen[1]);
+      return a && b ? [a, b] : null;
+    },
+
+    /* ============================================================
+       OLAY KAYDI + BİLDİRİM
+       ============================================================ */
+    _event(kind, text, opts) {
+      const I = K.industry.ensure();
+      opts = opts || {};
+      const ev = {
+        day: K.state.day, kind: kind, icon: (KINDS[kind] || {}).icon || "•",
+        text: text, artistId: opts.artistId || null,
+        important: !!opts.important, player: !!opts.player
+      };
+      I.events.unshift(ev);
+      I.events = I.events.slice(0, 18);
+      return ev;
+    },
+
+    events(n) {
+      const I = K.industry.ensure();
+      return I.events.slice(0, n || 14);
+    },
+
+    /* öncelikli bildirim: priority >= 2 ise gün özetine de düşer.
+       Aynı gün aynı bildirim tekrarlanmaz (spam engeli). */
+    notify(title, msg, kind, priority) {
+      const s = K.state;
+      if (!s) return;
+      s.notifications = s.notifications || [];
+      if (s.notifications.some(n => n.day === s.day && n.title === title && n.msg === msg)) return;
+      s.notifications.push({ title, msg, kind: kind || "", day: s.day, priority: priority || 0 });
+      s.notifications = s.notifications.slice(-60);
+      if ((priority || 0) >= 2 && K.toast) K.toast(title, msg, kind || "");
+    },
+
+    /* ============================================================
+       SOSYAL GÖNDERİ (deterministik etkileşim)
+       ============================================================ */
+    _eng(followers, seed) {
+      const rate = 0.018 + frac("eng|" + seed) * 0.045;
+      const likes = Math.round(Math.max(0, followers || 0) * rate);
+      return {
+        likes,
+        comments: Math.round(likes * (0.015 + frac("c|" + seed) * 0.03)),
+        shares: Math.round(likes * (0.006 + frac("sh|" + seed) * 0.02))
+      };
+    },
+
+    _post(a, platform, text, opts) {
+      if (!a) return null;
+      const s = K.state;
+      opts = opts || {};
+      const salt = opts.salt || "0";
+      const eng = K.industry._eng(a.ig || 0, a.id + "|" + platform + "|" + s.day + "|" + salt);
+      const post = {
+        id: "ind_" + a.id + "_" + s.day + "_" + platform + "_" + salt,
+        platform: platform,
+        authorId: a.id, authorName: a.stageName,
+        text: text, day: s.day,
+        likes: eng.likes, comments: eng.comments, shares: eng.shares,
+        songId: null, songTitle: opts.songTitle || null, art: opts.art || null,
+        mine: false, industry: true
+      };
+      (s.feed[platform] = s.feed[platform] || []).unshift(post);
+      s.feed[platform] = s.feed[platform].slice(0, 60);
+      return post;
+    },
+
+    /* ============================================================
+       NPC OLAYLARI
+       ============================================================ */
+    _npcFeature(a, b) {
+      const I = K.industry.ensure();
+      const boost = 0.05 + frac("fb|" + a.id + b.id + K.state.day) * 0.06;
+      a._boost = Math.min(0.6, (a._boost || 0) + boost);
+      b._boost = Math.min(0.6, (b._boost || 0) + boost);
+      a.popularity = U.clamp((a.popularity || 50) + 0.4, 30, 99);
+      b.popularity = U.clamp((b.popularity || 50) + 0.4, 30, 99);
+      a.monthly = Math.round(a.monthly * (1 + boost));
+      b.monthly = Math.round(b.monthly * (1 + boost));
+      K.industry.setTie(a.id, b.id, "friend", 1.5);
+
+      K.industry._event("feature", `🎤 ${a.stageName} ile ${b.stageName} ortak iş yaptı`, { artistId: a.id });
+      K.industry._post(a, "instagram", `${b.stageName} ile stüdyodan yeni bir iş çıktı 🎧`, { salt: "feat" });
+      K.industry._post(b, "x", `"${a.stageName}" ile ortak iş yayında. Dinleyin.`, { salt: "feat" });
+
+      const onRoster = K.state.label && (a.labelId === "my_label" || b.labelId === "my_label");
+      if (onRoster) {
+        K.industry.notify("🎤 Şirket ortak işi", `${a.stageName} ve ${b.stageName} ortak iş yaptı — kadron hareketli.`, "ok", 2);
+      }
+    },
+
+    _npcLabelChange(a) {
+      const I = K.industry.ensure();
+      const labels = (K.LABELS || []).filter(l => l.id !== a.labelId);
+      if (!labels.length) return;
+      /* hedef şirket: sanatçının seviyesine yakın güçte olanlar daha olası */
+      const pop = a.popularity || 50;
+      const weighted = labels.slice().sort((x, y) =>
+        Math.abs(x.power - pop) - Math.abs(y.power - pop));
+      const pick = hPick("lblchg|" + a.id + "|" + K.state.day, weighted.slice(0, 4));
+      if (!pick) return;
+      const old = a.labelId ? K.labelById(a.labelId) : null;
+      a.labelId = pick.id;
+      K.industry.setTie(a.id, a.id, "friend", 0);   // no-op (güvenlik)
+
+      const verb = old ? `${old.name}'dan ayrılıp ${pick.name}'a geçti` : `${pick.name} ile anlaştı`;
+      K.industry._event("label", `🏢 ${a.stageName}, ${verb}`, { artistId: a.id, important: (a.popularity || 0) >= 75 });
+      K.industry._post(a, "instagram", `Yeni bir sayfa açılıyor. ${pick.name} ailesine katıldım 🖤`, { salt: "label" });
+      if ((a.popularity || 0) >= 75) {
+        K.industry.notify("🏢 Transfer", `${a.stageName} ${pick.name}'a geçti.`, "", 1);
+      }
+    },
+
+    _npcConcert(a) {
+      const s = K.state;
+      const boost = 0.02 + frac("con|" + a.id + "|" + s.day) * 0.03;
+      a._boost = Math.min(0.6, (a._boost || 0) + boost);
+      a.popularity = U.clamp((a.popularity || 50) + 0.2, 30, 99);
+      const cities = (K.concerts && K.concerts.CITIES) ? K.concerts.CITIES.map(c => c.name) : ["İstanbul", "Ankara", "İzmir"];
+      const city = hPick("city|" + a.id + "|" + s.day, cities) || "İstanbul";
+      K.industry._event("concert", `🎫 ${a.stageName}, ${city}'de konser duyurdu`, { artistId: a.id });
+      K.industry._post(a, "tiktok", `${city} sahnesi hazır 🎤 Biletler satışta.`, { salt: "concert" });
+    },
+
+    _npcTension(a, b) {
+      K.industry.setTie(a.id, b.id, "rival", 2);
+      a.popularity = U.clamp((a.popularity || 50) + 0.2, 30, 99);
+      b.popularity = U.clamp((b.popularity || 50) + 0.2, 30, 99);
+      K.industry._event("tension", `⚡ ${a.stageName} ile ${b.stageName} arasında gerilim var`, { artistId: a.id });
+      K.industry._post(a, "x", "Bazı şeyler söylenmez, yapılır.", { salt: "tension" });
+      K.industry._post(b, "x", "Kimseye bir şey ispat etmek zorunda değilim.", { salt: "tension" });
+      if ((a.popularity || 0) >= 80 || (b.popularity || 0) >= 80) {
+        K.industry.notify("⚡ Sektörde gerilim", `${a.stageName} ile ${b.stageName} arasında bir gerginlik konuşuluyor.`, "", 1);
+      }
+    },
+
+    /* ============================================================
+       NPC YAYIN SONUCU — başarı/başarısızlık çeşitliliği
+       game.npcRelease buradan geçirir. Deterministik; Math.random yok.
+       ============================================================ */
+    adjustNpcRelease(a, gain) {
+      if (!a || gain == null) return gain;
+      const seed = "rel|" + a.id + "|" + K.state.day;
+      const r = frac(seed);
+      if (r < 0.22) {
+        /* TUTMAYAN İŞ: nadiren bir yayın bekleneni vermez */
+        const f = 0.18 + frac(seed + "f") * 0.35;
+        a.popularity = U.clamp((a.popularity || 50) - (0.3 + frac(seed + "fp") * 0.5), 30, 99);
+        K.industry._event("flop", `📉 ${a.stageName}'in yeni işi bekleneni vermedi`, { artistId: a.id });
+        K.industry._post(a, "x", "Bazen iş tutmaz. Yola devam.", { salt: "flop" });
+        return gain * f;
+      }
+      if (r > 0.88) {
+        /* PATLAYAN İŞ */
+        a.popularity = U.clamp((a.popularity || 50) + (0.4 + frac(seed + "hp") * 0.8), 30, 99);
+        K.industry._event("hit", `🔥 ${a.stageName}'in yeni işi patladı`, { artistId: a.id, important: (a.popularity || 0) >= 75 });
+        return gain * (1.4 + frac(seed + "h") * 0.6);
+      }
+      return gain * (0.9 + frac(seed + "n") * 0.2);
+    },
+
+    /* ============================================================
+       ÖDÜL TÖRENİ KAYDI
+       awards.js töreni çalıştırır; burada kazanan NPC'ler sanatçı
+       kariyerine yazılır (kim kaç ödül aldı).
+       ============================================================ */
+    _recordAwards() {
+      const I = K.industry.ensure();
+      const s = K.state;
+      const hist = s.awards && s.awards.history && s.awards.history[0];
+      if (!hist || !hist.day) return;
+      if (I.awardsDay === hist.day) return;
+      I.awardsDay = hist.day;
+      (hist.results || []).forEach(r => {
+        if (r.won) return;
+        const a = K.resolveArtistByName && K.resolveArtistByName(r.winner);
+        if (!a) return;
+        I.awards[a.id] = (I.awards[a.id] || 0) + 1;
+        K.industry._event("award", `🏆 ${a.stageName}, "${r.cat}" ödülünü kazandı`, { artistId: a.id, important: (a.popularity || 0) >= 75 });
+      });
+    },
+
+    /* ============================================================
+       OYUNCU → DÜNYA: feature yayını
+       Şarkı yayınlandığında feature partnerinin kitlesi akar,
+       partnerin dostları över, rakipleri laf atar, sektör görür.
+       ============================================================ */
+    onPlayerRelease(song) {
+      if (!song || song._indFeature) return null;
+      song._indFeature = true;
+      const s = K.state, p = s.player;
+      const b = K.artistById(song.featWith);
+      if (!b) return null;
+      const I = K.industry.ensure();
+
+      /* 1) KİTLE AKTARIMI — partnerin kitlesinden bir bölümü gelir */
+      song.boosts = song.boosts || {};
+      const key = "feat_" + b.id;
+      song.boosts[key] = (song.boosts[key] || 0) + 0.35;
+      song.featBoost = (song.featBoost || 0) + 0.35;
+
+      const igGain = Math.round((b.ig || 0) * 0.0025 + Math.min(120000, (b.monthly || 0) * 0.006) * 0.02);
+      p.ig = Math.round((p.ig || 0) + igGain);
+      p.tiktok = Math.round((p.tiktok || 0) + (b.tiktok || 0) * 0.003);
+      p.x = Math.round((p.x || 0) + (b.x || 0) * 0.002);
+      p.ytSubs = Math.round((p.ytSubs || 0) + (b.ytSubs || 0) * 0.0015);
+
+      /* 2) İLİŞKİ + SEKTÖR MOMENTUMU */
+      if (K.relations && K.relations.addAffinity) {
+        K.relations.addAffinity(b.id, 3, "feat_yayin", { uncapped: true });
+      }
+      I.momentum = U.clamp((I.momentum || 0) + 0.35, 0, 1);
+
+      /* 3) AĞ TEPKİSİ — dostlar över, rakipler gönderme yapar */
+      K.industry._reactNetwork(b, song, "friend", 2, "praise");
+      K.industry._reactNetwork(b, song, "rival", 1, "shade");
+
+      /* 4) PARTNERİN KENDİ PAYLAŞIMI */
+      K.industry._post(b, "instagram", `"${song.title}" birlikte çıktı — dinleyin 🎧`, { salt: "mine", songTitle: song.title });
+      K.industry._post(b, "x", `"${song.title}" yayında. Emeğe saygı.`, { salt: "mine", songTitle: song.title });
+
+      /* 5) OLAY + BİLDİRİM + TREND */
+      K.industry._event("player_feature", `🤝 ${b.stageName} ile "${song.title}" ortak işin sektörde yankı buldu`,
+        { artistId: b.id, important: true, player: true });
+      K.industry.notify("🤝 Ortak iş yankılandı", `${b.stageName} kitlesi "${song.title}" işine akın etti.`, "ok", 2);
+      s.trends = s.trends || [];
+      s.trends.unshift({ tag: "#" + String(song.title).replace(/\s+/g, ""), count: 40000 + Math.round((b.popularity || 50) * 5000), mine: true });
+      s.trends = s.trends.slice(0, 8);
+
+      if (K.save) K.save();
+      return { partnerId: b.id, igGain: igGain };
+    },
+
+    /* ağdaki bir sanatçının dostları/rakipleri üzerinden tepki üret */
+    _reactNetwork(center, song, kind, n, tone) {
+      const list = kind === "friend" ? K.industry.friendsOf(center.id, n) : K.industry.rivalsOf(center.id, n);
+      const pool = list.length ? list : (kind === "friend"
+        ? [{ artist: hPick("np|" + center.id, K.artistList().filter(x => x.id !== center.id)) }]
+        : []);
+      pool.forEach((x, i) => {
+        const a = x.artist;
+        if (!a) return;
+        const text = tone === "praise"
+          ? `"${song.title}" güzel olmuş, tebrikler.`
+          : `"${song.title}" bana pek geçmedi, ama herkesin zevki farklı.`;
+        K.industry._post(a, i % 2 ? "x" : "instagram", text, { salt: "react" + i, songTitle: song.title });
+        if (K.relations && K.relations.addAffinity && tone === "praise") {
+          K.relations.addAffinity(a.id, 0.8, "feat_dost_tepki");
+        }
+      });
+    },
+
+    /* ============================================================
+       OYUNCU → DÜNYA: husumet
+       Hedefin dostları tavır alır, rakipleri mesafeyi sever.
+       ============================================================ */
+    onPlayerBeef(artistId) {
+      const target = K.artistById(artistId);
+      if (!target) return null;
+      const I = K.industry.ensure();
+      const friends = K.industry.friendsOf(artistId, 4);
+      const rivals = K.industry.rivalsOf(artistId, 3);
+
+      friends.forEach((f, i) => {
+        if (!f.artist) return;
+        if (K.relations && K.relations.addAffinity) K.relations.addAffinity(f.id, -1.5, "dostuna_husumet");
+        K.industry._post(f.artist, i % 2 ? "x" : "instagram", `${target.stageName}'a yapılanı görmezden gelemeyiz.`, { salt: "beef" });
+      });
+      rivals.forEach((r, i) => {
+        if (!r.artist) return;
+        if (K.relations && K.relations.addAffinity) K.relations.addAffinity(r.id, 1, "rakip_husumet");
+        K.industry._post(r.artist, i % 2 ? "x" : "instagram", "Bazı tartışmalar kendiliğinden çözülür.", { salt: "beef" });
+      });
+
+      I.momentum = U.clamp((I.momentum || 0) - 0.1, 0, 1);
+      K.industry._event("player_beef", `💥 Sektör, ${target.stageName} ile gerginliğini konuşuyor`,
+        { artistId: artistId, important: true, player: true });
+      K.industry.notify("💥 Husumet yankısı",
+        `${target.stageName}'ın çevresi tavır aldı; sektör konuşuyor.`, "warn", 2);
+      if (K.save) K.save();
+      return { friends: friends.length, rivals: rivals.length };
+    },
+
+    /* ============================================================
+       TEKLİF EKONOMİSİ — sektör momentumu şirket ilgisine dönüşür
+       Yalnızca oyuncunun büyük hamlelerinden gelen momentumda çalışır;
+       normal oynayışta relations.dailyTick zaten teklif üretir.
+       ============================================================ */
+    labelInterest() {
+      const I = K.industry.ensure();
+      return U.clamp(I.momentum || 0, 0, 1);
+    },
+
+    _pickLabelForPlayer() {
+      const p = K.state.player;
+      const pop = p.popularity || 0;
+      const all = (K.LABELS || []).filter(l => l.id !== p.labelId);
+      if (!all.length) return null;
+      let pool;
+      if (pop >= 55) pool = all.filter(l => l.power >= 74);            // major
+      else if (pop >= 35) pool = all.filter(l => l.power >= 66 && l.power < 84); // büyük
+      else pool = all.filter(l => l.power < 74);                       // bağımsız/orta
+      if (!pool.length) pool = all;
+      const pick = hPick("lbloffer|" + K.state.day + "|" + Math.round(pop), pool);
+      return pick ? pick.id : null;
+    },
+
+    _maybeLabelOffer() {
+      const s = K.state, p = s.player;
+      const I = K.industry.ensure();
+      if (s.label || p.labelId) return;
+      if ((I.momentum || 0) < 0.6) return;
+      if (s.day - (I.lastLabelOfferDay || 0) < 75) return;
+      if ((s.offers || []).some(o => o.type === "label" && o.status === "pending")) return;
+      if ((p.popularity || 0) < 22) return;
+      const labelId = K.industry._pickLabelForPlayer();
+      if (!labelId) return;
+      I.lastLabelOfferDay = s.day;
+      I.momentum = U.clamp(I.momentum - 0.5, 0, 1);
+      if (K.relations && K.relations.createLabelSignsPlayerOffer) {
+        K.relations.createLabelSignsPlayerOffer(labelId);
+      }
+    },
+
+    /* ============================================================
+       GÜNLÜK TICK — dünya oyuncuyu beklemeden ilerler
+       ============================================================ */
+    tick() {
+      const s = K.state;
+      if (!s || !s.player) return;
+      K.industry.init();
+      const I = K.industry.ensure();
+      const day = s.day;
+
+      /* momentum yavaşça söner (bir hamlenin etkisi kalıcı değil) */
+      I.momentum = U.clamp((I.momentum || 0) * 0.94, 0, 1);
+
+      const artists = K.artistList().filter(a => a && !a.mergedInto);
+      if (!artists.length) return;
+
+      /* 1) yayınlanmış feature'lı işler (yedek tarama — eski kayıtlar) */
+      (s.player.songs || []).forEach(song => {
+        if (song.featWith && !song._indFeature) K.industry.onPlayerRelease(song);
+      });
+
+      /* 2) oyuncunun husumetleri (beef.js kaydı) */
+      Object.keys(s.beefs || {}).forEach(id => {
+        const b = s.beefs[id];
+        if (b && !b._indSeen) { b._indSeen = true; K.industry.onPlayerBeef(id); }
+      });
+
+      /* 3) ödül töreni kazananları */
+      K.industry._recordAwards();
+
+      /* 4) günlük NPC olayları — günde en çok 2 (gündem boğulmasın) */
+      let fired = 0;
+      const MAX = 2;
+
+      if (fired < MAX && hChance("ind|feat|" + day, 0.16)) {
+        const pair = K.industry._pickPair("ind|feat|" + day, "friend");
+        if (pair) { K.industry._npcFeature(pair[0], pair[1]); fired++; }
+      }
+      if (fired < MAX && hChance("ind|lbl|" + day, 0.06)) {
+        const a = hPick("ind|lbl|" + day, artists.filter(x => x.labelId !== "my_label"));
+        if (a) { K.industry._npcLabelChange(a); fired++; }
+      }
+      if (fired < MAX && hChance("ind|con|" + day, 0.18)) {
+        const a = hPick("ind|con|" + day, artists);
+        if (a) { K.industry._npcConcert(a); fired++; }
+      }
+      if (fired < MAX && hChance("ind|ten|" + day, 0.07)) {
+        const pair = K.industry._pickPair("ind|ten|" + day, "rival");
+        if (pair) { K.industry._npcTension(pair[0], pair[1]); fired++; }
+      }
+
+      /* 5) momentumdan şirket ilgisi */
+      K.industry._maybeLabelOffer();
+
+      /* 6) bugünün olayından akışa bir gönderi (feed değişsin) */
+      K.industry._feedFromEvents();
+    },
+
+    _feedFromEvents() {
+      const s = K.state;
+      const I = K.industry.ensure();
+      const today = I.events.filter(e => e.day === s.day && !e._posted && e.artistId && e.kind !== "player_feature" && e.kind !== "player_beef");
+      if (!today.length) return;
+      const ev = today[0];
+      const a = K.artistById(ev.artistId);
+      if (!a) { ev._posted = true; return; }
+      const platform = hChance("ind|pf|" + s.day, 0.5) ? "x" : "instagram";
+      K.industry._post(a, platform, String(ev.text).replace(/^[^\p{L}\p{N}]+/u, ""), { salt: "evt" });
+      ev._posted = true;
+    },
+
+    /* ============================================================
+       ARAYÜZ — Gündem uygulamasındaki "Endüstri" sekmesi
+       ============================================================ */
+    feedHTML() {
+      const s = K.state;
+      const evs = K.industry.events(16);
+      if (!evs.length) {
+        return `<div class="empty-note"><b>Endüstri henüz sessiz</b>Günler ilerledikçe sanatçılar yayın yapar, transfer olur, sahneye çıkar.</div>`;
+      }
+      const head = `<div class="news-hint">🏭 Sektörden son hareketler — sen bir şey yapmasan da dünya akıyor.</div>`;
+      const rows = evs.map(e => `
+        <div class="news-item">
+          <div class="ni-head">
+            <div class="ni-title">${U.escape(e.text)}</div>
+          </div>
+          <div class="ni-keywords"><span>${U.escape(U.ago(e.day, s.day))}</span><span>${U.escape((KINDS[e.kind] || {}).label || "Sektör")}</span></div>
+        </div>`).join("");
+      return head + rows;
+    }
+  };
+})(window.K = window.K || {});
 
 </script>
   <script>
@@ -41551,7 +42216,8 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
     render(params) {
       const tabs = [{ id: "all", label: "Tümü" }]
-        .concat(K.NEWS_CATEGORIES.map(c => ({ id: c.id, label: c.icon + " " + c.name })));
+        .concat(K.NEWS_CATEGORIES.map(c => ({ id: c.id, label: c.icon + " " + c.name })))
+        .concat([{ id: "endustri", label: "🏭 Endüstri" }]);
       return {
         title: "Gündem",
         sub: "Haberler · sözüne konu olacak trendler",
@@ -41575,6 +42241,11 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     },
 
     listHTML(tab) {
+      /* v10.58 — sektörden bağımsız akan sanatçı hareketleri */
+      if (tab === "endustri") {
+        return (K.industry && K.industry.feedHTML) ? K.industry.feedHTML()
+          : `<div class="empty-note"><b>Endüstri yükleniyor</b></div>`;
+      }
       if (!K.news.current().length) K.news.refresh(true);
       const groups = K.news.byCategory().filter(g => tab === "all" || g.cat.id === tab);
       const hint = `<div class="news-hint">📝 Bir konuda söz yazıp <b>aynı dönemde</b> yayınlarsan etkileşim (dinlenme + viral) artar.</div>`;
@@ -43925,6 +44596,8 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     if (K.contacts && K.contacts.ensureRoster) K.contacts.ensureRoster();
     // v10.30 — yabancı DM gönderenleri (hayran / dolandırıcı / gazeteci)
     if (K.dms && K.dms.ensure) K.dms.ensure();
+    // v10.58 — yaşayan endüstri: NPC ilişki ağını kur, bus dinleyicilerini bağla
+    if (K.industry && K.industry.init) K.industry.init();
     // ZOR MOD: sayısal değerler gizli
     document.body.classList.toggle("hide-values", !!(K.settings && K.settings.valuesHidden && K.settings.valuesHidden()));
     K.careerUI.init();
