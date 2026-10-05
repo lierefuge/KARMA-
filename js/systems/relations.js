@@ -61,6 +61,43 @@
       return K.stageFor(r.affinity);
     },
 
+    /* ============================================================
+       v10.62 — TANIŞMA (encounter)
+       "Şehinşah %62 samimi" soyutluğuna karşı: ilişki bir GEÇMİŞten
+       doğar. Tanışma bir olayla başlar (festival, konser, liste
+       tebriği, DM isteği) ve aşamalar hâlinde ilerler. Doğrudan
+       "hiç tanımadığın sanatçıya FT" imkânsız kalır çünkü feature
+       zaten affinity aşaması ≥4 ister; bu katman o geçmişi kaydeder. */
+    MEET_STAGES: ["tanımıyor", "ilk karşılaşma", "tanışıyor", "iletişim", "düzenli etkileşim"],
+
+    meetStageOf(artistId) { return K.relation(artistId).meetStage || 0; },
+
+    meetLabel(artistId) {
+      return K.relations.MEET_STAGES[K.util.clamp(K.relations.meetStageOf(artistId), 0, 4)];
+    },
+
+    /* bir sanatçıyla TANIŞ (ilk kez ya da mevcut aşamayı ilerlet).
+       kind: "festival" | "concert" | "liste" | "dm" | "sahne"
+       İlk tanışmada kalıcı hafıza + sektör olayı üretir. */
+    encounter(artistId, kind) {
+      const e = K.relations._ensure(artistId);
+      if (!e) return 0;
+      const rel = e.rel;
+      const first = !rel.met;
+      rel.met = true;
+      rel.discovered = true;
+      if (first) { rel.metDay = K.state.day; rel.meetStage = 1; }
+      else rel.meetStage = Math.min(4, (rel.meetStage || 1) + 1);
+      if (first && K.industry) {
+        K.industry.remember(artistId, "meet", "player", {
+          delta: 0, weight: 1, note: "Oyuncu ile ilk kez tanıştı"
+        });
+        K.industry._event("meet", `👋 ${e.a.stageName} ile tanıştın`, { artistId: artistId, player: true });
+        K.industry._industryHistory("meet", `Player ile ${e.a.stageName} tanıştı`, [artistId]);
+      }
+      return rel.meetStage;
+    },
+
     /* ---------------- başlangıç: birkaç sanatçı tanışır ---------------- */
     /* GERÇEKÇİLİK: Kimse genç ve tanınmayan birine kendiliğinden DM atmaz.
        Oyuncu iletişimi KENDİ başlatır; cevap almak popülerliğe bağlıdır. */
@@ -1300,8 +1337,7 @@
         if (unknown.length) {
           const a = U.pick(unknown);
           const rel = K.relation(a.id);
-          rel.met = true;
-          rel.discovered = true;
+          K.relations.encounter(a.id, "dm");
           const custom = (K.chat && K.chat.ambient) ? K.chat.ambient(a.id, 0) : null;
           K.relations.pushArtistMessage(a.id, custom || U.pick(GREET), "chat");
           rel.affinity = Math.max(rel.affinity, 6);
@@ -1329,7 +1365,7 @@
       if (!pool.length) return;
       const a = U.pick(pool);
       const rel = K.relation(a.id);
-      rel.met = true; rel.discovered = true;
+      K.relations.encounter(a.id, "liste");
       const lines = [
         `"${song.title}" ${listName} listesine girmiş, tebrikler. Takip ediyorum.`,
         `Listede seni gördüm — "${song.title}". Böyle devam et.`,
