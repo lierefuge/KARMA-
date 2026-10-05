@@ -325,7 +325,7 @@
       settings: {},
       /* v10.58 — YAŞAYAN ENDÜSTRİ: NPC–NPC ilişki ağı + dünya olayları.
          Ayrıntı: systems/industry.js */
-      industry: { released: {}, log: [], ties: {}, events: [], label: {}, awards: {}, momentum: 0, lastLabelOfferDay: 0, awardsDay: 0, memory: {}, memSum: {}, career: {}, history: [], notifDay: 0, notifCount: 0, lastRelease: {} },
+      industry: { released: {}, log: [], ties: {}, events: [], label: {}, awards: {}, momentum: 0, lastLabelOfferDay: 0, awardsDay: 0, memory: {}, memSum: {}, career: {}, history: [], notifDay: 0, notifCount: 0, lastRelease: {}, npcStreams: {} },
       concerts: [],
       festivals: [],          // yaz festivali line-up kayıtları (systems/festivals.js)
       tour: null,
@@ -490,6 +490,14 @@
       const _lr = {};
       Object.keys(copy.industry.lastRelease || {}).slice(0, 12).forEach(k => { _lr[k] = copy.industry.lastRelease[k]; });
       copy.industry.lastRelease = _lr;
+      /* v10.61 — NPC stream penceresi (kota için son 14 güne kırpılır) */
+      const _ns = {};
+      Object.keys(copy.industry.npcStreams || {}).forEach(k => {
+        const w = copy.industry.npcStreams[k];
+        if (!w || !Array.isArray(w.vals)) return;
+        _ns[k] = { last: w.last, vals: w.vals.slice(-14) };
+      });
+      copy.industry.npcStreams = _ns;
     }
     return copy;
   }
@@ -664,6 +672,9 @@
         if (_ind.notifCount == null) _ind.notifCount = 0;
         /* v10.60 — yayın performansı kaydı (eski kayıtta yok → boş) */
         _ind.lastRelease = _ind.lastRelease || {};
+        /* v10.61 — NPC stream penceresi (eski kayıtta yok → boş;
+           ilk erişimde mevcut monthly'den tohumlanır) */
+        _ind.npcStreams = _ind.npcStreams || {};
       }
       K.state.chart = K.state.chart || [];
       K.state.chartRising = K.state.chartRising || [];
