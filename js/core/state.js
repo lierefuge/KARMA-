@@ -323,6 +323,9 @@
       /* --- genişletilmiş sistemler --- */
       history: [],
       settings: {},
+      /* v10.58 — YAŞAYAN ENDÜSTRİ: NPC–NPC ilişki ağı + dünya olayları.
+         Ayrıntı: systems/industry.js */
+      industry: { released: {}, log: [], ties: {}, events: [], label: {}, awards: {}, momentum: 0, lastLabelOfferDay: 0, awardsDay: 0 },
       concerts: [],
       festivals: [],          // yaz festivali line-up kayıtları (systems/festivals.js)
       tour: null,
@@ -629,6 +632,20 @@
       if (K.state.pendingCatalogOffer === undefined) K.state.pendingCatalogOffer = null;
       if (K.state.catalogSold === undefined) K.state.catalogSold = false;
       K.state.notifications = K.state.notifications || [];
+      /* v10.58 — YAŞAYAN ENDÜSTRİ alanları (eski kayıt göçü) */
+      K.state.industry = K.state.industry || {};
+      {
+        const _ind = K.state.industry;
+        _ind.released = _ind.released || {};
+        _ind.log = _ind.log || [];
+        _ind.ties = _ind.ties || {};
+        _ind.events = _ind.events || [];
+        _ind.label = _ind.label || {};
+        _ind.awards = _ind.awards || {};
+        if (_ind.momentum == null) _ind.momentum = 0;
+        if (_ind.lastLabelOfferDay == null) _ind.lastLabelOfferDay = 0;
+        if (_ind.awardsDay == null) _ind.awardsDay = 0;
+      }
       K.state.chart = K.state.chart || [];
       K.state.chartRising = K.state.chartRising || [];
       K.state.albumChart = K.state.albumChart || [];
