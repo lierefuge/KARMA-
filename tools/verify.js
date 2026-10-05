@@ -185,7 +185,10 @@ const SUITES = [
      · NPC tavanı/dinleyici tabanı · gerçek sanatçı husumeti güvenlik anahtarı */
   { id: "v1056",       script: "tools/smoke-v1056.js",       label: "v10.56 gerçekçilik denetimi (takvim · ekonomi · yaş · husumet)" },
   /* v10.57 — ikinci gerçekçilik turu: enflasyon tutarlılığı, sezon, ödül sezonu */
-  { id: "v1057",       script: "tools/smoke-v1057.js",       label: "v10.57 enflasyon · sezon · ödül sezonu · RIAA notu" }
+  { id: "v1057",       script: "tools/smoke-v1057.js",       label: "v10.57 enflasyon · sezon · ödül sezonu · RIAA notu" },
+  /* v10.58 — yaşayan endüstri: NPC–NPC ilişki ağı · kariyer olayları ·
+     oyuncu feature/husumet yankısı · öncelikli bildirim + endüstri akışı */
+  { id: "v1058",       script: "tools/smoke-v1058.js",       label: "v10.58 yaşayan endüstri (NPC ağı · olaylar · oyuncu etkisi)" }
 ];
 
 const suiteOut = {};
