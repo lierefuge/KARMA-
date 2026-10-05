@@ -476,6 +476,24 @@
         .slice(0, n || 6);
     },
 
+    /* ---------------- v10.60 — PLATFORMA ÖZEL TAKİPÇİ ----------------
+       Eskiden NPC gönderilerinin etkileşimi HER platformda Instagram
+       takipçisinden hesaplanıyordu: X gönderisi TikTok kitlesiyle,
+       YouTube yorumu IG kitlesiyle ölçülüyordu. Artık her platform
+       KENDİ kitlesini kullanır (X→x, TikTok→tiktok, YouTube→ytSubs,
+       Instagram→ig). Veri yoksa güvenli geri dönüş: IG, o da yoksa
+       popülerlikten türetilmiş makul bir taban. */
+    platformFollowers(a, platform) {
+      if (!a) return 0;
+      const key = platform === "tiktok" ? "tiktok"
+        : platform === "x" ? "x"
+        : (platform === "youtube" || platform === "yt") ? "ytSubs" : "ig";
+      const v = a[key];
+      if (v != null && isFinite(v) && v > 0) return v;
+      if (key !== "ig" && a.ig > 0) return a.ig;
+      return Math.max(0, Math.round((a.popularity || 0) * 1200));
+    },
+
     /* ---------------- NPC gönderisi (tek yol) ----------------
        Ses havuzu sanatçıya özel; gönderilerin bir kısmı GERÇEK
        şarkısına bağlanır (eskiden songId hep null'dı). */
@@ -489,7 +507,7 @@
         const real = K.lazy ? K.lazy.songs(a.id) : ((K.REAL_SONGS && K.REAL_SONGS[a.id]) || []);
         if (real.length) song = U.pick(real);
       }
-      const eng = K.socialEngagement(a.ig || 0);
+      const eng = K.socialEngagement(K.social.platformFollowers(a, platform));
       const text = opts.text || (song
         ? (platform === "x"
             ? `"${song.title}" - sözler ve kayıt bitti, dinleyin.`
