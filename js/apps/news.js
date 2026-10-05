@@ -29,7 +29,8 @@
 
     render(params) {
       const tabs = [{ id: "all", label: "Tümü" }]
-        .concat(K.NEWS_CATEGORIES.map(c => ({ id: c.id, label: c.icon + " " + c.name })));
+        .concat(K.NEWS_CATEGORIES.map(c => ({ id: c.id, label: c.icon + " " + c.name })))
+        .concat([{ id: "endustri", label: "🏭 Endüstri" }]);
       return {
         title: "Gündem",
         sub: "Haberler · sözüne konu olacak trendler",
@@ -53,6 +54,11 @@
     },
 
     listHTML(tab) {
+      /* v10.58 — sektörden bağımsız akan sanatçı hareketleri */
+      if (tab === "endustri") {
+        return (K.industry && K.industry.feedHTML) ? K.industry.feedHTML()
+          : `<div class="empty-note"><b>Endüstri yükleniyor</b></div>`;
+      }
       if (!K.news.current().length) K.news.refresh(true);
       const groups = K.news.byCategory().filter(g => tab === "all" || g.cat.id === tab);
       const hint = `<div class="news-hint">📝 Bir konuda söz yazıp <b>aynı dönemde</b> yayınlarsan etkileşim (dinlenme + viral) artar.</div>`;
