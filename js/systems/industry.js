@@ -96,6 +96,7 @@
       I.memSum = I.memSum || {};        // artistId → olay türü sayaçları (kırpılmaz)
       I.career = I.career || {};        // artistId → kariyer geçmişi
       I.history = I.history || [];      // uzun vadeli sektör tarihi
+      I.lastRelease = I.lastRelease || {}; // v10.60 — artistId → son yayın performansı
       if (I.notifDay == null) I.notifDay = 0;
       if (I.notifCount == null) I.notifCount = 0;
       return I;
@@ -280,7 +281,9 @@
       const s = K.state;
       opts = opts || {};
       const salt = opts.salt || "0";
-      const eng = K.industry._eng(a.ig || 0, a.id + "|" + platform + "|" + s.day + "|" + salt);
+      const followers = (K.social && K.social.platformFollowers)
+        ? K.social.platformFollowers(a, platform) : (a.ig || 0);
+      const eng = K.industry._eng(followers, a.id + "|" + platform + "|" + s.day + "|" + salt);
       const post = {
         id: "ind_" + a.id + "_" + s.day + "_" + platform + "_" + salt,
         platform: platform,
@@ -369,10 +372,10 @@
     adjustNpcRelease(a, gain) {
       if (!a || gain == null) return gain;
       const seed = "rel|" + a.id + "|" + K.state.day;
-      const r = frac(seed);
+      const outcome = K.industry.npcOutcome(a);
       /* v10.59 — her yayın kariyer geçmişine işlenir (hit/flop ayrıca) */
       if (K.industry.recordCareer) K.industry.recordCareer(a.id, "release", {});
-      if (r < 0.22) {
+      if (outcome === "flop") {
         /* TUTMAYAN İŞ: nadiren bir yayın bekleneni vermez */
         const f = 0.18 + frac(seed + "f") * 0.35;
         a.popularity = U.clamp((a.popularity || 50) - (0.3 + frac(seed + "fp") * 0.5), 30, 99);
@@ -382,7 +385,7 @@
         if (K.industry.reactToCareer) K.industry.reactToCareer(a, "flop");
         return gain * f;
       }
-      if (r > 0.88) {
+      if (outcome === "hit") {
         /* PATLAYAN İŞ */
         a.popularity = U.clamp((a.popularity || 50) + (0.4 + frac(seed + "hp") * 0.8), 30, 99);
         K.industry._event("hit", `🔥 ${a.stageName}'in yeni işi patladı`, { artistId: a.id, important: (a.popularity || 0) >= 75 });
@@ -392,6 +395,197 @@
         return gain * (1.4 + frac(seed + "h") * 0.6);
       }
       return gain * (0.9 + frac(seed + "n") * 0.2);
+    },
+
+    /* ============================================================
+       v10.60 — NPC YAYIN SONUCU (deterministik)
+       adjustNpcRelease ile AYNI tohuma bağlıdır; böylece sonuç tek
+       yerden okunur ve iki sistem asla çelişmez.
+       ============================================================ */
+    npcOutcome(a) {
+      if (!a) return "normal";
+      const r = frac("rel|" + a.id + "|" + K.state.day);
+      if (r < 0.22) return "flop";
+      if (r > 0.88) return "hit";
+      return "normal";
+    },
+
+    /* tür → trend etiket anahtarları (mevcut gündem etiketleriyle uyumlu) */
+    TREND_TAGS: {
+      trap: ["trap", "türkiye", "yenişarkı"],
+      rap: ["rap", "underground", "yenişarkı"],
+      drill: ["drill", "underground"],
+      pop: ["pop", "spotify", "yenişarkı"],
+      rnb: ["r&b", "rnb", "soul"],
+      indie: ["indie", "alternatif", "underground"]
+    },
+
+    /* bir türün ŞU ANKİ trendlerle uyumu (0..1). Deterministik. */
+    trendMatch(genre) {
+      const s = K.state;
+      const keys = K.industry.TREND_TAGS[genre] || [];
+      if (!keys.length || !s.trends || !s.trends.length) return 0;
+      let best = 0;
+      s.trends.forEach(t => {
+        const tag = String(t.tag || "").toLowerCase();
+        if (keys.some(k => tag.indexOf(k) >= 0)) {
+          best = Math.max(best, 0.5 + Math.min(0.5, (t.count || 0) / 2000000));
+        }
+      });
+      return U.clamp(best, 0, 1);
+    },
+
+    /* label gücü + prestiji → yayın avantajı (başarıyı GARANTİ ETMEZ) */
+    labelFactor(a) {
+      if (!a || !a.labelId) return 0.95;
+      let power = 60, prestige = 60;
+      if (a.labelId === "my_label" && K.label && K.label.power) {
+        power = K.label.power();
+        prestige = power;
+      } else if (K.labelById) {
+        const l = K.labelById(a.labelId);
+        if (l) power = l.power || 60;
+        if (K.labelSim && K.labelSim.prestige) prestige = K.labelSim.prestige(a.labelId);
+      }
+      /* güçlü label daha iyi başlangıç görünürlüğü verir; zayıf label
+         yine de kaliteli bir işle hit çıkarabilir (tavan 1,25). */
+      return U.clamp(0.9 + (power - 60) / 220 + (prestige - 55) / 400, 0.9, 1.25);
+    },
+
+    /* yayın performansını besleyen faktörler (hepsi deterministik) */
+    npcFactors(a, song) {
+      const s = K.state;
+      const seed = "npf|" + a.id + "|" + s.day + "|" + ((song && song.title) || "");
+      const c = K.industry.careerOf(a.id);
+      const work = (a.traits && a.traits.work) ? a.traits.work : 5;
+      const quality = U.clamp(0.75 + work / 25 + frac(seed + "q") * 0.35, 0.55, 1.45);
+      const momentum = U.clamp(0.85 + (c.momentum || 0) * 0.5, 0.6, 1.45);
+      const trend = 0.92 + K.industry.trendMatch(a.genre) * 0.45;
+      const label = K.industry.labelFactor(a);
+      const social = U.clamp(
+        0.9 + Math.log10(Math.max(100, (a.ig || 0) + (a.x || 0) + (a.tiktok || 0) + (a.ytSubs || 0))) / 50,
+        0.9, 1.3);
+      const dow = s.day % 7;
+      const timing = (dow === 4 || dow === 5) ? 1.08 : (dow === 0 || dow === 6) ? 1.03 : 0.97;
+      return { quality: quality, momentum: momentum, trend: trend, label: label, social: social, timing: timing };
+    },
+
+    /* ============================================================
+       v10.60 — YAŞAYAN NPC YAYINI
+       game.npcRelease buradan geçer. Mevcut RNG akışı KORUNUR; bu
+       fonksiyon yalnızca deterministik EK etkiler uygular:
+         ilk dinlenme → günlük akış → kariyer geçmişi → chart/trend.
+       ============================================================ */
+    applyNpcRelease(a, song, gain, big) {
+      if (!a) return null;
+      const s = K.state;
+      const I = K.industry.ensure();
+      const day = s.day;
+      const c = K.industry.careerOf(a.id);
+      const outcome = K.industry.npcOutcome(a);
+      const f = K.industry.npcFactors(a, song);
+
+      /* 1) İLK DİNLENME: aylık dinleyici → günlük taban akış × faktörler */
+      const monthly = Math.max(50000, a.monthly || 50000);
+      const baseDaily = monthly / 26;
+      const outcomeMult = outcome === "hit" ? 1.9 : outcome === "flop" ? 0.45 : 1.0;
+      const releaseBoost = 1 + Math.min(0.9, (a._boost || 0) + (gain || 0));
+      let initial = Math.round(baseDaily * 0.35 * releaseBoost * outcomeMult *
+        f.quality * f.trend * f.label * f.social * f.timing);
+      initial = Math.max(500, initial);
+
+      /* 2) FEATURE KİTLESİ: iki sanatçının kitleleri birleşir */
+      let featName = null;
+      if (song && song.featWith) {
+        const b = K.artistById(song.featWith);
+        if (b && b.id !== a.id) {
+          const cross = Math.min(0.45, Math.sqrt(Math.max(0, b.monthly || 0)) / 4200);
+          initial = Math.round(initial * (1 + cross));
+          featName = b.stageName;
+          a.ig = Math.round((a.ig || 0) + (b.ig || 0) * 0.002);
+          a.x = Math.round((a.x || 0) + (b.x || 0) * 0.002);
+          a.tiktok = Math.round((a.tiktok || 0) + (b.tiktok || 0) * 0.002);
+          a.ytSubs = Math.round((a.ytSubs || 0) + (b.ytSubs || 0) * 0.002);
+        }
+      }
+
+      /* 3) SONUÇ KAYDI (chart + trend + akış buradan beslenir) */
+      I.lastRelease = I.lastRelease || {};
+      I.lastRelease[a.id] = {
+        day: day, title: (song && song.title) || "", art: (song && song.art) || null,
+        featWith: (song && song.featWith) || null, featName: featName,
+        initial: initial, daily: initial, peakDaily: initial, total: initial,
+        result: outcome,
+        factors: {
+          quality: +f.quality.toFixed(2), momentum: +f.momentum.toFixed(2),
+          trend: +f.trend.toFixed(2), label: +f.label.toFixed(2),
+          social: +f.social.toFixed(2), timing: +f.timing.toFixed(2)
+        }
+      };
+
+      /* 4) MONTHLY LISTENERS: kalıcı tabanı YUMUŞAKÇA kaydır.
+         Hit az büyütür, flop az küçültür — ani sıçrama yok. */
+      const baseAdj = outcome === "hit" ? 1.006 : outcome === "flop" ? 0.988 : 1.0;
+      a._base = Math.max(50000, (a._base || a.monthly || 50000) * baseAdj);
+
+      /* 5) SOSYAL TAKİPÇİ (platforma özel, deterministik) */
+      const reach = Math.round(Math.min(initial * 0.08, (a.popularity || 50) * 900));
+      a.ig = Math.round((a.ig || 0) + reach * 0.4);
+      a.x = Math.round((a.x || 0) + reach * 0.2);
+      a.tiktok = Math.round((a.tiktok || 0) + reach * 0.3);
+      a.ytSubs = Math.round((a.ytSubs || 0) + reach * 0.15);
+
+      /* 6) KARİYER GEÇMİŞİ: stream + sonuç + değişim detayı */
+      K.industry.recordCareer(a.id, "release_info", {
+        title: (song && song.title) || "",
+        streams: initial, result: outcome,
+        monthly: a.monthly, popularity: a.popularity,
+        featWith: (song && song.featWith) || null
+      });
+
+      /* 7) LABEL EKONOMİSİ (hafif: gelir + hit/flop kaydı → prestij) */
+      if (K.labelSim && K.labelSim.recordRelease) K.labelSim.recordRelease(a, outcome, initial);
+
+      /* 8) BÜYÜK HIT: sektör tarihi + öncelikli bildirim (spam yok) */
+      if (outcome === "hit" && (a.popularity || 0) >= 72) {
+        K.industry._industryHistory("release",
+          `${a.stageName} "${(song && song.title) || ""}" ile büyük çıkış yaptı`, [a.id]);
+        K.industry._notifyImportant("📈 Sektörde büyük hit",
+          `${a.stageName} — "${(song && song.title) || ""}" listelerde hızla yükseliyor.`, "ok");
+      }
+      return I.lastRelease[a.id];
+    },
+
+    /* günlük: yayın sonrası dinlenme akışı söner, sanatçıya yazılır */
+    decayReleaseStreams(a) {
+      const s = K.state;
+      const I = K.industry.ensure();
+      if (!I.lastRelease) return;
+      const lr = I.lastRelease[a.id];
+      if (!lr) return;
+      lr.daily = lr.daily * 0.93;
+      lr.total = Math.round((lr.total || 0) + lr.daily);
+      a.streams = Math.round((a.streams || 0) + lr.daily);
+      if (s.day - lr.day > 60 || lr.daily < 200) delete I.lastRelease[a.id];
+    },
+
+    /* günlük: büyük NPC hit'leri gündeme düşer (deterministik) */
+    _npcTrends() {
+      const s = K.state;
+      const I = K.industry.ensure();
+      if (!s.trends || !I.lastRelease) return;
+      const recent = Object.keys(I.lastRelease)
+        .map(id => ({ id: id, lr: I.lastRelease[id] }))
+        .filter(x => x.lr.result === "hit" && (s.day - x.lr.day) <= 3)
+        .sort((x, y) => y.lr.initial - x.lr.initial)
+        .slice(0, 2);
+      recent.forEach(x => {
+        const tag = "#" + String(x.lr.title || "").replace(/[^\p{L}\p{N}]/gu, "").slice(0, 20);
+        if (!tag || tag.length < 5) return;
+        if (s.trends.some(t => t.tag === tag)) return;
+        s.trends.unshift({ tag: tag, count: Math.round(x.lr.initial * 12), npc: true });
+      });
+      s.trends = s.trends.slice(0, 8);
     },
 
     /* ============================================================
@@ -487,7 +681,8 @@
         peakMonthly: 0, peakPop: 0, features: 0, awards: 0,
         labels: [], milestones: [], recent: [],
         lastHit: 0, lastFlop: 0, lastRelease: 0,
-        momentum: 0, arc: null, arcDay: 0
+        momentum: 0, arc: null, arcDay: 0,
+        lastReleaseInfo: null, releaseLog: []
       };
       return c;
     },
@@ -520,6 +715,21 @@
       } else if (ev === "label") {
         c.labels.unshift({ day: day, from: data.from || null, to: data.to || null });
         c.labels = c.labels.slice(0, 8);
+      } else if (ev === "release_info") {
+        /* v10.60 — yayın detayı (stream + sonuç + değişim). releases
+           sayacını ARTIRMAZ; o işi adjustNpcRelease yapar. */
+        c.streams = Math.round((c.streams || 0) + (data.streams || 0));
+        c.lastReleaseInfo = {
+          day: day, title: data.title || "", streams: data.streams || 0,
+          result: data.result || "normal", monthly: data.monthly || 0,
+          popularity: data.popularity || 0, featWith: data.featWith || null
+        };
+        c.releaseLog = c.releaseLog || [];
+        c.releaseLog.unshift({
+          day: day, title: data.title || "", streams: data.streams || 0,
+          result: data.result || "normal", featWith: data.featWith || null
+        });
+        c.releaseLog = c.releaseLog.slice(0, 10);
       }
       if (a) {
         c.peakPop = Math.max(c.peakPop || 0, a.popularity || 0);
@@ -911,6 +1121,8 @@
       K.industry.memoryDriftTick();
       K.industry._maybeReunite();
       K.industry._updateArcs();
+      /* v10.60 — büyük NPC hit'leri gündeme düşer */
+      K.industry._npcTrends();
 
       /* 7) bugünün olayından akışa bir gönderi (feed değişsin) */
       K.industry._feedFromEvents();
