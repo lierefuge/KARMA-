@@ -205,6 +205,8 @@
     if (K.contacts && K.contacts.ensureRoster) K.contacts.ensureRoster();
     // v10.30 — yabancı DM gönderenleri (hayran / dolandırıcı / gazeteci)
     if (K.dms && K.dms.ensure) K.dms.ensure();
+    // v10.58 — yaşayan endüstri: NPC ilişki ağını kur, bus dinleyicilerini bağla
+    if (K.industry && K.industry.init) K.industry.init();
     // ZOR MOD: sayısal değerler gizli
     document.body.classList.toggle("hide-values", !!(K.settings && K.settings.valuesHidden && K.settings.valuesHidden()));
     K.careerUI.init();
