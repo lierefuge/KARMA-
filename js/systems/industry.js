@@ -75,6 +75,26 @@
     KINDS: KINDS,
 
     /* ============================================================
+       v10.61 — NPC AYLIK DİNLEYİCİ EKONOMİSİ SABİTLERİ
+       Aylık dinleyici artık yayın bonusuyla doğrudan büyüyen yapay
+       bir sayı DEĞİL; son 28 günün GERÇEK stream performansından
+       türetilir. Parametreler oyuncunun mevcut ölçeğine göre seçildi
+       (oyuncu modeli: monthly ≈ 28 günlük akışın yarısı).
+       ============================================================ */
+    NPC_MONTHLY: {
+      WINDOW: 28,               // gerçek performans penceresi (gün)
+      STREAM_TO_LISTENER: 0.5,  // monthly = pencere akışı × 0.5 (oyuncu modeliyle aynı)
+      CATALOG_DIV: 14,          // katalog günlük akışı = taban/14 → sabit monthly
+      FLOOR: 50000,             // güvenli taban (altına inmez)
+      POP_FLOOR: 700,           // popülerliğin tabana katkısı
+      SOFT_CAP_BASE: 500000,    // yumuşak tavan tabanı
+      SOFT_CAP_POP: 110000,     // popülerlikle büyüyen tavan
+      INACTIVE_GRACE: 150,      // yayınsız bu günden sonra taban erimeye başlar
+      INACTIVE_DECAY: 0.9975,   // günlük erime (≈ -%7/ay)
+      FLOP_DAYS: 21             // flop sonrası katalog hasarı süresi
+    },
+
+    /* ============================================================
        ENSURE — her alanı güvence altına al (eski kayıt uyumu)
        ============================================================ */
     ensure() {
@@ -97,6 +117,10 @@
       I.career = I.career || {};        // artistId → kariyer geçmişi
       I.history = I.history || [];      // uzun vadeli sektör tarihi
       I.lastRelease = I.lastRelease || {}; // v10.60 — artistId → son yayın performansı
+      /* v10.61 — artistId → son 28 günün günlük akış penceresi
+         { last: gün, vals: [günlük akış...] }. Eski kayıtta yoksa boş
+         kalır; pencere ilk erişimde monthly'den tohumlanır. */
+      I.npcStreams = I.npcStreams || {};
       if (I.notifDay == null) I.notifDay = 0;
       if (I.notifCount == null) I.notifCount = 0;
       return I;
@@ -376,7 +400,10 @@
       /* v10.59 — her yayın kariyer geçmişine işlenir (hit/flop ayrıca) */
       if (K.industry.recordCareer) K.industry.recordCareer(a.id, "release", {});
       if (outcome === "flop") {
-        /* TUTMAYAN İŞ: nadiren bir yayın bekleneni vermez */
+        /* TUTMAYAN İŞ: nadiren bir yayın bekleneni vermez.
+           v10.61 — kısa süreli katalog hasarı: pencereden gelen akış
+           düşer, böylece monthly GERÇEKTEN gerileyebilir. */
+        a._flopUntil = K.state.day + K.industry.NPC_MONTHLY.FLOP_DAYS;
         const f = 0.18 + frac(seed + "f") * 0.35;
         a.popularity = U.clamp((a.popularity || 50) - (0.3 + frac(seed + "fp") * 0.5), 30, 99);
         K.industry._event("flop", `📉 ${a.stageName}'in yeni işi bekleneni vermedi`, { artistId: a.id });
@@ -471,6 +498,134 @@
     },
 
     /* ============================================================
+       v10.61 — NPC STREAM PENCERESİ (son 28 gün)
+       Aylık dinleyiciyi doğrudan release bonusuyla büyütmek yerine
+       sanatçının GÜNLÜK akışı bu pencereye yazılır; monthly buradan
+       türetilir. Pencere kayan bir dizidir: en fazla WINDOW gün tutar,
+       eskisi düşer (temizlik O(1) amortize).
+       ============================================================ */
+    _seedWindow(a) {
+      const day = (K.state && K.state.day) || 1;
+      const base = Math.max(50000, (a && a.monthly) || 50000);
+      const d = Math.max(1, Math.round(base / K.industry.NPC_MONTHLY.CATALOG_DIV));
+      const vals = [];
+      for (let i = 0; i < K.industry.NPC_MONTHLY.WINDOW; i++) vals.push(d);
+      return { last: day - 1, vals: vals };
+    },
+
+    _npcWin(a) {
+      const I = K.industry.ensure();
+      let w = I.npcStreams[a.id];
+      if (!w || !Array.isArray(w.vals)) { w = K.industry._seedWindow(a); I.npcStreams[a.id] = w; }
+      return w;
+    },
+
+    /* günün akışını pencereye yaz (aynı gün birden çok çağrı toplanır) */
+    npcStreamPush(a, value) {
+      if (!a || !a.id) return;
+      const day = (K.state && K.state.day) || 1;
+      const W = K.industry.NPC_MONTHLY.WINDOW;
+      const w = K.industry._npcWin(a);
+      const v = Math.max(0, Math.round(value || 0));
+      if (w.last === day) {
+        w.vals[w.vals.length - 1] = (w.vals[w.vals.length - 1] || 0) + v;
+      } else {
+        /* gün atlanmışsa (test/kayıt yükleme) pencereyi SIFIRLAYIP
+           çökertme; son bilinen değeri taşı. Normal oynayışta gün
+           gün ilerlediği için bu dal hiç çalışmaz. */
+        const missing = Math.max(0, day - (w.last || day) - 1);
+        if (missing > 0 && missing < W && w.vals.length) {
+          const carry = w.vals[w.vals.length - 1] || 0;
+          for (let i = 0; i < missing; i++) w.vals.push(carry);
+        }
+        w.vals.push(v);
+        w.last = day;
+      }
+      if (w.vals.length > W) w.vals = w.vals.slice(-W);
+    },
+
+    npcWindowSum(a) {
+      const I = K.industry.ensure();
+      const w = I.npcStreams[a.id];
+      if (!w || !Array.isArray(w.vals)) return 0;
+      let sum = 0;
+      for (let i = 0; i < w.vals.length; i++) sum += (w.vals[i] || 0);
+      return sum;
+    },
+
+    /* yumuşak tavan: dizin altında aynen, tavana yaklaşırken doygunlaşır */
+    _softCap(x, cap) {
+      const knee = cap * 0.75;
+      if (x <= knee) return x;
+      const room = cap - knee;
+      return knee + room * (1 - Math.exp(-(x - knee) / room));
+    },
+
+    /* son 28 günlük gerçek akış → aylık dinleyici (popülerlik tabanı + tavan) */
+    npcMonthlyFromWindow(a) {
+      const N = K.industry.NPC_MONTHLY;
+      const win = K.industry.npcWindowSum(a);
+      const pop = (a && a.popularity) || 50;
+      const floor = Math.max(N.FLOOR, pop * N.POP_FLOOR);
+      const cap = N.SOFT_CAP_BASE + pop * N.SOFT_CAP_POP;
+      const m = K.industry._softCap(win * N.STREAM_TO_LISTENER, cap);
+      return Math.round(Math.max(floor, m));
+    },
+
+    /* ============================================================
+       v10.61 — GÜNLÜK NPC MONTHLY TICK
+       accrueArtistWorld her sanatçı için bir kez çağırır. Katalog
+       akışını pencereye yazar, uzun sessizlikte tabanı eritir ve
+       monthly'yi pencereden türetir. Ağır tarama yok; O(1)+O(28).
+       ============================================================ */
+    npcMonthlyTick(a, catDaily) {
+      if (!a || !a.id) return null;
+      const N = K.industry.NPC_MONTHLY;
+      if (catDaily > 0) K.industry.npcStreamPush(a, catDaily);
+      const c = K.industry.careerOf(a.id);
+      const idle = ((K.state && K.state.day) || 0) - (c.lastRelease || 0);
+      if (idle > N.INACTIVE_GRACE && a._base) {
+        a._base = Math.max(N.FLOOR, a._base * N.INACTIVE_DECAY);
+      }
+      const prev = a.monthly || 0;
+      const m = K.industry.npcMonthlyFromWindow(a);
+      a.monthly = m;
+      K.industry._trackMonthlyMilestone(a, prev, m);
+      return m;
+    },
+
+    /* kariyer geçmişine yalnızca ANLAMLI aylık kırılmalar yazılır (spam yok) */
+    _trackMonthlyMilestone(a, prev, m) {
+      const c = K.industry.careerOf(a.id);
+      const day = (K.state && K.state.day) || 0;
+      const peakBefore = c.monthlyPeak || 0;
+      if (m > peakBefore) {
+        c.monthlyPeak = m;
+        c._mTrough = m;
+        if (peakBefore > 0 && m >= peakBefore * 1.03 && day - (c._mPeakDay || 0) >= 30) {
+          c._mPeakDay = day;
+          c.milestones.unshift({ day: day, text: "aylık zirve: " + m });
+          c.milestones = c.milestones.slice(0, 10);
+        }
+      } else if (m < (c._mTrough == null ? m : c._mTrough)) {
+        c._mTrough = m;
+      }
+      if (m < prev * 0.995) c._mDownDays = (c._mDownDays || 0) + 1;
+      else c._mDownDays = 0;
+      if (c._mDownDays === 30) {
+        c.milestones.unshift({ day: day, text: "uzun aylık düşüş" });
+        c.milestones = c.milestones.slice(0, 10);
+      }
+      /* comeback: zirveden ≥%25 düşmüşken dipten ≥%15 toparlanma */
+      if (c.monthlyPeak && c._mTrough && c._mTrough < c.monthlyPeak * 0.75 &&
+        m >= c._mTrough * 1.15 && day - (c._mComebackDay || 0) >= 60) {
+        c._mComebackDay = day;
+        c.milestones.unshift({ day: day, text: "aylık toparlanma" });
+        c.milestones = c.milestones.slice(0, 10);
+      }
+    },
+
+    /* ============================================================
        v10.60 — YAŞAYAN NPC YAYINI
        game.npcRelease buradan geçer. Mevcut RNG akışı KORUNUR; bu
        fonksiyon yalnızca deterministik EK etkiler uygular:
@@ -488,9 +643,12 @@
       /* 1) İLK DİNLENME: aylık dinleyici → günlük taban akış × faktörler */
       const monthly = Math.max(50000, a.monthly || 50000);
       const baseDaily = monthly / 26;
-      const outcomeMult = outcome === "hit" ? 1.9 : outcome === "flop" ? 0.45 : 1.0;
+      /* v10.61 — katsayılar monthly'nin kontrollü değişmesi için yeniden
+         kalibre edildi: normal ≈ ±%5-8, hit ≈ +%20-25, flop geriler.
+         Tek bir hit asla astronomik sıçrama yaratmaz (soft-cap + pencere). */
+      const outcomeMult = outcome === "hit" ? 2.4 : outcome === "flop" ? 0.45 : 1.0;
       const releaseBoost = 1 + Math.min(0.9, (a._boost || 0) + (gain || 0));
-      let initial = Math.round(baseDaily * 0.35 * releaseBoost * outcomeMult *
+      let initial = Math.round(baseDaily * 0.16 * releaseBoost * outcomeMult *
         f.quality * f.trend * f.label * f.social * f.timing);
       initial = Math.max(500, initial);
 
@@ -508,6 +666,10 @@
           a.ytSubs = Math.round((a.ytSubs || 0) + (b.ytSubs || 0) * 0.002);
         }
       }
+
+      /* 2.5) İLK AKIŞ: yayın günü stream penceresine yazılır.
+         Sonraki günlerde decayReleaseStreams aynı pencereyi besler. */
+      K.industry.npcStreamPush(a, initial);
 
       /* 3) SONUÇ KAYDI (chart + trend + akış buradan beslenir) */
       I.lastRelease = I.lastRelease || {};
@@ -527,6 +689,10 @@
          Hit az büyütür, flop az küçültür — ani sıçrama yok. */
       const baseAdj = outcome === "hit" ? 1.006 : outcome === "flop" ? 0.988 : 1.0;
       a._base = Math.max(50000, (a._base || a.monthly || 50000) * baseAdj);
+
+      /* 4.5) MONTHLY: pencere güncellendi → aylık dinleyici GERÇEK
+         performanstan yeniden türetilir (yapay bonus yok). */
+      a.monthly = K.industry.npcMonthlyFromWindow(a);
 
       /* 5) SOSYAL TAKİPÇİ (platforma özel, deterministik) */
       const reach = Math.round(Math.min(initial * 0.08, (a.popularity || 50) * 900));
@@ -566,6 +732,8 @@
       lr.daily = lr.daily * 0.93;
       lr.total = Math.round((lr.total || 0) + lr.daily);
       a.streams = Math.round((a.streams || 0) + lr.daily);
+      /* v10.61 — yayın akışı da 28 günlük pencereye yazılır (monthly buradan) */
+      K.industry.npcStreamPush(a, lr.daily);
       if (s.day - lr.day > 60 || lr.daily < 200) delete I.lastRelease[a.id];
     },
 
@@ -771,6 +939,8 @@
       else if (recentScore >= 2 && (K.state.day - (c.lastFlop || 0)) <= 90 && (c.flops || 0) > 0) arc = "comeback";
       else if (recentScore >= 3 && (c.hits || 0) >= 3) arc = "viral";
       else if (recentScore <= -2 && gap >= 8) arc = "dususte";
+      /* v10.61 — gerçek akıştan gelen aylık çöküş de "unutulma" sinyalidir */
+      else if ((c.monthlyPeak || 0) > 0 && a.monthly < c.monthlyPeak * 0.6 && idle > 150) arc = "unutulan";
       else if (idle > 260 && pop < 55 && (c.releases || 0) > 3) arc = "unutulan";
       else arc = "istikrarli";
       c.arc = arc; c.arcDay = K.state.day;
