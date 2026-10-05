@@ -140,9 +140,28 @@
         if (c) { awards += c.awards || 0; hits += c.hits || 0; flops += c.flops || 0; }
       });
       const avgPop = popSum / roster.length;
+      const rec = K.labelSim.ensure()[labelId] || {};
       let p = avgPop * 0.8 + Math.min(20, roster.length * 2) + Math.min(15, awards * 3)
-        + Math.min(8, hits * 0.6) - Math.min(8, flops * 0.4);
+        + Math.min(8, hits * 0.6) - Math.min(8, flops * 0.4)
+        /* v10.60 — yayın gelirinin hafif prestij etkisi (ekonomik sonuç) */
+        + Math.min(10, (rec.revenue || 0) / 500000);
       return U.clamp(Math.round(p), 5, 100);
+    },
+
+    /* ============================================================
+       v10.60 — YAYIN EKONOMİSİ (hafif simülasyon)
+       NPC yayını şirkete telif/gelir yazar; hit/flop sayılır.
+       Oyuncunun ECON değerleri NPC'ye UYGULANMAZ; bu yalnızca
+       şirket prestijini ve kadro kararlarını besleyen hafif bir kayıt.
+       ============================================================ */
+    recordRelease(a, result, streams) {
+      if (!a || !a.labelId) return;
+      const store = K.labelSim.ensure();
+      const rec = store[a.labelId] = store[a.labelId] || { prestige: 0, transfers: 0, signed: 0 };
+      rec.releases = (rec.releases || 0) + 1;
+      rec.revenue = Math.round((rec.revenue || 0) + (streams || 0) * 0.003);
+      if (result === "hit") rec.hits = (rec.hits || 0) + 1;
+      if (result === "flop") rec.flops = (rec.flops || 0) + 1;
     },
 
     /* ============================================================
