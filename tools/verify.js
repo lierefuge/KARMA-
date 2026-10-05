@@ -195,7 +195,10 @@ const SUITES = [
   { id: "v1060",       script: "tools/smoke-v1060.js",       label: "v10.60 NPC release → ekonomi entegrasyonu (chart rekabeti · trend · label)" },
   /* v10.61 — NPC aylık dinleyici artık 28 günlük GERÇEK stream
      penceresinden türetilir; yapay release bonusu kaldırıldı. */
-  { id: "v1061",       script: "tools/smoke-v1061.js",       label: "v10.61 NPC aylık dinleyici ekonomisi (stream penceresi · taban · soft-cap)" }
+  { id: "v1061",       script: "tools/smoke-v1061.js",       label: "v10.61 NPC aylık dinleyici ekonomisi (stream penceresi · taban · soft-cap)" },
+  /* v10.62 — "GERÇEK DÜNYA": NPC↔NPC tanışma aşamaları · başarı
+     seviyeleri · viral zinciri (sosyal→stream→monthly→chart) · comeback. */
+  { id: "v1062",       script: "tools/smoke-v1062.js",       label: "v10.62 gerçek dünya (ilişki aşamaları · viral zinciri · comeback)" }
 ];
 
 const suiteOut = {};
