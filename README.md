@@ -5,6 +5,50 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.58 — YAŞAYAN ENDÜSTRİ (NPC ağı · kariyer olayları · oyuncu yankısı)
+
+Bu sürüm KARMA'yı "menülerle dolu oyun"dan **oyuncudan bağımsız akan bir
+sektöre** taşır. Yeni dosya: `js/systems/industry.js`. Yeni test:
+`tools/smoke-v1058.js` (**33 kontrol**).
+
+### 1 · 🕸️ NPC–NPC ilişki ağı (kalıcı)
+Sanatçıların artık birbirleriyle **dostluk ve rekabet** bağları var. Ağ,
+şirket/tür yakınlığından deterministik olarak tohumlanır ve kayıtla birlikte
+saklanır (çift yönlü, simetrik). Feature yaptıkça dostluk, gerilim yaşandıkça
+rekabet güçlenir.
+
+### 2 · 🎬 Oyuncudan bağımsız kariyer olayları
+Her gün dünya kendi kendine ilerler (günde en çok 2 olay — spam yok):
+ortak iş, **şirket değişimi (transfer)**, konser duyurusu ve iki sanatçı
+arasında gerilim. Hepsi sosyal akışa gönderi bırakır.
+
+### 3 · 📉 Her yayın tutmaz
+NPC yayınları artık tek yönlü büyümüyor: ara sıra **tutmayan iş** (popülerlik
+düşer) ya da **patlayan iş** (popülerlik sıçrar) çıkar. `game.npcRelease`
+sonucu bu katmandan geçer.
+
+### 4 · 🤝 Oyuncu eyleminin sektöre yankısı
+Bir sanatçıyla **feature** yayınlarsan: partnerin kitlesinden dinleyici/takipçi
+akar, partnerin **dostları över, rakipleri gönderme yapar**, sektör momentumu
+artar ve **şirket ilgisi** doğar. Bir sanatçıyla **kavga edersen**: hedefin
+dostları tavır alır, rakipleri mesafeyi sever, sektör konuşur.
+
+### 5 · 📨 Teklif ekonomisi + öncelikli bildirim
+Sektör momentumu birikince (büyük hamleler sonrası) oyuncuya **seviyesine uygun**
+bir şirket teklifi gelebilir (küçük → bağımsız → büyük → major). Önemli dünya
+olayları `priority` alanlı bildirim olarak düşer; önemsiz olaylar özet içinde kalır.
+
+### 6 · 🏭 Arayüz: Gündem → Endüstri sekmesi
+**Gündem** uygulamasına "🏭 Endüstri" sekmesi eklendi: sektörden son hareketler
+(transfer, ortak iş, konser, gerilim, ödül) tek akışta görünür.
+
+### Doğrulama
+`npm run verify` — 43/43 adım. Denge simülasyonu 0 yüksek / 0 orta bulgu.
+Endüstri katmanı **Math.random() kullanmaz** (kendi deterministik RNG'si);
+böylece mevcut kariyer/denge eğrileri değişmez, eski kayıtlar bozulmaz.
+
+---
+
 ## GÜNCELLEME v10.57 — GERÇEKLİK DENETİMİ 2 (enflasyon tutarlılığı · sezon · ödül sezonu)
 
 İkinci gerçekçilik turu dört konuyu ele aldı. Yeni test: `tools/smoke-v1057.js`
