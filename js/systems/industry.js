@@ -91,6 +91,13 @@
       if (I.momentum == null) I.momentum = 0;
       if (I.lastLabelOfferDay == null) I.lastLabelOfferDay = 0;
       if (I.awardsDay == null) I.awardsDay = 0;
+      /* v10.59 — endüstri hafızası & kariyer katmanı (eski kayıt uyumu) */
+      I.memory = I.memory || {};        // artistId → son olayların ayrıntılı dökümü
+      I.memSum = I.memSum || {};        // artistId → olay türü sayaçları (kırpılmaz)
+      I.career = I.career || {};        // artistId → kariyer geçmişi
+      I.history = I.history || [];      // uzun vadeli sektör tarihi
+      if (I.notifDay == null) I.notifDay = 0;
+      if (I.notifCount == null) I.notifCount = 0;
       return I;
     },
 
@@ -313,7 +320,6 @@
     },
 
     _npcLabelChange(a) {
-      const I = K.industry.ensure();
       const labels = (K.LABELS || []).filter(l => l.id !== a.labelId);
       if (!labels.length) return;
       /* hedef şirket: sanatçının seviyesine yakın güçte olanlar daha olası */
@@ -322,13 +328,12 @@
         Math.abs(x.power - pop) - Math.abs(y.power - pop));
       const pick = hPick("lblchg|" + a.id + "|" + K.state.day, weighted.slice(0, 4));
       if (!pick) return;
-      const old = a.labelId ? K.labelById(a.labelId) : null;
-      a.labelId = pick.id;
-      K.industry.setTie(a.id, a.id, "friend", 0);   // no-op (güvenlik)
-
-      const verb = old ? `${old.name}'dan ayrılıp ${pick.name}'a geçti` : `${pick.name} ile anlaştı`;
-      K.industry._event("label", `🏢 ${a.stageName}, ${verb}`, { artistId: a.id, important: (a.popularity || 0) >= 75 });
+      /* v10.59 — transfer TEK yoldan geçer: statik roster + kariyer
+         geçmişi + sektör tarihi K.labelSim içinde senkron tutulur. */
+      if (K.labelSim && K.labelSim.transfer) K.labelSim.transfer(a.id, pick.id, "label_change");
+      else a.labelId = pick.id;
       K.industry._post(a, "instagram", `Yeni bir sayfa açılıyor. ${pick.name} ailesine katıldım 🖤`, { salt: "label" });
+      K.industry.reactToCareer(a, "label");
       if ((a.popularity || 0) >= 75) {
         K.industry.notify("🏢 Transfer", `${a.stageName} ${pick.name}'a geçti.`, "", 1);
       }
@@ -365,18 +370,25 @@
       if (!a || gain == null) return gain;
       const seed = "rel|" + a.id + "|" + K.state.day;
       const r = frac(seed);
+      /* v10.59 — her yayın kariyer geçmişine işlenir (hit/flop ayrıca) */
+      if (K.industry.recordCareer) K.industry.recordCareer(a.id, "release", {});
       if (r < 0.22) {
         /* TUTMAYAN İŞ: nadiren bir yayın bekleneni vermez */
         const f = 0.18 + frac(seed + "f") * 0.35;
         a.popularity = U.clamp((a.popularity || 50) - (0.3 + frac(seed + "fp") * 0.5), 30, 99);
         K.industry._event("flop", `📉 ${a.stageName}'in yeni işi bekleneni vermedi`, { artistId: a.id });
         K.industry._post(a, "x", "Bazen iş tutmaz. Yola devam.", { salt: "flop" });
+        if (K.industry.recordCareer) K.industry.recordCareer(a.id, "flop", {});
+        if (K.industry.reactToCareer) K.industry.reactToCareer(a, "flop");
         return gain * f;
       }
       if (r > 0.88) {
         /* PATLAYAN İŞ */
         a.popularity = U.clamp((a.popularity || 50) + (0.4 + frac(seed + "hp") * 0.8), 30, 99);
         K.industry._event("hit", `🔥 ${a.stageName}'in yeni işi patladı`, { artistId: a.id, important: (a.popularity || 0) >= 75 });
+        if (K.industry.recordCareer) K.industry.recordCareer(a.id, "hit", {});
+        if (K.industry.reactToCareer) K.industry.reactToCareer(a, "hit");
+        if ((a.popularity || 0) >= 78) K.industry._notifyImportant("🔥 Sektörde hit", `${a.stageName} yeni işiyle büyük çıkış yaptı.`, "ok");
         return gain * (1.4 + frac(seed + "h") * 0.6);
       }
       return gain * (0.9 + frac(seed + "n") * 0.2);
@@ -400,7 +412,292 @@
         if (!a) return;
         I.awards[a.id] = (I.awards[a.id] || 0) + 1;
         K.industry._event("award", `🏆 ${a.stageName}, "${r.cat}" ödülünü kazandı`, { artistId: a.id, important: (a.popularity || 0) >= 75 });
+        if (K.industry.recordCareer) K.industry.recordCareer(a.id, "award", { cat: r.cat });
+        if (K.industry.remember) K.industry.remember(a.id, "award", null, { weight: 1, note: r.cat });
       });
+    },
+
+    /* ============================================================
+       v10.59 — NPC HAFIZASI
+       Her sanatçı için yaşanan olayların kalıcı dökümü. Hafıza iki
+       katmanda tutulur:
+         · I.memory[id] → son 12 olayın AYRINTILI kaydı (gün, tür,
+                           karşı taraf, ilişkiye etkisi, ağırlık, not)
+         · I.memSum[id] → olay türlerinin SAYACI (kırpılmaz, uzun vade)
+       Böylece geçmiş hem okunabilir hem ucuzdur: günlük döngü yalnızca
+       sayacı okur, ağır tarama yapmaz.
+       ============================================================ */
+    remember(artistId, kind, otherId, opts) {
+      const I = K.industry.ensure();
+      if (!artistId) return null;
+      opts = opts || {};
+      const arr = I.memory[artistId] = I.memory[artistId] || [];
+      const ev = {
+        day: K.state.day, kind: kind,
+        otherId: otherId || null,
+        delta: opts.delta || 0,
+        weight: opts.weight == null ? 1 : opts.weight,
+        note: opts.note || ""
+      };
+      arr.unshift(ev);
+      if (arr.length > 12) arr.length = 12;
+      const m = I.memSum[artistId] = I.memSum[artistId] || {};
+      m[kind] = (m[kind] || 0) + 1;
+      return ev;
+    },
+
+    memoryOf(artistId, n) {
+      const I = K.industry.ensure();
+      return (I.memory[artistId] || []).slice(0, n || 6);
+    },
+
+    memoryBetween(aId, bId) {
+      const I = K.industry.ensure();
+      return (I.memory[aId] || []).filter(e => e.otherId === bId);
+    },
+
+    /* oyuncu ile geçmiş (otherId === "player") */
+    playerMemory(artistId, n) {
+      const I = K.industry.ensure();
+      return (I.memory[artistId] || []).filter(e => e.otherId === "player").slice(0, n || 6);
+    },
+
+    /* geçmişin net duygusu: + olumlu, − olumsuz (uzun vadeli sayaçtan) */
+    memoryScore(artistId) {
+      const I = K.industry.ensure();
+      const m = I.memSum[artistId];
+      if (!m) return 0;
+      const pos = (m.feat_ok || 0) * 2 + (m.support || 0) * 1 + (m.help || 0) * 1.5 +
+        (m.award || 0) * 1 + (m.hit_together || 0) * 1.5 + (m.peace || 0) * 2;
+      const neg = (m.beef || 0) * 3 + (m.diss || 0) * 2 + (m.betray || 0) * 3 +
+        (m.feat_bad || 0) * 1.5 + (m.support_friend || 0) * 1;
+      return pos - neg;
+    },
+
+    /* ============================================================
+       v10.59 — KARİYER GEÇMİŞİ
+       Sanatçı başına kalıcı istatistikler. Sadece toplam değil, son
+       yayın sonuçlarının kısa penceresi (`recent`) tutulur; kariyer
+       YAYI (arc) buradan türetilir.
+       ============================================================ */
+    careerOf(artistId) {
+      const I = K.industry.ensure();
+      const c = I.career[artistId] = I.career[artistId] || {
+        releases: 0, hits: 0, flops: 0, streams: 0,
+        peakMonthly: 0, peakPop: 0, features: 0, awards: 0,
+        labels: [], milestones: [], recent: [],
+        lastHit: 0, lastFlop: 0, lastRelease: 0,
+        momentum: 0, arc: null, arcDay: 0
+      };
+      return c;
+    },
+
+    recordCareer(artistId, ev, data) {
+      const a = K.artistById(artistId);
+      const c = K.industry.careerOf(artistId);
+      data = data || {};
+      const day = K.state.day;
+      if (ev === "release") {
+        c.releases++;
+        c.lastRelease = day;
+        c.momentum = U.clamp((c.momentum || 0) + 0.15, 0, 1);
+      } else if (ev === "hit") {
+        c.hits++; c.lastHit = day;
+        c.momentum = U.clamp((c.momentum || 0) + 0.45, 0, 1);
+        c.recent.push(1); if (c.recent.length > 6) c.recent.shift();
+        c.milestones.unshift({ day: day, text: "hit" + (data.title ? ": " + data.title : "") });
+      } else if (ev === "flop") {
+        c.flops++; c.lastFlop = day;
+        c.momentum = U.clamp((c.momentum || 0) - 0.35, 0, 1);
+        c.recent.push(-1); if (c.recent.length > 6) c.recent.shift();
+        c.milestones.unshift({ day: day, text: "flop" + (data.title ? ": " + data.title : "") });
+      } else if (ev === "feature") {
+        c.features++;
+        c.momentum = U.clamp((c.momentum || 0) + 0.1, 0, 1);
+      } else if (ev === "award") {
+        c.awards++;
+        c.milestones.unshift({ day: day, text: "ödül" + (data.cat ? ": " + data.cat : "") });
+      } else if (ev === "label") {
+        c.labels.unshift({ day: day, from: data.from || null, to: data.to || null });
+        c.labels = c.labels.slice(0, 8);
+      }
+      if (a) {
+        c.peakPop = Math.max(c.peakPop || 0, a.popularity || 0);
+        c.peakMonthly = Math.max(c.peakMonthly || 0, a.monthly || 0);
+      }
+      c.milestones = c.milestones.slice(0, 10);
+      return c;
+    },
+
+    /* ============================================================
+       v10.59 — KARİYER YAYI (ARC)
+       Yalnızca GERÇEK istatistiklerden türetilir: son yayın
+       sonuçları + popülerlik + zirveye uzaklık + kariyer hacmi.
+       ============================================================ */
+    ARCS: {
+      caylak:     { label: "Çaylak",              icon: "🌱" },
+      yukselen:   { label: "Yükselen yıldız",     icon: "🚀" },
+      zirvede:    { label: "Zirvede",             icon: "👑" },
+      istikrarli: { label: "İstikrarlı",          icon: "🎯" },
+      viral:      { label: "Viral patlama",       icon: "⚡" },
+      comeback:   { label: "Comeback",            icon: "🔄" },
+      dususte:    { label: "Düşüşte",             icon: "📉" },
+      unutulan:   { label: "Unutulmaya başlayan", icon: "🌫️" }
+    },
+
+    arcOf(artistId) {
+      const a = K.artistById(artistId);
+      if (!a) return null;
+      const c = K.industry.careerOf(artistId);
+      const recentScore = (c.recent || []).reduce((s, x) => s + x, 0);
+      const pop = a.popularity || 0;
+      const peak = c.peakPop || pop;
+      const gap = peak - pop;
+      const idle = K.state.day - (c.lastRelease || 0);
+      let arc;
+      if ((c.releases || 0) <= 1 && (c.hits || 0) === 0) arc = "caylak";
+      else if (recentScore >= 3 && pop < peak - 2) arc = "yukselen";
+      else if (pop >= 80 && recentScore >= 0) arc = "zirvede";
+      else if (recentScore >= 2 && (K.state.day - (c.lastFlop || 0)) <= 90 && (c.flops || 0) > 0) arc = "comeback";
+      else if (recentScore >= 3 && (c.hits || 0) >= 3) arc = "viral";
+      else if (recentScore <= -2 && gap >= 8) arc = "dususte";
+      else if (idle > 260 && pop < 55 && (c.releases || 0) > 3) arc = "unutulan";
+      else arc = "istikrarli";
+      c.arc = arc; c.arcDay = K.state.day;
+      return arc;
+    },
+
+    arcInfo(artistId) {
+      const k = K.industry.arcOf(artistId);
+      return k ? K.industry.ARCS[k] : null;
+    },
+
+    /* ============================================================
+       v10.59 — ENDÜSTRİ HAFIZASI (uzun vadeli sektör tarihi)
+       ============================================================ */
+    _industryHistory(kind, text, ids) {
+      const I = K.industry.ensure();
+      const y = (K.util.dateForDay ? K.util.dateForDay(K.state.day).y : new Date().getFullYear());
+      I.history.unshift({ day: K.state.day, y: y, kind: kind, text: text, ids: ids || [] });
+      I.history = I.history.slice(0, 60);
+      return I.history[0];
+    },
+
+    history(n) {
+      const I = K.industry.ensure();
+      return I.history.slice(0, n || 10);
+    },
+
+    /* ============================================================
+       v10.59 — NPC'NİN DİĞERİNİN KARİYERİNE TEPKİSİ
+       Bir sanatçı hit/flop/transfer yaşadığında ağındaki insanlar
+       (dostlar, rakipler, label arkadaşları) duruma göre konuşur.
+       Tepkiler yalnızca UI metni değildir: tie (dostluk/rekabet)
+       ağırlığını da değiştirir.
+       ============================================================ */
+    reactToCareer(a, eventKind, data) {
+      if (!a) return;
+      data = data || {};
+      const friends = K.industry.friendsOf(a.id, 2);
+      const rivals = K.industry.rivalsOf(a.id, 2);
+      const mates = (K.labelSim && K.labelSim.rosterOf && a.labelId)
+        ? K.labelSim.rosterOf(a.labelId).filter(x => x.id !== a.id).slice(0, 2)
+        : [];
+      const label = (K.labelById && a.labelId) ? K.labelById(a.labelId) : null;
+      const name = a.stageName;
+
+      if (eventKind === "hit") {
+        friends.forEach((f, i) => {
+          if (!f.artist) return;
+          K.industry._post(f.artist, i % 2 ? "x" : "instagram", `"${name}" patladı, helal olsun 👏`, { salt: "hit_f" });
+          K.industry.setTie(a.id, f.id, "friend", 0.4);
+        });
+        rivals.forEach((r, i) => {
+          if (!r.artist) return;
+          K.industry._post(r.artist, i % 2 ? "x" : "instagram", `Bir şarkıyla kral olunmuyor.`, { salt: "hit_r" });
+          K.industry.setTie(a.id, r.id, "rival", 0.5);
+        });
+        mates.forEach((m, i) => {
+          K.industry._post(m, i % 2 ? "x" : "instagram", `${name} işi ${label ? label.name : "şirketimiz"} için de büyük. 🏆`, { salt: "hit_m" });
+        });
+        if ((a.popularity || 0) >= 70) K.industry._industryHistory("hit", `${name} büyük bir çıkış yaptı`, [a.id]);
+      } else if (eventKind === "flop") {
+        friends.forEach((f, i) => {
+          if (!f.artist) return;
+          K.industry._post(f.artist, i % 2 ? "x" : "instagram", `${name} için üzüldüm, o iş daha iyisini hak ediyordu.`, { salt: "flop_f" });
+          K.industry.setTie(a.id, f.id, "friend", 0.3);
+        });
+        rivals.forEach((r, i) => {
+          if (!r.artist) return;
+          K.industry._post(r.artist, i % 2 ? "x" : "instagram", `Beklenen oldu.`, { salt: "flop_r" });
+          K.industry.setTie(a.id, r.id, "rival", 0.3);
+        });
+      } else if (eventKind === "label") {
+        friends.forEach(f => {
+          if (!f.artist) return;
+          K.industry._post(f.artist, "instagram", `${name} yeni yolculuğunda başarılar 🖤`, { salt: "lbl_f" });
+        });
+      }
+    },
+
+    /* ============================================================
+       v10.59 — GEÇMİŞİN İLİŞKİYE ETKİSİ
+       Hafızadaki net duygu, samimiyeti ÇOK YAVAŞ biçimlendirir.
+       Böylece "başarılı ortak iş" veya "beef" tek günlük olay olarak
+       kalmaz; aylar sonra hâlâ hissedilir. Ayrıca olumlu geçmiş,
+       yeni bir feature teklifini tetikleyebilir.
+       ============================================================ */
+    memoryDriftTick() {
+      const s = K.state;
+      const I = K.industry.ensure();
+      Object.keys(I.memSum || {}).forEach(id => {
+        const rel = s.relations && s.relations[id];
+        if (!rel) return;
+        const score = K.industry.memoryScore(id);
+        if (!score) return;
+        const pull = U.clamp(score * 0.02, -0.12, 0.12);
+        rel.affinity = U.clamp(rel.affinity + pull, 0, 100);
+      });
+    },
+
+    _maybeReunite() {
+      const s = K.state;
+      const I = K.industry.ensure();
+      Object.keys(I.memSum || {}).forEach(id => {
+        const m = I.memSum[id];
+        if (!m || !(m.feat_ok > 0)) return;
+        if ((m.beef || 0) > 0) return;
+        const a = K.artistById(id);
+        const rel = s.relations && s.relations[id];
+        if (!a || !rel || rel.affinity < 55) return;
+        if (rel.deal && rel.deal.type === "feature" && rel.deal.status !== "released") return;
+        if ((s.offers || []).some(o => o.artistId === id && o.status === "pending")) return;
+        const seed = "reunite|" + id + "|" + s.day;
+        if (!hChance(seed, 0.01 + Math.min(0.03, (m.feat_ok) * 0.008))) return;
+        if (K.relations && K.relations.createIncomingFeatureOffer) {
+          K.relations.createIncomingFeatureOffer(id);
+          K.industry._event("feature", `🎤 ${a.stageName} yeniden ortak iş teklif etti`, { artistId: id, player: true });
+        }
+      });
+    },
+
+    _updateArcs() {
+      const I = K.industry.ensure();
+      Object.keys(I.career || {}).forEach(id => {
+        const c = I.career[id];
+        if (!c) return;
+        if (K.state.day - (c.arcDay || 0) >= 7) K.industry.arcOf(id);
+      });
+    },
+
+    /* önemli dünya olayları için günlük bildirim tavanı (spam engeli) */
+    _notifyImportant(title, msg, kind, priority) {
+      const I = K.industry.ensure();
+      const s = K.state;
+      if (I.notifDay !== s.day) { I.notifDay = s.day; I.notifCount = 0; }
+      if ((I.notifCount || 0) >= 3) return false;
+      I.notifCount = (I.notifCount || 0) + 1;
+      return K.industry.notify(title, msg, kind, priority == null ? 2 : priority);
     },
 
     /* ============================================================
@@ -428,10 +725,16 @@
       p.x = Math.round((p.x || 0) + (b.x || 0) * 0.002);
       p.ytSubs = Math.round((p.ytSubs || 0) + (b.ytSubs || 0) * 0.0015);
 
-      /* 2) İLİŞKİ + SEKTÖR MOMENTUMU */
+      /* 2) İLİŞKİ + SEKTÖR MOMENTUMU + HAFIZA */
       if (K.relations && K.relations.addAffinity) {
         K.relations.addAffinity(b.id, 3, "feat_yayin", { uncapped: true });
       }
+      K.industry.remember(b.id, "feat_ok", "player", {
+        delta: 3, weight: 2, note: `"${song.title}" ortak işi yayınlandı`
+      });
+      K.industry.remember(b.id, "hit_together", "player", { delta: 2, weight: 1.5 });
+      K.industry.recordCareer(b.id, "feature", {});
+      K.industry._industryHistory("player_feature", `Player ile ${b.stageName} ortak single çıkardı`, [b.id]);
       I.momentum = U.clamp((I.momentum || 0) + 0.35, 0, 1);
 
       /* 3) AĞ TEPKİSİ — dostlar över, rakipler gönderme yapar */
@@ -495,6 +798,11 @@
         K.industry._post(r.artist, i % 2 ? "x" : "instagram", "Bazı tartışmalar kendiliğinden çözülür.", { salt: "beef" });
       });
 
+      /* v10.59 — husumet artık kalıcı hafızada: uzun vadeli mesafe */
+      K.industry.remember(artistId, "beef", "player", { delta: -3, weight: 2, note: "Oyuncu ile husumet" });
+      friends.forEach(f => { if (f.artist) K.industry.remember(f.id, "support_friend", "player", { delta: -1, weight: 1, note: target.stageName + " dostuna husumet" }); });
+      rivals.forEach(r => { if (r.artist) K.industry.remember(r.id, "support", "player", { delta: 1, weight: 1 }); });
+      K.industry._industryHistory("player_beef", `Player ile ${target.stageName} arasında gerilim başladı`, [artistId]);
       I.momentum = U.clamp((I.momentum || 0) - 0.1, 0, 1);
       K.industry._event("player_beef", `💥 Sektör, ${target.stageName} ile gerginliğini konuşuyor`,
         { artistId: artistId, important: true, player: true });
@@ -599,7 +907,12 @@
       /* 5) momentumdan şirket ilgisi */
       K.industry._maybeLabelOffer();
 
-      /* 6) bugünün olayından akışa bir gönderi (feed değişsin) */
+      /* 6) v10.59 — hafızanın ilişkiye yavaş etkisi + geçmiş ortakların dönüşü */
+      K.industry.memoryDriftTick();
+      K.industry._maybeReunite();
+      K.industry._updateArcs();
+
+      /* 7) bugünün olayından akışa bir gönderi (feed değişsin) */
       K.industry._feedFromEvents();
     },
 
@@ -622,7 +935,8 @@
     feedHTML() {
       const s = K.state;
       const evs = K.industry.events(16);
-      if (!evs.length) {
+      const hist = K.industry.history(6);
+      if (!evs.length && !hist.length) {
         return `<div class="empty-note"><b>Endüstri henüz sessiz</b>Günler ilerledikçe sanatçılar yayın yapar, transfer olur, sahneye çıkar.</div>`;
       }
       const head = `<div class="news-hint">🏭 Sektörden son hareketler — sen bir şey yapmasan da dünya akıyor.</div>`;
@@ -633,7 +947,17 @@
           </div>
           <div class="ni-keywords"><span>${U.escape(U.ago(e.day, s.day))}</span><span>${U.escape((KINDS[e.kind] || {}).label || "Sektör")}</span></div>
         </div>`).join("");
-      return head + rows;
+      /* v10.59 — uzun vadeli sektör tarihi (yıl etiketli) */
+      const histHTML = hist.length ? `
+        <div class="news-hint">📜 Sektör tarihi</div>` +
+        hist.map(h => `
+        <div class="news-item">
+          <div class="ni-head">
+            <div class="ni-title">${U.escape(h.y + " — " + h.text)}</div>
+          </div>
+          <div class="ni-keywords"><span>${U.escape((KINDS[h.kind] || {}).label || "Sektör")}</span></div>
+        </div>`).join("") : "";
+      return head + rows + histHTML;
     }
   };
 })(window.K = window.K || {});
