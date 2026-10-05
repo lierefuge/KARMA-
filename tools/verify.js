@@ -188,7 +188,9 @@ const SUITES = [
   { id: "v1057",       script: "tools/smoke-v1057.js",       label: "v10.57 enflasyon · sezon · ödül sezonu · RIAA notu" },
   /* v10.58 — yaşayan endüstri: NPC–NPC ilişki ağı · kariyer olayları ·
      oyuncu feature/husumet yankısı · öncelikli bildirim + endüstri akışı */
-  { id: "v1058",       script: "tools/smoke-v1058.js",       label: "v10.58 yaşayan endüstri (NPC ağı · olaylar · oyuncu etkisi)" }
+  { id: "v1058",       script: "tools/smoke-v1058.js",       label: "v10.58 yaşayan endüstri (NPC ağı · olaylar · oyuncu etkisi)" },
+  /* v10.59 — endüstri hafızası · NPC kariyer/yay · yaşayan label simülasyonu */
+  { id: "v1059",       script: "tools/smoke-v1059.js",       label: "v10.59 endüstri hafızası · NPC kariyer · label rekabeti" }
 ];
 
 const suiteOut = {};
