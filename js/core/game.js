@@ -116,6 +116,8 @@
       if (K.social && K.social.dailyTick) K.social.dailyTick();
       /* v10.58 — yaşayan endüstri: NPC ağı + dünya olayları + oyuncu yankısı */
       if (K.industry && K.industry.tick) K.industry.tick();
+      /* v10.59 — yaşayan label: keşif · transfer · rekabet · itibar */
+      if (K.labelSim && K.labelSim.tick) K.labelSim.tick();
       if (K.concerts && K.concerts.tick) K.concerts.tick();
       if (K.festivals && K.festivals.tick) K.festivals.tick();
       if (K.rollout && K.rollout.tick) K.rollout.tick();
