@@ -5,6 +5,71 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.59 — ENDÜSTRİ HAFIZASI · NPC KARİYER · YAŞAYAN LABEL
+
+v10.58'in üzerine inşa edilir; hiçbir mevcut sistem yeniden yazılmadı. Yeni
+dosya: `js/systems/labelsim.js`. Yeni test: `tools/smoke-v1059.js`
+(**55 kontrol**, 14 senaryo).
+
+### 1 · 🧠 NPC hafızası (kalıcı)
+Her sanatçı için yaşanan olaylar yapılandırılmış biçimde saklanır:
+`{gün, tür, karşı taraf, ilişki etkisi, ağırlık, kısa not}`. İki katman: son 12
+olayın dökümü + kırpılmayan **tür sayaçları** (`feat_ok`, `beef`, `diss`,
+`support`, `award`…). Günlük döngü yalnızca sayacı okur; ağır tarama yapılmaz.
+
+### 2 · 🔗 Geçmişin ilişkiye etkisi
+Hafızanın net duygusu, samimiyeti **çok yavaş** biçimlendirir (günlük ±0.12
+sınırı). Böylece başarılı bir ortak iş aylar sonra hâlâ kapı açar; bir husumet
+kalıcı mesafe yaratır. Olumlu geçmiş, yeni bir **feature teklifini**
+kendiliğinden doğurabilir.
+
+### 3 · 📊 NPC kariyer geçmişi
+Sanatçı başına kalıcı istatistik: release/hit/flop sayısı, toplam stream, zirve
+dinleyici ve popülerlik, feature/ödül sayısı, **şirket geçmişi**, dönüm
+noktaları, son hit/flop, momentum ve trend.
+
+### 4 · 🌊 Kariyer yayları (arc)
+Yalnızca gerçek istatistiklerden türetilir (son 6 yayın sonucu + popülerlik +
+zirveye uzaklık): **Çaylak · Yükselen yıldız · Zirvede · İstikrarlı · Viral
+patlama · Comeback · Düşüşte · Unutulmaya başlayan**.
+
+### 5 · 🎤 NPC'lerin birbirine tepkisi
+Bir sanatçı hit/flop/transfer yaşadığında dostları, rakipleri ve label
+arkadaşları duruma göre paylaşım yapar; bu tepkiler **dostluk/rekabet ağırlığını
+da** değiştirir.
+
+### 6 · 🏢 Yaşayan label simülasyonu (`labelsim.js`)
+Şirketler statik satır olmaktan çıkar. Her şirketin **stratejisi** (tür ağırlığı,
+seviye tercihi, keşif gücü, kadro kapasitesi), **itibarı** (kadronun gerçek
+performansından) ve **rekabeti** (yükselen sanatçıyı kapma) vardır.
+
+### 7 · 🤝 Label rekabeti + poaching
+Şirketler NPC sanatçılar için yarışır: bir sanatçı yükseldiğinde rakip şirket
+keşfe çıkar. Transfer; eski/yeni kadroyu, itibarı, sanatçı-kariyer geçmişini ve
+sektör tarihini etkiler. Olasılık; popülerlik, dinleyici, son başarı, mevcut
+şirket itibarı, ilişki, tür uyumu ve momentuma bağlıdır.
+
+### 8 · 🏷️ Oyuncunun şirketi
+Oyuncu kendi şirketini kurduğunda sistemden yararlanır: kadrosu **itibar**
+kazanır, rakip şirketler kadrosuna göz koyabilir (ilişki + şirket gücü sanatçıyı
+korur), sanatçı kaybedebilir ve bu olay oyuncuya **öncelikli bildirim** olarak düşer.
+
+### 9 · 📜 Endüstri hafızası (uzun vadeli)
+Önemli olaylar yıl etiketiyle saklanır: “X büyük çıkış yaptı”, “X major label'a
+transfer oldu”, “Player ile X ortak single çıkardı”. **Gündem → 🏭 Endüstri**
+sekmesinde “Sektör tarihi” olarak görünür.
+
+### 10 · ⏱️ Günlük simülasyon + spam kontrolü
+Tümü mevcut `advanceDay` zincirine bağlanır; ağır loop yok. Bildirimler günde en
+çok 3 öncelikli olayla sınırlıdır. Günlük simülasyon **`Math.random()`
+kullanmaz** (deterministik hash RNG) — denge/kariyer eğrileri değişmez.
+
+### Doğrulama
+`npm run verify` — **44/44 adım**. Denge simülasyonu 0 yüksek / 0 orta bulgu.
+Eski kayıtlar bozulmaz: `state.js` göç bloğu + `ensure()` savunmacı tamamlama.
+
+---
+
 ## GÜNCELLEME v10.58 — YAŞAYAN ENDÜSTRİ (NPC ağı · kariyer olayları · oyuncu yankısı)
 
 Bu sürüm KARMA'yı "menülerle dolu oyun"dan **oyuncudan bağımsız akan bir
