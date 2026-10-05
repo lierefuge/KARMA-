@@ -11,6 +11,6 @@
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.58.0";
+  K.VERSION = "10.59.0";
   K.VERSION_DATE = "2026-10-05";
 })(window.K = window.K || {});
