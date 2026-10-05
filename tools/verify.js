@@ -190,7 +190,9 @@ const SUITES = [
      oyuncu feature/husumet yankısı · öncelikli bildirim + endüstri akışı */
   { id: "v1058",       script: "tools/smoke-v1058.js",       label: "v10.58 yaşayan endüstri (NPC ağı · olaylar · oyuncu etkisi)" },
   /* v10.59 — endüstri hafızası · NPC kariyer/yay · yaşayan label simülasyonu */
-  { id: "v1059",       script: "tools/smoke-v1059.js",       label: "v10.59 endüstri hafızası · NPC kariyer · label rekabeti" }
+  { id: "v1059",       script: "tools/smoke-v1059.js",       label: "v10.59 endüstri hafızası · NPC kariyer · label rekabeti" },
+  /* v10.60 — NPC release → stream → chart → kariyer ekonomik zinciri */
+  { id: "v1060",       script: "tools/smoke-v1060.js",       label: "v10.60 NPC release → ekonomi entegrasyonu (chart rekabeti · trend · label)" }
 ];
 
 const suiteOut = {};
