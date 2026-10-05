@@ -67,7 +67,12 @@
     hit:           { icon: "🔥", label: "Patlayan iş" },
     award:         { icon: "🏆", label: "Ödül" },
     player_feature:{ icon: "🤝", label: "Ortak işin" },
-    player_beef:   { icon: "💥", label: "Husumet" }
+    player_beef:   { icon: "💥", label: "Husumet" },
+    /* v10.62 — "GERÇEK DÜNYA" bağlantı olayları */
+    meet:          { icon: "👋", label: "Tanışma" },
+    bond:          { icon: "🔗", label: "Yakın ilişki" },
+    viral:         { icon: "⚡", label: "Viral" },
+    comeback:      { icon: "🔄", label: "Comeback" }
   };
 
   K.industry = {
@@ -121,6 +126,10 @@
          { last: gün, vals: [günlük akış...] }. Eski kayıtta yoksa boş
          kalır; pencere ilk erişimde monthly'den tohumlanır. */
       I.npcStreams = I.npcStreams || {};
+      /* v10.62 — NPC↔NPC ilişki aşamaları ("a|b" → {st,day,last,feat})
+         ve aktif viral olaylar (artistId → {day,until,mult,...}). */
+      I.npcRel = I.npcRel || {};
+      I.viral = I.viral || {};
       if (I.notifDay == null) I.notifDay = 0;
       if (I.notifCount == null) I.notifCount = 0;
       return I;
@@ -201,6 +210,56 @@
         .slice(0, n || 3);
     },
 
+    /* ============================================================
+       v10.62 — NPC ↔ NPC İLİŞKİ AŞAMALARI ("GERÇEK DÜNYA")
+       ties (friend/rival) ilişkinin YÖNÜdür; bu katman DERECESİdir.
+       İki sanatçı önce karşılaşır, tanışır, iletişim kurar, düzenli
+       görüşür, arkadaş/iş ilişkisi kurar, ortak proje yapar, yakınlaşır.
+       Feature yalnızca yeterli aşamaya gelmiş çiftler arasında olur;
+       böylece "hiç tanışmadan ortak iş" imkânsız hale gelir. Zamanla
+       ilerler: aynı gün herkes birbirini tanımaz.
+       ============================================================ */
+    NPC_REL_STAGES: [
+      "tanımıyor", "ilk karşılaşma", "tanışıyor", "iletişim",
+      "düzenli etkileşim", "arkadaş/iş", "ortak proje", "yakın ilişki"
+    ],
+
+    _pk(aId, bId) { return aId < bId ? aId + "|" + bId : bId + "|" + aId; },
+
+    npcRelOf(aId, bId) {
+      const I = K.industry.ensure();
+      const k = K.industry._pk(aId, bId);
+      const r = I.npcRel[k] = I.npcRel[k] || { st: 0, day: 0, last: 0, feat: 0 };
+      return r;
+    },
+
+    npcRelStage(aId, bId) { return K.industry.npcRelOf(aId, bId).st || 0; },
+
+    npcRelLabel(st) { return K.industry.NPC_REL_STAGES[U.clamp(st | 0, 0, 7)]; },
+
+    /* aşamayı ilerlet (deterministik). Eşik geçilirse olay/haber üretir. */
+    advanceNpcRel(aId, bId, n, reason) {
+      const a = K.artistById(aId), b = K.artistById(bId);
+      if (!a || !b) return 0;
+      const r = K.industry.npcRelOf(aId, bId);
+      const before = r.st || 0;
+      r.st = U.clamp(before + (n || 1), 0, 7);
+      r.day = K.state.day; r.last = K.state.day;
+      if (r.st !== before) {
+        if (r.st === 1) {
+          K.industry._event("meet", `👋 ${a.stageName} ile ${b.stageName} aynı ortamda karşılaştı`, { artistId: a.id });
+        } else if (r.st === 2) {
+          K.industry._event("meet", `🤝 ${a.stageName} ve ${b.stageName} tanıştı`, { artistId: a.id });
+        } else if (r.st === 6) {
+          K.industry._event("feature", `🎤 ${a.stageName} ile ${b.stageName} ortak projeye başladı`, { artistId: a.id, important: true });
+          K.industry._industryHistory("feature", `${a.stageName} ve ${b.stageName} ortak proje yaptı`, [a.id, b.id]);
+        } else if (r.st === 7) {
+          K.industry._industryHistory("bond", `${a.stageName} ile ${b.stageName} artık yakın çalışma ortakları`, [a.id, b.id]);
+        }
+      }
+      return r.st;
+    },
+
     /* ---- ağı bir kez tohumla: tür/şirket yakınlığı dostluk ya da
        rekabet doğurur. Deterministik; kayıtta zaten varsa tekrar çalışmaz. */
     _seedTies() {
@@ -224,27 +283,41 @@
           else if (sameGenre && r < 0.22) { kind = "rival"; w = 0.8 + frac(seed + "w") * 1.9; }
           else if (!sameGenre && r < 0.06) { kind = "rival"; w = 0.6 + frac(seed + "w") * 1.2; }
           if (kind) K.industry.setTie(a.id, b.id, kind, w);
+          /* v10.62 — başlangıç ilişki AŞAMASI: herkes herkesi tanımaz.
+             Aynı şirket → tanışıyor/iletişim, aynı tür → karşılaşmış,
+             diğerleri çoğunlukla hiç tanışmamış. Zamanla ilerler. */
+          let st = 0;
+          if (sameLabel) st = 3 + (frac(seed + "st") < 0.5 ? 1 : 0);
+          else if (sameGenre && kind === "friend") st = 2 + (frac(seed + "st") < 0.4 ? 1 : 0);
+          else if (sameGenre) st = 1;
+          else if (kind) st = 1;
+          if (st > 0) K.industry.npcRelOf(a.id, b.id).st = st;
         }
       }
       I._tiesSeeded = true;
     },
 
-    /* ---- kenar listeleri (ağırlıklı seçim için) ---- */
-    _edges(kind) {
+    /* ---- kenar listeleri (ağırlıklı seçim için) ----
+       minStage verilirse yalnızca o ilişki aşamasına ULAŞMIŞ çiftler
+       döner; böylece tanışmamış sanatçılar ortak iş yapamaz. */
+    _edges(kind, minStage) {
       const I = K.industry.ensure();
       const out = [];
       Object.keys(I.ties).forEach(a => {
         const map = I.ties[a] && I.ties[a][kind];
         if (!map) return;
         Object.keys(map).forEach(b => {
-          if (a < b && map[b] > 0) out.push([a, b, map[b]]);
+          if (a < b && map[b] > 0) {
+            if (minStage && K.industry.npcRelStage(a, b) < minStage) return;
+            out.push([a, b, map[b]]);
+          }
         });
       });
       return out;
     },
 
-    _pickPair(seed, kind) {
-      const edges = K.industry._edges(kind);
+    _pickPair(seed, kind, minStage) {
+      const edges = K.industry._edges(kind, minStage);
       if (!edges.length) return null;
       const total = edges.reduce((s, e) => s + e[2], 0);
       let r = frac(seed) * total;
@@ -332,9 +405,21 @@
       b._boost = Math.min(0.6, (b._boost || 0) + boost);
       a.popularity = U.clamp((a.popularity || 50) + 0.4, 30, 99);
       b.popularity = U.clamp((b.popularity || 50) + 0.4, 30, 99);
-      a.monthly = Math.round(a.monthly * (1 + boost));
-      b.monthly = Math.round(b.monthly * (1 + boost));
+      /* v10.62 — monthly DOĞRUDAN büyütülmez (v10.61 kuralı). Feature
+         kitlesi stream penceresine yazılır; monthly buradan türetilir. */
+      K.industry.npcStreamPush(a, Math.round((a.monthly || 50000) * boost * 0.5));
+      K.industry.npcStreamPush(b, Math.round((b.monthly || 50000) * boost * 0.5));
+      a.monthly = K.industry.npcMonthlyFromWindow(a);
+      b.monthly = K.industry.npcMonthlyFromWindow(b);
       K.industry.setTie(a.id, b.id, "friend", 1.5);
+      /* v10.62 — ortak iş ilişkiyi ilerletir: aşama ≥6 (ortak proje) */
+      const st = K.industry.npcRelOf(a.id, b.id).st || 0;
+      if (st < 6) K.industry.advanceNpcRel(a.id, b.id, 6 - st, "feature");
+      K.industry.npcRelOf(a.id, b.id).feat = (K.industry.npcRelOf(a.id, b.id).feat || 0) + 1;
+      K.industry.recordCareer(a.id, "feature", {});
+      K.industry.recordCareer(b.id, "feature", {});
+      K.industry.remember(a.id, "hit_together", b.id, { delta: 1, weight: 1 });
+      K.industry.remember(b.id, "hit_together", a.id, { delta: 1, weight: 1 });
 
       K.industry._event("feature", `🎤 ${a.stageName} ile ${b.stageName} ortak iş yaptı`, { artistId: a.id });
       K.industry._post(a, "instagram", `${b.stageName} ile stüdyodan yeni bir iş çıktı 🎧`, { salt: "feat" });
@@ -379,6 +464,10 @@
 
     _npcTension(a, b) {
       K.industry.setTie(a.id, b.id, "rival", 2);
+      /* v10.62 — gerilim de bir etkileşimdir: ilişki aşamasını ilerletir */
+      const st = K.industry.npcRelOf(a.id, b.id).st || 0;
+      if (st < 2) K.industry.advanceNpcRel(a.id, b.id, 2 - st, "tension");
+      else K.industry.advanceNpcRel(a.id, b.id, 1, "tension");
       a.popularity = U.clamp((a.popularity || 50) + 0.2, 30, 99);
       b.popularity = U.clamp((b.popularity || 50) + 0.2, 30, 99);
       K.industry._event("tension", `⚡ ${a.stageName} ile ${b.stageName} arasında gerilim var`, { artistId: a.id });
@@ -671,13 +760,21 @@
          Sonraki günlerde decayReleaseStreams aynı pencereyi besler. */
       K.industry.npcStreamPush(a, initial);
 
+      /* 2.7) v10.62 — BAŞARI SEVİYESİ: yalnızca GERÇEK performanstan
+         türetilir (ilk günlük akış / sanatçının taban akışı). Rastgele
+         bir etiket değildir; aynı seed aynı seviyeyi verir. */
+      const _ratio = initial / Math.max(1, baseDaily);
+      const tier = outcome === "hit"
+        ? (_ratio >= 1.5 ? "career" : _ratio >= 1.15 ? "viral" : _ratio >= 0.9 ? "bigHit" : "hit")
+        : outcome; // "normal" | "flop"
+
       /* 3) SONUÇ KAYDI (chart + trend + akış buradan beslenir) */
       I.lastRelease = I.lastRelease || {};
       I.lastRelease[a.id] = {
         day: day, title: (song && song.title) || "", art: (song && song.art) || null,
         featWith: (song && song.featWith) || null, featName: featName,
         initial: initial, daily: initial, peakDaily: initial, total: initial,
-        result: outcome,
+        result: outcome, tier: tier,
         factors: {
           quality: +f.quality.toFixed(2), momentum: +f.momentum.toFixed(2),
           trend: +f.trend.toFixed(2), label: +f.label.toFixed(2),
@@ -704,10 +801,15 @@
       /* 6) KARİYER GEÇMİŞİ: stream + sonuç + değişim detayı */
       K.industry.recordCareer(a.id, "release_info", {
         title: (song && song.title) || "",
-        streams: initial, result: outcome,
+        streams: initial, result: outcome, tier: tier,
         monthly: a.monthly, popularity: a.popularity,
         featWith: (song && song.featWith) || null
       });
+      /* v10.62 — büyük seviyeler kariyer kilometre taşı olur */
+      if (tier === "bigHit" || tier === "viral" || tier === "career") {
+        c.milestones.unshift({ day: day, text: tier + (song && song.title ? ": " + song.title : "") });
+        c.milestones = c.milestones.slice(0, 10);
+      }
 
       /* 7) LABEL EKONOMİSİ (hafif: gelir + hit/flop kaydı → prestij) */
       if (K.labelSim && K.labelSim.recordRelease) K.labelSim.recordRelease(a, outcome, initial);
@@ -719,7 +821,101 @@
         K.industry._notifyImportant("📈 Sektörde büyük hit",
           `${a.stageName} — "${(song && song.title) || ""}" listelerde hızla yükseliyor.`, "ok");
       }
+
+      /* 9) v10.62 — COMEBACK: floptan sonra gelen hit "geri dönüş"tür.
+         Tek flop kariyeri bitirmez; toparlanma her zaman mümkündür. */
+      if (outcome === "hit" && (c.flops || 0) > 0 && (day - (c.lastFlop || 0)) <= 240) {
+        c.comebackDay = day;
+        c.milestones.unshift({ day: day, text: "comeback" });
+        c.milestones = c.milestones.slice(0, 10);
+        K.industry._event("comeback", `🔄 ${a.stageName} düşüşten sonra geri döndü`, { artistId: a.id, important: (a.popularity || 0) >= 70 });
+        K.industry._industryHistory("comeback", `${a.stageName} bir tutmayan işin ardından toparlandı`, [a.id]);
+      }
+
+      /* 10) v10.62 — VİRAL ZİNCİRİ (sosyal → stream → monthly → chart).
+         Bir hit bazen kısa videolarda patlar; sonraki günlerde bu
+         viral akış sanatçının 28 günlük penceresine yazılır. Böylece
+         aylık dinleyici GERÇEK stream'den büyür ve chart yükselir. */
+      if ((tier === "viral" || tier === "career" || tier === "bigHit") &&
+        hChance("vir|" + a.id + "|" + day, tier === "bigHit" ? 0.18 : 0.4)) {
+        K.industry._startViral(a, song, tier);
+      }
       return I.lastRelease[a.id];
+    },
+
+    /* ============================================================
+       v10.62 — VİRAL OLAY (TikTok/Reels/Shorts)
+       Kısa videoda patlayan bir şarkı birkaç gün boyunca EK akış
+       üretir; akış pencereye yazıldığı için monthly ve chart gerçek
+       performanstan etkilenir. Deterministik; Math.random yok.
+       ============================================================ */
+    _startViral(a, song, tier) {
+      const I = K.industry.ensure();
+      const day = K.state.day;
+      const dur = 3 + Math.floor(frac("vird|" + a.id + day) * 3);       // 3-5 gün
+      const mult = tier === "career" ? 2.2 : tier === "viral" ? 1.8 : 1.35;
+      const platform = hPick("virp|" + a.id + day, ["tiktok", "reels", "shorts"]) || "tiktok";
+      I.viral[a.id] = {
+        day: day, until: day + dur, mult: mult, platform: platform,
+        title: (song && song.title) || ""
+      };
+      const pf = { tiktok: "TikTok", reels: "Reels", shorts: "Shorts" }[platform] || "TikTok";
+      K.industry._event("viral", `⚡ ${a.stageName}'in "${(song && song.title) || "yeni işi"}" parçası ${pf}'ta viral oldu`, { artistId: a.id, important: true });
+      K.industry._post(a, platform, `${(song && song.title) || "yeni sesim"} herkesin videosunda 🔥`, { salt: "viral" });
+      K.industry._industryHistory("viral", `${a.stageName}'in şarkısı kısa videolarda viral oldu`, [a.id]);
+      if (K.industry.reactToCareer) K.industry.reactToCareer(a, "hit");
+    },
+
+    /* günlük: aktif viral olaylar ek akış üretir (pencere → monthly → chart) */
+    _viralTick() {
+      const I = K.industry.ensure();
+      const s = K.state, day = s.day;
+      const ids = Object.keys(I.viral || {});
+      if (!ids.length) return;
+      ids.forEach(id => {
+        const v = I.viral[id];
+        const a = K.artistById(id);
+        if (!v || !a) { delete I.viral[id]; return; }
+        if (day > v.until) { delete I.viral[id]; return; }
+        const lr = I.lastRelease && I.lastRelease[id];
+        const base = lr ? lr.daily : Math.max(50000, a.monthly || 50000) / 26;
+        const extra = Math.round(base * (v.mult - 1) * 0.6);
+        if (extra > 0) {
+          K.industry.npcStreamPush(a, extra);
+          if (lr) { lr.daily += extra; lr.total = Math.round((lr.total || 0) + extra); lr.viral = true; }
+          a.streams = Math.round((a.streams || 0) + extra);
+        }
+        a.popularity = U.clamp((a.popularity || 50) + 0.15, 30, 99);
+        const tag = "#" + String(v.title || "").replace(/[^\p{L}\p{N}]/gu, "").slice(0, 20);
+        if (tag.length >= 5 && s.trends && !s.trends.some(t => t.tag === tag)) {
+          s.trends.unshift({ tag: tag, count: Math.round(base * 20), npc: true });
+        }
+        a.monthly = K.industry.npcMonthlyFromWindow(a);
+      });
+      s.trends = (s.trends || []).slice(0, 8);
+    },
+
+    /* günlük: NPC ilişkileri ZAMANLA ilerler (tanışma emek ister) */
+    _npcRelTick() {
+      const I = K.industry.ensure();
+      const day = K.state.day;
+      const keys = Object.keys(I.npcRel || {});
+      if (!keys.length) return;
+      let moved = 0;
+      for (let i = 0; i < keys.length && moved < 2; i++) {
+        const k = keys[i];
+        const r = I.npcRel[k];
+        if (!r || r.st >= 7) continue;
+        const parts = k.split("|");
+        const aId = parts[0], bId = parts[1];
+        if (!K.artistById(aId) || !K.artistById(bId)) continue;
+        if (day - (r.last || 0) < 3) continue;
+        const p = r.st <= 2 ? 0.012 : 0.006;
+        if (hChance("npcst|" + k + "|" + day, p)) {
+          K.industry.advanceNpcRel(aId, bId, 1, "time");
+          moved++;
+        }
+      }
     },
 
     /* günlük: yayın sonrası dinlenme akışı söner, sanatçıya yazılır */
@@ -889,13 +1085,15 @@
         c.streams = Math.round((c.streams || 0) + (data.streams || 0));
         c.lastReleaseInfo = {
           day: day, title: data.title || "", streams: data.streams || 0,
-          result: data.result || "normal", monthly: data.monthly || 0,
+          result: data.result || "normal", tier: data.tier || data.result || "normal",
+          monthly: data.monthly || 0,
           popularity: data.popularity || 0, featWith: data.featWith || null
         };
         c.releaseLog = c.releaseLog || [];
         c.releaseLog.unshift({
           day: day, title: data.title || "", streams: data.streams || 0,
-          result: data.result || "normal", featWith: data.featWith || null
+          result: data.result || "normal", tier: data.tier || data.result || "normal",
+          featWith: data.featWith || null
         });
         c.releaseLog = c.releaseLog.slice(0, 10);
       }
@@ -1267,8 +1465,11 @@
       let fired = 0;
       const MAX = 2;
 
+      /* v10.62 — feature yalnızca ARKADAŞ/İŞ ilişkisine ulaşmış
+         (aşama ≥5) çiftler arasında olur. Tanışmayan iki sanatçı
+         ortak iş yapamaz. */
       if (fired < MAX && hChance("ind|feat|" + day, 0.16)) {
-        const pair = K.industry._pickPair("ind|feat|" + day, "friend");
+        const pair = K.industry._pickPair("ind|feat|" + day, "friend", 5);
         if (pair) { K.industry._npcFeature(pair[0], pair[1]); fired++; }
       }
       if (fired < MAX && hChance("ind|lbl|" + day, 0.06)) {
@@ -1293,6 +1494,9 @@
       K.industry._updateArcs();
       /* v10.60 — büyük NPC hit'leri gündeme düşer */
       K.industry._npcTrends();
+      /* v10.62 — ilişkiler zamanla olgunlaşır + aktif viraller akış üretir */
+      K.industry._npcRelTick();
+      K.industry._viralTick();
 
       /* 7) bugünün olayından akışa bir gönderi (feed değişsin) */
       K.industry._feedFromEvents();
