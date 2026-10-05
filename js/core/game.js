@@ -535,6 +535,10 @@
         a.x = Math.round(a.x + a.popularity * U.rand(0.05, 0.3));
         a.ytSubs = Math.round(a.ytSubs + a.popularity * U.rand(0.05, 0.2));
 
+        /* v10.60 — yayın sonrası dinlenme akışı (deterministik, RNG'siz).
+           Release → günlük stream → sanatçı toplamı zincirini kurar. */
+        if (K.industry && K.industry.decayReleaseStreams) K.industry.decayReleaseStreams(a);
+
         /* --- YAYIN KADANSI --- */
         if (a._nextRelease == null) {
           /* ilk yayın: oyun başında sanatçı başına dağıtılmış */
@@ -565,7 +569,13 @@
            gün/365` idi; oysa oyun gerçek tarihten (dateStart) başlıyor, yani
            gün 400'de şarkı "2009" etiketi alırken gerçek tarih 2027 oluyordu. */
         const relYear = (K.util.dateForDay ? K.util.dateForDay(s.day || 1).y : new Date().getFullYear());
-        song = { title: U.pick(names) + (U.chance(0.3) ? " (feat. " + U.pick(K.artistList()).stageName + ")" : ""), art: null, album: "Single", year: String(relYear) };
+        /* v10.60 — feature ortağı artık KİMLİK olarak da saklanır; böylece
+           ortak iş iki kitlenin dinleyicisini birleştirebilir. RNG sırası
+           korunur (pick(names) → chance(0.3) → pick(artists)). */
+        const _name = U.pick(names);
+        const _feat = U.chance(0.3) ? U.pick(K.artistList()) : null;
+        song = { title: _name + (_feat ? " (feat. " + _feat.stageName + ")" : ""), art: null, album: "Single", year: String(relYear) };
+        if (_feat && _feat.id !== a.id) song.featWith = _feat.id;
       }
       used.push(song.title);
 
@@ -618,6 +628,13 @@
           title: "🎧 Yeni yayın: " + a.stageName,
           msg: `"${song.title}" çıktı.`, kind: "ok", day: s.day
         }]).slice(-60);
+      }
+
+      /* v10.60 — YAŞAYAN RELEASE: sonucu oyuncunun dünyasıyla aynı
+         kurallarla hesapla (ilk stream · trend · label · feature · chart).
+         Mevcut RNG akışı KORUNUR; tüm ek hesaplar deterministiktir. */
+      if (K.industry && K.industry.applyNpcRelease) {
+        K.industry.applyNpcRelease(a, song, gain, big);
       }
     },
 
@@ -733,6 +750,28 @@
           artistName: s.player.stageName, daily: song.lastDaily || 0,
           total: song.streams, cover: song.coverSeed, mine: true,
           art: null, featWith: song.featWith || null
+        });
+      });
+
+      /* 3) v10.60 — NPC YAYINLARI: yaşayan endüstri chart'ta GERÇEK rakip.
+         Oyuncunun şarkısı nasıl günlük dinlenmeyle listeye giriyorsa,
+         NPC'nin yeni işi de aynı kuralla girer. Böylece NPC hit'i oyuncunun
+         sırasını aşağı itebilir, oyuncunun hit'i NPC'leri geriye itebilir. */
+      const lrAll = (s.industry && s.industry.lastRelease) || {};
+      Object.keys(lrAll).forEach(id => {
+        const lr = lrAll[id];
+        if (!lr || !(lr.daily > 0)) return;
+        const _age = s.day - (lr.day || 0);
+        if (_age < 0 || _age > 45) return;   // henüz çıkmamış / eski iş listeye girmez
+        if (lr.daily < 20000) return;         // ulusal listeye girecek eşik
+        const na = K.artistById(id);
+        if (!na) return;
+        entries.push({
+          id: "npc_" + id, title: lr.title || "Single",
+          artistId: na.id, artistName: na.stageName,
+          daily: Math.round(lr.daily), total: Math.round(lr.total || lr.daily),
+          cover: na.id, art: lr.art || null, mine: false, npc: true,
+          featWith: lr.featWith || null
         });
       });
 
