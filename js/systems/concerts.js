@@ -112,7 +112,9 @@
            47 bin → ~2.100 kişi (salon)
            1 milyon → ~37.000 kişi (arena)  */
       const monthly = Math.max(0, p.monthly || 0);
-      const demandBase = (monthly * 0.035 + Math.sqrt(monthly) * 2) * c.mult * K.concerts.seasonMult();
+      /* v10.62.1 — gündem sıcaklığı (son hit/viral) konser talebini besler */
+      const buzz = (K.industry && K.industry.playerBuzz) ? K.industry.playerBuzz() : 0;
+      const demandBase = (monthly * 0.035 + Math.sqrt(monthly) * 2) * c.mult * K.concerts.seasonMult() * (1 + buzz * 0.15);
       /* Fiyat esnekliği (v10.9): eskiden 2× fiyat katılımı %12'ye
          düşürüyordu — gerçekte bilet fiyatı iki katına çıkınca katılım
          %40-50 civarında azalır. Eğri yumuşatıldı. */
