@@ -110,7 +110,7 @@
           { id: "all", label: "Tümü", icon: MI.all },
           { id: "groups", label: "Gruplar", icon: MI.groups },
           { id: "requests", label: (() => { const n = Object.keys(K.state.dmRequests || {}).length; return n ? ("İstekler (" + n + ")") : "İstekler"; })(), icon: MI.requests },
-          { id: "offers", label: (() => { const n = K.state.offers.filter(o => o.status === "pending").length; return n ? ("Teklifler (" + n + ")") : "Teklifler"; })(), icon: MI.offers },
+          { id: "offers", label: (() => { const n = (K.state.offers || []).filter(o => o && o.status === "pending").length; return n ? ("Teklifler (" + n + ")") : "Teklifler"; })(), icon: MI.offers },
           { id: "new", label: "Yeni DM", icon: MI.new }
         ],
         activeTab: params.tab || "all",
@@ -205,7 +205,7 @@
 
     /* ---------------- PAZARLIK (v10.30) ---------------- */
     offerNegotiatePrompt(offerId) {
-      const offer = (K.state.offers || []).find(o => o.id === offerId);
+      const offer = (K.state.offers || []).find(o => o && o.id === offerId);
       if (!offer || offer.status !== "pending") return;
       const p = K.state.player;
       const lever = K.relations.offerLeverage(offer);
@@ -513,8 +513,8 @@
 
     /* ---------------- teklifler ---------------- */
     offersHTML() {
-      const pending = K.state.offers.filter(o => o.status === "pending");
-      const past = K.state.offers.filter(o => o.status !== "pending").slice(-6);
+      const pending = (K.state.offers || []).filter(o => o && o.status === "pending");
+      const past = (K.state.offers || []).filter(o => o && o.status !== "pending").slice(-6);
       if (!pending.length && !past.length) return `<div class="empty-note"><b>Teklif yok</b>Samimiyet arttıkça feature, hangout ve şirket teklifleri gelir.</div>`;
       return `
         ${pending.length ? `<div class="sp-section-title">Bekleyen Teklifler</div>${pending.map(o => offerCard(o)).join("")}` : ""}
@@ -601,7 +601,7 @@
         render: () => {
           const appR = K.phone.appById("messages");
           const th = K.thread(artistId);
-          const offers = K.state.offers.filter(o => o.artistId === artistId && (o.status === "pending" || (K.state.day - o.day < 4)));
+          const offers = (K.state.offers || []).filter(o => o && o.artistId === artistId && (o.status === "pending" || (K.state.day - o.day < 4)));
           /* v10.12 — mesaj türleri (sesli / medya / demo) + emoji tepkisi */
           const msgs = th.messages.map(m => {
             if (m.type === "system") return `<div class="dm-system">${U.escape(m.text)}</div>`;
