@@ -145,34 +145,13 @@
   }
 
   /* ---------------- boot ---------------- */
-  /* v10.55 — GLOBAL HATA GÖRÜNÜRLÜĞÜ
-     Önceden çalışma anı hataları yalnızca konsola düşüyordu; oyuncu
-     oyunun sessizce bozulduğunu fark etmiyordu. Artık yakalanmamış
-     hatalar bir kez toast ile duyurulur ve `K.lastError`'da saklanır
-     (test paneli / hata ayıklama için). Tekrarlayan hatalar toast'ı
-     spam'lemez. */
+  /* v10.62.2 — SELF-DIAGNOSTIC
+     v10.55'teki asgari hata bildirimi artık systems/error-monitor.js'e
+     taşındı (tek sistem; kopya yok). K.err global hataları, state
+     uyarılarını, navigasyonu ve event'leri kaydeder; oyuncu Test
+     Paneli'nden hata bildirip raporu dışa aktarabilir. */
   function installErrorReporting() {
-    let shown = 0;
-    const report = (label, detail) => {
-      K.lastError = { label, detail: String(detail || ""), at: Date.now() };
-      try { console.error("[KARMA] " + label, detail); } catch (e) {}
-      if (shown < 3) {
-        shown++;
-        try {
-          K.toast("⚠️ Beklenmedik hata",
-            "Oyun bir hata yakaladı; kaydını yedekleyip devam edebilirsin.", "bad");
-        } catch (e) { /* hata bildirimi başarısız olsa bile döngüye girmeyiz */ }
-      }
-    };
-    window.addEventListener("error", (e) => {
-      if (!e) return;
-      if (e.message) report("hata", (e.error && e.error.stack) || e.message);
-      /* kaynak (img/script) yükleme hatalarını sessizce geç */
-    });
-    window.addEventListener("unhandledrejection", (e) => {
-      const r = e && e.reason;
-      report("promise", (r && (r.stack || r.message)) || r);
-    });
+    if (K.err && K.err.init) K.err.init();
   }
 
   function boot() {
@@ -185,6 +164,7 @@
 
     K.ui.initToasts();
     installErrorReporting();
+    if (K.err && K.err.attach) K.err.attach();
     // 🧪 TEST PANELİ kısayolu: Ctrl+Shift+D
     document.addEventListener("keydown", (e) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "D" || e.key === "d")) {
