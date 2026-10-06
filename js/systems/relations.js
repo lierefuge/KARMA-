@@ -1034,7 +1034,7 @@
     _expireOffers() {
       const s = K.state;
       s.offers.forEach(o => {
-        if (o.status !== "pending") return;
+        if (!o || o.status !== "pending") return;
         if (s.day < K.relations.offerDeadline(o)) return;
         o.status = "expired";
         o.handledDay = s.day;
@@ -1051,7 +1051,7 @@
       });
       /* kuyruğu sade tut: bekleyenler + son 6 günde kapananlar */
       s.offers = s.offers.filter(o =>
-        o.status === "pending" || (s.day - (o.handledDay || o.day || 0)) < 6);
+        o && (o.status === "pending" || (s.day - (o.handledDay || o.day || 0)) < 6));
     },
 
     /* pazarlık kaldıracı: karşı tarafın kabul eğilimi (0-1) */
@@ -1069,7 +1069,7 @@
     /* teklife pazarlık: patch = yeni şartlar + greed (0-1) */
     counterOffer(offerId, patch) {
       const s = K.state;
-      const offer = s.offers.find(o => o.id === offerId);
+      const offer = s.offers.find(o => o && o.id === offerId);
       if (!offer || offer.status !== "pending") return { ok: false, why: "yok" };
       if (offer.type === "hangout") return { ok: false, why: "hangout" };
       if (offer.negotiated) return { ok: false, why: "tekrar" };
@@ -1153,7 +1153,7 @@
     /* ---------------- teklife yanıt ---------------- */
     respondOffer(offerId, accept) {
       const s = K.state;
-      const offer = s.offers.find(o => o.id === offerId);
+      const offer = s.offers.find(o => o && o.id === offerId);
       if (!offer || offer.status !== "pending") return;
 
       if (offer.type === "feature") {
