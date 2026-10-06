@@ -295,12 +295,14 @@
       K.phone.views = [view];
       K.phone.homeActive = false;
       K.phone.haptic(8);
+      if (K.err && K.err.noteNav) K.err.noteNav(id, view.title);
       K.phone.render();
     },
 
     pushView(view) {
       K.phone.views.push(view);
       K.phone.homeActive = false;
+      if (K.err && K.err.noteNav) K.err.noteNav(view.appId || K.phone.openAppId, view.title);
       K.phone.render();
     },
 
@@ -313,6 +315,8 @@
     back() {
       if (K.phone.views.length > 1) {
         K.phone.views.pop();
+        const v = K.phone.views[K.phone.views.length - 1];
+        if (K.err && K.err.noteNav) K.err.noteNav(v.appId || K.phone.openAppId, v.title);
         K.phone.render();
       } else {
         K.phone.home();
@@ -324,6 +328,7 @@
       K.phone.views = [];
       K.phone.homeActive = true;
       K.phone.openAppId = null;
+      if (K.err && K.err.noteNav) K.err.noteNav(null, "Ana Ekran");
       K.phone.render();
     },
 
@@ -336,7 +341,13 @@
     renderTop() {
       const v = K.phone.views[K.phone.views.length - 1];
       if (!v) { K.phone.render(); return; }
+      /* v10.62.2 — NAVIGATION WATCHDOG: bozuk görünüm oyunu kilitlemesin.
+         Render fonksiyonu yoksa veya render sırasında hata oluşursa
+         ekran boş kalmaz; hata kaydedilir ve güvenli bir not gösterilir.
+         (Kök neden ayrıca düzeltilir; bu yalnızca dayanıklılık katmanı.) */
+      if (K.err && K.err.checkView && !K.err.checkView(v)) { K.phone.back(); return; }
       const vp = U.qs("#phone-viewport");
+      if (K.err && K.err.noteNav) K.err.noteNav(v.appId || K.phone.openAppId, v.title);
       const bottom = v.tabPos === "bottom";
       const tabsHTML = v.tabs && v.tabs.length ? `
         <div class="seg ${bottom ? "seg-bottom" : ""}" data-tabs>
@@ -344,6 +355,21 @@
         </div>` : "";
       const backBtn = `<button class="app-back" data-back>‹</button>`;
       const navRight = v.navRight || "";
+
+      /* gövde render'ını ayrı üret: hata olursa boş ekran yerine not göster */
+      let bodyHTML = "";
+      try {
+        bodyHTML = v.render((v.activeTab || (v.tabs && v.tabs[0] && v.tabs[0].id)), v.params) || "";
+      } catch (e) {
+        if (K.err && K.err.capture) {
+          K.err.capture({
+            type: "navigation", category: "phone-app", severity: "HIGH",
+            message: "ekran render hatası: " + (v.title || v.appId || "?") + " :: " + ((e && e.message) || e),
+            stack: e && e.stack, app: v.appId || K.phone.openAppId, screen: v.title || null
+          });
+        }
+        bodyHTML = '<div class="empty-note"><b>Bu ekran yüklenemedi</b>Hata kaydedildi. Geri dönüp tekrar deneyin.</div>';
+      }
 
       vp.innerHTML = `
         <div class="screen push app-shell ${v.shellClass || ""} ${bottom ? "has-bottom-tabs" : ""}">
@@ -356,7 +382,7 @@
             ${navRight}
           </div>
           ${bottom ? "" : tabsHTML}
-          <div class="app-body" data-body>${v.render((v.activeTab || (v.tabs && v.tabs[0] && v.tabs[0].id)), v.params)}</div>
+          <div class="app-body" data-body>${bodyHTML}</div>
           ${bottom ? tabsHTML : ""}
           ${v.composer || ""}
           ${v.musicBar ? K.ui.musicBar(v.appId) : ""}
@@ -379,7 +405,15 @@
     },
 
     /* ---------------- click delegasyonu ---------------- */
+    /* v10.62.2 — EVENT WATCHDOG/DAYANIKLILIK: bir aksiyon hata verirse
+       tüm dokunma akışı çökmesin. Hata bağlamıyla (app/ekran/aksiyon)
+       kaydedilir; navigasyon bozulmaz. */
     onClick(e) {
+      if (K.err && K.err.guard) K.err.guard(() => K.phone._onClick(e));
+      else K.phone._onClick(e);
+    },
+
+    _onClick(e) {
       const folderBtn = e.target.closest("[data-open-folder]");
       if (folderBtn) {
         const parts = (folderBtn.dataset.openFolder || "").split(":");
@@ -455,6 +489,7 @@
         }
 
         const v = K.phone.views[K.phone.views.length - 1];
+        if (K.err && K.err.note) K.err.note("tap", pact + (actEl.dataset.arg ? ":" + actEl.dataset.arg : ""));
         if (v && v.onAction) v.onAction(pact, actEl, v);
       }
     },
