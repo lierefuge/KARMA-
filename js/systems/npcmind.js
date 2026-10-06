@@ -183,7 +183,7 @@
       const beef = (K.beef && K.beef.list) ? K.beef.list().find(b => b.artist && b.artist.id === artistId) : null;
       if (beef && beef.heat >= 55) key = "ofkeli";
       else if (now2(m.lastInsultDay, day) <= 2) key = "gergin";
-      else if (K.state.offers && K.state.offers.some(o => o.artistId === artistId && o.status === "pending" && (day - o.day) >= 2)) key = "gergin";
+      else if (K.state.offers && K.state.offers.some(o => o && o.artistId === artistId && o.status === "pending" && (day - o.day) >= 2)) key = "gergin";
       else {
         /* 2) deterministik taban: sanatçıya göre 3 günlük blok */
         const block = Math.floor(day / 3);
