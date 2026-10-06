@@ -7129,7 +7129,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.62.1";
+  K.VERSION = "10.62.2";
   K.VERSION_DATE = "2026-10-07";
 })(window.K = window.K || {});
 
@@ -11648,6 +11648,485 @@ window.K = window.K || {};
 })(window.K);
 
 </script>
+  <!-- v10.62.2 — SELF-DIAGNOSTIC: global hata/state/nav/event izleyici (fail-safe) -->
+  <script>
+/* ==== js/systems/error-monitor.js ==== */
+/* ============================================================
+   KARMA — systems/error-monitor.js   (v10.62.2 · SELF-DIAGNOSTIC)
+
+   NEDEN VAR?
+   ----------
+   v10.55'e kadar çalışma anı hataları yalnızca konsola düşüyordu;
+   oyuncu oyunun sessizce bozulduğunu fark etmiyor, geliştirici de
+   "hangi ekranda, hangi aksiyondan sonra, hangi state ile" olduğunu
+   göremiyordu. Bu modül o boşluğu kapatır:
+
+     · global runtime hata yakalama (error / unhandledrejection)
+     · son kullanıcı AKSİYONLARI ve EVENT'leri (bağlam için)
+     · NAVIGATION WATCHDOG (telefon görünümleri)
+     · EVENT WATCHDOG (aynı olayın iki kez işlenmesi)
+     · STATE VALIDATOR (NaN / Infinity / bozuk referans / kopya id)
+     · oyuncunun elle "HATA BİLDİR" akışı
+     · KARMA-BUG-REPORT.json dışa aktarma
+
+   TASARIM İLKESİ — FAIL-SAFE
+   --------------------------
+   İzleyicinin KENDİSİ oyunu bozmamalı. Bu yüzden:
+     · her genel metot try/catch içinde çalışır,
+     · `_busy` bayrağı ile sonsuz hata döngüsü engellenir,
+     · log yapıları SINIRLIDIR (ring buffer),
+     · hiçbir yerde `throw` edilmez.
+
+   MEVCUT SİSTEMLERİ KORUR
+   -----------------------
+   Yeni bir bildirim/olay/navigasyon sistemi KURMAZ. Var olan
+   K.bus (core/events.js), K.phone (apps/phone.js) ve K.state
+   üzerine YALNIZCA gözlemci olarak bağlanır. Normal oyuncu arayüzü
+   değişmez; panel mevcut test panelinden (Ctrl+Shift+D) açılır.
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  const LIMIT = { errors: 60, warnings: 40, actions: 24, events: 30, reports: 20 };
+
+  /* aynı gün içinde iki kez işlenmesi ŞÜPHELİ olaylar (event watchdog) */
+  const WATCH_EVENTS = ["release:published", "notif:new", "social:post", "offer:new", "offer:resolved"];
+
+  const SEV_RANK = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
+
+  function nowISO() { try { return new Date().toISOString(); } catch (e) { return ""; } }
+  function ringPush(arr, item, max) { try { arr.unshift(item); if (arr.length > max) arr.length = max; } catch (e) {} }
+
+  /* hatayı kategoriye ayır (mesaj + tip sezgisi) */
+  function categorize(type, msg) {
+    const m = String(msg || "").toLowerCase();
+    if (/save|load|localstorage|quota|kayıt/.test(m)) return "save-load";
+    if (/navigation|route|screen|view|render|phone|app/.test(m)) return "phone-app";
+    if (/stream|listener|monthly|dinlen/.test(m)) return "stream";
+    if (/chart|liste/.test(m)) return "chart";
+    if (/label|şirket|sirket/.test(m)) return "label";
+    if (/relation|affinity|samimiyet/.test(m)) return "relation";
+    if (/balance|money|debt|economy|para/.test(m)) return "economy";
+    if (/release|yayın|yayin/.test(m)) return "release";
+    if (/social|feed|post/.test(m)) return "social";
+    return "runtime";
+  }
+
+  function severityOf(cat, type) {
+    if (cat === "save-load") return "CRITICAL";
+    if (cat === "phone-app" && type === "error") return "HIGH";
+    if (type === "promise" || type === "error") return "HIGH";
+    if (type === "state") return "HIGH";
+    if (type === "event") return "MEDIUM";
+    if (type === "navigation") return "MEDIUM";
+    return "MEDIUM";
+  }
+
+  K.err = {
+    _ready: false,
+    _busy: false,
+    _nav: { app: null, screen: null, prevScreen: null },
+    _evtSeen: {},
+    _warned: {},
+    _toastShown: 0,
+    _stats: { captured: 0, suppressed: 0, lastAt: 0 },
+
+    log: { errors: [], warnings: [], actions: [], events: [], reports: [] },
+
+    /* ---------------- bağlam (context) ---------------- */
+    _ctx(extra) {
+      const out = { at: nowISO(), version: null, day: null, app: null, screen: null, prevScreen: null, lastAction: null, playerId: null };
+      try {
+        out.version = K.VERSION || null;
+        const s = K.state;
+        if (s) {
+          out.day = s.day;
+          out.playerId = (s.player && s.player.stageName) || null;
+        }
+        out.app = K.err._nav.app;
+        out.screen = K.err._nav.screen;
+        out.prevScreen = K.err._nav.prevScreen;
+        const la = K.err.log.actions[0];
+        out.lastAction = la ? (la.action + (la.detail ? " · " + la.detail : "")) : null;
+      } catch (e) {}
+      if (extra) { for (const k in extra) { if (extra[k] !== undefined) out[k] = extra[k]; } }
+      return out;
+    },
+
+    /* ---------------- güvenli sarma ---------------- */
+    /* fn() içinde hata olursa kaydeder ama ASLA dışarı fırlatmaz. */
+    guard(fn, ctx) {
+      try { return fn(); }
+      catch (e) {
+        try { K.err.capture({ type: "runtime", message: (e && e.message) || String(e), stack: e && e.stack, ...(ctx || {}) }); } catch (e2) {}
+        return undefined;
+      }
+    },
+
+    /* ---------------- kayıt ---------------- */
+    capture(entry) {
+      if (K.err._busy) { K.err._stats.suppressed++; return null; }
+      K.err._busy = true;
+      try {
+        const e = entry || {};
+        const msg = String(e.message || "bilinmeyen hata");
+        const cat = e.category || categorize(e.type, msg);
+        const sev = e.severity || severityOf(cat, e.type);
+        const rec = {
+          id: "e" + Date.now().toString(36) + Math.floor((K.err._stats.captured % 997)),
+          at: nowISO(),
+          version: (K.state && K.VERSION) || K.VERSION || null,
+          day: (K.state && K.state.day) || null,
+          type: e.type || "runtime",
+          category: cat,
+          severity: sev,
+          message: msg,
+          stack: String(e.stack || "").split("\n").slice(0, 6).join("\n"),
+          app: e.app || K.err._nav.app || null,
+          screen: e.screen || K.err._nav.screen || null,
+          prevScreen: e.prevScreen || K.err._nav.prevScreen || null,
+          lastAction: e.lastAction || (K.err.log.actions[0] ? K.err.log.actions[0].action : null),
+          route: e.route || null,
+          artistId: e.artistId || null,
+          releaseId: e.releaseId || null,
+          context: K.err._ctx()
+        };
+        ringPush(K.err.log.errors, rec, LIMIT.errors);
+        K.err._stats.captured++;
+        K.err._stats.lastAt = Date.now();
+        K.lastError = { label: cat, detail: msg, at: Date.now() };
+
+        /* oyuncuya SEYREK bildirim (spam yok) */
+        if (sev === "CRITICAL" || sev === "HIGH") {
+          if (K.err._toastShown < 3) {
+            K.err._toastShown++;
+            try { K.toast("⚠️ Beklenmedik hata", "Kaydedildi · Test Paneli → Son Hatalar", "bad"); } catch (e3) {}
+          }
+        }
+        return rec;
+      } catch (e4) {
+        return null;
+      } finally {
+        K.err._busy = false;
+      }
+    },
+
+    /* state uyarısı (exception değil, şüpheli değer)
+       NOT: capture'dan farklı olarak _busy kapısı YOKTUR — validateState
+       _busy tutarken çağırır ve yalnızca diziye ekler (özyineleme riski yok). */
+    warn(cat, msg, extra) {
+      try {
+        const day = (K.state && K.state.day) || 0;
+        const key = day + "|" + cat + "|" + msg;
+        if (K.err._warned[key]) return null;      // aynı gün aynı uyarıyı tekrarlama
+        K.err._warned[key] = 1;
+        const rec = {
+          id: "w" + Date.now().toString(36),
+          at: nowISO(), day, version: K.VERSION || null,
+          category: cat, severity: (extra && extra.severity) || "MEDIUM",
+          message: String(msg), path: (extra && extra.path) || null,
+          context: K.err._ctx()
+        };
+        ringPush(K.err.log.warnings, rec, LIMIT.warnings);
+        return rec;
+      } catch (e) { return null; }
+    },
+
+    /* ---------------- kullanıcı aksiyonu ---------------- */
+    note(action, detail) {
+      try {
+        ringPush(K.err.log.actions, { at: nowISO(), day: (K.state && K.state.day) || null, action: String(action || "?"), detail: detail ? String(detail) : null }, LIMIT.actions);
+      } catch (e) {}
+    },
+
+    /* ---------------- navigasyon izleyici ---------------- */
+    noteNav(app, screen) {
+      try {
+        const n = K.err._nav;
+        if (screen !== n.screen || app !== n.app) n.prevScreen = n.screen;
+        n.app = app || n.app;
+        n.screen = screen || n.screen;
+        K.err.note("nav", (app || "") + " / " + (screen || ""));
+      } catch (e) {}
+    },
+
+    /* bir görünüm gerçekten render edilebilir mi? (navigation watchdog) */
+    checkView(view) {
+      try {
+        if (!view) { K.err.capture({ type: "navigation", message: "boş görünüm (view=null)" }); return false; }
+        if (typeof view.render !== "function") {
+          K.err.capture({ type: "navigation", message: "render fonksiyonu yok: " + (view.title || view.appId || "?"), screen: view.title || null, severity: "HIGH" });
+          return false;
+        }
+        return true;
+      } catch (e) { return false; }
+    },
+
+    /* ---------------- event izleyici ---------------- */
+    noteEvent(evt, payload) {
+      try {
+        const eid = (payload && (payload.id || payload.songId || payload.releaseId || payload.artistId || (payload.n && payload.n.id))) || null;
+        ringPush(K.err.log.events, { at: nowISO(), day: (K.state && K.state.day) || null, evt: evt, id: eid }, LIMIT.events);
+        if (WATCH_EVENTS.indexOf(evt) < 0) return;
+        /* varlık kimliği yoksa aynı gün tekrarı meşru olabilir (ör. birden
+           çok bildirim) — yanlış pozitif üretmemek için atla. */
+        if (eid == null) return;
+        const id = eid;
+        const day = (K.state && K.state.day) || 0;
+        const key = evt + "|" + id + "|" + day;
+        if (K.err._evtSeen[key]) {
+          K.err.capture({
+            type: "event", category: "event", severity: "MEDIUM",
+            message: "olay aynı gün iki kez işlendi: " + evt + " (id=" + id + ")",
+            releaseId: (payload && payload.releaseId) || null
+          });
+        } else {
+          K.err._evtSeen[key] = 1;
+          /* eski anahtarları buda (bellek sınırı) */
+          const keys = Object.keys(K.err._evtSeen);
+          if (keys.length > 400) keys.slice(0, 200).forEach(k => delete K.err._evtSeen[k]);
+        }
+      } catch (e) {}
+    },
+
+    /* ---------------- STATE VALIDATOR ---------------- */
+    _num(v) { return typeof v === "number" && isFinite(v); },
+
+    validateState() {
+      if (K.err._busy) return [];
+      K.err._busy = true;
+      const found = [];
+      try {
+        const s = K.state;
+        if (!s) return found;
+        const chk = (cond, cat, msg, extra) => { if (!cond) { const w = K.err.warn(cat, msg, extra); if (w) found.push(w); } };
+
+        /* --- para & oyuncu --- */
+        chk(K.err._num(s.balance), "economy", "balance sayı değil/NaN: " + s.balance);
+        const p = s.player || {};
+        chk(K.err._num(p.monthly) && p.monthly >= 0, "stream", "monthly geçersiz: " + p.monthly);
+        chk(K.err._num(p.streams) && p.streams >= 0, "stream", "streams geçersiz: " + p.streams);
+        chk(K.err._num(p.popularity), "runtime", "popularity geçersiz: " + p.popularity);
+        ["ig", "x", "tiktok", "ytSubs"].forEach(k => chk(K.err._num(p[k]) && p[k] >= 0, "social", k + " geçersiz: " + p[k]));
+        if (p.stress != null) chk(K.err._num(p.stress), "runtime", "stress geçersiz: " + p.stress);
+        chk(K.err._num(p.debt || 0), "economy", "debt geçersiz: " + p.debt);
+
+        /* --- şarkılar: kimlik + sayılar + kopya id --- */
+        const ids = {};
+        (p.songs || []).slice(0, 300).forEach((sg, i) => {
+          if (!sg) { chk(false, "release", "songs[" + i + "] null"); return; }
+          if (!sg.id) chk(false, "release", "şarkıda id yok: " + (sg.title || i));
+          else if (ids[sg.id]) chk(false, "release", "kopya şarkı id: " + sg.id);
+          else ids[sg.id] = 1;
+          if (sg.streams != null) chk(K.err._num(sg.streams) && sg.streams >= 0, "stream", "şarkı streams geçersiz: " + sg.id);
+          if (sg.dailyStreams != null) chk(K.err._num(sg.dailyStreams) && sg.dailyStreams >= 0, "stream", "şarkı dailyStreams geçersiz: " + sg.id);
+        });
+
+        /* --- teklifler --- */
+        chk(Array.isArray(s.offers), "runtime", "offers dizi değil");
+        const oids = {};
+        (Array.isArray(s.offers) ? s.offers : []).slice(0, 200).forEach((o, i) => {
+          if (!o) { chk(false, "runtime", "offers[" + i + "] null"); return; }
+          if (!o.id) chk(false, "runtime", "teklifte id yok");
+          else if (oids[o.id]) chk(false, "runtime", "kopya teklif id: " + o.id);
+          else oids[o.id] = 1;
+          chk(!!o.type && !!o.status, "runtime", "teklif eksik alan: " + o.id);
+        });
+
+        /* --- ilişkiler: affinity + bozuk referans --- */
+        const rel = s.relations || {};
+        const rkeys = Object.keys(rel).slice(0, 500);
+        rkeys.forEach(id => {
+          const r = rel[id];
+          if (!r) { chk(false, "relation", "ilişki null: " + id); return; }
+          if (r.affinity != null) chk(K.err._num(r.affinity), "relation", "affinity geçersiz: " + id);
+          if (K.artistById && !K.artistById(id)) chk(false, "relation", "ilişki bilinmeyen sanatçıya bağlı: " + id, { severity: "LOW" });
+        });
+
+        /* --- chart --- */
+        if (s.chart) {
+          chk(Array.isArray(s.chart), "chart", "chart dizi değil");
+          (Array.isArray(s.chart) ? s.chart : []).slice(0, 200).forEach((e, i) => {
+            if (!e) { chk(false, "chart", "chart[" + i + "] null"); return; }
+            if (!K.err._num(e.rank)) chk(false, "chart", "chart rank geçersiz: " + (e.title || i));
+          });
+        }
+
+        /* --- NPC aylık pencere (v10.61) --- */
+        const win = s.npcStreams || {};
+        Object.keys(win).slice(0, 600).forEach(id => {
+          const arr = win[id];
+          if (arr == null) return;
+          if (!Array.isArray(arr)) { chk(false, "stream", "npcStreams dizi değil: " + id); return; }
+          arr.slice(-28).forEach(v => chk(K.err._num(v) && v >= 0, "stream", "npcStreams negatif/geçersiz: " + id));
+        });
+
+        /* --- feed yapısı --- */
+        if (s.feed) {
+          Object.keys(s.feed).forEach(k => chk(Array.isArray(s.feed[k]), "social", "feed." + k + " dizi değil"));
+        }
+
+        /* --- sosyal yığınlar --- */
+        ["likes", "follows", "subs", "saved", "reposts"].forEach(k => {
+          if (p[k] != null) chk(typeof p[k] === "object", "social", "player." + k + " nesne değil");
+        });
+      } catch (e) {
+        K.err.capture({ type: "state", message: "validateState çöktü: " + (e && e.message) });
+      } finally {
+        K.err._busy = false;
+      }
+      return found;
+    },
+
+    /* ---------------- oyuncunun elle bildirimi ---------------- */
+    report(text) {
+      try {
+        const s = K.state;
+        const rep = {
+          id: "r" + Date.now().toString(36),
+          at: nowISO(),
+          userReport: String(text || "").slice(0, 600),
+          version: K.VERSION || null,
+          day: s ? s.day : null,
+          app: K.err._nav.app,
+          screen: K.err._nav.screen,
+          prevScreen: K.err._nav.prevScreen,
+          lastAction: K.err.log.actions[0] ? K.err.log.actions[0].action : null,
+          recentActions: K.err.log.actions.slice(0, 15).map(a => a.action + (a.detail ? " · " + a.detail : "")),
+          recentEvents: K.err.log.events.slice(0, 15).map(e => e.evt + (e.id ? "#" + e.id : "")),
+          recentErrors: K.err.log.errors.slice(0, 8).map(e => e.severity + " " + e.category + ": " + e.message),
+          stateWarnings: K.err.log.warnings.slice(0, 10).map(w => w.category + ": " + w.message),
+          saveState: K.err._stateSnapshot()
+        };
+        ringPush(K.err.log.reports, rep, LIMIT.reports);
+        return rep;
+      } catch (e) { return null; }
+    },
+
+    /* rapora gömülecek hafif state özeti (hassas/tam veri değil) */
+    _stateSnapshot() {
+      try {
+        const s = K.state; if (!s) return null;
+        const p = s.player || {};
+        return {
+          balance: Math.round(s.balance || 0),
+          day: s.day,
+          popularity: Math.round(p.popularity || 0),
+          monthly: Math.round(p.monthly || 0),
+          streams: Math.round(p.streams || 0),
+          followers: { ig: p.ig || 0, x: p.x || 0, tiktok: p.tiktok || 0, ytSubs: p.ytSubs || 0 },
+          songs: (p.songs || []).length,
+          offers: (s.offers || []).length,
+          relations: Object.keys(s.relations || {}).length,
+          notifications: (s.notifications || []).length,
+          chartTop: (s.chart || []).slice(0, 3).map(e => ({ rank: e.rank, title: e.title, mine: !!e.mine }))
+        };
+      } catch (e) { return null; }
+    },
+
+    /* ---------------- dışa aktarma ---------------- */
+    exportObject() {
+      try {
+        return {
+          format: "KARMA-BUG-REPORT",
+          generatedAt: nowISO(),
+          version: K.VERSION || null,
+          day: (K.state && K.state.day) || null,
+          stats: K.err._stats,
+          nav: K.err._nav,
+          state: K.err._stateSnapshot(),
+          errors: K.err.log.errors,
+          stateWarnings: K.err.log.warnings,
+          navigationErrors: K.err.log.errors.filter(e => e.category === "phone-app" || e.category === "navigation"),
+          eventErrors: K.err.log.errors.filter(e => e.category === "event"),
+          userReports: K.err.log.reports,
+          recentActions: K.err.log.actions,
+          recentEvents: K.err.log.events
+        };
+      } catch (e) { return { format: "KARMA-BUG-REPORT", error: String(e && e.message) }; }
+    },
+
+    exportJSON() {
+      try { return JSON.stringify(K.err.exportObject(), null, 2); }
+      catch (e) { return JSON.stringify({ format: "KARMA-BUG-REPORT", error: String(e && e.message) }); }
+    },
+
+    /* tarayıcıda indir (test panelinden) */
+    download() {
+      try {
+        const data = K.err.exportJSON();
+        const blob = new Blob([data], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = "KARMA-BUG-REPORT.json";
+        document.body.appendChild(a); a.click();
+        setTimeout(() => { try { document.body.removeChild(a); URL.revokeObjectURL(url); } catch (e) {} }, 400);
+        return true;
+      } catch (e) { return false; }
+    },
+
+    clear() { K.err.log = { errors: [], warnings: [], actions: [], events: [], reports: [] }; K.err._evtSeen = {}; K.err._warned = {}; },
+
+    /* ---------------- panel HTML (mevcut test paneli için) ---------------- */
+    panelHTML() {
+      const esc = (K.util && K.util.escape) ? K.util.escape : (x => String(x == null ? "" : x));
+      const sev = { CRITICAL: "#ff4d4d", HIGH: "#ff8c42", MEDIUM: "#ffd166", LOW: "#8ab4f8" };
+      const errs = K.err.log.errors.slice(0, 8);
+      const warns = K.err.log.warnings.slice(0, 5);
+      const reports = K.err.log.reports.slice(0, 5);
+      const row = e => `<div class="err-row" data-err-id="${e.id}" style="border-left:3px solid ${sev[e.severity] || "#888"};padding:5px 8px;margin:4px 0;background:rgba(255,255,255,.03);border-radius:6px;cursor:pointer">
+        <div style="font-weight:700;color:${sev[e.severity] || "#aaa"};font-size:11px">${esc(e.severity || "")} — ${esc(e.category || "")}${e.app ? " / " + esc(e.app) : ""}${e.screen ? " / " + esc(e.screen) : ""}</div>
+        <div style="font-size:11.5px;color:var(--text-1,#ddd)">${esc((e.message || "").slice(0, 120))}</div>
+        <div style="font-size:10px;color:#888">Gün ${e.day == null ? "?" : e.day} · ${esc(e.at || "")}</div>
+        <div class="err-detail" style="display:none;font-size:10.5px;color:#9aa;white-space:pre-wrap;margin-top:4px">${esc((e.stack || "").slice(0, 500))}${e.lastAction ? "\nSon aksiyon: " + esc(e.lastAction) : ""}${e.prevScreen ? "\nÖnceki ekran: " + esc(e.prevScreen) : ""}</div>
+      </div>`;
+      const wrow = w => `<div style="font-size:11px;color:#ffd166;padding:2px 0">• ${esc(w.category)}: ${esc((w.message || "").slice(0, 110))}</div>`;
+      const rrow = r => `<div style="font-size:11px;color:#8ab4f8;padding:2px 0">• ${esc((r.userReport || "").slice(0, 110))} <span style="color:#777">(Gün ${r.day})</span></div>`;
+      return `
+        <div class="dev-sec"><b>🩺 Son Hatalar (${K.err.log.errors.length})</b>
+          <div class="dev-row">
+            <button class="btn btn-ghost btn-sm" data-dev="err-report">✍️ HATA BİLDİR</button>
+            <button class="btn btn-ghost btn-sm" data-dev="err-export">⬇️ Raporu indir</button>
+            <button class="btn btn-ghost btn-sm" data-dev="err-validate">🔎 State doğrula</button>
+            <button class="btn btn-ghost btn-sm" data-dev="err-clear">🧹 Temizle</button>
+          </div>
+          <div style="margin-top:6px">${errs.length ? errs.map(row).join("") : '<div style="font-size:11px;color:#777">Kayıtlı hata yok.</div>'}</div>
+          ${warns.length ? `<div style="margin-top:8px"><b style="font-size:11px">State Uyarıları</b>${warns.map(wrow).join("")}</div>` : ""}
+          ${reports.length ? `<div style="margin-top:8px"><b style="font-size:11px">Oyuncu Bildirimleri</b>${reports.map(rrow).join("")}</div>` : ""}
+        </div>`;
+    },
+
+    /* ---------------- kurulum ---------------- */
+    init() {
+      if (K.err._ready) return;
+      K.err._ready = true;
+      try {
+        window.addEventListener("error", (e) => {
+          if (!e) return;
+          /* kaynak (img/script) yükleme hataları: error alanı yoksa atla */
+          if (!e.message && !e.error) return;
+          K.err.capture({ type: "error", message: e.message || (e.error && e.error.message) || "hata", stack: e.error && e.error.stack });
+        });
+        window.addEventListener("unhandledrejection", (e) => {
+          const r = e && e.reason;
+          K.err.capture({ type: "promise", message: (r && (r.message || r)) || "promise reddi", stack: r && r.stack });
+        });
+      } catch (e) {}
+    },
+
+    /* boot SONRASI: bus ve telefon navigasyonuna gözlemci olarak bağlan */
+    attach() {
+      try {
+        if (K.bus && K.bus.on) {
+          K.bus.on("*", (msg) => { if (msg && msg.evt) K.err.noteEvent(msg.evt, msg.payload); });
+          K.bus.on("day:passed", () => K.err.guard(() => K.err.validateState()));
+        }
+      } catch (e) {}
+    }
+  };
+})(window.K = window.K || {});
+
+</script>
   <script>
 /* ==== js/core/state.js ==== */
 /* ============================================================
@@ -12128,6 +12607,66 @@ window.K = window.K || {};
   }
   K.serializeState = serializeState;
 
+  /* ============================================================
+     v10.62.2 — KAYIT HİJYENİ (state sanitizer)
+     Bozuk/yarım kalmış bir kayıtta listelerde null girdi, haritalarda
+     null değer ya da yanlış tipte alan olabilir (kısmi yazım, elle
+     düzenleme, eski sürüm kalıntısı). Bunlar açılışta farklı
+     ekranları çökertiyordu (ör. Instagram bildirimleri, Mesajlar
+     teklifleri, YouTube/Spotify listeleri). Yüklemede TEK NOKTADAN
+     temizlenir; mevcut sistemleri değiştirmez, yalnızca bozuk
+     girdileri ayıklar. Tümü savunmacı (try/catch) çalışır. */
+  function sanitizeState(st) {
+    try {
+      if (!st || typeof st !== "object") return st;
+      const isObj = (x) => x && typeof x === "object" && !Array.isArray(x);
+      const cleanArr = (a) => Array.isArray(a) ? a.filter(isObj) : [];
+      const cleanMap = (m) => { const o = {}; if (isObj(m)) Object.keys(m).forEach(k => { if (isObj(m[k])) o[k] = m[k]; }); return o; };
+
+      /* dizi listeleri: null/nesne olmayan girdileri at */
+      ["offers", "notifications", "chart", "chartRising", "albumChart", "albumChartRising",
+        "history", "contacts", "concerts", "festivals", "rivals", "catalog"].forEach(k => {
+        if (st[k] == null) return;
+        st[k] = Array.isArray(st[k]) ? cleanArr(st[k]) : [];
+      });
+
+      /* harita (id → nesne): null değerli anahtarları at */
+      ["relations", "threads", "dmRequests", "groups", "beefs"].forEach(k => {
+        if (st[k] != null) st[k] = cleanMap(st[k]);
+      });
+
+      /* feed / appNotifs: platform → dizi */
+      ["feed", "appNotifs"].forEach(k => {
+        if (isObj(st[k])) Object.keys(st[k]).forEach(pf => { st[k][pf] = cleanArr(st[k][pf]); });
+      });
+
+      const pl = st.player;
+      if (isObj(pl)) {
+        ["songs", "albums", "plaques", "wrapped", "payouts", "assets", "beats",
+          "dailyHistory", "watchHistory", "installed"].forEach(k => {
+          if (Array.isArray(pl[k])) pl[k] = cleanArr(pl[k]);
+        });
+        ["likes", "follows", "subs", "saved", "reposts"].forEach(k => {
+          if (pl[k] != null && !isObj(pl[k])) pl[k] = {};
+        });
+      }
+
+      /* endüstri katmanı (v10.58+) */
+      const ind = st.industry;
+      if (isObj(ind)) {
+        ["memory", "npcStreams", "npcRel", "viral", "lastRelease", "career", "memSum", "ties"].forEach(k => {
+          if (ind[k] != null && !isObj(ind[k])) ind[k] = {};
+        });
+        ["events", "history", "log"].forEach(k => { if (Array.isArray(ind[k])) ind[k] = ind[k].filter(isObj); });
+      }
+
+      /* gündem konuları */
+      if (isObj(st.agenda) && Array.isArray(st.agenda.topics)) st.agenda.topics = st.agenda.topics.filter(isObj);
+    } catch (e) { /* hijyen asla yüklemeyi bozmaz */ }
+    return st;
+  }
+  K.sanitizeState = sanitizeState;
+
   /* kota hatasına karşı "hafif" kopya: yalnızca en gerekli ilerleme kalır */
   function compactState(state) {
     const copy = Object.assign({}, state);
@@ -12195,7 +12734,12 @@ window.K = window.K || {};
       if (!data || !data.player) return false;
       K.state = data;
       // migrate / defaults
-      K.state.offers = K.state.offers || [];
+      /* v10.62.2 — BOZUK KAYIT HİJYENİ (MIGRATION'DAN ÖNCE).
+         Eski/yarım kalmış kayıtta listelerde null girdi olabilir; o
+         zaman aşağıdaki göç kodu (ör. `songs.forEach(sg => sg.lists)`)
+         çöker, `load()` false döner ve oyuncunun kaydı yeni oyunla
+         DEĞİŞİR (ilerleme kaybı). Bu yüzden temizlik en başta yapılır. */
+      sanitizeState(K.state);
       K.state.feed = K.state.feed || { ig: [], x: [], tiktok: [], yt: [] };
       K.state.trends = K.state.trends || [];
       if (K.state.agenda === undefined) K.state.agenda = null;
@@ -12315,7 +12859,11 @@ window.K = window.K || {};
       if (K.state.pendingSync === undefined) K.state.pendingSync = null;
       if (K.state.pendingCatalogOffer === undefined) K.state.pendingCatalogOffer = null;
       if (K.state.catalogSold === undefined) K.state.catalogSold = false;
-      K.state.notifications = K.state.notifications || [];
+      /* v10.62.2 — bozuk kayıt hijyeni: bildirim/chart gibi listelerde
+         null girdi olursa arayüz render'ı çöker. Yüklemede temizle. */
+      if (!Array.isArray(K.state.notifications)) K.state.notifications = [];
+      K.state.notifications = K.state.notifications.filter(n => n && typeof n === "object");
+      if (Array.isArray(K.state.chart)) K.state.chart = K.state.chart.filter(e => e && typeof e === "object");
       /* v10.58 — YAŞAYAN ENDÜSTRİ alanları (eski kayıt göçü) */
       K.state.industry = K.state.industry || {};
       {
@@ -12366,6 +12914,8 @@ window.K = window.K || {};
         K.state.player.birth = { y: start.y - age - (passed ? 0 : 1), m: 1, d: 1 };
       }
       if (K.state.player.age == null) K.state.player.age = K.ECON.startAge;
+      /* v10.62.2 — bozuk kayıt hijyeni (null girdiler / yanlış tipler) */
+      sanitizeState(K.state);
       return true;
     } catch (e) {
       console.warn("yükleme hatası", e);
@@ -22061,7 +22611,7 @@ window.K = window.K || {};
     _expireOffers() {
       const s = K.state;
       s.offers.forEach(o => {
-        if (o.status !== "pending") return;
+        if (!o || o.status !== "pending") return;
         if (s.day < K.relations.offerDeadline(o)) return;
         o.status = "expired";
         o.handledDay = s.day;
@@ -22078,7 +22628,7 @@ window.K = window.K || {};
       });
       /* kuyruğu sade tut: bekleyenler + son 6 günde kapananlar */
       s.offers = s.offers.filter(o =>
-        o.status === "pending" || (s.day - (o.handledDay || o.day || 0)) < 6);
+        o && (o.status === "pending" || (s.day - (o.handledDay || o.day || 0)) < 6));
     },
 
     /* pazarlık kaldıracı: karşı tarafın kabul eğilimi (0-1) */
@@ -22096,7 +22646,7 @@ window.K = window.K || {};
     /* teklife pazarlık: patch = yeni şartlar + greed (0-1) */
     counterOffer(offerId, patch) {
       const s = K.state;
-      const offer = s.offers.find(o => o.id === offerId);
+      const offer = s.offers.find(o => o && o.id === offerId);
       if (!offer || offer.status !== "pending") return { ok: false, why: "yok" };
       if (offer.type === "hangout") return { ok: false, why: "hangout" };
       if (offer.negotiated) return { ok: false, why: "tekrar" };
@@ -22180,7 +22730,7 @@ window.K = window.K || {};
     /* ---------------- teklife yanıt ---------------- */
     respondOffer(offerId, accept) {
       const s = K.state;
-      const offer = s.offers.find(o => o.id === offerId);
+      const offer = s.offers.find(o => o && o.id === offerId);
       if (!offer || offer.status !== "pending") return;
 
       if (offer.type === "feature") {
@@ -22642,7 +23192,7 @@ window.K = window.K || {};
       const beef = (K.beef && K.beef.list) ? K.beef.list().find(b => b.artist && b.artist.id === artistId) : null;
       if (beef && beef.heat >= 55) key = "ofkeli";
       else if (now2(m.lastInsultDay, day) <= 2) key = "gergin";
-      else if (K.state.offers && K.state.offers.some(o => o.artistId === artistId && o.status === "pending" && (day - o.day) >= 2)) key = "gergin";
+      else if (K.state.offers && K.state.offers.some(o => o && o.artistId === artistId && o.status === "pending" && (day - o.day) >= 2)) key = "gergin";
       else {
         /* 2) deterministik taban: sanatçıya göre 3 günlük blok */
         const block = Math.floor(day / 3);
@@ -25791,7 +26341,7 @@ window.K = window.K || {};
       const hot = (I.momentum || 0) >= 0.6 || buzz >= 0.5 || chartTop;
       if (!hot) return;
       if (s.day - (I.lastLabelOfferDay || 0) < 75) return;
-      if ((s.offers || []).some(o => o.type === "label" && o.status === "pending")) return;
+      if ((s.offers || []).some(o => o && o.type === "label" && o.status === "pending")) return;
       if ((p.popularity || 0) < 22) return;
       const labelId = K.industry._pickLabelForPlayer();
       if (!labelId) return;
@@ -26741,7 +27291,7 @@ window.K = window.K || {};
       });
 
       /* teklifler (DM ile ilgili) */
-      s.offers.filter(o => o.status === "pending").slice(0, 4).forEach(o => {
+      (s.offers || []).filter(o => o && o.status === "pending").slice(0, 4).forEach(o => {
         const a = o.artistId ? K.artistById(o.artistId) : null;
         out.push({
           app: "instagram", id: "off_" + o.id, kind: o.type,
@@ -26757,7 +27307,13 @@ window.K = window.K || {};
       /* kalıcı olay bildirimleri (sistemlerin ürettiği) */
       const store = K.interactions.appNotifStore();
       (app ? [app] : Object.keys(store)).forEach(ap => {
-        (store[ap] || []).forEach(n => out.push(n));
+        (store[ap] || []).forEach(n => {
+          /* v10.62.2 — bozuk/eski kayıt hijyeni: null girdi veya eksik
+             `app` alanı (eski kayıt) bildirim listesini bozmasın. */
+          if (!n || typeof n !== "object") return;
+          if (!n.app) n.app = ap;
+          out.push(n);
+        });
       });
 
       const list = app ? out.filter(n => n.app === app) : out;
@@ -33704,6 +34260,8 @@ window.K = window.K || {};
             ${b("Yeni oyun", "newgame", "btn-danger")}
           </div></div>
 
+          ${(K.err && K.err.panelHTML) ? K.err.panelHTML() : ""}
+
           <div class="hint">Bu panel test içindir; normal oyunda görünmez (Ctrl+Shift+D).</div>
         </div>`;
 
@@ -33714,9 +34272,12 @@ window.K = window.K || {};
         actions: [{ label: "Kapat" }]
       });
       bodyEl.addEventListener("click", (e) => {
+        const row = e.target.closest(".err-row");
+        if (row) { const d = row.querySelector(".err-detail"); if (d) d.style.display = d.style.display === "none" ? "block" : "none"; return; }
         const btn = e.target.closest("[data-dev]");
         if (!btn) return;
         K.dev.run(btn.dataset.dev);
+        if (btn.dataset.dev === "err-report") return;   // bildirim modalı kendi açar
         K.ui.closeModal();
         K.dev.open();      // paneli güncel değerlerle yeniden aç
       });
@@ -33808,6 +34369,36 @@ window.K = window.K || {};
           K.settings.newGame();
           flash("Yeni oyun başlatıldı");
           return;
+
+        /* ---- v10.62.2 self-diagnostic ---- */
+        case "err-report":
+          if (!K.err) break;
+          K.ui.modal({
+            title: "✍️ Hata Bildir",
+            desc: "Ne olduğunu kısaca yaz; ekran/gün/olay bağlamı otomatik eklenir.",
+            body: K.ui.field("Hata açıklaması", `<textarea id="err-note" rows="4" placeholder="ör. Instagram bildirimlerine girince oyundan attı."></textarea>`),
+            actions: [
+              { label: "Vazgeç" },
+              { label: "Gönder", cls: "btn-primary", onClick: () => {
+                const txt = (U.qs("#err-note") || {}).value || "";
+                const r = K.err.report(txt.trim());
+                K.toast(r ? "📝 Bildirildi" : "Bildirilemedi", r ? "Test Paneli → Son Hatalar" : "", r ? "ok" : "bad");
+              } }
+            ]
+          });
+          return;
+        case "err-export":
+          if (K.err) { const ok = K.err.download(); K.toast(ok ? "⬇️ İndirildi" : "İndirilemedi", "KARMA-BUG-REPORT.json", ok ? "ok" : "bad"); }
+          break;
+        case "err-validate": {
+          if (!K.err) break;
+          const found = K.err.validateState();
+          K.toast(found.length ? "🔎 " + found.length + " uyarı" : "🔎 Temiz", found.length ? "Test Paneli → Son Hatalar" : "State tutarlı görünüyor.", found.length ? "warn" : "ok");
+          break;
+        }
+        case "err-clear":
+          if (K.err) { K.err.clear(); flash("Hata günlüğü temizlendi"); }
+          break;
       }
       K.refresh && K.refresh();
     },
@@ -40161,12 +40752,14 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       K.phone.views = [view];
       K.phone.homeActive = false;
       K.phone.haptic(8);
+      if (K.err && K.err.noteNav) K.err.noteNav(id, view.title);
       K.phone.render();
     },
 
     pushView(view) {
       K.phone.views.push(view);
       K.phone.homeActive = false;
+      if (K.err && K.err.noteNav) K.err.noteNav(view.appId || K.phone.openAppId, view.title);
       K.phone.render();
     },
 
@@ -40179,6 +40772,8 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     back() {
       if (K.phone.views.length > 1) {
         K.phone.views.pop();
+        const v = K.phone.views[K.phone.views.length - 1];
+        if (K.err && K.err.noteNav) K.err.noteNav(v.appId || K.phone.openAppId, v.title);
         K.phone.render();
       } else {
         K.phone.home();
@@ -40190,6 +40785,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       K.phone.views = [];
       K.phone.homeActive = true;
       K.phone.openAppId = null;
+      if (K.err && K.err.noteNav) K.err.noteNav(null, "Ana Ekran");
       K.phone.render();
     },
 
@@ -40202,7 +40798,13 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     renderTop() {
       const v = K.phone.views[K.phone.views.length - 1];
       if (!v) { K.phone.render(); return; }
+      /* v10.62.2 — NAVIGATION WATCHDOG: bozuk görünüm oyunu kilitlemesin.
+         Render fonksiyonu yoksa veya render sırasında hata oluşursa
+         ekran boş kalmaz; hata kaydedilir ve güvenli bir not gösterilir.
+         (Kök neden ayrıca düzeltilir; bu yalnızca dayanıklılık katmanı.) */
+      if (K.err && K.err.checkView && !K.err.checkView(v)) { K.phone.back(); return; }
       const vp = U.qs("#phone-viewport");
+      if (K.err && K.err.noteNav) K.err.noteNav(v.appId || K.phone.openAppId, v.title);
       const bottom = v.tabPos === "bottom";
       const tabsHTML = v.tabs && v.tabs.length ? `
         <div class="seg ${bottom ? "seg-bottom" : ""}" data-tabs>
@@ -40210,6 +40812,21 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         </div>` : "";
       const backBtn = `<button class="app-back" data-back>‹</button>`;
       const navRight = v.navRight || "";
+
+      /* gövde render'ını ayrı üret: hata olursa boş ekran yerine not göster */
+      let bodyHTML = "";
+      try {
+        bodyHTML = v.render((v.activeTab || (v.tabs && v.tabs[0] && v.tabs[0].id)), v.params) || "";
+      } catch (e) {
+        if (K.err && K.err.capture) {
+          K.err.capture({
+            type: "navigation", category: "phone-app", severity: "HIGH",
+            message: "ekran render hatası: " + (v.title || v.appId || "?") + " :: " + ((e && e.message) || e),
+            stack: e && e.stack, app: v.appId || K.phone.openAppId, screen: v.title || null
+          });
+        }
+        bodyHTML = '<div class="empty-note"><b>Bu ekran yüklenemedi</b>Hata kaydedildi. Geri dönüp tekrar deneyin.</div>';
+      }
 
       vp.innerHTML = `
         <div class="screen push app-shell ${v.shellClass || ""} ${bottom ? "has-bottom-tabs" : ""}">
@@ -40222,7 +40839,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             ${navRight}
           </div>
           ${bottom ? "" : tabsHTML}
-          <div class="app-body" data-body>${v.render((v.activeTab || (v.tabs && v.tabs[0] && v.tabs[0].id)), v.params)}</div>
+          <div class="app-body" data-body>${bodyHTML}</div>
           ${bottom ? tabsHTML : ""}
           ${v.composer || ""}
           ${v.musicBar ? K.ui.musicBar(v.appId) : ""}
@@ -40245,7 +40862,15 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     },
 
     /* ---------------- click delegasyonu ---------------- */
+    /* v10.62.2 — EVENT WATCHDOG/DAYANIKLILIK: bir aksiyon hata verirse
+       tüm dokunma akışı çökmesin. Hata bağlamıyla (app/ekran/aksiyon)
+       kaydedilir; navigasyon bozulmaz. */
     onClick(e) {
+      if (K.err && K.err.guard) K.err.guard(() => K.phone._onClick(e));
+      else K.phone._onClick(e);
+    },
+
+    _onClick(e) {
       const folderBtn = e.target.closest("[data-open-folder]");
       if (folderBtn) {
         const parts = (folderBtn.dataset.openFolder || "").split(":");
@@ -40321,6 +40946,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         }
 
         const v = K.phone.views[K.phone.views.length - 1];
+        if (K.err && K.err.note) K.err.note("tap", pact + (actEl.dataset.arg ? ":" + actEl.dataset.arg : ""));
         if (v && v.onAction) v.onAction(pact, actEl, v);
       }
     },
@@ -44520,7 +45146,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           { id: "all", label: "Tümü", icon: MI.all },
           { id: "groups", label: "Gruplar", icon: MI.groups },
           { id: "requests", label: (() => { const n = Object.keys(K.state.dmRequests || {}).length; return n ? ("İstekler (" + n + ")") : "İstekler"; })(), icon: MI.requests },
-          { id: "offers", label: (() => { const n = K.state.offers.filter(o => o.status === "pending").length; return n ? ("Teklifler (" + n + ")") : "Teklifler"; })(), icon: MI.offers },
+          { id: "offers", label: (() => { const n = (K.state.offers || []).filter(o => o && o.status === "pending").length; return n ? ("Teklifler (" + n + ")") : "Teklifler"; })(), icon: MI.offers },
           { id: "new", label: "Yeni DM", icon: MI.new }
         ],
         activeTab: params.tab || "all",
@@ -44615,7 +45241,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
     /* ---------------- PAZARLIK (v10.30) ---------------- */
     offerNegotiatePrompt(offerId) {
-      const offer = (K.state.offers || []).find(o => o.id === offerId);
+      const offer = (K.state.offers || []).find(o => o && o.id === offerId);
       if (!offer || offer.status !== "pending") return;
       const p = K.state.player;
       const lever = K.relations.offerLeverage(offer);
@@ -44923,8 +45549,8 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
     /* ---------------- teklifler ---------------- */
     offersHTML() {
-      const pending = K.state.offers.filter(o => o.status === "pending");
-      const past = K.state.offers.filter(o => o.status !== "pending").slice(-6);
+      const pending = (K.state.offers || []).filter(o => o && o.status === "pending");
+      const past = (K.state.offers || []).filter(o => o && o.status !== "pending").slice(-6);
       if (!pending.length && !past.length) return `<div class="empty-note"><b>Teklif yok</b>Samimiyet arttıkça feature, hangout ve şirket teklifleri gelir.</div>`;
       return `
         ${pending.length ? `<div class="sp-section-title">Bekleyen Teklifler</div>${pending.map(o => offerCard(o)).join("")}` : ""}
@@ -45011,7 +45637,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         render: () => {
           const appR = K.phone.appById("messages");
           const th = K.thread(artistId);
-          const offers = K.state.offers.filter(o => o.artistId === artistId && (o.status === "pending" || (K.state.day - o.day < 4)));
+          const offers = (K.state.offers || []).filter(o => o && o.artistId === artistId && (o.status === "pending" || (K.state.day - o.day < 4)));
           /* v10.12 — mesaj türleri (sesli / medya / demo) + emoji tepkisi */
           const msgs = th.messages.map(m => {
             if (m.type === "system") return `<div class="dm-system">${U.escape(m.text)}</div>`;
@@ -46265,34 +46891,13 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
   }
 
   /* ---------------- boot ---------------- */
-  /* v10.55 — GLOBAL HATA GÖRÜNÜRLÜĞÜ
-     Önceden çalışma anı hataları yalnızca konsola düşüyordu; oyuncu
-     oyunun sessizce bozulduğunu fark etmiyordu. Artık yakalanmamış
-     hatalar bir kez toast ile duyurulur ve `K.lastError`'da saklanır
-     (test paneli / hata ayıklama için). Tekrarlayan hatalar toast'ı
-     spam'lemez. */
+  /* v10.62.2 — SELF-DIAGNOSTIC
+     v10.55'teki asgari hata bildirimi artık systems/error-monitor.js'e
+     taşındı (tek sistem; kopya yok). K.err global hataları, state
+     uyarılarını, navigasyonu ve event'leri kaydeder; oyuncu Test
+     Paneli'nden hata bildirip raporu dışa aktarabilir. */
   function installErrorReporting() {
-    let shown = 0;
-    const report = (label, detail) => {
-      K.lastError = { label, detail: String(detail || ""), at: Date.now() };
-      try { console.error("[KARMA] " + label, detail); } catch (e) {}
-      if (shown < 3) {
-        shown++;
-        try {
-          K.toast("⚠️ Beklenmedik hata",
-            "Oyun bir hata yakaladı; kaydını yedekleyip devam edebilirsin.", "bad");
-        } catch (e) { /* hata bildirimi başarısız olsa bile döngüye girmeyiz */ }
-      }
-    };
-    window.addEventListener("error", (e) => {
-      if (!e) return;
-      if (e.message) report("hata", (e.error && e.error.stack) || e.message);
-      /* kaynak (img/script) yükleme hatalarını sessizce geç */
-    });
-    window.addEventListener("unhandledrejection", (e) => {
-      const r = e && e.reason;
-      report("promise", (r && (r.stack || r.message)) || r);
-    });
+    if (K.err && K.err.init) K.err.init();
   }
 
   function boot() {
@@ -46305,6 +46910,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
     K.ui.initToasts();
     installErrorReporting();
+    if (K.err && K.err.attach) K.err.attach();
     // 🧪 TEST PANELİ kısayolu: Ctrl+Shift+D
     document.addEventListener("keydown", (e) => {
       if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "D" || e.key === "d")) {
