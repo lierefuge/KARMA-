@@ -59,6 +59,8 @@
             ${b("Yeni oyun", "newgame", "btn-danger")}
           </div></div>
 
+          ${(K.err && K.err.panelHTML) ? K.err.panelHTML() : ""}
+
           <div class="hint">Bu panel test içindir; normal oyunda görünmez (Ctrl+Shift+D).</div>
         </div>`;
 
@@ -69,9 +71,12 @@
         actions: [{ label: "Kapat" }]
       });
       bodyEl.addEventListener("click", (e) => {
+        const row = e.target.closest(".err-row");
+        if (row) { const d = row.querySelector(".err-detail"); if (d) d.style.display = d.style.display === "none" ? "block" : "none"; return; }
         const btn = e.target.closest("[data-dev]");
         if (!btn) return;
         K.dev.run(btn.dataset.dev);
+        if (btn.dataset.dev === "err-report") return;   // bildirim modalı kendi açar
         K.ui.closeModal();
         K.dev.open();      // paneli güncel değerlerle yeniden aç
       });
@@ -163,6 +168,36 @@
           K.settings.newGame();
           flash("Yeni oyun başlatıldı");
           return;
+
+        /* ---- v10.62.2 self-diagnostic ---- */
+        case "err-report":
+          if (!K.err) break;
+          K.ui.modal({
+            title: "✍️ Hata Bildir",
+            desc: "Ne olduğunu kısaca yaz; ekran/gün/olay bağlamı otomatik eklenir.",
+            body: K.ui.field("Hata açıklaması", `<textarea id="err-note" rows="4" placeholder="ör. Instagram bildirimlerine girince oyundan attı."></textarea>`),
+            actions: [
+              { label: "Vazgeç" },
+              { label: "Gönder", cls: "btn-primary", onClick: () => {
+                const txt = (U.qs("#err-note") || {}).value || "";
+                const r = K.err.report(txt.trim());
+                K.toast(r ? "📝 Bildirildi" : "Bildirilemedi", r ? "Test Paneli → Son Hatalar" : "", r ? "ok" : "bad");
+              } }
+            ]
+          });
+          return;
+        case "err-export":
+          if (K.err) { const ok = K.err.download(); K.toast(ok ? "⬇️ İndirildi" : "İndirilemedi", "KARMA-BUG-REPORT.json", ok ? "ok" : "bad"); }
+          break;
+        case "err-validate": {
+          if (!K.err) break;
+          const found = K.err.validateState();
+          K.toast(found.length ? "🔎 " + found.length + " uyarı" : "🔎 Temiz", found.length ? "Test Paneli → Son Hatalar" : "State tutarlı görünüyor.", found.length ? "warn" : "ok");
+          break;
+        }
+        case "err-clear":
+          if (K.err) { K.err.clear(); flash("Hata günlüğü temizlendi"); }
+          break;
       }
       K.refresh && K.refresh();
     },
