@@ -12623,16 +12623,15 @@ window.K = window.K || {};
       const cleanArr = (a) => Array.isArray(a) ? a.filter(isObj) : [];
       const cleanMap = (m) => { const o = {}; if (isObj(m)) Object.keys(m).forEach(k => { if (isObj(m[k])) o[k] = m[k]; }); return o; };
 
-      /* dizi listeleri: null/nesne olmayan girdileri at */
+      /* dizi listeleri: eksikse oluştur, null/nesne olmayan girdileri at */
       ["offers", "notifications", "chart", "chartRising", "albumChart", "albumChartRising",
         "history", "contacts", "concerts", "festivals", "rivals", "catalog"].forEach(k => {
-        if (st[k] == null) return;
         st[k] = Array.isArray(st[k]) ? cleanArr(st[k]) : [];
       });
 
-      /* harita (id → nesne): null değerli anahtarları at */
+      /* harita (id → nesne): eksikse oluştur, null değerli anahtarları at */
       ["relations", "threads", "dmRequests", "groups", "beefs"].forEach(k => {
-        if (st[k] != null) st[k] = cleanMap(st[k]);
+        st[k] = isObj(st[k]) ? cleanMap(st[k]) : {};
       });
 
       /* feed / appNotifs: platform → dizi */
