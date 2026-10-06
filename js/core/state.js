@@ -476,6 +476,66 @@
   }
   K.serializeState = serializeState;
 
+  /* ============================================================
+     v10.62.2 — KAYIT HİJYENİ (state sanitizer)
+     Bozuk/yarım kalmış bir kayıtta listelerde null girdi, haritalarda
+     null değer ya da yanlış tipte alan olabilir (kısmi yazım, elle
+     düzenleme, eski sürüm kalıntısı). Bunlar açılışta farklı
+     ekranları çökertiyordu (ör. Instagram bildirimleri, Mesajlar
+     teklifleri, YouTube/Spotify listeleri). Yüklemede TEK NOKTADAN
+     temizlenir; mevcut sistemleri değiştirmez, yalnızca bozuk
+     girdileri ayıklar. Tümü savunmacı (try/catch) çalışır. */
+  function sanitizeState(st) {
+    try {
+      if (!st || typeof st !== "object") return st;
+      const isObj = (x) => x && typeof x === "object" && !Array.isArray(x);
+      const cleanArr = (a) => Array.isArray(a) ? a.filter(isObj) : [];
+      const cleanMap = (m) => { const o = {}; if (isObj(m)) Object.keys(m).forEach(k => { if (isObj(m[k])) o[k] = m[k]; }); return o; };
+
+      /* dizi listeleri: null/nesne olmayan girdileri at */
+      ["offers", "notifications", "chart", "chartRising", "albumChart", "albumChartRising",
+        "history", "contacts", "concerts", "festivals", "rivals", "catalog"].forEach(k => {
+        if (st[k] == null) return;
+        st[k] = Array.isArray(st[k]) ? cleanArr(st[k]) : [];
+      });
+
+      /* harita (id → nesne): null değerli anahtarları at */
+      ["relations", "threads", "dmRequests", "groups", "beefs"].forEach(k => {
+        if (st[k] != null) st[k] = cleanMap(st[k]);
+      });
+
+      /* feed / appNotifs: platform → dizi */
+      ["feed", "appNotifs"].forEach(k => {
+        if (isObj(st[k])) Object.keys(st[k]).forEach(pf => { st[k][pf] = cleanArr(st[k][pf]); });
+      });
+
+      const pl = st.player;
+      if (isObj(pl)) {
+        ["songs", "albums", "plaques", "wrapped", "payouts", "assets", "beats",
+          "dailyHistory", "watchHistory", "installed"].forEach(k => {
+          if (Array.isArray(pl[k])) pl[k] = cleanArr(pl[k]);
+        });
+        ["likes", "follows", "subs", "saved", "reposts"].forEach(k => {
+          if (pl[k] != null && !isObj(pl[k])) pl[k] = {};
+        });
+      }
+
+      /* endüstri katmanı (v10.58+) */
+      const ind = st.industry;
+      if (isObj(ind)) {
+        ["memory", "npcStreams", "npcRel", "viral", "lastRelease", "career", "memSum", "ties"].forEach(k => {
+          if (ind[k] != null && !isObj(ind[k])) ind[k] = {};
+        });
+        ["events", "history", "log"].forEach(k => { if (Array.isArray(ind[k])) ind[k] = ind[k].filter(isObj); });
+      }
+
+      /* gündem konuları */
+      if (isObj(st.agenda) && Array.isArray(st.agenda.topics)) st.agenda.topics = st.agenda.topics.filter(isObj);
+    } catch (e) { /* hijyen asla yüklemeyi bozmaz */ }
+    return st;
+  }
+  K.sanitizeState = sanitizeState;
+
   /* kota hatasına karşı "hafif" kopya: yalnızca en gerekli ilerleme kalır */
   function compactState(state) {
     const copy = Object.assign({}, state);
@@ -543,7 +603,12 @@
       if (!data || !data.player) return false;
       K.state = data;
       // migrate / defaults
-      K.state.offers = K.state.offers || [];
+      /* v10.62.2 — BOZUK KAYIT HİJYENİ (MIGRATION'DAN ÖNCE).
+         Eski/yarım kalmış kayıtta listelerde null girdi olabilir; o
+         zaman aşağıdaki göç kodu (ör. `songs.forEach(sg => sg.lists)`)
+         çöker, `load()` false döner ve oyuncunun kaydı yeni oyunla
+         DEĞİŞİR (ilerleme kaybı). Bu yüzden temizlik en başta yapılır. */
+      sanitizeState(K.state);
       K.state.feed = K.state.feed || { ig: [], x: [], tiktok: [], yt: [] };
       K.state.trends = K.state.trends || [];
       if (K.state.agenda === undefined) K.state.agenda = null;
@@ -663,7 +728,11 @@
       if (K.state.pendingSync === undefined) K.state.pendingSync = null;
       if (K.state.pendingCatalogOffer === undefined) K.state.pendingCatalogOffer = null;
       if (K.state.catalogSold === undefined) K.state.catalogSold = false;
-      K.state.notifications = K.state.notifications || [];
+      /* v10.62.2 — bozuk kayıt hijyeni: bildirim/chart gibi listelerde
+         null girdi olursa arayüz render'ı çöker. Yüklemede temizle. */
+      if (!Array.isArray(K.state.notifications)) K.state.notifications = [];
+      K.state.notifications = K.state.notifications.filter(n => n && typeof n === "object");
+      if (Array.isArray(K.state.chart)) K.state.chart = K.state.chart.filter(e => e && typeof e === "object");
       /* v10.58 — YAŞAYAN ENDÜSTRİ alanları (eski kayıt göçü) */
       K.state.industry = K.state.industry || {};
       {
@@ -714,6 +783,8 @@
         K.state.player.birth = { y: start.y - age - (passed ? 0 : 1), m: 1, d: 1 };
       }
       if (K.state.player.age == null) K.state.player.age = K.ECON.startAge;
+      /* v10.62.2 — bozuk kayıt hijyeni (null girdiler / yanlış tipler) */
+      sanitizeState(K.state);
       return true;
     } catch (e) {
       console.warn("yükleme hatası", e);
