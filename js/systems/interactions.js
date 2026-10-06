@@ -249,7 +249,7 @@
       });
 
       /* teklifler (DM ile ilgili) */
-      s.offers.filter(o => o.status === "pending").slice(0, 4).forEach(o => {
+      (s.offers || []).filter(o => o && o.status === "pending").slice(0, 4).forEach(o => {
         const a = o.artistId ? K.artistById(o.artistId) : null;
         out.push({
           app: "instagram", id: "off_" + o.id, kind: o.type,
@@ -265,7 +265,13 @@
       /* kalıcı olay bildirimleri (sistemlerin ürettiği) */
       const store = K.interactions.appNotifStore();
       (app ? [app] : Object.keys(store)).forEach(ap => {
-        (store[ap] || []).forEach(n => out.push(n));
+        (store[ap] || []).forEach(n => {
+          /* v10.62.2 — bozuk/eski kayıt hijyeni: null girdi veya eksik
+             `app` alanı (eski kayıt) bildirim listesini bozmasın. */
+          if (!n || typeof n !== "object") return;
+          if (!n.app) n.app = ap;
+          out.push(n);
+        });
       });
 
       const list = app ? out.filter(n => n.app === app) : out;
