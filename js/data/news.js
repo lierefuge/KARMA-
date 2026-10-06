@@ -195,12 +195,35 @@
           topics.push({ id: K.util.uid("news"), cat: p.cat, title: p.title, keywords: p.keywords, line: p.line, heat });
         });
       });
-      s.agenda = { refreshedDay: s.day, topics: K.util.shuffle(topics).slice(0, 12) };
+      /* v10.62.1 — gerçek olaydan gelen "canlı" haberler tazelemede korunur */
+      const live = (s.agenda && s.agenda.topics || []).filter(t => t.live);
+      s.agenda = { refreshedDay: s.day, topics: live.concat(K.util.shuffle(topics)).slice(0, 12) };
     },
 
     current() {
       const s = K.state;
       return (s && s.agenda && s.agenda.topics) || [];
+    },
+
+    /* v10.62.1 — GERÇEK OLAYDAN HABER ENJEKSİYONU
+       Sektörde olan gerçek bir olay (viral/hit/transfer/tanışma) Müzik
+       kategorisine düşer. Rastgele cümle DEĞİL: çağıran taraf olayın
+       metnini verir. Aynı metin tekrar eklenmez; liste 12'de tutulur. */
+    injectMusic(text, heat) {
+      const s = K.state;
+      if (!s || !text) return null;
+      s.agenda = s.agenda || { refreshedDay: s.day, topics: [] };
+      s.agenda.topics = s.agenda.topics || [];
+      const t = String(text).slice(0, 140);
+      if (s.agenda.topics.some(x => x.title === t)) return null;
+      const tp = {
+        id: K.util.uid("news"), cat: "muzik", title: t,
+        keywords: ["müzik", "sektör"], line: t,
+        heat: K.util.clamp(Math.round(heat || 72), 40, 100), live: true
+      };
+      s.agenda.topics.unshift(tp);
+      s.agenda.topics = s.agenda.topics.slice(0, 12);
+      return tp;
     },
 
     /* kategorilere göre gruplu gündem */
