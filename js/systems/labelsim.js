@@ -206,6 +206,12 @@
       p += (a.popularity || 0) / 400;                        // yıldızlar daha çok istenir
       p += Math.max(0, (prof.power - cur)) / 300;
       p += prof.aggression * 0.05;
+      /* v10.62.1 — GİZLİ KİŞİLİK: label'a sadık sanatçı daha zor koparılır,
+         bağımsız/risk alan sanatçı daha kolay yer değiştirir. */
+      if (K.industry && K.industry.personality) {
+        const P = K.industry.personality(a);
+        p *= U.clamp(1.35 - P.labelLoyal * 0.7 + P.independent * 0.25 + P.riskTaker * 0.1, 0.35, 1.5);
+      }
       const arc = (K.industry && K.industry.arcOf) ? K.industry.arcOf(a.id) : "";
       if (arc === "yukselen" || arc === "viral") p += 0.04;
       const idle = K.state.day - (c.lastRelease || 0);
