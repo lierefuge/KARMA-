@@ -62,6 +62,34 @@
     },
 
     /* ============================================================
+       v10.62.1 — MÜZİKAL UYUM (FT gerçekçiliği)
+       FT yalnızca samimiyete bağlı değildir: tür uyumu, kariyer
+       momentumu, geçmiş ortak işler, popülerlik yakınlığı ve oyuncunun
+       gündem sıcaklığı birlikte değerlendirilir. 0..1 döner.
+       ============================================================ */
+    compatScore(artistId) {
+      const a = K.artistById(artistId);
+      if (!a) return 0;
+      const p = K.state.player;
+      const pGenre = p.genre || (p.songs && p.songs[0] && p.songs[0].genre) || null;
+      let s = 0.35;
+      if (pGenre && a.genre && pGenre === a.genre) s += 0.30;
+      else if (K.genreById) {
+        const gp = K.genreById(pGenre), ga = K.genreById(a.genre);
+        if (gp && ga && Math.abs((gp.mass || 1) - (ga.mass || 1)) < 0.25) s += 0.12;
+      }
+      if (K.industry) {
+        const c = K.industry.careerOf(a.id);
+        if (c) s += (c.momentum || 0) * 0.15;
+        if (K.industry.memoryScore) s += U.clamp(K.industry.memoryScore(a.id) * 0.02, -0.10, 0.15);
+        if (K.industry.playerBuzz) s += K.industry.playerBuzz() * 0.10;
+      }
+      const gap = Math.abs((a.popularity || 50) - (p.popularity || 0));
+      s += U.clamp(0.12 - gap / 300, -0.10, 0.12);
+      return U.clamp(s, 0, 1);
+    },
+
+    /* ============================================================
        v10.62 — TANIŞMA (encounter)
        "Şehinşah %62 samimi" soyutluğuna karşı: ilişki bir GEÇMİŞten
        doğar. Tanışma bir olayla başlar (festival, konser, liste
@@ -829,9 +857,12 @@
       const cost = 15000;
       if (!K.economy.canAfford(cost)) { K.toast("Yetersiz bakiye", `Stüdyo için ${U.money(cost)} gerekiyor.`, "bad"); return { accepted: false }; }
 
-      // kabul olasılığı
+      // kabul olasılığı — v10.62.1: müzikal uyum + gündem sıcaklığı da katılır
+      const compat = K.relations.compatScore(artistId);
+      const buzz = (K.industry && K.industry.playerBuzz) ? K.industry.playerBuzz() : 0;
       let prob = U.clamp(
-        (rel.affinity - 55) / 70 + a.traits.work / 22 + (p.popularity - a.popularity) / 260,
+        (rel.affinity - 55) / 70 + a.traits.work / 22 + (p.popularity - a.popularity) / 260
+        + (compat - 0.5) * 0.55 + buzz * 0.15,
         0.05, 0.94
       );
       /* v10.52 — DM'de zaten anlaşıldıysa (pending deal) teklif neredeyse kesin */
@@ -1271,19 +1302,26 @@
         }
       });
 
-      // 2) Feature teklifi (samimiyet yüksekse)
+      // 2) Feature teklifi — v10.62.1: samimiyet + MÜZİKAL UYUM birlikte.
+      //    Çok uyumlu ama orta seviyede tanıdığın biri de teklif edebilir.
       const featureCandidates = K.artistList().filter(a => {
         const rel = s.relations[a.id];
         /* v10.52 — anlaşma varsa VEYA feature konuşulduysa aynı
            sanatçıdan yeniden feature teklifi gelmez. */
         if (rel && rel.deal && rel.deal.type === "feature" && rel.deal.status !== "released") return false;
         if (rel && rel.flags && rel.flags.featureTalked) return false;
-        return rel && rel.met && K.stageIndexFor(rel.affinity) >= 4 && !rel.flags.feature
-          && K.relations.reach(a.id) >= 0.25;
+        if (!rel || !rel.met || rel.flags.feature) return false;
+        if (K.relations.reach(a.id) < 0.25) return false;
+        const st = K.stageIndexFor(rel.affinity);
+        const compat = K.relations.compatScore(a.id);
+        return st >= 4 || (st >= 3 && compat >= 0.68);
       });
-      // Feature (ft) teklifi gelme ihtimali: %5
+      // Feature (ft) teklifi gelme ihtimali: %9 (uyum yüksekse daha yüksek)
       if (featureCandidates.length && U.chance(0.09)) {
-        const a = U.pick(featureCandidates);
+        // en uyumlu adayları öne al
+        featureCandidates.sort((x, y) => K.relations.compatScore(y.id) - K.relations.compatScore(x.id));
+        const topN = featureCandidates.slice(0, Math.max(1, Math.ceil(featureCandidates.length * 0.4)));
+        const a = U.pick(topN);
         K.relations.createIncomingFeatureOffer(a.id);
       }
 
