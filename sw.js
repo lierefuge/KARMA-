@@ -20,7 +20,7 @@
      activate → eski önbellekler silinir, sayfa yenilenir.
    ============================================================ */
 
-const VERSION = "10.62.1"; /* tools/gen-version-json.js ile aynı kaynaktan gelir */
+const VERSION = "10.62.2"; /* tools/gen-version-json.js ile aynı kaynaktan gelir */
 
 /* ÖNBELLEK ADI İÇERİK HASH'İNDEN TÜRETİLİR — insan sürümünden DEĞİL.
    Neden? Sürüm numarası değişmeden içerik değişebilir (damgalama
@@ -30,7 +30,7 @@ const VERSION = "10.62.1"; /* tools/gen-version-json.js ile aynı kaynaktan geli
    "güncelle dedim, güncellenmedi". İçerik hash'i her içerik
    değişiminde adı değiştirir; activate eski önbelleği siler.
    Damgalama: tools/gen-version-json.js (CACHE_KEY alanı). */
-const CACHE_KEY = "4a8661d7";
+const CACHE_KEY = "9184df2f";
 const CACHE = "karma-" + CACHE_KEY;
 const CORE = ["./", "./index.html", "./js/version.js"];
 
