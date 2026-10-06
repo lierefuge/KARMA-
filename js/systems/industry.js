@@ -1629,7 +1629,7 @@
       const hot = (I.momentum || 0) >= 0.6 || buzz >= 0.5 || chartTop;
       if (!hot) return;
       if (s.day - (I.lastLabelOfferDay || 0) < 75) return;
-      if ((s.offers || []).some(o => o.type === "label" && o.status === "pending")) return;
+      if ((s.offers || []).some(o => o && o.type === "label" && o.status === "pending")) return;
       if ((p.popularity || 0) < 22) return;
       const labelId = K.industry._pickLabelForPlayer();
       if (!labelId) return;
