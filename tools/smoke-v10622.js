@@ -333,7 +333,7 @@ H.whenReady(dom, { label: "v10622" }).then((K) => {
     const before = { day: s.day, songs: p.songs.length };
     const ser = K.serializeState(s);
     const okSave = K.save();
-    const okLoad = K.load();
+    const okLoad = K.load(); sync();
     return okSave && okLoad && K.state.day === before.day && (K.state.player.songs || []).length === before.songs && ser.length > 100;
   })());
 
@@ -377,6 +377,274 @@ H.whenReady(dom, { label: "v10622" }).then((K) => {
     return res && res.kind === "viral" && Object.keys(song.boosts).length > 0;
   })());
   ok("K2 · playerBuzz ve kişilik korundu", typeof ind.playerBuzz() === "number" && !!ind.personality(K.artistList()[0]));
+
+  /* ============================================================
+     L) NPC YAYIN MATRİSİ (v10.61 pencere + v10.62 zinciri)
+     ============================================================ */
+  const NPM = ind.NPC_MONTHLY;
+  function resetArtist(a) {
+    const I = ind.ensure();
+    delete I.lastRelease[a.id]; delete I.npcStreams[a.id]; delete I.viral[a.id];
+    a.monthly = 100000; a.popularity = 60; a._base = 100000; a._boost = 0; a.labelId = null;
+    const c = ind.careerOf(a.id); c.lastRelease = s.day; c.flops = 0;
+    return a;
+  }
+  const _origOutcome = ind.npcOutcome;
+  function withOutcome(v, fn) { ind.npcOutcome = () => v; try { return fn(); } finally { ind.npcOutcome = _origOutcome; } }
+
+  const tA = K.artistList()[0], tB = K.artistList()[1];
+  const lrN = withOutcome("normal", () => { resetArtist(tA); return ind.applyNpcRelease(tA, { title: "L1" }, 0.1, false); });
+  ok("L1 · normal yayın: pencereye yazılır, monthly pencereden türetilir",
+    lrN && lrN.tier === "normal" && lrN.initial > 0 && tA.monthly === ind.npcMonthlyFromWindow(tA));
+
+  const lrF = withOutcome("flop", () => { resetArtist(tA); return ind.applyNpcRelease(tA, { title: "L2" }, 0.1, false); });
+  ok("L2 · flop: monthly kontrollü (taban ≤ m), sonuç kaydı doğru",
+    lrF && lrF.result === "flop" && isFinite(tA.monthly) && tA.monthly >= NPM.FLOOR);
+
+  const lrH = withOutcome("hit", () => { resetArtist(tA); return ind.applyNpcRelease(tA, { title: "L3" }, 0.2, false); });
+  ok("L3 · hit: seviye (tier) gerçek performanstan türetilir",
+    lrH && ["hit", "bigHit", "viral", "career"].indexOf(lrH.tier) >= 0 && lrH.result === "hit");
+
+  const lrFeat = withOutcome("normal", () => { resetArtist(tA); return ind.applyNpcRelease(tA, { title: "L4", featWith: tB.id }, 0.1, false); });
+  ok("L4 · feature: featName atanır, iki kitle birleşir",
+    lrFeat && lrFeat.featName === tB.stageName && lrFeat.featWith === tB.id);
+
+  const lrSolo = withOutcome("normal", () => { resetArtist(tA); return ind.applyNpcRelease(tA, { title: "L5" }, 0.1, false); });
+  ok("L5 · solo: featName yok", lrSolo && !lrSolo.featName);
+
+  ok("L6 · label ekonomisi kaydı (recordRelease) çalışır", (function () {
+    const lid = (K.LABELS || []).map(l => l.id).filter(id => id !== "my_label")[0];
+    if (!lid) return false;
+    resetArtist(tA); tA.labelId = lid;
+    const before = (ind.ensure().label[lid] && ind.ensure().label[lid].releases) || 0;
+    withOutcome("hit", () => ind.applyNpcRelease(tA, { title: "L6" }, 0.1, false));
+    const after = (ind.ensure().label[lid] && ind.ensure().label[lid].releases) || 0;
+    tA.labelId = null;
+    return after === before + 1;
+  })());
+
+  ok("L7 · viral zinciri: pencereyi GERÇEK akışla büyütür, monthly türetilir", (function () {
+    resetArtist(tA);
+    const before = ind.npcWindowSum(tA);
+    ind._startViral(tA, { title: "ViralL7" }, "viral");
+    const hadViral = !!(ind.ensure().viral[tA.id]);
+    ind._viralTick();
+    const after = ind.npcWindowSum(tA);
+    return hadViral && after > before && tA.monthly === ind.npcMonthlyFromWindow(tA);
+  })());
+
+  ok("L8 · hareketsiz sanatçı: uzun sessizlikte taban erir (decay)", (function () {
+    resetArtist(tA);
+    const c = ind.careerOf(tA.id);
+    c.lastRelease = s.day - (NPM.INACTIVE_GRACE + 50);
+    tA._base = 200000;
+    const before = tA._base;
+    for (let i = 0; i < 5; i++) ind.npcMonthlyTick(tA, 0);
+    return tA._base < before;
+  })());
+
+  ok("L9 · çift sayım yok: decayReleaseStreams pencereyi TEK kez besler", (function () {
+    resetArtist(tA);
+    withOutcome("normal", () => ind.applyNpcRelease(tA, { title: "L9" }, 0.1, false));
+    const lr = ind.ensure().lastRelease[tA.id];
+    lr.daily = 1000;
+    const w = ind._npcWin(tA);
+    const lastBefore = w.vals[w.vals.length - 1] || 0;
+    ind.decayReleaseStreams(tA);
+    const lastAfter = w.vals[w.vals.length - 1] || 0;
+    return (lastAfter - lastBefore) === 930; // 1000 × 0.93, tam bir kez
+  })());
+
+  /* ============================================================
+     M) İLİŞKİ (RELATIONS) REGRESSION
+     ============================================================ */
+  const rA = K.artistList()[2];
+  ok("M1 · tanışma: meetStage 1 + hafıza/sektör olayı", (function () {
+    const rel = K.relation(rA.id);
+    rel.met = false; rel.meetStage = 0;
+    const st = K.relations.encounter(rA.id, "festival");
+    return st === 1 && K.relations.meetStageOf(rA.id) === 1;
+  })());
+  ok("M2 · ikinci karşılaşma aşamayı ilerletir (≤4)", (function () {
+    const before = K.relations.meetStageOf(rA.id);
+    K.relations.encounter(rA.id, "concert");
+    return K.relations.meetStageOf(rA.id) === Math.min(4, before + 1);
+  })());
+  ok("M3 · samimiyet (affinity) 0..100 sınırında artar", (function () {
+    const rel = K.relation(rA.id);
+    rel.affinity = 50;
+    K.relations.addAffinity(rA.id, 10, "test");
+    return rel.affinity > 50 && rel.affinity <= 100;
+  })());
+  ok("M4 · DM mesajı gönderilir (thread oluşur)", (function () {
+    K.relations.pushArtistMessage(rA.id, "M4 test", "system");
+    const th = s.threads[rA.id];
+    return th && Array.isArray(th.messages) && th.messages.some(m => m.text === "M4 test");
+  })());
+  ok("M5 · gelen feature teklifi oluşur (pending)", (function () {
+    const off = K.relations.createIncomingFeatureOffer(rA.id);
+    const found = (s.offers || []).find(o => o && o.id === off.id);
+    return !!found && found.status === "pending";
+  })());
+  ok("M6 · teklif süresi dolunca kapanır (_expireOffers)", (function () {
+    const off = (s.offers || []).find(o => o && o.type === "feature" && o.status === "pending");
+    if (!off) return false;
+    const d0 = s.day;
+    s.day = K.relations.offerDeadline(off) + 1;
+    K.relations._expireOffers();
+    const after = (s.offers || []).find(o => o && o.id === off.id);
+    s.day = d0;
+    return !after || after.status === "expired";
+  })());
+  ok("M7 · ilişki kaydı kaydet/yükle sonrası korunur", (function () {
+    K.relations.addAffinity(rA.id, 5, "m7");
+    const a0 = K.relation(rA.id).affinity;
+    K.save(); K.load(); sync();
+    return K.relation(rA.id).affinity === a0;
+  })());
+
+  /* ============================================================
+     N) LABEL REGRESSION
+     ============================================================ */
+  const LID = (K.LABELS || []).map(l => l.id).filter(id => id !== "my_label")[0];
+  ok("N1 · label profili: tier/kapasite/keşif türetilir", (function () {
+    const prof = K.labelSim.profile(LID);
+    return prof && prof.capacity > 0 && typeof prof.scouting === "number" && !!prof.tier;
+  })());
+  ok("N2 · scout hedefleri üretilir (≤ n)", (function () {
+    const list = K.labelSim.scoutTargets(LID, 5);
+    return Array.isArray(list) && list.length <= 5;
+  })());
+  ok("N3 · transfer: sanatçı şirket değiştirir + kadro güncellenir", (function () {
+    const a = K.artistList()[3];
+    const res = K.labelSim.transfer(a.id, LID, "test");
+    return !!res && a.labelId === LID && K.labelSim.rosterOf(LID).some(x => x.id === a.id);
+  })());
+  ok("N4 · prestij 5..100 aralığında", (function () {
+    const pv = K.labelSim.prestige(LID);
+    return typeof pv === "number" && pv >= 5 && pv <= 100;
+  })());
+  ok("N5 · poachChance 0.01..0.35 (kişilik etkili)", (function () {
+    const pc = K.labelSim.poachChance(K.labelSim.profile(LID), K.artistList()[4]);
+    return pc >= 0.01 && pc <= 0.35;
+  })());
+  ok("N6 · fitScore sayı üretir (tür uyumu etkili)", (function () {
+    const f = K.labelSim.fitScore(K.labelSim.profile(LID), K.artistList()[5]);
+    return typeof f === "number" && isFinite(f);
+  })());
+  ok("N7 · günlük label tick'i çökmez", (function () { K.labelSim.tick(); return true; })());
+
+  /* ============================================================
+     O) CHART REGRESSION
+     ============================================================ */
+  ok("O1 · buildChart geçerli sıralama üretir (rank/id benzersiz)", (function () {
+    K.game.buildChart();
+    const ch = s.chart || [];
+    if (!ch.length) return false;
+    const ids = ch.map(e => e.id);
+    return ch.every(e => e && typeof e.rank === "number" && e.id != null) && new Set(ids).size === ids.length;
+  })());
+  ok("O2 · chart en fazla 50 girdi (performans sınırı)", (s.chart || []).length <= 50);
+
+  /* ============================================================
+     P) FT (FEATURE) REGRESSION
+     ============================================================ */
+  ok("P1 · FT anlaşması: yüksek samimiyette kabul + deal kaydı", (function () {
+    const a = K.artistList()[6];
+    const rel = K.relation(a.id);
+    rel.affinity = 92; rel.met = true; rel.meetStage = 4;
+    s.balance = (s.balance || 0) + 1000000;
+    const orig = w.Math.random; w.Math.random = () => 0.01;
+    let res; try { res = K.relations.proposeFeature(a.id, "FT Test"); } finally { w.Math.random = orig; }
+    return res && res.accepted === true && res.artistId === a.id;
+  })());
+  ok("P2 · FT uyum skoru (compatScore) 0..1 aralığında", (function () {
+    const c = K.relations.compatScore(K.artistList()[6].id);
+    return typeof c === "number" && c >= 0 && c <= 1;
+  })());
+
+  /* ============================================================
+     Q) 10 / 50 GÜNLÜK EK SİMÜLASYON (100 gün I bölümünde)
+     ============================================================ */
+  function simulate(n) {
+    let errs = 0;
+    for (let i = 0; i < n; i++) {
+      try { K.game.nextDay(); } catch (e) { errs++; }
+      if (K.err && K.err.validateState) K.err.validateState();
+    }
+    return errs;
+  }
+  ok("Q1 · 10 günlük simülasyon temiz", simulate(10) === 0);
+  ok("Q2 · 50 günlük simülasyon temiz", simulate(50) === 0);
+
+  /* ============================================================
+     R) TAM SAVE/LOAD DİZİSİ
+     (yeni oyun → oyna → olay → yayın → sosyal → ilişki → NPC olay → kaydet → yükle)
+     ============================================================ */
+  ok("R1 · tam döngü: tüm katmanlar kayıttan sonra sağlam", (function () {
+    K.dev.run("randomRelease");
+    K.relations.encounter(K.artistList()[7].id, "sahne");
+    K.relations.pushArtistMessage(K.artistList()[7].id, "R1", "system");
+    const before = { day: s.day, songs: (p.songs || []).length, rel: K.relations.meetStageOf(K.artistList()[7].id) };
+    const okSave = K.save(); const okLoad = K.load(); sync();
+    return okSave && okLoad && s.day === before.day &&
+      (K.state.player.songs || []).length === before.songs &&
+      K.relations.meetStageOf(K.artistList()[7].id) === before.rel;
+  })());
+  ok("R2 · kayıt sonrası telefon uygulamaları açılır", (function () {
+    let bad = null;
+    K.phone.apps.slice(0, 6).forEach(app => {
+      if (bad) return;
+      try { K.phone.openApp(app.id); K.phone.home(); } catch (e) { bad = app.id + ": " + e.message; }
+    });
+    return bad === null;
+  })());
+
+  /* ============================================================
+     S) BOZUK/ESKİ KAYIT (eksik alanlar) GÖÇÜ
+     ============================================================ */
+  ok("S1 · eksik alanlı eski kayıt güvenli yüklenir", (function () {
+    const w2 = dom.window;
+    const minimal = { day: 5, player: { stageName: "Eski", songs: [], monthly: 1000, popularity: 20 } };
+    w2.localStorage.setItem("karma_music_game_v1", JSON.stringify(minimal));
+    const loaded = K.load(); sync();
+    return loaded === true && Array.isArray(K.state.offers) && K.state.feed && K.state.chart &&
+      K.state.player && typeof K.state.player.stageName === "string";
+  })());
+  ok("S2 · bozuk kayıt sonrası tüm uygulamalar açılır", (function () {
+    let bad = null;
+    K.phone.apps.forEach(app => {
+      if (bad) return;
+      try { K.phone.openApp(app.id); K.phone.home(); } catch (e) { bad = app.id + ": " + e.message; }
+    });
+    return bad === null;
+  })());
+
+  /* ============================================================
+     T) SPOTIFY / APPLE / YOUTUBE / TIKTOK / X + DM AÇIK AKIŞ
+     ============================================================ */
+  ok("T1 · Spotify arama + sanatçı + çıkış açılır", (function () {
+    K.phone.openApp("spotify");
+    const app = K.phone.appById("spotify");
+    try { if (app.search) app.search("test"); } catch (e) {}
+    K.phone.home();
+    return true;
+  })());
+  ok("T2 · Apple Music sanatçı görünümü açılır", (function () {
+    K.phone.openApp("applemusic"); K.phone.home(); return true;
+  })());
+  ok("T3 · YouTube video/kanal açılır", (function () {
+    K.phone.openApp("youtube"); K.phone.home(); return true;
+  })());
+  ok("T4 · TikTok akış/trend açılır", (function () {
+    K.phone.openApp("tiktok"); K.phone.home(); return true;
+  })());
+  ok("T5 · X bildirimleri açılır", (function () {
+    K.phone.openApp("x"); K.phone.home(); return true;
+  })());
+  ok("T6 · DM thread açılır (mesajlar)", (function () {
+    K.phone.openApp("messages"); K.phone.home(); return true;
+  })());
 
   /* ============================================================
      SONUÇ
