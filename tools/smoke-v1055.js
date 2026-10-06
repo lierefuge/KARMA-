@@ -51,6 +51,9 @@ function run() {
   const stateSrc = read("js/core/state.js");
   const mainSrc = read("js/main.js");
   const indexSrc = read("index.html");
+  /* v10.62.2 — global hata yakalayıcı tek sistem olarak
+     systems/error-monitor.js'e taşındı; main.js onu kurar. */
+  const errMonSrc = read("js/systems/error-monitor.js");
 
   /* =========================================================
      A) KAYIT ŞİŞMESİ — türetilmiş veri diske yazılmamalı
@@ -132,7 +135,8 @@ function run() {
   ok("D7 · telefon ekranı bölge olarak etiketli",
     /id="phone-viewport"[^>]*role="region"/.test(indexSrc));
   ok("D8 · global hata yakalayıcı kurulur",
-    /installErrorReporting/.test(mainSrc) && /addEventListener\("error"/.test(mainSrc));
+    /installErrorReporting/.test(mainSrc) &&
+    (/addEventListener\("error"/.test(mainSrc) || /addEventListener\("error"/.test(errMonSrc)));
 
   /* gerçekten çalışıyor mu: sentetik bir hata olayı K.lastError yazmalı */
   let dispatched = false;
