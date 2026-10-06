@@ -319,10 +319,24 @@
     _pickPair(seed, kind, minStage) {
       const edges = K.industry._edges(kind, minStage);
       if (!edges.length) return null;
-      const total = edges.reduce((s, e) => s + e[2], 0);
+      /* v10.62.1 — KİŞİLİK AĞIRLIĞI: seçici sanatçılar daha az ortak iş
+         yapar; rekabetçi/agresif olanlar daha çok gerilim üretir. Oran
+         (olay sıklığı) korunur, yalnızca KİMİN seçildiği değişir. */
+      const P = K.industry.personality;
+      const wOf = (e) => {
+        let w = e[2];
+        const a = K.artistById(e[0]), b = K.artistById(e[1]);
+        if (a && b && P) {
+          const pa = P(a), pb = P(b);
+          if (kind === "friend") w *= Math.max(0.2, 1.5 - (pa.selective + pb.selective) / 2);
+          else w *= 0.7 + (pa.competitive + pb.competitive) / 2 + (pa.aggressive + pb.aggressive) / 2;
+        }
+        return Math.max(0.05, w);
+      };
+      const total = edges.reduce((s, e) => s + wOf(e), 0);
       let r = frac(seed) * total;
       let chosen = edges[edges.length - 1];
-      for (const e of edges) { r -= e[2]; if (r <= 0) { chosen = e; break; } }
+      for (const e of edges) { r -= wOf(e); if (r <= 0) { chosen = e; break; } }
       const a = K.artistById(chosen[0]), b = K.artistById(chosen[1]);
       return a && b ? [a, b] : null;
     },
@@ -574,9 +588,14 @@
       const seed = "npf|" + a.id + "|" + s.day + "|" + ((song && song.title) || "");
       const c = K.industry.careerOf(a.id);
       const work = (a.traits && a.traits.work) ? a.traits.work : 5;
-      const quality = U.clamp(0.75 + work / 25 + frac(seed + "q") * 0.35, 0.55, 1.45);
+      /* v10.62.1 — kişilik, faktörleri ORTALAMA NÖTR biçimde kaydırır:
+         çalışkan/deneysel sanatçının kalitesi biraz yüksek ve oynak,
+         trend takipçisi trendden biraz daha çok kazanır. */
+      const P = K.industry.personality(a) || { workaholic: 0.6, experimental: 0.5, trendChaser: 0.5 };
+      const qMul = 1 + (P.workaholic - 0.6) * 0.08 + (P.experimental - 0.5) * 0.06;
+      const quality = U.clamp((0.75 + work / 25 + frac(seed + "q") * 0.35) * qMul, 0.5, 1.5);
       const momentum = U.clamp(0.85 + (c.momentum || 0) * 0.5, 0.6, 1.45);
-      const trend = 0.92 + K.industry.trendMatch(a.genre) * 0.45;
+      const trend = (0.92 + K.industry.trendMatch(a.genre) * 0.45) * (1 + (P.trendChaser - 0.5) * 0.12);
       const label = K.industry.labelFactor(a);
       const social = U.clamp(
         0.9 + Math.log10(Math.max(100, (a.ig || 0) + (a.x || 0) + (a.tiktok || 0) + (a.ytSubs || 0))) / 50,
@@ -1158,6 +1177,13 @@
       const y = (K.util.dateForDay ? K.util.dateForDay(K.state.day).y : new Date().getFullYear());
       I.history.unshift({ day: K.state.day, y: y, kind: kind, text: text, ids: ids || [] });
       I.history = I.history.slice(0, 60);
+      /* v10.62.1 — sektör tarihine geçen ÖNEMLİ olaylar Gündem'in
+         Müzik kategorisine de düşer (gerçek olaydan haber, spam değil). */
+      const NEWSY = { hit: 1, viral: 1, label: 1, comeback: 1, feature: 1, release: 1, player_feature: 1, bond: 0, meet: 0 };
+      if (NEWSY[kind] && K.news && K.news.injectMusic) {
+        const hot = (kind === "viral" || kind === "hit" || kind === "comeback") ? 84 : 70;
+        K.news.injectMusic(text, hot);
+      }
       return I.history[0];
     },
 
@@ -1391,6 +1417,174 @@
     },
 
     /* ============================================================
+       v10.62.1 — NPC GİZLİ KİŞİLİK KATMANI
+       Her sanatçı için deterministik davranış özellikleri TÜRETİLİR
+       (mevcut `a.traits` + id hash + tür). Yeni veri dosyası yok,
+       state çoğaltma yok. Bu özellikler NPC KARARLARINI etkiler:
+         selective   → daha az ortak iş yapar
+         trendChaser → trend uyumundan daha çok kazanır
+         experimental→ kalite varyansı yüksek (sürpriz hit/flop)
+         competitive → gerilim/rekabete daha yatkın
+         labelLoyal  → transfer teklifini daha çok reddeder
+         social      → daha çok paylaşım/etkileşim
+         riskTaker   → yüksek varyans, yüksek tavan
+       ============================================================ */
+    personality(a) {
+      if (!a) return null;
+      if (a._pers) return a._pers;
+      const t = a.traits || {};
+      const work = (t.work == null ? 5 : t.work) / 10;
+      const ego = (t.ego == null ? 5 : t.ego) / 10;
+      const open = (t.openness == null ? 5 : t.openness) / 10;
+      const h = (s) => frac("pers|" + a.id + "|" + s);
+      const P = {
+        social:       0.30 + open * 0.50 + h("soc") * 0.30,
+        aggressive:   0.15 + ego * 0.50 + h("agg") * 0.30,
+        workaholic:   0.25 + work * 0.60 + h("wk") * 0.25,
+        independent:  0.20 + h("ind") * 0.60 + (a.labelId ? 0 : 0.15),
+        labelLoyal:   0.25 + h("loy") * 0.50 + (a.labelId ? 0.15 : 0),
+        selective:    0.20 + h("sel") * 0.60,
+        trendChaser:  0.20 + h("tr") * 0.65,
+        experimental: 0.20 + h("exp") * 0.60,
+        competitive:  0.20 + ego * 0.40 + h("cmp") * 0.40,
+        mediaFriendly:0.20 + open * 0.40 + h("med") * 0.40,
+        riskTaker:    0.20 + h("rsk") * 0.70
+      };
+      Object.keys(P).forEach(k => { P[k] = U.clamp(P[k], 0, 1); });
+      a._pers = P;
+      return P;
+    },
+
+    /* ============================================================
+       v10.62.1 — OYUNCU OLAY YANKISI (tek veriyolu)
+       Oyuncunun önemli bir müzik olayı (viral / hit / flop / release /
+       chart peak) TEK bir kapıdan geçer ve zinciri tetikler:
+         sosyal (X/IG/YT/TikTok) → stream çarpanı → aylık dinleyici
+         → chart → NPC tepkisi → medya/haber → FT & label & konser ilgisi
+       Yeni paralel state YARATMAZ: mevcut `song.boosts`, `s.feed`,
+       `s.trends`, `s.agenda`, `s.notifications`, `p.*` alanlarını kullanır.
+       ============================================================ */
+    _PLATFORM_MULT: {
+      viral:    { x: 0.14, instagram: 0.10, youtube: 0.16, spotify: 0.20, apple: 0.08, days: 12 },
+      hit:      { x: 0.08, instagram: 0.06, youtube: 0.10, spotify: 0.12, apple: 0.05, days: 9 },
+      flop:     { x: -0.02, instagram: -0.01, youtube: -0.02, spotify: -0.03, apple: -0.01, days: 7 },
+      release:  { x: 0.03, instagram: 0.04, youtube: 0.05, spotify: 0.05, apple: 0.02, days: 5 }
+    },
+
+    /* oyuncunun "sıcak" (gündem) penceresi 0..1 — teklif olasılıklarını besler */
+    playerBuzz() {
+      const p = K.state && K.state.player;
+      if (!p || !p._buzzUntil) return 0;
+      const left = p._buzzUntil - K.state.day;
+      if (left <= 0) return 0;
+      return U.clamp(left / 21, 0, 1);
+    },
+
+    onPlayerEvent(kind, payload) {
+      const s = K.state, p = s.player;
+      if (!p) return null;
+      const song = payload && payload.song;
+      const M = K.industry._PLATFORM_MULT[kind] || K.industry._PLATFORM_MULT.release;
+      const I = K.industry.ensure();
+
+      /* 1) PLATFORM ÇARPANLARI: akış `accrueStreams` içindeki mevcut
+         `song.boosts` sözlüğünden geçer (yeni sistem değil). */
+      if (song) {
+        song.boosts = song.boosts || {};
+        Object.keys(M).forEach(k => {
+          if (k === "days") return;
+          song.boosts[kind + "_" + k] = (song.boosts[kind + "_" + k] || 0) + M[k];
+        });
+      }
+
+      /* 2) TAKİPÇİ/TALEP BUMPI: platformlara gerçekçi oranlarda yansır */
+      const pop = Math.max(5, p.popularity || 0);
+      const base = Math.round(pop * 140 + (p.monthly || 0) * 0.02);
+      const mul = kind === "viral" ? 3 : kind === "hit" ? 2 : kind === "flop" ? -0.5 : 1;
+      p.ig = Math.max(0, Math.round((p.ig || 0) + base * 0.5 * mul));
+      p.tiktok = Math.max(0, Math.round((p.tiktok || 0) + base * 0.7 * mul));
+      p.x = Math.max(0, Math.round((p.x || 0) + base * 0.3 * mul));
+      p.ytSubs = Math.max(0, Math.round((p.ytSubs || 0) + base * 0.25 * mul));
+
+      /* 3) GÜNDEM + TREND (mevcut s.trends / s.agenda) */
+      if (song && (kind === "viral" || kind === "hit")) {
+        const tag = "#" + String(song.title || "").replace(/[^\p{L}\p{N}]/gu, "").slice(0, 20);
+        if (tag.length >= 5) {
+          s.trends = s.trends || [];
+          if (!s.trends.some(t => t.tag === tag)) {
+            s.trends.unshift({ tag: tag, count: Math.round(base * 8), mine: true });
+            s.trends = s.trends.slice(0, 8);
+          }
+        }
+      }
+
+      /* 4) MEDYA/HABER: gerçek olaydan türeyen tek satırlık haber */
+      const name = p.stageName || "Oyuncu";
+      const ttl = song ? `"${song.title}"` : "yeni işi";
+      let news = null;
+      if (kind === "viral") news = `${name}'in ${ttl} kısa videolarda viral oldu`;
+      else if (kind === "hit") news = `${name}'in ${ttl} listelerde yükseliyor`;
+      else if (kind === "flop") news = `${name}'in ${ttl} beklenen ilgiyi görmedi`;
+      else if (kind === "release") news = `${name} ${ttl} adlı yeni işini yayınladı`;
+      else if (kind === "chart_peak") news = `${name} ${ttl} ile chart'ta zirveye yaklaşıyor`;
+      if (news) {
+        K.industry._event(kind === "flop" ? "flop" : kind === "viral" ? "viral" : "hit",
+          `${kind === "flop" ? "📉" : kind === "viral" ? "⚡" : "🎵"} ${news}`, { artistId: "player", player: true });
+        K.industry._industryHistory(kind, news, ["player"]);
+        if (K.news && K.news.injectMusic) K.news.injectMusic(news);
+        if (kind === "viral" || kind === "hit") K.industry._notifyImportant("📰 Medya", news, "ok");
+      }
+
+      /* 5) DİĞER SANATÇILARIN TEPKİSİ: viral/hit'te erişilebilir isimler
+         gerçekten sosyal tepki verir (mevcut social.reactToSong kullanılır). */
+      if (song && K.social && K.social.reactToSong && (kind === "viral" || kind === "hit")) {
+        const n = kind === "viral" ? 3 : 2;
+        /* viral çok daha geniş bir çevreye ulaşır (erişim bonusu) */
+        const reach = kind === "viral" ? 45 : 22;
+        for (let i = 0; i < n; i++) {
+          try { K.social.reactToSong(song, { reach: reach }); } catch (e) {}
+        }
+      }
+
+      /* 6) "SICAK" PENCERESİ: FT/label/konser ilgisi buradan beslenir */
+      const days = kind === "viral" ? 21 : kind === "hit" ? 14 : kind === "flop" ? 0 : 7;
+      if (days > 0) p._buzzUntil = Math.max(p._buzzUntil || 0, s.day + days);
+
+      if (K.save) K.save();
+      return { kind: kind, news: news };
+    },
+
+    /* ============================================================
+       v10.62.1 — OYUNCU RELEASE SONUCU (hit/flop) — tek sefer
+       Yayının ilk günlerindeki GERÇEK günlük akış, başlangıç
+       beklentisine göre ölçülür; eşiği aşarsa hit, altında kalırsa
+       flop yankısı üretilir. Aynı şarkı için bir kez çalışır.
+       ============================================================ */
+    playerOutcomes() {
+      const s = K.state, p = s.player;
+      if (!p || !p.songs) return;
+      p.songs.forEach(song => {
+        if (song._outcome || !song.publishedDay || song.takenDown) return;
+        const age = s.day - song.publishedDay;
+        if (age < 12) return;
+        song._peakDaily = Math.max(song._peakDaily || 0, song.lastDaily || 0);
+        if (!song._initDaily) {
+          song._initDaily = (K.game && K.game.initialDaily) ? K.game.initialDaily(song) : (song._peakDaily || 1);
+        }
+        const ratio = (song._initDaily > 0) ? song._peakDaily / song._initDaily : 1;
+        if (song.viral || ratio >= 1.6) {
+          song._outcome = "hit";
+          K.industry.onPlayerEvent("hit", { song: song });
+        } else if (ratio < 0.55) {
+          song._outcome = "flop";
+          K.industry.onPlayerEvent("flop", { song: song });
+        } else if (age >= 30) {
+          song._outcome = "normal";
+        }
+      });
+    },
+
+    /* ============================================================
        TEKLİF EKONOMİSİ — sektör momentumu şirket ilgisine dönüşür
        Yalnızca oyuncunun büyük hamlelerinden gelen momentumda çalışır;
        normal oynayışta relations.dailyTick zaten teklif üretir.
@@ -1410,6 +1604,16 @@
       else if (pop >= 35) pool = all.filter(l => l.power >= 66 && l.power < 84); // büyük
       else pool = all.filter(l => l.power < 74);                       // bağımsız/orta
       if (!pool.length) pool = all;
+      /* v10.62.1 — TÜR UYUMU: şirketin odak türü oyuncunun türüne
+         uyuyorsa önce onlar değerlendirilir (scout mantığı). */
+      const genre = (p.genre || (p.songs && p.songs[0] && p.songs[0].genre) || "");
+      if (genre && K.labelSim && K.labelSim.profile) {
+        const fit = pool.filter(l => {
+          const pr = K.labelSim.profile(l.id);
+          return pr && (pr.genres.indexOf("*") >= 0 || pr.genres.indexOf(genre) >= 0);
+        });
+        if (fit.length) pool = fit;
+      }
       const pick = hPick("lbloffer|" + K.state.day + "|" + Math.round(pop), pool);
       return pick ? pick.id : null;
     },
@@ -1418,7 +1622,12 @@
       const s = K.state, p = s.player;
       const I = K.industry.ensure();
       if (s.label || p.labelId) return;
-      if ((I.momentum || 0) < 0.6) return;
+      /* v10.62.1 — şirket ilgisi artık yalnızca "momentum" değil:
+         gerçek başarı (gündem sıcaklığı + chart + akış) de tetikler. */
+      const buzz = K.industry.playerBuzz();
+      const chartTop = (s.chart || []).some(e => e.mine && e.rank <= 15);
+      const hot = (I.momentum || 0) >= 0.6 || buzz >= 0.5 || chartTop;
+      if (!hot) return;
       if (s.day - (I.lastLabelOfferDay || 0) < 75) return;
       if ((s.offers || []).some(o => o.type === "label" && o.status === "pending")) return;
       if ((p.popularity || 0) < 22) return;
@@ -1487,6 +1696,8 @@
 
       /* 5) momentumdan şirket ilgisi */
       K.industry._maybeLabelOffer();
+      /* v10.62.1 — oyuncu yayınlarının gerçek sonucu (hit/flop yankısı) */
+      K.industry.playerOutcomes();
 
       /* 6) v10.59 — hafızanın ilişkiye yavaş etkisi + geçmiş ortakların dönüşü */
       K.industry.memoryDriftTick();
