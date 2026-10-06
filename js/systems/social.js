@@ -381,7 +381,12 @@
     reactToSong(song, opts) {
       const s = K.state, p = s.player;
       if (!song) return null;
-      const pool = (K.artistList() || []).filter(x => x.popularity <= (K.state.player.popularity || 0) * 1.2 + 12);
+      /* v10.62.1 — VİRAL/HİT ERİŞİMİ: bir şarkı viral olduğunda onu
+         yalnızca senin seviyendeki isimler değil, daha geniş bir çevre
+         duyar. `opts.reach` bu ek erişimi (popülerlik puanı) ekler;
+         normal release'te 0'dır ve eski davranış aynen korunur. */
+      const reach = (opts && opts.reach) || 0;
+      const pool = (K.artistList() || []).filter(x => x.popularity <= (K.state.player.popularity || 0) * 1.2 + 12 + reach);
       const a = (opts && opts.artistId) ? K.artistById(opts.artistId) : (pool.length ? U.pick(pool) : null);
       if (!a) return null;
       const q = song.quality || 50;
