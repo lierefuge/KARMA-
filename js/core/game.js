@@ -170,6 +170,8 @@
           K.bus.emit("release:published", song);
           K.toast("🎉 Yayınlandı!", `"${rel.title}" artık tüm platformlarda.`, "ok");
           if (K.social && K.social.onRelease) K.social.onRelease(song);
+          /* v10.62.1 — yayın da dünyada yankılanır (medya + platform izi) */
+          if (K.industry && K.industry.onPlayerEvent) K.industry.onPlayerEvent("release", { song: song });
         } else {
           still.push(rel);
         }
@@ -915,6 +917,10 @@
       song.viralUntil = s.day + dur;
       song.viralStartDay = song.viralStartDay || s.day;
       song.viralEndNotified = false;
+      /* v10.62.1 — viral artık TEK veriyolundan dünyaya yayılır:
+         X/IG/YouTube/TikTok izi → stream çarpanı → medya haberi →
+         NPC tepkisi → FT/label/konser ilgisi. */
+      if (K.industry && K.industry.onPlayerEvent) K.industry.onPlayerEvent("viral", { song: song });
       if (title) K.toast(title, msg || song.title, "ok");
       s.notifications = (s.notifications || []).concat([{
         title: title || "🔥 Viral", msg: (msg || song.title) + ` (${dur} günlük trend penceresi)`,
