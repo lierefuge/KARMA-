@@ -198,7 +198,10 @@ const SUITES = [
   { id: "v1061",       script: "tools/smoke-v1061.js",       label: "v10.61 NPC aylık dinleyici ekonomisi (stream penceresi · taban · soft-cap)" },
   /* v10.62 — "GERÇEK DÜNYA": NPC↔NPC tanışma aşamaları · başarı
      seviyeleri · viral zinciri (sosyal→stream→monthly→chart) · comeback. */
-  { id: "v1062",       script: "tools/smoke-v1062.js",       label: "v10.62 gerçek dünya (ilişki aşamaları · viral zinciri · comeback)" }
+  { id: "v1062",       script: "tools/smoke-v1062.js",       label: "v10.62 gerçek dünya (ilişki aşamaları · viral zinciri · comeback)" },
+  /* v10.62.1 — oyuncu olay yankı veriyolu (viral/hit/flop → platform →
+     medya → NPC tepkisi → FT/label/konser ilgisi) + NPC gizli kişilik. */
+  { id: "v10621",      script: "tools/smoke-v10621.js",      label: "v10.62.1 oyuncu yankı katmanı (platform zinciri · kişilik · uyum)" }
 ];
 
 const suiteOut = {};
