@@ -204,7 +204,10 @@ const SUITES = [
   { id: "v10621",      script: "tools/smoke-v10621.js",      label: "v10.62.1 oyuncu yankı katmanı (platform zinciri · kişilik · uyum)" },
   /* v10.62.2 — self-diagnostic (hata/state/nav/event izleyici) + bozuk
      kayıt hijyeni + Instagram bildirim regresyonu + 100 günlük stres. */
-  { id: "v10622",      script: "tools/smoke-v10622.js",      label: "v10.62.2 self-diagnostic + bug hunt + regression" }
+  { id: "v10622",      script: "tools/smoke-v10622.js",      label: "v10.62.2 self-diagnostic + bug hunt + regression" },
+  /* v10.63 — stüdyo hub: üretim önerileri · devam eden işler · parça
+     kütüphanesi. Sihirbaz akışı değişmedi; sekmedeki her düğme tıklanır. */
+  { id: "v1063",       script: "tools/smoke-v1063.js",       label: "v10.63 stüdyo hub (öneri · devam eden iş · kütüphane)" }
 ];
 
 const suiteOut = {};
