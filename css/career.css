@@ -26,6 +26,27 @@
   scrollbar-width: none;
 }
 .career-tabs::-webkit-scrollbar { display: none; }
+/* v10.63 — sekme çubuğu taşması: 12 sekme 1280–1400px arasında kesiliyordu
+   (Girişim/Olaylar görünmüyordu). Dar ekranda iç boşluk kısılır; hâlâ
+   sığmıyorsa kenarlarda solma olur ve kaydırılabildiği anlaşılır. */
+@media (max-width: 1400px) {
+  .career-tabs { gap: 2px; padding: 9px 8px; }
+  .tab { font-size: 11px; padding: 7px 6px; letter-spacing: 0.1px; }
+}
+/* 1400'ün altında tek satıra sığmıyor (ölçüldü: 963px gerekli).
+   Gizlemek yerine alt satıra iner — hiçbir sekme erişilemez kalmaz. */
+@media (max-width: 1399px) and (min-width: 981px) {
+  .career-tabs { flex-wrap: wrap; }
+}
+/* Mobilde üç satır sekme çok yer kaplıyor: tek satır + yatay kaydırma kalır,
+   sağ kenardaki solma kaydırılabildiğini gösterir. */
+@media (max-width: 980px) {
+  .career-tabs { flex-wrap: nowrap; }
+  .career-tabs {
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 24px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 24px), transparent 100%);
+  }
+}
 
 .tab {
   font-family: inherit;
@@ -415,3 +436,186 @@
 .ed-t { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 130px; }
 .ed-a { margin-left: auto; color: var(--text-3); font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80px; }
 .ed-foot { margin-top: 8px; padding-top: 7px; border-top: 1px dashed rgba(255,255,255,.08); font-size: 9.5px; color: var(--text-3); letter-spacing: .2px; }
+
+/* ============================================================
+   v10.63 · STÜDYO HUB (üretim önerileri · devam eden işler · kütüphane)
+   Sihirbaz stilleri (studio-wizard.css) DEĞİŞMEDİ; bu blok yalnızca
+   stüdyo sekmesinin hub görünümünü biçimlendirir.
+   ============================================================ */
+.gh-head-tags { display: flex; gap: 6px; align-items: center; }
+.gh-head-tag {
+  font-size: 11px; font-weight: 800; padding: 5px 10px;
+  border-radius: var(--radius-pill); background: var(--glass);
+  border: 1px solid var(--stroke); color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+}
+.gh-head-tag.money { color: var(--money); border-color: rgba(92,232,155,.28); background: rgba(92,232,155,.08); }
+
+/* --- hero --- */
+.gh-hero-top { display: flex; align-items: flex-start; gap: 12px; }
+.gh-steps {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 5px;
+  padding: 9px 10px; border-radius: var(--radius-s);
+  background: rgba(0,0,0,.22); border: 1px solid var(--stroke);
+}
+.gh-step {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10.5px; font-weight: 700; color: var(--text-1);
+  white-space: nowrap;
+}
+.gh-step i {
+  font-style: normal; font-size: 9px; font-weight: 900;
+  width: 15px; height: 15px; border-radius: var(--radius-pill);
+  display: grid; place-items: center;
+  background: rgba(176,108,255,.22); color: #d9c2ff;
+}
+.gh-step-sep { font-style: normal; color: var(--text-3); font-size: 10px; }
+.gh-hero-hint { font-size: 10.5px; color: var(--text-3); }
+/* hero içi katalog özeti */
+.gh-hero-line {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 9px 11px; border-radius: var(--radius-s);
+  background: rgba(0,0,0,.25); border: 1px solid var(--stroke);
+  font-size: 11px; line-height: 1.5; color: var(--text-1);
+  margin-top: auto;
+}
+.gh-hero-line b { color: var(--text-0); font-weight: 800; }
+.gh-hl-ic { font-size: 13px; line-height: 1.3; }
+.gh-hero-line + .action-row { margin-top: 0; }
+/* hero kartı sağdaki "Durum" kartıyla aynı yüksekliğe gelirse düğme alta
+   yapışsın: aradaki boşluk "boş alan" gibi durmasın */
+.gh-hero-top + .gh-steps { margin-bottom: 0; }
+.studio-hub-card.primary .action-row { margin-top: auto; }
+
+/* --- sağ kart: metreler --- */
+.gh-meters { display: flex; flex-direction: column; gap: 8px; margin-top: 2px; }
+.gh-meter-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 10.5px; color: var(--text-2); margin-bottom: 4px; }
+.gh-meter-top b { font-size: 11px; font-weight: 800; color: var(--text-0); font-variant-numeric: tabular-nums; }
+.gh-meter-bar { height: 5px; border-radius: var(--radius-pill); background: rgba(255,255,255,.07); overflow: hidden; }
+.gh-meter-bar i { display: block; height: 100%; border-radius: var(--radius-pill); transition: width .35s ease; }
+
+/* --- iki kolon: öneriler | devam eden işler --- */
+/* align-items:start → kısa panel uzun panelin boyuna UZAMAZ; böylece
+   "boş kart" görüntüsü oluşmaz */
+.gh-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.gh-panel {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 14px; border-radius: var(--radius-m);
+  background: var(--bg-2); border: 1px solid var(--stroke);
+  min-width: 0;
+}
+.gh-panel-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+}
+.gh-panel-head b { font-size: 13px; font-weight: 800; letter-spacing: .1px; }
+.gh-panel-head span { font-size: 10px; color: var(--text-3); text-transform: uppercase; letter-spacing: .5px; font-weight: 700; }
+
+/* --- A) öneriler --- */
+.gh-advice-list { display: flex; flex-direction: column; gap: 8px; }
+.gh-advice {
+  display: grid; grid-template-columns: 26px minmax(0,1fr) auto;
+  align-items: center; gap: 9px;
+  padding: 9px 10px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+  border-left: 3px solid var(--stroke-2);
+}
+.gh-advice.tone-ok { border-left-color: var(--money); background: rgba(92,232,155,.05); }
+.gh-advice.tone-warn { border-left-color: var(--gold); background: rgba(255,203,92,.05); }
+.gh-advice.tone-bad { border-left-color: var(--hot); background: rgba(255,92,122,.06); }
+.gh-advice.tone-info { border-left-color: var(--karma-2); background: rgba(110,195,255,.05); }
+.gh-adv-ic { font-size: 17px; line-height: 1; text-align: center; }
+.gh-adv-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.gh-adv-body b { font-size: 12px; font-weight: 800; }
+.gh-adv-body span { font-size: 10.5px; line-height: 1.45; color: var(--text-2); }
+.gh-advice .btn { white-space: nowrap; }
+
+/* --- B) devam eden işler --- */
+.gh-jobs { display: flex; flex-direction: column; gap: 8px; }
+.gh-job {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.gh-job-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.gh-job-top b { font-size: 12.5px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gh-days { font-size: 11px; font-weight: 800; color: var(--karma-2); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.gh-job-sub { font-size: 10.5px; color: var(--text-2); margin-top: 2px; }
+.gh-prog { height: 5px; border-radius: var(--radius-pill); background: rgba(255,255,255,.08); overflow: hidden; margin: 7px 0 6px; }
+.gh-prog i { display: block; height: 100%; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--karma), var(--karma-2)); transition: width .4s ease; }
+.gh-job .release-stages { display: flex; flex-wrap: wrap; gap: 4px; margin: 0; }
+.gh-job .stage-chip { font-size: 8.5px; padding: 2px 5px; white-space: nowrap; letter-spacing: 0; }
+.gh-job .release-stages { row-gap: 3px; }
+
+/* --- C) parça kütüphanesi --- */
+.gh-lib-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.gh-lib-stats > div {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 8px 10px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.gh-lib-stats .k { font-size: 9.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-3); font-weight: 700; }
+.gh-lib-stats .v { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+.gh-filters { display: flex; flex-wrap: wrap; gap: 6px; }
+.gh-chip {
+  font-family: inherit; font-size: 11px; font-weight: 700; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-radius: var(--radius-pill);
+  background: var(--glass); border: 1px solid var(--stroke); color: var(--text-2);
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+.gh-chip em {
+  font-style: normal; font-size: 9.5px; font-weight: 800;
+  color: var(--text-3); font-variant-numeric: tabular-nums;
+}
+.gh-chip:hover { background: var(--glass-2); color: var(--text-0); }
+.gh-chip.active {
+  background: rgba(176,108,255,.18); border-color: rgba(176,108,255,.45); color: #fff;
+}
+.gh-chip.active em { color: var(--karma-2); }
+
+.gh-lib { display: flex; flex-direction: column; gap: 6px; }
+.gh-track {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 9px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.gh-track:hover { background: var(--glass-2); border-color: var(--stroke-2); }
+.gh-track-title { font-size: 12.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gh-track-sub { font-size: 10.5px; color: var(--text-2); margin-top: 1px; }
+.gh-num { display: flex; flex-direction: column; align-items: flex-end; min-width: 58px; }
+.gh-num b { font-size: 11.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.gh-num span { font-size: 8.5px; text-transform: uppercase; letter-spacing: .4px; color: var(--text-3); }
+.gh-icon-btn {
+  flex: 0 0 auto; width: 26px; height: 26px; border-radius: var(--radius-pill);
+  display: grid; place-items: center; cursor: pointer;
+  font-size: 10px; color: #fff; font-family: inherit;
+  background: rgba(176,108,255,.22); border: 1px solid rgba(176,108,255,.4);
+  transition: background .15s ease, transform .15s ease;
+}
+.gh-icon-btn:hover { background: rgba(176,108,255,.4); transform: scale(1.06); }
+.gh-lib-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 2px; }
+.gh-more { font-size: 10px; color: var(--text-3); }
+
+/* --- boş durumlar --- */
+.gh-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  padding: 18px 14px; text-align: center;
+  border-radius: var(--radius-s); border: 1px dashed var(--stroke-2);
+  background: rgba(255,255,255,.02);
+}
+.gh-empty.sm { padding: 12px; }
+.gh-empty-ic { font-size: 22px; line-height: 1; }
+.gh-empty b { font-size: 12.5px; font-weight: 800; }
+.gh-empty span { font-size: 11px; color: var(--text-2); line-height: 1.5; max-width: 300px; }
+.gh-empty .btn { margin-top: 4px; }
+
+@media (max-width: 1100px) {
+  .gh-split { grid-template-columns: 1fr; }
+}
+@media (max-width: 720px) {
+  .gh-lib-stats { grid-template-columns: 1fr 1fr; }
+  .gh-track .gh-num:nth-of-type(2) { display: none; }
+  .gh-advice { grid-template-columns: 24px minmax(0,1fr); }
+  .gh-advice .btn { grid-column: 1 / -1; }
+}

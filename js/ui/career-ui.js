@@ -11,7 +11,9 @@
   const ui = {
     tourCities: [], festStance: "balanced", presaveRel: null, presaveChans: [],
     /* v10.28 — Girişim sekmesi geçici form durumu (render sırasında korunur) */
-    mrcItem: "tee", mrcDesign: "basic", mrcStock: 200, mrcPriceMult: 1, botTier: "s"
+    mrcItem: "tee", mrcDesign: "basic", mrcStock: 200, mrcPriceMult: 1, botTier: "s",
+    /* v10.63 — Stüdyo hub: parça kütüphanesi süzgeci (render arasında korunur) */
+    studioLib: "all"
   };
   const subTab = { label: "genel", events: "awards" };
 
@@ -37,6 +39,19 @@
         /* v10.55 — erişilebilirlik: seçili sekme ekran okuyucuya bildirilir */
         t.setAttribute("aria-selected", on ? "true" : "false");
       });
+    },
+
+    /* v10.63 — panel içinden sekme değiştirme (stüdyo hub'daki kısayollar).
+       Sekme listesi render() içindeki map ile aynı olmalı; bilinmeyen ad
+       yok sayılır ki bozuk bir data-arg görünümü kilitlemesin. */
+    setTab(name) {
+      const valid = ["career", "studio", "jobs", "releases", "albums", "charts",
+        "analytics", "concerts", "festivals", "label", "business", "events"];
+      if (!name || valid.indexOf(name) < 0) return false;
+      currentTab = name;
+      K.careerUI.setActive();
+      K.careerUI.render();
+      return true;
     },
 
     render() {
@@ -179,40 +194,294 @@
        STÜDYO — üretim merkezi (hub) + tek ekran üretim modalı
        ===================================================== */
     /* =====================================================
-       STÜDYO — üretim merkezi (hub)
+       STÜDYO — üretim merkezi (hub)   ·   v10.63
+       -----------------------------------------------------
+       Üç bölüm eklendi (boş alan dolduruldu):
+         A) Üretim önerileri  — gerçek state'ten türetilir, her önerinin
+            çalışan bir eylemi var (sihirbaz / sekme / pratik / dinlenme).
+         B) Devam eden işler  — yayın hattı + aşama ve ilerleme.
+         C) Parça kütüphanesi — yayınlanmış parçalar, süzgeç + dinle.
+       ÖNEMLİ: 6 adımlı dağıtım sihirbazı (openStudioModal / renderStudioStep)
+       DEĞİŞMEDİ. Buradan yalnızca açılır; akış bozulmaz.
        ===================================================== */
-    /* =====================================================
-       STÜDYO — üretim merkezi (hub)
-       ===================================================== */
+
+    /* --- A) üretim önerileri ---------------------------------
+       Deterministik: Math.random() yok, yalnızca mevcut state okunur.
+       Her öneri bir ağırlık taşır; en yüksek 4 tanesi gösterilir. */
+    studioAdvice() {
+      const s = K.state, p = s.player;
+      const tracks = (p.songs || []).filter(Boolean);
+      const lastDay = tracks.reduce((m, t) => Math.max(m, t.publishedDay || 0), 0);
+      const silent = tracks.length ? Math.max(0, s.day - lastDay) : 999;
+      const tm = (K.industry && K.industry.trendMatch) ? K.industry.trendMatch(p.genre) : 0;
+      const gname = K.genreById(p.genre).name;
+      const mh = K.mental.summary();
+      const fatigue = Math.round(p.fatigue || 0);
+      const out = [];
+
+      /* 1 · gündem / trend uyumu */
+      const hot = (K.news ? K.news.current() : []).slice().sort((a, b) => (b.heat || 0) - (a.heat || 0))[0];
+      if (tm >= 0.15) {
+        out.push({
+          w: 100 - Math.min(silent, 60), icon: "🔥", tone: "ok",
+          title: `${gname} gündemde`,
+          desc: `Gündem uyumu %${Math.round(tm * 100)}. Bu türde çıkan iş ilk gün daha çok görünürlük alır.`,
+          cta: { label: "🎧 Bu türde başla", act: "open-studio" }
+        });
+      } else {
+        out.push({
+          w: 62, icon: "🧭", tone: "info",
+          title: "Gündem başka türlerde",
+          desc: hot
+            ? `En sıcak başlık: “${U.escape(String(hot.title).slice(0, 60))}”. Konuya yakın bir tema seçersen erişim artar.`
+            : "Gündemi takip et: trend türü ilk görünürlüğü artırır.",
+          cta: { label: "📰 Gündeme bak", act: "go-tab", arg: "events" }
+        });
+      }
+
+      /* 2 · beceri (düşük olan) */
+      const mus = K.skillLevel("music"), stu = K.skillLevel("studio");
+      const lowKey = mus <= stu ? "music" : "studio";
+      const lowVal = Math.floor(Math.min(mus, stu));
+      const canP = (K.skills && K.skills.canPractice) ? K.skills.canPractice(lowKey) : true;
+      out.push({
+        w: 88 - Math.min(lowVal, 80), icon: K.SKILLS[lowKey].icon, tone: lowVal < 35 ? "warn" : "info",
+        title: `${K.SKILLS[lowKey].name} ${lowVal}/100`,
+        desc: lowVal < 35
+          ? "Düşük seviye kayıt kalitesini doğrudan aşağı çekiyor. Bir pratik seansı açığı kapatır."
+          : "Pratik kaliteyi kademeli yükseltir; aynı beceriye günde bir seans.",
+        cta: canP
+          ? { label: "🎯 Bugün çalış", act: "practice", arg: lowKey }
+          : { label: "Bugün çalışıldı", act: "", disabled: true }
+      });
+
+      /* 3 · form: yorgunluk / akıl sağlığı */
+      if (fatigue >= 55 || mh.stress >= 60) {
+        out.push({
+          w: 125, icon: "🌿", tone: "bad",
+          title: "Yorgunluk kaydı bozuyor",
+          desc: `Yorgunluk ${fatigue} · stres ${mh.stress}. Dinlenmeden girilen seans kaliteyi düşürür.`,
+          cta: { label: "🌿 Dinlen", act: "mh-rest" }
+        });
+      } else {
+        out.push({
+          w: 38, icon: "⚡", tone: "ok",
+          title: "Form iyi",
+          desc: `Yorgunluk ${fatigue}, stres ${mh.stress}. Kayıt için uygun bir gün.`,
+          cta: { label: "🎧 Stüdyoya gir", act: "open-studio" }
+        });
+      }
+
+      /* 4 · katalog tazeliği (sönüm) */
+      if (!tracks.length) {
+        out.push({
+          w: 130, icon: "🎼", tone: "info",
+          title: "İlk parçanı üret",
+          desc: "Katalog boş. İlk teklini çıkar; mahalle çevresi Mesajlar'da seni bekliyor.",
+          cta: { label: "🎧 Başla", act: "open-studio" }
+        });
+      } else if (silent >= 30) {
+        out.push({
+          w: 95 + Math.min(silent, 90) / 10, icon: "⏳", tone: "warn",
+          title: `${silent} gündür yayın yok`,
+          desc: "Katalog sönüyor: dinlenme her gün eriyor. Yeni bir işle ateşi canlandır.",
+          cta: { label: "🎧 Yeni yayın", act: "open-studio" }
+        });
+      } else {
+        out.push({
+          w: 30, icon: "📈", tone: "ok",
+          title: "Katalog canlı",
+          desc: `Son yayının ${silent} gün önce. Sönüm başlamadı.`,
+          cta: { label: "📚 Yayınlara bak", act: "go-tab", arg: "releases" }
+        });
+      }
+
+      /* 5 · para */
+      if (s.balance < 15000) {
+        out.push({
+          w: 112, icon: "💸", tone: "warn",
+          title: "Kasa sıkışık",
+          desc: `${U.money(s.balance)} kaldı; bir tekli 12.000 ₺'den başlar. Yan iş geliri dengeyi korur.`,
+          cta: { label: "🧰 Yan işlere bak", act: "go-tab", arg: "jobs" }
+        });
+      }
+
+      return out.sort((a, b) => b.w - a.w).slice(0, 4);
+    },
+
+    /* --- A) HTML: öneri kartları --- */
+    studioAdviceHTML() {
+      const list = K.careerUI.studioAdvice();
+      return list.map(a => {
+        const cta = a.cta || {};
+        const btn = cta.disabled
+          ? `<button class="btn btn-sm btn-ghost" disabled>${U.escape(cta.label)}</button>`
+          : `<button class="btn btn-sm btn-ghost" data-act="${cta.act}"${cta.arg ? ` data-arg="${cta.arg}"` : ""}>${U.escape(cta.label)}</button>`;
+        return `<div class="gh-advice tone-${a.tone}">
+          <span class="gh-adv-ic">${a.icon}</span>
+          <div class="gh-adv-body"><b>${U.escape(a.title)}</b><span>${a.desc}</span></div>
+          ${btn}
+        </div>`;
+      }).join("");
+    },
+
+    /* --- B) HTML: devam eden işler (yayın hattı) --- */
+    studioOngoingHTML() {
+      const s = K.state;
+      const rels = (s.player.releases || []);
+      if (!rels.length) {
+        return `<div class="gh-empty">
+          <span class="gh-empty-ic">🎛️</span>
+          <b>Devam eden iş yok</b>
+          <span>Stüdyoda başlattığın her proje burada aşama aşama ilerler.</span>
+          <button class="btn btn-sm btn-primary" data-act="open-studio">🎧 Yeni proje başlat</button>
+        </div>`;
+      }
+      /* hub kartı dar: kısa etiketler tek satıra sığar (Yayınlar sekmesinde
+         tam adlar kullanılmaya devam eder) */
+      const stageNames = {
+        prep: "Prodüksiyon", queued: "Kuyruk",
+        editorial: "Editoryal", released: "Yayın"
+      };
+      const order = ["prep", "queued", "editorial", "released"];
+      return rels.map(r => {
+        /* bozuk kayıt koruması: eksik alan NaN üretmesin */
+        const sd = Number(r.startDay) || s.day, wd = Number(r.waitDays) || 0;
+        const left = Math.max(0, sd + wd - s.day);
+        const prg = Math.round(U.clamp((Number(r.progress) || 0) * 100, 0, 100));
+        const cur = order.indexOf(r.stage);
+        const chips = order.map((st, i) =>
+          `<span class="stage-chip ${i < cur ? "done" : i === cur ? "active" : ""}">${stageNames[st]}</span>`
+        ).join("");
+        const tcount = (r.tracks && r.tracks.length) ? r.tracks.length : 1;
+        const first = (r.tracks && r.tracks[0] && r.tracks[0].name) ? r.tracks[0].name : (r.title || "?");
+        return `<div class="gh-job">
+          ${K.ui.cover(r.coverSeed, (String(first)[0] || "?").toUpperCase())}
+          <div class="grow">
+            <div class="gh-job-top">
+              <b>${U.escape(r.title)}</b>
+              <span class="gh-days">${left} gün</span>
+            </div>
+            <div class="gh-job-sub">${K.career.formatLabel(tcount)} · ${K.genreById(r.genre || K.state.player.genre).name} · ${U.money(r.cost || 0)}</div>
+            <div class="gh-prog"><i style="width:${prg}%"></i></div>
+            <div class="release-stages">${chips}</div>
+          </div>
+          <button class="btn btn-xs btn-ghost" data-act="go-tab" data-arg="releases">Detay</button>
+        </div>`;
+      }).join("");
+    },
+
+    /* --- C) HTML: parça kütüphanesi --- */
+    studioLibraryHTML() {
+      const all = (K.state.player.songs || []).filter(x => x && x.title);
+      const f = ui.studioLib || "all";
+      let list = all.slice();
+      if (f === "top") list.sort((a, b) => (b.streams || 0) - (a.streams || 0));
+      else if (f === "new") list.sort((a, b) => (b.publishedDay || 0) - (a.publishedDay || 0));
+      else if (f === "chart") list = list.filter(x => x.chartRank).sort((a, b) => a.chartRank - b.chartRank);
+      else list.sort((a, b) => (b.streams || 0) - (a.streams || 0));
+
+      const shown = list.slice(0, 6);
+      const rows = shown.map(song => {
+        const rank = song.chartRank ? `<span class="pill gold">#${song.chartRank}</span>`
+          : (song.chartPeak && song.chartPeak < 999 ? `<span class="pill">zirve #${song.chartPeak}</span>` : "");
+        return `<div class="gh-track">
+          ${K.ui.cover(song.coverSeed, (String(song.title)[0] || "?").toUpperCase())}
+          <div class="grow">
+            <div class="gh-track-title">${U.escape(song.title)}${song.viral ? " <span class=\"pill hot\">🔥</span>" : ""}${song.takenDown ? " <span class=\"pill\">🚫</span>" : ""}</div>
+            <div class="gh-track-sub">${K.genreById(song.genre || K.state.player.genre).name} · gün ${song.publishedDay || 0} · kalite ${Math.round(song.quality || 0)}</div>
+          </div>
+          ${rank}
+          <div class="gh-num"><b>${U.compact(song.streams || 0)}</b><span>dinlenme</span></div>
+          <div class="gh-num"><b>${U.compact(song.lastDaily || 0)}</b><span>günlük</span></div>
+          <button class="gh-icon-btn" data-act="preview-song" data-song="${song.id}" title="Dinle" aria-label="${U.escape(song.title)} parçasını dinle">▶</button>
+        </div>`;
+      }).join("");
+
+      const totalStreams = U.sum(all, x => x.streams || 0);
+      const avgQ = all.length ? Math.round(U.sum(all, x => x.quality || 0) / all.length) : 0;
+      const bestPeak = all.reduce((m, x) => Math.min(m, x.chartPeak || 999), 999);
+      const counts = {
+        all: all.length,
+        top: all.length,
+        new: all.length,
+        chart: all.filter(x => x.chartRank).length
+      };
+      const CHIPS = [
+        { id: "all", label: "Tümü" },
+        { id: "top", label: "En çok dinlenen" },
+        { id: "new", label: "Yeni" },
+        { id: "chart", label: "Listede" }
+      ];
+
+      const filterHTML = CHIPS.map(c =>
+        `<button class="gh-chip ${f === c.id ? "active" : ""}" data-act="lib-filter" data-arg="${c.id}" aria-pressed="${f === c.id ? "true" : "false"}">${c.label}<em>${counts[c.id]}</em></button>`
+      ).join("");
+
+      if (!all.length) {
+        return `<div class="gh-empty">
+          <span class="gh-empty-ic">📚</span>
+          <b>Kütüphane boş</b>
+          <span>Yayınladığın her parça burada birikecek: dinlenme, kalite ve liste dereceleriyle.</span>
+          <button class="btn btn-sm btn-primary" data-act="open-studio">🎧 İlk parçayı üret</button>
+        </div>`;
+      }
+
+      return `<div class="gh-lib-stats">
+          <div><span class="k">Parça</span><span class="v">${all.length}</span></div>
+          <div><span class="k">Toplam Dinlenme</span><span class="v">${U.compact(totalStreams)}</span></div>
+          <div><span class="k">Ortalama Kalite</span><span class="v">${avgQ}</span></div>
+          <div><span class="k">En İyi Derece</span><span class="v">${bestPeak < 999 ? "#" + bestPeak : "—"}</span></div>
+        </div>
+        <div class="gh-filters">${filterHTML}</div>
+        ${shown.length ? `<div class="gh-lib">${rows}</div>` : `<div class="gh-empty sm"><span>Bu süzgeçte parça yok.</span></div>`}
+        <div class="gh-lib-foot">
+          ${list.length > shown.length ? `<span class="gh-more">${shown.length}/${list.length} gösteriliyor</span>` : `<span class="gh-more">${list.length} parça</span>`}
+          <button class="btn btn-xs btn-ghost" data-act="go-tab" data-arg="releases">Tüm yayınlar →</button>
+        </div>`;
+    },
+
     renderStudio() {
       const s = K.state;
       const p = s.player;
       const rels = p.releases || [];
+      const mh = K.mental.summary();
+      const tm = (K.industry && K.industry.trendMatch) ? K.industry.trendMatch(p.genre) : 0;
+      const tracks = (p.songs || []).filter(Boolean);
+      const lastDay = tracks.reduce((m, t) => Math.max(m, t.publishedDay || 0), 0);
+      const silent = tracks.length ? Math.max(0, s.day - lastDay) : null;
+      const freshness = tracks.length ? Math.round(U.clamp(100 - silent * 2, 0, 100)) : 0;
+      const readiness = Math.round(U.clamp((mh.qualityMult || 1) * 100, 0, 100));
 
-      const rows = rels.map(r => {
-        const left = Math.max(0, r.startDay + r.waitDays - s.day);
-        const first = (r.tracks && r.tracks[0]) ? r.tracks[0].name : r.title;
-        return `
-        <div class="row-item">
-          ${K.ui.cover(r.coverSeed, (first[0] || "?").toUpperCase())}
-          <div class="grow">
-            <div class="title">${U.escape(r.title)}</div>
-            <div class="sub">${K.career.formatLabel(r.tracks.length)} · ${K.genreById(r.genre).name} · ${left} gün kaldı</div>
-          </div>
-          <span class="pill">${U.money(r.cost)}</span>
-        </div>`;
-      }).join("");
+      /* sihirbaz adımları — tek kaynak WIZ_STEPS (akış değişmiyor) */
+      const steps = K.careerUI.WIZ_STEPS.map(w =>
+        `<span class="gh-step"><i>${w.id}</i>${U.escape(w.label)}</span>`
+      ).join("<em class=\"gh-step-sep\">→</em>");
 
       return `
         <div class="c-block">
-          <div class="c-head"><div><h2>Stüdyo</h2><div class="sub">Şarkını adım adım üret ve mağazalara gönder.</div></div></div>
+          <div class="c-head"><div><h2>Stüdyo</h2><div class="sub">Üretim merkezi — fikir, kayıt, katalog.</div></div>
+            <div class="gh-head-tags">
+              <span class="gh-head-tag">Gün ${s.day}</span>
+              <span class="gh-head-tag money">${U.money(s.balance)}</span>
+            </div>
+          </div>
 
           <div class="studio-hub">
             <div class="studio-hub-card primary">
-              <div class="hub-icon">🎧</div>
-              <div class="hub-title">Yeni Yayın Oluştur</div>
-              <div class="hub-sub">Parçalar → prodüksiyon → kapak → tanıtım → dağıtım. Beş adımda hazır.</div>
-              <button class="btn btn-primary" data-act="open-studio">🎧 Stüdyoyu Aç</button>
+              <div class="gh-hero-top">
+                <div class="hub-icon">🎧</div>
+                <div>
+                  <div class="hub-title">Yeni Yayın Oluştur</div>
+                  <div class="hub-sub">${K.careerUI.WIZ_STEPS.length} adımda parçadan mağazaya: parçalar, prodüksiyon, söz, kapak, tanıtım, dağıtım.</div>
+                </div>
+              </div>
+              <div class="gh-steps">${steps}</div>
+              ${K.careerUI.studioHeroLine()}
+              <div class="action-row" style="align-items:center">
+                <button class="btn btn-primary" data-act="open-studio">🎧 Stüdyoyu Aç</button>
+                <span class="gh-hero-hint">${rels.length ? `Hatta ${rels.length} proje var` : "Hat boş — ilk projeni başlat"}</span>
+              </div>
             </div>
             <div class="studio-hub-card">
               <div class="hub-title">Durum</div>
@@ -220,15 +489,56 @@
                 <div><span class="k">Müzikal Yetenek</span><span class="v">${Math.floor(K.skillLevel("music"))}</span></div>
                 <div><span class="k">Stüdyo Becerisi</span><span class="v">${Math.floor(K.skillLevel("studio"))}</span></div>
                 <div><span class="k">Yorgunluk</span><span class="v">${Math.round(p.fatigue || 0)}</span></div>
-                <div><span class="k">Hattaki İş</span><span class="v">${rels.length}</span></div>
+                <div><span class="k">Parça</span><span class="v">${tracks.length}</span></div>
+              </div>
+              <div class="gh-meters">
+                ${K.careerUI.studioMeter("Gündem uyumu", Math.round(tm * 100), "%", "var(--karma-2)")}
+                ${K.careerUI.studioMeter("Kayıt hazırlığı", readiness, "%", "var(--money)")}
+                ${K.careerUI.studioMeter("Katalog tazeliği", freshness, "%", "var(--gold)")}
               </div>
             </div>
           </div>
 
-          ${rels.length ? `
-          <div class="c-head" style="margin-top:4px"><div><h2>Yayın Hattı</h2><div class="sub">Hazırlanıyor</div></div></div>
-          <div class="row-list">${rows}</div>` : ""}
+          <div class="gh-split">
+            <div class="gh-panel">
+              <div class="gh-panel-head"><b>💡 Üretim Önerileri</b><span>durumuna göre</span></div>
+              <div class="gh-advice-list">${K.careerUI.studioAdviceHTML()}</div>
+            </div>
+            <div class="gh-panel">
+              <div class="gh-panel-head"><b>⏳ Devam Eden İşler</b><span>${rels.length} proje</span></div>
+              <div class="gh-jobs">${K.careerUI.studioOngoingHTML()}</div>
+            </div>
+          </div>
+
+          <div class="gh-panel">
+            <div class="gh-panel-head"><b>📚 Parça Kütüphanesi</b><span>yayınlanmış işler</span></div>
+            ${K.careerUI.studioLibraryHTML()}
+          </div>
         </div>`;
+    },
+
+    /* hero kartındaki katalog özeti — boş alanı işe yarar bilgiyle doldurur */
+    studioHeroLine() {
+      const p = K.state.player;
+      const tracks = (p.songs || []).filter(Boolean);
+      if (!tracks.length) {
+        return `<div class="gh-hero-line"><span class="gh-hl-ic">🌱</span>
+          <span>Katalog henüz boş. İlk teklini çıkardığında dinlenme, liste ve gelir burada birikir.</span></div>`;
+      }
+      const total = U.sum(tracks, x => x.streams || 0);
+      const last = tracks.reduce((m, t) => Math.max(m, t.publishedDay || 0), 0);
+      const ago = Math.max(0, K.state.day - last);
+      return `<div class="gh-hero-line"><span class="gh-hl-ic">📀</span>
+        <span><b>${tracks.length} parça</b> · ${U.compact(total)} dinlenme · son yayın ${ago === 0 ? "bugün" : ago + " gün önce"} · ortalama kalite ${Math.round(U.sum(tracks, x => x.quality || 0) / tracks.length)}</span></div>`;
+    },
+
+    /* tek satır metre (hub sağ kartı) */
+    studioMeter(label, value, suffix, color) {
+      const v = U.clamp(value, 0, 100);
+      return `<div class="gh-meter">
+        <div class="gh-meter-top"><span>${U.escape(label)}</span><b>${Math.round(v)}${suffix || ""}</b></div>
+        <div class="gh-meter-bar"><i style="width:${v}%;background:${color || "var(--karma-2)"}"></i></div>
+      </div>`;
     },
 
     /* =====================================================
@@ -3904,6 +4214,17 @@
       }
       if (act === "open-studio") {
         K.careerUI.openStudioModal();
+        return;
+      }
+      /* v10.63 — stüdyo hub kısayolları */
+      if (act === "go-tab") {
+        K.careerUI.setTab(btn.dataset.arg);
+        return;
+      }
+      if (act === "lib-filter") {
+        const f = btn.dataset.arg || "all";
+        if (["all", "top", "new", "chart"].indexOf(f) >= 0) ui.studioLib = f;
+        K.careerUI.render();
         return;
       }
       if (act === "persona") { K.careerUI.openPersonaModal(); return; }

@@ -5,6 +5,54 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.63 — STÜDYO MERKEZİ (öneri · devam eden iş · kütüphane)
+
+v10.62.2'nin üzerine inşa edilir; **oyun motoruna, ekonomiye ve dağıtım
+sihirbazına dokunulmadı**. Stüdyo sekmesi 1280×900'de yarısı boş duruyordu:
+tek bir kart ve altında geniş bir boşluk vardı. Boşluk üç işlevsel bölümle
+dolduruldu. Yeni test: `tools/smoke-v1063.js` (**40 kontrol**).
+
+### 1 · 📚 Parça kütüphanesi
+Yayınlanmış her parça tek listede: kapak, tür, çıkış günü, kalite, toplam
+dinlenme, günlük akış ve liste derecesi. Dört süzgeç (**Tümü · En çok
+dinlenen · Yeni · Listede**) ve dört özet rakam (parça, toplam dinlenme,
+ortalama kalite, en iyi derece). Her satırda **▶ Dinle** gerçek oynatıcıyı açar.
+Süzgeç seçimi sekme değişiminde korunur.
+
+### 2 · ⏳ Devam eden işler
+Yayın hattındaki her proje aşama çipleri (Prodüksiyon → Kuyruk → Editoryal →
+Yayın), **gerçek ilerleme yüzdesi**, kalan gün ve maliyetle gösterilir; her
+kartın altında **Detay** düğmesi Yayınlar sekmesine gider. Hat boşsa boş durum
+kartı çıkar.
+
+### 3 · 💡 Üretim önerileri
+Öneriler rastgele değil: mevcut state'ten türetilir ve ağırlıklandırılır
+(en yüksek 4 tanesi gösterilir). Kaynaklar: tür↔gündem uyumu
+(`industry.trendMatch`), en sıcak gündem başlığı, iki becerinin düşük olanı,
+yorgunluk/stres, katalog sessizliği ve kasa. Her önerinin **çalışan** bir
+eylemi vardır: sihirbazı açar, ilgili sekmeye gider, pratik yapar veya dinlenir.
+
+### 4 · 🎧 Hero kartı
+Adım şeridi artık `WIZ_STEPS`'ten **tek kaynaktan** üretilir (6 adım),
+altında canlı katalog özeti (parça · dinlenme · son yayın · ortalama kalite)
+ve sağ kartta üç metre: gündem uyumu, kayıt hazırlığı, katalog tazeliği.
+
+### 5 · 🧭 Sekme çubuğu taşması düzeltildi
+Ölçüldü: 12 sekme için 963 px gerekiyor, 1280 px ekranda 843 px yer vardı —
+**Girişim ve Olaylar görünmüyordu**. 1400 px altında sekme çubuğu artık alta
+sarar; hiçbir sekme erişilemez kalmaz.
+
+### 6 · Doğrulama
+Sekmedeki **her düğme** tek tek tıklandı (jsdom + gerçek Chromium): bilinmeyen
+eylem yok, istisna yok, her tıklamanın gözlenebilir etkisi var. Bozuk kayıt
+(eksik `tracks`, boş parça) stüdyoyu çökertmez.
+
+```
+npm run verify   →  50/50 adım temiz
+```
+
+---
+
 ## GÜNCELLEME v10.60 — NPC RELEASE → EKONOMİ ENTEGRASYONU
 
 v10.59'un üzerine inşa edilir; **hiçbir sistem yeniden yazılmadı**, mevcut
