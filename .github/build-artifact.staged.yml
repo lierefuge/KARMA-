@@ -1,0 +1,101 @@
+name: Tek dosya build uret
+
+# ============================================================
+#  KARMA — tek dosya build'i ÜRETEN iş akışı
+#
+#  Neden var?
+#  ----------
+#  Depoda `KARMA-Oyun.html` (tek dosya build) tutuluyor ve `tools/verify.js`
+#  bu dosyanın kaynaklarla BAYT BAYT aynı olmasını şart koşuyor. Bu kontrol
+#  ÇOK DEĞERLİ: "kodu değiştirdim ama build'i unuttum" hatasını imkânsız
+#  kılıyor. Bu yüzden kontrol ASLA atlanmaz/gevşetilmez.
+#
+#  Sorun: build 2,6 MB olduğu için bazı istemciler (API / entegrasyon
+#  yazma yolları) dosyayı gönderemiyor. Çözüm, kontrolü kaldırmak değil,
+#  build'i GITHUB'IN KENDİSİNDE üretmek:
+#
+#    1) önbellek damgası + tek dosya build + version.json üretilir
+#    2) `npm run verify` KOŞAR — yani commit'lenecek çıktı doğrulanmış olur
+#    3) yalnızca doğrulama geçerse ve gerçekten fark varsa commit edilir
+#
+#  Doğrulama düşerse HİÇBİR ŞEY commit edilmez: depo bozulmaz, sadece
+#  iş akışı kırmızı olur ve nedenini logda gösterir.
+#
+#  KULLANIM: Actions → "Tek dosya build uret" → Run workflow (main)
+#  veya API: createWorkflowDispatch (workflowId: build-artifact.yml)
+# ============================================================
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-artifact
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build uret + dogrula + commit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Kaynagi al
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Node kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Bagimliliklar (jsdom)
+        run: npm install --no-audit --no-fund
+
+      - name: Build uret (damga + tek dosya + version.json)
+        run: |
+          node tools/bump-cache.js
+          node tools/build-single.js
+          node tools/gen-version-json.js
+
+      # Build'i commit etmeden ÖNCE tam doğrulama: depoya yalnızca
+      # doğrulanmış çıktı girer.
+      - name: Tam dogrulama (commit oncesi kapi)
+        run: npm run verify
+
+      - name: Degisiklik var mi
+        id: diff
+        run: |
+          if git diff --quiet --exit-code; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Beklenen degisiklik yok: build zaten guncel."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git --no-pager diff --stat
+          fi
+
+      - name: Commit + push (main)
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          VERSION=$(node -p "require('./package.json').version")
+          git add -A
+          git commit -m "v${VERSION} - tek dosya build (CI tarafindan uretildi)"
+          git push origin HEAD:main
+
+      - name: Ozet
+        if: always()
+        run: |
+          {
+            echo "### Tek dosya build"
+            echo ""
+            if [ "${{ steps.diff.outputs.changed }}" = "true" ]; then
+              echo "- Build uretildi, dogrulandi ve main'e commit edildi."
+            else
+              echo "- Build zaten gunceldi; commit gerekmedi."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
