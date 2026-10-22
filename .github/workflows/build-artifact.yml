@@ -30,8 +30,9 @@ on:
 
 permissions:
   contents: write
+  # Dogrulama is akisini tetikleyebilmek icin gerekli
   actions: write
-  
+
 concurrency:
   group: build-artifact
   cancel-in-progress: false
@@ -87,7 +88,15 @@ jobs:
           git add -A
           git commit -m "v${VERSION} - tek dosya build (CI tarafindan uretildi)"
           git push origin HEAD:main
-            - name: Dogrulama is akisini tetikle
+
+      # v10.63.1 — ZINCIRI KAPAT: GITHUB_TOKEN ile yapilan push'lar baska is
+      # akislarini tetiklemez (GitHub'in sonsuz dongu korumasi). Bu yuzden
+      # Dogrulama'yi acikca workflow_dispatch ile cagiriyoruz; izin
+      # permissions.actions: write. Boylece build'den sonra yesil tik elle
+      # tiklanmadan olusur.
+      # NOT: bu depoda "Workflow permissions" Read and write olmali
+      # (Settings > Actions > General). Read-only ise adim uyari verip gecer.
+      - name: Dogrulama is akisini tetikle
         if: always()
         continue-on-error: true
         env:
@@ -98,7 +107,7 @@ jobs:
           else
             echo "::warning::Dogrulama tetiklenemedi - Settings > Actions > General > Workflow permissions: Read and write"
           fi
-          
+
       - name: Ozet
         if: always()
         run: |
