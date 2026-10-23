@@ -1,8 +1,8 @@
-name: Günlük içerik yenile
+name: Gunluk icerik yenile
 
 on:
   schedule:
-    - cron: "0 4 * * *"      # her gün 04:00 UTC = 07:00 Türkiye
+    - cron: "0 4 * * *"
   workflow_dispatch:
 
 permissions:
@@ -24,12 +24,10 @@ jobs:
           node-version: "24"
       - name: Bagimliliklar
         run: npm install --no-audit --no-fund
-
-      - name: Veriyi cek (yeni sarkilar / klipler)
+      - name: Veriyi cek
         run: |
           node tools/fetch-youtube.js || echo "::warning::youtube cekilemedi"
           node tools/fetch-artist-discography.js || echo "::warning::diskografi cekilemedi"
-
       - name: Degisiklik var mi
         id: diff
         run: |
@@ -39,7 +37,6 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
             git --no-pager diff --stat
           fi
-
       - name: Commit
         if: steps.diff.outputs.changed == 'true'
         run: |
@@ -48,8 +45,6 @@ jobs:
           git add js/data
           git commit -m "veri: gunluk icerik yenilemesi ($(date -u +%F))"
           git push
-
-      # GITHUB_TOKEN ile atılan push başka iş akışı tetiklemez → build'i açıkça çağır
       - name: Build tetikle
         if: steps.diff.outputs.changed == 'true'
         env:
