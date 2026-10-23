@@ -16,6 +16,29 @@
      · kademeli gelir vergisi
      · borç gecikme faizi
      ============================================================ */
+  /* v10.65 — gelir/gider kaynaklarının okunur adları (para akışı paneli) */
+  const REASON_LABELS = {
+    royalty_month: "Telif (aylık)", intl_royalty: "Yurt dışı telif",
+    cancel_refund: "İptal iadesi", rush_fee: "Hızlandırma ücreti",
+    merch: "Merch", merch_sale: "Merch satışı", sponsor: "Sponsorluk", sponsor_month: "Sponsorluk (aylık)",
+    tour: "Konser", concert: "Konser", festival: "Festival", concert_advance: "Konser avansı",
+    tour_cost: "Tur gideri", tour_advance: "Tur avansı", intl_tour: "Yurt dışı tur", intl_enter: "Yurt dışı giriş",
+    writing: "Söz yazımı", ghostwriter: "Ghostwriting", publishing: "Yayın geliri", publishing_advance: "Yayın avansı",
+    snippet: "Kısa video", music_video: "Klip", video: "Video", remix: "Remix", reupload: "Yeniden yükleme",
+    radio_campaign: "Radyo kampanyası", promo: "Promosyon", press: "Basın", playlist_pitch: "Liste pitch",
+    presave: "Ön kayıt", teaser: "Teaser", release: "Yayın",
+    beat_purchase: "Beat alımı", feature_studio: "Feature stüdyo", collab_project: "Ortak proje",
+    advance: "Avans", contract: "Sözleşme", label_found: "Şirket kuruluşu", label_invest: "Şirket yatırımı",
+    label_income: "Şirket geliri", label_release: "Şirket yayını", asset: "Varlık", asset_income: "Varlık geliri",
+    asset_sale: "Varlık satışı", asset_upkeep: "Varlık bakımı", catalog_sale: "Katalog satışı",
+    deluxe_reissue: "Deluxe baskı", remaster: "Remaster", fanclub: "Fan kulübü", fanclub_month: "Fan kulübü (aylık)",
+    vip: "VIP", gift: "Hediye", hangout: "Buluşma", peace: "Barış", diss: "Diss", quest: "Görev",
+    job: "Yan iş", dev: "Geliştirme", staff: "Personel", team_hire: "Ekip", crew: "Ekip",
+    therapy: "Terapi", mental_rest: "Dinlenme", holiday: "Tatil", list_maintenance: "Liste bakımı",
+    payola: "Payola", bot_streams: "Bot dinlenme", shady: "Riskli iş", incident: "Olay", crisis: "Kriz",
+    ar_revision: "A&R revizyonu", smooth: "Kolaylaştırma", sync: "Sync lisansı", other: "Diğer"
+  };
+
   K.econ = {
     STORES: ["spotify", "apple", "youtube", "other"],
 
@@ -201,12 +224,66 @@
     spend(amount, reason) {
       if (!K.economy.canAfford(amount)) return false;
       K.state.balance -= amount;
+      K.economy.logMoney("out", amount, reason);
       K.bus.emit("money", { amount: -amount, reason });
       return true;
     },
 
+    /* ============================================================
+       v10.65 — PARA AKIŞI DEFTERİ
+       Gelir/giderin KAYNAĞI tutulur (reason zaten vardı ama hiçbir yerde
+       toplanmıyordu). Analiz sekmesindeki "Para Akışı" paneli buradan beslenir.
+       Sınırlı ring buffer: 600 kayıt (~birkaç ay), save'i şişirmez.
+       ============================================================ */
+    reasonLabel(reason) {
+      const k = String(reason || "other");
+      if (REASON_LABELS[k]) return REASON_LABELS[k];
+      return k.replace(/_/g, " ").replace(/^./, c => c.toUpperCase());
+    },
+
+    logMoney(dir, amount, reason) {
+      const s = K.state;
+      if (!s) return;
+      const a = Math.round(Math.abs(Number(amount) || 0));
+      if (!a) return;
+      s.moneyLog = s.moneyLog || [];
+      s.moneyLog.push({
+        day: s.day,
+        dir: dir === "out" ? "out" : "in",
+        amount: a,
+        reason: String(reason || "other").slice(0, 32)
+      });
+      if (s.moneyLog.length > 600) s.moneyLog = s.moneyLog.slice(-600);
+    },
+
+    /* son `days` günün kaynak bazlı dökümü (azalan sıralı) */
+    ledgerSummary(days) {
+      const s = K.state || {};
+      const span = Math.max(1, Math.round(Number(days) || 30));
+      const from = Math.max(1, (s.day || 1) - span + 1);
+      const agg = { in: {}, out: {} };
+      (s.moneyLog || []).forEach(e => {
+        if (!e || typeof e.day !== "number" || e.day < from) return;
+        const k = e.reason || "other";
+        agg[e.dir === "out" ? "out" : "in"][k] = (agg[e.dir === "out" ? "out" : "in"][k] || 0) + (Number(e.amount) || 0);
+      });
+      const rows = o => Object.keys(o)
+        .map(k => ({ reason: k, amount: o[k] }))
+        .sort((a, b) => b.amount - a.amount);
+      const ins = rows(agg.in), outs = rows(agg.out);
+      const totalIn = U.sum(ins, x => x.amount) || 0;
+      const totalOut = U.sum(outs, x => x.amount) || 0;
+      return {
+        days: span, from, to: s.day || 0,
+        ins, outs, totalIn, totalOut,
+        net: totalIn - totalOut,
+        entries: (s.moneyLog || []).filter(e => e && e.day >= from).length
+      };
+    },
+
     earn(amount, reason) {
       K.state.balance += amount;
+      K.economy.logMoney("in", amount, reason);
       K.state.player.totalEarned += amount;
       if (amount > 0) K.state.player.monthIncome = (K.state.player.monthIncome || 0) + amount;
       K.bus.emit("money", { amount, reason });
