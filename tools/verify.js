@@ -216,7 +216,12 @@ const SUITES = [
   { id: "v1065",       script: "tools/smoke-v1065.js",       label: "v10.65 para akışı · ilk 10 dakika · taslaklar" },
   /* v10.66 — GERÇEKÇİLİK TURU: 6 yüzey (Instagram · Spotify · TikTok · X ·
      YouTube · Stüdyo) + yayın/şirket katmanı. */
-  { id: "v1066",       script: "tools/smoke-v1066.js",       label: "v10.66 gerçekçilik turu (6 yüzey · 83 kontrol)" }
+  { id: "v1066",       script: "tools/smoke-v1066.js",       label: "v10.66 gerçekçilik turu (6 yüzey · 83 kontrol)" },
+  /* v10.67 — YENİ ÇIKIŞ AKIŞI + PLAYLIST ROTASYONU.
+     Kilitlediği sınıf: "yeni şarkı çıktı ama oyuna hiç girmedi" ve
+     "Spotify listesi hiç değişmiyor". release-intel verisinin şemasını,
+     takvim tohumlu rotasyonu ve veri yokken güvenli düşüşü doğrular. */
+  { id: "v1067",       script: "tools/smoke-v1067.js",       label: "v10.67 yeni çıkışlar + rotasyon" }
 ];
 
 /* ---- süit özeti çözümleyicisi (tek yerde) ---- */
