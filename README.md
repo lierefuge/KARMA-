@@ -51,6 +51,27 @@ eylem yok, istisna yok, her tıklamanın gözlenebilir etkisi var. Bozuk kayıt
 npm run verify   →  50/50 adım temiz
 ```
 
+### 7 · 🏗 Build artık CI'da üretiliyor (v10.63.1)
+Tek dosya build 2,6 MB olduğu için bazı yazma yollarıyla (API/entegrasyon,
+1 MiB sınırı) gönderilemiyordu. `tools/verify.js` içindeki **"build güncel mi"**
+kontrolü gevşetilmedi; bunun yerine build'i GitHub'ın kendisi üretiyor:
+`.github/workflows/build-artifact.yml` → üretir, `npm run verify` ile doğrular,
+**ancak geçerse** commit eder. Doğrulama düşerse hiçbir şey commit edilmez.
+
+İş akışı sonunda `gh workflow run tests.yml` ile **Doğrulama** açıkça tetiklenir
+(`permissions: actions: write`) — çünkü `GITHUB_TOKEN` ile atılan push'lar
+başka iş akışlarını tetiklemez. Böylece her build'den sonra yeşil tik elle
+tıklamadan oluşur. Ayrıntı: `docs/build-artifact.md`.
+
+Aynı turda bir gürültü kaynağı da kapatıldı: `tools/gen-version-json.js`
+`built` damgasını her çağrıda yeniliyordu, bu yüzden build güncel olsa bile
+CI boş bir commit atıyordu. Artık `built` yalnızca sürüm/önbellek/tarih
+gerçekten değişince yenileniyor.
+
+Canlı doğrulama (2026-10-23): elle tetiklenen build → `success`; aynı saniyede
+`workflow_dispatch` kaynaklı **yeni Doğrulama** run'ı → `success`. Workflow
+permissions: Read and write.
+
 ---
 
 ## GÜNCELLEME v10.60 — NPC RELEASE → EKONOMİ ENTEGRASYONU
