@@ -36,7 +36,9 @@
 /* 1400'ün altında tek satıra sığmıyor (ölçüldü: 963px gerekli).
    Gizlemek yerine alt satıra iner — hiçbir sekme erişilemez kalmaz. */
 @media (max-width: 1399px) and (min-width: 981px) {
-  .career-tabs { flex-wrap: wrap; }
+  /* 12 sekme tam 6×2 oturur: tek başına alt satıra düşen sekme olmaz */
+  .career-tabs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
+  .tab { text-align: center; padding: 7px 4px; font-size: 11px; }
 }
 /* Mobilde üç satır sekme çok yer kaplıyor: tek satır + yatay kaydırma kalır,
    sağ kenardaki solma kaydırılabildiğini gösterir. */
@@ -695,4 +697,131 @@
 @media (max-width: 720px) {
   .gh-cal-grid { grid-template-columns: repeat(4, 1fr); }
   .gh-d-row { grid-template-columns: 74px 1fr 54px; }
+}
+
+/* ============================================================
+   v10.65 · PARA AKIŞI paneli (Analiz sekmesi)
+   ============================================================ */
+.mf-head { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.mf-kpi {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 9px 11px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.mf-kpi .k { font-size: 9.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-3); font-weight: 700; }
+.mf-kpi .v { font-size: 14px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.mf-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
+.mf-col { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.mf-col-head {
+  font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px;
+  color: var(--text-3); margin-bottom: 2px;
+}
+.mf-row { display: grid; grid-template-columns: minmax(72px, 108px) 1fr auto; align-items: center; gap: 8px; }
+.mf-name { font-size: 11px; color: var(--text-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mf-bar { height: 6px; border-radius: var(--radius-pill); background: rgba(255,255,255,.06); overflow: hidden; }
+.mf-bar i { display: block; height: 100%; border-radius: var(--radius-pill); }
+.mf-bar i.in { background: linear-gradient(90deg, rgba(92,232,155,.5), var(--money)); }
+.mf-bar i.out { background: linear-gradient(90deg, rgba(255,92,122,.4), var(--hot)); }
+.mf-val { font-size: 10.5px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mf-val.in, .v.money { color: var(--money); }
+.mf-val.out, .v.bad { color: #ff8fa3; }
+.mf-empty, .mf-foot { font-size: 10px; color: var(--text-3); }
+.mf-foot { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,.08); line-height: 1.5; }
+
+/* ============================================================
+   v10.65 · ERİŞİLEBİLİRLİK + DOKUNMA TURU
+   Klavye odağı artık görünür; dokunma hedefleri en az 32–34 px.
+   ============================================================ */
+.btn:focus-visible,
+.gh-chip:focus-visible,
+.gh-icon-btn:focus-visible,
+.tab:focus-visible,
+.gh-cal-day:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--karma-2);
+  outline-offset: 2px;
+}
+
+@media (max-width: 860px) {
+  .mf-head { grid-template-columns: 1fr 1fr; }
+  .mf-cols { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  /* dokunma hedefleri */
+  .btn-xs { min-height: 32px; padding: 6px 10px; font-size: 10.5px; }
+  .gh-chip { min-height: 32px; }
+  .gh-icon-btn { width: 30px; height: 30px; }
+  .gh-job-actions .btn-xs { flex: 1 1 auto; justify-content: center; }
+  .gh-track { flex-wrap: wrap; row-gap: 6px; }
+  .gh-track .gh-num { min-width: 48px; }
+  .gh-cal-day { min-height: 66px; padding: 6px 3px 5px; }
+  .gh-cal-dom { font-size: 14px; }
+  .gh-detail { gap: 12px; }
+  .gh-d-head { flex-wrap: wrap; }
+  .gh-d-row { grid-template-columns: 68px 1fr 52px; }
+  .gh-lib-foot { flex-direction: column; align-items: flex-start; gap: 6px; }
+}
+
+@media (max-width: 430px) {
+  .gh-cal-grid { grid-template-columns: repeat(4, 1fr); }
+  .gh-advice { padding: 8px 9px; }
+  .mf-row { grid-template-columns: minmax(64px, 92px) 1fr auto; }
+}
+
+/* ============================================================
+   v10.65 · İLK 10 DAKİKA REHBERİ
+   ============================================================ */
+.ob-card {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 14px; border-radius: var(--radius-m);
+  background: linear-gradient(150deg, rgba(110,195,255,.10), rgba(176,108,255,.07)), var(--bg-2);
+  border: 1px solid rgba(110,195,255,.32);
+}
+.ob-card.done { flex-direction: row; align-items: center; background: rgba(92,232,155,.07); border-color: rgba(92,232,155,.3); }
+.ob-card .grow { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.ob-card b { font-size: 13px; font-weight: 800; }
+.ob-top { display: flex; align-items: center; gap: 10px; }
+.ob-ic { font-size: 20px; line-height: 1; }
+.ob-hint { font-size: 10.5px; color: var(--text-2); line-height: 1.45; }
+.ob-bar { height: 5px; border-radius: var(--radius-pill); background: rgba(255,255,255,.07); overflow: hidden; }
+.ob-bar i { display: block; height: 100%; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--karma-2), var(--money)); transition: width .35s ease; }
+.ob-steps { display: flex; flex-direction: column; gap: 6px; }
+.ob-step {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 9px; border-radius: var(--radius-s);
+  background: rgba(255,255,255,.03); border: 1px solid var(--stroke);
+}
+.ob-step.done { opacity: .62; }
+.ob-step b { font-size: 11.5px; font-weight: 700; display: block; }
+.ob-no {
+  width: 18px; height: 18px; flex: 0 0 auto; border-radius: var(--radius-pill);
+  display: grid; place-items: center; font-size: 10px; font-weight: 900;
+  background: rgba(110,195,255,.18); color: #bfe6ff;
+}
+.ob-step.done .ob-no { background: rgba(92,232,155,.2); color: #9df3c0; }
+.ob-done-tag { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; color: var(--money); }
+@media (max-width: 720px) {
+  .ob-step { flex-wrap: wrap; }
+  .ob-step .btn { margin-left: 27px; }
+}
+
+/* ============================================================
+   v10.65 · TASLAKLAR
+   ============================================================ */
+.gh-drafts { display: flex; flex-direction: column; gap: 6px; }
+.gh-draft {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.gh-draft .grow { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.gh-draft b { font-size: 12px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gh-draft-sub { font-size: 10px; color: var(--text-2); }
+.gh-draft-ic { font-size: 17px; line-height: 1; }
+@media (max-width: 720px) {
+  .gh-draft { flex-wrap: wrap; }
+  .gh-draft .btn { margin-left: 27px; }
 }
