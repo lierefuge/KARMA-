@@ -226,7 +226,7 @@
           w: 100 - Math.min(silent, 60), icon: "🔥", tone: "ok",
           title: `${gname} gündemde`,
           desc: `Gündem uyumu %${Math.round(tm * 100)}. Bu türde çıkan iş ilk gün daha çok görünürlük alır.`,
-          cta: { label: "🎧 Bu türde başla", act: "open-studio" }
+          cta: { label: "🎧 Bu türde başla", act: "open-studio", preset: "trend" }
         });
       } else {
         out.push({
@@ -268,7 +268,7 @@
           w: 38, icon: "⚡", tone: "ok",
           title: "Form iyi",
           desc: `Yorgunluk ${fatigue}, stres ${mh.stress}. Kayıt için uygun bir gün.`,
-          cta: { label: "🎧 Stüdyoya gir", act: "open-studio" }
+          cta: { label: "🎧 Stüdyoya gir", act: "open-studio", preset: "trend" }
         });
       }
 
@@ -278,14 +278,14 @@
           w: 130, icon: "🎼", tone: "info",
           title: "İlk parçanı üret",
           desc: "Katalog boş. İlk teklini çıkar; mahalle çevresi Mesajlar'da seni bekliyor.",
-          cta: { label: "🎧 Başla", act: "open-studio" }
+          cta: { label: "🎧 Başla", act: "open-studio", preset: "first" }
         });
       } else if (silent >= 30) {
         out.push({
           w: 95 + Math.min(silent, 90) / 10, icon: "⏳", tone: "warn",
           title: `${silent} gündür yayın yok`,
           desc: "Katalog sönüyor: dinlenme her gün eriyor. Yeni bir işle ateşi canlandır.",
-          cta: { label: "🎧 Yeni yayın", act: "open-studio" }
+          cta: { label: "🎧 Yeni yayın", act: "open-studio", preset: "fresh" }
         });
       } else {
         out.push({
@@ -316,7 +316,7 @@
         const cta = a.cta || {};
         const btn = cta.disabled
           ? `<button class="btn btn-sm btn-ghost" disabled>${U.escape(cta.label)}</button>`
-          : `<button class="btn btn-sm btn-ghost" data-act="${cta.act}"${cta.arg ? ` data-arg="${cta.arg}"` : ""}>${U.escape(cta.label)}</button>`;
+          : `<button class="btn btn-sm btn-ghost" data-act="${cta.act}"${cta.arg ? ` data-arg="${cta.arg}"` : ""}${cta.preset ? ` data-preset="${cta.preset}"` : ""}>${U.escape(cta.label)}</button>`;
         return `<div class="gh-advice tone-${a.tone}">
           <span class="gh-adv-ic">${a.icon}</span>
           <div class="gh-adv-body"><b>${U.escape(a.title)}</b><span>${a.desc}</span></div>
@@ -365,8 +365,19 @@
             <div class="gh-job-sub">${K.career.formatLabel(tcount)} · ${K.genreById(r.genre || K.state.player.genre).name} · ${U.money(r.cost || 0)}</div>
             <div class="gh-prog"><i style="width:${prg}%"></i></div>
             <div class="release-stages">${chips}</div>
+            <div class="gh-job-actions">
+              <button class="btn btn-xs btn-ghost" data-act="rel-rush" data-rel="${r.id}"
+                ${(r.rushed || r.stage === "editorial") ? "disabled" : ""}
+                title="${r.rushed ? "Bu proje zaten hızlandırıldı" : (r.stage === "editorial" ? "Editoryal incelemeden sonra hızlandırılamaz" : "Kalan süreyi %40 kısalt (ücret + kalite riski)")}">⚡ Hızlandır · ${U.money(K.career.rushFee(r))}</button>
+              <button class="btn btn-xs btn-ghost" data-act="rel-rename" data-rel="${r.id}"
+                ${r.stage === "prep" ? "" : "disabled"}
+                title="${r.stage === "prep" ? "Proje adını düzenle" : "Dağıtıma gönderildikten sonra ad değişmez"}">✎ Ad</button>
+              <button class="btn btn-xs btn-ghost" data-act="rel-cancel" data-rel="${r.id}"
+                title="Yayını iptal et (kısmi iade)">🚫 İptal</button>
+              <span class="grow"></span>
+              <button class="btn btn-xs btn-ghost" data-act="go-tab" data-arg="releases">Detay →</button>
+            </div>
           </div>
-          <button class="btn btn-xs btn-ghost" data-act="go-tab" data-arg="releases">Detay</button>
         </div>`;
       }).join("");
     },
@@ -394,6 +405,7 @@
           ${rank}
           <div class="gh-num"><b>${U.compact(song.streams || 0)}</b><span>dinlenme</span></div>
           <div class="gh-num"><b>${U.compact(song.lastDaily || 0)}</b><span>günlük</span></div>
+          <button class="gh-icon-btn ghost" data-act="song-detail" data-song="${song.id}" title="Parça detayı" aria-label="${U.escape(song.title)} detayları">ⓘ</button>
           <button class="gh-icon-btn" data-act="preview-song" data-song="${song.id}" title="Dinle" aria-label="${U.escape(song.title)} parçasını dinle">▶</button>
         </div>`;
       }).join("");
@@ -511,10 +523,161 @@
           </div>
 
           <div class="gh-panel">
+            <div class="gh-panel-head"><b>🗓 Üretim Takvimi</b><span>önümüzdeki 7 gün</span></div>
+            ${K.careerUI.studioCalendarHTML()}
+          </div>
+
+          <div class="gh-panel">
             <div class="gh-panel-head"><b>📚 Parça Kütüphanesi</b><span>yayınlanmış işler</span></div>
             ${K.careerUI.studioLibraryHTML()}
           </div>
         </div>`;
+    },
+
+    /* =====================================================
+       v10.64 — ÜRETİM TAKVİMİ (önümüzdeki 7 gün)
+       Yeni state yok: yayın hattındaki startDay + waitDays'ten türetilir.
+       Çıkış günleri, çift çıkış (çakışma) ve boş günler tek bakışta.
+       ===================================================== */
+    studioCalendarHTML() {
+      const s = K.state;
+      const rels = (s.player.releases || []).filter(Boolean);
+      const releaseDayOf = r => (Number(r.startDay) || 0) + (Number(r.waitDays) || 0);
+
+      let busyDays = 0;
+      const conflicts = [];
+      const cells = [];
+      for (let i = 0; i < 7; i++) {
+        const day = s.day + i;
+        const dt = U.dateForDay(day);
+        const out = rels.filter(r => releaseDayOf(r) === day);
+        if (out.length) busyDays++;
+        if (out.length > 1) conflicts.push({ day, dt, out });
+        cells.push(`<div class="gh-cal-day${i === 0 ? " today" : ""}${out.length ? " busy" : ""}">
+          <span class="gh-cal-dow">${U.escape(dt.dow.slice(0, 3))}</span>
+          <span class="gh-cal-dom">${dt.dayOfMonth}</span>
+          <span class="gh-cal-month">${U.escape(dt.monthShort)}</span>
+          <div class="gh-cal-marks">${out.map(r => `<i title="${U.escape(r.title)}"></i>`).join("")}</div>
+          <span class="gh-cal-tag${out.length ? "" : " dim"}">${out.length ? out.length + " çıkış" : "boş"}</span>
+        </div>`);
+      }
+
+      const next = rels
+        .map(r => ({ r, left: releaseDayOf(r) - s.day }))
+        .filter(x => x.left >= 0)
+        .sort((a, b) => a.left - b.left)[0];
+
+      const summary = next
+        ? `En yakın çıkış <b>${next.left === 0 ? "bugün" : next.left + " gün sonra"}</b> · ${U.escape(next.r.title)}`
+        : "Takvimde planlı çıkış yok";
+
+      const warn = conflicts.length
+        ? `<div class="gh-cal-warn">⚠️ <b>Çakışma:</b> ${conflicts.map(c => `${U.escape(c.dt.short)} (${c.out.length} çıkış)`).join(", ")} — aynı gün iki yayın birbirini yer.</div>`
+        : "";
+
+      return `<div class="gh-cal">
+          <div class="gh-cal-grid">${cells.join("")}</div>
+          <div class="gh-cal-foot">
+            <span>${summary}</span>
+            <span class="gh-more">${busyDays}/7 gün dolu</span>
+          </div>
+          ${warn}
+        </div>`;
+    },
+
+    /* =====================================================
+       v10.64 — PARÇA DETAYI
+       Kütüphanede gördüğün şarkının üretim ve yayın geçmişi:
+       kalite kırılımı, platform dağılımı, yaş, sönüm, liste zirvesi.
+       ===================================================== */
+    openSongDetail(id) {
+      const song = ((K.state.player.songs) || []).find(x => x && x.id === id);
+      if (!song) { K.toast("Parça bulunamadı", "Kütüphane yenilenmiş olabilir.", "warn"); return null; }
+      const s = K.state;
+      const age = Math.max(0, s.day - (song.publishedDay || s.day));
+      const g = K.genreById(song.genre || K.state.player.genre);
+
+      const bar = (label, val, color, suffix) => {
+        const v = U.clamp(Math.round(Number(val) || 0), 0, 100);
+        return `<div class="gh-d-row">
+          <span class="gh-d-label">${U.escape(label)}</span>
+          <span class="gh-d-bar"><i style="width:${v}%;background:${color || "var(--karma-2)"}"></i></span>
+          <b class="gh-d-val">${v}${suffix || ""}</b>
+        </div>`;
+      };
+      const fmt = n => U.fmt ? U.fmt(Math.round(Number(n) || 0)) : U.compact(n);
+
+      const platforms = [
+        ["Spotify", song.spotifyStreams || 0, "var(--money)"],
+        ["Apple Music", song.appleStreams || 0, "var(--karma-2)"],
+        ["YouTube", song.youtubeViews || 0, "var(--hot)"]
+      ];
+      const maxPlat = Math.max(1, ...platforms.map(p => p[1]));
+
+      const body = `<div class="gh-detail">
+          <div class="gh-d-head">
+            ${K.ui.cover(song.coverSeed, (String(song.title)[0] || "?").toUpperCase())}
+            <div class="grow">
+              <b class="gh-d-title">${U.escape(song.title)}</b>
+              <span class="gh-d-sub">${g.icon} ${U.escape(g.name)} · ${U.escape(song.albumTitle || "Tekli")}${song.trackNo ? " · " + song.trackNo + ". parça" : ""}</span>
+              <span class="gh-d-sub">Gün ${song.publishedDay || 0} · ${age} gündür yayında${song.explicit ? " · E" : ""}${song.instrumental ? " · enstrümantal" : ""}</span>
+            </div>
+            ${song.takenDown ? `<span class="pill">🚫 Kaldırıldı</span>` : (song.chartRank ? `<span class="pill gold">Liste #${song.chartRank}</span>` : "")}
+          </div>
+
+          <div class="gh-lib-stats">
+            <div><span class="k">Dinlenme</span><span class="v">${U.compact(song.streams || 0)}</span></div>
+            <div><span class="k">Günlük</span><span class="v">${U.compact(song.lastDaily || 0)}</span></div>
+            <div><span class="k">Zirve</span><span class="v">${(song.chartPeak && song.chartPeak < 999) ? "#" + song.chartPeak : "—"}</span></div>
+            <div><span class="k">Gelir</span><span class="v">${U.money(song.revenue || 0)}</span></div>
+          </div>
+
+          <div class="gh-d-section">
+            <div class="gh-d-section-title">Üretim kalitesi</div>
+            ${bar("Genel kalite", song.quality, "var(--karma)")}
+            ${bar("Beat", song.beatQuality, "var(--karma-2)")}
+            ${bar("Vokal", song.vocalQuality, "var(--money)")}
+            ${bar("Mix / master", song.mixQuality, "var(--gold)")}
+            ${bar("Hook gücü", song.hookStrength, "var(--hot)")}
+            ${bar("Söz", song.lyricScore, "var(--karma-2)")}
+          </div>
+
+          <div class="gh-d-section">
+            <div class="gh-d-section-title">Platform dağılımı</div>
+            ${platforms.map(p => `<div class="gh-d-row">
+              <span class="gh-d-label">${p[0]}</span>
+              <span class="gh-d-bar"><i style="width:${Math.round(p[1] / maxPlat * 100)}%;background:${p[2]}"></i></span>
+              <b class="gh-d-val">${fmt(p[1])}</b>
+            </div>`).join("")}
+          </div>
+
+          <div class="gh-d-foot">
+            <span>Sönüm hızı: <b>${(Number(song.decayRate) || 0).toFixed(1)}</b>/gün</span>
+            <span>Dağıtıcı: <b>${U.escape(song.distributorName || "—")}</b></span>
+            ${song.isrc ? `<span>ISRC: <b>${U.escape(song.isrc)}</b></span>` : ""}
+            ${song.viral ? `<span class="pill hot">🔥 Viral</span>` : ""}
+          </div>
+        </div>`;
+
+      K.ui.modal({
+        title: "🎵 " + song.title,
+        desc: "Üretim ve yayın geçmişi",
+        wide: true,
+        body,
+        actions: [
+          {
+            label: "▶ Dinle", cls: "btn-primary",
+            onClick: () => {
+              K.interactions.play({ id: song.id, title: song.title, artistName: K.state.player.stageName, art: null });
+              K.phone.pushView(K.ui.playerView());
+              if (K.appSetView) K.appSetView("phone");
+              return true;
+            }
+          },
+          { label: "Kapat" }
+        ]
+      });
+      return song;
     },
 
     /* hero kartındaki katalog özeti — boş alanı işe yarar bilgiyle doldurur */
@@ -530,6 +693,27 @@
       const ago = Math.max(0, K.state.day - last);
       return `<div class="gh-hero-line"><span class="gh-hl-ic">📀</span>
         <span><b>${tracks.length} parça</b> · ${U.compact(total)} dinlenme · son yayın ${ago === 0 ? "bugün" : ago + " gün önce"} · ortalama kalite ${Math.round(U.sum(tracks, x => x.quality || 0) / tracks.length)}</span></div>`;
+    },
+
+    /* v10.64 — öneri → sihirbaz ön dolumu.
+       Yalnızca öneriyi anlamlı kılan alanlar doldurulur; geri kalanı
+       oyuncu sihirbazda değiştirebilir. */
+    studioPreset(kind) {
+      const p = K.state.player;
+      const base = { genre: p.genre, count: 1, budget: 12000, marketing: 3000 };
+      if (kind === "trend") {
+        /* gündemdeki türde çık: pazarlamaya biraz daha yüklen */
+        return Object.assign(base, { budget: 14000, marketing: 6000 });
+      }
+      if (kind === "first") {
+        /* ilk çıkış: kasa küçük, risk düşük */
+        return Object.assign(base, { budget: 9000, marketing: 2000 });
+      }
+      if (kind === "fresh") {
+        /* uzun sessizlik sonrası: görünürlük için daha çok tanıtım */
+        return Object.assign(base, { budget: 12000, marketing: 8000 });
+      }
+      return base;
     },
 
     /* tek satır metre (hub sağ kartı) */
@@ -579,17 +763,19 @@
 
       K.careerUI._studio = {
         step: 1,
-        genre: p.genre,
-        count: 1,
+        /* v10.64 — ön dolum: öneri kartı tür/bütçe/pazarlama taşıyabilir */
+        genre: opts.genre || p.genre,
+        count: opts.count || 1,
         /* v10.39 — parça artık kendi SÖZÜNÜ taşır (eskiden tek bir
            lyricSections vardı ve albümdeki her şarkı aynı sözü alıyordu) */
         tracks: [{
-          name: (opts.featureTitle || K.career.suggestTitle()), budget: 12000, source: "ev",
+          name: (opts.featureTitle || K.career.suggestTitle()),
+          budget: opts.budget || 12000, source: "ev",
           feat: featArtist ? featArtist.id : null,
           lyrics: { intro: "", verse: lyrics || "", hook: "", chorus: "", bridge: "", outro: "" }
         }],
         lyrTrack: 0,
-        kind: dissArtist ? "diss" : "normal",
+        kind: opts.kind || (dissArtist ? "diss" : "normal"),
         beatId: "digital", beatQ: 55,
         vocalId: "rap", vocalQ: 55,
         mixQ: 55,
@@ -625,8 +811,8 @@
         coverPx: 1400,            // kapak dışa aktarma çözünürlüğü (mağaza alt sınırı 1400)
         contentId: false,         // YouTube Content ID kaydı
         releaseWeekday: 5,        // hedef çıkış günü (5 = Cuma)
-        budget: 12000,
-        marketing: 3000,
+        budget: opts.budget || 12000,
+        marketing: opts.marketing || 3000,
         wait: 18
       };
       K.careerUI._studioDir = "fwd";
@@ -4213,12 +4399,74 @@
         return;
       }
       if (act === "open-studio") {
-        K.careerUI.openStudioModal();
+        /* v10.64 — öneri kartından gelindiyse sihirbaz ÖN DOLU açılır
+           (tür / bütçe / pazarlama). data-preset yoksa normal açılış. */
+        K.careerUI.openStudioModal(
+          btn.dataset.preset ? K.careerUI.studioPreset(btn.dataset.preset) : undefined
+        );
         return;
       }
       /* v10.63 — stüdyo hub kısayolları */
       if (act === "go-tab") {
         K.careerUI.setTab(btn.dataset.arg);
+        return;
+      }
+      /* v10.64 — yayın hattı kontrolü + parça detayı */
+      if (act === "rel-rush") {
+        const r = K.career.rushRelease(btn.dataset.rel);
+        if (!r.ok) {
+          const msg = r.reason === "money" ? `Kasa yetersiz (${U.money(r.fee)} gerekiyor).`
+            : r.reason === "already" ? "Bu proje zaten hızlandırıldı."
+            : r.reason === "too-late" ? "Editoryal incelemeden sonra hızlandırılamaz."
+            : "Proje bulunamadı.";
+          K.toast("⚡ Hızlandırılamadı", msg, "warn");
+        }
+        K.careerUI.render();
+        return;
+      }
+      if (act === "rel-cancel") {
+        const rel = K.career.releaseById(btn.dataset.rel);
+        if (!rel) return;
+        const rate = Math.round(K.career.cancelRefundRate(rel) * 100);
+        const refund = rel.viaLabel ? 0 : Math.round((Number(rel.cost) || 0) * rate / 100);
+        K.ui.confirm(
+          "Yayın iptal edilsin mi?",
+          `"${rel.title}" hattan çıkarılacak. İade: ${U.money(refund)} (%${rate}). İtibar −1. Bu işlem geri alınamaz.`,
+          () => { K.career.cancelRelease(rel.id); K.careerUI.render(); },
+          "Evet, iptal et"
+        );
+        return;
+      }
+      if (act === "rel-rename") {
+        const rel = K.career.releaseById(btn.dataset.rel);
+        if (!rel) return;
+        const { bodyEl } = K.ui.modal({
+          title: "✎ Proje adı",
+          desc: "Dağıtıma gönderilmeden önce değiştirilebilir.",
+          body: `<div class="field"><label>Proje adı</label>
+            <input id="rel-title" class="input" maxlength="48" value="${U.escape(rel.title)}" placeholder="ör. Karanlık Oda"></div>
+            <div class="helper" style="margin-top:8px">Parça adları ayrıdır; bu yalnızca projenin/albümün adıdır.</div>`,
+          actions: [
+            { label: "Vazgeç" },
+            {
+              label: "Kaydet", cls: "btn-primary",
+              onClick: () => {
+                const v = U.qs("#rel-title", bodyEl).value;
+                const r = K.career.renameRelease(rel.id, v);
+                if (!r.ok) {
+                  K.toast("Ad değişmedi", r.reason === "short" ? "En az 2 karakter gerekli." : "Bu aşamada ad değiştirilemez.", "warn");
+                  return false;
+                }
+                K.careerUI.render();
+                return true;
+              }
+            }
+          ]
+        });
+        return;
+      }
+      if (act === "song-detail") {
+        K.careerUI.openSongDetail(btn.dataset.song);
         return;
       }
       if (act === "lib-filter") {
