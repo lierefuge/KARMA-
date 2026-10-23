@@ -494,7 +494,7 @@
       /* Şirket adına çıkan yayında parayı şirket ödedi: oyuncuya nakit
          iadesi yok, yalnızca itibar kaybı. */
       const refund = rel.viaLabel ? 0 : Math.round(paid * K.career.cancelRefundRate(rel));
-      if (refund > 0) s.balance += refund;
+      if (refund > 0) { s.balance += refund; K.economy.logMoney("in", refund, "cancel_refund"); }
 
       p.releases.splice(i, 1);
       p.reputation = U.clamp((p.reputation || 0) - 1, 0, 100);
@@ -525,6 +525,7 @@
 
       const newRemaining = Math.max(2, Math.ceil(remaining * 0.6));
       s.balance -= fee;
+      K.economy.logMoney("out", fee, "rush_fee");
       rel.waitDays = (Number(rel.waitDays) || remaining) - remaining + newRemaining;
       rel.rushed = true;
       rel.rushFee = (rel.rushFee || 0) + fee;
