@@ -48,7 +48,9 @@
     "real-songs":    { global: "REAL_SONGS",    src: "js/data/real-songs.js" },
     "real-previews": { global: "REAL_PREVIEWS", src: "js/data/real-previews.js" },
     "discography":   { global: "DISCOGRAPHY",   src: "js/data/discography.js" },
-    "real-youtube":  { global: "REAL_YT",       src: "js/data/real-youtube.js" }
+    "real-youtube":  { global: "REAL_YT",       src: "js/data/real-youtube.js" },
+    /* v10.67 — son 30 günün gerçek çıkışları + AI zenginleştirme alanı */
+    "release-intel": { global: "RELEASE_INTEL", src: "js/data/release-intel.js" }
   };
 
   /* Node (build aracı) için: yalnızca kayıt defterini ver */
