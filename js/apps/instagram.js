@@ -139,15 +139,16 @@
         : `<span class="ig-tab-av">${U.escape(U.initials(K.state.player.stageName))}</span>`;
 
       const view = {
+        chrome: "instagram",
         title: "Instagram",
         sub: "",
         shellClass: "app-instagram",
         tabPos: "bottom",
         tabs: [
-          { id: "feed", label: "Ana Sayfa", icon: ICO.home },
-          { id: "explore", label: "Keşfet", icon: ICO.search },
-          { id: "reels", label: "Reels", icon: ICO.reels },
-          { id: "profile", label: "Profil", icon: profileIcon }
+          { id: "feed", label: "Ana Sayfa", icon: ICO.home, iconOnly: true },
+          { id: "explore", label: "Keşfet", icon: ICO.search, iconOnly: true },
+          { id: "reels", label: "Reels", icon: ICO.reels, iconOnly: true },
+          { id: "profile", label: "Profil", icon: profileIcon, iconOnly: true }
         ],
         activeTab: params.tab || "feed",
         navRight: `<div class="ig-nav-actions">

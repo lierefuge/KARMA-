@@ -349,11 +349,20 @@
       const vp = U.qs("#phone-viewport");
       if (K.err && K.err.noteNav) K.err.noteNav(v.appId || K.phone.openAppId, v.title);
       const bottom = v.tabPos === "bottom";
+      const chrome = v.chrome || "";
       const tabsHTML = v.tabs && v.tabs.length ? `
-        <div class="seg ${bottom ? "seg-bottom" : ""}" data-tabs>
-          ${v.tabs.map(t => `<button data-tab="${t.id}" class="${(v.activeTab || v.tabs[0].id) === t.id ? "active" : ""}">${t.icon ? `<span class="tb-ic">${t.icon}</span>` : ""}<span class="tb-lb">${U.escape(t.label)}</span></button>`).join("")}
+        <div class="seg ${bottom ? "seg-bottom" : ""} ${chrome ? "seg-" + chrome : ""}" data-tabs>
+          ${v.tabs.map(t => {
+            const on = (v.activeTab || v.tabs[0].id) === t.id;
+            return `<button data-tab="${t.id}" class="${on ? "active" : ""}${t.cls ? " " + t.cls : ""}">
+              ${t.icon ? `<span class="tb-ic">${t.icon}</span>` : ""}
+              ${t.iconOnly ? "" : `<span class="tb-lb">${U.escape(t.label)}</span>`}
+            </button>`;
+          }).join("")}
         </div>` : "";
       const backBtn = `<button class="app-back" data-back>‹</button>`;
+      /* v10.67 — MARKA KABUĞU: her uygulama gerçek uygulaması gibi görünsün */
+      const brandHead = chrome ? K.phone.chromeHTML(v, chrome) : null;
       const navRight = v.navRight || "";
 
       /* gövde render'ını ayrı üret: hata olursa boş ekran yerine not göster */
@@ -373,14 +382,14 @@
 
       vp.innerHTML = `
         <div class="screen push app-shell ${v.shellClass || ""} ${bottom ? "has-bottom-tabs" : ""}">
-          <div class="app-nav">
+          ${brandHead || `<div class="app-nav">
             ${backBtn}
             <div class="grow" style="min-width:0">
               <div class="app-nav-title">${U.escape(v.title || "")}</div>
               ${v.sub ? `<div class="app-nav-sub">${U.escape(v.sub)}</div>` : ""}
             </div>
             ${navRight}
-          </div>
+          </div>`}
           ${bottom ? "" : tabsHTML}
           <div class="app-body" data-body>${bodyHTML}</div>
           ${bottom ? tabsHTML : ""}
@@ -402,6 +411,62 @@
         }, 300);
       }
       K.phone.updateStatus();
+    },
+
+    /* ============================================================
+       v10.67 — MARKA KABUĞU (gerçek uygulama görünümü)
+       Her uygulamanın kendi üst çubuğu: Instagram logosu + kalp/DM,
+       YouTube logosu + yayın/arama/zil, TikTok "Takip | Senin İçin".
+       ============================================================ */
+    chromeHTML(v, chrome) {
+      const needBack = K.phone.views.length > 1;
+      const back = needBack ? `<button class="brand-back" data-back aria-label="Geri">‹</button>` : "";
+      const unreadIg = (K.interactions && K.interactions.unreadCount) ? (K.interactions.unreadCount("instagram") || 0) : 0;
+
+      if (chrome === "instagram") {
+        const onProfile = v.activeTab === "profile";
+        return `<div class="brand-top brand-ig">
+          ${back}
+          ${onProfile
+            ? `<div class="ig-top-username">${U.escape(K.state.player.stageName.toLowerCase().replace(/\s/g, ""))}</div>`
+            : `<div class="ig-wordmark">Instagram</div>`}
+          <div class="ig-top-actions">
+            ${onProfile ? `<button class="ig-top-btn" data-tab="feed" aria-label="Ana sayfa">⌂</button>` : ""}
+            <button class="ig-top-btn" data-pact="ig-activity" aria-label="Bildirimler">
+              <span class="ig-heart">♡</span>
+              ${unreadIg ? `<b class="ig-badge">${Math.min(9, unreadIg)}</b>` : ""}
+            </button>
+            <button class="ig-top-btn" data-pact="ig-inbox" aria-label="Mesajlar">✈</button>
+          </div>
+        </div>`;
+      }
+
+      if (chrome === "youtube") {
+        return `<div class="brand-top brand-yt">
+          ${back}
+          <div class="yt-wordmark"><span class="yt-play">▶</span> YouTube</div>
+          <div class="yt-top-actions">
+            <button class="yt-top-btn" data-pact="yt-search-focus" aria-label="Ara">⌕</button>
+            <button class="yt-top-btn" data-pact="yt-notifs" aria-label="Bildirimler">🔔</button>
+            <button class="yt-top-btn yt-avatar" data-tab="mine" aria-label="Kanalım">${K.ui.avatar(K.state.player.stageName, 24, true)}</button>
+          </div>
+        </div>`;
+      }
+
+      if (chrome === "tiktok") {
+        const tab = v.activeTab || "foryou";
+        return `<div class="brand-top brand-tt">
+          <div class="tt-seg">
+            <button class="${tab === "following" ? "on" : ""}" data-tab="following">Takip</button>
+            <button class="${tab === "foryou" ? "on" : ""}" data-tab="foryou">Senin İçin</button>
+          </div>
+          <div class="tt-top-actions">
+            <button class="tt-top-btn" data-tab="trend" aria-label="Keşfet">⌕</button>
+          </div>
+        </div>`;
+      }
+
+      return null;
     },
 
     /* ---------------- click delegasyonu ---------------- */

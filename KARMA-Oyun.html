@@ -2417,6 +2417,99 @@ button.tt-grid-cell { border: 0; padding: 0; cursor: pointer; font-family: inher
   font-size: 8px; font-weight: 900; line-height: 1;
 }
 
+/* ============================================================
+   v10.67 · MARKA KABUĞU — gerçek uygulama görünümü
+   Instagram · YouTube · TikTok üst çubukları ve alt sekmeleri
+   ============================================================ */
+.brand-top {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px 8px; min-height: 46px;
+  background: #000; border-bottom: 1px solid rgba(255,255,255,.06);
+  position: relative; z-index: 3;
+}
+.brand-back {
+  background: none; border: 0; color: #fff; font-size: 22px; line-height: 1;
+  padding: 0 4px 0 0; cursor: pointer; font-family: inherit;
+}
+.brand-top .grow { min-width: 0; }
+
+/* --- Instagram --- */
+.brand-ig { justify-content: space-between; }
+.ig-wordmark {
+  font-family: "Billabong", "Segoe Script", "Brush Script MT", cursive;
+  font-size: 22px; font-weight: 700; letter-spacing: .4px; color: #fff;
+}
+.ig-top-username { font-size: 15px; font-weight: 800; color: #fff; }
+.ig-top-actions { display: flex; align-items: center; gap: 14px; margin-left: auto; }
+.ig-top-btn {
+  background: none; border: 0; color: #fff; font-size: 19px; cursor: pointer;
+  position: relative; padding: 0; line-height: 1; font-family: inherit;
+}
+.ig-badge {
+  position: absolute; top: -5px; right: -7px;
+  background: #ff3040; color: #fff; font-size: 8px; font-weight: 800;
+  min-width: 13px; height: 13px; border-radius: 999px;
+  display: grid; place-items: center; padding: 0 3px;
+}
+
+/* --- YouTube --- */
+.brand-yt { justify-content: flex-start; gap: 8px; }
+.yt-wordmark {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 15px; font-weight: 900; letter-spacing: -.4px; color: #fff;
+}
+.yt-play {
+  color: #ff0000; font-size: 15px; line-height: 1;
+}
+.yt-top-actions { display: flex; align-items: center; gap: 14px; margin-left: auto; }
+.yt-top-btn { background: none; border: 0; color: #fff; font-size: 17px; cursor: pointer; padding: 0; font-family: inherit; }
+.yt-top-btn.yt-avatar { display: grid; place-items: center; }
+
+/* --- TikTok --- */
+.brand-tt { justify-content: center; background: #000; }
+.tt-seg { display: flex; align-items: center; gap: 16px; }
+.tt-seg button {
+  background: none; border: 0; cursor: pointer; font-family: inherit;
+  font-size: 14px; font-weight: 700; color: rgba(255,255,255,.62);
+  padding: 2px 0; position: relative;
+}
+.tt-seg button.on { color: #fff; font-weight: 800; }
+.tt-seg button.on::after {
+  content: ""; position: absolute; left: 42%; right: 42%; bottom: -6px;
+  height: 2px; background: #fff; border-radius: 2px;
+}
+.tt-top-actions { position: absolute; right: 14px; }
+.tt-top-btn { background: none; border: 0; color: #fff; font-size: 19px; cursor: pointer; font-family: inherit; }
+
+/* --- alt sekmeler: marka görünümü --- */
+.seg-bottom.seg-instagram { background: #000; border-top: 1px solid rgba(255,255,255,.08); padding: 6px 0 10px; }
+.seg-instagram button {
+  flex: 1; display: grid; place-items: center; gap: 0;
+  background: none; border: 0; padding: 6px 0; color: #8e8e8e; cursor: pointer;
+}
+.seg-instagram button.active { color: #fff; }
+.seg-instagram .tb-ic svg { width: 24px; height: 24px; }
+.seg-instagram .tb-lb { display: none; }
+.seg-instagram button.active .tb-ic { transform: scale(1.04); }
+
+.seg-bottom.seg-youtube { background: #0f0f0f; border-top: 1px solid rgba(255,255,255,.08); padding: 6px 0 10px; }
+.seg-youtube button {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: none; border: 0; padding: 5px 0; color: #aaa; cursor: pointer;
+}
+.seg-youtube button.active { color: #fff; }
+.seg-youtube .tb-ic svg { width: 22px; height: 22px; }
+.seg-youtube .tb-lb { font-size: 9.5px; font-weight: 600; }
+
+.seg-bottom.seg-tiktok { background: #000; border-top: 1px solid rgba(255,255,255,.08); padding: 6px 0 10px; }
+.seg-tiktok button {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: none; border: 0; padding: 5px 0; color: rgba(255,255,255,.6); cursor: pointer;
+}
+.seg-tiktok button.active { color: #fff; }
+.seg-tiktok .tb-ic svg { width: 22px; height: 22px; }
+.seg-tiktok .tb-lb { font-size: 9.5px; font-weight: 600; }
+
 </style>
 <style>
 /* ==== css/apps-ext.css ==== */
@@ -43167,11 +43260,20 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       const vp = U.qs("#phone-viewport");
       if (K.err && K.err.noteNav) K.err.noteNav(v.appId || K.phone.openAppId, v.title);
       const bottom = v.tabPos === "bottom";
+      const chrome = v.chrome || "";
       const tabsHTML = v.tabs && v.tabs.length ? `
-        <div class="seg ${bottom ? "seg-bottom" : ""}" data-tabs>
-          ${v.tabs.map(t => `<button data-tab="${t.id}" class="${(v.activeTab || v.tabs[0].id) === t.id ? "active" : ""}">${t.icon ? `<span class="tb-ic">${t.icon}</span>` : ""}<span class="tb-lb">${U.escape(t.label)}</span></button>`).join("")}
+        <div class="seg ${bottom ? "seg-bottom" : ""} ${chrome ? "seg-" + chrome : ""}" data-tabs>
+          ${v.tabs.map(t => {
+            const on = (v.activeTab || v.tabs[0].id) === t.id;
+            return `<button data-tab="${t.id}" class="${on ? "active" : ""}${t.cls ? " " + t.cls : ""}">
+              ${t.icon ? `<span class="tb-ic">${t.icon}</span>` : ""}
+              ${t.iconOnly ? "" : `<span class="tb-lb">${U.escape(t.label)}</span>`}
+            </button>`;
+          }).join("")}
         </div>` : "";
       const backBtn = `<button class="app-back" data-back>‹</button>`;
+      /* v10.67 — MARKA KABUĞU: her uygulama gerçek uygulaması gibi görünsün */
+      const brandHead = chrome ? K.phone.chromeHTML(v, chrome) : null;
       const navRight = v.navRight || "";
 
       /* gövde render'ını ayrı üret: hata olursa boş ekran yerine not göster */
@@ -43191,14 +43293,14 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
       vp.innerHTML = `
         <div class="screen push app-shell ${v.shellClass || ""} ${bottom ? "has-bottom-tabs" : ""}">
-          <div class="app-nav">
+          ${brandHead || `<div class="app-nav">
             ${backBtn}
             <div class="grow" style="min-width:0">
               <div class="app-nav-title">${U.escape(v.title || "")}</div>
               ${v.sub ? `<div class="app-nav-sub">${U.escape(v.sub)}</div>` : ""}
             </div>
             ${navRight}
-          </div>
+          </div>`}
           ${bottom ? "" : tabsHTML}
           <div class="app-body" data-body>${bodyHTML}</div>
           ${bottom ? tabsHTML : ""}
@@ -43220,6 +43322,62 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         }, 300);
       }
       K.phone.updateStatus();
+    },
+
+    /* ============================================================
+       v10.67 — MARKA KABUĞU (gerçek uygulama görünümü)
+       Her uygulamanın kendi üst çubuğu: Instagram logosu + kalp/DM,
+       YouTube logosu + yayın/arama/zil, TikTok "Takip | Senin İçin".
+       ============================================================ */
+    chromeHTML(v, chrome) {
+      const needBack = K.phone.views.length > 1;
+      const back = needBack ? `<button class="brand-back" data-back aria-label="Geri">‹</button>` : "";
+      const unreadIg = (K.interactions && K.interactions.unreadCount) ? (K.interactions.unreadCount("instagram") || 0) : 0;
+
+      if (chrome === "instagram") {
+        const onProfile = v.activeTab === "profile";
+        return `<div class="brand-top brand-ig">
+          ${back}
+          ${onProfile
+            ? `<div class="ig-top-username">${U.escape(K.state.player.stageName.toLowerCase().replace(/\s/g, ""))}</div>`
+            : `<div class="ig-wordmark">Instagram</div>`}
+          <div class="ig-top-actions">
+            ${onProfile ? `<button class="ig-top-btn" data-tab="feed" aria-label="Ana sayfa">⌂</button>` : ""}
+            <button class="ig-top-btn" data-pact="ig-activity" aria-label="Bildirimler">
+              <span class="ig-heart">♡</span>
+              ${unreadIg ? `<b class="ig-badge">${Math.min(9, unreadIg)}</b>` : ""}
+            </button>
+            <button class="ig-top-btn" data-pact="ig-inbox" aria-label="Mesajlar">✈</button>
+          </div>
+        </div>`;
+      }
+
+      if (chrome === "youtube") {
+        return `<div class="brand-top brand-yt">
+          ${back}
+          <div class="yt-wordmark"><span class="yt-play">▶</span> YouTube</div>
+          <div class="yt-top-actions">
+            <button class="yt-top-btn" data-pact="yt-search-focus" aria-label="Ara">⌕</button>
+            <button class="yt-top-btn" data-pact="yt-notifs" aria-label="Bildirimler">🔔</button>
+            <button class="yt-top-btn yt-avatar" data-tab="mine" aria-label="Kanalım">${K.ui.avatar(K.state.player.stageName, 24, true)}</button>
+          </div>
+        </div>`;
+      }
+
+      if (chrome === "tiktok") {
+        const tab = v.activeTab || "foryou";
+        return `<div class="brand-top brand-tt">
+          <div class="tt-seg">
+            <button class="${tab === "following" ? "on" : ""}" data-tab="following">Takip</button>
+            <button class="${tab === "foryou" ? "on" : ""}" data-tab="foryou">Senin İçin</button>
+          </div>
+          <div class="tt-top-actions">
+            <button class="tt-top-btn" data-tab="trend" aria-label="Keşfet">⌕</button>
+          </div>
+        </div>`;
+      }
+
+      return null;
     },
 
     /* ---------------- click delegasyonu ---------------- */
@@ -44629,6 +44787,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
     render(params) {
       const view = {
+        chrome: "youtube",
         title: "YouTube", sub: "Müzik videoları & klipler",
         shellClass: "app-youtube",
         tabPos: "bottom",
@@ -44700,6 +44859,12 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           }
           else if (act === "yt-playlist") app.openYTPlaylist(el.dataset.arg);
           else if (act === "yt-analytics") app.openAnalytics();
+          else if (act === "yt-search-focus") {
+            v.activeTab = "home";
+            K.phone.reRender();
+            const inp = U.qs("[data-yt-search]");
+            if (inp) { inp.focus(); }
+          }
           else if (act === "short-next" || act === "short-prev") {
             const total = (app.allVideos() || []).slice(0, 10).length;
             const cur = app.shortIndex(total);
@@ -45660,15 +45825,16 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         : `<span class="ig-tab-av">${U.escape(U.initials(K.state.player.stageName))}</span>`;
 
       const view = {
+        chrome: "instagram",
         title: "Instagram",
         sub: "",
         shellClass: "app-instagram",
         tabPos: "bottom",
         tabs: [
-          { id: "feed", label: "Ana Sayfa", icon: ICO.home },
-          { id: "explore", label: "Keşfet", icon: ICO.search },
-          { id: "reels", label: "Reels", icon: ICO.reels },
-          { id: "profile", label: "Profil", icon: profileIcon }
+          { id: "feed", label: "Ana Sayfa", icon: ICO.home, iconOnly: true },
+          { id: "explore", label: "Keşfet", icon: ICO.search, iconOnly: true },
+          { id: "reels", label: "Reels", icon: ICO.reels, iconOnly: true },
+          { id: "profile", label: "Profil", icon: profileIcon, iconOnly: true }
         ],
         activeTab: params.tab || "feed",
         navRight: `<div class="ig-nav-actions">
@@ -46536,6 +46702,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
     render(params) {
       const view = {
+        chrome: "tiktok",
         title: "TikTok", sub: "Ses trendleri & viral",
         shellClass: "app-tiktok snap",
         tabPos: "bottom",

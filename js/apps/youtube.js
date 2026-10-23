@@ -158,6 +158,7 @@
 
     render(params) {
       const view = {
+        chrome: "youtube",
         title: "YouTube", sub: "Müzik videoları & klipler",
         shellClass: "app-youtube",
         tabPos: "bottom",
@@ -229,6 +230,12 @@
           }
           else if (act === "yt-playlist") app.openYTPlaylist(el.dataset.arg);
           else if (act === "yt-analytics") app.openAnalytics();
+          else if (act === "yt-search-focus") {
+            v.activeTab = "home";
+            K.phone.reRender();
+            const inp = U.qs("[data-yt-search]");
+            if (inp) { inp.focus(); }
+          }
           else if (act === "short-next" || act === "short-prev") {
             const total = (app.allVideos() || []).slice(0, 10).length;
             const cur = app.shortIndex(total);

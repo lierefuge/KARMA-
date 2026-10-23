@@ -68,6 +68,7 @@
 
     render(params) {
       const view = {
+        chrome: "tiktok",
         title: "TikTok", sub: "Ses trendleri & viral",
         shellClass: "app-tiktok snap",
         tabPos: "bottom",
