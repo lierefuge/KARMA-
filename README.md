@@ -5,6 +5,44 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.64 — STÜDYO 2.0 (hat kontrolü · takvim · parça detayı)
+
+v10.63'ün üzerine inşa edilir. Stüdyo merkezi artık yalnızca "gösterge paneli"
+değil, **yönetim** ekranı. Yeni test: `tools/smoke-v1064.js` (**33 kontrol**).
+
+### 1 · ⚡ Yayın hattı kontrolü
+Yayın teslim edildikten sonra oyuncu elini tamamen çekmiyordu. Üç karar geldi:
+
+- **İptal** — proje hattan çıkar, **kısmi iade** yapılır. İade oranı ilerledikçe
+  düşer (`%55 → %15`); erken vazgeçmek daha az maliyetlidir. İtibar −1.
+  Şirket adına çıkan yayında nakit iade yok (parayı şirket ödedi).
+- **Hızlandır** — maliyetin **%25'i** (en az 5.000 ₺) ödenir, kalan süre **%40**
+  kısalır. Bedeli: parça kalitesi **−3**, oyuncu yorgunluğu +6. Proje başına bir kez;
+  editoryal incelemeden sonra kullanılamaz.
+- **Ad düzenle** — yalnızca hazırlık aşamasında; dağıtıcıya metadata gittikten
+  sonra kilitli.
+
+### 2 · 🗓 Üretim takvimi
+Önümüzdeki **7 gün**: çıkış günleri işaretlenir, bugün vurgulanır, boş günler
+görünür. Aynı güne iki yayın düşerse **çakışma uyarısı** çıkar ("aynı gün iki
+yayın birbirini yer"). Yeni state yok — `startDay + waitDays`'ten türetilir.
+
+### 3 · ⓘ Parça detayı
+Kütüphanedeki her satırdan açılır: genel kalite, beat, vokal, mix/master, hook
+gücü ve söz puanı çubukları; Spotify/Apple/YouTube dağılımı; zirve sırası, gelir,
+sönüm hızı, dağıtıcı ve ISRC. "Dinle" oynatıcıyı açar.
+
+### 4 · 🎧 Öneriler sihirbazı ön dolumlu açıyor
+"Bu türde başla" artık boş sihirbaz açmıyor: oyuncunun türü + öneriye uygun
+bütçe/pazarlama ile geliyor (trend → pazarlama 6.000 ₺, ilk çıkış → 2.000 ₺,
+sessizlik sonrası → 8.000 ₺). Sihirbazın kendisi değişmedi; yalnızca başlangıç değerleri.
+
+### 5 · Doğrulama
+```
+npm run verify   →  51/51 adım temiz
+tools/smoke-v1064.js → 33 kontrol
+```
+
 ## GÜNCELLEME v10.63 — STÜDYO MERKEZİ (öneri · devam eden iş · kütüphane)
 
 v10.62.2'nin üzerine inşa edilir; **oyun motoruna, ekonomiye ve dağıtım
