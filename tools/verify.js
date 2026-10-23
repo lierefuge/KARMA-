@@ -210,7 +210,10 @@ const SUITES = [
   { id: "v1063",       script: "tools/smoke-v1063.js",       label: "v10.63 stüdyo hub (öneri · devam eden iş · kütüphane)" },
   /* v10.64 — stüdyo 2.0: öneri ön dolumu · yayın hattı kontrolü
      (iptal/hızlandır/ad) · üretim takvimi · parça detayı. */
-  { id: "v1064",       script: "tools/smoke-v1064.js",       label: "v10.64 stüdyo 2.0 (ön dolum · hat kontrolü · takvim · detay)" }
+  { id: "v1064",       script: "tools/smoke-v1064.js",       label: "v10.64 stüdyo 2.0 (ön dolum · hat kontrolü · takvim · detay)" },
+  /* v10.65 — para akışı defteri + Analiz paneli · ilk 10 dakika rehberi
+     (tek seferlik ödül) · proje taslakları · mobil/klavye erişilebilirliği. */
+  { id: "v1065",       script: "tools/smoke-v1065.js",       label: "v10.65 para akışı · ilk 10 dakika · taslaklar" }
 ];
 
 const suiteOut = {};
