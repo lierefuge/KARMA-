@@ -464,6 +464,100 @@
       return rel;
     },
 
+    /* =====================================================
+       v10.64 — YAYIN HATTI KONTROLÜ
+       Oyuncu yayını teslim ettikten sonra elini tamamen çekmiyor:
+         · iptal      → kısmi iade (ilerledikçe iade azalır), itibar -1
+         · hızlandır  → ücret öde, kalan süre %40 kısalır; kalite -3
+         · düzenle    → yalnızca "prep" aşamasında proje adı
+       Hepsi deterministik; Math.random() yok.
+       ===================================================== */
+    releaseById(id) {
+      const p = K.state && K.state.player;
+      return ((p && p.releases) || []).find(r => r && r.id === id) || null;
+    },
+
+    /* iptalin iade oranı: erken iptal daha çok para geri getirir */
+    cancelRefundRate(rel) {
+      const prg = U.clamp(Number(rel && rel.progress) || 0, 0, 1);
+      return U.clamp(0.55 - 0.30 * prg, 0.15, 0.55);
+    },
+
+    cancelRelease(id) {
+      const s = K.state, p = s.player;
+      const list = p.releases || [];
+      const i = list.findIndex(r => r && r.id === id);
+      if (i < 0) return { ok: false, reason: "missing" };
+      const rel = list[i];
+      const paid = Number(rel.cost) || 0;
+
+      /* Şirket adına çıkan yayında parayı şirket ödedi: oyuncuya nakit
+         iadesi yok, yalnızca itibar kaybı. */
+      const refund = rel.viaLabel ? 0 : Math.round(paid * K.career.cancelRefundRate(rel));
+      if (refund > 0) s.balance += refund;
+
+      p.releases.splice(i, 1);
+      p.reputation = U.clamp((p.reputation || 0) - 1, 0, 100);
+
+      K.toast("🚫 Yayın iptal edildi",
+        `"${rel.title}" hattan çıkarıldı.` + (refund > 0 ? ` İade: ${U.money(refund)}` : " Şirket yayınıydı: nakit iade yok."),
+        "warn");
+      K.save();
+      if (K.refresh) K.refresh();
+      return { ok: true, title: rel.title, refund, rate: K.career.cancelRefundRate(rel) };
+    },
+
+    rushFee(rel) {
+      return Math.max(5000, Math.round((Number(rel && rel.cost) || 0) * 0.25));
+    },
+
+    rushRelease(id) {
+      const s = K.state, p = s.player;
+      const rel = K.career.releaseById(id);
+      if (!rel) return { ok: false, reason: "missing" };
+      if (rel.rushed) return { ok: false, reason: "already" };
+      /* editoryal incelemeden sonra hızlandırma yok: mağaza kuyruğu işlemiş olur */
+      if (rel.stage === "editorial") return { ok: false, reason: "too-late" };
+
+      const remaining = Math.max(1, (Number(rel.startDay) || s.day) + (Number(rel.waitDays) || 0) - s.day);
+      const fee = K.career.rushFee(rel);
+      if ((s.balance || 0) < fee) return { ok: false, reason: "money", fee };
+
+      const newRemaining = Math.max(2, Math.ceil(remaining * 0.6));
+      s.balance -= fee;
+      rel.waitDays = (Number(rel.waitDays) || remaining) - remaining + newRemaining;
+      rel.rushed = true;
+      rel.rushFee = (rel.rushFee || 0) + fee;
+      rel.rushedDays = remaining - newRemaining;
+
+      /* aceleye gelen iş: kalite düşer, oyuncu yorulur — bedava hız yok */
+      (rel.tracks || []).forEach(t => {
+        if (t && t.quality != null) t.quality = U.clamp(t.quality - 3, 18, 99);
+      });
+      p.fatigue = U.clamp((p.fatigue || 0) + 6, 0, 100);
+
+      K.toast("⚡ Hızlandırıldı",
+        `"${rel.title}" ${rel.rushedDays} gün öne çekildi · ücret ${U.money(fee)} · kalite −3`, "ok");
+      K.save();
+      if (K.refresh) K.refresh();
+      return { ok: true, fee, days: rel.rushedDays, waitDays: rel.waitDays };
+    },
+
+    renameRelease(id, title) {
+      const rel = K.career.releaseById(id);
+      if (!rel) return { ok: false, reason: "missing" };
+      /* yalnızca hazırlık aşamasında: sonrasında dağıtıcıya metadata gider */
+      if (rel.stage !== "prep") return { ok: false, reason: "locked", stage: rel.stage };
+      const t = String(title || "").trim().slice(0, 48);
+      if (t.length < 2) return { ok: false, reason: "short" };
+      const old = rel.title;
+      rel.title = t;
+      K.toast("✎ Proje adı güncellendi", `"${old}" → "${t}"`, "ok");
+      K.save();
+      if (K.refresh) K.refresh();
+      return { ok: true, title: t, old };
+    },
+
     /* ---------------- yayınla (pipeline bittiğinde) ---------------- */
     publishRelease(rel) {
       const s = K.state;
