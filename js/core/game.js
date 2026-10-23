@@ -147,6 +147,18 @@
       // günlük rastgele olay (%10-15) — para / ün / itibar / hayran etkisi
       if (K.incidents && K.incidents.maybeFire) K.incidents.maybeFire();
 
+      /* v10.65 — İLK 10 DAKİKA rehberi tamamlanınca TEK SEFERLİK ödül.
+         Render içinde değil, gün geçişinde verilir (yan etkisiz render). */
+      if (K.careerUI && K.careerUI.onboardSteps && !s.player.onboardReward) {
+        const st = K.careerUI.onboardSteps();
+        if (st.length && st.every(x => x.done)) {
+          s.player.onboardReward = true;
+          K.economy.earn(2000, "onboard_reward");
+          s.player.reputation = U.clamp((s.player.reputation || 0) + 1, 0, 100);
+          K.toast("🚀 Başlangıç tamam", "Rehberi bitirdin: +₺2.000 ve +1 itibar.", "ok");
+        }
+      }
+
       K.save();
       K.refresh();
       K.bus.emit("day:passed", s.day);
