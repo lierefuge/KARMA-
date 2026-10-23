@@ -43,7 +43,11 @@
   function postHTML(post, opts) {
     opts = opts || {};
     const a = post.authorId !== "player" ? K.artistById(post.authorId) : null;
-    const verified = a && a.popularity > 78;
+    /* v10.66 — oyuncu da doğrulanabilir (itibar/popülerlik) */
+    const pl = K.state.player || {};
+    const verified = post.authorId === "player"
+      ? ((pl.reputation || 0) >= 65 || (pl.popularity || 0) >= 55)
+      : !!(a && a.popularity > 78);
     const handle = "@" + post.authorName.toLowerCase().replace(/\s/g, "");
     const key = "x_" + post.id;
     const liked = K.interactions.isLiked(key);
@@ -54,10 +58,14 @@
       ${post.authorId && post.authorId !== "player" ? K.ui.artistAvatar(post.authorId, 40, true) : K.ui.avatar(post.authorName, 40, true)}
       <div style="flex:1;min-width:0">
         <div class="xp-head">
-          <span class="xp-name" style="cursor:pointer" data-pact="open-profile" data-arg="${post.authorId}">${U.escape(post.authorName)}</span>
+          <span class="xp-name" style="cursor:pointer" data-pact="open-profile" data-arg="${post.authorId}">${U.escape(post.authorName)}</span>${verified ? '<span class="x-verified" title="Doğrulanmış">✓</span>' : ""}
           <span class="xp-handle">${U.escape(handle)} · ${U.ago(post.day, K.state.day)}</span>
         </div>
         <div class="xp-text" ${opts.clickable ? `data-pact="post-open" data-arg="${post.id}" style="cursor:pointer"` : ""}>${U.escape(post.text)}</div>
+        ${post.quoteOf ? `<div class="x-quote">
+          <div class="xq-head">@${U.escape(String(post.quoteOf.author || "").toLowerCase().replace(/\s/g, ""))}${post.quoteOf.verified ? ' <span class="xq-badge">✓</span>' : ""}</div>
+          <div class="xq-text">${U.escape(String(post.quoteOf.text || "").slice(0, 180))}</div>
+        </div>` : ""}
         <div class="xp-actions">
           <span class="xp-act" data-pact="post-open" data-arg="${post.id}" style="cursor:pointer">${XI.reply}<b>${U.compact(post.comments || 0)}</b></span>
           <span class="xp-act xp-repost ${reposted ? "on" : ""}" data-pact="x-repost" data-arg="${post.id}">${XI.repost}<b>${U.compact(K.interactions.repostCount(key, post.shares))}</b></span>
@@ -198,7 +206,13 @@
           <button class="btn btn-sm btn-primary" data-pact="new-post">${XI.compose} Gönderi Yaz</button>
           <button class="btn btn-sm btn-ghost" data-pact="promote">🎵 Şarkı Paylaş</button>
         </div>
-        ${myPosts.map(p2 => postHTML(p2, { clickable: true })).join("") || `<div class="mini-empty">Gönderin yok.</div>`}`;
+        ${myPosts.map(p2 => postHTML(p2, { clickable: true })).join("") || `<div class="mini-empty">Gönderin yok.</div>`}
+        ${(function () {
+          const saved = (K.state.feed.x || []).filter(p2 => p2 && K.interactions.isSaved("x_" + p2.id));
+          return `<div class="spx-sec" style="margin-top:14px"><h2>Yer imleri</h2><span class="more">${saved.length}</span></div>`
+            + (saved.length ? saved.map(p2 => postHTML(p2, { clickable: true })).join("")
+              : `<div class="mini-empty">Kaydettiğin gönderiler burada birikir.</div>`);
+        })()}`;
     },
 
     openPost(postId) {
@@ -215,6 +229,7 @@
           <div class="x-detail-actions">
             <span class="xp-repost ${reposted ? "on" : ""}" data-pact="x-repost" data-arg="${post.id}">↻ Yeniden gönder</span>
             <span class="xp-save ${saved ? "on" : ""}" data-pact="x-save" data-arg="${post.id}">🔖 Kaydet</span>
+            <span class="xp-quote" data-pact="x-quote" data-arg="${post.id}">✏️ Alıntıla</span>
             <span data-pact="x-share" data-arg="${post.id}">↗ Paylaş</span>
           </div>
           <div class="x-reply-hint">${U.escape(post.authorName)} kişisine yanıt ver</div>
@@ -240,7 +255,9 @@
           else if (act === "post-open") app.openPost(el.dataset.arg);
           else if (act === "x-repost") { const on = K.interactions.toggleRepost("x_" + post.id); K.toast(on ? "↻ Yeniden gönderildi" : "Geri alındı", "", "ok"); K.phone.reRender(); }
           else if (act === "x-save") { const on = K.interactions.toggleSave("x_" + post.id); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.phone.reRender(); }
+          else if (act === "x-quote") K.phone.appById("x").quotePost(post.id);
           else if (act === "x-share") K.ui.actionSheet("Paylaş", [
+            { label: "✏️ Alıntıla", onClick: () => K.phone.appById("x").quotePost(post.id) },
             { label: "↻ Yeniden gönder", onClick: () => { K.interactions.toggleRepost("x_" + post.id); K.phone.reRender(); } },
             { label: "💬 DM'de paylaş", onClick: () => K.phone.openApp("messages") },
             { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") }
@@ -319,13 +336,26 @@
       });
     },
 
-    newPost(prefill, hashtag) {
+    /* v10.66 — ALINTI TWEET: gönderi, alıntılananın anlık görüntüsünü taşır */
+    quotePost(postId) {
+      const post = K.social.feedFor("x").find(p2 => p2 && p2.id === postId);
+      if (!post) return null;
+      const a = post.authorId !== "player" ? K.artistById(post.authorId) : null;
+      K.phone.appById("x").newPost("", null, {
+        author: post.authorName,
+        text: String(post.text || "").slice(0, 180),
+        verified: !!(a && a.popularity > 78)
+      });
+      return post;
+    },
+
+    newPost(prefill, hashtag, quote) {
       /* v10.30 — gönderi STRATEJİSİ: içerik türü (erişim / imaj / risk) */
       const body = K.ui.field("Ne düşünüyorsun?", `<textarea id="x-text" rows="3" placeholder="Bir şeyler yaz...">${U.escape(prefill || "")}</textarea>`)
         + (hashtag ? `<div class="hint">${U.escape(hashtag)} etiketi eklenecek.</div>` : "")
         + K.ui.field("İçerik türü", `<div data-posttype-box>${K.social.postTypeSelector("reach")}</div>`);
       const m = K.ui.modal({
-        title: "Gönderi Oluştur", body,
+        title: quote ? "Alıntıla" : "Gönderi Oluştur", body,
         actions: [
           { label: "Vazgeç" },
           { label: "Paylaş", cls: "btn-primary", onClick: () => {
@@ -334,6 +364,11 @@
             if (hashtag) text += " " + hashtag;
             const type = K.social.selectedPostType(m.root);
             const res = K.social.playerPost("x", text, type);
+            if (quote) {
+              const feed = K.state.feed.x || [];
+              const fresh = feed.find(p2 => p2 && p2.mine && p2.text === text);
+              if (fresh) fresh.quoteOf = quote;
+            }
             K.toast(res.title, res.msg, res.kind);
           }}
         ]

@@ -528,3 +528,179 @@
 .ddc-bar b { position: absolute; top: -3px; width: 2px; height: 13px; border-radius: 2px;
   background: #ffcb5c; }
 .ddc-meta { font-size: 10.5px; color: var(--text-3); margin-top: 5px; }
+
+/* ============================================================
+   v10.66 · SPOTIFY GERÇEKÇİLİK: kuyruk · karıştır · tekrar · sözler · canvas
+   ============================================================ */
+.pv-lyrics {
+  min-height: 44px; display: grid; place-items: center;
+  padding: 6px 12px; margin: 6px 0 2px;
+  border-radius: var(--radius-s);
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--stroke);
+  text-align: center;
+}
+.pv-lyric {
+  font-size: 13px; font-weight: 700; line-height: 1.45;
+  color: var(--text-0); letter-spacing: .2px;
+  transition: opacity .2s ease;
+}
+.pv-qinfo { font-size: 10px; color: var(--text-3); text-align: center; margin-top: 6px; }
+.pv-upnext {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  margin-top: 8px; font-size: 10px; color: var(--text-3);
+}
+.pv-upnext span { text-transform: uppercase; letter-spacing: .5px; font-weight: 700; }
+.pv-upnext b {
+  font-weight: 700; color: var(--text-1); font-size: 10.5px;
+  padding: 2px 8px; border-radius: var(--radius-pill);
+  background: var(--glass); border: 1px solid var(--stroke);
+  max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.pv-btn.on {
+  background: rgba(30,215,96,.18); border-color: rgba(30,215,96,.5);
+  color: #9df3c0;
+}
+/* Spotify "Canvas": kapağın arkasında yavaş hareket eden renk akışı */
+.pv-art { position: relative; overflow: hidden; }
+.pv-art::after {
+  content: ""; position: absolute; inset: -30%;
+  background: conic-gradient(from 0deg, rgba(176,108,255,.35), rgba(110,195,255,.25), rgba(30,215,96,.22), rgba(176,108,255,.35));
+  animation: pvCanvas 18s linear infinite;
+  mix-blend-mode: screen; opacity: .5; pointer-events: none;
+}
+@keyframes pvCanvas { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .pv-art::after { animation: none; }
+}
+
+/* haftalık keşif kartı */
+.sp-weekly {
+  display: flex; align-items: center; gap: 11px;
+  padding: 11px 12px; border-radius: var(--radius-m);
+  background: linear-gradient(150deg, rgba(30,215,96,.16), rgba(110,195,255,.08)), var(--bg-2);
+  border: 1px solid rgba(30,215,96,.34);
+  margin-bottom: 6px;
+}
+.sp-weekly .grow { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.sp-weekly b { font-size: 13px; font-weight: 800; }
+.sp-weekly span { font-size: 10.5px; color: var(--text-2); }
+.sp-weekly-art {
+  width: 38px; height: 38px; border-radius: var(--radius-s); flex: 0 0 auto;
+  display: grid; place-items: center; font-size: 17px;
+  background: linear-gradient(135deg, #1ed760, #6ec3ff); color: #06240f;
+}
+
+/* v10.66 — çalar ekranı: alt güvenli alan + sıkı dikey ritim */
+.app-shell .pv-controls { margin-top: 4px; }
+.app-shell .pv-viz { max-height: 84px; }
+.app-shell .pv-lyrics { margin-top: 8px; }
+.app-shell .pv-qinfo { padding-bottom: 18px; }
+
+/* ============================================================
+   v10.66 · TIKTOK + X GERÇEKÇİLİK
+   ============================================================ */
+.tt-verified {
+  display: inline-grid; place-items: center;
+  width: 12px; height: 12px; margin-left: 3px;
+  border-radius: var(--radius-pill);
+  background: #20d5ec; color: #04222a;
+  font-size: 8.5px; font-weight: 900; line-height: 1;
+}
+.tt-orig {
+  font-size: 10px; color: #ffd8df; margin-top: 2px;
+  text-shadow: 0 1px 3px rgba(0,0,0,.6);
+}
+button.tt-grid-cell { border: 0; padding: 0; cursor: pointer; font-family: inherit; }
+
+.x-verified {
+  display: inline-grid; place-items: center;
+  width: 12px; height: 12px; margin-left: 3px;
+  border-radius: var(--radius-pill);
+  background: #1d9bf0; color: #fff;
+  font-size: 8.5px; font-weight: 900; line-height: 1;
+}
+.x-quote {
+  margin: 6px 0 2px; padding: 9px 10px;
+  border: 1px solid var(--stroke-2); border-radius: var(--radius-s);
+  background: rgba(255,255,255,.03);
+}
+.xq-head { font-size: 10.5px; color: var(--text-2); display: flex; align-items: center; gap: 3px; }
+.xq-badge {
+  display: inline-grid; place-items: center; width: 11px; height: 11px;
+  border-radius: var(--radius-pill); background: #1d9bf0; color: #fff;
+  font-size: 8px; font-weight: 900;
+}
+.xq-text { font-size: 11.5px; line-height: 1.45; color: var(--text-1); margin-top: 2px; }
+.xp-quote { cursor: pointer; }
+
+/* v10.66 — TikTok profilinde duet/stitch satırları */
+.tt-post-row {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+  margin-bottom: 6px;
+}
+.tt-post-row .grow { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.tt-post-row b { font-size: 11.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tt-post-row span { font-size: 10px; color: var(--text-2); }
+.tt-pr-ic { font-size: 15px; }
+
+/* ============================================================
+   v10.66 · YOUTUBE: yorum beğeni/yanıt · abone zili · shorts pager · monetizasyon
+   ============================================================ */
+.cmt-like {
+  background: none; border: 0; padding: 0; cursor: pointer; font-family: inherit;
+  color: var(--text-2); font-size: 11px; display: inline-flex; align-items: center; gap: 3px;
+}
+.cmt-like b { font-weight: 700; }
+.cmt-like.on { color: #ff5c7a; }
+.cmt-like.on b { color: #ff5c7a; }
+.cmt-reply { cursor: pointer; color: var(--karma-2); font-weight: 700; }
+.cmt-target { font-size: 9.5px; color: var(--gold); }
+.cmt-replies { margin-top: 6px; display: flex; flex-direction: column; gap: 5px; }
+.cmt-reply-row { display: flex; gap: 6px; padding-left: 4px; }
+.cmt-reply-ic { color: var(--text-3); font-size: 11px; }
+.cmt-reply-row b { fontSize: 11px; color: var(--text-0); }
+.cmt-reply-day { font-size: 9.5px; color: var(--text-3); }
+
+.yt-bell.on { color: var(--gold); border-color: rgba(255,203,92,.45); background: rgba(255,203,92,.1); }
+
+.shorts-wrap { display: flex; flex-direction: column; gap: 8px; height: 100%; }
+.shorts-count {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 10px; font-weight: 800; color: #fff;
+  background: rgba(0,0,0,.45); padding: 3px 8px; border-radius: var(--radius-pill);
+}
+.shorts-nav {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  font-size: 10px; color: var(--text-3); padding: 0 4px 6px;
+}
+.shorts-btn {
+  width: 36px; height: 32px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+  color: var(--text-1); font-size: 17px; line-height: 1; cursor: pointer; font-family: inherit;
+}
+.shorts-btn:disabled { opacity: .35; cursor: default; }
+
+.yt-mz {
+  margin-top: 10px; padding: 11px 12px; border-radius: var(--radius-m);
+  background: var(--glass); border: 1px solid var(--stroke);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.yt-mz.on { background: rgba(92,232,155,.07); border-color: rgba(92,232,155,.32); }
+.yt-mz-head { display: flex; align-items: center; gap: 10px; }
+.yt-mz-head .grow { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.yt-mz-head b { font-size: 12.5px; font-weight: 800; }
+.yt-mz-head span { font-size: 10px; color: var(--text-2); }
+.yt-mz-ic { font-size: 17px; }
+.yt-mz-row { display: grid; grid-template-columns: 92px 1fr auto; align-items: center; gap: 8px; }
+.yt-mz-row span { font-size: 10.5px; color: var(--text-2); }
+.yt-mz-row i { height: 6px; border-radius: var(--radius-pill); background: rgba(255,255,255,.07); overflow: hidden; }
+.yt-mz-row i b { display: block; height: 100%; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--karma-2), var(--money)); }
+.yt-mz-row em { font-size: 10px; font-style: normal; font-weight: 700; color: var(--text-1); font-variant-numeric: tabular-nums; }
+.yt-verified {
+  display: inline-grid; place-items: center; width: 11px; height: 11px; margin-left: 3px;
+  border-radius: var(--radius-pill); background: #f1f1f1; color: #0f0f0f;
+  font-size: 8px; font-weight: 900; line-height: 1;
+}

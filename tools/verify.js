@@ -213,7 +213,10 @@ const SUITES = [
   { id: "v1064",       script: "tools/smoke-v1064.js",       label: "v10.64 stüdyo 2.0 (ön dolum · hat kontrolü · takvim · detay)" },
   /* v10.65 — para akışı defteri + Analiz paneli · ilk 10 dakika rehberi
      (tek seferlik ödül) · proje taslakları · mobil/klavye erişilebilirliği. */
-  { id: "v1065",       script: "tools/smoke-v1065.js",       label: "v10.65 para akışı · ilk 10 dakika · taslaklar" }
+  { id: "v1065",       script: "tools/smoke-v1065.js",       label: "v10.65 para akışı · ilk 10 dakika · taslaklar" },
+  /* v10.66 — GERÇEKÇİLİK TURU: 6 yüzey (Instagram · Spotify · TikTok · X ·
+     YouTube · Stüdyo) + yayın/şirket katmanı. */
+  { id: "v1066",       script: "tools/smoke-v1066.js",       label: "v10.66 gerçekçilik turu (6 yüzey · 83 kontrol)" }
 ];
 
 const suiteOut = {};

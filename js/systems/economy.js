@@ -505,6 +505,12 @@
         (s.day - K.econ.ensure().startDay) < (K.ECON.beginnerGraceDays || 120);
       if (beginner) {
         p.monthIncome = 0;
+
+      /* v10.66 — şirket departmanlarının aylık gideri (şirket kasasından) */
+      if (s.label && K.label && K.label.deptBonus) {
+        const up = K.label.deptBonus().upkeep || 0;
+        if (up > 0) s.label.funds = Math.max(0, (s.label.funds || 0) - up);
+      }
         return { upkeep: 0, tax: 0, debt: p.debt || 0, beginner: true };
       }
 

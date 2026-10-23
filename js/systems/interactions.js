@@ -115,6 +115,190 @@
       return c;
     },
 
+    /* ============================================================
+       v10.66 — ÇALMA KUYRUĞU · KARIŞTIR · TEKRAR
+       Spotify'ın temel davranışları: sıradaki şarkı, karıştırma sırası ve
+       tekrar modu. Durum modül içinde tutulur (save'e yazılmaz, oturumluk).
+       ============================================================ */
+    _q: { list: [], idx: -1, shuffle: false, repeat: "off", order: [] },
+
+    queueState() {
+      const q = K.interactions._q;
+      return {
+        size: q.list.length,
+        index: q.idx,
+        shuffle: q.shuffle,
+        repeat: q.repeat,
+        current: q.list[q.idx] || null,
+        upcoming: K.interactions.queueUpcoming(3)
+      };
+    },
+
+    queueUpcoming(n) {
+      const q = K.interactions._q;
+      if (!q.list.length) return [];
+      const seq = q.order.length ? q.order : q.list.map((_, i) => i);
+      const pos = seq.indexOf(q.idx);
+      const out = [];
+      for (let i = 1; i <= (n || 3); i++) {
+        let p2 = pos + i;
+        if (p2 >= seq.length) {
+          if (q.repeat === "off") break;
+          p2 = p2 % seq.length;
+        }
+        const tr = q.list[seq[p2]];
+        if (tr) out.push(tr);
+      }
+      return out;
+    },
+
+    /* deterministik karıştırma: aynı gün + aynı liste → aynı sıra */
+    _shuffleOrder(n) {
+      let seed = ((K.state.day || 1) * 2654435761 + n * 97) >>> 0;
+      const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+      const arr = [];
+      for (let i = 0; i < n; i++) arr.push(i);
+      for (let i = n - 1; i > 0; i--) {
+        const j = Math.floor(rnd() * (i + 1));
+        const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+      }
+      return arr;
+    },
+
+    setQueue(tracks, startIndex) {
+      const q = K.interactions._q;
+      q.list = (tracks || []).filter(Boolean).slice(0, 200);
+      q.idx = Math.max(0, Math.min(q.list.length - 1, Number(startIndex) || 0));
+      q.order = q.shuffle ? K.interactions._shuffleOrder(q.list.length) : [];
+      return K.interactions.queueState();
+    },
+
+    enqueue(track) {
+      const q = K.interactions._q;
+      if (!track || !track.title) return null;
+      q.list.push(track);
+      if (q.idx < 0) q.idx = 0;
+      if (q.shuffle) q.order = K.interactions._shuffleOrder(q.list.length);
+      return K.interactions.queueState();
+    },
+
+    clearQueue() {
+      const q = K.interactions._q;
+      q.list = []; q.idx = -1; q.order = [];
+      return K.interactions.queueState();
+    },
+
+    toggleShuffle() {
+      const q = K.interactions._q;
+      q.shuffle = !q.shuffle;
+      q.order = q.shuffle ? K.interactions._shuffleOrder(q.list.length) : [];
+      return q.shuffle;
+    },
+
+    cycleRepeat() {
+      const q = K.interactions._q;
+      q.repeat = q.repeat === "off" ? "all" : q.repeat === "all" ? "one" : "off";
+      return q.repeat;
+    },
+
+    _playQueueAt(i) {
+      const q = K.interactions._q;
+      const tr = q.list[i];
+      if (!tr) return null;
+      q.idx = i;
+      K.interactions.play(tr);
+      return tr;
+    },
+
+    next(opts) {
+      const q = K.interactions._q;
+      if (!q.list.length) return null;
+      if (q.repeat === "one" && opts && opts.auto) return K.interactions._playQueueAt(q.idx);
+      const seq = q.order.length ? q.order : q.list.map((_, i) => i);
+      const pos = seq.indexOf(q.idx);
+      let npos = pos + 1;
+      if (npos >= seq.length) {
+        if (q.repeat === "off") return null;
+        npos = 0;
+      }
+      return K.interactions._playQueueAt(seq[npos]);
+    },
+
+    prev() {
+      const q = K.interactions._q;
+      if (!q.list.length) return null;
+      const seq = q.order.length ? q.order : q.list.map((_, i) => i);
+      const pos = seq.indexOf(q.idx);
+      let ppos = pos - 1;
+      if (ppos < 0) ppos = (q.repeat === "off" ? pos : seq.length - 1);
+      return K.interactions._playQueueAt(seq[ppos]);
+    },
+
+    /* şarkı sözü satırları (sahne → düz satır → tema yedeği) */
+    lyricLines(song) {
+      const sg = song || {};
+      let lines = [];
+      const secs = sg.lyrics && sg.lyrics.sections;
+      if (secs && typeof secs === "object") {
+        ["intro", "verse", "hook", "chorus", "bridge", "outro"].forEach(k => {
+          if (Array.isArray(secs[k])) secs[k].forEach(x => { if (typeof x === "string" && x.trim()) lines.push(x.trim()); });
+        });
+      }
+      if (!lines.length && sg.lyrics && Array.isArray(sg.lyrics.lines)) {
+        lines = sg.lyrics.lines.filter(x => typeof x === "string" && x.trim());
+      }
+      if (!lines.length && sg.lyricTheme && K.lyricThemeById) {
+        const th = K.lyricThemeById(sg.lyricTheme);
+        if (th && Array.isArray(th.lines)) lines = th.lines.slice();
+      }
+      return lines.length ? lines : ["(bu parça için söz görünmüyor)"];
+    },
+
+    /* ============================================================
+       v10.66 — YOUTUBE: yorum beğenisi · yorum yanıtı · abone zili
+       ============================================================ */
+    commentLikeState(key, idx) {
+      const m = ((K.state.player || {}).cmtLikes || {})[key] || {};
+      return !!m[idx];
+    },
+
+    toggleCommentLike(key, idx) {
+      const p = K.state.player;
+      p.cmtLikes = p.cmtLikes || {};
+      const m = p.cmtLikes[key] = p.cmtLikes[key] || {};
+      m[idx] = !m[idx];
+      K.save();
+      return m[idx];
+    },
+
+    commentReplies(key) {
+      return (((K.state.player || {}).cmtReplies || {})[key]) || [];
+    },
+
+    addCommentReply(key, idx, text) {
+      const p = K.state.player;
+      p.cmtReplies = p.cmtReplies || {};
+      const arr = p.cmtReplies[key] = p.cmtReplies[key] || [];
+      const t = String(text || "").trim().slice(0, 160);
+      if (!t) return null;
+      arr.push({ to: idx, user: p.stageName, text: t, day: K.state.day });
+      if (arr.length > 40) arr.splice(0, arr.length - 40);
+      K.save();
+      return arr[arr.length - 1];
+    },
+
+    toggleSubBell(channelId) {
+      const p = K.state.player;
+      p.ytBell = p.ytBell || {};
+      p.ytBell[channelId] = !p.ytBell[channelId];
+      K.save();
+      return p.ytBell[channelId];
+    },
+
+    hasSubBell(channelId) {
+      return !!(((K.state.player || {}).ytBell || {})[channelId]);
+    },
+
     /* ---------------- şimdi çalıyor ---------------- */
     play(track) {
       K.state.player.nowPlaying = {

@@ -420,3 +420,42 @@
 
 /* yorum satırındaki küçük kalp */
 .cmt-actions svg { width: 12px; height: 12px; display: inline-block; vertical-align: -2px; }
+
+/* ============================================================
+   v10.66 · GERÇEK INSTAGRAM KATMANI
+   doğrulanmış rozet · konum/etiket · gönderi analizi
+   ============================================================ */
+.ig-verified {
+  display: inline-grid; place-items: center;
+  width: 13px; height: 13px; margin-left: 4px;
+  border-radius: var(--radius-pill);
+  background: #3897f0; color: #fff;
+  font-size: 9px; font-weight: 900; line-height: 1;
+  vertical-align: 0px;
+}
+.ig-post-meta {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: 2px 0 0 2px;
+  font-size: 10.5px; color: var(--text-2);
+}
+.ig-loc { color: var(--text-2); }
+
+.ig-ins { display: flex; flex-direction: column; gap: 10px; }
+.ig-ins-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ig-ins-kpis > div {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 9px 10px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.ig-ins-kpis span { font-size: 9px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-3); font-weight: 700; }
+.ig-ins-kpis b { font-size: 15px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.ig-ins-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 7px 2px; border-bottom: 1px dashed rgba(255,255,255,.07);
+  font-size: 11.5px; color: var(--text-1);
+}
+.ig-ins-row b { font-variant-numeric: tabular-nums; }
+.ig-ins-note { font-size: 10px; color: var(--text-3); line-height: 1.5; }
+@media (max-width: 430px) {
+  .ig-ins-kpis { grid-template-columns: 1fr 1fr; }
+}

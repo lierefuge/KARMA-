@@ -245,7 +245,8 @@ H.whenReady(dom, { label: "v1064" }).then((K) => {
     K.state.player.releases = [mkRel("e1"), mkRel("e2", { stage: "editorial", progress: 0.8 })];
     toStudio();
     const KNOWN = ["open-studio", "go-tab", "lib-filter", "preview-song", "practice",
-      "mh-rest", "rel-rush", "rel-cancel", "rel-rename", "song-detail"];
+      "mh-rest", "rel-rush", "rel-cancel", "rel-rename", "song-detail",
+      "presale-open", "store-preview", "store-prev-tab", "clause-negotiate", "dept-up"];
     const targets = qa("#career-body button").map(b => ({
       act: b.dataset.act, arg: b.dataset.arg, rel: b.dataset.rel,
       disabled: !!b.disabled, label: (b.textContent || "").trim()

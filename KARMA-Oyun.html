@@ -1216,6 +1216,99 @@ textarea:focus-visible {
   .gh-draft .btn { margin-left: 27px; }
 }
 
+/* ============================================================
+   v10.66 · STÜDYO KOŞULLARI (oda · mühendis · seans süresi)
+   ============================================================ */
+.st-cond-group { display: flex; flex-direction: column; gap: 6px; margin-top: 2px; }
+.st-cond-head {
+  font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px;
+  color: var(--text-3);
+}
+.st-cond-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 6px; }
+.st-cond {
+  display: flex; flex-direction: column; gap: 2px; align-items: flex-start;
+  padding: 9px 10px; border-radius: var(--radius-s); cursor: pointer; font-family: inherit;
+  background: var(--glass); border: 1px solid var(--stroke); color: var(--text-1);
+  text-align: left; transition: background .15s ease, border-color .15s ease;
+}
+.st-cond b { font-size: 11.5px; font-weight: 800; }
+.st-cond span { font-size: 10px; color: var(--text-2); }
+.st-cond:hover { background: var(--glass-2); }
+.st-cond.on {
+  background: rgba(176,108,255,.16); border-color: rgba(176,108,255,.5); color: #fff;
+}
+.st-cond.on span { color: #d9c2ff; }
+.st-cond.locked { opacity: .45; cursor: not-allowed; }
+.st-cond-sum {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+  margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,.08);
+  font-size: 10.5px; color: var(--text-2);
+}
+.st-cond-sum b { color: var(--text-0); font-variant-numeric: tabular-nums; }
+
+/* ============================================================
+   v10.66 · MAĞAZA ÖNİZLEME · ÖN KAYIT · SÖZLEŞME MADDELERİ · DEPARTMAN
+   ============================================================ */
+.spv-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+.spv-tabs button {
+  flex: 1; padding: 6px 8px; border-radius: var(--radius-pill); cursor: pointer; font-family: inherit;
+  font-size: 11px; font-weight: 700; background: var(--glass); border: 1px solid var(--stroke); color: var(--text-2);
+}
+.spv-tabs button.active { background: rgba(176,108,255,.18); border-color: rgba(176,108,255,.45); color: #fff; }
+.spv {
+  padding: 12px; border-radius: var(--radius-m);
+  background: var(--bg-2); border: 1px solid var(--stroke);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.spv-spotify { background: linear-gradient(160deg, rgba(30,215,96,.12), var(--bg-2)); border-color: rgba(30,215,96,.3); }
+.spv-apple { background: linear-gradient(160deg, rgba(214,75,106,.12), var(--bg-2)); border-color: rgba(214,75,106,.3); }
+.spv-youtube { background: linear-gradient(160deg, rgba(255,75,75,.12), var(--bg-2)); border-color: rgba(255,75,75,.3); }
+.spv-top { display: flex; gap: 12px; align-items: flex-start; }
+.spv-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.spv-meta b { font-size: 14px; font-weight: 900; }
+.spv-meta span { font-size: 11px; color: var(--text-1); }
+.spv-meta em { font-size: 10px; font-style: normal; color: var(--text-3); }
+.spv-bar { height: 4px; border-radius: var(--radius-pill); background: rgba(255,255,255,.1); overflow: hidden; }
+.spv-bar i { display: block; width: 38%; height: 100%; background: #1ed760; }
+.spv-row { display: flex; gap: 14px; font-size: 11px; font-weight: 700; color: var(--text-1); }
+.spv-yt-art { position: relative; }
+.spv-play {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  color: #fff; font-size: 22px; text-shadow: 0 2px 10px rgba(0,0,0,.6);
+}
+
+.pre-page { display: flex; flex-direction: column; gap: 8px; }
+.pre-head { display: flex; gap: 12px; align-items: center; }
+.pre-head .grow { display: flex; flex-direction: column; gap: 2px; }
+.pre-head b { font-size: 14px; font-weight: 900; }
+.pre-head span { font-size: 10.5px; color: var(--text-2); }
+.pre-count { color: var(--text-1) !important; }
+.pre-count b { font-size: 12px; color: var(--money); }
+.pre-bar { height: 6px; border-radius: var(--radius-pill); background: rgba(255,255,255,.07); overflow: hidden; }
+.pre-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--karma-2), var(--money)); }
+
+.clause-list { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--stroke); border-radius: var(--radius-s); overflow: hidden; }
+.clause-row {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+  padding: 9px 11px; font-size: 11.5px; color: var(--text-2);
+  border-bottom: 1px solid var(--stroke);
+}
+.clause-row:last-child { border-bottom: 0; }
+.clause-row b { color: var(--text-0); font-variant-numeric: tabular-nums; }
+
+.dept-list { display: flex; flex-direction: column; gap: 8px; }
+.dept {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 11px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.dept .grow { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.dept b { font-size: 12.5px; font-weight: 800; }
+.dept b em { font-size: 9.5px; font-style: normal; color: var(--text-3); font-weight: 700; }
+.dept span { font-size: 10.5px; color: var(--text-2); }
+.dept-eff { color: var(--karma-2) !important; font-weight: 700; }
+.dept-ic { font-size: 18px; }
+
 </style>
 <style>
 /* ==== css/phone.css ==== */
@@ -2147,6 +2240,182 @@ textarea:focus-visible {
 .ddc-bar b { position: absolute; top: -3px; width: 2px; height: 13px; border-radius: 2px;
   background: #ffcb5c; }
 .ddc-meta { font-size: 10.5px; color: var(--text-3); margin-top: 5px; }
+
+/* ============================================================
+   v10.66 · SPOTIFY GERÇEKÇİLİK: kuyruk · karıştır · tekrar · sözler · canvas
+   ============================================================ */
+.pv-lyrics {
+  min-height: 44px; display: grid; place-items: center;
+  padding: 6px 12px; margin: 6px 0 2px;
+  border-radius: var(--radius-s);
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--stroke);
+  text-align: center;
+}
+.pv-lyric {
+  font-size: 13px; font-weight: 700; line-height: 1.45;
+  color: var(--text-0); letter-spacing: .2px;
+  transition: opacity .2s ease;
+}
+.pv-qinfo { font-size: 10px; color: var(--text-3); text-align: center; margin-top: 6px; }
+.pv-upnext {
+  display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+  margin-top: 8px; font-size: 10px; color: var(--text-3);
+}
+.pv-upnext span { text-transform: uppercase; letter-spacing: .5px; font-weight: 700; }
+.pv-upnext b {
+  font-weight: 700; color: var(--text-1); font-size: 10.5px;
+  padding: 2px 8px; border-radius: var(--radius-pill);
+  background: var(--glass); border: 1px solid var(--stroke);
+  max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.pv-btn.on {
+  background: rgba(30,215,96,.18); border-color: rgba(30,215,96,.5);
+  color: #9df3c0;
+}
+/* Spotify "Canvas": kapağın arkasında yavaş hareket eden renk akışı */
+.pv-art { position: relative; overflow: hidden; }
+.pv-art::after {
+  content: ""; position: absolute; inset: -30%;
+  background: conic-gradient(from 0deg, rgba(176,108,255,.35), rgba(110,195,255,.25), rgba(30,215,96,.22), rgba(176,108,255,.35));
+  animation: pvCanvas 18s linear infinite;
+  mix-blend-mode: screen; opacity: .5; pointer-events: none;
+}
+@keyframes pvCanvas { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .pv-art::after { animation: none; }
+}
+
+/* haftalık keşif kartı */
+.sp-weekly {
+  display: flex; align-items: center; gap: 11px;
+  padding: 11px 12px; border-radius: var(--radius-m);
+  background: linear-gradient(150deg, rgba(30,215,96,.16), rgba(110,195,255,.08)), var(--bg-2);
+  border: 1px solid rgba(30,215,96,.34);
+  margin-bottom: 6px;
+}
+.sp-weekly .grow { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.sp-weekly b { font-size: 13px; font-weight: 800; }
+.sp-weekly span { font-size: 10.5px; color: var(--text-2); }
+.sp-weekly-art {
+  width: 38px; height: 38px; border-radius: var(--radius-s); flex: 0 0 auto;
+  display: grid; place-items: center; font-size: 17px;
+  background: linear-gradient(135deg, #1ed760, #6ec3ff); color: #06240f;
+}
+
+/* v10.66 — çalar ekranı: alt güvenli alan + sıkı dikey ritim */
+.app-shell .pv-controls { margin-top: 4px; }
+.app-shell .pv-viz { max-height: 84px; }
+.app-shell .pv-lyrics { margin-top: 8px; }
+.app-shell .pv-qinfo { padding-bottom: 18px; }
+
+/* ============================================================
+   v10.66 · TIKTOK + X GERÇEKÇİLİK
+   ============================================================ */
+.tt-verified {
+  display: inline-grid; place-items: center;
+  width: 12px; height: 12px; margin-left: 3px;
+  border-radius: var(--radius-pill);
+  background: #20d5ec; color: #04222a;
+  font-size: 8.5px; font-weight: 900; line-height: 1;
+}
+.tt-orig {
+  font-size: 10px; color: #ffd8df; margin-top: 2px;
+  text-shadow: 0 1px 3px rgba(0,0,0,.6);
+}
+button.tt-grid-cell { border: 0; padding: 0; cursor: pointer; font-family: inherit; }
+
+.x-verified {
+  display: inline-grid; place-items: center;
+  width: 12px; height: 12px; margin-left: 3px;
+  border-radius: var(--radius-pill);
+  background: #1d9bf0; color: #fff;
+  font-size: 8.5px; font-weight: 900; line-height: 1;
+}
+.x-quote {
+  margin: 6px 0 2px; padding: 9px 10px;
+  border: 1px solid var(--stroke-2); border-radius: var(--radius-s);
+  background: rgba(255,255,255,.03);
+}
+.xq-head { font-size: 10.5px; color: var(--text-2); display: flex; align-items: center; gap: 3px; }
+.xq-badge {
+  display: inline-grid; place-items: center; width: 11px; height: 11px;
+  border-radius: var(--radius-pill); background: #1d9bf0; color: #fff;
+  font-size: 8px; font-weight: 900;
+}
+.xq-text { font-size: 11.5px; line-height: 1.45; color: var(--text-1); margin-top: 2px; }
+.xp-quote { cursor: pointer; }
+
+/* v10.66 — TikTok profilinde duet/stitch satırları */
+.tt-post-row {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+  margin-bottom: 6px;
+}
+.tt-post-row .grow { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.tt-post-row b { font-size: 11.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tt-post-row span { font-size: 10px; color: var(--text-2); }
+.tt-pr-ic { font-size: 15px; }
+
+/* ============================================================
+   v10.66 · YOUTUBE: yorum beğeni/yanıt · abone zili · shorts pager · monetizasyon
+   ============================================================ */
+.cmt-like {
+  background: none; border: 0; padding: 0; cursor: pointer; font-family: inherit;
+  color: var(--text-2); font-size: 11px; display: inline-flex; align-items: center; gap: 3px;
+}
+.cmt-like b { font-weight: 700; }
+.cmt-like.on { color: #ff5c7a; }
+.cmt-like.on b { color: #ff5c7a; }
+.cmt-reply { cursor: pointer; color: var(--karma-2); font-weight: 700; }
+.cmt-target { font-size: 9.5px; color: var(--gold); }
+.cmt-replies { margin-top: 6px; display: flex; flex-direction: column; gap: 5px; }
+.cmt-reply-row { display: flex; gap: 6px; padding-left: 4px; }
+.cmt-reply-ic { color: var(--text-3); font-size: 11px; }
+.cmt-reply-row b { fontSize: 11px; color: var(--text-0); }
+.cmt-reply-day { font-size: 9.5px; color: var(--text-3); }
+
+.yt-bell.on { color: var(--gold); border-color: rgba(255,203,92,.45); background: rgba(255,203,92,.1); }
+
+.shorts-wrap { display: flex; flex-direction: column; gap: 8px; height: 100%; }
+.shorts-count {
+  position: absolute; top: 10px; right: 10px;
+  font-size: 10px; font-weight: 800; color: #fff;
+  background: rgba(0,0,0,.45); padding: 3px 8px; border-radius: var(--radius-pill);
+}
+.shorts-nav {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  font-size: 10px; color: var(--text-3); padding: 0 4px 6px;
+}
+.shorts-btn {
+  width: 36px; height: 32px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+  color: var(--text-1); font-size: 17px; line-height: 1; cursor: pointer; font-family: inherit;
+}
+.shorts-btn:disabled { opacity: .35; cursor: default; }
+
+.yt-mz {
+  margin-top: 10px; padding: 11px 12px; border-radius: var(--radius-m);
+  background: var(--glass); border: 1px solid var(--stroke);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.yt-mz.on { background: rgba(92,232,155,.07); border-color: rgba(92,232,155,.32); }
+.yt-mz-head { display: flex; align-items: center; gap: 10px; }
+.yt-mz-head .grow { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.yt-mz-head b { font-size: 12.5px; font-weight: 800; }
+.yt-mz-head span { font-size: 10px; color: var(--text-2); }
+.yt-mz-ic { font-size: 17px; }
+.yt-mz-row { display: grid; grid-template-columns: 92px 1fr auto; align-items: center; gap: 8px; }
+.yt-mz-row span { font-size: 10.5px; color: var(--text-2); }
+.yt-mz-row i { height: 6px; border-radius: var(--radius-pill); background: rgba(255,255,255,.07); overflow: hidden; }
+.yt-mz-row i b { display: block; height: 100%; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--karma-2), var(--money)); }
+.yt-mz-row em { font-size: 10px; font-style: normal; font-weight: 700; color: var(--text-1); font-variant-numeric: tabular-nums; }
+.yt-verified {
+  display: inline-grid; place-items: center; width: 11px; height: 11px; margin-left: 3px;
+  border-radius: var(--radius-pill); background: #f1f1f1; color: #0f0f0f;
+  font-size: 8px; font-weight: 900; line-height: 1;
+}
 
 </style>
 <style>
@@ -4855,6 +5124,45 @@ body.hide-values .brand-sub::after {
 /* yorum satırındaki küçük kalp */
 .cmt-actions svg { width: 12px; height: 12px; display: inline-block; vertical-align: -2px; }
 
+/* ============================================================
+   v10.66 · GERÇEK INSTAGRAM KATMANI
+   doğrulanmış rozet · konum/etiket · gönderi analizi
+   ============================================================ */
+.ig-verified {
+  display: inline-grid; place-items: center;
+  width: 13px; height: 13px; margin-left: 4px;
+  border-radius: var(--radius-pill);
+  background: #3897f0; color: #fff;
+  font-size: 9px; font-weight: 900; line-height: 1;
+  vertical-align: 0px;
+}
+.ig-post-meta {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  padding: 2px 0 0 2px;
+  font-size: 10.5px; color: var(--text-2);
+}
+.ig-loc { color: var(--text-2); }
+
+.ig-ins { display: flex; flex-direction: column; gap: 10px; }
+.ig-ins-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.ig-ins-kpis > div {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 9px 10px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.ig-ins-kpis span { font-size: 9px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-3); font-weight: 700; }
+.ig-ins-kpis b { font-size: 15px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.ig-ins-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 7px 2px; border-bottom: 1px dashed rgba(255,255,255,.07);
+  font-size: 11.5px; color: var(--text-1);
+}
+.ig-ins-row b { font-variant-numeric: tabular-nums; }
+.ig-ins-note { font-size: 10px; color: var(--text-3); line-height: 1.5; }
+@media (max-width: 430px) {
+  .ig-ins-kpis { grid-template-columns: 1fr 1fr; }
+}
+
 </style>
 <style>
 /* ==== css/apps-misc.css ==== */
@@ -7539,7 +7847,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.65.0";
+  K.VERSION = "10.66.0";
   K.VERSION_DATE = "2026-10-23";
 })(window.K = window.K || {});
 
@@ -10114,6 +10422,85 @@ html, body {
     }
   };
 })(window.K);
+
+/* ============================================================
+   v10.66 — STÜDYO KOŞULLARI (oda kademesi · mühendis · seans süresi)
+   Kayıt kaynağı (dosya) ile KARIŞTIRILMAMALI: kaynak dosyanın kalitesi,
+   koşullar ise kaydın yapıldığı yer/kişi/süredir. Üçü birlikte çalışır.
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  const ROOMS = [
+    { id: "ev",      name: "Ev stüdyosu",      icon: "🏠", qAdd: 0,  fee: 0,     fatigue: 0, minRep: 0,
+      desc: "Kendi odan, tek mikrofon. Ucuz ama akustik yok." },
+    { id: "yaripro", name: "Yarı-profesyonel", icon: "🎛️", qAdd: 5,  fee: 6000,  fatigue: 3, minRep: 10,
+      desc: "Kiralık kabin + temel akustik. Dengeyi burada kurarsın." },
+    { id: "pro",     name: "Profesyonel",      icon: "🏛️", qAdd: 11, fee: 18000, fatigue: 6, minRep: 35,
+      desc: "Gerçek stüdyo, akustik oda, kiralık ekipman. En temiz kayıt." }
+  ];
+
+  const ENGINEERS = [
+    { id: "yok",       name: "Kendin",              icon: "🎚️", qAdd: 0,  fee: 0,     risk: 0.10, minRep: 0,
+      desc: "Kendi kaydın: bedava, ama hataları sen düzeltirsin." },
+    { id: "genc",      name: "Genç mühendis",       icon: "🧑‍🔧", qAdd: 4,  fee: 3500,  risk: 0.04, minRep: 0,
+      desc: "Ucuz ve hevesli; iyi performans yakalarsa iş görür." },
+    { id: "deneyimli", name: "Deneyimli mühendis",  icon: "🎧", qAdd: 9,  fee: 9000,  risk: 0.02, minRep: 20,
+      desc: "Oturumu yönetir, en iyi alımı çıkarır." },
+    { id: "star",      name: "Yıldız mühendis",     icon: "🏆", qAdd: 14, fee: 22000, risk: 0.01, minRep: 50,
+      desc: "Sektörün zirvesi; her saat pahalı ama sonuç referans olur." }
+  ];
+
+  /* seans süresi: azalan verim — 2s temel, 4s +3, 6s +5, 8s +6 */
+  const HOURS = [
+    { id: 2, name: "2 saat", qAdd: 0, fee: 0,    fatigue: 3,  desc: "Hızlı seans; acele kayıt." },
+    { id: 4, name: "4 saat", qAdd: 3, fee: 2500, fatigue: 7,  desc: "Standart seans; birkaç alım denenir." },
+    { id: 6, name: "6 saat", qAdd: 5, fee: 5000, fatigue: 12, desc: "Uzun seans; comp ve düzeltmeye zaman var." },
+    { id: 8, name: "8 saat", qAdd: 6, fee: 8000, fatigue: 18, desc: "Tam gün; en iyi alım, en yüksek yorgunluk." }
+  ];
+
+  const pick = (arr, id) => arr.find(x => String(x.id) === String(id)) || arr[0];
+
+  K.STUDIO_ROOMS = ROOMS;
+  K.STUDIO_ENGINEERS = ENGINEERS;
+  K.STUDIO_HOURS = HOURS;
+
+  K.studioSetup = {
+    rooms: ROOMS, engineers: ENGINEERS, hours: HOURS,
+    room: (id) => pick(ROOMS, id),
+    engineer: (id) => pick(ENGINEERS, id),
+    hoursOf: (id) => pick(HOURS, id),
+
+    /* kapı: itibar eşiği tutmuyorsa o seçenek KİLİTLİ (en alt kademeye düşer) */
+    locked: (kind, id, reputation) => {
+      const rep = Number(reputation) || 0;
+      const item = kind === "room" ? pick(ROOMS, id) : pick(ENGINEERS, id);
+      return (item.minRep || 0) > rep;
+    },
+
+    /* tüm koşulların toplam etkisi — tek kaynak */
+    plan(opts) {
+      opts = opts || {};
+      const rep = opts.reputation != null ? Number(opts.reputation) : ((K.state.player || {}).reputation || 0);
+      const room0 = pick(ROOMS, opts.roomId);
+      const eng0 = pick(ENGINEERS, opts.engineerId);
+      const hrs = pick(HOURS, opts.hours);
+      const room = (room0.minRep || 0) > rep ? ROOMS[0] : room0;
+      const eng = (eng0.minRep || 0) > rep ? ENGINEERS[0] : eng0;
+      const qAdd = (room.qAdd || 0) + (eng.qAdd || 0) + (hrs.qAdd || 0);
+      const cost = (room.fee || 0) + (eng.fee || 0) + (hrs.fee || 0);
+      const fatigue = (room.fatigue || 0) + (hrs.fatigue || 0);
+      return {
+        room, engineer: eng, hours: hrs,
+        qAdd, cost, fatigue,
+        risk: eng.risk || 0,
+        roomLocked: room0 !== room,
+        engineerLocked: eng0 !== eng,
+        label: room.name + " · " + eng.name + " · " + hrs.name
+      };
+    }
+  };
+})(window.K = window.K || {});
 
 </script>
   <script>
@@ -14848,6 +15235,12 @@ window.K = window.K || {};
         (s.day - K.econ.ensure().startDay) < (K.ECON.beginnerGraceDays || 120);
       if (beginner) {
         p.monthIncome = 0;
+
+      /* v10.66 — şirket departmanlarının aylık gideri (şirket kasasından) */
+      if (s.label && K.label && K.label.deptBonus) {
+        const up = K.label.deptBonus().upkeep || 0;
+        if (up > 0) s.label.funds = Math.max(0, (s.label.funds || 0) - up);
+      }
         return { upkeep: 0, tax: 0, debt: p.debt || 0, beginner: true };
       }
 
@@ -20805,6 +21198,8 @@ window.K = window.K || {};
       const mentorQ = (K.beef && K.beef.mentorBonus) ? K.beef.mentorBonus() : 0;  // duayen mentorlugu
       // kayıt kaynağı (stüdyo/ev/telefon...) kaliteye doğrudan etki eder
       const sourceQ = opts.sourceQAdd != null ? opts.sourceQAdd : (opts.sourceId ? K.sourceById(opts.sourceId).qAdd : 0);
+      /* v10.66 — STÜDYO KOŞULLARI: oda + mühendis + seans süresi kaliteye eklenir */
+      const studioQ = opts.studioQAdd != null ? Number(opts.studioQAdd) || 0 : 0;
 
       /* v10.28 — yeni sistemlerin kalite katkıları:
          · kendi stüdyosu (varlık) → kalite +
@@ -20813,7 +21208,7 @@ window.K = window.K || {};
 
       const raw = (base + budgetScore + talent + music + studioSkill + beat.qAdd + vocal.qAdd + license.qAdd + craftAdj)
         * g.quality * kind.qMult + kind.qAdd + jobBonus + teamQ + labelQ + mentorQ + studioOwnQ
-        - fatiguePenalty + lyricAdj + cohesionAdj + agendaAdj + sourceQ;
+        - fatiguePenalty + lyricAdj + cohesionAdj + agendaAdj + sourceQ + studioQ;
       const stressed = (K.mental && K.mental.qualityMult) ? K.mental.qualityMult() : 1;
       return U.clamp(Math.round(raw * stressed + U.rand(-5, 6)), 18, 99);
     },
@@ -20862,10 +21257,12 @@ window.K = window.K || {};
       /* v10.42 — C4: YouTube Content ID kaydı */
       const cidCost = opts.contentId ? (K.meta ? K.meta.CONTENT_ID_COST : 3500) : 0;
       const storeCost = opts.storeCost != null ? opts.storeCost : 0;   // mağaza dağıtım ücreti
+      /* v10.66 — stüdyo koşulları (oda kirası + mühendis + ek saat) */
+      const studioCost = opts.studioCost != null ? Number(opts.studioCost) || 0 : 0;
       /* v10.41 — B3: bölge kapsamı dağıtım tarafını çarpar (üretimi değil) */
       const regionMult = opts.regionMult != null ? +opts.regionMult : 1;
       const dm = K.settings ? K.settings.diffMult().cost : 1;
-      return Math.round((prod + marketing + (dist + storeCost) * regionMult + licenseCost + clearance + instCost + cidCost) * dm);
+      return Math.round((prod + marketing + (dist + storeCost) * regionMult + licenseCost + clearance + instCost + cidCost + studioCost) * dm);
     },
 
     /* ---------------- FORMAT ↔ PARÇA SAYISI (SİSTEM OTOMATİK ALGILAR) ----------------
@@ -20983,7 +21380,8 @@ window.K = window.K || {};
       const ghost = !!opts.ghost;
 
       const grossCost = K.career.releaseCost(type, budget, marketing, {
-        genre, beatId, vocalId, kind, licenseId: license.id, trackCount, trackBudgets, trackSources, storeCost
+        genre, beatId, vocalId, kind, licenseId: license.id, trackCount, trackBudgets, trackSources, storeCost,
+        studioCost: opts.studioCost || 0
       }) + strategyCost + (opts.prodCost || 0);
 
       /* --- ŞİRKET AKIŞI: sözleşmeliysen yayını şirket çıkarır; masrafın bir kısmını üstlenir --- */
@@ -21087,7 +21485,8 @@ window.K = window.K || {};
             instrumental: !!opts.instrumental,
             quality: U.clamp(K.career.estimateQuality(genre, tb, {
               beatId, vocalId, beatQuality: U.clamp(beatQuality + beatBoost, 0, 100), vocalQuality, mixQuality, kind, licenseId: license.id,
-              lyricScore: (lyrList[i] || lyr).score, cohesion, agendaScore: agenda.score, sourceQAdd: src.qAdd
+              lyricScore: (lyrList[i] || lyr).score, cohesion, agendaScore: agenda.score, sourceQAdd: src.qAdd,
+              studioQAdd: opts.studioQAdd || 0
             }) + (i === 0 ? 2 : 0), 18, 99),
             /* parça kendi söz skorunu taşır — albümde kalite artık
                parçadan parçaya değişir */
@@ -21238,6 +21637,12 @@ window.K = window.K || {};
       return { ok: true, title: t, old };
     },
 
+    /* v10.66 — ön kayıt → ilk gün ivmesi (her 200 kayıt %1, tavan %35) */
+    presaleBoost(rel) {
+      const n = Math.max(0, Number(rel && rel.presaves) || 0);
+      return 1 + Math.min(0.35, n / 20000);
+    },
+
     /* ---------------- yayınla (pipeline bittiğinde) ---------------- */
     publishRelease(rel) {
       const s = K.state;
@@ -21356,7 +21761,12 @@ window.K = window.K || {};
         };
         // ilk gün ivmesi (parça türü katsayısıyla)
         /* v10.41 — B3/B4: bölge kapsamı ve dil uyumu erişimi belirler */
-        song.dailyStreams = K.game.initialDaily(song) * (1 + rel.marketing / 60000) * kindDef.mass * lyricBoost * cohesionMult * (rel.storeReach || 1) * (rel.regionReach || 1) * (rel.langFit || 1) * (rel.releaseDayFit || 1);
+        /* v10.66 — ÖN KAYIT: her 200 ön kayıt ilk gün ivmesini %1 büyütür (tavan %35) */
+        const presaleBoost = K.career.presaleBoost(rel);
+        /* v10.66 — ŞİRKET PAZARLAMA DEPARTMANI: ilk gün erişim çarpanı */
+        const deptM = (K.label && K.label.hasLabel && K.label.hasLabel() && K.label.deptBonus) ? K.label.deptBonus().marketingMult : 1;
+        song.presaves = Number(rel.presaves) || 0;
+        song.dailyStreams = K.game.initialDaily(song) * (1 + rel.marketing / 60000) * kindDef.mass * lyricBoost * cohesionMult * (rel.storeReach || 1) * (rel.regionReach || 1) * (rel.langFit || 1) * (rel.releaseDayFit || 1) * presaleBoost * deptM;
         /* persona uyumu: tutarlıysa güçlenir, tutarsızsa ses getirmez */
         if (pfit) {
           if (pfit.score >= 0.5) {
@@ -21825,6 +22235,69 @@ window.K = window.K || {};
     },
 
     hasLabel() { return !!K.state.label; },
+
+    /* ============================================================
+       v10.66 — ŞİRKET DEPARTMANLARI (A&R · Pazarlama · Dağıtım)
+       Her departmanın 1-3 seviyesi var: aylık gideri ve somut oyun etkisi.
+       A&R → yayın kalitesi · Pazarlama → ilk gün erişimi · Dağıtım → teslim hızı
+       ============================================================ */
+    deptDefs() {
+      return [
+        { id: "ar", name: "A&R", icon: "🎯", desc: "Repertuar ekibi: kayıt kalitesine katkı.",
+          levels: [{ q: 0, cost: 0, upkeep: 0 }, { q: 2, cost: 25000, upkeep: 8000 }, { q: 5, cost: 60000, upkeep: 18000 }] },
+        { id: "marketing", name: "Pazarlama", icon: "📣", desc: "Çıkış erişimini büyütür.",
+          levels: [{ m: 1, cost: 0, upkeep: 0 }, { m: 1.12, cost: 20000, upkeep: 7000 }, { m: 1.28, cost: 55000, upkeep: 16000 }] },
+        { id: "dist", name: "Dağıtım", icon: "🚚", desc: "Mağaza teslimini hızlandırır.",
+          levels: [{ d: 0, cost: 0, upkeep: 0 }, { d: 3, cost: 18000, upkeep: 6000 }, { d: 6, cost: 45000, upkeep: 14000 }] }
+      ];
+    },
+
+    depts() {
+      const l = K.state.label;
+      if (!l) return { ar: 1, marketing: 1, dist: 1 };
+      l.depts = l.depts || { ar: 1, marketing: 1, dist: 1 };
+      return l.depts;
+    },
+
+    deptLevel(id) { return Number((K.label.depts() || {})[id] || 1); },
+
+    deptUpgradeCost(id) {
+      const def = K.label.deptDefs().find(x => x.id === id);
+      if (!def) return null;
+      const lvl = K.label.deptLevel(id);
+      if (lvl >= def.levels.length) return null;
+      return def.levels[lvl].cost;
+    },
+
+    upgradeDept(id) {
+      const l = K.state.label;
+      if (!l) return { ok: false, reason: "no-label" };
+      const cost = K.label.deptUpgradeCost(id);
+      if (cost == null) return { ok: false, reason: "max" };
+      if ((l.funds || 0) < cost) return { ok: false, reason: "funds", cost };
+      l.funds -= cost;
+      const d = K.label.depts();
+      d[id] = (d[id] || 1) + 1;
+      K.toast("🏢 Departman yükseltildi", `${id.toUpperCase()} seviye ${d[id]} · ${U.money(cost)}`, "ok");
+      K.save(); if (K.refresh) K.refresh();
+      return { ok: true, level: d[id], cost };
+    },
+
+    /* departmanların toplu etkisi (yoksa nötr değerler) */
+    deptBonus() {
+      const out = { quality: 0, marketingMult: 1, distDays: 0, upkeep: 0 };
+      if (!K.state.label) return out;
+      K.label.deptDefs().forEach(def => {
+        const lvl = K.label.deptLevel(def.id);
+        const row = def.levels[Math.min(lvl, def.levels.length) - 1] || def.levels[0];
+        out.upkeep += row.upkeep || 0;
+        if (def.id === "ar") out.quality += row.q || 0;
+        if (def.id === "marketing") out.marketingMult *= (row.m || 1);
+        if (def.id === "dist") out.distDays += row.d || 0;
+      });
+      out.distDays = Math.min(10, out.distDays);
+      return out;
+    },
 
     /* ---------------- güç hesabı ---------------- */
     power() {
@@ -24974,11 +25447,18 @@ window.K = window.K || {};
     },
 
     /* oyuncunun STRATEJİLİ gönderisi: tür + sonuç motoru */
-    playerPost(platform, text, typeId, songId) {
+    playerPost(platform, text, typeId, songId, extra) {
       const s = K.state, p = s.player;
       const type = K.social.POST_TYPES[typeId] ? typeId : "reach";
       const post = K.social.createPost(platform, text, songId || null);
       post.postType = type;
+      /* v10.66 — GERÇEK INSTAGRAM: gönderi konumu ve etiketlenen kişi.
+         Yalnızca iki alan kabul edilir; serbest nesne merge edilmez. */
+      if (extra && typeof extra === "object") {
+        if (extra.location) post.location = String(extra.location).slice(0, 40);
+        if (extra.tagName) post.tagName = String(extra.tagName).slice(0, 40);
+        if (extra.tagId) post.tagId = String(extra.tagId).slice(0, 40);
+      }
 
       /* şarkı etiketliyse o şarkıya küçük bir tanıtım ivmesi */
       if (songId) {
@@ -27748,6 +28228,190 @@ window.K = window.K || {};
       if (list.length > 40) list.length = 40;
       K.save();
       return c;
+    },
+
+    /* ============================================================
+       v10.66 — ÇALMA KUYRUĞU · KARIŞTIR · TEKRAR
+       Spotify'ın temel davranışları: sıradaki şarkı, karıştırma sırası ve
+       tekrar modu. Durum modül içinde tutulur (save'e yazılmaz, oturumluk).
+       ============================================================ */
+    _q: { list: [], idx: -1, shuffle: false, repeat: "off", order: [] },
+
+    queueState() {
+      const q = K.interactions._q;
+      return {
+        size: q.list.length,
+        index: q.idx,
+        shuffle: q.shuffle,
+        repeat: q.repeat,
+        current: q.list[q.idx] || null,
+        upcoming: K.interactions.queueUpcoming(3)
+      };
+    },
+
+    queueUpcoming(n) {
+      const q = K.interactions._q;
+      if (!q.list.length) return [];
+      const seq = q.order.length ? q.order : q.list.map((_, i) => i);
+      const pos = seq.indexOf(q.idx);
+      const out = [];
+      for (let i = 1; i <= (n || 3); i++) {
+        let p2 = pos + i;
+        if (p2 >= seq.length) {
+          if (q.repeat === "off") break;
+          p2 = p2 % seq.length;
+        }
+        const tr = q.list[seq[p2]];
+        if (tr) out.push(tr);
+      }
+      return out;
+    },
+
+    /* deterministik karıştırma: aynı gün + aynı liste → aynı sıra */
+    _shuffleOrder(n) {
+      let seed = ((K.state.day || 1) * 2654435761 + n * 97) >>> 0;
+      const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+      const arr = [];
+      for (let i = 0; i < n; i++) arr.push(i);
+      for (let i = n - 1; i > 0; i--) {
+        const j = Math.floor(rnd() * (i + 1));
+        const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+      }
+      return arr;
+    },
+
+    setQueue(tracks, startIndex) {
+      const q = K.interactions._q;
+      q.list = (tracks || []).filter(Boolean).slice(0, 200);
+      q.idx = Math.max(0, Math.min(q.list.length - 1, Number(startIndex) || 0));
+      q.order = q.shuffle ? K.interactions._shuffleOrder(q.list.length) : [];
+      return K.interactions.queueState();
+    },
+
+    enqueue(track) {
+      const q = K.interactions._q;
+      if (!track || !track.title) return null;
+      q.list.push(track);
+      if (q.idx < 0) q.idx = 0;
+      if (q.shuffle) q.order = K.interactions._shuffleOrder(q.list.length);
+      return K.interactions.queueState();
+    },
+
+    clearQueue() {
+      const q = K.interactions._q;
+      q.list = []; q.idx = -1; q.order = [];
+      return K.interactions.queueState();
+    },
+
+    toggleShuffle() {
+      const q = K.interactions._q;
+      q.shuffle = !q.shuffle;
+      q.order = q.shuffle ? K.interactions._shuffleOrder(q.list.length) : [];
+      return q.shuffle;
+    },
+
+    cycleRepeat() {
+      const q = K.interactions._q;
+      q.repeat = q.repeat === "off" ? "all" : q.repeat === "all" ? "one" : "off";
+      return q.repeat;
+    },
+
+    _playQueueAt(i) {
+      const q = K.interactions._q;
+      const tr = q.list[i];
+      if (!tr) return null;
+      q.idx = i;
+      K.interactions.play(tr);
+      return tr;
+    },
+
+    next(opts) {
+      const q = K.interactions._q;
+      if (!q.list.length) return null;
+      if (q.repeat === "one" && opts && opts.auto) return K.interactions._playQueueAt(q.idx);
+      const seq = q.order.length ? q.order : q.list.map((_, i) => i);
+      const pos = seq.indexOf(q.idx);
+      let npos = pos + 1;
+      if (npos >= seq.length) {
+        if (q.repeat === "off") return null;
+        npos = 0;
+      }
+      return K.interactions._playQueueAt(seq[npos]);
+    },
+
+    prev() {
+      const q = K.interactions._q;
+      if (!q.list.length) return null;
+      const seq = q.order.length ? q.order : q.list.map((_, i) => i);
+      const pos = seq.indexOf(q.idx);
+      let ppos = pos - 1;
+      if (ppos < 0) ppos = (q.repeat === "off" ? pos : seq.length - 1);
+      return K.interactions._playQueueAt(seq[ppos]);
+    },
+
+    /* şarkı sözü satırları (sahne → düz satır → tema yedeği) */
+    lyricLines(song) {
+      const sg = song || {};
+      let lines = [];
+      const secs = sg.lyrics && sg.lyrics.sections;
+      if (secs && typeof secs === "object") {
+        ["intro", "verse", "hook", "chorus", "bridge", "outro"].forEach(k => {
+          if (Array.isArray(secs[k])) secs[k].forEach(x => { if (typeof x === "string" && x.trim()) lines.push(x.trim()); });
+        });
+      }
+      if (!lines.length && sg.lyrics && Array.isArray(sg.lyrics.lines)) {
+        lines = sg.lyrics.lines.filter(x => typeof x === "string" && x.trim());
+      }
+      if (!lines.length && sg.lyricTheme && K.lyricThemeById) {
+        const th = K.lyricThemeById(sg.lyricTheme);
+        if (th && Array.isArray(th.lines)) lines = th.lines.slice();
+      }
+      return lines.length ? lines : ["(bu parça için söz görünmüyor)"];
+    },
+
+    /* ============================================================
+       v10.66 — YOUTUBE: yorum beğenisi · yorum yanıtı · abone zili
+       ============================================================ */
+    commentLikeState(key, idx) {
+      const m = ((K.state.player || {}).cmtLikes || {})[key] || {};
+      return !!m[idx];
+    },
+
+    toggleCommentLike(key, idx) {
+      const p = K.state.player;
+      p.cmtLikes = p.cmtLikes || {};
+      const m = p.cmtLikes[key] = p.cmtLikes[key] || {};
+      m[idx] = !m[idx];
+      K.save();
+      return m[idx];
+    },
+
+    commentReplies(key) {
+      return (((K.state.player || {}).cmtReplies || {})[key]) || [];
+    },
+
+    addCommentReply(key, idx, text) {
+      const p = K.state.player;
+      p.cmtReplies = p.cmtReplies || {};
+      const arr = p.cmtReplies[key] = p.cmtReplies[key] || [];
+      const t = String(text || "").trim().slice(0, 160);
+      if (!t) return null;
+      arr.push({ to: idx, user: p.stageName, text: t, day: K.state.day });
+      if (arr.length > 40) arr.splice(0, arr.length - 40);
+      K.save();
+      return arr[arr.length - 1];
+    },
+
+    toggleSubBell(channelId) {
+      const p = K.state.player;
+      p.ytBell = p.ytBell || {};
+      p.ytBell[channelId] = !p.ytBell[channelId];
+      K.save();
+      return p.ytBell[channelId];
+    },
+
+    hasSubBell(channelId) {
+      return !!(((K.state.player || {}).ytBell || {})[channelId]);
     },
 
     /* ---------------- şimdi çalıyor ---------------- */
@@ -36301,6 +36965,7 @@ window.K = window.K || {};
         shellClass: "app-spotify",
         render: () => {
           const on = A && A.isPlaying();
+          const Q = (K.interactions && K.interactions.queueState) ? K.interactions.queueState() : { size: 0, index: 0, shuffle: false, repeat: "off", upcoming: [] };
           const art = song.art
             ? `<div class="pv-art" style="background-image:url('${song.art}');background-size:cover"></div>`
             : `<div class="pv-art" style="background:${U.gradientFor(song.title)}"><span>♫</span></div>`;
@@ -36315,13 +36980,18 @@ window.K = window.K || {};
                 <span class="pill">${(A && A.supported()) ? "🎧 ses açık" : "🔇 ses desteklenmiyor"}</span>
               </div>
             </div>
-            <canvas class="pv-viz" width="600" height="120" data-pv-viz></canvas>
             <div class="pv-prog"><i data-pv-prog style="width:0%"></i></div>
             <div class="pv-controls">
-              <button class="pv-btn" data-pact="np-restart">⏮</button>
+              <button class="pv-btn ${Q.shuffle ? "on" : ""}" data-pact="np-shuffle" title="Karıştır" aria-pressed="${Q.shuffle ? "true" : "false"}">🔀</button>
+              <button class="pv-btn" data-pact="np-restart" title="Baştan">⏮</button>
               <button class="pv-btn main" data-pact="np-toggle">${on ? "⏸" : "▶"}</button>
-              <button class="pv-btn" data-pact="np-next">⏭</button>
+              <button class="pv-btn" data-pact="np-next" title="Sıradaki">⏭</button>
+              <button class="pv-btn ${Q.repeat !== "off" ? "on" : ""}" data-pact="np-repeat" title="Tekrar" aria-pressed="${Q.repeat !== "off" ? "true" : "false"}">${Q.repeat === "one" ? "🔂" : "🔁"}</button>
             </div>
+            <div class="pv-lyrics"><div class="pv-lyric" data-pv-lyric></div></div>
+            <canvas class="pv-viz" width="600" height="120" data-pv-viz></canvas>
+            <div class="pv-qinfo" data-pv-qinfo>${Q.size ? `${Q.index + 1}/${Q.size} · kuyrukta ${Math.max(0, Q.size - Q.index - 1)} şarkı` : "Kuyruk boş — listeden çal"}</div>
+            ${Q.upcoming.length ? `<div class="pv-upnext"><span>Sırada</span>${Q.upcoming.map(u => `<b>${U.escape(u.title)}</b>`).join("")}</div>` : ""}
             <div class="pv-vol">
               <span>🔈</span>
               <input type="range" min="0" max="100" value="${Math.round((A ? A.volume() : 0.3) * 100)}" data-pv-vol />
@@ -36345,6 +37015,15 @@ window.K = window.K || {};
             const top = K.phone.views[K.phone.views.length - 1];
             if (!top || !top.title || top.title !== "Şimdi Çalıyor") { K.ui._pvRaf = null; return; }
             if (progEl && K.audio) progEl.style.width = (K.audio.progress() * 100).toFixed(1) + "%";
+            /* v10.66 — senkron sözler: ilerleme → satır */
+            const lyrEl = vp.querySelector("[data-pv-lyric]");
+            if (lyrEl && K.interactions && K.interactions.lyricLines) {
+              const lines = K.interactions.lyricLines(song);
+              const pr = K.audio ? K.audio.progress() : 0;
+              const idx2 = Math.min(lines.length - 1, Math.max(0, Math.floor(pr * lines.length)));
+              const txt2 = lines[idx2] || "";
+              if (lyrEl.textContent !== txt2) lyrEl.textContent = txt2;
+            }
             if (ctx2d && canvas) {
               const A2 = K.audio, an = A2 && A2.analyser();
               const W = canvas.width, H = canvas.height;
@@ -36370,6 +37049,21 @@ window.K = window.K || {};
             K.phone.reRender();
           } else if (act === "np-restart") {
             if (K.audio) K.audio.play(K.interactions.nowPlaying() || {});
+            K.phone.reRender();
+          } else if (act === "np-next") {
+            const tr = K.interactions.next();
+            if (!tr) K.toast("Kuyruk bitti", "Çalma listesinden yeni bir şarkı seç.", "warn");
+            K.phone.reRender();
+          } else if (act === "np-prev") {
+            K.interactions.prev();
+            K.phone.reRender();
+          } else if (act === "np-shuffle") {
+            const on2 = K.interactions.toggleShuffle();
+            K.toast(on2 ? "🔀 Karıştırma açık" : "Karıştırma kapalı", on2 ? "Sıra yeniden kuruldu." : "Liste sırasına dönüldü.", "ok");
+            K.phone.reRender();
+          } else if (act === "np-repeat") {
+            const mode = K.interactions.cycleRepeat();
+            K.toast("🔁 Tekrar", mode === "off" ? "Kapalı" : mode === "all" ? "Tüm liste" : "Tek şarkı", "ok");
             K.phone.reRender();
           }
         }
@@ -37046,6 +37740,8 @@ window.K = window.K || {};
               <button class="btn btn-xs btn-ghost" data-act="rel-rename" data-rel="${r.id}"
                 ${r.stage === "prep" ? "" : "disabled"}
                 title="${r.stage === "prep" ? "Proje adını düzenle" : "Dağıtıma gönderildikten sonra ad değişmez"}">✎ Ad</button>
+              <button class="btn btn-xs btn-ghost" data-act="presale-open" data-rel="${r.id}"
+                title="Ön kayıt sayfası — çıkıştan önce kitle topla">🎟 Ön kayıt${r.presaves ? " · " + U.compact(r.presaves) : ""}</button>
               <button class="btn btn-xs btn-ghost" data-act="rel-cancel" data-rel="${r.id}"
                 title="Yayını iptal et (kısmi iade)">🚫 İptal</button>
               <span class="grow"></span>
@@ -37455,6 +38151,8 @@ window.K = window.K || {};
         beatId: "digital", beatQ: 55,
         vocalId: "rap", vocalQ: 55,
         mixQ: 55,
+        /* v10.66 — stüdyo koşulları: oda · mühendis · seans süresi */
+        roomId: "ev", engineerId: "yok", sessionHours: 4,
         /* v10.44 — prodüksiyon süreci: kayıt oturumu · mix · master · revizyon */
         prod: K.production.defaultPlan(),
         feat: featArtist ? featArtist.id : null,
@@ -37956,6 +38654,24 @@ window.K = window.K || {};
       }
       if (act === "st-publish") {
         if (K.careerUI.createReleaseFromStudio()) K.ui.closeModal();
+        return;
+      }
+
+      /* v10.66 — stüdyo koşulları */
+      if (act === "st-room" || act === "st-engineer" || act === "st-hours") {
+        const v = btn.dataset.arg;
+        const rep = (K.state.player || {}).reputation || 0;
+        if (act === "st-room") {
+          if (K.studioSetup.locked("room", v, rep)) { K.toast("🔒 Kilitli", "Bu oda için itibar yetersiz.", "warn"); return; }
+          st.roomId = v;
+        } else if (act === "st-engineer") {
+          if (K.studioSetup.locked("engineer", v, rep)) { K.toast("🔒 Kilitli", "Bu mühendis için itibar yetersiz.", "warn"); return; }
+          st.engineerId = v;
+        } else {
+          st.sessionHours = Number(v) || 4;
+        }
+        K.careerUI.renderStudioStep();
+        K.careerUI.updateStudioEstimate();
         return;
       }
 
@@ -38940,6 +39656,11 @@ window.K = window.K || {};
         </div>` : ""}
 
         <div class="form-block">
+          <div class="form-block-head"><span class="fb-no">${++bn}</span><div><h4>Stüdyo Koşulları</h4><p>Nerede, kiminle ve ne kadar süre kaydediyorsun — kaliteye ve maliyete doğrudan etki eder.</p></div></div>
+          ${K.careerUI.studioSetupRows(st)}
+        </div>
+
+        <div class="form-block">
           <div class="form-block-head"><span class="fb-no">${++bn}</span><div><h4>Prodüksiyon Bütçesi</h4><p>Her parçanın kendi bütçesi olur ve kalitesini o belirler.</p></div></div>
           <div class="form-grid">
             ${K.ui.field("Parça Başına Bütçe", range("st-budget", 3000, 120000, 1000, st.budget, "st-budget-val"))}
@@ -39282,6 +40003,10 @@ window.K = window.K || {};
             ${K.ui.field("📅 Çıkış Günü", `<div class="readout" id="st-releaseday2">Gün ${K.careerUI.plannedRelDay(st)} · ${K.meta.weekdayName(K.careerUI.plannedRelDay(st))}</div>`)}
           </div>
           <div class="helper">Yayın sırasına girdikten sonra <b>Yayınlar</b> sekmesinden editoryal listelere pitch gönderebilirsin. Pitch yayından 7–22 gün önce yapılmalıdır.</div>
+          <div class="action-row" style="margin-top:8px">
+            <button class="btn btn-sm btn-ghost" data-act="store-preview">🛍 Mağaza önizlemesi</button>
+            <span class="gh-more">Yayın, Spotify/Apple/YouTube'da nasıl görünecek?</span>
+          </div>
         </div>
         <div class="form-block">
           <div class="form-block-head"><span class="fb-no">3</span><div><h4>Yayın Stratejisi</h4><p>Snippet beklenti kurar (ilk gün ivmesi +), sürpriz çıkış sessiz başlar.</p></div></div>
@@ -39307,6 +40032,7 @@ window.K = window.K || {};
       const cohesion = isProject ? K.lyrics.cohesion(st.conceptId, st.genre, st.kind, st.lyricsTheme, st.count) : null;
       const ag = (K.news && K.news.themeAffinity) ? K.news.themeAffinity(st.lyricsTheme, st.genre) : { score: 0, hits: [] };
       const trackBudgets = st.tracks.map(t => t.budget || st.budget);
+      const setupCost = K.studioSetup.plan({ roomId: st.roomId, engineerId: st.engineerId, hours: st.sessionHours });
       const trackSources = st.tracks.map(t => K.sourceById(t.source).id);
       const storeCost = K.distroCost(st.stores);
       const storeReach = K.distroReach(st.stores);
@@ -39319,9 +40045,11 @@ window.K = window.K || {};
       /* v10.40 — A5/A6: örnek hakkı ve enstrümantal sürüm maliyete girer
          v10.41 — B3: bölge kapsamı dağıtım maliyetini çarpar */
       const pr = K.production.resolve(st.prod || K.production.defaultPlan());
-      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: U.clamp(st.vocalQ + pr.vocalQ, 0, 100), mixQuality: U.clamp(st.mixQ + pr.mixQ, 0, 100), kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost, clearSample: !!st.clearSample, instrumental: !!st.instrumental, regionMult: K.meta.regionCost(st.regions) };
+      const planC = K.studioSetup.plan({ roomId: st.roomId, engineerId: st.engineerId, hours: st.sessionHours });
+      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: U.clamp(st.vocalQ + pr.vocalQ, 0, 100), mixQuality: U.clamp(st.mixQ + pr.mixQ, 0, 100), kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost, clearSample: !!st.clearSample, instrumental: !!st.instrumental, regionMult: K.meta.regionCost(st.regions), studioCost: planC.cost };
       const qList = trackBudgets.map((tb, i) => K.career.estimateQuality(st.genre, tb, Object.assign({}, opts, {
         sourceQAdd: K.sourceById(trackSources[i]).qAdd,
+        studioQAdd: planC.qAdd,
         lyricScore: (lyrList[i] || lyrics).score
       })));
       const qMin = Math.min.apply(null, qList), qMax = Math.max.apply(null, qList);
@@ -39446,6 +40174,7 @@ window.K = window.K || {};
           <div class="form-block-head"><span class="fb-no">9</span><div><h4>Maliyet</h4><p>Üretim, pazarlama ve dağıtım toplamı.</p></div></div>
           <div class="sum-rows">
             ${row("Prodüksiyon", hide ? "🔒" : U.money(U.sum(trackBudgets)))}
+            ${row("Stüdyo koşulları", hide ? "🔒" : U.money(setupCost.cost) + (setupCost.qAdd ? " · +" + setupCost.qAdd + " kalite" : ""))}
             ${row("Pazarlama", U.money(st.marketing))}
             ${row("Dağıtım (" + (st.stores || []).length + " mağaza)", U.money(((K.RELEASE_TYPES[type] || {}).dist || 0) + storeCost))}
             ${row("Distribütör ücreti", K.distro.feeFor(K.careerUI.effectiveDistId(st), s.day) ? U.money(K.distro.feeFor(K.careerUI.effectiveDistId(st), s.day)) : "yok")}
@@ -39470,6 +40199,217 @@ window.K = window.K || {};
     },
 
     /* ---------------- canlı özet + bilgi satırları ---------------- */
+    /* ============================================================
+       v10.66 — MAĞAZA ÖNİZLEMESİ
+       Yayın, mağazalarda gerçekten nasıl görünecek? Spotify · Apple · YouTube
+       kartlarını tek ekranda gösterir (başlık, sanatçı, kapak, tür).
+       ============================================================ */
+    openStorePreview() {
+      const st = K.careerUI._studio || {};
+      const title = (st.projectTitle || "").trim() || K.careerUI.projectName(st) || "Yeni Yayın";
+      const artist = K.state.player.stageName;
+      const g = K.genreById(st.genre || K.state.player.genre);
+      const cover = st.coverSeed || "prev";
+      const letter = (String(title)[0] || "?").toUpperCase();
+
+      const tabs = [["spotify", "Spotify"], ["apple", "Apple Music"], ["youtube", "YouTube Music"]];
+      const active = K.careerUI._storePrevTab || "spotify";
+
+      const card = (id) => {
+        const art = K.ui.cover(cover, letter, 132);
+        if (id === "spotify") {
+          return `<div class="spv spv-spotify">
+            <div class="spv-top">${art}<div class="spv-meta"><b>${U.escape(title)}</b><span>${U.escape(artist)}</span>
+              <em>${g.icon} ${U.escape(g.name)} · Tekli</em></div></div>
+            <div class="spv-bar"><i></i></div>
+            <div class="spv-row"><span>▶ Çal</span><span>＋ Kaydet</span></div>
+          </div>`;
+        }
+        if (id === "apple") {
+          return `<div class="spv spv-apple">
+            <div class="spv-top">${art}<div class="spv-meta"><b>${U.escape(title)}</b><span>${U.escape(artist)}</span>
+              <em>${U.escape(g.name)} · 2026</em></div></div>
+            <div class="spv-row"><span>♫ Önizle</span><span>⋯</span></div>
+          </div>`;
+        }
+        return `<div class="spv spv-youtube">
+          <div class="spv-yt-art">${art}<span class="spv-play">▶</span></div>
+          <div class="spv-meta"><b>${U.escape(title)} (Official Audio)</b><span>${U.escape(artist)}</span>
+            <em>${U.compact(K.state.player.ytSubs || 0)} abone</em></div>
+        </div>`;
+      };
+
+      const body = `<div class="spv-tabs">${tabs.map(([id, label]) =>
+        `<button class="${active === id ? "active" : ""}" data-act="store-prev-tab" data-arg="${id}">${label}</button>`).join("")}</div>
+        ${card(active)}
+        <div class="helper" style="margin-top:10px">Kapak ve başlık mağazalarda böyle görünür. Kapak kare (≥1400 px) olmalı.</div>`;
+      K.ui.modal({ title: "🛍 Mağaza önizlemesi", desc: "Yayın mağazalarda böyle görünecek", body, actions: [{ label: "Kapat" }] });
+    },
+
+    /* ============================================================
+       v10.66 — ÖN KAYIT SAYFASI
+       Çıkıştan önce ön kayıt toplanır; her 200 ön kayıt ilk gün ivmesine %1
+       ekler (tavan %35). Paylaşım deterministik: takipçi + gün bazlı.
+       ============================================================ */
+    openPresale(relId) {
+      const rel = K.career.releaseById(relId);
+      if (!rel) { K.toast("Proje bulunamadı", "", "warn"); return null; }
+      const s = K.state;
+      const left = Math.max(0, (Number(rel.startDay) || 0) + (Number(rel.waitDays) || 0) - s.day);
+      rel.presaves = Math.max(0, Number(rel.presaves) || 0);
+      const canShare = rel.presaleDay !== s.day;
+      const body = `<div class="pre-page">
+          <div class="pre-head">
+            ${K.ui.cover(rel.coverSeed, (String(rel.title)[0] || "?").toUpperCase(), 74)}
+            <div class="grow">
+              <b>${U.escape(rel.title)}</b>
+              <span>${U.escape(K.genreById(rel.genre).name)} · çıkışa ${left} gün</span>
+              <span class="pre-count">🎟 <b>${U.compact(rel.presaves)}</b> ön kayıt · ilk gün ivmesi +%${Math.min(35, Math.round(rel.presaves / 100)).toFixed(0)}</span>
+            </div>
+          </div>
+          <div class="pre-bar"><i style="width:${Math.min(100, Math.round(rel.presaves / 50))}%"></i></div>
+          <div class="helper">Her 200 ön kayıt ilk gün dinlenmesini %1 büyütür (tavan %35). Ön kayıt sayfasını paylaşarak toplarsın.</div>
+          <div class="action-row" style="margin-top:8px">
+            <button class="btn btn-sm btn-primary" data-act="presale-share" data-rel="${rel.id}" ${canShare ? "" : "disabled"}>📣 Paylaş (+ön kayıt)</button>
+            <span class="gh-more">${canShare ? "Bugün paylaşabilirsin" : "Bugün paylaştın — yarın tekrar"}</span>
+          </div>
+        </div>`;
+      K.ui.modal({ title: "🎟 Ön kayıt sayfası", desc: "Çıkıştan önce kitle topla", body, actions: [{ label: "Kapat" }] });
+      return { presaves: rel.presaves, left };
+    },
+
+    sharePresale(relId) {
+      const rel = K.career.releaseById(relId);
+      if (!rel) return null;
+      const s = K.state, p = s.player;
+      if (rel.presaleDay === s.day) return { ok: false, reason: "already" };
+      const reach = (p.ig || 0) + (p.tiktok || 0) + (p.x || 0) + (p.ytSubs || 0);
+      const gain = Math.max(25, Math.round(reach * 0.012 + (p.popularity || 0) * 2));
+      rel.presaves = (Number(rel.presaves) || 0) + gain;
+      rel.presaleDay = s.day;
+      K.toast("🎟 Ön kayıt toplandı", `+${U.compact(gain)} ön kayıt · toplam ${U.compact(rel.presaves)}`, "ok");
+      K.save();
+      if (K.refresh) K.refresh();
+      return { ok: true, gain, total: rel.presaves };
+    },
+
+    /* ============================================================
+       v10.66 — 360 SÖZLEŞME MADDELERİ + yeniden pazarlık
+       ============================================================ */
+    renderClauses() {
+      const d = (K.label && K.label.myDeal) ? K.label.myDeal() : null;
+      if (!d) return `<div class="empty-note"><b>Bağlı sözleşme yok</b>Bir şirkete katıldığında maddeler burada görünür.</div>`;
+      const deal = d.deal || {};
+      const is360 = deal.dealType === "360";
+      const rows = [
+        ["Master sahipliği", deal.master === "label" ? "Şirkette" : "Sanatçıda"],
+        ["Telif payı (sanatçı)", "%" + (deal.artistRoyalty || 100)],
+        ["Avans", U.money(deal.advance || 0)],
+        ["Süre", (deal.lengthDays || 180) + " gün"],
+        ["Münhasırlık", is360 ? "360° (tur + merch dahil)" : "yalnız kayıt"],
+        ["Pazarlama taahhüdü", is360 ? "var" : "yok"],
+        ["Recoup", "%" + d.recoupPct + " geri ödendi"]
+      ];
+      const canNeg = !deal.negotiatedDay || (K.state.day - deal.negotiatedDay) >= 60;
+      return `<div class="c-block">
+        <div class="c-head"><div><h2>360 Sözleşme Maddeleri</h2><div class="sub">İmzalı anlaşmanın kalem kalem dökümü</div></div></div>
+        <div class="clause-list">
+          ${rows.map(([k, v]) => `<div class="clause-row"><span>${U.escape(k)}</span><b>${U.escape(v)}</b></div>`).join("")}
+        </div>
+        <div class="action-row" style="margin-top:10px">
+          <button class="btn btn-sm btn-ghost" data-act="clause-negotiate" ${canNeg ? "" : "disabled"}>
+            💬 Yeniden pazarlık (telif +5% / avans −10%)
+          </button>
+          <span class="gh-more">${canNeg ? "60 günde bir" : "Son pazarlıktan 60 gün geçmeli"}</span>
+        </div>
+      </div>`;
+    },
+
+    negotiateClause() {
+      const p = K.state.player;
+      if (!p.labelDeal) return { ok: false, reason: "no-deal" };
+      const d = p.labelDeal;
+      if (d.negotiatedDay && (K.state.day - d.negotiatedDay) < 60) return { ok: false, reason: "cooldown" };
+      const before = { royalty: d.artistRoyalty || 100, advance: d.advance || 0 };
+      d.artistRoyalty = Math.min(100, (d.artistRoyalty || 100) + 5);
+      d.advance = Math.max(0, Math.round((d.advance || 0) * 0.9));
+      d.negotiatedDay = K.state.day;
+      K.toast("💬 Yeni şartlar", `Telif %${before.royalty} → %${d.artistRoyalty} · avans ${U.money(before.advance)} → ${U.money(d.advance)}`, "ok");
+      K.save(); if (K.refresh) K.refresh();
+      return { ok: true, royalty: d.artistRoyalty, advance: d.advance };
+    },
+
+    /* ============================================================
+       v10.66 — ŞİRKET DEPARTMANLARI (bütçe onayı + yükseltme)
+       ============================================================ */
+    renderDepartments() {
+      if (!K.state.label) return `<div class="empty-note"><b>Şirket yok</b>Önce kendi şirketini kur.</div>`;
+      const l = K.state.label;
+      const bonus = K.label.deptBonus();
+      return `<div class="c-block">
+        <div class="c-head"><div><h2>Departmanlar</h2><div class="sub">Aylık gider ${U.money(bonus.upkeep)} · kasa ${U.money(l.funds || 0)}</div></div></div>
+        <div class="dept-list">
+          ${K.label.deptDefs().map(def => {
+            const lvl = K.label.deptLevel(def.id);
+            const max = def.levels.length;
+            const cost = K.label.deptUpgradeCost(def.id);
+            const row = def.levels[lvl - 1] || def.levels[0];
+            const eff = def.id === "ar" ? "kalite +" + (row.q || 0)
+              : def.id === "marketing" ? "erişim ×" + (row.m || 1).toFixed(2)
+              : "teslim −" + (row.d || 0) + " gün";
+            return `<div class="dept">
+              <span class="dept-ic">${def.icon}</span>
+              <div class="grow">
+                <b>${U.escape(def.name)} <em>sv. ${lvl}/${max}</em></b>
+                <span>${U.escape(def.desc)}</span>
+                <span class="dept-eff">${eff} · aylık ${U.money(row.upkeep || 0)}</span>
+              </div>
+              ${cost == null
+                ? `<span class="pill money">maksimum</span>`
+                : `<button class="btn btn-xs btn-primary" data-act="dept-up" data-arg="${def.id}" ${(l.funds || 0) < cost ? "disabled" : ""}>↑ ${U.money(cost)}</button>`}
+            </div>`;
+          }).join("")}
+        </div>
+        <div class="helper" style="margin-top:8px">Departman gideri aylık olarak şirket kasasından düşer; etkileri yayına ve teslim süresine yansır.</div>
+      </div>`;
+    },
+
+    /* v10.66 — stüdyo koşulları seçicileri (oda · mühendis · seans) */
+    studioSetupRows(st) {
+      const p = K.state.player || {};
+      const plan = K.studioSetup.plan({ roomId: st.roomId, engineerId: st.engineerId, hours: st.sessionHours, reputation: p.reputation });
+      const money = K.settings && K.settings.valuesHidden && K.settings.valuesHidden();
+      const rep = Math.round(p.reputation || 0);
+
+      const chipRow = (kind, items, currentId, act) => items.map(it => {
+        const locked = (it.minRep || 0) > rep;
+        const on = String(it.id) === String(currentId) && !locked;
+        return `<button class="st-cond${on ? " on" : ""}${locked ? " locked" : ""}"
+          data-act="${act}" data-arg="${it.id}" ${locked ? "disabled" : ""}
+          title="${U.escape(locked ? "İtibar " + it.minRep + " gerekli (senin: " + rep + ")" : it.desc)}">
+          <b>${it.icon} ${U.escape(it.name)}</b>
+          <span>${locked ? "🔒 itibar " + it.minRep : (it.qAdd > 0 ? "+" + it.qAdd + " kalite" : "kalite +0")}${it.fee ? " · " + (money ? "🔒" : U.money(it.fee)) : ""}</span>
+        </button>`;
+      }).join("");
+
+      return `<div class="st-cond-group">
+          <div class="st-cond-head">Oda kademesi</div>
+          <div class="st-cond-row">${chipRow("room", K.studioSetup.rooms, st.roomId, "st-room")}</div>
+        </div>
+        <div class="st-cond-group">
+          <div class="st-cond-head">Mühendis</div>
+          <div class="st-cond-row">${chipRow("engineer", K.studioSetup.engineers, st.engineerId, "st-engineer")}</div>
+        </div>
+        <div class="st-cond-group">
+          <div class="st-cond-head">Seans süresi</div>
+          <div class="st-cond-row">${chipRow("hours", K.studioSetup.hours, st.sessionHours, "st-hours")}</div>
+        </div>
+        <div class="st-cond-sum">
+          <span>${U.escape(plan.label)}</span>
+          <b>${plan.qAdd > 0 ? "+" : ""}${plan.qAdd} kalite · ${money ? "🔒" : U.money(plan.cost)} · yorgunluk +${plan.fatigue}</b>
+        </div>`;
+    },
+
     updateStudioEstimate() {
       const st = K.careerUI._studio;
       if (!st) return;
@@ -39525,9 +40465,11 @@ window.K = window.K || {};
       /* v10.40 — A5/A6: örnek hakkı ve enstrümantal sürüm maliyete girer
          v10.41 — B3: bölge kapsamı dağıtım maliyetini çarpar */
       const pr = K.production.resolve(st.prod || K.production.defaultPlan());
-      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: U.clamp(st.vocalQ + pr.vocalQ, 0, 100), mixQuality: U.clamp(st.mixQ + pr.mixQ, 0, 100), kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost, clearSample: !!st.clearSample, instrumental: !!st.instrumental, regionMult: K.meta.regionCost(st.regions) };
+      const planC = K.studioSetup.plan({ roomId: st.roomId, engineerId: st.engineerId, hours: st.sessionHours });
+      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: U.clamp(st.vocalQ + pr.vocalQ, 0, 100), mixQuality: U.clamp(st.mixQ + pr.mixQ, 0, 100), kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost, clearSample: !!st.clearSample, instrumental: !!st.instrumental, regionMult: K.meta.regionCost(st.regions), studioCost: planC.cost };
       const qList = trackBudgets.map((tb, i) => K.career.estimateQuality(st.genre, tb, Object.assign({}, opts, {
         sourceQAdd: K.sourceById(trackSources[i]).qAdd,
+        studioQAdd: planC.qAdd,
         lyricScore: (lyrList[i] || lyrics).score
       })));
       const qMin = Math.min.apply(null, qList), qMax = Math.max.apply(null, qList);
@@ -39613,6 +40555,8 @@ window.K = window.K || {};
       if (!st) return false;
       const count = st.count;
       const type = K.career.typeForCount(count);
+      /* v10.66 — stüdyo koşulları bu fonksiyonda da gerekli */
+      const planC = K.studioSetup.plan({ roomId: st.roomId, engineerId: st.engineerId, hours: st.sessionHours });
       const tracks = st.tracks.slice(0, count).map(t => ({
         name: (t.name || "").trim() || K.career.suggestTitle(),
         budget: t.budget,
@@ -39634,7 +40578,9 @@ window.K = window.K || {};
          hafta gününe (varsayılan cuma) kaydırılır. */
       const relDay0 = K.careerUI.plannedRelDay(st);
       const relDay = Math.max(relDay0, K.state.day + (distDesc.leadDays || 0));
-      const waitDays = Math.max(1, relDay - K.state.day);
+      let waitDays = Math.max(1, relDay - K.state.day);
+      /* v10.66 — dağıtım departmanı teslim süresini kısaltır */
+      if (K.state.label && K.label.deptBonus) waitDays = Math.max(1, waitDays - K.label.deptBonus().distDays);
       const pr = K.production.resolve(st.prod || K.production.defaultPlan());
 
       const rel = K.career.createRelease({
@@ -39663,8 +40609,16 @@ window.K = window.K || {};
         labelName: st.labelName, copyrightYear: st.copyrightYear,
         /* v10.42 — C grubu teknik */
         coverPx: st.coverPx, contentId: !!st.contentId, releaseWeekday: st.releaseWeekday,
-        trackCount: count, trackBudgets: tracks.map(t => t.budget), tracks
+        trackCount: count, trackBudgets: tracks.map(t => t.budget), tracks,
+        /* v10.66 — stüdyo koşulları: kalite bonusu + ücret */
+        studioQAdd: planC.qAdd + ((K.state.label && K.label.deptBonus) ? K.label.deptBonus().quality : 0),
+        studioCost: planC.cost
       });
+      /* v10.66 — seans yorgunluğu: uzun seans + profesyonel oda bedende kalır */
+      if (rel && planC.fatigue) {
+        K.state.player.fatigue = U.clamp((K.state.player.fatigue || 0) + planC.fatigue, 0, 100);
+      }
+
       /* v10.53 — stüdyoda yayınlanan feature/ortak iş anlaşmayı tamamlar.
          Böylece aynı sanatçıyla bekleyen ortak iş "askıda" kalmaz. */
       if (rel && K.relations && K.relations.completeDeal) {
@@ -39957,12 +40911,15 @@ window.K = window.K || {};
        ŞİRKET (tek sekme, alt sekmeler)
        ===================================================== */
     renderLabelTab() {
-      const tabs = [["genel", "Genel & A&R"], ["roster", "Kadro"], ["staff", "Ekip & Katalog"]];
+      const tabs = [["genel", "Genel & A&R"], ["roster", "Kadro"], ["staff", "Ekip & Katalog"],
+        ["clauses", "Sözleşme Maddeleri"], ["depts", "Departmanlar"]];
       const bar = `<div class="sub-tabs">${tabs.map(([id, l]) =>
         `<button class="${subTab.label === id ? "active" : ""}" data-act="subtab" data-arg="label:${id}">${l}</button>`).join("")}</div>`;
       let body = "";
       if (subTab.label === "roster") body = K.careerUI.renderRoster();
       else if (subTab.label === "staff") body = K.careerUI.renderStaff();
+      else if (subTab.label === "clauses") body = K.careerUI.renderClauses();
+      else if (subTab.label === "depts") body = K.careerUI.renderDepartments();
       else body = K.careerUI.renderLabel();
       return bar + `<div class="label-console">` + K.careerUI.renderMyDeal() + body + `</div>`;
     },
@@ -41198,6 +42155,27 @@ window.K = window.K || {};
       }
       if (act === "song-detail") {
         K.careerUI.openSongDetail(btn.dataset.song);
+        return;
+      }
+      if (act === "store-preview") { K.careerUI.openStorePreview(); return; }
+      if (act === "store-prev-tab") { K.careerUI._storePrevTab = btn.dataset.arg; K.careerUI.openStorePreview(); return; }
+      if (act === "presale-open") { K.careerUI.openPresale(btn.dataset.rel); return; }
+      if (act === "presale-share") {
+        const r = K.careerUI.sharePresale(btn.dataset.rel);
+        if (r && r.ok) K.careerUI.openPresale(btn.dataset.rel);
+        else if (r && r.reason === "already") K.toast("Bugün paylaştın", "Yarın tekrar paylaşabilirsin.", "warn");
+        return;
+      }
+      if (act === "clause-negotiate") {
+        const r = K.careerUI.negotiateClause();
+        if (r && r.ok) K.careerUI.render();
+        else K.toast("Pazarlık olmadı", r && r.reason === "cooldown" ? "60 günde bir pazarlık yapılabilir." : "Aktif sözleşme yok.", "warn");
+        return;
+      }
+      if (act === "dept-up") {
+        const r = K.label.upgradeDept(btn.dataset.arg);
+        if (r && r.ok) K.careerUI.render();
+        else K.toast("Yükseltilemedi", r && r.reason === "funds" ? "Şirket kasası yetersiz (" + U.money(r.cost) + ")" : "Bu departman maksimumda.", "warn");
         return;
       }
       if (act === "draft-resume") {
@@ -42491,6 +43469,11 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             const list = (K.phone.views[K.phone.views.length - 1] || {})._plSongs || [];
             if (list.length) { app.playSong(list[Math.floor(Math.random() * list.length)]); K.toast("🔀 Karıştır", list.length + " şarkı", "ok"); }
           }
+          else if (act === "weekly-play") {
+            const songs = app.weeklySongs();
+            if (!songs.length) K.toast("Liste boş", "Katalog yüklenince dolacak.", "warn");
+            else { app.playList(songs); K.toast("✦ Haftalık Keşif", songs.length + " şarkı kuyruğa alındı.", "ok"); }
+          }
           else if (act === "row-more") K.tracks.actionSheet(el.dataset.arg);
           else if (act === "create-playlist") K.playlists.promptCreate((pl) => app.openUserPlaylist(pl.id));
           else if (act === "open-upl") app.openUserPlaylist(el.dataset.arg);
@@ -42571,6 +43554,8 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
         ${recent.length ? `<div class="spx-sec"><h2>Senin için</h2><span class="more">${recent.length}</span></div>
         ${recent.map((s, i) => trackRow(s, { index: i })).join("")}` : ""}
+
+        ${K.phone.appById("spotify").weeklyHTML()}
 
         ${K.phone.appById("spotify").algoHTML()}
 
@@ -42754,7 +43739,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           const app = K.phone.appById("spotify");
           if (act === "play") app.playById(el.dataset.arg);
           else if (act === "row-more") K.tracks.actionSheet(el.dataset.arg);
-          else if (act === "playlist-play") { if (songs[0]) app.playSong(songs[0]); }
+          else if (act === "playlist-play") app.playList(songs);
         }
       });
     },
@@ -42784,7 +43769,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           const app = K.phone.appById("spotify");
           if (act === "play") app.playById(el.dataset.arg);
           else if (act === "row-more") K.tracks.actionSheet(el.dataset.arg);
-          else if (act === "upl-play") { if (pl.tracks[0]) app.playSong(pl.tracks[0]); }
+          else if (act === "upl-play") app.playList(pl.tracks);
           else if (act === "upl-del") { K.playlists.del(pl.id); K.toast("🗑️ Silindi", pl.name, "warn"); K.phone.back(); }
         }
       });
@@ -42877,6 +43862,12 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           else if (act === "open-album") app.openAlbum(el.dataset.arg);
           else if (act === "dm" && el.dataset.arg !== "player") K.phone.openApp("messages", { artistId: el.dataset.arg });
           else if (act === "refresh-live") K.live.refreshChart(false).then(() => K.phone.reRender());
+          else if (act === "weekly-play") {
+            const app2 = K.phone.appById("spotify");
+            const songs2 = app2.weeklySongs();
+            if (!songs2.length) K.toast("Liste boş", "Katalog yüklenince dolacak.", "warn");
+            else { app2.playList(songs2); K.toast("✦ Haftalık Keşif", songs2.length + " şarkı kuyruğa alındı.", "ok"); }
+          }
         }
       });
     },
@@ -42967,7 +43958,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           const app = K.phone.appById("spotify");
           if (act === "play") app.playById(el.dataset.arg);
           else if (act === "playlist-play") {
-            if (pl.songs[0]) app.playSong(pl.songs[0]);
+            if (pl.songs && pl.songs.length) app.playList(pl.songs);
           }
           else if (act === "playlist-save") {
             const on = K.interactions.toggleSave(el.dataset.arg);
@@ -43011,6 +44002,63 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       const list = a ? K.platforms.npcSongs(artistId, 5) : [];
       const sg = list[+idx];
       if (sg) { K.interactions.play({ id, title: sg.title, artistName: sg.artistName || a.stageName, art: sg.art }); K.phone.reRender(); }
+    },
+
+    /* v10.66 — listeyi KUYRUĞA alarak çal (sıradaki şarkı çalışsın) */
+    playList(list) {
+      const arr = (list || []).filter(x => x && x.title);
+      if (!arr.length) return null;
+      const tracks = arr.map(sg => ({ id: sg.id, title: sg.title, artistName: sg.artistName, art: sg.art }));
+      K.interactions.setQueue(tracks, 0);
+      K.interactions.play(tracks[0]);
+      K.phone.reRender();
+      /* gerçek Spotify: liste çalınca "Şimdi Çalıyor" ekranı açılır */
+      if (K.ui && K.ui.playerView) K.phone.pushView(K.ui.playerView());
+      return tracks[0];
+    },
+
+    /* v10.66 — HAFTALIK KEŞİF: her 7 oyun gününde deterministik yenilenen
+       kişisel liste. Rastgele seçim Math.random() DEĞİL: tohum (hafta + tür)
+       sabit olduğu için aynı hafta içinde liste değişmez. */
+    weeklyKey() { return Math.floor((K.state.day || 1) / 7); },
+
+    weeklySongs() {
+      const s = K.state, p = s.player || {};
+      const pool = [];
+      (s.chart || []).forEach(e => { if (e && e.title) pool.push({ id: e.id, title: e.title, artistName: e.artistName, art: e.art }); });
+      (K.artistList ? K.artistList() : []).forEach(a => {
+        K.platforms.npcSongs(a.id, 3).forEach(sg => {
+          if (sg && sg.title) pool.push({ id: sg.id, title: sg.title, artistName: sg.artistName || a.stageName, art: sg.art });
+        });
+      });
+      if (!pool.length) return [];
+
+      let h = ((K.phone.appById("spotify").weeklyKey() + 1) * 7919 + String(p.genre || "rap").length * 131) >>> 0;
+      const next = () => { h = (h * 1664525 + 1013904223) >>> 0; return h / 4294967296; };
+      const out = [], used = {};
+      let guard = 0;
+      while (out.length < 12 && guard++ < 400) {
+        const tr = pool[Math.floor(next() * pool.length)];
+        if (!tr || !tr.id || used[tr.id]) continue;
+        used[tr.id] = 1;
+        out.push(tr);
+      }
+      return out;
+    },
+
+    weeklyHTML() {
+      const songs = K.phone.appById("spotify").weeklySongs();
+      const wk = K.phone.appById("spotify").weeklyKey() + 1;
+      if (!songs.length) return "";
+      return `<div class="spx-sec"><h2>Haftalık Keşif</h2><span class="more">${wk}. hafta</span></div>
+        <div class="sp-weekly">
+          <div class="sp-weekly-art">✦</div>
+          <div class="grow">
+            <b>Senin Haftalığın</b>
+            <span>${songs.length} şarkı · her hafta yenilenir · türüne göre</span>
+          </div>
+          <button class="btn btn-xs btn-primary" data-pact="weekly-play">▶ Çal</button>
+        </div>`;
     },
 
     playSong(sg) {
@@ -43606,6 +44654,24 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           return app.homeHTML(view);
         },
         onMount: (root) => {
+          /* v10.66 — Shorts dikey kaydırma (dokunmatik) */
+          const sw = U.qs("[data-shorts]", root);
+          if (sw) {
+            let y0 = null;
+            sw.addEventListener("touchstart", (e) => { y0 = e.touches && e.touches[0] ? e.touches[0].clientY : null; }, { passive: true });
+            sw.addEventListener("touchend", (e) => {
+              if (y0 == null) return;
+              const y1 = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY : y0;
+              const dy = y1 - y0;
+              y0 = null;
+              if (Math.abs(dy) < 40) return;
+              const app2 = K.phone.appById("youtube");
+              const total = (app2.allVideos() || []).slice(0, 10).length;
+              const cur = app2.shortIndex(total);
+              app2._shortIdx = Math.max(0, Math.min(total - 1, cur + (dy < 0 ? 1 : -1)));
+              K.phone.reRender();
+            }, { passive: true });
+          }
           const input = U.qs("[data-yt-search]", root);
           if (input) {
             const box = U.qs("[data-yt-results]", root);
@@ -43634,6 +44700,12 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           }
           else if (act === "yt-playlist") app.openYTPlaylist(el.dataset.arg);
           else if (act === "yt-analytics") app.openAnalytics();
+          else if (act === "short-next" || act === "short-prev") {
+            const total = (app.allVideos() || []).slice(0, 10).length;
+            const cur = app.shortIndex(total);
+            app._shortIdx = Math.max(0, Math.min(total - 1, cur + (act === "short-next" ? 1 : -1)));
+            K.phone.reRender();
+          }
         }
       };
       return view;
@@ -43953,10 +45025,28 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       return K.ui.section("Sonuçlar") + vids.slice(0, 12).map(v => videoRow(v, v.channel, v.channelId)).join("");
     },
 
+    /* ============================================================
+       v10.66 — SHORTS: gerçek dikey kaydırma (pager)
+       Her seferinde tek kart gösterilir; ‹ › düğmeleri ve dokunmatik
+       yukarı/aşağı kaydırma sırayı değiştirir (1/10 göstergesi).
+       ============================================================ */
+    shortIndex(len) {
+      const n = Math.max(0, Number(len) || 0);
+      let i = Number(K.phone.appById("youtube")._shortIdx) || 0;
+      if (i > n - 1) i = Math.max(0, n - 1);
+      return i;
+    },
+
     shortsHTML() {
-      const vids = K.phone.appById("youtube").allVideos().slice(0, 10);
-      return `<div class="shorts-scroll">
-        ${vids.map(v => `<div class="short-card" data-pact="watch" data-arg="${U.escape(v.id)}|${U.escape(v.channel)}|${v.channelId || ""}|${v.views}" style="${v.art ? `background-image:url('${v.art}')` : `background:${U.gradientFor(v.id)}`};background-size:cover;background-position:center">
+      const app = K.phone.appById("youtube");
+      const vids = app.allVideos().slice(0, 10);
+      if (!vids.length) return `<div class="mini-empty">Henüz Shorts yok.</div>`;
+      const idx = app.shortIndex(vids.length);
+      const v = vids[idx];
+      const bg = v.art ? `background-image:url('${v.art}')` : `background:${U.gradientFor(v.id)}`;
+      return `<div class="shorts-wrap" data-shorts="${vids.length}">
+        <div class="short-card" data-pact="watch" data-arg="${U.escape(v.id)}|${U.escape(v.channel)}|${v.channelId || ""}|${v.views}"
+             style="${bg};background-size:cover;background-position:center">
           <div class="short-ov"></div>
           <div class="short-side">
             <button class="${K.interactions.isLiked("yt_" + v.id) ? "on" : ""}" data-pact="like" data-arg="yt_${U.escape(v.id)}">${YI.like}</button>
@@ -43966,11 +45056,26 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             <button class="${K.interactions.isSaved("yt_" + v.id) ? "on" : ""}" data-pact="yt-shorts-save" data-arg="${U.escape(v.id)}">${YI.save}</button>
           </div>
           <div class="short-info">
-            <div class="si-channel" data-pact="open-channel" data-arg="${v.channelId}">${U.escape(v.channel)}</div>
+            <div class="si-channel" data-pact="open-channel" data-arg="${v.channelId}">${U.escape(v.channel)}${K.phone.appById("youtube").isVerifiedChannel(v.channelId)}</div>
             <div class="si-title">${U.escape(v.title.replace(" (Official Video)", ""))}</div>
           </div>
-        </div>`).join("")}
+          <div class="shorts-count">${idx + 1}/${vids.length}</div>
+        </div>
+        <div class="shorts-nav">
+          <button class="shorts-btn" data-pact="short-prev" ${idx === 0 ? "disabled" : ""} aria-label="Önceki">‹</button>
+          <span>Yukarı/aşağı kaydır ya da okları kullan</span>
+          <button class="shorts-btn" data-pact="short-next" ${idx === vids.length - 1 ? "disabled" : ""} aria-label="Sonraki">›</button>
+        </div>
       </div>`;
+    },
+
+    /* kanal doğrulaması (Shorts/kanal başlığında) */
+    isVerifiedChannel(channelId) {
+      if (!channelId) return "";
+      const ok = channelId === "player"
+        ? ((K.state.player.reputation || 0) >= 65 || (K.state.player.popularity || 0) >= 55)
+        : !!((K.artistById(channelId) || {}).popularity > 78);
+      return ok ? '<span class="yt-verified" title="Doğrulanmış">✓</span>' : "";
     },
 
     subsHTML() {
@@ -43987,6 +45092,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     },
 
     mineHTML() {
+      const mz = K.phone.appById("youtube").monetizationHTML();
       const p = K.state.player;
       const an = K.phone.appById("youtube").analytics();
       const vids = K.phone.appById("youtube").allVideos().filter(v => v.mine);
@@ -44005,6 +45111,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           <div class="hint">💡 YouTube reklam geliri aylık telif ödemesine dahildir (ay sonunda kasadadır).</div>
           <div class="action-row" style="margin-top:8px"><button class="btn btn-sm btn-primary" data-pact="yt-analytics">📊 Detaylı Analitik (tutma · trafik · abone)</button></div>
         </div>
+        ${mz}
         ${K.ui.section("Videoların")}
         ${vids.length ? vids.map(v => videoRow(v, p.stageName, "player")).join("")
           : `<div class="mini-empty">Şarkı yayınladığında otomatik klip oluşur.</div>`}`;
@@ -44029,6 +45136,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       const liked = K.interactions.isLiked("yt_" + v.id);
       const savedVid = K.interactions.isSaved("yt_" + v.id);
       const subbed = channelId ? K.interactions.isSubbed(channelId) : false;
+      const bellOn = channelId ? K.interactions.hasSubBell(channelId) : false;
       const comments = K.interactions.commentsFor("yt_" + v.id, 6);
       const upNext = vids.filter(x => x.id !== v.id).slice(0, 6);
       const a = channelId && channelId !== "player" ? K.artistById(channelId) : null;
@@ -44099,6 +45207,8 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
               <div class="cr-subs">${U.compact(subs)} abone</div>
             </div>
             ${channelId ? `<button class="btn btn-sm ${subbed ? "btn-ghost" : "btn-primary"}" data-pact="sub" data-arg="${channelId}">${subbed ? "Abone ✓" : "Abone Ol"}</button>` : ""}
+            ${channelId ? `<button class="btn btn-sm btn-ghost yt-bell ${bellOn ? "on" : ""}" data-pact="yt-bell" data-arg="${channelId}"
+              title="${bellOn ? "Bildirimler açık" : "Bildirimleri aç"}" aria-pressed="${bellOn ? "true" : "false"}">${bellOn ? "🔔" : "🔕"}</button>` : ""}
           </div>
 
           <div class="yt-desc">
@@ -44230,24 +45340,115 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     openComments(videoId, channelName, channelId) {
       const key = "yt_" + videoId;
       const list = K.interactions.commentsFor(key, 6);
+      let replyTo = -1;   /* v10.66 — yanıt hedefi (yorum dizini) */
+
       K.phone.pushView({
         title: "Yorumlar", sub: list.length + " yorum", shellClass: "app-youtube",
-        render: () => `
-          ${list.map((c, i) => `<div class="cmt">
-            ${K.ui.avatar(c.user, 32, true)}
-            <div class="grow"><div class="cmt-user">@${U.escape(c.user)} · ${U.ago(c.day, K.state.day)}${c.mine ? " · sen" : ""}</div>
-            <div class="cmt-text">${U.escape(c.text)}</div>
-            <div class="cmt-actions">♡ ${c.likes} · <span data-pact="yt-reply" style="cursor:pointer;color:var(--karma-2);font-weight:700">Yanıtla</span></div></div>
-          </div>`).join("")}
-          <div class="cmt-input"><input placeholder="Yorum ekle..." data-yt-cmt /><button data-pact="yt-cmt-send" data-arg="${U.escape(videoId)}">Gönder</button></div>`,
-        onAction: (act) => {
-          if (act === "yt-cmt-send") {
+        render: () => {
+          const replies = K.interactions.commentReplies(key);
+          const likeBase = c => Math.max(0, Math.round((c.likes || 0)));
+          return `
+          ${list.map((c, i) => {
+            const liked = K.interactions.commentLikeState(key, i);
+            const mineReplies = replies.filter(r => r.to === i);
+            return `<div class="cmt">
+              ${K.ui.avatar(c.user, 32, true)}
+              <div class="grow">
+                <div class="cmt-user">@${U.escape(c.user)} · ${U.ago(c.day, K.state.day)}${c.mine ? " · sen" : ""}</div>
+                <div class="cmt-text">${U.escape(c.text)}</div>
+                <div class="cmt-actions">
+                  <button class="cmt-like ${liked ? "on" : ""}" data-pact="yt-cmt-like" data-arg="${i}" aria-pressed="${liked ? "true" : "false"}">♡ <b>${U.compact(likeBase(c) + (liked ? 1 : 0))}</b></button>
+                  <span data-pact="yt-reply" data-arg="${i}" class="cmt-reply">Yanıtla</span>
+                  ${replyTo === i ? '<span class="cmt-target">yanıtlanıyor…</span>' : ""}
+                </div>
+                ${mineReplies.length ? `<div class="cmt-replies">${mineReplies.map(r => `<div class="cmt-reply-row">
+                  <span class="cmt-reply-ic">↳</span>
+                  <div><b>${U.escape(r.user)}</b> <span class="cmt-reply-day">${U.ago(r.day, K.state.day)}</span>
+                  <div class="cmt-text">${U.escape(r.text)}</div></div>
+                </div>`).join("")}</div>` : ""}
+              </div>
+            </div>`;
+          }).join("")}
+          <div class="cmt-input">
+            <input placeholder="${replyTo >= 0 ? "Yanıt yaz..." : "Yorum ekle..."}" data-yt-cmt />
+            <button data-pact="yt-cmt-send" data-arg="${U.escape(videoId)}">Gönder</button>
+          </div>`;
+        },
+        onAction: (act, el) => {
+          if (act === "yt-cmt-like") {
+            const on = K.interactions.toggleCommentLike(key, Number(el.dataset.arg));
+            K.toast(on ? "❤️ Beğendin" : "Beğeni kaldırıldı", "", "ok");
+            K.phone.reRender();
+          } else if (act === "yt-reply") {
+            replyTo = Number(el.dataset.arg);
+            K.phone.reRender();
             const inp = U.qs("[data-yt-cmt]");
-            if (inp && inp.value.trim()) { K.interactions.addComment(key, inp.value.trim()); inp.value = ""; K.toast("💬 Yorum gönderildi", "", "ok"); K.phone.reRender(); }
-            else K.toast("Boş yorum", "", "warn");
-          } else if (act === "yt-reply") { const inp = U.qs("[data-yt-cmt]"); if (inp) inp.focus(); }
+            if (inp) inp.focus();
+          } else if (act === "yt-cmt-send") {
+            const inp = U.qs("[data-yt-cmt]");
+            const text = inp ? inp.value.trim() : "";
+            if (!text) { K.toast("Boş yorum", "", "warn"); return; }
+            if (replyTo >= 0) {
+              K.interactions.addCommentReply(key, replyTo, text);
+              K.toast("↩ Yanıt gönderildi", `${list[replyTo] ? "@" + list[replyTo].user : ""} kişisine`, "ok");
+              replyTo = -1;
+            } else {
+              K.interactions.addComment(key, text);
+              K.toast("💬 Yorum gönderildi", "", "ok");
+            }
+            if (inp) inp.value = "";
+            K.phone.reRender();
+          }
         }
       });
+    },
+
+    /* ============================================================
+       v10.66 — PARA KAZANMA EŞİĞİ (YouTube ortaklık programı)
+       1.000 abone + 4.000 saat izlenme. Eşik geçilince reklam geliri açılır.
+       ============================================================ */
+    monetization() {
+      const p = K.state.player || {};
+      const an = K.phone.appById("youtube").analytics();
+      const subs = Math.max(0, Math.round(p.ytSubs || 0));
+      const hours = Math.max(0, Math.round(an.watchHours || 0));
+      const SUBS_NEED = 1000, HOURS_NEED = 4000;
+      const eligible = subs >= SUBS_NEED && hours >= HOURS_NEED;
+      if (eligible && !p.ytMonetized) {
+        p.ytMonetized = true;
+        K.save();
+      }
+      return {
+        subs, hours, subsNeed: SUBS_NEED, hoursNeed: HOURS_NEED,
+        subsPct: Math.min(100, Math.round(subs / SUBS_NEED * 100)),
+        hoursPct: Math.min(100, Math.round(hours / HOURS_NEED * 100)),
+        eligible: !!p.ytMonetized || eligible,
+        estAdRevenue: eligible ? Math.round(an.monthViews * 0.6) : 0,
+        missing: eligible ? [] : [
+          subs < SUBS_NEED ? `${U.compact(SUBS_NEED - subs)} abone` : null,
+          hours < HOURS_NEED ? `${U.compact(HOURS_NEED - hours)} saat` : null
+        ].filter(Boolean)
+      };
+    },
+
+    monetizationHTML() {
+      const m = K.phone.appById("youtube").monetization();
+      const bar = (label, val, need, pct) => `<div class="yt-mz-row">
+        <span>${label}</span>
+        <i><b style="width:${pct}%"></b></i>
+        <em>${U.compact(val)} / ${U.compact(need)}</em>
+      </div>`;
+      return `<div class="yt-mz ${m.eligible ? "on" : ""}">
+        <div class="yt-mz-head">
+          <span class="yt-mz-ic">${m.eligible ? "💵" : "🔒"}</span>
+          <div class="grow">
+            <b>${m.eligible ? "Para kazanma açık" : "Para kazanma eşiği"}</b>
+            <span>${m.eligible ? "Reklam geliri aktif · tahmini aylık " + U.money(m.estAdRevenue) : "Eksik: " + m.missing.join(" · ")}</span>
+          </div>
+        </div>
+        ${bar("Abone", m.subs, m.subsNeed, m.subsPct)}
+        ${bar("İzlenme saati", m.hours, m.hoursNeed, m.hoursPct)}
+      </div>`;
     },
 
     /* ---------- ÇALMA LİSTESİ ---------- */
@@ -44266,6 +45467,15 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         onAction: (act, el) => {
           if (act === "watch") { const q = el.dataset.arg.split("|"); app.watch(q[0], q[1], q[2]); }
           else if (act === "open-channel") app.openChannel(el.dataset.arg);
+          else if (act === "yt-bell") {
+            const cid = el.dataset.arg;
+            if (!cid) return;
+            if (!K.interactions.isSubbed(cid)) { K.toast("Önce abone ol", "Zil yalnızca abone olunan kanallarda açılır.", "warn"); return; }
+            const on = K.interactions.toggleSubBell(cid);
+            K.toast(on ? "🔔 Bildirimler açık" : "🔕 Bildirimler kapalı",
+              on ? "Yeni videolarda haber verilecek." : "Sessize alındı.", "ok");
+            K.phone.reRender();
+          }
           else if (act === "yt-play-all" && list[0]) app.watch(list[0].id, list[0].channel, list[0].channelId);
         }
       });
@@ -44429,7 +45639,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
       <div class="ig-body">
         <div class="ig-likes">${U.compact(likes)} beğenme</div>
-        <div class="ig-caption"><b>${U.escape(post.authorName)}</b> ${U.escape(post.text)}</div>
+        ${K.phone.appById("instagram").captionHTML(post)}
         <div class="ig-cmt-link" data-pact="post-open" data-arg="${U.escape(post.id)}">${U.compact(post.comments)} yorumun tümünü gör</div>
         <div class="ig-meta">${U.ago(post.day, K.state.day)}</div>
       </div>
@@ -44549,6 +45759,96 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     },
 
     /* ---------- AKIŞ ---------- */
+    /* ============================================================
+       v10.66 — GERÇEK INSTAGRAM KATMANI
+       · doğrulanmış rozet (mavi tik)      · gönderi konumu + etiketlenen kişi
+       · veriden türeyen öne çıkanlar      · gönderi analizi (insights)
+       ============================================================ */
+    isVerified(artistId) {
+      if (artistId === "player") {
+        const p = K.state.player || {};
+        return (p.reputation || 0) >= 65 || (p.popularity || 0) >= 55;
+      }
+      const a = K.artistById ? K.artistById(artistId) : null;
+      return !!(a && (a.popularity || 0) > 78);
+    },
+
+    verifiedBadge(artistId) {
+      return K.phone.appById("instagram").isVerified(artistId)
+        ? `<span class="ig-verified" title="Doğrulanmış hesap" aria-label="Doğrulanmış">✓</span>` : "";
+    },
+
+    /* konum + etiketlenen kişi satırı (feed ve gönderi görünümü ortak) */
+    postMetaHTML(post) {
+      const bits = [];
+      if (post && post.location) bits.push(`<span class="ig-loc">📍 ${U.escape(post.location)}</span>`);
+      if (post && post.tagName) bits.push(`<span class="ig-loc">👤 ${U.escape(post.tagName)} ile</span>`);
+      return bits.length ? `<div class="ig-post-meta">${bits.join(" ")}</div>` : "";
+    },
+
+    captionHTML(post) {
+      const app = K.phone.appById("instagram");
+      return `<div class="ig-caption"><b>${U.escape(post.authorName)}</b>${app.verifiedBadge(post.authorId)} ${U.escape(post.text || "")}</div>`
+        + app.postMetaHTML(post);
+    },
+
+    /* öne çıkanlar: sabit metin değil, oyuncunun/sanatçının verisinden */
+    highlightsFor(artistId) {
+      const isMe = artistId === "player";
+      const prof = K.platforms.artistProfile(artistId) || {};
+      const p = K.state.player || {};
+      if (!isMe) {
+        const a = K.artistById ? K.artistById(artistId) : null;
+        const rel = (a && a.releases) || [];
+        return [
+          { icon: "🎧", label: "Müzik", count: rel.length || 0 },
+          { icon: "🎤", label: "Sahne", count: 0 },
+          { icon: "📸", label: "Kulis", count: 0 },
+          { icon: "💜", label: "Fan", count: 0 }
+        ];
+      }
+      const songs = (p.songs || []).filter(Boolean);
+      const rels = (p.releases || []).filter(Boolean);
+      const fan = Math.round((prof.fans || p.fans || p.ig || 0));
+      return [
+        { icon: "🎧", label: "Yayınlar", count: songs.length },
+        { icon: "🎙️", label: "Stüdyo", count: rels.length },
+        { icon: "📸", label: "Kulis", count: Math.max(0, Math.min(99, Math.floor((p.totalEarned || 0) / 50000))) },
+        { icon: "💜", label: "Fan", count: fan }
+      ];
+    },
+
+    /* gönderi analizi — deterministik, gönderinin kendi sayılarından */
+    postInsights(postId) {
+      const post = (K.state.feed && (K.state.feed.instagram || [])).find(x => x && x.id === postId);
+      if (!post) { K.ui.actionSheet("Analiz", [{ label: "Gönderi bulunamadı" }]); return null; }
+      const likes = Math.max(0, Math.round(post.likes || 0));
+      const comments = Math.max(0, Math.round(post.comments || 0));
+      const saves = Math.max(0, Math.round(likes * 0.08));
+      const reach = Math.round(likes * 8 + comments * 16 + saves * 5 + 40);
+      const impressions = Math.round(reach * 1.42);
+      const profileVisits = Math.round(reach * 0.06);
+      const follows = Math.round(reach * 0.011);
+      const eng = reach ? Math.round(((likes + comments + saves) / reach) * 1000) / 10 : 0;
+
+      const row = (k, v) => `<div class="ig-ins-row"><span>${k}</span><b>${v}</b></div>`;
+      const body = `<div class="ig-ins">
+          <div class="ig-ins-kpis">
+            <div><span>Erişim</span><b>${U.compact(reach)}</b></div>
+            <div><span>Gösterim</span><b>${U.compact(impressions)}</b></div>
+            <div><span>Etkileşim</span><b>%${eng}</b></div>
+          </div>
+          ${row("❤️ Beğeni", U.compact(likes))}
+          ${row("💬 Yorum", U.compact(comments))}
+          ${row("🔖 Kaydetme", U.compact(saves))}
+          ${row("👤 Profil ziyareti", U.compact(profileVisits))}
+          ${row("➕ Yeni takipçi", U.compact(follows))}
+          <div class="ig-ins-note">Analiz, gönderinin kendi etkileşiminden türetilir.</div>
+        </div>`;
+      K.ui.modal({ title: "📊 Gönderi analizi", desc: "Son 7 gün", body, actions: [{ label: "Kapat" }] });
+      return { reach, impressions, likes, comments, saves, profileVisits, follows, eng };
+    },
+
     feedHTML() {
       const followed = K.interactions.followedArtists();
       const posts = K.social.feedFor("instagram", { followedOnly: true, limit: 14 });
@@ -44710,7 +46010,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         </div>
 
         <div class="ig-bio">
-          <div class="nm">${U.escape(p.name)}</div>
+          <div class="nm">${U.escape(p.name)}${K.phone.appById("instagram").verifiedBadge(artistId)}</div>
           ${(p.aliases && p.aliases.length) ? `<div class="dim">aka ${U.escape(p.aliases.join(", "))}</div>` : ""}
           <div>${K.genreById(p.genre).icon} ${U.escape(K.genreById(p.genre).name)} · ${U.escape(p.city)}</div>
           <div class="dim">${U.compact(p.monthly)} aylık dinleyici · ${U.escape(handle(artistId))}</div>
@@ -44746,9 +46046,9 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         </div>
 
         <div class="ig-highlights">
-          ${[["🎧", "Müzik"], ["🎤", "Sahne"], ["📸", "Kulis"], ["💜", "Fan"]].map((h, i) => `<button class="ig-hl" data-pact="story" data-arg="${artistId}">
-            <span class="ig-hl-ring" ${i === 0 && photo ? `style="background-image:url('${photo}')"` : ""}>${i === 0 && photo ? "" : h[0]}</span>
-            <span>${h[1]}</span></button>`).join("")}
+          ${K.phone.appById("instagram").highlightsFor(artistId).map((h, i) => `<button class="ig-hl" data-pact="story" data-arg="${artistId}">
+            <span class="ig-hl-ring" ${i === 0 && photo ? `style="background-image:url('${photo}')"` : ""}>${i === 0 && photo ? "" : h.icon}</span>
+            <span>${U.escape(h.label)}${h.count ? " · " + U.compact(h.count) : ""}</span></button>`).join("")}
         </div>
 
         <div class="ig-tabsrow">
@@ -44908,7 +46208,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             </div>
             <div class="ig-body">
               <div class="ig-likes">${U.compact(K.interactions.likeCount("ig_" + post.id, post.likes))} beğenme</div>
-              <div class="ig-caption"><b>${U.escape(post.authorName)}</b> ${U.escape(post.text)}</div>
+              ${K.phone.appById("instagram").captionHTML(post)}
             </div>
             <div class="ig-sec">Yorumlar</div>
             ${comments.map((c, i) => `<div class="cmt">
@@ -44937,6 +46237,15 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     },
 
     postSheet(postId) {
+      const mine = !!(K.state.feed && (K.state.feed.instagram || []).find(x => x && x.id === postId && x.mine));
+      if (mine) {
+        K.ui.actionSheet("Gönderi", [
+          { label: "📊 Analizi gör", onClick: () => K.phone.appById("instagram").postInsights(postId) },
+          { label: "🔖 Kaydet", onClick: () => { K.interactions.toggleSave("ig_" + postId); K.toast("🔖 Kaydedildi", "", "ok"); } },
+          { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") }
+        ]);
+        return;
+      }
       K.ui.actionSheet("Gönderi", [
         { label: "✈︎ Paylaş", onClick: () => K.toast("✈︎ Paylaşıldı", "Bağlantı kopyalandı.", "ok") },
         { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") },
@@ -45109,6 +46418,15 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           <option value="">— Yok —</option>
           ${K.state.player.songs.map((s) => `<option value="${s.id}">${U.escape(s.title)}</option>`).join("")}
         </select>`)}
+        ${K.ui.field("Konum (opsiyonel)", `<select id="ig-loc">
+          <option value="">— Yok —</option>
+          ${Array.from(new Set([(K.state.player.city || "İstanbul"), "İstanbul", "Ankara", "İzmir", "Stüdyo"]))
+            .map(c => `<option value="${U.escape(c)}">${U.escape(c)}</option>`).join("")}
+        </select>`)}
+        ${K.ui.field("Kişi etiketle (opsiyonel)", `<select id="ig-tag">
+          <option value="">— Yok —</option>
+          ${(K.artistList ? K.artistList() : []).slice(0, 20).map(a => `<option value="${a.id}">${U.escape(a.stageName)}</option>`).join("")}
+        </select>`)}
         ${K.ui.field("İçerik türü", `<div data-posttype-box>${K.social.postTypeSelector("reach")}</div>`)}`;
       const m = K.ui.modal({
         title: "Yeni Gönderi", body,
@@ -45118,7 +46436,17 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             const text = U.qs("#ig-text").value.trim();
             const songId = U.qs("#ig-song").value || null;
             const type = K.social.selectedPostType(m.root);
-            const res = K.social.playerPost("instagram", text, type, songId);
+            const locSel = U.qs("#ig-loc");
+            const tagSel = U.qs("#ig-tag");
+            const loc = locSel ? locSel.value : "";
+            const tagId = tagSel ? tagSel.value : "";
+            const tagArtist = tagId && K.artistById ? K.artistById(tagId) : null;
+            const extra = {
+              location: loc || null,
+              tagId: tagId || null,
+              tagName: tagArtist ? tagArtist.stageName : null
+            };
+            const res = K.social.playerPost("instagram", text, type, songId, extra);
             K.toast(res.title, res.msg, res.kind);
           }}
         ]
@@ -45191,9 +46519,12 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         <button class="tt-act" data-pact="tt-comments" data-arg="${U.escape(v.id)}">${TI.comment}<span>${U.compact(Math.round(v.views * 0.004))}</span></button>
         <button class="tt-act" data-pact="tt-share">${TI.share}<span>${U.compact(Math.round(v.views * 0.002))}</span></button>
         <button class="tt-act ${saved ? "on" : ""}" data-pact="save" data-arg="tt_${U.escape(v.id)}">${TI.bookmark}</button>
+        <button class="tt-act" data-pact="tt-more" data-arg="${U.escape(v.id)}" title="Daha fazla">⋯</button>
       </div>
       <div class="tt-bottom">
-        <div class="tt-user">@${U.escape(v.channel.toLowerCase().replace(/\s/g, ""))}${v.mine ? ' <span class="pill hot" style="font-size:8px">SEN</span>' : ""}</div>
+        <div class="tt-user">@${U.escape(v.channel.toLowerCase().replace(/\s/g, ""))}${K.phone.appById("tiktok").verifiedBadge(v.channelId)}${v.mine ? ' <span class="pill hot" style="font-size:8px">SEN</span>' : ""}</div>
+        ${v.duetOf ? `<div class="tt-orig">🔀 Duet · ${U.escape(String(v.duetOf).slice(0, 40))}</div>` : ""}
+        ${v.stitchOf ? `<div class="tt-orig">✂️ Stitch · ${U.escape(String(v.stitchOf).slice(0, 40))}</div>` : ""}
         <div class="tt-desc">${U.escape(v.title.replace(" (Official Video)", ""))} 🔥 #fyp #rap</div>
         <div class="tt-sound" data-pact="sound" data-arg="${U.escape(v.title.replace(" (Official Video)", ""))}">${TI.music} Orijinal ses · ${U.escape(v.channel)}</div>
       </div>
@@ -45233,6 +46564,17 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           else if (act === "open-profile") app.openProfile(el.dataset.arg);
           else if (act === "tt-comments") app.comments(el.dataset.arg);
           else if (act === "tt-share") K.toast("↗ Paylaşıldı", "Bağlantı kopyalandı.", "ok");
+          else if (act === "tt-more") {
+            const v = app.videoById(el.dataset.arg);
+            if (!v) K.toast("Video bulunamadı", "", "warn");
+            else K.ui.actionSheet(String(v.title || "").replace(" (Official Video)", ""), [
+              { label: "🔀 Duet yap", onClick: () => app.makeDuet(v.id, "duet") },
+              { label: "✂️ Stitch yap", onClick: () => app.makeDuet(v.id, "stitch") },
+              { label: "🎵 Sesi aç", onClick: () => app.openSound(String(v.title || "").replace(" (Official Video)", "")) },
+              { label: "🎬 Videoyu aç", onClick: () => app.openVideo(v.id) }
+            ]);
+          }
+          else if (act === "open-video") app.openVideo(el.dataset.arg);
           else if (act === "save") {
             const on = K.interactions.toggleSave(el.dataset.arg || ("tt_" + el.dataset.arg));
             K.toast(on ? "★ Kaydedildi" : "Kaldırıldı", "", "ok");
@@ -45340,10 +46682,84 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         </div>
         ${vids.length ? `<div class="tt-grid">${vids.map(v => `<div class="tt-grid-cell" style="${v.art ? `background-image:url('${v.art}')` : `background:${U.gradientFor(v.id)}`};background-size:cover">
           <div class="ttg-ov">▶ ${U.compact(Math.round(v.views * 0.4))}</div></div>`).join("")}</div>`
-          : `<div class="mini-empty">Henüz videon yok. Şarkı yayınlayınca otomatik oluşur.</div>`}`;
+          : `<div class="mini-empty">Henüz videon yok. Şarkı yayınlayınca otomatik oluşur.</div>`}
+        ${(function () {
+          /* v10.66 — duet / stitch gönderileri profilde etiketli listelenir */
+          const posts = (K.state.feed.tiktok || []).filter(x => x && x.mine && (x.duetOf || x.stitchOf));
+          if (!posts.length) return "";
+          return K.ui.section("Duet & Stitch")
+            + posts.map(x => `<div class="tt-post-row">
+              <span class="tt-pr-ic">${x.stitchOf ? "✂️" : "🔀"}</span>
+              <div class="grow">
+                <b>${U.escape(String(x.text || "").slice(0, 54))}</b>
+                <span>${x.stitchOf ? "Stitch" : "Duet"} · ${U.escape(String(x.duetOf || x.stitchOf || "").slice(0, 40))}</span>
+              </div>
+              <span class="pill">❤️ ${U.compact(x.likes || 0)}</span>
+            </div>`).join("");
+        })()}`;
     },
 
     /* ---------- CREATOR STUDIO (sekmeli analitik) ---------- */
+    /* ============================================================
+       v10.66 — TIKTOK GERÇEKÇİLİK: mavi tik · duet/stitch · video açma
+       ============================================================ */
+    isVerified(artistId) {
+      if (artistId === "player") {
+        const p = K.state.player || {};
+        return (p.reputation || 0) >= 65 || (p.popularity || 0) >= 55;
+      }
+      const a = K.artistById ? K.artistById(artistId) : null;
+      return !!(a && (a.popularity || 0) > 78);
+    },
+
+    verifiedBadge(artistId) {
+      return K.phone.appById("tiktok").isVerified(artistId)
+        ? `<span class="tt-verified" title="Doğrulanmış" aria-label="Doğrulanmış">✓</span>` : "";
+    },
+
+    videoById(videoId) {
+      return (K.phone.appById("youtube").allVideos() || []).find(v => v && v.id === videoId) || null;
+    },
+
+    /* duet / stitch: orijinali referans alan yeni bir gönderi üretir */
+    makeDuet(videoId, kind) {
+      const v = K.phone.appById("tiktok").videoById(videoId);
+      if (!v) { K.toast("Video bulunamadı", "", "warn"); return null; }
+      const isStitch = kind === "stitch";
+      const title = String(v.title || "").replace(" (Official Video)", "");
+      const text = isStitch
+        ? `Bu kısmı kestim ✂️ · ${title}`
+        : `Buna kayıt yaptım 🔀 · ${title}`;
+      const res = K.social.playerPost("tiktok", text, "reach");
+      const feed = K.state.feed.tiktok || [];
+      const fresh = feed.find(p2 => p2 && p2.mine && p2.text === text);
+      if (fresh) {
+        if (isStitch) fresh.stitchOf = title;
+        else fresh.duetOf = title;
+        fresh.ofVideoId = v.id;
+      }
+      K.toast(isStitch ? "✂️ Stitch oluşturuldu" : "🔀 Duet oluşturuldu",
+        (isStitch ? "Kesit" : "Ortak video") + " gönderin akışa eklendi.", "ok");
+      return { kind: isStitch ? "stitch" : "duet", videoId: v.id, title };
+    },
+
+    /* bir videoyu açar: istatistik + duet/stitch/ses kısayolları */
+    openVideo(videoId) {
+      const v = K.phone.appById("tiktok").videoById(videoId);
+      if (!v) { K.toast("Video bulunamadı", "", "warn"); return null; }
+      const title = String(v.title || "").replace(" (Official Video)", "");
+      const likes = Math.round((v.views || 0) * 0.1);
+      const comments = Math.round((v.views || 0) * 0.004);
+      const shares = Math.round((v.views || 0) * 0.002);
+      K.ui.actionSheet(title, [
+        { label: "🔀 Duet yap", onClick: () => K.phone.appById("tiktok").makeDuet(v.id, "duet") },
+        { label: "✂️ Stitch yap", onClick: () => K.phone.appById("tiktok").makeDuet(v.id, "stitch") },
+        { label: "🎵 Sesi aç", onClick: () => K.phone.appById("tiktok").openSound(title) },
+        { label: "❤️ " + U.compact(likes) + " · 💬 " + U.compact(comments) + " · ↗ " + U.compact(shares), onClick: () => {} }
+      ]);
+      return { title, likes, comments, shares };
+    },
+
     openAnalytics() {
       const app = K.phone.appById("tiktok");
       const p = K.state.player;
@@ -45490,12 +46906,13 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             <button class="btn btn-sm btn-ghost" data-pact="share">↗ Paylaş</button>
           </div>
           ${K.ui.section("Bu sesle yapılan videolar")}
-          ${vids.length ? `<div class="tt-grid">${vids.map(v => `<div class="tt-grid-cell" style="${v.art ? `background-image:url('${v.art}')` : `background:${U.gradientFor(v.id)}`};background-size:cover">
-            <div class="ttg-ov">▶ ${U.compact(Math.round(v.views * 0.4))}</div></div>`).join("")}</div>`
+          ${vids.length ? `<div class="tt-grid">${vids.map(v => `<button class="tt-grid-cell" data-pact="open-video" data-arg="${U.escape(v.id)}" style="${v.art ? `background-image:url('${v.art}')` : `background:${U.gradientFor(v.id)}`};background-size:cover">
+            <div class="ttg-ov">▶ ${U.compact(Math.round(v.views * 0.4))}</div></button>`).join("")}</div>`
             : `<div class="mini-empty">Henüz video yok.</div>`}`,
         onAction: (act, el) => {
           const pick = () => K.platforms.searchSongs(soundTitle)[0] || (mineSong ? { id: mineSong.id, title: mineSong.title, artistName: K.state.player.stageName, art: null } : null);
           if (act === "create") K.toast("🎬 Oluştur", "Kamera açılıyor… (demo)", "ok");
+          else if (act === "open-video") K.phone.appById("tiktok").openVideo(el.dataset.arg);
           else if (act === "share") K.toast("↗ Paylaşıldı", "", "ok");
           else if (act === "sound-play") { const sg = pick(); if (sg) K.interactions.play(sg); else K.toast("Şarkı bulunamadı", "", "warn"); }
           else if (act === "sound-queue") { const sg = pick(); if (sg) K.queue.add(sg); }
@@ -45613,7 +47030,11 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
   function postHTML(post, opts) {
     opts = opts || {};
     const a = post.authorId !== "player" ? K.artistById(post.authorId) : null;
-    const verified = a && a.popularity > 78;
+    /* v10.66 — oyuncu da doğrulanabilir (itibar/popülerlik) */
+    const pl = K.state.player || {};
+    const verified = post.authorId === "player"
+      ? ((pl.reputation || 0) >= 65 || (pl.popularity || 0) >= 55)
+      : !!(a && a.popularity > 78);
     const handle = "@" + post.authorName.toLowerCase().replace(/\s/g, "");
     const key = "x_" + post.id;
     const liked = K.interactions.isLiked(key);
@@ -45624,10 +47045,14 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       ${post.authorId && post.authorId !== "player" ? K.ui.artistAvatar(post.authorId, 40, true) : K.ui.avatar(post.authorName, 40, true)}
       <div style="flex:1;min-width:0">
         <div class="xp-head">
-          <span class="xp-name" style="cursor:pointer" data-pact="open-profile" data-arg="${post.authorId}">${U.escape(post.authorName)}</span>
+          <span class="xp-name" style="cursor:pointer" data-pact="open-profile" data-arg="${post.authorId}">${U.escape(post.authorName)}</span>${verified ? '<span class="x-verified" title="Doğrulanmış">✓</span>' : ""}
           <span class="xp-handle">${U.escape(handle)} · ${U.ago(post.day, K.state.day)}</span>
         </div>
         <div class="xp-text" ${opts.clickable ? `data-pact="post-open" data-arg="${post.id}" style="cursor:pointer"` : ""}>${U.escape(post.text)}</div>
+        ${post.quoteOf ? `<div class="x-quote">
+          <div class="xq-head">@${U.escape(String(post.quoteOf.author || "").toLowerCase().replace(/\s/g, ""))}${post.quoteOf.verified ? ' <span class="xq-badge">✓</span>' : ""}</div>
+          <div class="xq-text">${U.escape(String(post.quoteOf.text || "").slice(0, 180))}</div>
+        </div>` : ""}
         <div class="xp-actions">
           <span class="xp-act" data-pact="post-open" data-arg="${post.id}" style="cursor:pointer">${XI.reply}<b>${U.compact(post.comments || 0)}</b></span>
           <span class="xp-act xp-repost ${reposted ? "on" : ""}" data-pact="x-repost" data-arg="${post.id}">${XI.repost}<b>${U.compact(K.interactions.repostCount(key, post.shares))}</b></span>
@@ -45768,7 +47193,13 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           <button class="btn btn-sm btn-primary" data-pact="new-post">${XI.compose} Gönderi Yaz</button>
           <button class="btn btn-sm btn-ghost" data-pact="promote">🎵 Şarkı Paylaş</button>
         </div>
-        ${myPosts.map(p2 => postHTML(p2, { clickable: true })).join("") || `<div class="mini-empty">Gönderin yok.</div>`}`;
+        ${myPosts.map(p2 => postHTML(p2, { clickable: true })).join("") || `<div class="mini-empty">Gönderin yok.</div>`}
+        ${(function () {
+          const saved = (K.state.feed.x || []).filter(p2 => p2 && K.interactions.isSaved("x_" + p2.id));
+          return `<div class="spx-sec" style="margin-top:14px"><h2>Yer imleri</h2><span class="more">${saved.length}</span></div>`
+            + (saved.length ? saved.map(p2 => postHTML(p2, { clickable: true })).join("")
+              : `<div class="mini-empty">Kaydettiğin gönderiler burada birikir.</div>`);
+        })()}`;
     },
 
     openPost(postId) {
@@ -45785,6 +47216,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           <div class="x-detail-actions">
             <span class="xp-repost ${reposted ? "on" : ""}" data-pact="x-repost" data-arg="${post.id}">↻ Yeniden gönder</span>
             <span class="xp-save ${saved ? "on" : ""}" data-pact="x-save" data-arg="${post.id}">🔖 Kaydet</span>
+            <span class="xp-quote" data-pact="x-quote" data-arg="${post.id}">✏️ Alıntıla</span>
             <span data-pact="x-share" data-arg="${post.id}">↗ Paylaş</span>
           </div>
           <div class="x-reply-hint">${U.escape(post.authorName)} kişisine yanıt ver</div>
@@ -45810,7 +47242,9 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           else if (act === "post-open") app.openPost(el.dataset.arg);
           else if (act === "x-repost") { const on = K.interactions.toggleRepost("x_" + post.id); K.toast(on ? "↻ Yeniden gönderildi" : "Geri alındı", "", "ok"); K.phone.reRender(); }
           else if (act === "x-save") { const on = K.interactions.toggleSave("x_" + post.id); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.phone.reRender(); }
+          else if (act === "x-quote") K.phone.appById("x").quotePost(post.id);
           else if (act === "x-share") K.ui.actionSheet("Paylaş", [
+            { label: "✏️ Alıntıla", onClick: () => K.phone.appById("x").quotePost(post.id) },
             { label: "↻ Yeniden gönder", onClick: () => { K.interactions.toggleRepost("x_" + post.id); K.phone.reRender(); } },
             { label: "💬 DM'de paylaş", onClick: () => K.phone.openApp("messages") },
             { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") }
@@ -45889,13 +47323,26 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       });
     },
 
-    newPost(prefill, hashtag) {
+    /* v10.66 — ALINTI TWEET: gönderi, alıntılananın anlık görüntüsünü taşır */
+    quotePost(postId) {
+      const post = K.social.feedFor("x").find(p2 => p2 && p2.id === postId);
+      if (!post) return null;
+      const a = post.authorId !== "player" ? K.artistById(post.authorId) : null;
+      K.phone.appById("x").newPost("", null, {
+        author: post.authorName,
+        text: String(post.text || "").slice(0, 180),
+        verified: !!(a && a.popularity > 78)
+      });
+      return post;
+    },
+
+    newPost(prefill, hashtag, quote) {
       /* v10.30 — gönderi STRATEJİSİ: içerik türü (erişim / imaj / risk) */
       const body = K.ui.field("Ne düşünüyorsun?", `<textarea id="x-text" rows="3" placeholder="Bir şeyler yaz...">${U.escape(prefill || "")}</textarea>`)
         + (hashtag ? `<div class="hint">${U.escape(hashtag)} etiketi eklenecek.</div>` : "")
         + K.ui.field("İçerik türü", `<div data-posttype-box>${K.social.postTypeSelector("reach")}</div>`);
       const m = K.ui.modal({
-        title: "Gönderi Oluştur", body,
+        title: quote ? "Alıntıla" : "Gönderi Oluştur", body,
         actions: [
           { label: "Vazgeç" },
           { label: "Paylaş", cls: "btn-primary", onClick: () => {
@@ -45904,6 +47351,11 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             if (hashtag) text += " " + hashtag;
             const type = K.social.selectedPostType(m.root);
             const res = K.social.playerPost("x", text, type);
+            if (quote) {
+              const feed = K.state.feed.x || [];
+              const fresh = feed.find(p2 => p2 && p2.mine && p2.text === text);
+              if (fresh) fresh.quoteOf = quote;
+            }
             K.toast(res.title, res.msg, res.kind);
           }}
         ]

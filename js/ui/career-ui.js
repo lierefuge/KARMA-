@@ -519,6 +519,8 @@
               <button class="btn btn-xs btn-ghost" data-act="rel-rename" data-rel="${r.id}"
                 ${r.stage === "prep" ? "" : "disabled"}
                 title="${r.stage === "prep" ? "Proje adını düzenle" : "Dağıtıma gönderildikten sonra ad değişmez"}">✎ Ad</button>
+              <button class="btn btn-xs btn-ghost" data-act="presale-open" data-rel="${r.id}"
+                title="Ön kayıt sayfası — çıkıştan önce kitle topla">🎟 Ön kayıt${r.presaves ? " · " + U.compact(r.presaves) : ""}</button>
               <button class="btn btn-xs btn-ghost" data-act="rel-cancel" data-rel="${r.id}"
                 title="Yayını iptal et (kısmi iade)">🚫 İptal</button>
               <span class="grow"></span>
@@ -928,6 +930,8 @@
         beatId: "digital", beatQ: 55,
         vocalId: "rap", vocalQ: 55,
         mixQ: 55,
+        /* v10.66 — stüdyo koşulları: oda · mühendis · seans süresi */
+        roomId: "ev", engineerId: "yok", sessionHours: 4,
         /* v10.44 — prodüksiyon süreci: kayıt oturumu · mix · master · revizyon */
         prod: K.production.defaultPlan(),
         feat: featArtist ? featArtist.id : null,
@@ -1429,6 +1433,24 @@
       }
       if (act === "st-publish") {
         if (K.careerUI.createReleaseFromStudio()) K.ui.closeModal();
+        return;
+      }
+
+      /* v10.66 — stüdyo koşulları */
+      if (act === "st-room" || act === "st-engineer" || act === "st-hours") {
+        const v = btn.dataset.arg;
+        const rep = (K.state.player || {}).reputation || 0;
+        if (act === "st-room") {
+          if (K.studioSetup.locked("room", v, rep)) { K.toast("🔒 Kilitli", "Bu oda için itibar yetersiz.", "warn"); return; }
+          st.roomId = v;
+        } else if (act === "st-engineer") {
+          if (K.studioSetup.locked("engineer", v, rep)) { K.toast("🔒 Kilitli", "Bu mühendis için itibar yetersiz.", "warn"); return; }
+          st.engineerId = v;
+        } else {
+          st.sessionHours = Number(v) || 4;
+        }
+        K.careerUI.renderStudioStep();
+        K.careerUI.updateStudioEstimate();
         return;
       }
 
@@ -2413,6 +2435,11 @@
         </div>` : ""}
 
         <div class="form-block">
+          <div class="form-block-head"><span class="fb-no">${++bn}</span><div><h4>Stüdyo Koşulları</h4><p>Nerede, kiminle ve ne kadar süre kaydediyorsun — kaliteye ve maliyete doğrudan etki eder.</p></div></div>
+          ${K.careerUI.studioSetupRows(st)}
+        </div>
+
+        <div class="form-block">
           <div class="form-block-head"><span class="fb-no">${++bn}</span><div><h4>Prodüksiyon Bütçesi</h4><p>Her parçanın kendi bütçesi olur ve kalitesini o belirler.</p></div></div>
           <div class="form-grid">
             ${K.ui.field("Parça Başına Bütçe", range("st-budget", 3000, 120000, 1000, st.budget, "st-budget-val"))}
@@ -2755,6 +2782,10 @@
             ${K.ui.field("📅 Çıkış Günü", `<div class="readout" id="st-releaseday2">Gün ${K.careerUI.plannedRelDay(st)} · ${K.meta.weekdayName(K.careerUI.plannedRelDay(st))}</div>`)}
           </div>
           <div class="helper">Yayın sırasına girdikten sonra <b>Yayınlar</b> sekmesinden editoryal listelere pitch gönderebilirsin. Pitch yayından 7–22 gün önce yapılmalıdır.</div>
+          <div class="action-row" style="margin-top:8px">
+            <button class="btn btn-sm btn-ghost" data-act="store-preview">🛍 Mağaza önizlemesi</button>
+            <span class="gh-more">Yayın, Spotify/Apple/YouTube'da nasıl görünecek?</span>
+          </div>
         </div>
         <div class="form-block">
           <div class="form-block-head"><span class="fb-no">3</span><div><h4>Yayın Stratejisi</h4><p>Snippet beklenti kurar (ilk gün ivmesi +), sürpriz çıkış sessiz başlar.</p></div></div>
@@ -2780,6 +2811,7 @@
       const cohesion = isProject ? K.lyrics.cohesion(st.conceptId, st.genre, st.kind, st.lyricsTheme, st.count) : null;
       const ag = (K.news && K.news.themeAffinity) ? K.news.themeAffinity(st.lyricsTheme, st.genre) : { score: 0, hits: [] };
       const trackBudgets = st.tracks.map(t => t.budget || st.budget);
+      const setupCost = K.studioSetup.plan({ roomId: st.roomId, engineerId: st.engineerId, hours: st.sessionHours });
       const trackSources = st.tracks.map(t => K.sourceById(t.source).id);
       const storeCost = K.distroCost(st.stores);
       const storeReach = K.distroReach(st.stores);
@@ -2792,9 +2824,11 @@
       /* v10.40 — A5/A6: örnek hakkı ve enstrümantal sürüm maliyete girer
          v10.41 — B3: bölge kapsamı dağıtım maliyetini çarpar */
       const pr = K.production.resolve(st.prod || K.production.defaultPlan());
-      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: U.clamp(st.vocalQ + pr.vocalQ, 0, 100), mixQuality: U.clamp(st.mixQ + pr.mixQ, 0, 100), kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost, clearSample: !!st.clearSample, instrumental: !!st.instrumental, regionMult: K.meta.regionCost(st.regions) };
+      const planC = K.studioSetup.plan({ roomId: st.roomId, engineerId: st.engineerId, hours: st.sessionHours });
+      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: U.clamp(st.vocalQ + pr.vocalQ, 0, 100), mixQuality: U.clamp(st.mixQ + pr.mixQ, 0, 100), kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost, clearSample: !!st.clearSample, instrumental: !!st.instrumental, regionMult: K.meta.regionCost(st.regions), studioCost: planC.cost };
       const qList = trackBudgets.map((tb, i) => K.career.estimateQuality(st.genre, tb, Object.assign({}, opts, {
         sourceQAdd: K.sourceById(trackSources[i]).qAdd,
+        studioQAdd: planC.qAdd,
         lyricScore: (lyrList[i] || lyrics).score
       })));
       const qMin = Math.min.apply(null, qList), qMax = Math.max.apply(null, qList);
@@ -2919,6 +2953,7 @@
           <div class="form-block-head"><span class="fb-no">9</span><div><h4>Maliyet</h4><p>Üretim, pazarlama ve dağıtım toplamı.</p></div></div>
           <div class="sum-rows">
             ${row("Prodüksiyon", hide ? "🔒" : U.money(U.sum(trackBudgets)))}
+            ${row("Stüdyo koşulları", hide ? "🔒" : U.money(setupCost.cost) + (setupCost.qAdd ? " · +" + setupCost.qAdd + " kalite" : ""))}
             ${row("Pazarlama", U.money(st.marketing))}
             ${row("Dağıtım (" + (st.stores || []).length + " mağaza)", U.money(((K.RELEASE_TYPES[type] || {}).dist || 0) + storeCost))}
             ${row("Distribütör ücreti", K.distro.feeFor(K.careerUI.effectiveDistId(st), s.day) ? U.money(K.distro.feeFor(K.careerUI.effectiveDistId(st), s.day)) : "yok")}
@@ -2943,6 +2978,217 @@
     },
 
     /* ---------------- canlı özet + bilgi satırları ---------------- */
+    /* ============================================================
+       v10.66 — MAĞAZA ÖNİZLEMESİ
+       Yayın, mağazalarda gerçekten nasıl görünecek? Spotify · Apple · YouTube
+       kartlarını tek ekranda gösterir (başlık, sanatçı, kapak, tür).
+       ============================================================ */
+    openStorePreview() {
+      const st = K.careerUI._studio || {};
+      const title = (st.projectTitle || "").trim() || K.careerUI.projectName(st) || "Yeni Yayın";
+      const artist = K.state.player.stageName;
+      const g = K.genreById(st.genre || K.state.player.genre);
+      const cover = st.coverSeed || "prev";
+      const letter = (String(title)[0] || "?").toUpperCase();
+
+      const tabs = [["spotify", "Spotify"], ["apple", "Apple Music"], ["youtube", "YouTube Music"]];
+      const active = K.careerUI._storePrevTab || "spotify";
+
+      const card = (id) => {
+        const art = K.ui.cover(cover, letter, 132);
+        if (id === "spotify") {
+          return `<div class="spv spv-spotify">
+            <div class="spv-top">${art}<div class="spv-meta"><b>${U.escape(title)}</b><span>${U.escape(artist)}</span>
+              <em>${g.icon} ${U.escape(g.name)} · Tekli</em></div></div>
+            <div class="spv-bar"><i></i></div>
+            <div class="spv-row"><span>▶ Çal</span><span>＋ Kaydet</span></div>
+          </div>`;
+        }
+        if (id === "apple") {
+          return `<div class="spv spv-apple">
+            <div class="spv-top">${art}<div class="spv-meta"><b>${U.escape(title)}</b><span>${U.escape(artist)}</span>
+              <em>${U.escape(g.name)} · 2026</em></div></div>
+            <div class="spv-row"><span>♫ Önizle</span><span>⋯</span></div>
+          </div>`;
+        }
+        return `<div class="spv spv-youtube">
+          <div class="spv-yt-art">${art}<span class="spv-play">▶</span></div>
+          <div class="spv-meta"><b>${U.escape(title)} (Official Audio)</b><span>${U.escape(artist)}</span>
+            <em>${U.compact(K.state.player.ytSubs || 0)} abone</em></div>
+        </div>`;
+      };
+
+      const body = `<div class="spv-tabs">${tabs.map(([id, label]) =>
+        `<button class="${active === id ? "active" : ""}" data-act="store-prev-tab" data-arg="${id}">${label}</button>`).join("")}</div>
+        ${card(active)}
+        <div class="helper" style="margin-top:10px">Kapak ve başlık mağazalarda böyle görünür. Kapak kare (≥1400 px) olmalı.</div>`;
+      K.ui.modal({ title: "🛍 Mağaza önizlemesi", desc: "Yayın mağazalarda böyle görünecek", body, actions: [{ label: "Kapat" }] });
+    },
+
+    /* ============================================================
+       v10.66 — ÖN KAYIT SAYFASI
+       Çıkıştan önce ön kayıt toplanır; her 200 ön kayıt ilk gün ivmesine %1
+       ekler (tavan %35). Paylaşım deterministik: takipçi + gün bazlı.
+       ============================================================ */
+    openPresale(relId) {
+      const rel = K.career.releaseById(relId);
+      if (!rel) { K.toast("Proje bulunamadı", "", "warn"); return null; }
+      const s = K.state;
+      const left = Math.max(0, (Number(rel.startDay) || 0) + (Number(rel.waitDays) || 0) - s.day);
+      rel.presaves = Math.max(0, Number(rel.presaves) || 0);
+      const canShare = rel.presaleDay !== s.day;
+      const body = `<div class="pre-page">
+          <div class="pre-head">
+            ${K.ui.cover(rel.coverSeed, (String(rel.title)[0] || "?").toUpperCase(), 74)}
+            <div class="grow">
+              <b>${U.escape(rel.title)}</b>
+              <span>${U.escape(K.genreById(rel.genre).name)} · çıkışa ${left} gün</span>
+              <span class="pre-count">🎟 <b>${U.compact(rel.presaves)}</b> ön kayıt · ilk gün ivmesi +%${Math.min(35, Math.round(rel.presaves / 100)).toFixed(0)}</span>
+            </div>
+          </div>
+          <div class="pre-bar"><i style="width:${Math.min(100, Math.round(rel.presaves / 50))}%"></i></div>
+          <div class="helper">Her 200 ön kayıt ilk gün dinlenmesini %1 büyütür (tavan %35). Ön kayıt sayfasını paylaşarak toplarsın.</div>
+          <div class="action-row" style="margin-top:8px">
+            <button class="btn btn-sm btn-primary" data-act="presale-share" data-rel="${rel.id}" ${canShare ? "" : "disabled"}>📣 Paylaş (+ön kayıt)</button>
+            <span class="gh-more">${canShare ? "Bugün paylaşabilirsin" : "Bugün paylaştın — yarın tekrar"}</span>
+          </div>
+        </div>`;
+      K.ui.modal({ title: "🎟 Ön kayıt sayfası", desc: "Çıkıştan önce kitle topla", body, actions: [{ label: "Kapat" }] });
+      return { presaves: rel.presaves, left };
+    },
+
+    sharePresale(relId) {
+      const rel = K.career.releaseById(relId);
+      if (!rel) return null;
+      const s = K.state, p = s.player;
+      if (rel.presaleDay === s.day) return { ok: false, reason: "already" };
+      const reach = (p.ig || 0) + (p.tiktok || 0) + (p.x || 0) + (p.ytSubs || 0);
+      const gain = Math.max(25, Math.round(reach * 0.012 + (p.popularity || 0) * 2));
+      rel.presaves = (Number(rel.presaves) || 0) + gain;
+      rel.presaleDay = s.day;
+      K.toast("🎟 Ön kayıt toplandı", `+${U.compact(gain)} ön kayıt · toplam ${U.compact(rel.presaves)}`, "ok");
+      K.save();
+      if (K.refresh) K.refresh();
+      return { ok: true, gain, total: rel.presaves };
+    },
+
+    /* ============================================================
+       v10.66 — 360 SÖZLEŞME MADDELERİ + yeniden pazarlık
+       ============================================================ */
+    renderClauses() {
+      const d = (K.label && K.label.myDeal) ? K.label.myDeal() : null;
+      if (!d) return `<div class="empty-note"><b>Bağlı sözleşme yok</b>Bir şirkete katıldığında maddeler burada görünür.</div>`;
+      const deal = d.deal || {};
+      const is360 = deal.dealType === "360";
+      const rows = [
+        ["Master sahipliği", deal.master === "label" ? "Şirkette" : "Sanatçıda"],
+        ["Telif payı (sanatçı)", "%" + (deal.artistRoyalty || 100)],
+        ["Avans", U.money(deal.advance || 0)],
+        ["Süre", (deal.lengthDays || 180) + " gün"],
+        ["Münhasırlık", is360 ? "360° (tur + merch dahil)" : "yalnız kayıt"],
+        ["Pazarlama taahhüdü", is360 ? "var" : "yok"],
+        ["Recoup", "%" + d.recoupPct + " geri ödendi"]
+      ];
+      const canNeg = !deal.negotiatedDay || (K.state.day - deal.negotiatedDay) >= 60;
+      return `<div class="c-block">
+        <div class="c-head"><div><h2>360 Sözleşme Maddeleri</h2><div class="sub">İmzalı anlaşmanın kalem kalem dökümü</div></div></div>
+        <div class="clause-list">
+          ${rows.map(([k, v]) => `<div class="clause-row"><span>${U.escape(k)}</span><b>${U.escape(v)}</b></div>`).join("")}
+        </div>
+        <div class="action-row" style="margin-top:10px">
+          <button class="btn btn-sm btn-ghost" data-act="clause-negotiate" ${canNeg ? "" : "disabled"}>
+            💬 Yeniden pazarlık (telif +5% / avans −10%)
+          </button>
+          <span class="gh-more">${canNeg ? "60 günde bir" : "Son pazarlıktan 60 gün geçmeli"}</span>
+        </div>
+      </div>`;
+    },
+
+    negotiateClause() {
+      const p = K.state.player;
+      if (!p.labelDeal) return { ok: false, reason: "no-deal" };
+      const d = p.labelDeal;
+      if (d.negotiatedDay && (K.state.day - d.negotiatedDay) < 60) return { ok: false, reason: "cooldown" };
+      const before = { royalty: d.artistRoyalty || 100, advance: d.advance || 0 };
+      d.artistRoyalty = Math.min(100, (d.artistRoyalty || 100) + 5);
+      d.advance = Math.max(0, Math.round((d.advance || 0) * 0.9));
+      d.negotiatedDay = K.state.day;
+      K.toast("💬 Yeni şartlar", `Telif %${before.royalty} → %${d.artistRoyalty} · avans ${U.money(before.advance)} → ${U.money(d.advance)}`, "ok");
+      K.save(); if (K.refresh) K.refresh();
+      return { ok: true, royalty: d.artistRoyalty, advance: d.advance };
+    },
+
+    /* ============================================================
+       v10.66 — ŞİRKET DEPARTMANLARI (bütçe onayı + yükseltme)
+       ============================================================ */
+    renderDepartments() {
+      if (!K.state.label) return `<div class="empty-note"><b>Şirket yok</b>Önce kendi şirketini kur.</div>`;
+      const l = K.state.label;
+      const bonus = K.label.deptBonus();
+      return `<div class="c-block">
+        <div class="c-head"><div><h2>Departmanlar</h2><div class="sub">Aylık gider ${U.money(bonus.upkeep)} · kasa ${U.money(l.funds || 0)}</div></div></div>
+        <div class="dept-list">
+          ${K.label.deptDefs().map(def => {
+            const lvl = K.label.deptLevel(def.id);
+            const max = def.levels.length;
+            const cost = K.label.deptUpgradeCost(def.id);
+            const row = def.levels[lvl - 1] || def.levels[0];
+            const eff = def.id === "ar" ? "kalite +" + (row.q || 0)
+              : def.id === "marketing" ? "erişim ×" + (row.m || 1).toFixed(2)
+              : "teslim −" + (row.d || 0) + " gün";
+            return `<div class="dept">
+              <span class="dept-ic">${def.icon}</span>
+              <div class="grow">
+                <b>${U.escape(def.name)} <em>sv. ${lvl}/${max}</em></b>
+                <span>${U.escape(def.desc)}</span>
+                <span class="dept-eff">${eff} · aylık ${U.money(row.upkeep || 0)}</span>
+              </div>
+              ${cost == null
+                ? `<span class="pill money">maksimum</span>`
+                : `<button class="btn btn-xs btn-primary" data-act="dept-up" data-arg="${def.id}" ${(l.funds || 0) < cost ? "disabled" : ""}>↑ ${U.money(cost)}</button>`}
+            </div>`;
+          }).join("")}
+        </div>
+        <div class="helper" style="margin-top:8px">Departman gideri aylık olarak şirket kasasından düşer; etkileri yayına ve teslim süresine yansır.</div>
+      </div>`;
+    },
+
+    /* v10.66 — stüdyo koşulları seçicileri (oda · mühendis · seans) */
+    studioSetupRows(st) {
+      const p = K.state.player || {};
+      const plan = K.studioSetup.plan({ roomId: st.roomId, engineerId: st.engineerId, hours: st.sessionHours, reputation: p.reputation });
+      const money = K.settings && K.settings.valuesHidden && K.settings.valuesHidden();
+      const rep = Math.round(p.reputation || 0);
+
+      const chipRow = (kind, items, currentId, act) => items.map(it => {
+        const locked = (it.minRep || 0) > rep;
+        const on = String(it.id) === String(currentId) && !locked;
+        return `<button class="st-cond${on ? " on" : ""}${locked ? " locked" : ""}"
+          data-act="${act}" data-arg="${it.id}" ${locked ? "disabled" : ""}
+          title="${U.escape(locked ? "İtibar " + it.minRep + " gerekli (senin: " + rep + ")" : it.desc)}">
+          <b>${it.icon} ${U.escape(it.name)}</b>
+          <span>${locked ? "🔒 itibar " + it.minRep : (it.qAdd > 0 ? "+" + it.qAdd + " kalite" : "kalite +0")}${it.fee ? " · " + (money ? "🔒" : U.money(it.fee)) : ""}</span>
+        </button>`;
+      }).join("");
+
+      return `<div class="st-cond-group">
+          <div class="st-cond-head">Oda kademesi</div>
+          <div class="st-cond-row">${chipRow("room", K.studioSetup.rooms, st.roomId, "st-room")}</div>
+        </div>
+        <div class="st-cond-group">
+          <div class="st-cond-head">Mühendis</div>
+          <div class="st-cond-row">${chipRow("engineer", K.studioSetup.engineers, st.engineerId, "st-engineer")}</div>
+        </div>
+        <div class="st-cond-group">
+          <div class="st-cond-head">Seans süresi</div>
+          <div class="st-cond-row">${chipRow("hours", K.studioSetup.hours, st.sessionHours, "st-hours")}</div>
+        </div>
+        <div class="st-cond-sum">
+          <span>${U.escape(plan.label)}</span>
+          <b>${plan.qAdd > 0 ? "+" : ""}${plan.qAdd} kalite · ${money ? "🔒" : U.money(plan.cost)} · yorgunluk +${plan.fatigue}</b>
+        </div>`;
+    },
+
     updateStudioEstimate() {
       const st = K.careerUI._studio;
       if (!st) return;
@@ -2998,9 +3244,11 @@
       /* v10.40 — A5/A6: örnek hakkı ve enstrümantal sürüm maliyete girer
          v10.41 — B3: bölge kapsamı dağıtım maliyetini çarpar */
       const pr = K.production.resolve(st.prod || K.production.defaultPlan());
-      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: U.clamp(st.vocalQ + pr.vocalQ, 0, 100), mixQuality: U.clamp(st.mixQ + pr.mixQ, 0, 100), kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost, clearSample: !!st.clearSample, instrumental: !!st.instrumental, regionMult: K.meta.regionCost(st.regions) };
+      const planC = K.studioSetup.plan({ roomId: st.roomId, engineerId: st.engineerId, hours: st.sessionHours });
+      const opts = { genre: st.genre, beatId: st.beatId, vocalId: st.vocalId, beatQuality: st.beatQ, vocalQuality: U.clamp(st.vocalQ + pr.vocalQ, 0, 100), mixQuality: U.clamp(st.mixQ + pr.mixQ, 0, 100), kind: st.kind, lyricScore: avgLyric, cohesion, agendaScore: ag.score, trackCount: st.count, trackBudgets, trackSources, storeCost, clearSample: !!st.clearSample, instrumental: !!st.instrumental, regionMult: K.meta.regionCost(st.regions), studioCost: planC.cost };
       const qList = trackBudgets.map((tb, i) => K.career.estimateQuality(st.genre, tb, Object.assign({}, opts, {
         sourceQAdd: K.sourceById(trackSources[i]).qAdd,
+        studioQAdd: planC.qAdd,
         lyricScore: (lyrList[i] || lyrics).score
       })));
       const qMin = Math.min.apply(null, qList), qMax = Math.max.apply(null, qList);
@@ -3086,6 +3334,8 @@
       if (!st) return false;
       const count = st.count;
       const type = K.career.typeForCount(count);
+      /* v10.66 — stüdyo koşulları bu fonksiyonda da gerekli */
+      const planC = K.studioSetup.plan({ roomId: st.roomId, engineerId: st.engineerId, hours: st.sessionHours });
       const tracks = st.tracks.slice(0, count).map(t => ({
         name: (t.name || "").trim() || K.career.suggestTitle(),
         budget: t.budget,
@@ -3107,7 +3357,9 @@
          hafta gününe (varsayılan cuma) kaydırılır. */
       const relDay0 = K.careerUI.plannedRelDay(st);
       const relDay = Math.max(relDay0, K.state.day + (distDesc.leadDays || 0));
-      const waitDays = Math.max(1, relDay - K.state.day);
+      let waitDays = Math.max(1, relDay - K.state.day);
+      /* v10.66 — dağıtım departmanı teslim süresini kısaltır */
+      if (K.state.label && K.label.deptBonus) waitDays = Math.max(1, waitDays - K.label.deptBonus().distDays);
       const pr = K.production.resolve(st.prod || K.production.defaultPlan());
 
       const rel = K.career.createRelease({
@@ -3136,8 +3388,16 @@
         labelName: st.labelName, copyrightYear: st.copyrightYear,
         /* v10.42 — C grubu teknik */
         coverPx: st.coverPx, contentId: !!st.contentId, releaseWeekday: st.releaseWeekday,
-        trackCount: count, trackBudgets: tracks.map(t => t.budget), tracks
+        trackCount: count, trackBudgets: tracks.map(t => t.budget), tracks,
+        /* v10.66 — stüdyo koşulları: kalite bonusu + ücret */
+        studioQAdd: planC.qAdd + ((K.state.label && K.label.deptBonus) ? K.label.deptBonus().quality : 0),
+        studioCost: planC.cost
       });
+      /* v10.66 — seans yorgunluğu: uzun seans + profesyonel oda bedende kalır */
+      if (rel && planC.fatigue) {
+        K.state.player.fatigue = U.clamp((K.state.player.fatigue || 0) + planC.fatigue, 0, 100);
+      }
+
       /* v10.53 — stüdyoda yayınlanan feature/ortak iş anlaşmayı tamamlar.
          Böylece aynı sanatçıyla bekleyen ortak iş "askıda" kalmaz. */
       if (rel && K.relations && K.relations.completeDeal) {
@@ -3430,12 +3690,15 @@
        ŞİRKET (tek sekme, alt sekmeler)
        ===================================================== */
     renderLabelTab() {
-      const tabs = [["genel", "Genel & A&R"], ["roster", "Kadro"], ["staff", "Ekip & Katalog"]];
+      const tabs = [["genel", "Genel & A&R"], ["roster", "Kadro"], ["staff", "Ekip & Katalog"],
+        ["clauses", "Sözleşme Maddeleri"], ["depts", "Departmanlar"]];
       const bar = `<div class="sub-tabs">${tabs.map(([id, l]) =>
         `<button class="${subTab.label === id ? "active" : ""}" data-act="subtab" data-arg="label:${id}">${l}</button>`).join("")}</div>`;
       let body = "";
       if (subTab.label === "roster") body = K.careerUI.renderRoster();
       else if (subTab.label === "staff") body = K.careerUI.renderStaff();
+      else if (subTab.label === "clauses") body = K.careerUI.renderClauses();
+      else if (subTab.label === "depts") body = K.careerUI.renderDepartments();
       else body = K.careerUI.renderLabel();
       return bar + `<div class="label-console">` + K.careerUI.renderMyDeal() + body + `</div>`;
     },
@@ -4671,6 +4934,27 @@
       }
       if (act === "song-detail") {
         K.careerUI.openSongDetail(btn.dataset.song);
+        return;
+      }
+      if (act === "store-preview") { K.careerUI.openStorePreview(); return; }
+      if (act === "store-prev-tab") { K.careerUI._storePrevTab = btn.dataset.arg; K.careerUI.openStorePreview(); return; }
+      if (act === "presale-open") { K.careerUI.openPresale(btn.dataset.rel); return; }
+      if (act === "presale-share") {
+        const r = K.careerUI.sharePresale(btn.dataset.rel);
+        if (r && r.ok) K.careerUI.openPresale(btn.dataset.rel);
+        else if (r && r.reason === "already") K.toast("Bugün paylaştın", "Yarın tekrar paylaşabilirsin.", "warn");
+        return;
+      }
+      if (act === "clause-negotiate") {
+        const r = K.careerUI.negotiateClause();
+        if (r && r.ok) K.careerUI.render();
+        else K.toast("Pazarlık olmadı", r && r.reason === "cooldown" ? "60 günde bir pazarlık yapılabilir." : "Aktif sözleşme yok.", "warn");
+        return;
+      }
+      if (act === "dept-up") {
+        const r = K.label.upgradeDept(btn.dataset.arg);
+        if (r && r.ok) K.careerUI.render();
+        else K.toast("Yükseltilemedi", r && r.reason === "funds" ? "Şirket kasası yetersiz (" + U.money(r.cost) + ")" : "Bu departman maksimumda.", "warn");
         return;
       }
       if (act === "draft-resume") {

@@ -5,6 +5,52 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.66 — GERÇEKÇİLİK TURU (6 YÜZEY · 30 ÖZELLİK)
+
+Uygulamalar "iskelet" olmaktan çıktı: bugünün gerçek ürünlerinde olan
+davranışlar eklendi. Yeni süit: `tools/smoke-v1066.js` (**83 kontrol**).
+
+### 1 · 📸 Instagram
+Doğrulanmış rozet (itibar ≥65 / popülerlik ≥55) · gönderiye **konum + kişi
+etiketleme** (feed ve gönderi görünümünde) · öne çıkanlar artık veriden
+(Yayınlar/Stüdyo/Kulis/Fan) · **gönderi analizi**: erişim, gösterim, etkileşim
+oranı, kaydetme, profil ziyareti, yeni takipçi.
+
+### 2 · 🎧 Spotify
+**Kuyruk** (liste çal → sıradaki) · **karıştır** (deterministik sıra) ·
+**tekrar** (kapalı/tüm/tek) · **senkron şarkı sözleri** · **Canvas**
+(kapak arkasında yavaş renk akışı, `prefers-reduced-motion` desteği) ·
+**haftalık keşif**: her 7 oyun gününde yenilenen 12 şarkılık kişisel liste.
+
+### 3 · 🎵 TikTok
+Doğrulanmış rozet · **duet / stitch** (orijinali referans alan gönderi,
+profilde etiketli) · **ses sayfasından videoyu açma** (istatistik + duet/stitch
+kısayolları) · her kartta "⋯" menüsü.
+
+### 4 · 𝕏 X
+**Alıntı tweet** (alıntılanan gönderi kart olarak render edilir) · **yer imleri
+sekmesi** · oyuncu mavi tiki.
+
+### 5 · ▶️ YouTube
+**Yorum beğenisi** · **yorum yanıtı** (girintili, boş yanıt reddedilir) ·
+**abone zili** (yalnızca abonelerde) · **Shorts dikey kaydırma** (1/10 sayacı,
+dokunmatik) · **para kazanma eşiği** (1.000 abone + 4.000 saat → reklam geliri).
+
+### 6 · 🏛 Stüdyo + Yayın + Şirket
+**Oda kademeleri** (ev → yarı-pro → profesyonel; itibar kapılı) · **mühendis
+tutma** (4 seviye, hata riski) · **seans süresi** (azalan verim: +0/+3/+5/+6,
+yorgunluk artar) · **mağaza önizlemesi** (Spotify/Apple/YouTube kartları) ·
+**ön kayıt sayfası** (her 200 kayıt ilk gün ivmesine %1, tavan %35) ·
+**360 sözleşme maddeleri** + 60 günde bir yeniden pazarlık · **şirket
+departmanları** (A&R kalite, Pazarlama erişim, Dağıtım teslim süresi; aylık
+gider şirket kasasından).
+
+### Doğrulama
+```
+npm run verify        →  53/53 adım temiz
+tools/smoke-v1066.js  →  83 kontrol
+```
+
 ## GÜNCELLEME v10.65 — PARA AKIŞI · İLK 10 DAKİKA · TASLAKLAR · ERİŞİLEBİLİRLİK
 
 v10.64'ün üzerine dört parça. Yeni test: `tools/smoke-v1065.js` (**35 kontrol**).

@@ -51,9 +51,12 @@
         <button class="tt-act" data-pact="tt-comments" data-arg="${U.escape(v.id)}">${TI.comment}<span>${U.compact(Math.round(v.views * 0.004))}</span></button>
         <button class="tt-act" data-pact="tt-share">${TI.share}<span>${U.compact(Math.round(v.views * 0.002))}</span></button>
         <button class="tt-act ${saved ? "on" : ""}" data-pact="save" data-arg="tt_${U.escape(v.id)}">${TI.bookmark}</button>
+        <button class="tt-act" data-pact="tt-more" data-arg="${U.escape(v.id)}" title="Daha fazla">⋯</button>
       </div>
       <div class="tt-bottom">
-        <div class="tt-user">@${U.escape(v.channel.toLowerCase().replace(/\s/g, ""))}${v.mine ? ' <span class="pill hot" style="font-size:8px">SEN</span>' : ""}</div>
+        <div class="tt-user">@${U.escape(v.channel.toLowerCase().replace(/\s/g, ""))}${K.phone.appById("tiktok").verifiedBadge(v.channelId)}${v.mine ? ' <span class="pill hot" style="font-size:8px">SEN</span>' : ""}</div>
+        ${v.duetOf ? `<div class="tt-orig">🔀 Duet · ${U.escape(String(v.duetOf).slice(0, 40))}</div>` : ""}
+        ${v.stitchOf ? `<div class="tt-orig">✂️ Stitch · ${U.escape(String(v.stitchOf).slice(0, 40))}</div>` : ""}
         <div class="tt-desc">${U.escape(v.title.replace(" (Official Video)", ""))} 🔥 #fyp #rap</div>
         <div class="tt-sound" data-pact="sound" data-arg="${U.escape(v.title.replace(" (Official Video)", ""))}">${TI.music} Orijinal ses · ${U.escape(v.channel)}</div>
       </div>
@@ -93,6 +96,17 @@
           else if (act === "open-profile") app.openProfile(el.dataset.arg);
           else if (act === "tt-comments") app.comments(el.dataset.arg);
           else if (act === "tt-share") K.toast("↗ Paylaşıldı", "Bağlantı kopyalandı.", "ok");
+          else if (act === "tt-more") {
+            const v = app.videoById(el.dataset.arg);
+            if (!v) K.toast("Video bulunamadı", "", "warn");
+            else K.ui.actionSheet(String(v.title || "").replace(" (Official Video)", ""), [
+              { label: "🔀 Duet yap", onClick: () => app.makeDuet(v.id, "duet") },
+              { label: "✂️ Stitch yap", onClick: () => app.makeDuet(v.id, "stitch") },
+              { label: "🎵 Sesi aç", onClick: () => app.openSound(String(v.title || "").replace(" (Official Video)", "")) },
+              { label: "🎬 Videoyu aç", onClick: () => app.openVideo(v.id) }
+            ]);
+          }
+          else if (act === "open-video") app.openVideo(el.dataset.arg);
           else if (act === "save") {
             const on = K.interactions.toggleSave(el.dataset.arg || ("tt_" + el.dataset.arg));
             K.toast(on ? "★ Kaydedildi" : "Kaldırıldı", "", "ok");
@@ -200,10 +214,84 @@
         </div>
         ${vids.length ? `<div class="tt-grid">${vids.map(v => `<div class="tt-grid-cell" style="${v.art ? `background-image:url('${v.art}')` : `background:${U.gradientFor(v.id)}`};background-size:cover">
           <div class="ttg-ov">▶ ${U.compact(Math.round(v.views * 0.4))}</div></div>`).join("")}</div>`
-          : `<div class="mini-empty">Henüz videon yok. Şarkı yayınlayınca otomatik oluşur.</div>`}`;
+          : `<div class="mini-empty">Henüz videon yok. Şarkı yayınlayınca otomatik oluşur.</div>`}
+        ${(function () {
+          /* v10.66 — duet / stitch gönderileri profilde etiketli listelenir */
+          const posts = (K.state.feed.tiktok || []).filter(x => x && x.mine && (x.duetOf || x.stitchOf));
+          if (!posts.length) return "";
+          return K.ui.section("Duet & Stitch")
+            + posts.map(x => `<div class="tt-post-row">
+              <span class="tt-pr-ic">${x.stitchOf ? "✂️" : "🔀"}</span>
+              <div class="grow">
+                <b>${U.escape(String(x.text || "").slice(0, 54))}</b>
+                <span>${x.stitchOf ? "Stitch" : "Duet"} · ${U.escape(String(x.duetOf || x.stitchOf || "").slice(0, 40))}</span>
+              </div>
+              <span class="pill">❤️ ${U.compact(x.likes || 0)}</span>
+            </div>`).join("");
+        })()}`;
     },
 
     /* ---------- CREATOR STUDIO (sekmeli analitik) ---------- */
+    /* ============================================================
+       v10.66 — TIKTOK GERÇEKÇİLİK: mavi tik · duet/stitch · video açma
+       ============================================================ */
+    isVerified(artistId) {
+      if (artistId === "player") {
+        const p = K.state.player || {};
+        return (p.reputation || 0) >= 65 || (p.popularity || 0) >= 55;
+      }
+      const a = K.artistById ? K.artistById(artistId) : null;
+      return !!(a && (a.popularity || 0) > 78);
+    },
+
+    verifiedBadge(artistId) {
+      return K.phone.appById("tiktok").isVerified(artistId)
+        ? `<span class="tt-verified" title="Doğrulanmış" aria-label="Doğrulanmış">✓</span>` : "";
+    },
+
+    videoById(videoId) {
+      return (K.phone.appById("youtube").allVideos() || []).find(v => v && v.id === videoId) || null;
+    },
+
+    /* duet / stitch: orijinali referans alan yeni bir gönderi üretir */
+    makeDuet(videoId, kind) {
+      const v = K.phone.appById("tiktok").videoById(videoId);
+      if (!v) { K.toast("Video bulunamadı", "", "warn"); return null; }
+      const isStitch = kind === "stitch";
+      const title = String(v.title || "").replace(" (Official Video)", "");
+      const text = isStitch
+        ? `Bu kısmı kestim ✂️ · ${title}`
+        : `Buna kayıt yaptım 🔀 · ${title}`;
+      const res = K.social.playerPost("tiktok", text, "reach");
+      const feed = K.state.feed.tiktok || [];
+      const fresh = feed.find(p2 => p2 && p2.mine && p2.text === text);
+      if (fresh) {
+        if (isStitch) fresh.stitchOf = title;
+        else fresh.duetOf = title;
+        fresh.ofVideoId = v.id;
+      }
+      K.toast(isStitch ? "✂️ Stitch oluşturuldu" : "🔀 Duet oluşturuldu",
+        (isStitch ? "Kesit" : "Ortak video") + " gönderin akışa eklendi.", "ok");
+      return { kind: isStitch ? "stitch" : "duet", videoId: v.id, title };
+    },
+
+    /* bir videoyu açar: istatistik + duet/stitch/ses kısayolları */
+    openVideo(videoId) {
+      const v = K.phone.appById("tiktok").videoById(videoId);
+      if (!v) { K.toast("Video bulunamadı", "", "warn"); return null; }
+      const title = String(v.title || "").replace(" (Official Video)", "");
+      const likes = Math.round((v.views || 0) * 0.1);
+      const comments = Math.round((v.views || 0) * 0.004);
+      const shares = Math.round((v.views || 0) * 0.002);
+      K.ui.actionSheet(title, [
+        { label: "🔀 Duet yap", onClick: () => K.phone.appById("tiktok").makeDuet(v.id, "duet") },
+        { label: "✂️ Stitch yap", onClick: () => K.phone.appById("tiktok").makeDuet(v.id, "stitch") },
+        { label: "🎵 Sesi aç", onClick: () => K.phone.appById("tiktok").openSound(title) },
+        { label: "❤️ " + U.compact(likes) + " · 💬 " + U.compact(comments) + " · ↗ " + U.compact(shares), onClick: () => {} }
+      ]);
+      return { title, likes, comments, shares };
+    },
+
     openAnalytics() {
       const app = K.phone.appById("tiktok");
       const p = K.state.player;
@@ -350,12 +438,13 @@
             <button class="btn btn-sm btn-ghost" data-pact="share">↗ Paylaş</button>
           </div>
           ${K.ui.section("Bu sesle yapılan videolar")}
-          ${vids.length ? `<div class="tt-grid">${vids.map(v => `<div class="tt-grid-cell" style="${v.art ? `background-image:url('${v.art}')` : `background:${U.gradientFor(v.id)}`};background-size:cover">
-            <div class="ttg-ov">▶ ${U.compact(Math.round(v.views * 0.4))}</div></div>`).join("")}</div>`
+          ${vids.length ? `<div class="tt-grid">${vids.map(v => `<button class="tt-grid-cell" data-pact="open-video" data-arg="${U.escape(v.id)}" style="${v.art ? `background-image:url('${v.art}')` : `background:${U.gradientFor(v.id)}`};background-size:cover">
+            <div class="ttg-ov">▶ ${U.compact(Math.round(v.views * 0.4))}</div></button>`).join("")}</div>`
             : `<div class="mini-empty">Henüz video yok.</div>`}`,
         onAction: (act, el) => {
           const pick = () => K.platforms.searchSongs(soundTitle)[0] || (mineSong ? { id: mineSong.id, title: mineSong.title, artistName: K.state.player.stageName, art: null } : null);
           if (act === "create") K.toast("🎬 Oluştur", "Kamera açılıyor… (demo)", "ok");
+          else if (act === "open-video") K.phone.appById("tiktok").openVideo(el.dataset.arg);
           else if (act === "share") K.toast("↗ Paylaşıldı", "", "ok");
           else if (act === "sound-play") { const sg = pick(); if (sg) K.interactions.play(sg); else K.toast("Şarkı bulunamadı", "", "warn"); }
           else if (act === "sound-queue") { const sg = pick(); if (sg) K.queue.add(sg); }

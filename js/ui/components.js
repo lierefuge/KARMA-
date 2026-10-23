@@ -375,6 +375,7 @@
         shellClass: "app-spotify",
         render: () => {
           const on = A && A.isPlaying();
+          const Q = (K.interactions && K.interactions.queueState) ? K.interactions.queueState() : { size: 0, index: 0, shuffle: false, repeat: "off", upcoming: [] };
           const art = song.art
             ? `<div class="pv-art" style="background-image:url('${song.art}');background-size:cover"></div>`
             : `<div class="pv-art" style="background:${U.gradientFor(song.title)}"><span>♫</span></div>`;
@@ -389,13 +390,18 @@
                 <span class="pill">${(A && A.supported()) ? "🎧 ses açık" : "🔇 ses desteklenmiyor"}</span>
               </div>
             </div>
-            <canvas class="pv-viz" width="600" height="120" data-pv-viz></canvas>
             <div class="pv-prog"><i data-pv-prog style="width:0%"></i></div>
             <div class="pv-controls">
-              <button class="pv-btn" data-pact="np-restart">⏮</button>
+              <button class="pv-btn ${Q.shuffle ? "on" : ""}" data-pact="np-shuffle" title="Karıştır" aria-pressed="${Q.shuffle ? "true" : "false"}">🔀</button>
+              <button class="pv-btn" data-pact="np-restart" title="Baştan">⏮</button>
               <button class="pv-btn main" data-pact="np-toggle">${on ? "⏸" : "▶"}</button>
-              <button class="pv-btn" data-pact="np-next">⏭</button>
+              <button class="pv-btn" data-pact="np-next" title="Sıradaki">⏭</button>
+              <button class="pv-btn ${Q.repeat !== "off" ? "on" : ""}" data-pact="np-repeat" title="Tekrar" aria-pressed="${Q.repeat !== "off" ? "true" : "false"}">${Q.repeat === "one" ? "🔂" : "🔁"}</button>
             </div>
+            <div class="pv-lyrics"><div class="pv-lyric" data-pv-lyric></div></div>
+            <canvas class="pv-viz" width="600" height="120" data-pv-viz></canvas>
+            <div class="pv-qinfo" data-pv-qinfo>${Q.size ? `${Q.index + 1}/${Q.size} · kuyrukta ${Math.max(0, Q.size - Q.index - 1)} şarkı` : "Kuyruk boş — listeden çal"}</div>
+            ${Q.upcoming.length ? `<div class="pv-upnext"><span>Sırada</span>${Q.upcoming.map(u => `<b>${U.escape(u.title)}</b>`).join("")}</div>` : ""}
             <div class="pv-vol">
               <span>🔈</span>
               <input type="range" min="0" max="100" value="${Math.round((A ? A.volume() : 0.3) * 100)}" data-pv-vol />
@@ -419,6 +425,15 @@
             const top = K.phone.views[K.phone.views.length - 1];
             if (!top || !top.title || top.title !== "Şimdi Çalıyor") { K.ui._pvRaf = null; return; }
             if (progEl && K.audio) progEl.style.width = (K.audio.progress() * 100).toFixed(1) + "%";
+            /* v10.66 — senkron sözler: ilerleme → satır */
+            const lyrEl = vp.querySelector("[data-pv-lyric]");
+            if (lyrEl && K.interactions && K.interactions.lyricLines) {
+              const lines = K.interactions.lyricLines(song);
+              const pr = K.audio ? K.audio.progress() : 0;
+              const idx2 = Math.min(lines.length - 1, Math.max(0, Math.floor(pr * lines.length)));
+              const txt2 = lines[idx2] || "";
+              if (lyrEl.textContent !== txt2) lyrEl.textContent = txt2;
+            }
             if (ctx2d && canvas) {
               const A2 = K.audio, an = A2 && A2.analyser();
               const W = canvas.width, H = canvas.height;
@@ -444,6 +459,21 @@
             K.phone.reRender();
           } else if (act === "np-restart") {
             if (K.audio) K.audio.play(K.interactions.nowPlaying() || {});
+            K.phone.reRender();
+          } else if (act === "np-next") {
+            const tr = K.interactions.next();
+            if (!tr) K.toast("Kuyruk bitti", "Çalma listesinden yeni bir şarkı seç.", "warn");
+            K.phone.reRender();
+          } else if (act === "np-prev") {
+            K.interactions.prev();
+            K.phone.reRender();
+          } else if (act === "np-shuffle") {
+            const on2 = K.interactions.toggleShuffle();
+            K.toast(on2 ? "🔀 Karıştırma açık" : "Karıştırma kapalı", on2 ? "Sıra yeniden kuruldu." : "Liste sırasına dönüldü.", "ok");
+            K.phone.reRender();
+          } else if (act === "np-repeat") {
+            const mode = K.interactions.cycleRepeat();
+            K.toast("🔁 Tekrar", mode === "off" ? "Kapalı" : mode === "all" ? "Tüm liste" : "Tek şarkı", "ok");
             K.phone.reRender();
           }
         }

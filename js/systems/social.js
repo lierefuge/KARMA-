@@ -278,11 +278,18 @@
     },
 
     /* oyuncunun STRATEJİLİ gönderisi: tür + sonuç motoru */
-    playerPost(platform, text, typeId, songId) {
+    playerPost(platform, text, typeId, songId, extra) {
       const s = K.state, p = s.player;
       const type = K.social.POST_TYPES[typeId] ? typeId : "reach";
       const post = K.social.createPost(platform, text, songId || null);
       post.postType = type;
+      /* v10.66 — GERÇEK INSTAGRAM: gönderi konumu ve etiketlenen kişi.
+         Yalnızca iki alan kabul edilir; serbest nesne merge edilmez. */
+      if (extra && typeof extra === "object") {
+        if (extra.location) post.location = String(extra.location).slice(0, 40);
+        if (extra.tagName) post.tagName = String(extra.tagName).slice(0, 40);
+        if (extra.tagId) post.tagId = String(extra.tagId).slice(0, 40);
+      }
 
       /* şarkı etiketliyse o şarkıya küçük bir tanıtım ivmesi */
       if (songId) {

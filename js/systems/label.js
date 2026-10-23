@@ -62,6 +62,69 @@
 
     hasLabel() { return !!K.state.label; },
 
+    /* ============================================================
+       v10.66 — ŞİRKET DEPARTMANLARI (A&R · Pazarlama · Dağıtım)
+       Her departmanın 1-3 seviyesi var: aylık gideri ve somut oyun etkisi.
+       A&R → yayın kalitesi · Pazarlama → ilk gün erişimi · Dağıtım → teslim hızı
+       ============================================================ */
+    deptDefs() {
+      return [
+        { id: "ar", name: "A&R", icon: "🎯", desc: "Repertuar ekibi: kayıt kalitesine katkı.",
+          levels: [{ q: 0, cost: 0, upkeep: 0 }, { q: 2, cost: 25000, upkeep: 8000 }, { q: 5, cost: 60000, upkeep: 18000 }] },
+        { id: "marketing", name: "Pazarlama", icon: "📣", desc: "Çıkış erişimini büyütür.",
+          levels: [{ m: 1, cost: 0, upkeep: 0 }, { m: 1.12, cost: 20000, upkeep: 7000 }, { m: 1.28, cost: 55000, upkeep: 16000 }] },
+        { id: "dist", name: "Dağıtım", icon: "🚚", desc: "Mağaza teslimini hızlandırır.",
+          levels: [{ d: 0, cost: 0, upkeep: 0 }, { d: 3, cost: 18000, upkeep: 6000 }, { d: 6, cost: 45000, upkeep: 14000 }] }
+      ];
+    },
+
+    depts() {
+      const l = K.state.label;
+      if (!l) return { ar: 1, marketing: 1, dist: 1 };
+      l.depts = l.depts || { ar: 1, marketing: 1, dist: 1 };
+      return l.depts;
+    },
+
+    deptLevel(id) { return Number((K.label.depts() || {})[id] || 1); },
+
+    deptUpgradeCost(id) {
+      const def = K.label.deptDefs().find(x => x.id === id);
+      if (!def) return null;
+      const lvl = K.label.deptLevel(id);
+      if (lvl >= def.levels.length) return null;
+      return def.levels[lvl].cost;
+    },
+
+    upgradeDept(id) {
+      const l = K.state.label;
+      if (!l) return { ok: false, reason: "no-label" };
+      const cost = K.label.deptUpgradeCost(id);
+      if (cost == null) return { ok: false, reason: "max" };
+      if ((l.funds || 0) < cost) return { ok: false, reason: "funds", cost };
+      l.funds -= cost;
+      const d = K.label.depts();
+      d[id] = (d[id] || 1) + 1;
+      K.toast("🏢 Departman yükseltildi", `${id.toUpperCase()} seviye ${d[id]} · ${U.money(cost)}`, "ok");
+      K.save(); if (K.refresh) K.refresh();
+      return { ok: true, level: d[id], cost };
+    },
+
+    /* departmanların toplu etkisi (yoksa nötr değerler) */
+    deptBonus() {
+      const out = { quality: 0, marketingMult: 1, distDays: 0, upkeep: 0 };
+      if (!K.state.label) return out;
+      K.label.deptDefs().forEach(def => {
+        const lvl = K.label.deptLevel(def.id);
+        const row = def.levels[Math.min(lvl, def.levels.length) - 1] || def.levels[0];
+        out.upkeep += row.upkeep || 0;
+        if (def.id === "ar") out.quality += row.q || 0;
+        if (def.id === "marketing") out.marketingMult *= (row.m || 1);
+        if (def.id === "dist") out.distDays += row.d || 0;
+      });
+      out.distDays = Math.min(10, out.distDays);
+      return out;
+    },
+
     /* ---------------- güç hesabı ---------------- */
     power() {
       const s = K.state;

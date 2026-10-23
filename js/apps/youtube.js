@@ -183,6 +183,24 @@
           return app.homeHTML(view);
         },
         onMount: (root) => {
+          /* v10.66 — Shorts dikey kaydırma (dokunmatik) */
+          const sw = U.qs("[data-shorts]", root);
+          if (sw) {
+            let y0 = null;
+            sw.addEventListener("touchstart", (e) => { y0 = e.touches && e.touches[0] ? e.touches[0].clientY : null; }, { passive: true });
+            sw.addEventListener("touchend", (e) => {
+              if (y0 == null) return;
+              const y1 = e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientY : y0;
+              const dy = y1 - y0;
+              y0 = null;
+              if (Math.abs(dy) < 40) return;
+              const app2 = K.phone.appById("youtube");
+              const total = (app2.allVideos() || []).slice(0, 10).length;
+              const cur = app2.shortIndex(total);
+              app2._shortIdx = Math.max(0, Math.min(total - 1, cur + (dy < 0 ? 1 : -1)));
+              K.phone.reRender();
+            }, { passive: true });
+          }
           const input = U.qs("[data-yt-search]", root);
           if (input) {
             const box = U.qs("[data-yt-results]", root);
@@ -211,6 +229,12 @@
           }
           else if (act === "yt-playlist") app.openYTPlaylist(el.dataset.arg);
           else if (act === "yt-analytics") app.openAnalytics();
+          else if (act === "short-next" || act === "short-prev") {
+            const total = (app.allVideos() || []).slice(0, 10).length;
+            const cur = app.shortIndex(total);
+            app._shortIdx = Math.max(0, Math.min(total - 1, cur + (act === "short-next" ? 1 : -1)));
+            K.phone.reRender();
+          }
         }
       };
       return view;
@@ -530,10 +554,28 @@
       return K.ui.section("Sonuçlar") + vids.slice(0, 12).map(v => videoRow(v, v.channel, v.channelId)).join("");
     },
 
+    /* ============================================================
+       v10.66 — SHORTS: gerçek dikey kaydırma (pager)
+       Her seferinde tek kart gösterilir; ‹ › düğmeleri ve dokunmatik
+       yukarı/aşağı kaydırma sırayı değiştirir (1/10 göstergesi).
+       ============================================================ */
+    shortIndex(len) {
+      const n = Math.max(0, Number(len) || 0);
+      let i = Number(K.phone.appById("youtube")._shortIdx) || 0;
+      if (i > n - 1) i = Math.max(0, n - 1);
+      return i;
+    },
+
     shortsHTML() {
-      const vids = K.phone.appById("youtube").allVideos().slice(0, 10);
-      return `<div class="shorts-scroll">
-        ${vids.map(v => `<div class="short-card" data-pact="watch" data-arg="${U.escape(v.id)}|${U.escape(v.channel)}|${v.channelId || ""}|${v.views}" style="${v.art ? `background-image:url('${v.art}')` : `background:${U.gradientFor(v.id)}`};background-size:cover;background-position:center">
+      const app = K.phone.appById("youtube");
+      const vids = app.allVideos().slice(0, 10);
+      if (!vids.length) return `<div class="mini-empty">Henüz Shorts yok.</div>`;
+      const idx = app.shortIndex(vids.length);
+      const v = vids[idx];
+      const bg = v.art ? `background-image:url('${v.art}')` : `background:${U.gradientFor(v.id)}`;
+      return `<div class="shorts-wrap" data-shorts="${vids.length}">
+        <div class="short-card" data-pact="watch" data-arg="${U.escape(v.id)}|${U.escape(v.channel)}|${v.channelId || ""}|${v.views}"
+             style="${bg};background-size:cover;background-position:center">
           <div class="short-ov"></div>
           <div class="short-side">
             <button class="${K.interactions.isLiked("yt_" + v.id) ? "on" : ""}" data-pact="like" data-arg="yt_${U.escape(v.id)}">${YI.like}</button>
@@ -543,11 +585,26 @@
             <button class="${K.interactions.isSaved("yt_" + v.id) ? "on" : ""}" data-pact="yt-shorts-save" data-arg="${U.escape(v.id)}">${YI.save}</button>
           </div>
           <div class="short-info">
-            <div class="si-channel" data-pact="open-channel" data-arg="${v.channelId}">${U.escape(v.channel)}</div>
+            <div class="si-channel" data-pact="open-channel" data-arg="${v.channelId}">${U.escape(v.channel)}${K.phone.appById("youtube").isVerifiedChannel(v.channelId)}</div>
             <div class="si-title">${U.escape(v.title.replace(" (Official Video)", ""))}</div>
           </div>
-        </div>`).join("")}
+          <div class="shorts-count">${idx + 1}/${vids.length}</div>
+        </div>
+        <div class="shorts-nav">
+          <button class="shorts-btn" data-pact="short-prev" ${idx === 0 ? "disabled" : ""} aria-label="Önceki">‹</button>
+          <span>Yukarı/aşağı kaydır ya da okları kullan</span>
+          <button class="shorts-btn" data-pact="short-next" ${idx === vids.length - 1 ? "disabled" : ""} aria-label="Sonraki">›</button>
+        </div>
       </div>`;
+    },
+
+    /* kanal doğrulaması (Shorts/kanal başlığında) */
+    isVerifiedChannel(channelId) {
+      if (!channelId) return "";
+      const ok = channelId === "player"
+        ? ((K.state.player.reputation || 0) >= 65 || (K.state.player.popularity || 0) >= 55)
+        : !!((K.artistById(channelId) || {}).popularity > 78);
+      return ok ? '<span class="yt-verified" title="Doğrulanmış">✓</span>' : "";
     },
 
     subsHTML() {
@@ -564,6 +621,7 @@
     },
 
     mineHTML() {
+      const mz = K.phone.appById("youtube").monetizationHTML();
       const p = K.state.player;
       const an = K.phone.appById("youtube").analytics();
       const vids = K.phone.appById("youtube").allVideos().filter(v => v.mine);
@@ -582,6 +640,7 @@
           <div class="hint">💡 YouTube reklam geliri aylık telif ödemesine dahildir (ay sonunda kasadadır).</div>
           <div class="action-row" style="margin-top:8px"><button class="btn btn-sm btn-primary" data-pact="yt-analytics">📊 Detaylı Analitik (tutma · trafik · abone)</button></div>
         </div>
+        ${mz}
         ${K.ui.section("Videoların")}
         ${vids.length ? vids.map(v => videoRow(v, p.stageName, "player")).join("")
           : `<div class="mini-empty">Şarkı yayınladığında otomatik klip oluşur.</div>`}`;
@@ -606,6 +665,7 @@
       const liked = K.interactions.isLiked("yt_" + v.id);
       const savedVid = K.interactions.isSaved("yt_" + v.id);
       const subbed = channelId ? K.interactions.isSubbed(channelId) : false;
+      const bellOn = channelId ? K.interactions.hasSubBell(channelId) : false;
       const comments = K.interactions.commentsFor("yt_" + v.id, 6);
       const upNext = vids.filter(x => x.id !== v.id).slice(0, 6);
       const a = channelId && channelId !== "player" ? K.artistById(channelId) : null;
@@ -676,6 +736,8 @@
               <div class="cr-subs">${U.compact(subs)} abone</div>
             </div>
             ${channelId ? `<button class="btn btn-sm ${subbed ? "btn-ghost" : "btn-primary"}" data-pact="sub" data-arg="${channelId}">${subbed ? "Abone ✓" : "Abone Ol"}</button>` : ""}
+            ${channelId ? `<button class="btn btn-sm btn-ghost yt-bell ${bellOn ? "on" : ""}" data-pact="yt-bell" data-arg="${channelId}"
+              title="${bellOn ? "Bildirimler açık" : "Bildirimleri aç"}" aria-pressed="${bellOn ? "true" : "false"}">${bellOn ? "🔔" : "🔕"}</button>` : ""}
           </div>
 
           <div class="yt-desc">
@@ -807,24 +869,115 @@
     openComments(videoId, channelName, channelId) {
       const key = "yt_" + videoId;
       const list = K.interactions.commentsFor(key, 6);
+      let replyTo = -1;   /* v10.66 — yanıt hedefi (yorum dizini) */
+
       K.phone.pushView({
         title: "Yorumlar", sub: list.length + " yorum", shellClass: "app-youtube",
-        render: () => `
-          ${list.map((c, i) => `<div class="cmt">
-            ${K.ui.avatar(c.user, 32, true)}
-            <div class="grow"><div class="cmt-user">@${U.escape(c.user)} · ${U.ago(c.day, K.state.day)}${c.mine ? " · sen" : ""}</div>
-            <div class="cmt-text">${U.escape(c.text)}</div>
-            <div class="cmt-actions">♡ ${c.likes} · <span data-pact="yt-reply" style="cursor:pointer;color:var(--karma-2);font-weight:700">Yanıtla</span></div></div>
-          </div>`).join("")}
-          <div class="cmt-input"><input placeholder="Yorum ekle..." data-yt-cmt /><button data-pact="yt-cmt-send" data-arg="${U.escape(videoId)}">Gönder</button></div>`,
-        onAction: (act) => {
-          if (act === "yt-cmt-send") {
+        render: () => {
+          const replies = K.interactions.commentReplies(key);
+          const likeBase = c => Math.max(0, Math.round((c.likes || 0)));
+          return `
+          ${list.map((c, i) => {
+            const liked = K.interactions.commentLikeState(key, i);
+            const mineReplies = replies.filter(r => r.to === i);
+            return `<div class="cmt">
+              ${K.ui.avatar(c.user, 32, true)}
+              <div class="grow">
+                <div class="cmt-user">@${U.escape(c.user)} · ${U.ago(c.day, K.state.day)}${c.mine ? " · sen" : ""}</div>
+                <div class="cmt-text">${U.escape(c.text)}</div>
+                <div class="cmt-actions">
+                  <button class="cmt-like ${liked ? "on" : ""}" data-pact="yt-cmt-like" data-arg="${i}" aria-pressed="${liked ? "true" : "false"}">♡ <b>${U.compact(likeBase(c) + (liked ? 1 : 0))}</b></button>
+                  <span data-pact="yt-reply" data-arg="${i}" class="cmt-reply">Yanıtla</span>
+                  ${replyTo === i ? '<span class="cmt-target">yanıtlanıyor…</span>' : ""}
+                </div>
+                ${mineReplies.length ? `<div class="cmt-replies">${mineReplies.map(r => `<div class="cmt-reply-row">
+                  <span class="cmt-reply-ic">↳</span>
+                  <div><b>${U.escape(r.user)}</b> <span class="cmt-reply-day">${U.ago(r.day, K.state.day)}</span>
+                  <div class="cmt-text">${U.escape(r.text)}</div></div>
+                </div>`).join("")}</div>` : ""}
+              </div>
+            </div>`;
+          }).join("")}
+          <div class="cmt-input">
+            <input placeholder="${replyTo >= 0 ? "Yanıt yaz..." : "Yorum ekle..."}" data-yt-cmt />
+            <button data-pact="yt-cmt-send" data-arg="${U.escape(videoId)}">Gönder</button>
+          </div>`;
+        },
+        onAction: (act, el) => {
+          if (act === "yt-cmt-like") {
+            const on = K.interactions.toggleCommentLike(key, Number(el.dataset.arg));
+            K.toast(on ? "❤️ Beğendin" : "Beğeni kaldırıldı", "", "ok");
+            K.phone.reRender();
+          } else if (act === "yt-reply") {
+            replyTo = Number(el.dataset.arg);
+            K.phone.reRender();
             const inp = U.qs("[data-yt-cmt]");
-            if (inp && inp.value.trim()) { K.interactions.addComment(key, inp.value.trim()); inp.value = ""; K.toast("💬 Yorum gönderildi", "", "ok"); K.phone.reRender(); }
-            else K.toast("Boş yorum", "", "warn");
-          } else if (act === "yt-reply") { const inp = U.qs("[data-yt-cmt]"); if (inp) inp.focus(); }
+            if (inp) inp.focus();
+          } else if (act === "yt-cmt-send") {
+            const inp = U.qs("[data-yt-cmt]");
+            const text = inp ? inp.value.trim() : "";
+            if (!text) { K.toast("Boş yorum", "", "warn"); return; }
+            if (replyTo >= 0) {
+              K.interactions.addCommentReply(key, replyTo, text);
+              K.toast("↩ Yanıt gönderildi", `${list[replyTo] ? "@" + list[replyTo].user : ""} kişisine`, "ok");
+              replyTo = -1;
+            } else {
+              K.interactions.addComment(key, text);
+              K.toast("💬 Yorum gönderildi", "", "ok");
+            }
+            if (inp) inp.value = "";
+            K.phone.reRender();
+          }
         }
       });
+    },
+
+    /* ============================================================
+       v10.66 — PARA KAZANMA EŞİĞİ (YouTube ortaklık programı)
+       1.000 abone + 4.000 saat izlenme. Eşik geçilince reklam geliri açılır.
+       ============================================================ */
+    monetization() {
+      const p = K.state.player || {};
+      const an = K.phone.appById("youtube").analytics();
+      const subs = Math.max(0, Math.round(p.ytSubs || 0));
+      const hours = Math.max(0, Math.round(an.watchHours || 0));
+      const SUBS_NEED = 1000, HOURS_NEED = 4000;
+      const eligible = subs >= SUBS_NEED && hours >= HOURS_NEED;
+      if (eligible && !p.ytMonetized) {
+        p.ytMonetized = true;
+        K.save();
+      }
+      return {
+        subs, hours, subsNeed: SUBS_NEED, hoursNeed: HOURS_NEED,
+        subsPct: Math.min(100, Math.round(subs / SUBS_NEED * 100)),
+        hoursPct: Math.min(100, Math.round(hours / HOURS_NEED * 100)),
+        eligible: !!p.ytMonetized || eligible,
+        estAdRevenue: eligible ? Math.round(an.monthViews * 0.6) : 0,
+        missing: eligible ? [] : [
+          subs < SUBS_NEED ? `${U.compact(SUBS_NEED - subs)} abone` : null,
+          hours < HOURS_NEED ? `${U.compact(HOURS_NEED - hours)} saat` : null
+        ].filter(Boolean)
+      };
+    },
+
+    monetizationHTML() {
+      const m = K.phone.appById("youtube").monetization();
+      const bar = (label, val, need, pct) => `<div class="yt-mz-row">
+        <span>${label}</span>
+        <i><b style="width:${pct}%"></b></i>
+        <em>${U.compact(val)} / ${U.compact(need)}</em>
+      </div>`;
+      return `<div class="yt-mz ${m.eligible ? "on" : ""}">
+        <div class="yt-mz-head">
+          <span class="yt-mz-ic">${m.eligible ? "💵" : "🔒"}</span>
+          <div class="grow">
+            <b>${m.eligible ? "Para kazanma açık" : "Para kazanma eşiği"}</b>
+            <span>${m.eligible ? "Reklam geliri aktif · tahmini aylık " + U.money(m.estAdRevenue) : "Eksik: " + m.missing.join(" · ")}</span>
+          </div>
+        </div>
+        ${bar("Abone", m.subs, m.subsNeed, m.subsPct)}
+        ${bar("İzlenme saati", m.hours, m.hoursNeed, m.hoursPct)}
+      </div>`;
     },
 
     /* ---------- ÇALMA LİSTESİ ---------- */
@@ -843,6 +996,15 @@
         onAction: (act, el) => {
           if (act === "watch") { const q = el.dataset.arg.split("|"); app.watch(q[0], q[1], q[2]); }
           else if (act === "open-channel") app.openChannel(el.dataset.arg);
+          else if (act === "yt-bell") {
+            const cid = el.dataset.arg;
+            if (!cid) return;
+            if (!K.interactions.isSubbed(cid)) { K.toast("Önce abone ol", "Zil yalnızca abone olunan kanallarda açılır.", "warn"); return; }
+            const on = K.interactions.toggleSubBell(cid);
+            K.toast(on ? "🔔 Bildirimler açık" : "🔕 Bildirimler kapalı",
+              on ? "Yeni videolarda haber verilecek." : "Sessize alındı.", "ok");
+            K.phone.reRender();
+          }
           else if (act === "yt-play-all" && list[0]) app.watch(list[0].id, list[0].channel, list[0].channelId);
         }
       });

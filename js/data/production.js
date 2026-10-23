@@ -137,3 +137,82 @@
     }
   };
 })(window.K);
+
+/* ============================================================
+   v10.66 — STÜDYO KOŞULLARI (oda kademesi · mühendis · seans süresi)
+   Kayıt kaynağı (dosya) ile KARIŞTIRILMAMALI: kaynak dosyanın kalitesi,
+   koşullar ise kaydın yapıldığı yer/kişi/süredir. Üçü birlikte çalışır.
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  const ROOMS = [
+    { id: "ev",      name: "Ev stüdyosu",      icon: "🏠", qAdd: 0,  fee: 0,     fatigue: 0, minRep: 0,
+      desc: "Kendi odan, tek mikrofon. Ucuz ama akustik yok." },
+    { id: "yaripro", name: "Yarı-profesyonel", icon: "🎛️", qAdd: 5,  fee: 6000,  fatigue: 3, minRep: 10,
+      desc: "Kiralık kabin + temel akustik. Dengeyi burada kurarsın." },
+    { id: "pro",     name: "Profesyonel",      icon: "🏛️", qAdd: 11, fee: 18000, fatigue: 6, minRep: 35,
+      desc: "Gerçek stüdyo, akustik oda, kiralık ekipman. En temiz kayıt." }
+  ];
+
+  const ENGINEERS = [
+    { id: "yok",       name: "Kendin",              icon: "🎚️", qAdd: 0,  fee: 0,     risk: 0.10, minRep: 0,
+      desc: "Kendi kaydın: bedava, ama hataları sen düzeltirsin." },
+    { id: "genc",      name: "Genç mühendis",       icon: "🧑‍🔧", qAdd: 4,  fee: 3500,  risk: 0.04, minRep: 0,
+      desc: "Ucuz ve hevesli; iyi performans yakalarsa iş görür." },
+    { id: "deneyimli", name: "Deneyimli mühendis",  icon: "🎧", qAdd: 9,  fee: 9000,  risk: 0.02, minRep: 20,
+      desc: "Oturumu yönetir, en iyi alımı çıkarır." },
+    { id: "star",      name: "Yıldız mühendis",     icon: "🏆", qAdd: 14, fee: 22000, risk: 0.01, minRep: 50,
+      desc: "Sektörün zirvesi; her saat pahalı ama sonuç referans olur." }
+  ];
+
+  /* seans süresi: azalan verim — 2s temel, 4s +3, 6s +5, 8s +6 */
+  const HOURS = [
+    { id: 2, name: "2 saat", qAdd: 0, fee: 0,    fatigue: 3,  desc: "Hızlı seans; acele kayıt." },
+    { id: 4, name: "4 saat", qAdd: 3, fee: 2500, fatigue: 7,  desc: "Standart seans; birkaç alım denenir." },
+    { id: 6, name: "6 saat", qAdd: 5, fee: 5000, fatigue: 12, desc: "Uzun seans; comp ve düzeltmeye zaman var." },
+    { id: 8, name: "8 saat", qAdd: 6, fee: 8000, fatigue: 18, desc: "Tam gün; en iyi alım, en yüksek yorgunluk." }
+  ];
+
+  const pick = (arr, id) => arr.find(x => String(x.id) === String(id)) || arr[0];
+
+  K.STUDIO_ROOMS = ROOMS;
+  K.STUDIO_ENGINEERS = ENGINEERS;
+  K.STUDIO_HOURS = HOURS;
+
+  K.studioSetup = {
+    rooms: ROOMS, engineers: ENGINEERS, hours: HOURS,
+    room: (id) => pick(ROOMS, id),
+    engineer: (id) => pick(ENGINEERS, id),
+    hoursOf: (id) => pick(HOURS, id),
+
+    /* kapı: itibar eşiği tutmuyorsa o seçenek KİLİTLİ (en alt kademeye düşer) */
+    locked: (kind, id, reputation) => {
+      const rep = Number(reputation) || 0;
+      const item = kind === "room" ? pick(ROOMS, id) : pick(ENGINEERS, id);
+      return (item.minRep || 0) > rep;
+    },
+
+    /* tüm koşulların toplam etkisi — tek kaynak */
+    plan(opts) {
+      opts = opts || {};
+      const rep = opts.reputation != null ? Number(opts.reputation) : ((K.state.player || {}).reputation || 0);
+      const room0 = pick(ROOMS, opts.roomId);
+      const eng0 = pick(ENGINEERS, opts.engineerId);
+      const hrs = pick(HOURS, opts.hours);
+      const room = (room0.minRep || 0) > rep ? ROOMS[0] : room0;
+      const eng = (eng0.minRep || 0) > rep ? ENGINEERS[0] : eng0;
+      const qAdd = (room.qAdd || 0) + (eng.qAdd || 0) + (hrs.qAdd || 0);
+      const cost = (room.fee || 0) + (eng.fee || 0) + (hrs.fee || 0);
+      const fatigue = (room.fatigue || 0) + (hrs.fatigue || 0);
+      return {
+        room, engineer: eng, hours: hrs,
+        qAdd, cost, fatigue,
+        risk: eng.risk || 0,
+        roomLocked: room0 !== room,
+        engineerLocked: eng0 !== eng,
+        label: room.name + " · " + eng.name + " · " + hrs.name
+      };
+    }
+  };
+})(window.K = window.K || {});

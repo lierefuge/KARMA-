@@ -126,6 +126,8 @@
       const mentorQ = (K.beef && K.beef.mentorBonus) ? K.beef.mentorBonus() : 0;  // duayen mentorlugu
       // kayıt kaynağı (stüdyo/ev/telefon...) kaliteye doğrudan etki eder
       const sourceQ = opts.sourceQAdd != null ? opts.sourceQAdd : (opts.sourceId ? K.sourceById(opts.sourceId).qAdd : 0);
+      /* v10.66 — STÜDYO KOŞULLARI: oda + mühendis + seans süresi kaliteye eklenir */
+      const studioQ = opts.studioQAdd != null ? Number(opts.studioQAdd) || 0 : 0;
 
       /* v10.28 — yeni sistemlerin kalite katkıları:
          · kendi stüdyosu (varlık) → kalite +
@@ -134,7 +136,7 @@
 
       const raw = (base + budgetScore + talent + music + studioSkill + beat.qAdd + vocal.qAdd + license.qAdd + craftAdj)
         * g.quality * kind.qMult + kind.qAdd + jobBonus + teamQ + labelQ + mentorQ + studioOwnQ
-        - fatiguePenalty + lyricAdj + cohesionAdj + agendaAdj + sourceQ;
+        - fatiguePenalty + lyricAdj + cohesionAdj + agendaAdj + sourceQ + studioQ;
       const stressed = (K.mental && K.mental.qualityMult) ? K.mental.qualityMult() : 1;
       return U.clamp(Math.round(raw * stressed + U.rand(-5, 6)), 18, 99);
     },
@@ -183,10 +185,12 @@
       /* v10.42 — C4: YouTube Content ID kaydı */
       const cidCost = opts.contentId ? (K.meta ? K.meta.CONTENT_ID_COST : 3500) : 0;
       const storeCost = opts.storeCost != null ? opts.storeCost : 0;   // mağaza dağıtım ücreti
+      /* v10.66 — stüdyo koşulları (oda kirası + mühendis + ek saat) */
+      const studioCost = opts.studioCost != null ? Number(opts.studioCost) || 0 : 0;
       /* v10.41 — B3: bölge kapsamı dağıtım tarafını çarpar (üretimi değil) */
       const regionMult = opts.regionMult != null ? +opts.regionMult : 1;
       const dm = K.settings ? K.settings.diffMult().cost : 1;
-      return Math.round((prod + marketing + (dist + storeCost) * regionMult + licenseCost + clearance + instCost + cidCost) * dm);
+      return Math.round((prod + marketing + (dist + storeCost) * regionMult + licenseCost + clearance + instCost + cidCost + studioCost) * dm);
     },
 
     /* ---------------- FORMAT ↔ PARÇA SAYISI (SİSTEM OTOMATİK ALGILAR) ----------------
@@ -304,7 +308,8 @@
       const ghost = !!opts.ghost;
 
       const grossCost = K.career.releaseCost(type, budget, marketing, {
-        genre, beatId, vocalId, kind, licenseId: license.id, trackCount, trackBudgets, trackSources, storeCost
+        genre, beatId, vocalId, kind, licenseId: license.id, trackCount, trackBudgets, trackSources, storeCost,
+        studioCost: opts.studioCost || 0
       }) + strategyCost + (opts.prodCost || 0);
 
       /* --- ŞİRKET AKIŞI: sözleşmeliysen yayını şirket çıkarır; masrafın bir kısmını üstlenir --- */
@@ -408,7 +413,8 @@
             instrumental: !!opts.instrumental,
             quality: U.clamp(K.career.estimateQuality(genre, tb, {
               beatId, vocalId, beatQuality: U.clamp(beatQuality + beatBoost, 0, 100), vocalQuality, mixQuality, kind, licenseId: license.id,
-              lyricScore: (lyrList[i] || lyr).score, cohesion, agendaScore: agenda.score, sourceQAdd: src.qAdd
+              lyricScore: (lyrList[i] || lyr).score, cohesion, agendaScore: agenda.score, sourceQAdd: src.qAdd,
+              studioQAdd: opts.studioQAdd || 0
             }) + (i === 0 ? 2 : 0), 18, 99),
             /* parça kendi söz skorunu taşır — albümde kalite artık
                parçadan parçaya değişir */
@@ -559,6 +565,12 @@
       return { ok: true, title: t, old };
     },
 
+    /* v10.66 — ön kayıt → ilk gün ivmesi (her 200 kayıt %1, tavan %35) */
+    presaleBoost(rel) {
+      const n = Math.max(0, Number(rel && rel.presaves) || 0);
+      return 1 + Math.min(0.35, n / 20000);
+    },
+
     /* ---------------- yayınla (pipeline bittiğinde) ---------------- */
     publishRelease(rel) {
       const s = K.state;
@@ -677,7 +689,12 @@
         };
         // ilk gün ivmesi (parça türü katsayısıyla)
         /* v10.41 — B3/B4: bölge kapsamı ve dil uyumu erişimi belirler */
-        song.dailyStreams = K.game.initialDaily(song) * (1 + rel.marketing / 60000) * kindDef.mass * lyricBoost * cohesionMult * (rel.storeReach || 1) * (rel.regionReach || 1) * (rel.langFit || 1) * (rel.releaseDayFit || 1);
+        /* v10.66 — ÖN KAYIT: her 200 ön kayıt ilk gün ivmesini %1 büyütür (tavan %35) */
+        const presaleBoost = K.career.presaleBoost(rel);
+        /* v10.66 — ŞİRKET PAZARLAMA DEPARTMANI: ilk gün erişim çarpanı */
+        const deptM = (K.label && K.label.hasLabel && K.label.hasLabel() && K.label.deptBonus) ? K.label.deptBonus().marketingMult : 1;
+        song.presaves = Number(rel.presaves) || 0;
+        song.dailyStreams = K.game.initialDaily(song) * (1 + rel.marketing / 60000) * kindDef.mass * lyricBoost * cohesionMult * (rel.storeReach || 1) * (rel.regionReach || 1) * (rel.langFit || 1) * (rel.releaseDayFit || 1) * presaleBoost * deptM;
         /* persona uyumu: tutarlıysa güçlenir, tutarsızsa ses getirmez */
         if (pfit) {
           if (pfit.score >= 0.5) {

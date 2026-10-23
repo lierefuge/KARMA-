@@ -150,6 +150,11 @@
             const list = (K.phone.views[K.phone.views.length - 1] || {})._plSongs || [];
             if (list.length) { app.playSong(list[Math.floor(Math.random() * list.length)]); K.toast("🔀 Karıştır", list.length + " şarkı", "ok"); }
           }
+          else if (act === "weekly-play") {
+            const songs = app.weeklySongs();
+            if (!songs.length) K.toast("Liste boş", "Katalog yüklenince dolacak.", "warn");
+            else { app.playList(songs); K.toast("✦ Haftalık Keşif", songs.length + " şarkı kuyruğa alındı.", "ok"); }
+          }
           else if (act === "row-more") K.tracks.actionSheet(el.dataset.arg);
           else if (act === "create-playlist") K.playlists.promptCreate((pl) => app.openUserPlaylist(pl.id));
           else if (act === "open-upl") app.openUserPlaylist(el.dataset.arg);
@@ -230,6 +235,8 @@
 
         ${recent.length ? `<div class="spx-sec"><h2>Senin için</h2><span class="more">${recent.length}</span></div>
         ${recent.map((s, i) => trackRow(s, { index: i })).join("")}` : ""}
+
+        ${K.phone.appById("spotify").weeklyHTML()}
 
         ${K.phone.appById("spotify").algoHTML()}
 
@@ -413,7 +420,7 @@
           const app = K.phone.appById("spotify");
           if (act === "play") app.playById(el.dataset.arg);
           else if (act === "row-more") K.tracks.actionSheet(el.dataset.arg);
-          else if (act === "playlist-play") { if (songs[0]) app.playSong(songs[0]); }
+          else if (act === "playlist-play") app.playList(songs);
         }
       });
     },
@@ -443,7 +450,7 @@
           const app = K.phone.appById("spotify");
           if (act === "play") app.playById(el.dataset.arg);
           else if (act === "row-more") K.tracks.actionSheet(el.dataset.arg);
-          else if (act === "upl-play") { if (pl.tracks[0]) app.playSong(pl.tracks[0]); }
+          else if (act === "upl-play") app.playList(pl.tracks);
           else if (act === "upl-del") { K.playlists.del(pl.id); K.toast("🗑️ Silindi", pl.name, "warn"); K.phone.back(); }
         }
       });
@@ -536,6 +543,12 @@
           else if (act === "open-album") app.openAlbum(el.dataset.arg);
           else if (act === "dm" && el.dataset.arg !== "player") K.phone.openApp("messages", { artistId: el.dataset.arg });
           else if (act === "refresh-live") K.live.refreshChart(false).then(() => K.phone.reRender());
+          else if (act === "weekly-play") {
+            const app2 = K.phone.appById("spotify");
+            const songs2 = app2.weeklySongs();
+            if (!songs2.length) K.toast("Liste boş", "Katalog yüklenince dolacak.", "warn");
+            else { app2.playList(songs2); K.toast("✦ Haftalık Keşif", songs2.length + " şarkı kuyruğa alındı.", "ok"); }
+          }
         }
       });
     },
@@ -626,7 +639,7 @@
           const app = K.phone.appById("spotify");
           if (act === "play") app.playById(el.dataset.arg);
           else if (act === "playlist-play") {
-            if (pl.songs[0]) app.playSong(pl.songs[0]);
+            if (pl.songs && pl.songs.length) app.playList(pl.songs);
           }
           else if (act === "playlist-save") {
             const on = K.interactions.toggleSave(el.dataset.arg);
@@ -670,6 +683,63 @@
       const list = a ? K.platforms.npcSongs(artistId, 5) : [];
       const sg = list[+idx];
       if (sg) { K.interactions.play({ id, title: sg.title, artistName: sg.artistName || a.stageName, art: sg.art }); K.phone.reRender(); }
+    },
+
+    /* v10.66 — listeyi KUYRUĞA alarak çal (sıradaki şarkı çalışsın) */
+    playList(list) {
+      const arr = (list || []).filter(x => x && x.title);
+      if (!arr.length) return null;
+      const tracks = arr.map(sg => ({ id: sg.id, title: sg.title, artistName: sg.artistName, art: sg.art }));
+      K.interactions.setQueue(tracks, 0);
+      K.interactions.play(tracks[0]);
+      K.phone.reRender();
+      /* gerçek Spotify: liste çalınca "Şimdi Çalıyor" ekranı açılır */
+      if (K.ui && K.ui.playerView) K.phone.pushView(K.ui.playerView());
+      return tracks[0];
+    },
+
+    /* v10.66 — HAFTALIK KEŞİF: her 7 oyun gününde deterministik yenilenen
+       kişisel liste. Rastgele seçim Math.random() DEĞİL: tohum (hafta + tür)
+       sabit olduğu için aynı hafta içinde liste değişmez. */
+    weeklyKey() { return Math.floor((K.state.day || 1) / 7); },
+
+    weeklySongs() {
+      const s = K.state, p = s.player || {};
+      const pool = [];
+      (s.chart || []).forEach(e => { if (e && e.title) pool.push({ id: e.id, title: e.title, artistName: e.artistName, art: e.art }); });
+      (K.artistList ? K.artistList() : []).forEach(a => {
+        K.platforms.npcSongs(a.id, 3).forEach(sg => {
+          if (sg && sg.title) pool.push({ id: sg.id, title: sg.title, artistName: sg.artistName || a.stageName, art: sg.art });
+        });
+      });
+      if (!pool.length) return [];
+
+      let h = ((K.phone.appById("spotify").weeklyKey() + 1) * 7919 + String(p.genre || "rap").length * 131) >>> 0;
+      const next = () => { h = (h * 1664525 + 1013904223) >>> 0; return h / 4294967296; };
+      const out = [], used = {};
+      let guard = 0;
+      while (out.length < 12 && guard++ < 400) {
+        const tr = pool[Math.floor(next() * pool.length)];
+        if (!tr || !tr.id || used[tr.id]) continue;
+        used[tr.id] = 1;
+        out.push(tr);
+      }
+      return out;
+    },
+
+    weeklyHTML() {
+      const songs = K.phone.appById("spotify").weeklySongs();
+      const wk = K.phone.appById("spotify").weeklyKey() + 1;
+      if (!songs.length) return "";
+      return `<div class="spx-sec"><h2>Haftalık Keşif</h2><span class="more">${wk}. hafta</span></div>
+        <div class="sp-weekly">
+          <div class="sp-weekly-art">✦</div>
+          <div class="grow">
+            <b>Senin Haftalığın</b>
+            <span>${songs.length} şarkı · her hafta yenilenir · türüne göre</span>
+          </div>
+          <button class="btn btn-xs btn-primary" data-pact="weekly-play">▶ Çal</button>
+        </div>`;
     },
 
     playSong(sg) {

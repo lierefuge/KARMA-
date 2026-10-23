@@ -150,7 +150,8 @@ H.whenReady(dom, { label: "v1063" }).then((K) => {
   {
     /* v10.64 — hat kontrolü + parça detayı eklendi (ayrıntılı test: smoke-v1064) */
     const KNOWN = ["open-studio", "go-tab", "lib-filter", "preview-song", "practice", "mh-rest",
-      "rel-rush", "rel-cancel", "rel-rename", "song-detail"];
+      "rel-rush", "rel-cancel", "rel-rename", "song-detail",
+      "presale-open", "store-preview", "store-prev-tab", "clause-negotiate", "dept-up"];
     /* ÖNEMLİ: render() DOM'u baştan kurar. Düğüm listesini bir kez alıp
        sonra tıklamak, ikinci turdan itibaren KOPMUŞ düğümlere tıklar ve
        sahte "etkisiz düğme" hatası üretir. Bu yüzden (act,arg) çiftleri
