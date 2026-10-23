@@ -5,6 +5,48 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+## GÜNCELLEME v10.65 — PARA AKIŞI · İLK 10 DAKİKA · TASLAKLAR · ERİŞİLEBİLİRLİK
+
+v10.64'ün üzerine dört parça. Yeni test: `tools/smoke-v1065.js` (**35 kontrol**).
+
+### 1 · 💸 Para akışı defteri
+`earn()` / `spend()` zaten bir `reason` taşıyordu ama hiçbir yerde toplanmıyordu:
+oyuncu "param nereden geldi, nereye gitti" sorusunu cevaplayamıyordu. Artık her
+hareket **kaynak etiketiyle** sınırlı bir deftere yazılır (`moneyLog`, 600 kayıt ≈
+birkaç ay; save şişmez). Analiz sekmesindeki **Para akışı** paneli son 30 günü
+gösterir: giren / çıkan / net / hareket sayısı, gelir kaynakları (telif, merch,
+konser, yan iş…) ve giderler (beat, terapi, tur…) tutara göre sıralı.
+Katalog sahipliği, hızlandırma ücreti ve iptal iadesi de deftere düşer.
+
+### 2 · 🚀 İlk 10 dakika rehberi
+Yeni oyuncu geniş oyunun neresinden başlayacağını bilmiyordu. Kariyer sekmesinde
+6 adımlı rehber: kimlik seç → stüdyoyu aç → ilk yayın → sosyal gönderi → yan iş
+vardiyası → ilk gelir. Adımlar **state'ten türer** (uydurma ilerleme yok), her
+adımın çalışan bir düğmesi var, ilerleme çubuğu doluyor. Hepsi bitince gün
+geçişinde **tek seferlik** ödül (+₺2.000, +1 itibar); rehber gizlenebilir.
+
+### 3 · 💾 Proje taslakları
+Sihirbazı kapatınca girilen her şey kayboluyordu. Artık sihirbaz alt çubuğundaki
+**💾 Taslak** ile çalışma saklanır (en fazla 5), Stüdyo sekmesindeki "Taslaklar"
+paneline düşer ve **Devam et** ile kaldığı adımdan açılır. Taslak **para
+harcamaz** — maliyet yalnızca yayınlama anında düşer.
+
+### 4 · ♿ Mobil & erişilebilirlik turu
+- Klavye odağı artık görünür (`:focus-visible`, 2px halka)
+- Dokunma hedefleri ≥32 px (düğmeler, çipler, ikon düğmeleri); 430 px'te
+  ölçüldü: 28 px altı hedef **yok**
+- Yeni stüdyo panelleri mobilde sarar: takvim 4 sütun, hat kontrolleri tam
+  genişlik, parça kütüphanesi satırları kırılır
+- Sekme çubuğu 981–1399 px arasında **6×2 ızgara** (tek başına alt satıra
+  düşen sekme kalmıyor)
+
+### 5 · Doğrulama
+```
+npm run verify        →  52/52 adım temiz
+tools/smoke-v1065.js  →  35 kontrol
+```
+Mobil kontrol: yatay taşma yok (404/404 px), konsolda hata yok.
+
 ## GÜNCELLEME v10.64 — STÜDYO 2.0 (hat kontrolü · takvim · parça detayı)
 
 v10.63'ün üzerine inşa edilir. Stüdyo merkezi artık yalnızca "gösterge paneli"
