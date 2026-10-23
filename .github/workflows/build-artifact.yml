@@ -21,11 +21,22 @@ name: Tek dosya build uret
 #  Doğrulama düşerse HİÇBİR ŞEY commit edilmez: depo bozulmaz, sadece
 #  iş akışı kırmızı olur ve nedenini logda gösterir.
 #
-#  KULLANIM: Actions → "Tek dosya build uret" → Run workflow (main)
-#  veya API: createWorkflowDispatch (workflowId: build-artifact.yml)
+#  KULLANIM: Kaynak push'unda kendiliğinden çalışır.
+#  Elle: Actions → "Tek dosya build uret" → Run workflow (main)
 # ============================================================
 
 on:
+  # Kaynak değişince KENDİLİĞİNDEN build üret (elle tıklama gerekmez).
+  # Yalnızca build'i etkileyen yollar: dokümantasyon push'u boşuna build açmaz.
+  push:
+    branches: [main]
+    paths:
+      - "js/**"
+      - "css/**"
+      - "index.html"
+      - "package.json"
+      - "tools/**"
+      - ".github/workflows/build-artifact.yml"
   workflow_dispatch:
 
 permissions:
@@ -40,6 +51,9 @@ concurrency:
 jobs:
   build:
     name: Build uret + dogrula + commit
+    # Bot'un kendi commit'i dongu yaratmasin (GITHUB_TOKEN zaten tetiklemez;
+    # bu ikinci emniyet kilidi).
+    if: ${{ github.actor != 'github-actions[bot]' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -89,13 +103,9 @@ jobs:
           git commit -m "v${VERSION} - tek dosya build (CI tarafindan uretildi)"
           git push origin HEAD:main
 
-      # v10.63.1 — ZINCIRI KAPAT: GITHUB_TOKEN ile yapilan push'lar baska is
-      # akislarini tetiklemez (GitHub'in sonsuz dongu korumasi). Bu yuzden
-      # Dogrulama'yi acikca workflow_dispatch ile cagiriyoruz; izin
-      # permissions.actions: write. Boylece build'den sonra yesil tik elle
-      # tiklanmadan olusur.
-      # NOT: bu depoda "Workflow permissions" Read and write olmali
-      # (Settings > Actions > General). Read-only ise adim uyari verip gecer.
+      # ZINCIRI KAPAT: GITHUB_TOKEN ile yapilan push'lar baska is akislarini
+      # tetiklemez. Bu yuzden Dogrulama'yi acikca workflow_dispatch ile
+      # cagiriyoruz; izin permissions.actions: write.
       - name: Dogrulama is akisini tetikle
         if: always()
         continue-on-error: true
