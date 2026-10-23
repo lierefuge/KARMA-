@@ -148,7 +148,9 @@ H.whenReady(dom, { label: "v1063" }).then((K) => {
      F) HER DÜĞME İŞLEVSEL — beyaz liste + tıklama + etki
      ============================================================ */
   {
-    const KNOWN = ["open-studio", "go-tab", "lib-filter", "preview-song", "practice", "mh-rest"];
+    /* v10.64 — hat kontrolü + parça detayı eklendi (ayrıntılı test: smoke-v1064) */
+    const KNOWN = ["open-studio", "go-tab", "lib-filter", "preview-song", "practice", "mh-rest",
+      "rel-rush", "rel-cancel", "rel-rename", "song-detail"];
     /* ÖNEMLİ: render() DOM'u baştan kurar. Düğüm listesini bir kez alıp
        sonra tıklamak, ikinci turdan itibaren KOPMUŞ düğümlere tıklar ve
        sahte "etkisiz düğme" hatası üretir. Bu yüzden (act,arg) çiftleri
@@ -162,7 +164,7 @@ H.whenReady(dom, { label: "v1063" }).then((K) => {
     const noLabel = targets.filter(b => !b.label && !b.aria && !b.title);
     ok("F1 · eylem tanımsız düğme yok", noAct.length === 0, noAct.length + " düğme");
     ok("F2 · bilinmeyen eylem yok", unknown.length === 0,
-      unknown.map(b => b.dataset.act).join(",") || "temiz");
+      unknown.map(t => t.act).join(",") || "temiz");
     ok("F3 · etiketsiz düğme yok", noLabel.length === 0, noLabel.length + " düğme");
 
     /* her düğmeyi gerçekten tıkla: istisna yok + etki var */
@@ -199,6 +201,7 @@ H.whenReady(dom, { label: "v1063" }).then((K) => {
           after.modal !== before.modal ||
           after.view !== before.view ||
           act === "lib-filter" ||
+          act === "rel-rush" || act === "song-detail" ||
           (act === "practice" && K.skillLevel(skillKey) >= before.skill);
         if (!effect) { noEffect++; seen.push(act + (t.arg ? ":" + t.arg : "")); }
       } catch (e) {
