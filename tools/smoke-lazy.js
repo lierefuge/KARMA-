@@ -40,7 +40,8 @@ const ASSETS = {
   "real-songs":    { src: "js/data/real-songs.js",    global: "REAL_SONGS" },
   "real-previews": { src: "js/data/real-previews.js", global: "REAL_PREVIEWS" },
   "discography":   { src: "js/data/discography.js",   global: "DISCOGRAPHY" },
-  "real-youtube":  { src: "js/data/real-youtube.js",  global: "REAL_YT" }
+  "real-youtube":  { src: "js/data/real-youtube.js",  global: "REAL_YT" },
+  "release-intel": { src: "js/data/release-intel.js", global: "RELEASE_INTEL" }
 };
 
 /* ==========================================================
@@ -72,7 +73,7 @@ Object.keys(ASSETS).forEach(name => {
     build.indexOf("==== " + ASSETS[name].src + " ====") < 0);
 });
 ok("D · JSON blokları application/json tipinde",
-  (build.match(/<script type="application\/json" id="karma-lazy-/g) || []).length === 4,
+  (build.match(/<script type="application\/json" id="karma-lazy-/g) || []).length === Object.keys(ASSETS).length,
   (build.match(/<script type="application\/json" id="karma-lazy-/g) || []).length + " blok");
 ok("D · JSON içinde kaçışsız </script> yok",
   !/<script type="application\/json" id="karma-lazy-[^>]*>[\s\S]*?[^\\]<\/script>[\s\S]*?<\/script>/.test(build.slice(0, 0)) || true);
@@ -86,7 +87,7 @@ ok("D · JSON içinde kaçışsız </script> yok",
     try { JSON.parse(m[2].replace(/<\\\//g, "</")); }
     catch (e) { bad.push(m[1] + ": " + e.message.slice(0, 60)); }
   }
-  ok("D · tüm JSON blokları geçerli", bad.length === 0 && count === 4, bad.join(" | ") || count + " blok");
+  ok("D · tüm JSON blokları geçerli", bad.length === 0 && count === Object.keys(ASSETS).length, bad.join(" | ") || count + " blok");
 }
 
 /* ==========================================================
