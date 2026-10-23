@@ -918,3 +918,19 @@ textarea:focus-visible {
 .dept span { font-size: 10.5px; color: var(--text-2); }
 .dept-eff { color: var(--karma-2) !important; font-weight: 700; }
 .dept-ic { font-size: 18px; }
+
+/* v10.67 — canlı veri şeridi */
+.live-strip {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 10px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.live-strip.on { background: rgba(92,232,155,.07); border-color: rgba(92,232,155,.3); }
+.live-dot-sm {
+  width: 7px; height: 7px; border-radius: 999px; flex: 0 0 auto;
+  background: var(--text-3);
+}
+.live-strip.on .live-dot-sm { background: var(--money); box-shadow: 0 0 8px var(--money); }
+.live-strip .grow { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.live-strip b { font-size: 11px; font-weight: 800; }
+.live-strip span { font-size: 10px; color: var(--text-2); }

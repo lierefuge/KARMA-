@@ -4098,6 +4098,20 @@
         </div>`;
     },
 
+    /* v10.67 — canlı veri şeridi: liste gerçekten güncel mi? */
+    liveDataHTML() {
+      const st = (K.live && K.live.status) ? K.live.status() : { asof: null, chartCount: 0, chartIsLive: false };
+      const asof = st.asof || "—";
+      return `<div class="live-strip ${st.chartIsLive ? "on" : ""}">
+        <span class="live-dot-sm"></span>
+        <div class="grow">
+          <b>${st.chartIsLive ? "Canlı liste" : "Kayıtlı liste"}</b>
+          <span>${st.chartCount} şarkı · son güncelleme ${U.escape(String(asof))}</span>
+        </div>
+        <button class="btn btn-xs btn-ghost" data-act="refresh-chart">🔄 Yenile</button>
+      </div>`;
+    },
+
     renderCharts() {
       const s = K.state;
       const chart = s.chart || [];
@@ -4140,7 +4154,9 @@
             : e.delta < 0 ? `<span class="chart-delta down">▼${Math.abs(e.delta)}</span>`
             : `<span class="chart-delta same">—</span>`;
           const artistLabel = e.mine ? s.player.stageName : e.artistName;
-          return `<div class="chart-row ${e.mine ? "me" : ""}">
+          return `
+        ${K.careerUI.liveDataHTML()}
+div class="chart-row ${e.mine ? "me" : ""}">
             <span class="chart-rank ${e.rank <= 3 ? "top" : ""}">${e.rank}</span>
             ${K.ui.cover(e.cover, (e.title[0] || "?").toUpperCase(), 38, e.art)}
             <div class="grow">

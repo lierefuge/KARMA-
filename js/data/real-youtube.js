@@ -3,7 +3,7 @@
    Gerçek şarkılar için GÖMÜLEBİLİR YouTube video kimlikleri.
    v = videoId · t = video başlığı · a = kanal
    Doğrulama: youtube.com/oembed (gömme kapalı videolar elendi)
-   Üretici: node tools/fetch-youtube.js   ·   Güncelleme: 2026-09-29
+   Üretici: node tools/fetch-youtube.js   ·   Güncelleme: 2026-10-23
    ============================================================ */
 (function (K) {
   "use strict";
@@ -1765,6 +1765,41 @@
    "a": "ŞEHİNŞAH",
    "t": "Şehinşah ft. Patron - Kalk",
    "v": "xEgdyN2efBo"
+  },
+  "Prenses [Remix]": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Prenses (Prod by COTARD)",
+   "v": "a46J-QhqC2w"
+  },
+  "Karma": {
+   "a": "Şehinşah - Topic",
+   "t": "Karma (Groovypedia Live)",
+   "v": "lNCZLS1KVQs"
+  },
+  "Rec, Play, Pause (feat. Ben Büdü, Xir & Sansar Salvo) [Remix]": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Rec, Play , Pause ''feat-Sansar SALVO & Xir GÖKDENİZ'' (Produced By DJ Artz)",
+   "v": "XIZELXszVkc"
+  },
+  "Var Arantım (feat. Ben Büdü) [Remix]": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - Var Arantım (Produced By DJ Artz)",
+   "v": "dVm6JUP1_pY"
+  },
+  "U.A.A. (feat. Ben Büdü & Ezhel) [Remix]": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - U.A.A ''feat - Ais EZHEL (Produced By DJ Artz)",
+   "v": "8EeJCbWP5MM"
+  },
+  "İstiklal (feat. Ben Büdü) [Dub Remix]": {
+   "a": "ŞEHİNŞAH",
+   "t": "Şehinşah - İstiklal (Produced By DJ Artz & Bugy)",
+   "v": "ptyl5HJlMYM"
+  },
+  "Ihtan (feat. Şehinşah & Ezhel)": {
+   "a": "Şehinşah - Topic",
+   "t": "Ihtan (Groovypedia Live)",
+   "v": "d9SKrQTG2tM"
   }
  },
  "sila": {
@@ -2038,6 +2073,11 @@
    "a": "Wegh",
    "t": "Wegh - Kapkara | @MambaCrew",
    "v": "TDW0gTqO9tE"
+  },
+  "Yanlışlarla Karşılaştım (feat. Wegh)": {
+   "a": "Wegh",
+   "t": "Wegh - Yanlışlarla Karşılaştım ft. Keskin (Official Music Video)",
+   "v": "GrA_x3p0RUo"
   }
  }
 };

@@ -8,6 +8,7 @@
   const U = K.util;
 
   function updateTopbar() {
+    tickClock();
     const s = K.state;
     U.qs("#stat-day").textContent = s.day;
     const d = U.dateForDay(s.day);
@@ -27,7 +28,17 @@
     if (np) np.textContent = U.dateForDay(s.day + 1).short;
   }
 
+  /* v10.67 — gerçek saat: oyun canlı takvimle çalışır */
+  function tickClock() {
+    const el = U.qs("#stat-clock");
+    if (!el) return;
+    const n = new Date();
+    el.textContent = String(n.getHours()).padStart(2, "0") + ":" + String(n.getMinutes()).padStart(2, "0");
+    el.title = "Gerçek saat " + el.textContent + " · oyun takvimi bugünden başlar";
+  }
+
   function renderAll() {
+    tickClock();
     updateTopbar();
     K.careerUI.render();
     if (K.phone.homeActive || !K.phone.views.length) K.phone.render();
@@ -284,6 +295,10 @@
     /* v10.19 — güncelleme kontrolü: Service Worker + version.json.
        Modüler sürümde çalışır; tek dosya build'inde kendini kapatır. */
     if (K.updater && K.updater.init) K.updater.init();
+
+    /* v10.67 — gerçek saat göstergesi canlı kalsın */
+    tickClock();
+    if (!K._clockTimer) K._clockTimer = setInterval(tickClock, 20000);
   }
 
   if (document.readyState === "loading") {
