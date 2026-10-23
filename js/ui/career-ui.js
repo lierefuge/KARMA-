@@ -78,6 +78,152 @@
     },
 
     /* =====================================================
+       v10.65 — PROJE TASLAKLARI
+       Sihirbazı kapatınca girilen her şey kayboluyordu. Artık oyuncu
+       çalışmasını taslak olarak bırakıp sonra kaldığı yerden devam eder.
+       Taslak para HARCAMAZ; maliyet yalnızca "Yayınla" anında düşer.
+       ===================================================== */
+    draftLimit() { return 5; },
+
+    saveStudioDraft() {
+      const s = K.state, p = s.player;
+      const st = K.careerUI._studio;
+      if (!st) return { ok: false, reason: "no-studio" };
+      p.drafts = p.drafts || [];
+      if (p.drafts.length >= K.careerUI.draftLimit()) return { ok: false, reason: "limit" };
+
+      let data;
+      try { data = JSON.parse(JSON.stringify(st)); } catch (e) { return { ok: false, reason: "serialize" }; }
+      const first = (st.tracks && st.tracks[0] && st.tracks[0].name) || "";
+      const draft = {
+        id: U.uid("draft"),
+        day: s.day,
+        name: String(st.projectTitle || first || "Adsız taslak").slice(0, 48),
+        genre: st.genre,
+        count: st.count,
+        step: st.step,
+        data: data
+      };
+      p.drafts.unshift(draft);
+      p.drafts = p.drafts.slice(0, K.careerUI.draftLimit());
+      K.toast("💾 Taslak kaydedildi", `"${draft.name}" — Stüdyo sekmesinden devam edebilirsin.`, "ok");
+      K.save();
+      if (K.refresh) K.refresh();
+      return { ok: true, draft };
+    },
+
+    resumeStudioDraft(id) {
+      const p = K.state.player;
+      const draft = ((p.drafts) || []).find(d => d && d.id === id);
+      if (!draft) return { ok: false, reason: "missing" };
+      K.careerUI.openStudioModal();
+      const st = K.careerUI._studio;
+      if (st && draft.data) {
+        Object.assign(st, draft.data);
+        st.draftId = draft.id;
+        K.careerUI._syncTracks(st);
+        K.careerUI._syncCover(st);
+        K.careerUI.renderStudioStep();
+      }
+      return { ok: true, draft };
+    },
+
+    deleteStudioDraft(id) {
+      const p = K.state.player;
+      const before = (p.drafts || []).length;
+      p.drafts = (p.drafts || []).filter(d => d && d.id !== id);
+      if (p.drafts.length === before) return { ok: false, reason: "missing" };
+      K.save();
+      if (K.refresh) K.refresh();
+      return { ok: true };
+    },
+
+    draftsHTML() {
+      const drafts = (K.state.player.drafts || []).filter(Boolean);
+      if (!drafts.length) return "";
+      return `<div class="gh-panel">
+        <div class="gh-panel-head"><b>💾 Taslaklar</b><span>${drafts.length}/${K.careerUI.draftLimit()} · para harcamaz</span></div>
+        <div class="gh-drafts">
+          ${drafts.map(d => `<div class="gh-draft">
+            <span class="gh-draft-ic">${K.genreById(d.genre).icon}</span>
+            <div class="grow">
+              <b>${U.escape(d.name)}</b>
+              <span class="gh-draft-sub">${U.escape(K.genreById(d.genre).name)} · ${d.count} parça · ${K.careerUI.WIZ_STEPS[Math.min((d.step || 1), K.careerUI.WIZ_STEPS.length) - 1].label} adımında · gün ${d.day}</span>
+            </div>
+            <button class="btn btn-xs btn-primary" data-act="draft-resume" data-draft="${d.id}">Devam et</button>
+            <button class="btn btn-xs btn-ghost" data-act="draft-del" data-draft="${d.id}" title="Taslağı sil">🚫</button>
+          </div>`).join("")}
+        </div>
+      </div>`;
+    },
+
+    /* =====================================================
+       v10.65 — İLK 10 DAKİKA REHBERİ
+       Yeni oyuncu ne yapacağını bilmiyordu: oyun çok geniş, ilk yayın
+       çıkana kadar hangi sırayla ilerleyeceği anlatılmıyordu. Adımlar
+       mevcut sistemlerden TÜRETİLİR (uydurma ilerleme yok); rehber
+       kapatılabilir ve tamamlanınca bir kez ödül verir.
+       ===================================================== */
+    onboardSteps() {
+      const s = K.state, p = s.player;
+      const songs = (p.songs || []).filter(Boolean);
+      const shared = songs.some(sg => sg.socialPromo && Object.keys(sg.socialPromo).some(k => sg.socialPromo[k]));
+      const worked = (p.jobEarnings || 0) > 0 || (p.jobShifts || 0) > 0;
+      return [
+        { id: "persona", label: "Sanatçı kimliğini seç", hint: "Hangi tür ve temalarda güçlü olduğunu belirler.",
+          done: !!p.persona, cta: { label: "Kimlik seç", act: "persona" } },
+        { id: "studio", label: "Stüdyoyu aç, ilk parçanı kaydet", hint: "Beş adım: parçalar → prodüksiyon → söz → kapak → dağıtım.",
+          done: songs.length > 0 || (p.releases || []).length > 0, cta: { label: "Stüdyo", act: "open-studio" } },
+        { id: "release", label: "İlk yayınını çıkar", hint: "Parça yayınlanınca dinlenme ve gelir akmaya başlar.",
+          done: songs.length > 0, cta: { label: "Yayınlar", act: "go-tab", arg: "releases" } },
+        { id: "social", label: "Bir sosyal gönderi paylaş", hint: "Yayın sonrası tanıtım ilk görünürlüğü büyütür.",
+          done: shared, cta: { label: "Yayınlar", act: "go-tab", arg: "releases" } },
+        { id: "job", label: "Bir yan iş vardiyası çalış", hint: "Kasa erimesin: yan iş, stüdyo masrafını dengeler.",
+          done: worked, cta: { label: "Yan iş", act: "go-tab", arg: "jobs" } },
+        { id: "money", label: "İlk gelirini al", hint: "Telif ay sonunda yatar; ilk gelirle kataloğu büyüt.",
+          done: (p.totalEarned || 0) > 0, cta: { label: "Analiz", act: "go-tab", arg: "analytics" } }
+      ];
+    },
+
+    onboardingHTML() {
+      const s = K.state, p = s.player;
+      if (p.onboardDismissed) return "";
+      const steps = K.careerUI.onboardSteps();
+      const done = steps.filter(x => x.done).length;
+      if (done >= steps.length) {
+        /* tamamlandı: yalnızca kısa bir tebrik şeridi, sonra kaybolur */
+        return `<div class="ob-card done">
+          <span class="ob-ic">🎉</span>
+          <div class="grow"><b>Rehber tamamlandı</b><span class="ob-hint">${steps.length}/${steps.length} adım — artık kendi planını kur.</span></div>
+          <button class="btn btn-xs btn-ghost" data-act="ob-dismiss">Gizle</button>
+        </div>`;
+      }
+      const pct = Math.round(done / steps.length * 100);
+      return `<div class="ob-card">
+        <div class="ob-top">
+          <span class="ob-ic">🚀</span>
+          <div class="grow">
+            <b>İlk 10 dakika</b>
+            <span class="ob-hint">${done}/${steps.length} tamamlandı · sırayla ilerle, ödül seni bekliyor</span>
+          </div>
+          <button class="btn btn-xs btn-ghost" data-act="ob-dismiss" title="Rehberi gizle">Gizle</button>
+        </div>
+        <div class="ob-bar"><i style="width:${pct}%"></i></div>
+        <div class="ob-steps">
+          ${steps.map((st, i) => `<div class="ob-step${st.done ? " done" : ""}">
+            <span class="ob-no">${st.done ? "✓" : i + 1}</span>
+            <div class="grow">
+              <b>${U.escape(st.label)}</b>
+              <span class="ob-hint">${U.escape(st.hint)}</span>
+            </div>
+            ${st.done ? `<span class="ob-done-tag">bitti</span>`
+              : `<button class="btn btn-xs btn-ghost" data-act="${st.cta.act}"${st.cta.arg ? ` data-arg="${st.cta.arg}"` : ""}>${U.escape(st.cta.label)}</button>`}
+          </div>`).join("")}
+        </div>
+      </div>`;
+    },
+
+    /* =====================================================
        KARİYER
        ===================================================== */
     renderCareer() {
@@ -91,6 +237,7 @@
 
       return `
         <div class="c-block">
+          ${K.careerUI.onboardingHTML()}
           <div class="artist-hero">
             ${K.ui.avatar(p.stageName, 74)}
             <div class="meta">
@@ -511,6 +658,8 @@
             </div>
           </div>
 
+          ${K.careerUI.draftsHTML()}
+
           <div class="gh-split">
             <div class="gh-panel">
               <div class="gh-panel-head"><b>💡 Üretim Önerileri</b><span>durumuna göre</span></div>
@@ -846,11 +995,21 @@
 
       const foot = U.qs(".modal-foot", box);
       foot.innerHTML = `<button class="btn btn-ghost" id="st-cancel">Vazgeç</button>
+        <button class="btn btn-ghost" id="st-draft" title="Bu çalışmayı taslak olarak sakla (para harcanmaz)">💾 Taslak</button>
         <div class="st-foot-right">
           <span class="st-nav-info"></span>
           <div class="st-nav" id="st-nav"></div>
         </div>`;
       U.qs("#st-cancel", foot).addEventListener("click", () => K.ui.closeModal());
+      const draftBtn = U.qs("#st-draft", foot);
+      if (draftBtn) draftBtn.addEventListener("click", () => {
+        const res = K.careerUI.saveStudioDraft();
+        if (!res.ok) {
+          K.toast("Taslak kaydedilmedi",
+            res.reason === "limit" ? `En fazla ${K.careerUI.draftLimit()} taslak tutabilirsin.` : "Bu çalışma kaydedilemedi.",
+            "warn");
+        }
+      });
 
       const bodyEl = U.qs(".modal-body", box);
       bodyEl.addEventListener("input", K.careerUI.onStudioInput);
@@ -3533,6 +3692,47 @@
         </div>`;
     },
 
+    /* =====================================================
+       v10.65 — PARA AKIŞI
+       Gelir/giderin gerçek kaynakları (economy.logMoney defterinden).
+       Uydurma sayı yok: yalnızca kaydedilmiş hareketler gösterilir.
+       ===================================================== */
+    moneyFlowHTML(days) {
+      const led = K.economy.ledgerSummary(days || 30);
+      if (!led.entries) {
+        return `<div class="empty-note"><b>Para akışı henüz boş</b>
+          Telif, konser, merch, yan iş gibi gelirler ve giderler burada kaynaklarıyla birikir.</div>`;
+      }
+      const maxIn = Math.max(1, ...led.ins.map(x => x.amount));
+      const maxOut = Math.max(1, ...led.outs.map(x => x.amount));
+      const row = (x, max, cls) => `<div class="mf-row">
+          <span class="mf-name">${U.escape(K.economy.reasonLabel(x.reason))}</span>
+          <span class="mf-bar"><i class="${cls}" style="width:${U.clamp(Math.round(x.amount / max * 100), 3, 100)}%"></i></span>
+          <b class="mf-val ${cls}">${U.money(x.amount)}</b>
+        </div>`;
+      const netCls = led.net >= 0 ? "money" : "bad";
+
+      return `<div class="mf-head">
+          <div class="mf-kpi"><span class="k">Giren</span><span class="v money">${U.money(led.totalIn)}</span></div>
+          <div class="mf-kpi"><span class="k">Çıkan</span><span class="v bad">${U.money(led.totalOut)}</span></div>
+          <div class="mf-kpi"><span class="k">Net</span><span class="v ${netCls}">${U.money(led.net)}</span></div>
+          <div class="mf-kpi"><span class="k">Hareket</span><span class="v">${led.entries}</span></div>
+        </div>
+        <div class="mf-cols">
+          <div class="mf-col">
+            <div class="mf-col-head">Gelir kaynakları</div>
+            ${led.ins.length ? led.ins.slice(0, 6).map(x => row(x, maxIn, "in")).join("") : `<div class="mf-empty">Bu aralıkta gelir yok.</div>`}
+          </div>
+          <div class="mf-col">
+            <div class="mf-col-head">Giderler</div>
+            ${led.outs.length ? led.outs.slice(0, 6).map(x => row(x, maxOut, "out")).join("") : `<div class="mf-empty">Bu aralıkta gider yok.</div>`}
+          </div>
+        </div>
+        <div class="mf-foot">${led.from <= 1 ? `Oyundan bu yana (gün 1–${led.to})` : `Son ${led.days} gün (gün ${led.from}–${led.to})`} · vergi ve aylık gider ayrıca işlenir${
+          (K.state.player.debt || 0) > 0 ? ` · ⚠️ borç ${U.money(K.state.player.debt)}` : ""
+        }</div>`;
+    },
+
     renderAnalytics() {
       const s = K.state, p = s.player;
       const hide = K.settings && K.settings.valuesHidden && K.settings.valuesHidden();
@@ -3612,6 +3812,10 @@
             ${platRow("Spotify", plat.spotify, "#1ed760")}
             ${platRow("Apple Music", plat.apple, "#d64b6a")}
             ${platRow("YouTube", plat.youtube, "#ff4b4b")}
+          </div>
+          <div class="an-panel">
+            <div class="an-panel-head">💸 Para akışı</div>
+            ${K.careerUI.moneyFlowHTML(30)}
           </div>
           <div class="an-panel">
             <div class="an-panel-head">Son yayınlar</div>
@@ -4467,6 +4671,23 @@
       }
       if (act === "song-detail") {
         K.careerUI.openSongDetail(btn.dataset.song);
+        return;
+      }
+      if (act === "draft-resume") {
+        const res = K.careerUI.resumeStudioDraft(btn.dataset.draft);
+        if (!res.ok) K.toast("Taslak açılamadı", "Kayıt bulunamadı.", "warn");
+        return;
+      }
+      if (act === "draft-del") {
+        K.careerUI.deleteStudioDraft(btn.dataset.draft);
+        K.toast("🗑 Taslak silindi", "Çalışma kaldırıldı (para harcanmadı).", "");
+        K.careerUI.render();
+        return;
+      }
+      if (act === "ob-dismiss") {
+        K.state.player.onboardDismissed = true;
+        K.save();
+        K.careerUI.render();
         return;
       }
       if (act === "lib-filter") {
