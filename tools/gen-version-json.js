@@ -36,14 +36,25 @@ try {
   date = m ? m[1] : "";
 } catch (e) { date = ""; }
 
+const dest = path.join(ROOT, "version.json");
+
+/* v10.63.1 — TEKRAR ÇALIŞTIRMA GÜRÜLTÜSÜNÜ KALDIR.
+   Eskiden `built` her çağrıda yenileniyordu; bu yüzden build'i zaten
+   güncel olan bir CI çalıştırması bile "version.json değişti" diyip
+   boş bir commit atıyordu (her manuel run = 1 gürültü commit'i).
+   Artık `built` yalnızca sürüm / önbellek / tarih GERÇEKTEN değişince
+   yenilenir; aksi halde önceki değer korunur ve diff oluşmaz. */
+let prev = null;
+try { prev = JSON.parse(fs.readFileSync(dest, "utf8")); } catch (e) { prev = null; }
+const sameAsPrev = !!(prev && prev.version === (pkg.version || "0.0.0")
+  && prev.cache === cache && prev.date === date && prev.built);
+
 const out = {
   version: pkg.version || "0.0.0",
   cache,
   date,
-  built: new Date().toISOString()
+  built: sameAsPrev ? prev.built : new Date().toISOString()
 };
-
-const dest = path.join(ROOT, "version.json");
 fs.writeFileSync(dest, JSON.stringify(out, null, 2) + "\n");
 
 /* sw.js içindeki sürümü VE önbellek anahtarını damgala.
