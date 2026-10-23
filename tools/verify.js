@@ -219,19 +219,49 @@ const SUITES = [
   { id: "v1066",       script: "tools/smoke-v1066.js",       label: "v10.66 gerçekçilik turu (6 yüzey · 83 kontrol)" }
 ];
 
-const suiteOut = {};
-for (const s of SUITES) {
-  const r = run([s.script]);
-  suiteOut[s.id] = r.out;
-  /* "Geçen: 41 · Kalan: 0" veya "Hata sayısı: 0" satırını özetle */
+/* ---- süit özeti çözümleyicisi (tek yerde) ---- */
+function summarize(r) {
   const m = r.out.match(/Geçen:\s*(\d+)\s*·\s*Kalan:\s*(\d+)/);
   const m2 = r.out.match(/Hata sayısı:\s*(\d+)/);
-  let detail = "";
+  let detail;
   if (m) detail = m[1] + " geçti" + (m[2] !== "0" ? " · " + m[2] + " KALDI" : "");
-  else if (m2) detail = "0 hata" + "";
+  else if (m2) detail = "0 hata";
   else detail = "özet okunamadı";
-  if (r.code !== 0 && !detail.includes("KALDI")) detail += " (çıkış kodu " + r.code + ")";
-  record(s.label, r.code === 0, detail);
+  if (r.code !== 0 && detail.indexOf("KALDI") < 0) detail += " (çıkış kodu " + r.code + ")";
+  return detail;
+}
+
+/* v10.67 — SÜİTLER PARALEL KOŞAR.
+   Eskiden 46 süit `spawnSync` ile sırayla koşuyordu; toplam 21,9 dk.
+   CI'daki build işi 20 dk sınırında ölüyordu (gerçek olay).
+   Paralel koşuda duvar saati ~3'te bire iner. Kontrolün kapsamı AYNI:
+   aynı süitler, aynı çıktı biçimi — yalnızca zamanlama değişir.
+   Eşzamanlılık KARMA_VERIFY_JOBS ile ayarlanır (varsayılan 3; her süit
+   bir jsdom örneği ~200 MB, 4+ bellek sıkışması riski). */
+const suiteOut = {};
+const __suiteFile = path.join(os.tmpdir(), "karma-verify-suites-" + process.pid + ".json");
+const __jobs = Math.max(1, Number(process.env.KARMA_VERIFY_JOBS || 3));
+const __helper = run(["tools/verify-parallel.js", "--out", __suiteFile, "--jobs", String(__jobs)]
+  .concat(SUITES.map((x) => x.script)));
+
+let __rows = null;
+try { __rows = JSON.parse(fs.readFileSync(__suiteFile, "utf8")); } catch (e) { __rows = null; }
+try { if (__rows) fs.unlinkSync(__suiteFile); } catch (e) {}
+
+if (Array.isArray(__rows) && __rows.length === SUITES.length) {
+  SUITES.forEach((s, i) => {
+    const row = __rows[i] || { code: 1, out: "" };
+    suiteOut[s.id] = row.out || "";
+    record(s.label, row.code === 0, summarize(row));
+  });
+} else {
+  /* GÜVENLİ DÜŞÜŞ: paralel koşucu çalışmadıysa eskisi gibi SIRAYLA koş.
+     Doğrulamayı asla atlamayız — yalnızca yavaşlarız. */
+  for (const s of SUITES) {
+    const rr = run([s.script]);
+    suiteOut[s.id] = rr.out;
+    record(s.label, rr.code === 0, summarize(rr));
+  }
 }
 
 /* ---------- 5) denge simülasyonu ---------- */
