@@ -51,7 +51,7 @@ eylem yok, istisna yok, her tıklamanın gözlenebilir etkisi var. Bozuk kayıt
 npm run verify   →  50/50 adım temiz
 ```
 
-### 7 · 🏗 Build artık CI'da üretiliyor (v10.63.1)
+### 7 · 🏗 Build artık CI'da üretiliyor (altyapı — oyun sürümü değişmedi)
 Tek dosya build 2,6 MB olduğu için bazı yazma yollarıyla (API/entegrasyon,
 1 MiB sınırı) gönderilemiyordu. `tools/verify.js` içindeki **"build güncel mi"**
 kontrolü gevşetilmedi; bunun yerine build'i GitHub'ın kendisi üretiyor:
