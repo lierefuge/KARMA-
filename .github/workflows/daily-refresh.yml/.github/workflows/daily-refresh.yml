@@ -1,0 +1,57 @@
+name: Günlük içerik yenile
+
+on:
+  schedule:
+    - cron: "0 4 * * *"      # her gün 04:00 UTC = 07:00 Türkiye
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: daily-refresh
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Bagimliliklar
+        run: npm install --no-audit --no-fund
+
+      - name: Veriyi cek (yeni sarkilar / klipler)
+        run: |
+          node tools/fetch-youtube.js || echo "::warning::youtube cekilemedi"
+          node tools/fetch-artist-discography.js || echo "::warning::diskografi cekilemedi"
+
+      - name: Degisiklik var mi
+        id: diff
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git --no-pager diff --stat
+          fi
+
+      - name: Commit
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name "karma-refresh[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add js/data
+          git commit -m "veri: gunluk icerik yenilemesi ($(date -u +%F))"
+          git push
+
+      # GITHUB_TOKEN ile atılan push başka iş akışı tetiklemez → build'i açıkça çağır
+      - name: Build tetikle
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run build-artifact.yml --ref main
