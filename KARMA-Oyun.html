@@ -426,7 +426,9 @@ body::before {
 /* 1400'ün altında tek satıra sığmıyor (ölçüldü: 963px gerekli).
    Gizlemek yerine alt satıra iner — hiçbir sekme erişilemez kalmaz. */
 @media (max-width: 1399px) and (min-width: 981px) {
-  .career-tabs { flex-wrap: wrap; }
+  /* 12 sekme tam 6×2 oturur: tek başına alt satıra düşen sekme olmaz */
+  .career-tabs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
+  .tab { text-align: center; padding: 7px 4px; font-size: 11px; }
 }
 /* Mobilde üç satır sekme çok yer kaplıyor: tek satır + yatay kaydırma kalır,
    sağ kenardaki solma kaydırılabildiğini gösterir. */
@@ -1085,6 +1087,133 @@ body::before {
 @media (max-width: 720px) {
   .gh-cal-grid { grid-template-columns: repeat(4, 1fr); }
   .gh-d-row { grid-template-columns: 74px 1fr 54px; }
+}
+
+/* ============================================================
+   v10.65 · PARA AKIŞI paneli (Analiz sekmesi)
+   ============================================================ */
+.mf-head { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.mf-kpi {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 9px 11px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.mf-kpi .k { font-size: 9.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--text-3); font-weight: 700; }
+.mf-kpi .v { font-size: 14px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.mf-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
+.mf-col { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.mf-col-head {
+  font-size: 9.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .6px;
+  color: var(--text-3); margin-bottom: 2px;
+}
+.mf-row { display: grid; grid-template-columns: minmax(72px, 108px) 1fr auto; align-items: center; gap: 8px; }
+.mf-name { font-size: 11px; color: var(--text-1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mf-bar { height: 6px; border-radius: var(--radius-pill); background: rgba(255,255,255,.06); overflow: hidden; }
+.mf-bar i { display: block; height: 100%; border-radius: var(--radius-pill); }
+.mf-bar i.in { background: linear-gradient(90deg, rgba(92,232,155,.5), var(--money)); }
+.mf-bar i.out { background: linear-gradient(90deg, rgba(255,92,122,.4), var(--hot)); }
+.mf-val { font-size: 10.5px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mf-val.in, .v.money { color: var(--money); }
+.mf-val.out, .v.bad { color: #ff8fa3; }
+.mf-empty, .mf-foot { font-size: 10px; color: var(--text-3); }
+.mf-foot { margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,.08); line-height: 1.5; }
+
+/* ============================================================
+   v10.65 · ERİŞİLEBİLİRLİK + DOKUNMA TURU
+   Klavye odağı artık görünür; dokunma hedefleri en az 32–34 px.
+   ============================================================ */
+.btn:focus-visible,
+.gh-chip:focus-visible,
+.gh-icon-btn:focus-visible,
+.tab:focus-visible,
+.gh-cal-day:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--karma-2);
+  outline-offset: 2px;
+}
+
+@media (max-width: 860px) {
+  .mf-head { grid-template-columns: 1fr 1fr; }
+  .mf-cols { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 720px) {
+  /* dokunma hedefleri */
+  .btn-xs { min-height: 32px; padding: 6px 10px; font-size: 10.5px; }
+  .gh-chip { min-height: 32px; }
+  .gh-icon-btn { width: 30px; height: 30px; }
+  .gh-job-actions .btn-xs { flex: 1 1 auto; justify-content: center; }
+  .gh-track { flex-wrap: wrap; row-gap: 6px; }
+  .gh-track .gh-num { min-width: 48px; }
+  .gh-cal-day { min-height: 66px; padding: 6px 3px 5px; }
+  .gh-cal-dom { font-size: 14px; }
+  .gh-detail { gap: 12px; }
+  .gh-d-head { flex-wrap: wrap; }
+  .gh-d-row { grid-template-columns: 68px 1fr 52px; }
+  .gh-lib-foot { flex-direction: column; align-items: flex-start; gap: 6px; }
+}
+
+@media (max-width: 430px) {
+  .gh-cal-grid { grid-template-columns: repeat(4, 1fr); }
+  .gh-advice { padding: 8px 9px; }
+  .mf-row { grid-template-columns: minmax(64px, 92px) 1fr auto; }
+}
+
+/* ============================================================
+   v10.65 · İLK 10 DAKİKA REHBERİ
+   ============================================================ */
+.ob-card {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 14px; border-radius: var(--radius-m);
+  background: linear-gradient(150deg, rgba(110,195,255,.10), rgba(176,108,255,.07)), var(--bg-2);
+  border: 1px solid rgba(110,195,255,.32);
+}
+.ob-card.done { flex-direction: row; align-items: center; background: rgba(92,232,155,.07); border-color: rgba(92,232,155,.3); }
+.ob-card .grow { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.ob-card b { font-size: 13px; font-weight: 800; }
+.ob-top { display: flex; align-items: center; gap: 10px; }
+.ob-ic { font-size: 20px; line-height: 1; }
+.ob-hint { font-size: 10.5px; color: var(--text-2); line-height: 1.45; }
+.ob-bar { height: 5px; border-radius: var(--radius-pill); background: rgba(255,255,255,.07); overflow: hidden; }
+.ob-bar i { display: block; height: 100%; border-radius: var(--radius-pill); background: linear-gradient(90deg, var(--karma-2), var(--money)); transition: width .35s ease; }
+.ob-steps { display: flex; flex-direction: column; gap: 6px; }
+.ob-step {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 9px; border-radius: var(--radius-s);
+  background: rgba(255,255,255,.03); border: 1px solid var(--stroke);
+}
+.ob-step.done { opacity: .62; }
+.ob-step b { font-size: 11.5px; font-weight: 700; display: block; }
+.ob-no {
+  width: 18px; height: 18px; flex: 0 0 auto; border-radius: var(--radius-pill);
+  display: grid; place-items: center; font-size: 10px; font-weight: 900;
+  background: rgba(110,195,255,.18); color: #bfe6ff;
+}
+.ob-step.done .ob-no { background: rgba(92,232,155,.2); color: #9df3c0; }
+.ob-done-tag { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .4px; color: var(--money); }
+@media (max-width: 720px) {
+  .ob-step { flex-wrap: wrap; }
+  .ob-step .btn { margin-left: 27px; }
+}
+
+/* ============================================================
+   v10.65 · TASLAKLAR
+   ============================================================ */
+.gh-drafts { display: flex; flex-direction: column; gap: 6px; }
+.gh-draft {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 10px; border-radius: var(--radius-s);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.gh-draft .grow { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.gh-draft b { font-size: 12px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gh-draft-sub { font-size: 10px; color: var(--text-2); }
+.gh-draft-ic { font-size: 17px; line-height: 1; }
+@media (max-width: 720px) {
+  .gh-draft { flex-wrap: wrap; }
+  .gh-draft .btn { margin-left: 27px; }
 }
 
 </style>
@@ -7410,7 +7539,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.64.0";
+  K.VERSION = "10.65.0";
   K.VERSION_DATE = "2026-10-23";
 })(window.K = window.K || {});
 
@@ -13363,6 +13492,18 @@ window.K = window.K || {};
       // günlük rastgele olay (%10-15) — para / ün / itibar / hayran etkisi
       if (K.incidents && K.incidents.maybeFire) K.incidents.maybeFire();
 
+      /* v10.65 — İLK 10 DAKİKA rehberi tamamlanınca TEK SEFERLİK ödül.
+         Render içinde değil, gün geçişinde verilir (yan etkisiz render). */
+      if (K.careerUI && K.careerUI.onboardSteps && !s.player.onboardReward) {
+        const st = K.careerUI.onboardSteps();
+        if (st.length && st.every(x => x.done)) {
+          s.player.onboardReward = true;
+          K.economy.earn(2000, "onboard_reward");
+          s.player.reputation = U.clamp((s.player.reputation || 0) + 1, 0, 100);
+          K.toast("🚀 Başlangıç tamam", "Rehberi bitirdin: +₺2.000 ve +1 itibar.", "ok");
+        }
+      }
+
       K.save();
       K.refresh();
       K.bus.emit("day:passed", s.day);
@@ -14218,6 +14359,29 @@ window.K = window.K || {};
      · kademeli gelir vergisi
      · borç gecikme faizi
      ============================================================ */
+  /* v10.65 — gelir/gider kaynaklarının okunur adları (para akışı paneli) */
+  const REASON_LABELS = {
+    royalty_month: "Telif (aylık)", intl_royalty: "Yurt dışı telif",
+    cancel_refund: "İptal iadesi", rush_fee: "Hızlandırma ücreti",
+    merch: "Merch", merch_sale: "Merch satışı", sponsor: "Sponsorluk", sponsor_month: "Sponsorluk (aylık)",
+    tour: "Konser", concert: "Konser", festival: "Festival", concert_advance: "Konser avansı",
+    tour_cost: "Tur gideri", tour_advance: "Tur avansı", intl_tour: "Yurt dışı tur", intl_enter: "Yurt dışı giriş",
+    writing: "Söz yazımı", ghostwriter: "Ghostwriting", publishing: "Yayın geliri", publishing_advance: "Yayın avansı",
+    snippet: "Kısa video", music_video: "Klip", video: "Video", remix: "Remix", reupload: "Yeniden yükleme",
+    radio_campaign: "Radyo kampanyası", promo: "Promosyon", press: "Basın", playlist_pitch: "Liste pitch",
+    presave: "Ön kayıt", teaser: "Teaser", release: "Yayın",
+    beat_purchase: "Beat alımı", feature_studio: "Feature stüdyo", collab_project: "Ortak proje",
+    advance: "Avans", contract: "Sözleşme", label_found: "Şirket kuruluşu", label_invest: "Şirket yatırımı",
+    label_income: "Şirket geliri", label_release: "Şirket yayını", asset: "Varlık", asset_income: "Varlık geliri",
+    asset_sale: "Varlık satışı", asset_upkeep: "Varlık bakımı", catalog_sale: "Katalog satışı",
+    deluxe_reissue: "Deluxe baskı", remaster: "Remaster", fanclub: "Fan kulübü", fanclub_month: "Fan kulübü (aylık)",
+    vip: "VIP", gift: "Hediye", hangout: "Buluşma", peace: "Barış", diss: "Diss", quest: "Görev",
+    job: "Yan iş", dev: "Geliştirme", staff: "Personel", team_hire: "Ekip", crew: "Ekip",
+    therapy: "Terapi", mental_rest: "Dinlenme", holiday: "Tatil", list_maintenance: "Liste bakımı",
+    payola: "Payola", bot_streams: "Bot dinlenme", shady: "Riskli iş", incident: "Olay", crisis: "Kriz",
+    ar_revision: "A&R revizyonu", smooth: "Kolaylaştırma", sync: "Sync lisansı", other: "Diğer"
+  };
+
   K.econ = {
     STORES: ["spotify", "apple", "youtube", "other"],
 
@@ -14403,12 +14567,66 @@ window.K = window.K || {};
     spend(amount, reason) {
       if (!K.economy.canAfford(amount)) return false;
       K.state.balance -= amount;
+      K.economy.logMoney("out", amount, reason);
       K.bus.emit("money", { amount: -amount, reason });
       return true;
     },
 
+    /* ============================================================
+       v10.65 — PARA AKIŞI DEFTERİ
+       Gelir/giderin KAYNAĞI tutulur (reason zaten vardı ama hiçbir yerde
+       toplanmıyordu). Analiz sekmesindeki "Para Akışı" paneli buradan beslenir.
+       Sınırlı ring buffer: 600 kayıt (~birkaç ay), save'i şişirmez.
+       ============================================================ */
+    reasonLabel(reason) {
+      const k = String(reason || "other");
+      if (REASON_LABELS[k]) return REASON_LABELS[k];
+      return k.replace(/_/g, " ").replace(/^./, c => c.toUpperCase());
+    },
+
+    logMoney(dir, amount, reason) {
+      const s = K.state;
+      if (!s) return;
+      const a = Math.round(Math.abs(Number(amount) || 0));
+      if (!a) return;
+      s.moneyLog = s.moneyLog || [];
+      s.moneyLog.push({
+        day: s.day,
+        dir: dir === "out" ? "out" : "in",
+        amount: a,
+        reason: String(reason || "other").slice(0, 32)
+      });
+      if (s.moneyLog.length > 600) s.moneyLog = s.moneyLog.slice(-600);
+    },
+
+    /* son `days` günün kaynak bazlı dökümü (azalan sıralı) */
+    ledgerSummary(days) {
+      const s = K.state || {};
+      const span = Math.max(1, Math.round(Number(days) || 30));
+      const from = Math.max(1, (s.day || 1) - span + 1);
+      const agg = { in: {}, out: {} };
+      (s.moneyLog || []).forEach(e => {
+        if (!e || typeof e.day !== "number" || e.day < from) return;
+        const k = e.reason || "other";
+        agg[e.dir === "out" ? "out" : "in"][k] = (agg[e.dir === "out" ? "out" : "in"][k] || 0) + (Number(e.amount) || 0);
+      });
+      const rows = o => Object.keys(o)
+        .map(k => ({ reason: k, amount: o[k] }))
+        .sort((a, b) => b.amount - a.amount);
+      const ins = rows(agg.in), outs = rows(agg.out);
+      const totalIn = U.sum(ins, x => x.amount) || 0;
+      const totalOut = U.sum(outs, x => x.amount) || 0;
+      return {
+        days: span, from, to: s.day || 0,
+        ins, outs, totalIn, totalOut,
+        net: totalIn - totalOut,
+        entries: (s.moneyLog || []).filter(e => e && e.day >= from).length
+      };
+    },
+
     earn(amount, reason) {
       K.state.balance += amount;
+      K.economy.logMoney("in", amount, reason);
       K.state.player.totalEarned += amount;
       if (amount > 0) K.state.player.monthIncome = (K.state.player.monthIncome || 0) + amount;
       K.bus.emit("money", { amount, reason });
@@ -20955,7 +21173,7 @@ window.K = window.K || {};
       /* Şirket adına çıkan yayında parayı şirket ödedi: oyuncuya nakit
          iadesi yok, yalnızca itibar kaybı. */
       const refund = rel.viaLabel ? 0 : Math.round(paid * K.career.cancelRefundRate(rel));
-      if (refund > 0) s.balance += refund;
+      if (refund > 0) { s.balance += refund; K.economy.logMoney("in", refund, "cancel_refund"); }
 
       p.releases.splice(i, 1);
       p.reputation = U.clamp((p.reputation || 0) - 1, 0, 100);
@@ -20986,6 +21204,7 @@ window.K = window.K || {};
 
       const newRemaining = Math.max(2, Math.ceil(remaining * 0.6));
       s.balance -= fee;
+      K.economy.logMoney("out", fee, "rush_fee");
       rel.waitDays = (Number(rel.waitDays) || remaining) - remaining + newRemaining;
       rel.rushed = true;
       rel.rushFee = (rel.rushFee || 0) + fee;
@@ -36386,6 +36605,152 @@ window.K = window.K || {};
     },
 
     /* =====================================================
+       v10.65 — PROJE TASLAKLARI
+       Sihirbazı kapatınca girilen her şey kayboluyordu. Artık oyuncu
+       çalışmasını taslak olarak bırakıp sonra kaldığı yerden devam eder.
+       Taslak para HARCAMAZ; maliyet yalnızca "Yayınla" anında düşer.
+       ===================================================== */
+    draftLimit() { return 5; },
+
+    saveStudioDraft() {
+      const s = K.state, p = s.player;
+      const st = K.careerUI._studio;
+      if (!st) return { ok: false, reason: "no-studio" };
+      p.drafts = p.drafts || [];
+      if (p.drafts.length >= K.careerUI.draftLimit()) return { ok: false, reason: "limit" };
+
+      let data;
+      try { data = JSON.parse(JSON.stringify(st)); } catch (e) { return { ok: false, reason: "serialize" }; }
+      const first = (st.tracks && st.tracks[0] && st.tracks[0].name) || "";
+      const draft = {
+        id: U.uid("draft"),
+        day: s.day,
+        name: String(st.projectTitle || first || "Adsız taslak").slice(0, 48),
+        genre: st.genre,
+        count: st.count,
+        step: st.step,
+        data: data
+      };
+      p.drafts.unshift(draft);
+      p.drafts = p.drafts.slice(0, K.careerUI.draftLimit());
+      K.toast("💾 Taslak kaydedildi", `"${draft.name}" — Stüdyo sekmesinden devam edebilirsin.`, "ok");
+      K.save();
+      if (K.refresh) K.refresh();
+      return { ok: true, draft };
+    },
+
+    resumeStudioDraft(id) {
+      const p = K.state.player;
+      const draft = ((p.drafts) || []).find(d => d && d.id === id);
+      if (!draft) return { ok: false, reason: "missing" };
+      K.careerUI.openStudioModal();
+      const st = K.careerUI._studio;
+      if (st && draft.data) {
+        Object.assign(st, draft.data);
+        st.draftId = draft.id;
+        K.careerUI._syncTracks(st);
+        K.careerUI._syncCover(st);
+        K.careerUI.renderStudioStep();
+      }
+      return { ok: true, draft };
+    },
+
+    deleteStudioDraft(id) {
+      const p = K.state.player;
+      const before = (p.drafts || []).length;
+      p.drafts = (p.drafts || []).filter(d => d && d.id !== id);
+      if (p.drafts.length === before) return { ok: false, reason: "missing" };
+      K.save();
+      if (K.refresh) K.refresh();
+      return { ok: true };
+    },
+
+    draftsHTML() {
+      const drafts = (K.state.player.drafts || []).filter(Boolean);
+      if (!drafts.length) return "";
+      return `<div class="gh-panel">
+        <div class="gh-panel-head"><b>💾 Taslaklar</b><span>${drafts.length}/${K.careerUI.draftLimit()} · para harcamaz</span></div>
+        <div class="gh-drafts">
+          ${drafts.map(d => `<div class="gh-draft">
+            <span class="gh-draft-ic">${K.genreById(d.genre).icon}</span>
+            <div class="grow">
+              <b>${U.escape(d.name)}</b>
+              <span class="gh-draft-sub">${U.escape(K.genreById(d.genre).name)} · ${d.count} parça · ${K.careerUI.WIZ_STEPS[Math.min((d.step || 1), K.careerUI.WIZ_STEPS.length) - 1].label} adımında · gün ${d.day}</span>
+            </div>
+            <button class="btn btn-xs btn-primary" data-act="draft-resume" data-draft="${d.id}">Devam et</button>
+            <button class="btn btn-xs btn-ghost" data-act="draft-del" data-draft="${d.id}" title="Taslağı sil">🚫</button>
+          </div>`).join("")}
+        </div>
+      </div>`;
+    },
+
+    /* =====================================================
+       v10.65 — İLK 10 DAKİKA REHBERİ
+       Yeni oyuncu ne yapacağını bilmiyordu: oyun çok geniş, ilk yayın
+       çıkana kadar hangi sırayla ilerleyeceği anlatılmıyordu. Adımlar
+       mevcut sistemlerden TÜRETİLİR (uydurma ilerleme yok); rehber
+       kapatılabilir ve tamamlanınca bir kez ödül verir.
+       ===================================================== */
+    onboardSteps() {
+      const s = K.state, p = s.player;
+      const songs = (p.songs || []).filter(Boolean);
+      const shared = songs.some(sg => sg.socialPromo && Object.keys(sg.socialPromo).some(k => sg.socialPromo[k]));
+      const worked = (p.jobEarnings || 0) > 0 || (p.jobShifts || 0) > 0;
+      return [
+        { id: "persona", label: "Sanatçı kimliğini seç", hint: "Hangi tür ve temalarda güçlü olduğunu belirler.",
+          done: !!p.persona, cta: { label: "Kimlik seç", act: "persona" } },
+        { id: "studio", label: "Stüdyoyu aç, ilk parçanı kaydet", hint: "Beş adım: parçalar → prodüksiyon → söz → kapak → dağıtım.",
+          done: songs.length > 0 || (p.releases || []).length > 0, cta: { label: "Stüdyo", act: "open-studio" } },
+        { id: "release", label: "İlk yayınını çıkar", hint: "Parça yayınlanınca dinlenme ve gelir akmaya başlar.",
+          done: songs.length > 0, cta: { label: "Yayınlar", act: "go-tab", arg: "releases" } },
+        { id: "social", label: "Bir sosyal gönderi paylaş", hint: "Yayın sonrası tanıtım ilk görünürlüğü büyütür.",
+          done: shared, cta: { label: "Yayınlar", act: "go-tab", arg: "releases" } },
+        { id: "job", label: "Bir yan iş vardiyası çalış", hint: "Kasa erimesin: yan iş, stüdyo masrafını dengeler.",
+          done: worked, cta: { label: "Yan iş", act: "go-tab", arg: "jobs" } },
+        { id: "money", label: "İlk gelirini al", hint: "Telif ay sonunda yatar; ilk gelirle kataloğu büyüt.",
+          done: (p.totalEarned || 0) > 0, cta: { label: "Analiz", act: "go-tab", arg: "analytics" } }
+      ];
+    },
+
+    onboardingHTML() {
+      const s = K.state, p = s.player;
+      if (p.onboardDismissed) return "";
+      const steps = K.careerUI.onboardSteps();
+      const done = steps.filter(x => x.done).length;
+      if (done >= steps.length) {
+        /* tamamlandı: yalnızca kısa bir tebrik şeridi, sonra kaybolur */
+        return `<div class="ob-card done">
+          <span class="ob-ic">🎉</span>
+          <div class="grow"><b>Rehber tamamlandı</b><span class="ob-hint">${steps.length}/${steps.length} adım — artık kendi planını kur.</span></div>
+          <button class="btn btn-xs btn-ghost" data-act="ob-dismiss">Gizle</button>
+        </div>`;
+      }
+      const pct = Math.round(done / steps.length * 100);
+      return `<div class="ob-card">
+        <div class="ob-top">
+          <span class="ob-ic">🚀</span>
+          <div class="grow">
+            <b>İlk 10 dakika</b>
+            <span class="ob-hint">${done}/${steps.length} tamamlandı · sırayla ilerle, ödül seni bekliyor</span>
+          </div>
+          <button class="btn btn-xs btn-ghost" data-act="ob-dismiss" title="Rehberi gizle">Gizle</button>
+        </div>
+        <div class="ob-bar"><i style="width:${pct}%"></i></div>
+        <div class="ob-steps">
+          ${steps.map((st, i) => `<div class="ob-step${st.done ? " done" : ""}">
+            <span class="ob-no">${st.done ? "✓" : i + 1}</span>
+            <div class="grow">
+              <b>${U.escape(st.label)}</b>
+              <span class="ob-hint">${U.escape(st.hint)}</span>
+            </div>
+            ${st.done ? `<span class="ob-done-tag">bitti</span>`
+              : `<button class="btn btn-xs btn-ghost" data-act="${st.cta.act}"${st.cta.arg ? ` data-arg="${st.cta.arg}"` : ""}>${U.escape(st.cta.label)}</button>`}
+          </div>`).join("")}
+        </div>
+      </div>`;
+    },
+
+    /* =====================================================
        KARİYER
        ===================================================== */
     renderCareer() {
@@ -36399,6 +36764,7 @@ window.K = window.K || {};
 
       return `
         <div class="c-block">
+          ${K.careerUI.onboardingHTML()}
           <div class="artist-hero">
             ${K.ui.avatar(p.stageName, 74)}
             <div class="meta">
@@ -36819,6 +37185,8 @@ window.K = window.K || {};
             </div>
           </div>
 
+          ${K.careerUI.draftsHTML()}
+
           <div class="gh-split">
             <div class="gh-panel">
               <div class="gh-panel-head"><b>💡 Üretim Önerileri</b><span>durumuna göre</span></div>
@@ -37154,11 +37522,21 @@ window.K = window.K || {};
 
       const foot = U.qs(".modal-foot", box);
       foot.innerHTML = `<button class="btn btn-ghost" id="st-cancel">Vazgeç</button>
+        <button class="btn btn-ghost" id="st-draft" title="Bu çalışmayı taslak olarak sakla (para harcanmaz)">💾 Taslak</button>
         <div class="st-foot-right">
           <span class="st-nav-info"></span>
           <div class="st-nav" id="st-nav"></div>
         </div>`;
       U.qs("#st-cancel", foot).addEventListener("click", () => K.ui.closeModal());
+      const draftBtn = U.qs("#st-draft", foot);
+      if (draftBtn) draftBtn.addEventListener("click", () => {
+        const res = K.careerUI.saveStudioDraft();
+        if (!res.ok) {
+          K.toast("Taslak kaydedilmedi",
+            res.reason === "limit" ? `En fazla ${K.careerUI.draftLimit()} taslak tutabilirsin.` : "Bu çalışma kaydedilemedi.",
+            "warn");
+        }
+      });
 
       const bodyEl = U.qs(".modal-body", box);
       bodyEl.addEventListener("input", K.careerUI.onStudioInput);
@@ -39841,6 +40219,47 @@ window.K = window.K || {};
         </div>`;
     },
 
+    /* =====================================================
+       v10.65 — PARA AKIŞI
+       Gelir/giderin gerçek kaynakları (economy.logMoney defterinden).
+       Uydurma sayı yok: yalnızca kaydedilmiş hareketler gösterilir.
+       ===================================================== */
+    moneyFlowHTML(days) {
+      const led = K.economy.ledgerSummary(days || 30);
+      if (!led.entries) {
+        return `<div class="empty-note"><b>Para akışı henüz boş</b>
+          Telif, konser, merch, yan iş gibi gelirler ve giderler burada kaynaklarıyla birikir.</div>`;
+      }
+      const maxIn = Math.max(1, ...led.ins.map(x => x.amount));
+      const maxOut = Math.max(1, ...led.outs.map(x => x.amount));
+      const row = (x, max, cls) => `<div class="mf-row">
+          <span class="mf-name">${U.escape(K.economy.reasonLabel(x.reason))}</span>
+          <span class="mf-bar"><i class="${cls}" style="width:${U.clamp(Math.round(x.amount / max * 100), 3, 100)}%"></i></span>
+          <b class="mf-val ${cls}">${U.money(x.amount)}</b>
+        </div>`;
+      const netCls = led.net >= 0 ? "money" : "bad";
+
+      return `<div class="mf-head">
+          <div class="mf-kpi"><span class="k">Giren</span><span class="v money">${U.money(led.totalIn)}</span></div>
+          <div class="mf-kpi"><span class="k">Çıkan</span><span class="v bad">${U.money(led.totalOut)}</span></div>
+          <div class="mf-kpi"><span class="k">Net</span><span class="v ${netCls}">${U.money(led.net)}</span></div>
+          <div class="mf-kpi"><span class="k">Hareket</span><span class="v">${led.entries}</span></div>
+        </div>
+        <div class="mf-cols">
+          <div class="mf-col">
+            <div class="mf-col-head">Gelir kaynakları</div>
+            ${led.ins.length ? led.ins.slice(0, 6).map(x => row(x, maxIn, "in")).join("") : `<div class="mf-empty">Bu aralıkta gelir yok.</div>`}
+          </div>
+          <div class="mf-col">
+            <div class="mf-col-head">Giderler</div>
+            ${led.outs.length ? led.outs.slice(0, 6).map(x => row(x, maxOut, "out")).join("") : `<div class="mf-empty">Bu aralıkta gider yok.</div>`}
+          </div>
+        </div>
+        <div class="mf-foot">${led.from <= 1 ? `Oyundan bu yana (gün 1–${led.to})` : `Son ${led.days} gün (gün ${led.from}–${led.to})`} · vergi ve aylık gider ayrıca işlenir${
+          (K.state.player.debt || 0) > 0 ? ` · ⚠️ borç ${U.money(K.state.player.debt)}` : ""
+        }</div>`;
+    },
+
     renderAnalytics() {
       const s = K.state, p = s.player;
       const hide = K.settings && K.settings.valuesHidden && K.settings.valuesHidden();
@@ -39920,6 +40339,10 @@ window.K = window.K || {};
             ${platRow("Spotify", plat.spotify, "#1ed760")}
             ${platRow("Apple Music", plat.apple, "#d64b6a")}
             ${platRow("YouTube", plat.youtube, "#ff4b4b")}
+          </div>
+          <div class="an-panel">
+            <div class="an-panel-head">💸 Para akışı</div>
+            ${K.careerUI.moneyFlowHTML(30)}
           </div>
           <div class="an-panel">
             <div class="an-panel-head">Son yayınlar</div>
@@ -40775,6 +41198,23 @@ window.K = window.K || {};
       }
       if (act === "song-detail") {
         K.careerUI.openSongDetail(btn.dataset.song);
+        return;
+      }
+      if (act === "draft-resume") {
+        const res = K.careerUI.resumeStudioDraft(btn.dataset.draft);
+        if (!res.ok) K.toast("Taslak açılamadı", "Kayıt bulunamadı.", "warn");
+        return;
+      }
+      if (act === "draft-del") {
+        K.careerUI.deleteStudioDraft(btn.dataset.draft);
+        K.toast("🗑 Taslak silindi", "Çalışma kaldırıldı (para harcanmadı).", "");
+        K.careerUI.render();
+        return;
+      }
+      if (act === "ob-dismiss") {
+        K.state.player.onboardDismissed = true;
+        K.save();
+        K.careerUI.render();
         return;
       }
       if (act === "lib-filter") {
