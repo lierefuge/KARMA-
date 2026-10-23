@@ -87,7 +87,28 @@
    "url": "https://music.apple.com/tr/album/sodom-gomore/6819328307?i=6819328316&uo=4",
    "trackArtist": "Şehinşah & Hidra",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "rap",
+    "mood": "Agresif ve Karanlık",
+    "energy": 10,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.95,
+     "traptr": 0.85,
+     "drilltr": 0.2,
+     "newmusic": 0.8,
+     "nightmode": 0.2,
+     "popturkiye": 0
+    },
+    "note": "Agresif lirikalite ve yüksek tempolu altyapıyla öne çıkan sert bir rap düeti.",
+    "tags": [
+     "agresif",
+     "sert rap",
+     "düet"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "motive::akila": {
    "title": "Akila",
@@ -100,7 +121,28 @@
    "url": "https://music.apple.com/tr/album/akila/6821364741?i=6821364744&uo=4",
    "trackArtist": "Motive",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "trap",
+    "mood": "iddialı",
+    "energy": 8,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.9,
+     "traptr": 0.95,
+     "drilltr": 0.3,
+     "newmusic": 0.85,
+     "nightmode": 0.4,
+     "popturkiye": 0.1
+    },
+    "note": "Motive'den sert altyapısı ve iddialı vokaliyle öne çıkan dinamik bir trap parçası.",
+    "tags": [
+     "trap",
+     "türkçe rap",
+     "enerjik"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "era7capone::bipolar": {
    "title": "BİPOLAR",
@@ -113,7 +155,28 @@
    "url": "https://music.apple.com/tr/album/bi-polar/6822741275?i=6822741459&uo=4",
    "trackArtist": "Era7capone & KERO",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "trap",
+    "mood": "agresif",
+    "energy": 8,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.85,
+     "traptr": 0.9,
+     "drilltr": 0.8,
+     "newmusic": 0.85,
+     "nightmode": 0.2,
+     "popturkiye": 0.1
+    },
+    "note": "Era7capone ve KERO'dan yüksek enerjili, sert ritimlere sahip dinamik bir trap çalışması.",
+    "tags": [
+     "trap",
+     "sert",
+     "enerjik"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "era7capone::gangsta mentalıte": {
    "title": "GANGSTA MENTALITE",
@@ -126,7 +189,28 @@
    "url": "https://music.apple.com/tr/album/gangsta-mentalite/6822741275?i=6822741467&uo=4",
    "trackArtist": "Era7capone",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "drill",
+    "mood": "Sert ve agresif",
+    "energy": 10,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.8,
+     "traptr": 0.8,
+     "drilltr": 0.9,
+     "newmusic": 0.7,
+     "nightmode": 0.1,
+     "popturkiye": 0
+    },
+    "note": "Sert drill ritimleri ve sokak temasını öne çıkaran agresif vokal performansı.",
+    "tags": [
+     "drill",
+     "sokak rap",
+     "agresif"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "era7capone::knv": {
    "title": "KNV",
@@ -139,7 +223,28 @@
    "url": "https://music.apple.com/tr/album/knv/6822741275?i=6822741472&uo=4",
    "trackArtist": "Era7capone",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "trap",
+    "mood": "agresif",
+    "energy": 10,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.8,
+     "traptr": 0.85,
+     "drilltr": 0.6,
+     "newmusic": 0.8,
+     "nightmode": 0.3,
+     "popturkiye": 0.1
+    },
+    "note": "Era7capone'un enerjik ve karanlık trap tınılarına sahip dinamik parçası.",
+    "tags": [
+     "trap",
+     "sert",
+     "gece"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "era7capone::ok cnm": {
    "title": "OK CNM",
@@ -152,7 +257,28 @@
    "url": "https://music.apple.com/tr/album/ok-cnm/6822741275?i=6822741461&uo=4",
    "trackArtist": "Era7capone",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "trap",
+    "mood": "özgüvenli",
+    "energy": 10,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.8,
+     "traptr": 0.9,
+     "drilltr": 0.5,
+     "newmusic": 0.8,
+     "nightmode": 0.2,
+     "popturkiye": 0.1
+    },
+    "note": "Bipolar albümünden dinamik ve vurucu trap ritimleriyle öne çıkan bir çalışma.",
+    "tags": [
+     "trap",
+     "hit",
+     "ritmik"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "era7capone::papilo": {
    "title": "PAPİLO",
@@ -165,7 +291,28 @@
    "url": "https://music.apple.com/tr/album/papi-lo/6822741275?i=6822741480&uo=4",
    "trackArtist": "Era7capone, MODIE & KERO",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "drill",
+    "mood": "sert",
+    "energy": 10,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.8,
+     "traptr": 0.8,
+     "drilltr": 0.85,
+     "newmusic": 0.8,
+     "nightmode": 0.2,
+     "popturkiye": 0.1
+    },
+    "note": "MODIE ve KERO eşliğinde tempolu ve sokak tınlayan sert bir drill parçası.",
+    "tags": [
+     "drill",
+     "sokak",
+     "düet"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "era7capone::yalancı": {
    "title": "YALANCI",
@@ -178,7 +325,28 @@
    "url": "https://music.apple.com/tr/album/yalanci/6822741275?i=6822741475&uo=4",
    "trackArtist": "Era7capone & Laçin",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "trap",
+    "mood": "melankolik",
+    "energy": 10,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.7,
+     "traptr": 0.75,
+     "drilltr": 0.2,
+     "newmusic": 0.8,
+     "nightmode": 0.8,
+     "popturkiye": 0.2
+    },
+    "note": "Laçin eşliğinde melankolik altyapısı ve duygu yüklü vokalleriyle dikkat çeken parça.",
+    "tags": [
+     "melankolik",
+     "rnb",
+     "düet"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "joker::beddua": {
    "title": "Beddua",
@@ -191,7 +359,28 @@
    "url": "https://music.apple.com/tr/album/beddua/6817887219?i=6817887870&uo=4",
    "trackArtist": "Joker",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "rap",
+    "mood": "öfkeli",
+    "energy": 10,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.9,
+     "traptr": 0.4,
+     "drilltr": 0.2,
+     "newmusic": 0.75,
+     "nightmode": 0.2,
+     "popturkiye": 0.1
+    },
+    "note": "Joker'in sert flow'ları ve eleştirel sözleriyle öne çıkan protest rap örneği.",
+    "tags": [
+     "protest",
+     "sert rap",
+     "flow"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "joker::intikam için": {
    "title": "İntikam İçin",
@@ -204,7 +393,28 @@
    "url": "https://music.apple.com/tr/album/i-ntikam-i-%C3%A7in/6817887219?i=6817887868&uo=4",
    "trackArtist": "Joker",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "rap",
+    "mood": "karanlık",
+    "energy": 10,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.9,
+     "traptr": 0.4,
+     "drilltr": 0.2,
+     "newmusic": 0.75,
+     "nightmode": 0.3,
+     "popturkiye": 0.1
+    },
+    "note": "Travma albümünün karanlık atmosferini yansıtan tempolu ve hırslı bir rap parçası.",
+    "tags": [
+     "turkce rap",
+     "hızlı",
+     "karanlık"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "joker::mutfak (skit)": {
    "title": "Mutfak (Skit)",
@@ -217,7 +427,28 @@
    "url": "https://music.apple.com/tr/album/mutfak-skit/6817887219?i=6817887862&uo=4",
    "trackArtist": "Joker",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "rap",
+    "mood": "karanlık",
+    "energy": 3,
+    "tempo": "slow",
+    "fit": {
+     "rapturkiye": 0.5,
+     "traptr": 0.1,
+     "drilltr": 0,
+     "newmusic": 0.4,
+     "nightmode": 0.3,
+     "popturkiye": 0
+    },
+    "note": "Joker'in TRAVMA albümünden konsepti tamamlayan bir skit çalışması.",
+    "tags": [
+     "skit",
+     "turkcerap",
+     "joker"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "reckol::rollıe": {
    "title": "ROLLIE",
@@ -230,7 +461,28 @@
    "url": "https://music.apple.com/tr/album/rollie/6815343039?i=6815343040&uo=4",
    "trackArtist": "Reckol & Kuty",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "trap",
+    "mood": "enerjik",
+    "energy": 8,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.7,
+     "traptr": 0.9,
+     "drilltr": 0.3,
+     "newmusic": 0.8,
+     "nightmode": 0.4,
+     "popturkiye": 0.1
+    },
+    "note": "Reckol ve Kuty'den dinamik ve tempolu yeni nesil trap parçası.",
+    "tags": [
+     "trap",
+     "reckol",
+     "kuty"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "joker::söz": {
    "title": "Söz",
@@ -243,7 +495,28 @@
    "url": "https://music.apple.com/tr/album/s%C3%B6z/6817887219?i=6817887866&uo=4",
    "trackArtist": "Joker",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "rap",
+    "mood": "sert",
+    "energy": 7,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.9,
+     "traptr": 0.3,
+     "drilltr": 0.1,
+     "newmusic": 0.7,
+     "nightmode": 0.3,
+     "popturkiye": 0
+    },
+    "note": "Joker'den güçlü vokaller ve lirik odaklı sert bir Türkçe rap parçası.",
+    "tags": [
+     "turkcerap",
+     "joker",
+     "boombap"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "weghrumi::uykudan önce": {
    "title": "Uykudan Önce",
@@ -256,7 +529,28 @@
    "url": "https://music.apple.com/tr/album/uykudan-%C3%B6nce/6819387621?i=6819387626&uo=4",
    "trackArtist": "Wegh",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "trap",
+    "mood": "melankolik",
+    "energy": 5,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.7,
+     "traptr": 0.6,
+     "drilltr": 0.2,
+     "newmusic": 0.7,
+     "nightmode": 0.8,
+     "popturkiye": 0.1
+    },
+    "note": "Wegh'ten melankolik tonda, gece dinlemelerine uygun atmosferik trap.",
+    "tags": [
+     "wegh",
+     "melankolik",
+     "trap"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "liashine::yüzünü unutuyorum": {
    "title": "Yüzünü Unutuyorum",
@@ -269,7 +563,28 @@
    "url": "https://music.apple.com/tr/album/y%C3%BCz%C3%BCn%C3%BC-unutuyorum/6816130792?i=6816130797&uo=4",
    "trackArtist": "Lia Shine",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "rnb",
+    "mood": "hüzünlü",
+    "energy": 4,
+    "tempo": "slow",
+    "fit": {
+     "rapturkiye": 0.5,
+     "traptr": 0.3,
+     "drilltr": 0,
+     "newmusic": 0.7,
+     "nightmode": 0.9,
+     "popturkiye": 0.4
+    },
+    "note": "Lia Shine'dan duygusal vokaller ve melankolik altyapıyla öne çıkan parça.",
+    "tags": [
+     "liashine",
+     "rnb",
+     "melankolik"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "joker::ıntro": {
    "title": "Intro",
@@ -282,7 +597,28 @@
    "url": "https://music.apple.com/tr/album/intro/6817887219?i=6817887224&uo=4",
    "trackArtist": "Joker",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "rap",
+    "mood": "epik",
+    "energy": 6,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.6,
+     "traptr": 0.2,
+     "drilltr": 0.1,
+     "newmusic": 0.5,
+     "nightmode": 0.3,
+     "popturkiye": 0
+    },
+    "note": "TRAVMA albümünün atmosferini belirleyen anlatı ağırlıklı açılış parçası.",
+    "tags": [
+     "intro",
+     "joker",
+     "turkcerap"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "joker::şeytanlar ve melekler": {
    "title": "Şeytanlar ve Melekler",
@@ -295,7 +631,28 @@
    "url": "https://music.apple.com/tr/album/%C5%9Feytanlar-ve-melekler/6817887219?i=6817887228&uo=4",
    "trackArtist": "Joker",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "rap",
+    "mood": "agresif",
+    "energy": 10,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.9,
+     "traptr": 0.4,
+     "drilltr": 0.2,
+     "newmusic": 0.8,
+     "nightmode": 0.3,
+     "popturkiye": 0.1
+    },
+    "note": "Sert beat'ler ve karanlık temalar içeren agresif Joker rap parçası.",
+    "tags": [
+     "sert rap",
+     "joker",
+     "travma"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "murda::5am": {
    "title": "5AM",
@@ -308,7 +665,28 @@
    "url": "https://music.apple.com/tr/album/5am/6812656291?i=6812656537&uo=4",
    "trackArtist": "Murda",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "rnb",
+    "mood": "melankolik",
+    "energy": 10,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.7,
+     "traptr": 0.8,
+     "drilltr": 0.2,
+     "newmusic": 0.8,
+     "nightmode": 0.9,
+     "popturkiye": 0.3
+    },
+    "note": "Gece atmosferini yansıtan melankolik ve melodik R&B trap parçası.",
+    "tags": [
+     "gece",
+     "melodik trap",
+     "murda"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "murda::5migros": {
    "title": "5Migros",
@@ -321,7 +699,28 @@
    "url": "https://music.apple.com/tr/album/5migros/6812656291?i=6812656543&uo=4",
    "trackArtist": "Murda",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "trap",
+    "mood": "eğlenceli",
+    "energy": 10,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.8,
+     "traptr": 0.9,
+     "drilltr": 0.3,
+     "newmusic": 0.8,
+     "nightmode": 0.4,
+     "popturkiye": 0.4
+    },
+    "note": "Temposu yüksek, modern trap altyapılı dinamik bir Murda şarkısı.",
+    "tags": [
+     "trap",
+     "dinamik",
+     "murda"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "murda::br0ww/beddua": {
    "title": "Br0ww/Beddua",
@@ -334,7 +733,28 @@
    "url": "https://music.apple.com/tr/album/br0ww-beddua/6812656291?i=6812656533&uo=4",
    "trackArtist": "Murda",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "trap",
+    "mood": "karanlık",
+    "energy": 10,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.8,
+     "traptr": 0.8,
+     "drilltr": 0.4,
+     "newmusic": 0.8,
+     "nightmode": 0.5,
+     "popturkiye": 0.2
+    },
+    "note": "Sert baslar ve çift konseptli yapısıyla öne çıkan trap çalışması.",
+    "tags": [
+     "sert trap",
+     "uzay",
+     "murda"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "murda::sneakylink (feat. yung ouzo)": {
    "title": "sneakyLink (feat. Yung Ouzo)",
@@ -347,7 +767,28 @@
    "url": "https://music.apple.com/tr/album/sneakylink-feat-yung-ouzo/6812656291?i=6812656538&uo=4",
    "trackArtist": "Murda",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "trap",
+    "mood": "rahat",
+    "energy": 10,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.7,
+     "traptr": 0.8,
+     "drilltr": 0.3,
+     "newmusic": 0.8,
+     "nightmode": 0.6,
+     "popturkiye": 0.3
+    },
+    "note": "Akıcı vokaller ve modern beat'lerle kulüp havası taşıyan düet.",
+    "tags": [
+     "düet",
+     "trap",
+     "akıcı"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "murda::vallah (feat. summer cem)": {
    "title": "vAllah (feat. Summer Cem)",
@@ -360,7 +801,28 @@
    "url": "https://music.apple.com/tr/album/vallah-feat-summer-cem/6812656291?i=6812656535&uo=4",
    "trackArtist": "Murda",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "trap",
+    "mood": "enerjik",
+    "energy": 10,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.8,
+     "traptr": 0.9,
+     "drilltr": 0.4,
+     "newmusic": 0.9,
+     "nightmode": 0.3,
+     "popturkiye": 0.3
+    },
+    "note": "Yüksek tempolu, Summer Cem eşlikli enerjik ve ritmik trap hit'i.",
+    "tags": [
+     "hit",
+     "trap",
+     "summer cem"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "murda::yanıyorum": {
    "title": "yanıyorum",
@@ -373,7 +835,28 @@
    "url": "https://music.apple.com/tr/album/yan%C4%B1yorum/6812656291?i=6812656541&uo=4",
    "trackArtist": "Murda",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "trap",
+    "mood": "akıcı",
+    "energy": 7,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.8,
+     "traptr": 0.85,
+     "drilltr": 0.1,
+     "newmusic": 0.9,
+     "nightmode": 0.6,
+     "popturkiye": 0.3
+    },
+    "note": "Murda'nın melodik vokalleri ve hareketli trap ritimleriyle öne çıkan modern çalışma.",
+    "tags": [
+     "trap",
+     "melodik rap",
+     "yeni rap"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "sagopa::sor yıllara": {
    "title": "Sor Yıllara",
@@ -386,7 +869,28 @@
    "url": "https://music.apple.com/tr/album/sor-y%C4%B1llara/6813571510?i=6813571672&uo=4",
    "trackArtist": "Sagopa Kajmer",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "rap",
+    "mood": "melankolik",
+    "energy": 4,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.95,
+     "traptr": 0.2,
+     "drilltr": 0,
+     "newmusic": 0.9,
+     "nightmode": 0.85,
+     "popturkiye": 0.2
+    },
+    "note": "Sagopa Kajmer'den duygusal derinliği yüksek, nostaljik ve vurucu bir Türkçe rap örneği.",
+    "tags": [
+     "klasik rap",
+     "melankoli",
+     "derin sözler"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   }
  }
 };
