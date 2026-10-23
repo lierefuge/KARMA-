@@ -63,3 +63,25 @@ yeni build           2.730.872 bayt
 
 Yani yöntem, bayat bir build'i doğrulanmış biçimde yerine koyuyor;
 kontrolün kendisi hiç değişmiyor.
+
+## Canlı doğrulama (2026-10-23)
+
+| Adım | Sonuç |
+|---|---|
+| Manüel `workflow_dispatch` (main, `21869628`) | ✅ success · 00:16 → 00:24 |
+| Otomatik `Doğrulama` (aynı saniyeler, `event: workflow_dispatch`) | ✅ tetiklendi · sonuç success |
+| Workflow permissions | ✅ Read and write (dispatch 403 almadan çalıştı) |
+
+## Tekrarlı çalıştırmada boş commit (düzeltildi)
+
+İlk çalıştırmalar `version.json` içindeki `built` damgası yüzünden boş commit
+atıyordu (`d31aa3c2`, +1/−1). `tools/gen-version-json.js` artık `built`
+değerini yalnızca **sürüm / önbellek / tarih değiştiğinde** yeniliyor:
+
+```
+aynı sürüm  → 2. ve 3. çalıştırma: dosya DEĞİŞMEDİ
+sürüm 10.63.1 → built yenilendi
+```
+
+Sonuç: build güncelse iş akışı **"commit gerekmedi"** deyip biter, yalnızca
+Doğrulama'yı tetikler.
