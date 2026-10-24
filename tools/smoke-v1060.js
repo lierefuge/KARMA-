@@ -396,7 +396,7 @@ function run(K) {
     ok("Q1 · süitte yakalanmamış runtime hatası yok", rt.length === 0, rt.slice(0, 2).join(" | "));
     ok("Q2 · v10.59 sistemleri korunuyor",
       typeof K.industry.memoryOf === "function" && typeof K.labelSim.transfer === "function" &&
-      typeof K.industry.reactToCareer === "function" && typeof K.industry.memoryBetween === "function");
+      typeof K.industry.reactToCareer === "function");   /* memoryBetween v10.67'de kaldırıldı (ölü kod) */
   }
 
   console.log("\n============================================");
