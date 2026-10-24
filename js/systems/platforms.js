@@ -145,12 +145,6 @@
       };
     },
 
-    /* ---------- bir editoryal listenin kurulmuş hâli ---------- */
-    editorialPlaylist(id) {
-      if (K.editorial && K.editorial.build) return K.editorial.build(id);
-      return null;
-    },
-
     /* ---------- Spotify sanatçı şarkıları (popülerlik sıralı) ---------- */
     spotifyTopSongs(artistId) {
       const prof = K.platforms.artistProfile(artistId);
@@ -180,20 +174,6 @@
       }));
     },
 
-    /* ---------- YouTube kanalı ---------- */
-    youtubeChannel(artistId) {
-      const prof = K.platforms.artistProfile(artistId);
-      if (!prof) return null;
-      const vids = (prof.songs || []).slice(0, 6).map((sg, i) => ({
-        id: sg.id, title: sg.title + " (Official Video)",
-        views: Math.round((sg.streams || 0) * U.rand(0.9, 1.6)),
-        likes: Math.round((sg.streams || 0) * 0.02),
-        comments: Math.round((sg.streams || 0) * 0.002),
-        duration: 150 + (i * 37) % 160,
-        coverSeed: sg.coverSeed
-      }));
-      return { profile: prof, videos: vids };
-    },
 
     /* ---------- oyuncunun toplam platform verileri ---------- */
     playerTotals() {
@@ -209,12 +189,6 @@
     /* ---------- oyuncunun şarkısını platforma göre bul ---------- */
     findSong(songId) {
       return K.state.player.songs.find(s => s.id === songId) || null;
-    },
-
-    /* ---------- şarkı popülerlik yüzdesi (0-100) ---------- */
-    songPopularity(song) {
-      const max = Math.max(1, ...(K.state.chart || []).map(e => e.daily));
-      return U.clamp(Math.round(((song.lastDaily || song.dailyStreams || 0) / max) * 100), 1, 100);
     }
   };
 })(window.K);
