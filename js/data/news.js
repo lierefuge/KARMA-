@@ -175,9 +175,43 @@
     muzik: "flex", gundem: "street"
   };
 
+  /* ---------------- GERÇEK YENİ ÇIKIŞLAR (v10.67) ----------------
+     release-intel.js son 30 günün gerçek çıkışlarını tutuyor; bunlar
+     artık oyunun gündeminde de görünür ("X yeni işini yayınladı").
+     AI küratör notu varsa teaser olarak kullanılır.
+
+     ÖNEMLİ: K.RELEASE_INTEL burada YÜKLENMEZ (lazy tetiklenmez) —
+     yalnızca zaten yüklüyse okunur. Veri yoksa boş dizi döner ve
+     gündem eskisi gibi çalışır. */
+  function releaseTopics(limit) {
+    const d = K.RELEASE_INTEL;
+    if (!d || !d.releases) return [];
+    const keys = Object.keys(d.releases);
+    const out = [];
+    for (let i = 0; i < keys.length && out.length < (limit || 3); i++) {
+      const r = d.releases[keys[i]];
+      if (!r || !r.title || !r.artistName) continue;
+      const heat = 68 + Math.round(((r.intel && r.intel.energy) || 6) * 2);
+      out.push({
+        id: K.util.uid("news"),
+        cat: "muzik",
+        title: r.artistName + " yeni işini yayınladı: " + r.title,
+        keywords: ["yeni çıkış", "single", r.artistName],
+        line: (r.intel && r.intel.note) || (r.album || "Yeni single"),
+        heat: K.util.clamp(heat, 40, 100),
+        live: true,
+        releaseKey: keys[i]
+      });
+    }
+    return out;
+  }
+
   const REFRESH_DAYS = 30;
 
   K.news = {
+
+    /* testler ve araçlar için: gerçek çıkışlardan üretilen gündem maddeleri */
+    releaseTopics: releaseTopics,
     /* --- gündemi kur / tazele --- */
     refresh(force) {
       const s = K.state;
@@ -197,7 +231,9 @@
       });
       /* v10.62.1 — gerçek olaydan gelen "canlı" haberler tazelemede korunur */
       const live = (s.agenda && s.agenda.topics || []).filter(t => t.live);
-      s.agenda = { refreshedDay: s.day, topics: live.concat(K.util.shuffle(topics)).slice(0, 12) };
+      /* v10.67 — gerçek yeni çıkışlar gündemin BAŞINDA */
+      const rel = releaseTopics(3);
+      s.agenda = { refreshedDay: s.day, topics: rel.concat(live).concat(K.util.shuffle(topics)).slice(0, 12) };
     },
 
     current() {
