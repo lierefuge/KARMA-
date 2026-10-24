@@ -102,10 +102,6 @@
     },
 
     /* oyuncunun bir mağazadaki toplam aktif liste sayısı */
-    storeCount(platform) {
-      return K.lists.forPlatform(platform).length;
-    },
-
     /* mağaza dağıtım özeti: şarkının gittiği mağazalar */
     storesFor(song) {
       if (!song || !song.stores) return [];
@@ -233,16 +229,6 @@
         });
       });
       return rows;
-    },
-
-    /* platform bazlı toplam aktif listeler */
-    platformCount() {
-      const out = {};
-      K.lists.summary().forEach(r => {
-        if (r.exitDay) return;
-        out[r.platform] = (out[r.platform] || 0) + 1;
-      });
-      return out;
     }
   };
 })(window.K = window.K || {});
