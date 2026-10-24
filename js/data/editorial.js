@@ -189,7 +189,11 @@
         title: x.r.title, artistName: x.r.artistName, artistId: x.r.artistId,
         art: x.r.art || null, album: x.r.album || null,
         coverSeed: "nr" + x.r.artistId, streams: 0, mine: false,
-        releaseDate: x.r.releaseDate, isNew: true
+        releaseDate: x.r.releaseDate, isNew: true,
+        /* v10.67 — AI etiketi arayüze taşınır ("YENİ" rozeti + küratör notu) */
+        note: (x.r.intel && x.r.intel.note) || null,
+        genreTag: (x.r.intel && x.r.intel.genre) || null,
+        moodTag: (x.r.intel && x.r.intel.mood) || null
       }));
     },
 
