@@ -10072,8 +10072,6 @@ html, body {
     map: MAP,
     stateOf: function (n) { return state[n] || "idle"; },
     loaded: function (n) { return state[n] === "ready"; },
-    errorOf: function (n) { return errors[n] || null; },
-
     /* söz verilen verileri yükle */
     ensure: function (names) {
       const list = Array.isArray(names) ? names : [names];
@@ -10461,20 +10459,6 @@ html, body {
       });
     },
 
-    /* bir distribütörün toplam maliyet etkisi (yayın başına) */
-    feeLabel(id, day) {
-      const f = K.distro.feeFor(id, day);
-      const d = K.distributorById(id);
-      if (!d) return "—";
-      if (d.model === "annual") {
-        const until = K.distro.planUntil(id);
-        const today = (day != null) ? day : ((K.state && K.state.day) || 0);
-        if (until > today) return "yıllık plan aktif";
-        return f + " ₺/yıl";
-      }
-      if (d.model === "free" || d.model === "label") return "ücretsiz";
-      return f + " ₺/yayın";
-    }
   };
 })(window.K = window.K || {});
 
@@ -12555,19 +12539,7 @@ html, body {
       };
     },
 
-    /* sesli özet (DM'de "kim bu adam" hissi) */
-    summaryLine(artistId) {
-      const p = K.NPC_PERSONALITY[artistId];
-      if (!p) return "";
-      return p.archetype + " · " + p.tagline;
-    },
 
-    /* hard/insult gibi niyetlerde profilin kırmızı çizgisine girip girmediği */
-    isRedLine(artistId, intent) {
-      const p = K.NPC_PERSONALITY[artistId];
-      if (!p) return false;
-      return ["insult", "personal", "askmoney", "flirt"].indexOf(intent) >= 0;
-    }
   };
 })(window.K = window.K || {});
 
@@ -12725,8 +12697,6 @@ window.K = window.K || {};
 
     /* ---------- misc ---------- */
     sum(arr, fn) { return arr.reduce((s, x) => s + (fn ? fn(x) : x), 0); },
-    deepClone(o) { return JSON.parse(JSON.stringify(o)); },
-    plural(n, one, many) { return n === 1 ? one : many; },
     ago(day, cur) {
       const d = cur - day;
       if (d <= 0) return "şimdi";
@@ -14273,11 +14243,6 @@ window.K = window.K || {};
       return U.clamp(p.att, 0.35, K.ECON.attentionMax || 2.3);
     },
 
-    /* doygunluk seviyesi (okuma/arayüz için) */
-    fatigueAttention() {
-      const p = K.state && K.state.player;
-      return p ? U.clamp(p.fatigueAtt || 0, 0, 1) : 0;
-    },
 
     /* yayın yapıldığında dalgayı besle.
        strength 0..1,4 arası: kalite + tanıtım + gündem uyumu.
@@ -14796,20 +14761,6 @@ window.K = window.K || {};
       p.popularity = U.clamp(p.popularity + (target - p.popularity) * 0.045 + U.rand(-0.15, 0.18), 0, 99);
     },
 
-    /* ---------------- listeler ---------------- */
-    npcTrack(a) {
-      const s = K.state;
-      s._npcTracks = s._npcTracks || {};
-      if (!s._npcTracks[a.id]) {
-        const pool = ["Gece", "Sokak", "Yalan", "Karma", "Rüya", "Ateş", "Sisli", "Kayıp",
-          "Son Dans", "Bir Şans", "Kırmızı", "Derin", "Yıldız", "Sessiz", "Fırtına", "Melek",
-          "Kalbim", "Şehir", "Vazgeç", "Yolun Sonu"];
-        const pool2 = ["Prodüksiyon", "Beat", "Remix", "Live", "Freestyle", "Snippet", "Acoustic"];
-        const t = U.pick(pool) + (U.chance(0.4) ? " " + U.pick(pool2) : "");
-        s._npcTracks[a.id] = { title: t, artistId: a.id };
-      }
-      return s._npcTracks[a.id];
-    },
 
     buildChart() {
       const s = K.state;
@@ -17336,13 +17287,6 @@ window.K = window.K || {};
       return lay.pages.length - 1;
     },
 
-    removeLastPage() {
-      const lay = K.phoneHome.layout();
-      if (lay.pages.length <= 1 || lay.pages[lay.pages.length - 1].length) return false;
-      lay.pages.pop();
-      K.phoneHome.save();
-      return true;
-    },
 
     /* ---------------- düzenleme arayüzü ---------------- */
     _refresh() {
@@ -18399,10 +18343,6 @@ window.K = window.K || {};
       return (live && live !== "__none__") ? live : null;
     },
 
-    /* ---- PP var mı? (arayüzler bunu sorar) ---- */
-    hasPhoto(artistId) {
-      return !!K.imagery.portrait(artistId);
-    },
 
     /* ---- isme göre en iyi görsel ---- */
     byName(name) {
@@ -18419,12 +18359,6 @@ window.K = window.K || {};
       return (a && a.photo) || K.imagery.portrait(id) || K.imagery.art(id);
     },
 
-    /* ---- şarkı kapağı ---- */
-    songArt(song) {
-      if (!song) return null;
-      if (song.art) return song.art;
-      return null;
-    },
 
     /* ---- eksik PP'leri arka planda tamamla ----
        Baked fotoğrafı OLMAYAN sanatçılar için sırayla Wikipedia (tr) →
@@ -43327,11 +43261,6 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       K.phone.render();
     },
 
-    replaceView(view) {
-      if (K.phone.views.length) K.phone.views[K.phone.views.length - 1] = view;
-      else K.phone.views = [view];
-      K.phone.render();
-    },
 
     back() {
       if (K.phone.views.length > 1) {
