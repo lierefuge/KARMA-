@@ -67,10 +67,6 @@
         .sort((a, b) => b.heat - a.heat);
     },
 
-    isBeefing(artistId) {
-      const b = K.beef.get(artistId);
-      return !!b && b.heat >= 40;
-    },
 
     /* sözlerde bir sanatçının adını/mahlasını bul → diss hedefi */
     detectTarget(text) {
