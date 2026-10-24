@@ -15245,18 +15245,6 @@ window.K = window.K || {};
 
     /* aylık net akış tahmini (Kariyer sekmesi)
        v10: 30 sn eşiği, kur ve enflasyon hesaba katılır. */
-    forecast() {
-      const p = K.state.player;
-      const songs = p.songs || [];
-      let gross = 0;
-      songs.forEach(song => {
-        const bill = K.econ.billable(song);
-        const perDay = (song.lastDaily || 0) * 30 * bill;
-        const pl = song.platforms || K.ECON.storeMix;
-        K.econ.STORES.forEach(st => { gross += perDay * (pl[st] || 0) * K.econ.rate(st); });
-      });
-      return Math.round(gross);
-    },
 
     /* vadesi gelmemiş (rapor bekleyen) telif — "yolda olan para" */
     pending() {
@@ -16352,14 +16340,6 @@ window.K = window.K || {};
 
   K.ai = {
 
-    /* AI konusunda kamuoyu duruşu: imaj + itibar */
-    stanceLabel() {
-      const p = K.state.player;
-      const im = p.image || 50;
-      if (im >= 65) return "insan odaklı, saygın";
-      if (im >= 45) return "temkinli / kararsız";
-      return "AI'ya yakın, tartışmalı";
-    },
 
     tick() {
       const s = K.state, p = s.player;
@@ -17963,15 +17943,6 @@ window.K = window.K || {};
       return { label: "Dinç", color: "money", penalty: "—", block: false };
     },
 
-    /* becerilerin müzikal etkisi */
-    skillEffects() {
-      return {
-        musicQuality: +(K.skillLevel("music") * 0.42).toFixed(1),
-        studioQuality: +(K.skillLevel("studio") * 0.34).toFixed(1),
-        network: K.skillLevel("network"),
-        workPay: "+%" + Math.round((K.jobs.payMult({ skill: "work" }) - 1) * 100)
-      };
-    }
   };
 })(window.K);
 
@@ -18045,25 +18016,6 @@ window.K = window.K || {};
       </svg>`;
     },
 
-    /* çoklu seri (karşılaştırma) */
-    multiChart(seriesList, opts) {
-      opts = opts || {};
-      const w = opts.w || 300, h = opts.h || 90;
-      const all = seriesList.reduce((a, s) => a.concat(s.values), []);
-      if (!all.length) return `<div class="mini-empty">Veri yok</div>`;
-      const min = 0, max = Math.max.apply(null, all) || 1;
-      let defs = "", paths = "";
-      seriesList.forEach((s, si) => {
-        const n = s.values.length;
-        const pts = s.values.map((v, i) => {
-          const x = n === 1 ? w / 2 : (i / (n - 1)) * w;
-          const y = h - 3 - ((v - min) / max) * (h - 8);
-          return x.toFixed(1) + "," + y.toFixed(1);
-        }).join(" ");
-        paths += `<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round"/>`;
-      });
-      return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">${defs}${paths}</svg>`;
-    },
 
     /* büyüme yüzdesi */
     growth(key, days) {
@@ -22479,15 +22431,6 @@ window.K = window.K || {};
       return true;
     },
 
-    leaveLabel() {
-      const p = K.state.player;
-      if (!p.labelId) return;
-      const name = K.labelById(p.labelId)?.name || "şirket";
-      p.labelId = null;
-      p.reputation = Math.max(0, p.reputation - 5);
-      K.toast("Sözleşme bitti", `${name} ile yollar ayrıldı.`, "warn");
-      K.save(); K.refresh();
-    }
   };
 })(window.K);
 
@@ -27109,10 +27052,6 @@ window.K = window.K || {};
       return (I.memory[artistId] || []).slice(0, n || 6);
     },
 
-    memoryBetween(aId, bId) {
-      const I = K.industry.ensure();
-      return (I.memory[aId] || []).filter(e => e.otherId === bId);
-    },
 
     /* oyuncu ile geçmiş (otherId === "player") */
     playerMemory(artistId, n) {
@@ -27670,10 +27609,6 @@ window.K = window.K || {};
        Yalnızca oyuncunun büyük hamlelerinden gelen momentumda çalışır;
        normal oynayışta relations.dailyTick zaten teklif üretir.
        ============================================================ */
-    labelInterest() {
-      const I = K.industry.ensure();
-      return U.clamp(I.momentum || 0, 0, 1);
-    },
 
     _pickLabelForPlayer() {
       const p = K.state.player;
@@ -28584,14 +28519,6 @@ window.K = window.K || {};
       return K.interactions.queueState();
     },
 
-    enqueue(track) {
-      const q = K.interactions._q;
-      if (!track || !track.title) return null;
-      q.list.push(track);
-      if (q.idx < 0) q.idx = 0;
-      if (q.shuffle) q.order = K.interactions._shuffleOrder(q.list.length);
-      return K.interactions.queueState();
-    },
 
     clearQueue() {
       const q = K.interactions._q;
@@ -30043,12 +29970,6 @@ window.K = window.K || {};
       return K.certifications.list().filter(pl => pl.tier === tierId).length;
     },
 
-    /* şarkının hak ettiği EN YÜKSEK kademe (henüz verilmemişse farkı döndürür) */
-    earnedFor(streams) {
-      let out = null;
-      TIERS.forEach(t => { if ((streams || 0) >= t.streams) out = t; });
-      return out;
-    },
 
     /* verilmemiş ama hak edilmiş kademeler */
     pendingFor(song) {
@@ -30775,10 +30696,6 @@ window.K = window.K || {};
         .sort((a, b) => b.heat - a.heat);
     },
 
-    isBeefing(artistId) {
-      const b = K.beef.get(artistId);
-      return !!b && b.heat >= 40;
-    },
 
     /* sözlerde bir sanatçının adını/mahlasını bul → diss hedefi */
     detectTarget(text) {
@@ -31966,17 +31883,6 @@ window.K = window.K || {};
       return { peak: L.peak, followers, donations };
     },
 
-    /* ---------------- fan etkileşimi (yorum yanıtlama) ---------------- */
-    replyComment(seed, idx) {
-      const L = K.state;
-      const p = L.player;
-      const gain = U.rand(0.1, 0.5);
-      K.game.addFame(gain);
-      p.ig += U.randInt(20, 160);
-      p.reputation = Math.min(100, p.reputation + 0.2);
-      K.toast("💬 Yorum yanıtlandı", "Hayran etkileşimi arttı.", "ok");
-      return true;
-    }
   };
 })(window.K);
 
@@ -35154,14 +35060,6 @@ window.K = window.K || {};
     analyser() { return analyser; },
     volume() { return st.volume; },
     rate() { return st.rate; },
-    debug() {
-      return {
-        motif: MOTIFS[st.seed % MOTIFS.length], chordTones: CHORD_TONES,
-        motifs: MOTIFS.length, bars: st.bars,
-        melody: MELODY_ENABLED, melodicEvents: melodicCount, bpm: Math.round(st.bpm)
-      };
-    },
-    resetMelodicCounter() { melodicCount = 0; },
 
     progress() {
       if (K.preview && K.preview.active()) return K.preview.progress();
