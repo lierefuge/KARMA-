@@ -1028,10 +1028,6 @@
       return (I.memory[artistId] || []).slice(0, n || 6);
     },
 
-    memoryBetween(aId, bId) {
-      const I = K.industry.ensure();
-      return (I.memory[aId] || []).filter(e => e.otherId === bId);
-    },
 
     /* oyuncu ile geçmiş (otherId === "player") */
     playerMemory(artistId, n) {
@@ -1589,10 +1585,6 @@
        Yalnızca oyuncunun büyük hamlelerinden gelen momentumda çalışır;
        normal oynayışta relations.dailyTick zaten teklif üretir.
        ============================================================ */
-    labelInterest() {
-      const I = K.industry.ensure();
-      return U.clamp(I.momentum || 0, 0, 1);
-    },
 
     _pickLabelForPlayer() {
       const p = K.state.player;
