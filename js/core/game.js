@@ -205,11 +205,6 @@
       return U.clamp(p.att, 0.35, K.ECON.attentionMax || 2.3);
     },
 
-    /* doygunluk seviyesi (okuma/arayüz için) */
-    fatigueAttention() {
-      const p = K.state && K.state.player;
-      return p ? U.clamp(p.fatigueAtt || 0, 0, 1) : 0;
-    },
 
     /* yayın yapıldığında dalgayı besle.
        strength 0..1,4 arası: kalite + tanıtım + gündem uyumu.
@@ -728,20 +723,6 @@
       p.popularity = U.clamp(p.popularity + (target - p.popularity) * 0.045 + U.rand(-0.15, 0.18), 0, 99);
     },
 
-    /* ---------------- listeler ---------------- */
-    npcTrack(a) {
-      const s = K.state;
-      s._npcTracks = s._npcTracks || {};
-      if (!s._npcTracks[a.id]) {
-        const pool = ["Gece", "Sokak", "Yalan", "Karma", "Rüya", "Ateş", "Sisli", "Kayıp",
-          "Son Dans", "Bir Şans", "Kırmızı", "Derin", "Yıldız", "Sessiz", "Fırtına", "Melek",
-          "Kalbim", "Şehir", "Vazgeç", "Yolun Sonu"];
-        const pool2 = ["Prodüksiyon", "Beat", "Remix", "Live", "Freestyle", "Snippet", "Acoustic"];
-        const t = U.pick(pool) + (U.chance(0.4) ? " " + U.pick(pool2) : "");
-        s._npcTracks[a.id] = { title: t, artistId: a.id };
-      }
-      return s._npcTracks[a.id];
-    },
 
     buildChart() {
       const s = K.state;
