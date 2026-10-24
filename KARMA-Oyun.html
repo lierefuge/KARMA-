@@ -9137,9 +9137,43 @@ html, body {
     muzik: "flex", gundem: "street"
   };
 
+  /* ---------------- GERÇEK YENİ ÇIKIŞLAR (v10.67) ----------------
+     release-intel.js son 30 günün gerçek çıkışlarını tutuyor; bunlar
+     artık oyunun gündeminde de görünür ("X yeni işini yayınladı").
+     AI küratör notu varsa teaser olarak kullanılır.
+
+     ÖNEMLİ: K.RELEASE_INTEL burada YÜKLENMEZ (lazy tetiklenmez) —
+     yalnızca zaten yüklüyse okunur. Veri yoksa boş dizi döner ve
+     gündem eskisi gibi çalışır. */
+  function releaseTopics(limit) {
+    const d = K.RELEASE_INTEL;
+    if (!d || !d.releases) return [];
+    const keys = Object.keys(d.releases);
+    const out = [];
+    for (let i = 0; i < keys.length && out.length < (limit || 3); i++) {
+      const r = d.releases[keys[i]];
+      if (!r || !r.title || !r.artistName) continue;
+      const heat = 68 + Math.round(((r.intel && r.intel.energy) || 6) * 2);
+      out.push({
+        id: K.util.uid("news"),
+        cat: "muzik",
+        title: r.artistName + " yeni işini yayınladı: " + r.title,
+        keywords: ["yeni çıkış", "single", r.artistName],
+        line: (r.intel && r.intel.note) || (r.album || "Yeni single"),
+        heat: K.util.clamp(heat, 40, 100),
+        live: true,
+        releaseKey: keys[i]
+      });
+    }
+    return out;
+  }
+
   const REFRESH_DAYS = 30;
 
   K.news = {
+
+    /* testler ve araçlar için: gerçek çıkışlardan üretilen gündem maddeleri */
+    releaseTopics: releaseTopics,
     /* --- gündemi kur / tazele --- */
     refresh(force) {
       const s = K.state;
@@ -9159,7 +9193,9 @@ html, body {
       });
       /* v10.62.1 — gerçek olaydan gelen "canlı" haberler tazelemede korunur */
       const live = (s.agenda && s.agenda.topics || []).filter(t => t.live);
-      s.agenda = { refreshedDay: s.day, topics: live.concat(K.util.shuffle(topics)).slice(0, 12) };
+      /* v10.67 — gerçek yeni çıkışlar gündemin BAŞINDA */
+      const rel = releaseTopics(3);
+      s.agenda = { refreshedDay: s.day, topics: rel.concat(live).concat(K.util.shuffle(topics)).slice(0, 12) };
     },
 
     current() {
@@ -11148,15 +11184,16 @@ html, body {
     /* ---- yeni çıkışlardan liste kur ----
        intel.fit varsa onu, yoksa türü kullanır. Aynı sanatçıdan en fazla
        2 parça: bir albüm çıkışı listeyi tek başına doldurmasın. */
-    newReleaseTracks(def, limit) {
-      const pool = K.editorial.recentReleases(def.recentDays);
+    newReleaseTracks(def, limit, minFit) {
+      const pool = K.editorial.recentReleases(def.recentDays || 21);
       const maxPerArtist = 2;
+      const floor = minFit == null ? 0.35 : minFit;
       const seen = {};
       const scored = [];
       pool.forEach(r => {
         const fit = (r.intel && r.intel.fit && def && r.intel.fit[def.id]) || 0;
         /* intel varsa ve bu listeye uymuyorsa ele */
-        if (r.intel && r.intel.fit && fit < 0.35) return;
+        if (r.intel && r.intel.fit && fit < floor) return;
         const n = seen[r.artistId] || 0;
         if (n >= maxPerArtist) return;
         seen[r.artistId] = n + 1;
@@ -11214,10 +11251,20 @@ html, body {
          Gerçek çıkışlar listenin başına gelir; release-intel henüz
          yüklenmemişse liste eskisi gibi çalışmaya devam eder. */
       let list = songs;
+      const have = {};
+      songs.forEach(s => { have[nkey(s.title)] = true; });
       if (def.recent) {
-        const have = {};
-        songs.forEach(s => { have[nkey(s.title)] = true; });
-        const fresh = K.editorial.newReleaseTracks(def, 12).filter(s => !have[nkey(s.title)]);
+        /* "Yeni Çıkanlar": tüm yeni çıkışlar (AI uygunluğu 0.35 üstü) */
+        const fresh = K.editorial.newReleaseTracks(def, 12, 0.35).filter(s => !have[nkey(s.title)]);
+        list = fresh.concat(songs);
+      } else if (def.genre) {
+        /* v10.67 — TÜR LİSTELERİ DE YENİ ÇIKIŞ ÇEKER.
+           Sebep: AI her şarkı için 6 liste uygunluğu üretiyordu ama
+           yalnızca `newmusic` okuyordu; kalan 5 skor boştaydı. Artık
+           uygunluğu 0.60 üstü olan yeni çıkış kendi tür listesine
+           giriyor (ör. yeni drill → "Drill Türkiye").
+           EN FAZLA 3: bir albüm çıkışı listeyi ele geçirmesin. */
+        const fresh = K.editorial.newReleaseTracks(def, 3, 0.60).filter(s => !have[nkey(s.title)]);
         list = fresh.concat(songs);
       }
       list.forEach((s, i) => { s.streams = Math.round(950000 * Math.pow(0.9, i)); });
