@@ -195,13 +195,6 @@
       return lay.pages.length - 1;
     },
 
-    removeLastPage() {
-      const lay = K.phoneHome.layout();
-      if (lay.pages.length <= 1 || lay.pages[lay.pages.length - 1].length) return false;
-      lay.pages.pop();
-      K.phoneHome.save();
-      return true;
-    },
 
     /* ---------------- düzenleme arayüzü ---------------- */
     _refresh() {
