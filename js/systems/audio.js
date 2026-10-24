@@ -547,14 +547,6 @@
     analyser() { return analyser; },
     volume() { return st.volume; },
     rate() { return st.rate; },
-    debug() {
-      return {
-        motif: MOTIFS[st.seed % MOTIFS.length], chordTones: CHORD_TONES,
-        motifs: MOTIFS.length, bars: st.bars,
-        melody: MELODY_ENABLED, melodicEvents: melodicCount, bpm: Math.round(st.bpm)
-      };
-    },
-    resetMelodicCounter() { melodicCount = 0; },
 
     progress() {
       if (K.preview && K.preview.active()) return K.preview.progress();
