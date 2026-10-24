@@ -179,18 +179,6 @@
 
     /* aylık net akış tahmini (Kariyer sekmesi)
        v10: 30 sn eşiği, kur ve enflasyon hesaba katılır. */
-    forecast() {
-      const p = K.state.player;
-      const songs = p.songs || [];
-      let gross = 0;
-      songs.forEach(song => {
-        const bill = K.econ.billable(song);
-        const perDay = (song.lastDaily || 0) * 30 * bill;
-        const pl = song.platforms || K.ECON.storeMix;
-        K.econ.STORES.forEach(st => { gross += perDay * (pl[st] || 0) * K.econ.rate(st); });
-      });
-      return Math.round(gross);
-    },
 
     /* vadesi gelmemiş (rapor bekleyen) telif — "yolda olan para" */
     pending() {
