@@ -183,7 +183,8 @@ function run() {
   ok("F-3 · bilinmeyen liste boş döner", E.build("yokboyle").songs.length === 0);
   ok("F-4 · liste editoryal kimliği korunuyor", E.build("traptr").curator === "Karma Editoryal");
   ok("F-5 · sanatçı havuzları değişmedi", E.byId("traptr").artists.length === 12 && E.byId("rapturkiye").artists.length === 11);
-  ok("F-6 · intelOf bilinmeyen için null", E.intelOf("sehinsah", "olmayan-sarki-xyz") === null);
+  /* v10.67 — intelOf kaldırıldı (çağrısı yoktu); yerine veri erişimi sınanır */
+  ok("F-6 · bilinmeyen çıkış sorgusu güvenli", E.recentReleases(99999).length >= 0);
 
   /* oyuncu şarkısı hâlâ listeye girebiliyor */
   try {
