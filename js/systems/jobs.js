@@ -347,14 +347,5 @@
       return { label: "Dinç", color: "money", penalty: "—", block: false };
     },
 
-    /* becerilerin müzikal etkisi */
-    skillEffects() {
-      return {
-        musicQuality: +(K.skillLevel("music") * 0.42).toFixed(1),
-        studioQuality: +(K.skillLevel("studio") * 0.34).toFixed(1),
-        network: K.skillLevel("network"),
-        workPay: "+%" + Math.round((K.jobs.payMult({ skill: "work" }) - 1) * 100)
-      };
-    }
   };
 })(window.K);
