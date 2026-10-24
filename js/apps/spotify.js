@@ -33,16 +33,30 @@
     if (list.length > 8) list.length = 8;
   }
 
+  /* v10.67 — YENİ ÇIKIŞ ROZETİ + AI KÜRATÖR NOTU
+     `editorial.newReleaseTracks()` her yeni çıkışa `isNew`, `note` ve
+     `releaseDate` ekliyor; `intel` verisi boşsa bu alanlar null gelir ve
+     satır eskisi gibi görünür (geriye dönük uyum, veri beklenmez). */
   function trackRow(t, opts) {
     opts = opts || {};
     const letter = (t.title[0] || "?").toUpperCase();
     const liked = K.interactions.isLiked(t.id);
+    const fresh = t.isNew
+      ? ` <span class="pill" style="font-size:8px;background:#6ec3ff;color:#06253d">YENİ</span>`
+      : "";
+    const sub = t.note
+      ? `<div class="t-artist" style="opacity:.72;font-size:10px">${U.escape(t.note)}</div>`
+      : "";
+    const date = t.releaseDate
+      ? " · " + U.escape(String(t.releaseDate).slice(5).split("-").reverse().join("/"))
+      : (t.year ? " · " + t.year : "");
     return `<div class="sp-track">
       ${opts.index != null ? `<span class="t-rank">${opts.index + 1}</span>` : `<span class="t-rank">♪</span>`}
       ${K.ui.cover(t.coverSeed || t.id, letter, 42, t.art)}
       <div class="grow" style="min-width:0" data-pact="play" data-arg="${U.escape(t.id)}">
-        <div class="t-name">${U.escape(t.title)}${t.mine ? ' <span class="pill karma" style="font-size:8px">SEN</span>' : ""}</div>
-        <div class="t-artist">${U.escape(t.artistName)}${t.year ? " · " + t.year : ""}</div>
+        <div class="t-name">${U.escape(t.title)}${fresh}${t.mine ? ' <span class="pill karma" style="font-size:8px">SEN</span>' : ""}</div>
+        <div class="t-artist">${U.escape(t.artistName)}${date}</div>
+        ${sub}
       </div>
       <span class="t-plays">${U.compact(t.streams || 0)}</span>
       <button class="t-more" data-pact="row-more" data-arg="${U.escape(t.id)}" title="Diğer">⋯</button>
