@@ -60,12 +60,6 @@
       return K.certifications.list().filter(pl => pl.tier === tierId).length;
     },
 
-    /* şarkının hak ettiği EN YÜKSEK kademe (henüz verilmemişse farkı döndürür) */
-    earnedFor(streams) {
-      let out = null;
-      TIERS.forEach(t => { if ((streams || 0) >= t.streams) out = t; });
-      return out;
-    },
 
     /* verilmemiş ama hak edilmiş kademeler */
     pendingFor(song) {
