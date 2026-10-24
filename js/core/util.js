@@ -147,8 +147,6 @@ window.K = window.K || {};
 
     /* ---------- misc ---------- */
     sum(arr, fn) { return arr.reduce((s, x) => s + (fn ? fn(x) : x), 0); },
-    deepClone(o) { return JSON.parse(JSON.stringify(o)); },
-    plural(n, one, many) { return n === 1 ? one : many; },
     ago(day, cur) {
       const d = cur - day;
       if (d <= 0) return "şimdi";
