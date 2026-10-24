@@ -247,6 +247,7 @@ async function scanArtist(a, artistId, ctx) {
       releaseDate: String(t.releaseDate || "").slice(0, 10),
       ms: t.trackTimeMillis || 0,
       url: t.trackViewUrl || null,
+      preview: t.previewUrl || null,
       trackArtist: t.artistName || "",
       isNew: !known.has(norm(t.trackName))
     });
@@ -324,6 +325,7 @@ async function scanArtist(a, artistId, ctx) {
           releaseDate: r.releaseDate,
           ms: r.ms,
           url: r.url,
+          preview: r.preview || null,
           trackArtist: r.trackArtist,
           isNew: r.isNew,
           /* AI zenginleştirmesi KORUNUR */
@@ -410,6 +412,8 @@ async function scanArtist(a, artistId, ctx) {
      releaseDate  YYYY-MM-DD (iTunes, TR)
      ms           süre (milisaniye)
      url          iTunes sayfası
+     preview      30 sn ses önizlemesi (iTunes previewUrl) — yeni çıkışın
+                  oyunda ÇALINABİLMESİNİ sağlar; yoksa null
      trackArtist  iTunes'un tam sanatçı dizesi ("Şehinşah & Hidra")
      isNew        real-songs.js'te YOK mu?
      intel        AI zenginleştirmesi — null ise henüz işlenmedi.
