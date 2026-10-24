@@ -65,25 +65,6 @@
       </svg>`;
     },
 
-    /* çoklu seri (karşılaştırma) */
-    multiChart(seriesList, opts) {
-      opts = opts || {};
-      const w = opts.w || 300, h = opts.h || 90;
-      const all = seriesList.reduce((a, s) => a.concat(s.values), []);
-      if (!all.length) return `<div class="mini-empty">Veri yok</div>`;
-      const min = 0, max = Math.max.apply(null, all) || 1;
-      let defs = "", paths = "";
-      seriesList.forEach((s, si) => {
-        const n = s.values.length;
-        const pts = s.values.map((v, i) => {
-          const x = n === 1 ? w / 2 : (i / (n - 1)) * w;
-          const y = h - 3 - ((v - min) / max) * (h - 8);
-          return x.toFixed(1) + "," + y.toFixed(1);
-        }).join(" ");
-        paths += `<polyline points="${pts}" fill="none" stroke="${s.color}" stroke-width="2" stroke-linejoin="round"/>`;
-      });
-      return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">${defs}${paths}</svg>`;
-    },
 
     /* büyüme yüzdesi */
     growth(key, days) {
