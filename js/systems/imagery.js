@@ -80,10 +80,6 @@
       return (live && live !== "__none__") ? live : null;
     },
 
-    /* ---- PP var mı? (arayüzler bunu sorar) ---- */
-    hasPhoto(artistId) {
-      return !!K.imagery.portrait(artistId);
-    },
 
     /* ---- isme göre en iyi görsel ---- */
     byName(name) {
@@ -100,12 +96,6 @@
       return (a && a.photo) || K.imagery.portrait(id) || K.imagery.art(id);
     },
 
-    /* ---- şarkı kapağı ---- */
-    songArt(song) {
-      if (!song) return null;
-      if (song.art) return song.art;
-      return null;
-    },
 
     /* ---- eksik PP'leri arka planda tamamla ----
        Baked fotoğrafı OLMAYAN sanatçılar için sırayla Wikipedia (tr) →
