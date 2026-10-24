@@ -180,19 +180,5 @@
       });
     },
 
-    /* bir distribütörün toplam maliyet etkisi (yayın başına) */
-    feeLabel(id, day) {
-      const f = K.distro.feeFor(id, day);
-      const d = K.distributorById(id);
-      if (!d) return "—";
-      if (d.model === "annual") {
-        const until = K.distro.planUntil(id);
-        const today = (day != null) ? day : ((K.state && K.state.day) || 0);
-        if (until > today) return "yıllık plan aktif";
-        return f + " ₺/yıl";
-      }
-      if (d.model === "free" || d.model === "label") return "ücretsiz";
-      return f + " ₺/yayın";
-    }
   };
 })(window.K = window.K || {});
