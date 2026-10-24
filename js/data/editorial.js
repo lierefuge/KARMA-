@@ -165,15 +165,16 @@
     /* ---- yeni çıkışlardan liste kur ----
        intel.fit varsa onu, yoksa türü kullanır. Aynı sanatçıdan en fazla
        2 parça: bir albüm çıkışı listeyi tek başına doldurmasın. */
-    newReleaseTracks(def, limit) {
-      const pool = K.editorial.recentReleases(def.recentDays);
+    newReleaseTracks(def, limit, minFit) {
+      const pool = K.editorial.recentReleases(def.recentDays || 21);
       const maxPerArtist = 2;
+      const floor = minFit == null ? 0.35 : minFit;
       const seen = {};
       const scored = [];
       pool.forEach(r => {
         const fit = (r.intel && r.intel.fit && def && r.intel.fit[def.id]) || 0;
         /* intel varsa ve bu listeye uymuyorsa ele */
-        if (r.intel && r.intel.fit && fit < 0.35) return;
+        if (r.intel && r.intel.fit && fit < floor) return;
         const n = seen[r.artistId] || 0;
         if (n >= maxPerArtist) return;
         seen[r.artistId] = n + 1;
@@ -231,10 +232,20 @@
          Gerçek çıkışlar listenin başına gelir; release-intel henüz
          yüklenmemişse liste eskisi gibi çalışmaya devam eder. */
       let list = songs;
+      const have = {};
+      songs.forEach(s => { have[nkey(s.title)] = true; });
       if (def.recent) {
-        const have = {};
-        songs.forEach(s => { have[nkey(s.title)] = true; });
-        const fresh = K.editorial.newReleaseTracks(def, 12).filter(s => !have[nkey(s.title)]);
+        /* "Yeni Çıkanlar": tüm yeni çıkışlar (AI uygunluğu 0.35 üstü) */
+        const fresh = K.editorial.newReleaseTracks(def, 12, 0.35).filter(s => !have[nkey(s.title)]);
+        list = fresh.concat(songs);
+      } else if (def.genre) {
+        /* v10.67 — TÜR LİSTELERİ DE YENİ ÇIKIŞ ÇEKER.
+           Sebep: AI her şarkı için 6 liste uygunluğu üretiyordu ama
+           yalnızca `newmusic` okuyordu; kalan 5 skor boştaydı. Artık
+           uygunluğu 0.60 üstü olan yeni çıkış kendi tür listesine
+           giriyor (ör. yeni drill → "Drill Türkiye").
+           EN FAZLA 3: bir albüm çıkışı listeyi ele geçirmesin. */
+        const fresh = K.editorial.newReleaseTracks(def, 3, 0.60).filter(s => !have[nkey(s.title)]);
         list = fresh.concat(songs);
       }
       list.forEach((s, i) => { s.streams = Math.round(950000 * Math.pow(0.9, i)); });
