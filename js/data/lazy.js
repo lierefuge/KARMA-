@@ -150,6 +150,34 @@
   }
 
   /* ---------------- genel API ---------------- */
+  /* ---------------- YENİ ÇIKIŞ DİZİNİ (v10.67) ----------------
+     release-intel.js "slug::normalize-başlık" anahtarıyla tutulur.
+     Bu fonksiyon anahtarı BİR KEZ üretir; her önizleme isteğinde
+     tarama yapmaz. Veri henüz yüklenmemişse null döner (yükleme
+     TETİKLENMEZ — bkz. previewFor açıklaması). */
+  let _relIdx = null;
+  function normKey(s) {
+    return String(s == null ? "" : s)
+      .replace(/İ/g, "i").replace(/I/g, "ı")
+      .toLowerCase()
+      .replace(/[’'`´"“”]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+  function releaseIndex() {
+    if (_relIdx) return _relIdx;
+    const d = K.RELEASE_INTEL;
+    if (!d || !d.releases) return null;
+    _relIdx = d.releases;
+    return _relIdx;
+  }
+  /* veri sonradan gelirse dizin bayatlamasın */
+  if (K.bus && K.bus.on) {
+    K.bus.on("lazydata:loaded", function (p) {
+      if (p && (p.name === "release-intel" || p === "release-intel")) _relIdx = null;
+    });
+  }
+
   K.lazy = {
     names: NAMES,
     map: MAP,
@@ -216,12 +244,30 @@
       return (artistId && all[artistId]) || [];
     },
 
-    /* şarkı önizlemesi: { p, a } veya null */
+    /* şarkı önizlemesi: { p, a } veya null
+       v10.67 — YENİ ÇIKIŞLAR: `real-previews.js` yalnızca eski katalogu
+       kapsıyor; sonradan çıkan parçalar orada YOK. Bu yüzden önizleme
+       bulunamazsa `release-intel` kaydındaki iTunes `previewUrl`'ine düşeriz.
+       Aksi hâlde "Yeni Çıkanlar" listesindeki şarkı görünür ama sessiz kalır
+       (ölçüldü: 24 yeni çıkışın 24'ünde önizleme yoktu).
+
+       DİKKAT: burada K.lazy.raw("release-intel") ÇAĞRILMAZ. Bu fonksiyon
+       çizim sırasında çağrılabiliyor; tembel yüklemeyi buradan tetiklemek
+       boot'ta ağ isteği doğurur ve "boot en fazla real-songs" kuralını
+       kırar. Veri henüz yüklenmediyse null döneriz — main.js veri gelince
+       arayüzü zaten tazeliyor. */
     previewFor: function (artistId, title) {
       const all = K.lazy.raw("real-previews");
       if (!artistId || !title) return null;
       const a = all[artistId];
-      return (a && a[title]) || null;
+      const hit = a && a[title];
+      if (hit) return hit;
+
+      const idx = releaseIndex();
+      if (!idx) return null;
+      const rec = idx[artistId + "::" + normKey(title)];
+      if (rec && rec.preview) return { p: rec.preview, a: rec.url || "" };
+      return null;
     },
 
     /* YouTube video kaydı: { v } veya null */
