@@ -30,7 +30,7 @@
    Geriye dönük uyum
    -----------------
    Yüklenmemiş veriye erişen çağrılar ÇÖKMEZ: güvenli erişimciler
-   (songs / previewFor / discography / ytFor / raw) boş değer döner ve
+   (songs / previewFor / discography / raw) boş değer döner ve
    yüklemeyi tetikler. Yükleme bitince `lazydata:loaded` olayı yayılır,
    main.js arayüzü tazeler. Yani ilk bakışta sentetik şarkı görülürse
    veri gelince kendiliğinden gerçeğiyle değişir.
@@ -270,13 +270,12 @@
       return null;
     },
 
-    /* YouTube video kaydı: { v } veya null */
-    ytFor: function (artistId, title) {
-      const all = K.lazy.raw("real-youtube");
-      if (!artistId || !title) return null;
-      const a = all[artistId];
-      return (a && a[title]) || null;
-    },
+    /* NOT (v10.67): eski `ytFor()` erişimcisi KALDIRILDI.
+       Uygulama kodunda hiçbir çağrısı yoktu; tek tüketici olan
+       systems/preview.js kendi `ytVideoId()` çözümleyicisini kullanıyor
+       (sanatçı → herhangi sanatçı → normalize başlık sırasıyla daha
+       toleranslı). Veri katmanı (real-youtube.js) CANLI: YouTube
+       uygulaması gerçek video gömüyor. */
 
     /* kaç sanatçı kaydı yüklü */
     available: function (name) {
