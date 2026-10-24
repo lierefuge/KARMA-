@@ -249,6 +249,50 @@ function run() {
   ok("G-8 · yeni rozeti için isNew işaretli", nmPlay.every(s => s.isNew === true));
   ok("G-9 · releaseDate satıra taşınıyor", nmPlay.every(s => /^\d{4}-\d{2}-\d{2}$/.test(s.releaseDate || "")));
 
+  /* ============ H) TÜR LİSTELERİ + HABER AKIŞI (v10.67) ============
+     AI her şarkı için 6 liste uygunluğu üretiyordu ama yalnızca
+     `newmusic` okuyordu. Artık fit >= 0.60 olan yeni çıkış kendi tür
+     listesine de giriyor. Ölçüm: drilltr 4, nightmode 6, popturkiye 0. */
+  const nk = (x) => String(x == null ? "" : x)
+    .replace(/İ/g, "i").replace(/I/g, "ı").toLowerCase()
+    .replace(/[’'`´"“”]/g, "").replace(/\s+/g, " ").trim();
+
+  function eligibleFor(pid, floor) {
+    return recs.filter(r => r.intel && r.intel.fit && (r.intel.fit[pid] || 0) >= (floor == null ? 0.60 : floor));
+  }
+
+  E.setRotation("w2");
+  const drill = E.build("drilltr");
+  const drillFresh = drill.songs.filter(s => s.isNew);
+  const drillElig = eligibleFor("drilltr");
+  ok("H-1 · tür listesi yeni çıkış çekiyor", drillElig.length ? drillFresh.length > 0 : drillFresh.length === 0,
+    drillFresh.length + " yeni / " + drillElig.length + " uygun");
+  ok("H-2 · tür listesinde en fazla 3 yeni kayıt", drillFresh.length <= 3, drillFresh.length + " kayıt");
+  ok("H-3 · yalnızca fit >= 0.60 olanlar giriyor",
+    drillFresh.every(s => drillElig.some(r => nk(r.title) === nk(s.title))),
+    drillFresh.map(s => s.title).join(", ").slice(0, 60));
+  ok("H-4 · uygun çıkış yoksa liste dolmuyor", E.build("popturkiye").songs.filter(s => s.isNew).length === 0,
+    "popturkiye: " + E.build("popturkiye").songs.filter(s => s.isNew).length);
+  ok("H-5 · tür listesi hâlâ 8-13 parça", drill.songs.length >= 8 && drill.songs.length <= 13, drill.songs.length + " parça");
+  ok("H-6 · yeni rozeti tür listesinde de var", drillFresh.every(s => s.isNew === true));
+
+  /* haber akışı: gerçek çıkışlar gündeme düşüyor */
+  let newsOk = false, newsDetail = "";
+  try {
+    const tp = K.news.releaseTopics(3);
+    newsOk = Array.isArray(tp) && tp.length > 0 && tp.every(t => /yayınladı/.test(t.title) && t.cat === "muzik");
+    newsDetail = (tp && tp.length) + " madde · ilk: " + ((tp && tp[0] && tp[0].title) || "-").slice(0, 44);
+  } catch (e) { newsDetail = e.message; }
+  ok("H-7 · haber akışı gerçek çıkış üretiyor", newsOk, newsDetail);
+
+  /* haber maddesi AI notunu teaser olarak taşıyor */
+  let teaserOk = false;
+  try {
+    const tp = K.news.releaseTopics(1);
+    teaserOk = !!(tp && tp[0] && tp[0].line && tp[0].line.length > 5);
+  } catch (e) {}
+  ok("H-8 · haber teaser'ı dolu (AI notu)", teaserOk);
+
   /* ---- rapor ---- */
   const runtime = (errors || []).filter(m => !/fonts|Not implemented/i.test(m));
   console.log("=".repeat(58));
