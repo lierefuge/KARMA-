@@ -12,14 +12,6 @@
 
   K.ai = {
 
-    /* AI konusunda kamuoyu duruşu: imaj + itibar */
-    stanceLabel() {
-      const p = K.state.player;
-      const im = p.image || 50;
-      if (im >= 65) return "insan odaklı, saygın";
-      if (im >= 45) return "temkinli / kararsız";
-      return "AI'ya yakın, tartışmalı";
-    },
 
     tick() {
       const s = K.state, p = s.player;
