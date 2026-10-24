@@ -4,7 +4,7 @@
 
    Üretici : node tools/fetch-new-releases.js
    Kaynak  : iTunes Lookup API (country=TR) — albüm → parça
-   Tarih   : 2026-10-23  ·  24 kayıt (24 tanesi depoda yok)
+   Tarih   : 2026-10-24  ·  23 kayıt (23 tanesi depoda yok)
 
    ŞEMA (kayıt başına)
    -------------------
@@ -16,6 +16,8 @@
      releaseDate  YYYY-MM-DD (iTunes, TR)
      ms           süre (milisaniye)
      url          iTunes sayfası
+     preview      30 sn ses önizlemesi (iTunes previewUrl) — yeni çıkışın
+                  oyunda ÇALINABİLMESİNİ sağlar; yoksa null
      trackArtist  iTunes'un tam sanatçı dizesi ("Şehinşah & Hidra")
      isNew        real-songs.js'te YOK mu?
      intel        AI zenginleştirmesi — null ise henüz işlenmedi.
@@ -29,11 +31,11 @@
   "use strict";
   K.RELEASE_INTEL = {
  "meta": {
-  "asof": "2026-10-23",
+  "asof": "2026-10-24",
   "window": 30,
   "source": "itunes-lookup-tr",
-  "count": 24,
-  "newCount": 24,
+  "count": 23,
+  "newCount": 23,
   "artistIds": {
    "sehinsah": 736313630,
    "weghrumi": 1564584641,
@@ -73,7 +75,7 @@
    "deryaulug": 1118978883,
    "liashine": 1486825049
   },
-  "generated": "2026-10-23T13:59:05.876Z"
+  "generated": "2026-10-24T00:24:17.621Z"
  },
  "releases": {
   "sehinsah::sodom & gomore": {
@@ -85,6 +87,7 @@
    "releaseDate": "2026-10-23",
    "ms": 178025,
    "url": "https://music.apple.com/tr/album/sodom-gomore/6819328307?i=6819328316&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6f/a3/dc/6fa3dc73-81af-c3d3-f9bb-28dc4ed638b1/mzaf_16281985597293035163.plus.aac.p.m4a",
    "trackArtist": "Şehinşah & Hidra",
    "isNew": true,
    "intel": {
@@ -119,6 +122,7 @@
    "releaseDate": "2026-10-16",
    "ms": 168000,
    "url": "https://music.apple.com/tr/album/akila/6821364741?i=6821364744&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/09/2a/47/092a47d9-6a68-2f1c-76db-ceded2b823a7/mzaf_5530631931527147371.plus.aac.p.m4a",
    "trackArtist": "Motive",
    "isNew": true,
    "intel": {
@@ -153,6 +157,7 @@
    "releaseDate": "2026-10-16",
    "ms": 116818,
    "url": "https://music.apple.com/tr/album/bi-polar/6822741275?i=6822741459&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/de/bf/bd/debfbd3b-ca02-e7ff-8fdc-2a5471e0585f/mzaf_4952478229143804545.plus.aac.p.m4a",
    "trackArtist": "Era7capone & KERO",
    "isNew": true,
    "intel": {
@@ -187,6 +192,7 @@
    "releaseDate": "2026-10-16",
    "ms": 160000,
    "url": "https://music.apple.com/tr/album/gangsta-mentalite/6822741275?i=6822741467&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/af/7e/b6/af7eb6b7-2d10-e75e-3ce5-636757d12bfd/mzaf_1914654235569147348.plus.aac.p.m4a",
    "trackArtist": "Era7capone",
    "isNew": true,
    "intel": {
@@ -221,6 +227,7 @@
    "releaseDate": "2026-10-16",
    "ms": 131000,
    "url": "https://music.apple.com/tr/album/knv/6822741275?i=6822741472&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/33/29/1a/33291ac7-3039-48e9-5cd8-e89791c642bd/mzaf_4353046306672721026.plus.aac.p.m4a",
    "trackArtist": "Era7capone",
    "isNew": true,
    "intel": {
@@ -255,6 +262,7 @@
    "releaseDate": "2026-10-16",
    "ms": 97500,
    "url": "https://music.apple.com/tr/album/ok-cnm/6822741275?i=6822741461&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6f/bd/21/6fbd214e-2f3e-8795-19d5-543faf9cc7a3/mzaf_14350991347007260218.plus.aac.p.m4a",
    "trackArtist": "Era7capone",
    "isNew": true,
    "intel": {
@@ -289,6 +297,7 @@
    "releaseDate": "2026-10-16",
    "ms": 152727,
    "url": "https://music.apple.com/tr/album/papi-lo/6822741275?i=6822741480&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6b/f1/1b/6bf11b0b-55ae-4802-abb5-712bc08d1cd7/mzaf_3184238368036363135.plus.aac.p.m4a",
    "trackArtist": "Era7capone, MODIE & KERO",
    "isNew": true,
    "intel": {
@@ -323,6 +332,7 @@
    "releaseDate": "2026-10-16",
    "ms": 166917,
    "url": "https://music.apple.com/tr/album/yalanci/6822741275?i=6822741475&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/21/23/14/21231491-7b5f-9f44-d9c2-bb40fb1cd186/mzaf_4167762536284651350.plus.aac.p.m4a",
    "trackArtist": "Era7capone & Laçin",
    "isNew": true,
    "intel": {
@@ -357,6 +367,7 @@
    "releaseDate": "2026-10-09",
    "ms": 72562,
    "url": "https://music.apple.com/tr/album/beddua/6817887219?i=6817887870&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/da/00/0d/da000d54-d377-7535-1d5c-1f3f0407984e/mzaf_17527261986400770692.plus.aac.p.m4a",
    "trackArtist": "Joker",
    "isNew": true,
    "intel": {
@@ -391,6 +402,7 @@
    "releaseDate": "2026-10-09",
    "ms": 139548,
    "url": "https://music.apple.com/tr/album/i-ntikam-i-%C3%A7in/6817887219?i=6817887868&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b1/91/45/b19145c6-2feb-2209-8328-d89de6d19fda/mzaf_4420901830767995228.plus.aac.p.m4a",
    "trackArtist": "Joker",
    "isNew": true,
    "intel": {
@@ -425,6 +437,7 @@
    "releaseDate": "2026-10-09",
    "ms": 49959,
    "url": "https://music.apple.com/tr/album/mutfak-skit/6817887219?i=6817887862&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/cf/84/f1/cf84f161-2fe1-e2f5-6412-c19804909a29/mzaf_1240569258613378214.plus.aac.p.m4a",
    "trackArtist": "Joker",
    "isNew": true,
    "intel": {
@@ -459,6 +472,7 @@
    "releaseDate": "2026-10-09",
    "ms": 97885,
    "url": "https://music.apple.com/tr/album/rollie/6815343039?i=6815343040&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/78/17/a7/7817a769-2911-6b56-53b7-e892d8a7e3bc/mzaf_7460366673436365587.plus.aac.p.m4a",
    "trackArtist": "Reckol & Kuty",
    "isNew": true,
    "intel": {
@@ -493,6 +507,7 @@
    "releaseDate": "2026-10-09",
    "ms": 68095,
    "url": "https://music.apple.com/tr/album/s%C3%B6z/6817887219?i=6817887866&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/b0/80/29/b0802958-dab8-4c9a-94b2-eb2591ada8d4/mzaf_5076638121459485063.plus.aac.p.m4a",
    "trackArtist": "Joker",
    "isNew": true,
    "intel": {
@@ -527,6 +542,7 @@
    "releaseDate": "2026-10-09",
    "ms": 165246,
    "url": "https://music.apple.com/tr/album/uykudan-%C3%B6nce/6819387621?i=6819387626&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/94/1c/6a/941c6a82-c559-e156-77ca-4576427aa81e/mzaf_363067153605365101.plus.aac.p.m4a",
    "trackArtist": "Wegh",
    "isNew": true,
    "intel": {
@@ -561,6 +577,7 @@
    "releaseDate": "2026-10-09",
    "ms": 156000,
    "url": "https://music.apple.com/tr/album/y%C3%BCz%C3%BCn%C3%BC-unutuyorum/6816130792?i=6816130797&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/ab/b7/3e/abb73e06-cd39-3c61-8260-cba0433ee347/mzaf_17059353751608700070.plus.aac.p.m4a",
    "trackArtist": "Lia Shine",
    "isNew": true,
    "intel": {
@@ -595,6 +612,7 @@
    "releaseDate": "2026-10-09",
    "ms": 116868,
    "url": "https://music.apple.com/tr/album/intro/6817887219?i=6817887224&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/05/f7/7e/05f77ee0-0a78-0cbe-4581-22cd5ba25c08/mzaf_15343480915589519503.plus.aac.p.m4a",
    "trackArtist": "Joker",
    "isNew": true,
    "intel": {
@@ -629,6 +647,7 @@
    "releaseDate": "2026-10-09",
    "ms": 222555,
    "url": "https://music.apple.com/tr/album/%C5%9Feytanlar-ve-melekler/6817887219?i=6817887228&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/07/10/7a/07107a1f-509a-daab-b6a6-20e91887645e/mzaf_15465192085017685583.plus.aac.p.m4a",
    "trackArtist": "Joker",
    "isNew": true,
    "intel": {
@@ -663,6 +682,7 @@
    "releaseDate": "2026-09-24",
    "ms": 132759,
    "url": "https://music.apple.com/tr/album/5am/6812656291?i=6812656537&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/13/cb/e8/13cbe865-1ca2-242f-4fb8-3892f4c26ca1/mzaf_7847489518676296737.plus.aac.p.m4a",
    "trackArtist": "Murda",
    "isNew": true,
    "intel": {
@@ -697,6 +717,7 @@
    "releaseDate": "2026-09-24",
    "ms": 152442,
    "url": "https://music.apple.com/tr/album/5migros/6812656291?i=6812656543&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/5d/95/a3/5d95a32d-9bcf-41ae-9c22-b9b42c1f3b58/mzaf_5638347976160850175.plus.aac.p.m4a",
    "trackArtist": "Murda",
    "isNew": true,
    "intel": {
@@ -731,6 +752,7 @@
    "releaseDate": "2026-09-24",
    "ms": 265583,
    "url": "https://music.apple.com/tr/album/br0ww-beddua/6812656291?i=6812656533&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8b/f4/e3/8bf4e384-41f5-4d65-4861-c7b441ad0935/mzaf_9463936846680286832.plus.aac.p.m4a",
    "trackArtist": "Murda",
    "isNew": true,
    "intel": {
@@ -765,6 +787,7 @@
    "releaseDate": "2026-09-24",
    "ms": 193628,
    "url": "https://music.apple.com/tr/album/sneakylink-feat-yung-ouzo/6812656291?i=6812656538&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/98/08/96/98089677-6ee5-5830-4f2e-578cb0a33799/mzaf_15044440091541788765.plus.aac.p.m4a",
    "trackArtist": "Murda",
    "isNew": true,
    "intel": {
@@ -799,6 +822,7 @@
    "releaseDate": "2026-09-24",
    "ms": 210438,
    "url": "https://music.apple.com/tr/album/vallah-feat-summer-cem/6812656291?i=6812656535&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/cb/35/f6/cb35f6a0-eb9e-78e8-b78c-0a6e33edaf5b/mzaf_13105533619216636323.plus.aac.p.m4a",
    "trackArtist": "Murda",
    "isNew": true,
    "intel": {
@@ -833,6 +857,7 @@
    "releaseDate": "2026-09-24",
    "ms": 164691,
    "url": "https://music.apple.com/tr/album/yan%C4%B1yorum/6812656291?i=6812656541&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8e/d1/88/8ed18877-43eb-4f91-c33d-df76c024996b/mzaf_17587923264049492179.plus.aac.p.m4a",
    "trackArtist": "Murda",
    "isNew": true,
    "intel": {
@@ -853,40 +878,6 @@
      "trap",
      "melodik rap",
      "yeni rap"
-    ],
-    "model": "gemini-3.5-flash",
-    "v": 1
-   }
-  },
-  "sagopa::sor yıllara": {
-   "title": "Sor Yıllara",
-   "artistId": "sagopa",
-   "artistName": "Sagopa Kajmer",
-   "album": "Sor Yıllara - Single",
-   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/61/24/56/612456d7-0f8e-2505-0009-99cb2b1e66b5/885288605778.jpg/600x600bb.jpg",
-   "releaseDate": "2026-09-23",
-   "ms": 240000,
-   "url": "https://music.apple.com/tr/album/sor-y%C4%B1llara/6813571510?i=6813571672&uo=4",
-   "trackArtist": "Sagopa Kajmer",
-   "isNew": true,
-   "intel": {
-    "genre": "rap",
-    "mood": "melankolik",
-    "energy": 4,
-    "tempo": "mid",
-    "fit": {
-     "rapturkiye": 0.95,
-     "traptr": 0.2,
-     "drilltr": 0,
-     "newmusic": 0.9,
-     "nightmode": 0.85,
-     "popturkiye": 0.2
-    },
-    "note": "Sagopa Kajmer'den duygusal derinliği yüksek, nostaljik ve vurucu bir Türkçe rap örneği.",
-    "tags": [
-     "klasik rap",
-     "melankoli",
-     "derin sözler"
     ],
     "model": "gemini-3.5-flash",
     "v": 1
