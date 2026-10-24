@@ -96,16 +96,5 @@
       return { peak: L.peak, followers, donations };
     },
 
-    /* ---------------- fan etkileşimi (yorum yanıtlama) ---------------- */
-    replyComment(seed, idx) {
-      const L = K.state;
-      const p = L.player;
-      const gain = U.rand(0.1, 0.5);
-      K.game.addFame(gain);
-      p.ig += U.randInt(20, 160);
-      p.reputation = Math.min(100, p.reputation + 0.2);
-      K.toast("💬 Yorum yanıtlandı", "Hayran etkileşimi arttı.", "ok");
-      return true;
-    }
   };
 })(window.K);
