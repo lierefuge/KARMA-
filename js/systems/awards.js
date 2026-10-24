@@ -31,8 +31,6 @@
       return Math.round((b - a) / 86400000) + 1;
     },
 
-    yearsPassed() { return Math.floor((K.state.day - 1) / K.awards.YEAR); },
-
     nextCeremony() {
       const cur = U.dateObjForDay(K.state.day);
       for (let y = cur.y; y <= cur.y + 3; y++) {
@@ -178,11 +176,6 @@
       }
       s.pendingAward = null;
       K.save(); if (K.refresh) K.refresh();
-    },
-
-    lastCeremonyResult() {
-      const h = (K.state.awards && K.state.awards.history) || [];
-      return h[0] || null;
     },
 
     totalWins() {
