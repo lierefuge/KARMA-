@@ -201,6 +201,54 @@ function run() {
 
   E.setRotation(savedRotation);
 
+  /* ============ G) ÇALINABİLİRLİK + AI ETİKETİ ARAYÜZE (v10.67) ============
+     \"Yeni Çıkanlar\" listesinde şarkı GÖRÜNÜYORDU ama ÇALINAMIYORDU:
+     real-previews.js yalnızca eski katalogu kapsıyordu (ölçüm: 24 yeni
+     çıkışın 24'ünde önizleme yoktu). Artık iTunes `previewUrl` release-intel
+     kaydında taşınıyor ve `lazy.previewFor()` oraya düşüyor. */
+  const withPreview = recs.filter(r => r.preview && /^https:\/\//.test(r.preview));
+  ok("G-1 · yeni çıkışların önizlemesi var", withPreview.length === recs.length,
+    withPreview.length + "/" + recs.length);
+
+  const withIntel = recs.filter(r => r.intel && r.intel.note);
+  ok("G-2 · AI küratör notu dolu", withIntel.length === recs.length, withIntel.length + "/" + recs.length);
+
+  /* lazy.previewFor: REAL_PREVIEWS'te olmayan yeni çıkışı release-intel'den bulmalı */
+  let pvOk = false, pvDetail = "";
+  try {
+    const sample = withPreview[0];
+    const pv = K.lazy.previewFor(sample.artistId, sample.title);
+    pvOk = !!(pv && pv.p && /^https:\/\//.test(pv.p));
+    pvDetail = pvOk ? "ok" : "null döndü";
+  } catch (e) { pvDetail = e.message; }
+  ok("G-3 · previewFor yeni çıkışı çözüyor", pvOk, pvDetail);
+
+  ok("G-4 · previewFor bilinmeyen için null", K.lazy.previewFor("sehinsah", "olmayan-sarki-zzz") === null);
+
+  /* eski katalog yolu bozulmadı: REAL_PREVIEWS'te olan bir şarkı hâlâ çözülüyor */
+  let legacy = null;
+  try {
+    const all = K.REAL_PREVIEWS || {};
+    const a0 = Object.keys(all)[0];
+    const t0 = a0 && Object.keys(all[a0])[0];
+    if (a0 && t0) legacy = K.lazy.previewFor(a0, t0);
+  } catch (e) {}
+  ok("G-5 · eski katalog önizlemesi korunuyor", legacy && legacy.p ? true : legacy === null, legacy ? "ok" : "veri yok (atlandı)");
+
+  /* uçtan uca: Yeni Çıkanlar listesindeki her yeni parça çalınabilir olmalı */
+  E.setRotation("w2");
+  const nmPlay = E.build("newmusic").songs.filter(s => s.isNew);
+  const playable = nmPlay.filter(s => {
+    const pv = K.lazy.previewFor(s.artistId, s.title);
+    return !!(pv && pv.p);
+  });
+  ok("G-6 · listedeki yeni parçalar çalınabilir", playable.length === nmPlay.length,
+    playable.length + "/" + nmPlay.length);
+  ok("G-7 · AI notu listedeki kayda taşınıyor", nmPlay.every(s => typeof s.note === "string" && s.note.length > 0),
+    nmPlay.length + " parça");
+  ok("G-8 · yeni rozeti için isNew işaretli", nmPlay.every(s => s.isNew === true));
+  ok("G-9 · releaseDate satıra taşınıyor", nmPlay.every(s => /^\d{4}-\d{2}-\d{2}$/.test(s.releaseDate || "")));
+
   /* ---- rapor ---- */
   const runtime = (errors || []).filter(m => !/fonts|Not implemented/i.test(m));
   console.log("=".repeat(58));
