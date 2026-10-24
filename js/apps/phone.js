@@ -306,11 +306,6 @@
       K.phone.render();
     },
 
-    replaceView(view) {
-      if (K.phone.views.length) K.phone.views[K.phone.views.length - 1] = view;
-      else K.phone.views = [view];
-      K.phone.render();
-    },
 
     back() {
       if (K.phone.views.length > 1) {
