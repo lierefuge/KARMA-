@@ -319,18 +319,6 @@
       };
     },
 
-    /* sesli özet (DM'de "kim bu adam" hissi) */
-    summaryLine(artistId) {
-      const p = K.NPC_PERSONALITY[artistId];
-      if (!p) return "";
-      return p.archetype + " · " + p.tagline;
-    },
 
-    /* hard/insult gibi niyetlerde profilin kırmızı çizgisine girip girmediği */
-    isRedLine(artistId, intent) {
-      const p = K.NPC_PERSONALITY[artistId];
-      if (!p) return false;
-      return ["insult", "personal", "askmoney", "flirt"].indexOf(intent) >= 0;
-    }
   };
 })(window.K = window.K || {});
