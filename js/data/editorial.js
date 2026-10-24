@@ -207,10 +207,6 @@
     rotationInfo() {
       return { forced: ROT.forced, weekly: cadenceSeed("week"), daily: cadenceSeed("day") };
     },
-    intelOf(artistId, title) {
-      const rec = (intelData().releases || {})[artistId + "::" + nkey(title)];
-      return rec ? (rec.intel || null) : null;
-    },
 
     /* ---- oyuncunun editoryal liste girişleri (aktif) ---- */
     onEditorial(song) {
