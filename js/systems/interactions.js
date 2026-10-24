@@ -173,14 +173,6 @@
       return K.interactions.queueState();
     },
 
-    enqueue(track) {
-      const q = K.interactions._q;
-      if (!track || !track.title) return null;
-      q.list.push(track);
-      if (q.idx < 0) q.idx = 0;
-      if (q.shuffle) q.order = K.interactions._shuffleOrder(q.list.length);
-      return K.interactions.queueState();
-    },
 
     clearQueue() {
       const q = K.interactions._q;
