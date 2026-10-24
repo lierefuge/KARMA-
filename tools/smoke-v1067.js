@@ -263,3 +263,5 @@ function run() {
 
   finish();
 }
+
+/* v10.67 — tetikleme notu: agac tutarli, build yeniden uretilsin. */
