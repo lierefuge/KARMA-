@@ -1085,14 +1085,5 @@
       return true;
     },
 
-    leaveLabel() {
-      const p = K.state.player;
-      if (!p.labelId) return;
-      const name = K.labelById(p.labelId)?.name || "şirket";
-      p.labelId = null;
-      p.reputation = Math.max(0, p.reputation - 5);
-      K.toast("Sözleşme bitti", `${name} ile yollar ayrıldı.`, "warn");
-      K.save(); K.refresh();
-    }
   };
 })(window.K);
