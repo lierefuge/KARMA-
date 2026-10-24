@@ -183,8 +183,6 @@
     map: MAP,
     stateOf: function (n) { return state[n] || "idle"; },
     loaded: function (n) { return state[n] === "ready"; },
-    errorOf: function (n) { return errors[n] || null; },
-
     /* söz verilen verileri yükle */
     ensure: function (names) {
       const list = Array.isArray(names) ? names : [names];
