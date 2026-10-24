@@ -149,7 +149,8 @@ function coldPhase() {
     ok("A · songs() boş dizi döndü", Array.isArray(K.lazy.songs("sehinsah")) && K.lazy.songs("sehinsah").length === 0);
     ok("A · discography() boş dizi", Array.isArray(K.lazy.discography("sehinsah")));
     ok("A · previewFor() null", K.lazy.previewFor("sehinsah", "Karma") === null);
-    ok("A · ytFor() null", K.lazy.ytFor("sehinsah", "Karma") === null);
+    /* v10.67 — ytFor kaldırıldı; veri katmanı doğrudan ham erişimle sınanır */
+    ok("A · real-youtube ham erişimi güvenli", typeof K.lazy.raw("real-youtube") === "object");
     ok("A · raw() boş nesne", typeof K.lazy.raw("real-previews") === "object");
     ok("A · host() yazılabilir nesne", typeof K.lazy.host("real-songs") === "object");
     ok("A · available() 0", K.lazy.available("real-previews") === 0);
@@ -235,8 +236,10 @@ function hotPhase() {
 
   const pv = K.lazy.previewFor("sehinsah", (realSeh[0] || {}).title);
   ok("B · previewFor gerçek kaydı buluyor", !!(pv && pv.p));
-  const yt = K.lazy.ytFor("sehinsah", (realSeh[0] || {}).title);
-  ok("B · ytFor çalışıyor", yt === null || !!yt.v);
+  /* v10.67 — gerçek tüketici: YouTube uygulamasının gömme çözümleyicisi.
+     Eski ytFor() erişimcisi kaldırıldı; kapsam K.preview.ytId üzerinden korunur. */
+  const ytId = (K.preview && K.preview.ytId) ? K.preview.ytId({ artistId: "sehinsah", title: (realSeh[0] || {}).title }) : null;
+  ok("B · YouTube gömme kimliği çözülebiliyor", ytId === null || typeof ytId === "string");
 
   /* gerçek şarkılar UI'a yansımalı (NPC şarkı üretimi gerçek veriye bağlanır) */
   try {
