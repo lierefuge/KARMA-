@@ -5,6 +5,8 @@ ve sosyal medya etkileşimlerine kadar ilerleyen kapsamlı bir oyun.
 
 ---
 
+> **v10.67 notları:** [docs/v10.67.md](docs/v10.67.md) — yeni çıkış akışı · takvim tohumlu rotasyon · AI etiketleme · ölü kod temizliği · verify 21,9 → 4-5 dk
+
 ## GÜNCELLEME v10.66 — GERÇEKÇİLİK TURU (6 YÜZEY · 30 ÖZELLİK)
 
 Uygulamalar "iskelet" olmaktan çıktı: bugünün gerçek ürünlerinde olan
