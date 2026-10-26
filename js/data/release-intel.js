@@ -4,7 +4,7 @@
 
    Üretici : node tools/fetch-new-releases.js
    Kaynak  : iTunes Lookup API (country=TR) — albüm → parça
-   Tarih   : 2026-10-24  ·  23 kayıt (23 tanesi depoda yok)
+   Tarih   : 2026-10-26  ·  17 kayıt (17 tanesi depoda yok)
 
    ŞEMA (kayıt başına)
    -------------------
@@ -31,11 +31,11 @@
   "use strict";
   K.RELEASE_INTEL = {
  "meta": {
-  "asof": "2026-10-24",
+  "asof": "2026-10-26",
   "window": 30,
   "source": "itunes-lookup-tr",
-  "count": 23,
-  "newCount": 23,
+  "count": 17,
+  "newCount": 17,
   "artistIds": {
    "sehinsah": 736313630,
    "weghrumi": 1564584641,
@@ -75,7 +75,7 @@
    "deryaulug": 1118978883,
    "liashine": 1486825049
   },
-  "generated": "2026-10-24T00:24:17.621Z"
+  "generated": "2026-10-26T14:08:20.084Z"
  },
  "releases": {
   "sehinsah::sodom & gomore": {
@@ -668,216 +668,6 @@
      "sert rap",
      "joker",
      "travma"
-    ],
-    "model": "gemini-3.5-flash",
-    "v": 1
-   }
-  },
-  "murda::5am": {
-   "title": "5AM",
-   "artistId": "murda",
-   "artistName": "Murda",
-   "album": "UZAY",
-   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/e0/d7/91/e0d7915e-2e9e-a512-7898-3e8b04a74019/26UM1IM15333.rgb.jpg/600x600bb.jpg",
-   "releaseDate": "2026-09-24",
-   "ms": 132759,
-   "url": "https://music.apple.com/tr/album/5am/6812656291?i=6812656537&uo=4",
-   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/13/cb/e8/13cbe865-1ca2-242f-4fb8-3892f4c26ca1/mzaf_7847489518676296737.plus.aac.p.m4a",
-   "trackArtist": "Murda",
-   "isNew": true,
-   "intel": {
-    "genre": "rnb",
-    "mood": "melankolik",
-    "energy": 10,
-    "tempo": "mid",
-    "fit": {
-     "rapturkiye": 0.7,
-     "traptr": 0.8,
-     "drilltr": 0.2,
-     "newmusic": 0.8,
-     "nightmode": 0.9,
-     "popturkiye": 0.3
-    },
-    "note": "Gece atmosferini yansıtan melankolik ve melodik R&B trap parçası.",
-    "tags": [
-     "gece",
-     "melodik trap",
-     "murda"
-    ],
-    "model": "gemini-3.5-flash",
-    "v": 1
-   }
-  },
-  "murda::5migros": {
-   "title": "5Migros",
-   "artistId": "murda",
-   "artistName": "Murda",
-   "album": "UZAY",
-   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/e0/d7/91/e0d7915e-2e9e-a512-7898-3e8b04a74019/26UM1IM15333.rgb.jpg/600x600bb.jpg",
-   "releaseDate": "2026-09-24",
-   "ms": 152442,
-   "url": "https://music.apple.com/tr/album/5migros/6812656291?i=6812656543&uo=4",
-   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/5d/95/a3/5d95a32d-9bcf-41ae-9c22-b9b42c1f3b58/mzaf_5638347976160850175.plus.aac.p.m4a",
-   "trackArtist": "Murda",
-   "isNew": true,
-   "intel": {
-    "genre": "trap",
-    "mood": "eğlenceli",
-    "energy": 10,
-    "tempo": "fast",
-    "fit": {
-     "rapturkiye": 0.8,
-     "traptr": 0.9,
-     "drilltr": 0.3,
-     "newmusic": 0.8,
-     "nightmode": 0.4,
-     "popturkiye": 0.4
-    },
-    "note": "Temposu yüksek, modern trap altyapılı dinamik bir Murda şarkısı.",
-    "tags": [
-     "trap",
-     "dinamik",
-     "murda"
-    ],
-    "model": "gemini-3.5-flash",
-    "v": 1
-   }
-  },
-  "murda::br0ww/beddua": {
-   "title": "Br0ww/Beddua",
-   "artistId": "murda",
-   "artistName": "Murda",
-   "album": "UZAY",
-   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/e0/d7/91/e0d7915e-2e9e-a512-7898-3e8b04a74019/26UM1IM15333.rgb.jpg/600x600bb.jpg",
-   "releaseDate": "2026-09-24",
-   "ms": 265583,
-   "url": "https://music.apple.com/tr/album/br0ww-beddua/6812656291?i=6812656533&uo=4",
-   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/8b/f4/e3/8bf4e384-41f5-4d65-4861-c7b441ad0935/mzaf_9463936846680286832.plus.aac.p.m4a",
-   "trackArtist": "Murda",
-   "isNew": true,
-   "intel": {
-    "genre": "trap",
-    "mood": "karanlık",
-    "energy": 10,
-    "tempo": "mid",
-    "fit": {
-     "rapturkiye": 0.8,
-     "traptr": 0.8,
-     "drilltr": 0.4,
-     "newmusic": 0.8,
-     "nightmode": 0.5,
-     "popturkiye": 0.2
-    },
-    "note": "Sert baslar ve çift konseptli yapısıyla öne çıkan trap çalışması.",
-    "tags": [
-     "sert trap",
-     "uzay",
-     "murda"
-    ],
-    "model": "gemini-3.5-flash",
-    "v": 1
-   }
-  },
-  "murda::sneakylink (feat. yung ouzo)": {
-   "title": "sneakyLink (feat. Yung Ouzo)",
-   "artistId": "murda",
-   "artistName": "Murda",
-   "album": "UZAY",
-   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/e0/d7/91/e0d7915e-2e9e-a512-7898-3e8b04a74019/26UM1IM15333.rgb.jpg/600x600bb.jpg",
-   "releaseDate": "2026-09-24",
-   "ms": 193628,
-   "url": "https://music.apple.com/tr/album/sneakylink-feat-yung-ouzo/6812656291?i=6812656538&uo=4",
-   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/98/08/96/98089677-6ee5-5830-4f2e-578cb0a33799/mzaf_15044440091541788765.plus.aac.p.m4a",
-   "trackArtist": "Murda",
-   "isNew": true,
-   "intel": {
-    "genre": "trap",
-    "mood": "rahat",
-    "energy": 10,
-    "tempo": "mid",
-    "fit": {
-     "rapturkiye": 0.7,
-     "traptr": 0.8,
-     "drilltr": 0.3,
-     "newmusic": 0.8,
-     "nightmode": 0.6,
-     "popturkiye": 0.3
-    },
-    "note": "Akıcı vokaller ve modern beat'lerle kulüp havası taşıyan düet.",
-    "tags": [
-     "düet",
-     "trap",
-     "akıcı"
-    ],
-    "model": "gemini-3.5-flash",
-    "v": 1
-   }
-  },
-  "murda::vallah (feat. summer cem)": {
-   "title": "vAllah (feat. Summer Cem)",
-   "artistId": "murda",
-   "artistName": "Murda",
-   "album": "UZAY",
-   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/e0/d7/91/e0d7915e-2e9e-a512-7898-3e8b04a74019/26UM1IM15333.rgb.jpg/600x600bb.jpg",
-   "releaseDate": "2026-09-24",
-   "ms": 210438,
-   "url": "https://music.apple.com/tr/album/vallah-feat-summer-cem/6812656291?i=6812656535&uo=4",
-   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/cb/35/f6/cb35f6a0-eb9e-78e8-b78c-0a6e33edaf5b/mzaf_13105533619216636323.plus.aac.p.m4a",
-   "trackArtist": "Murda",
-   "isNew": true,
-   "intel": {
-    "genre": "trap",
-    "mood": "enerjik",
-    "energy": 10,
-    "tempo": "fast",
-    "fit": {
-     "rapturkiye": 0.8,
-     "traptr": 0.9,
-     "drilltr": 0.4,
-     "newmusic": 0.9,
-     "nightmode": 0.3,
-     "popturkiye": 0.3
-    },
-    "note": "Yüksek tempolu, Summer Cem eşlikli enerjik ve ritmik trap hit'i.",
-    "tags": [
-     "hit",
-     "trap",
-     "summer cem"
-    ],
-    "model": "gemini-3.5-flash",
-    "v": 1
-   }
-  },
-  "murda::yanıyorum": {
-   "title": "yanıyorum",
-   "artistId": "murda",
-   "artistName": "Murda",
-   "album": "UZAY",
-   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/e0/d7/91/e0d7915e-2e9e-a512-7898-3e8b04a74019/26UM1IM15333.rgb.jpg/600x600bb.jpg",
-   "releaseDate": "2026-09-24",
-   "ms": 164691,
-   "url": "https://music.apple.com/tr/album/yan%C4%B1yorum/6812656291?i=6812656541&uo=4",
-   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8e/d1/88/8ed18877-43eb-4f91-c33d-df76c024996b/mzaf_17587923264049492179.plus.aac.p.m4a",
-   "trackArtist": "Murda",
-   "isNew": true,
-   "intel": {
-    "genre": "trap",
-    "mood": "akıcı",
-    "energy": 7,
-    "tempo": "mid",
-    "fit": {
-     "rapturkiye": 0.8,
-     "traptr": 0.85,
-     "drilltr": 0.1,
-     "newmusic": 0.9,
-     "nightmode": 0.6,
-     "popturkiye": 0.3
-    },
-    "note": "Murda'nın melodik vokalleri ve hareketli trap ritimleriyle öne çıkan modern çalışma.",
-    "tags": [
-     "trap",
-     "melodik rap",
-     "yeni rap"
     ],
     "model": "gemini-3.5-flash",
     "v": 1

@@ -9,37 +9,254 @@
   "use strict";
   K.REAL_SONGS = {
   "liashine": [
-    {"title": "Affetmem", "artistName": "Lia Shine", "album": "Affetmem - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/c0/e9/7e/c0e97e26-ff59-127c-a9ff-da991813818a/196864631822.jpg/600x600bb.jpg", "year": "2022", "ms": 219351},
-    {"title": "Aden P2", "artistName": "Lia Shine", "album": "Aden P2 - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/6e/52/72/6e527213-1fa6-1e96-2d4a-578b86ece778/artwork.jpg/600x600bb.jpg", "year": "2020", "ms": 192795},
-    {"title": "Beni Bana Bırak (feat. Morphia)", "artistName": "Lia Shine", "album": "Bir Şeytan Masalı", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/51/4a/9c/514a9c18-0a56-d93d-0aad-99d623e191e8/artwork.jpg/600x600bb.jpg", "year": "2021", "ms": 152211},
-    {"title": "Değiştim", "artistName": "Lia Shine", "album": "Değiştim - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/92/66/f7/9266f74f-4ff1-94c4-fcc8-c77082c37493/artwork.jpg/600x600bb.jpg", "year": "2025", "ms": 145000},
-    {"title": "Değiştin", "artistName": "Lia Shine", "album": "Değiştin - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/14/6f/8d/146f8d90-3d29-7922-a462-09a717006baf/artwork.jpg/600x600bb.jpg", "year": "2020", "ms": 142000},
-    {"title": "Beni Yanına Al", "artistName": "Lia Shine & Mert Nadir", "album": "Beni Yanına Al - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/00/6d/cf/006dcf18-70b4-03fc-fcd8-f1afae777a9d/cover.jpg/600x600bb.jpg", "year": "2026", "ms": 200143},
-    {"title": "Kaybettik", "artistName": "Lia Shine", "album": "Kaybettik - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/7d/53/5a/7d535aaa-76d5-f815-f19e-a33eda1369c4/artwork.jpg/600x600bb.jpg", "year": "2021", "ms": 248980},
-    {"title": "Benimle Ateş Et", "artistName": "Lia Shine", "album": "Bir Şeytan Masalı", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/51/4a/9c/514a9c18-0a56-d93d-0aad-99d623e191e8/artwork.jpg/600x600bb.jpg", "year": "2020", "ms": 177147},
-    {"title": "Ben Gibi Bakmaz", "artistName": "Lia Shine", "album": "Bir Şeytan Masalı", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/51/4a/9c/514a9c18-0a56-d93d-0aad-99d623e191e8/artwork.jpg/600x600bb.jpg", "year": "2021", "ms": 211073},
-    {"title": "ÇALIKUŞU", "artistName": "GOKO! & Lia Shine", "album": "ÇALIKUŞU - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/9c/62/a4/9c62a4ec-baf1-119b-2c79-6b69357f4b3c/21UMGIM12632.rgb.jpg/600x600bb.jpg", "year": "2021", "ms": 221250},
-    {"title": "Rol", "artistName": "Lia Shine", "album": "Rol - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a5/b9/81/a5b98177-b0b7-60a5-fc10-678e18f0e505/cover.jpg/600x600bb.jpg", "year": "2021", "ms": 155309},
-    {"title": "Aden", "artistName": "Lia Shine", "album": "Aden - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/f7/18/d8/f718d8da-8278-023c-27f7-dad71b56d89d/cover.jpg/600x600bb.jpg", "year": "2019", "ms": 130317},
-    {"title": "Genç Ölemem", "artistName": "Lia Shine", "album": "WBR - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/5e/9b/18/5e9b1806-95d1-48ae-98aa-54451112ae89/cover.jpg/600x600bb.jpg", "year": "2019", "ms": 166000},
-    {"title": "Sen Lazım", "artistName": "Lia Shine", "album": "Sen Lazım - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/25/c7/b7/25c7b72e-9b4e-53b2-7c38-2fc9609a888c/cover.jpg/600x600bb.jpg", "year": "2020", "ms": 218483},
-    {"title": "Kalbim Sana Ait", "artistName": "Lia Shine", "album": "Kalbim Sana Ait - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/2b/c2/80/2bc280a1-5d7f-770c-925b-3d6e3c3a62e0/cover.jpg/600x600bb.jpg", "year": "2024", "ms": 140039},
-    {"title": "Lucifer", "artistName": "Lia Shine", "album": "Bir Şeytan Masalı", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/51/4a/9c/514a9c18-0a56-d93d-0aad-99d623e191e8/artwork.jpg/600x600bb.jpg", "year": "2021", "ms": 183559},
-    {"title": "Bipolar", "artistName": "Lia Shine", "album": "Bipolar - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/7d/6f/05/7d6f05c2-50e5-ed8c-ded1-000e6b8d83dd/cover.jpg/600x600bb.jpg", "year": "2022", "ms": 176999},
-    {"title": "Beni Hiç Anlamadın", "artistName": "Lia Shine", "album": "Beni Hiç Anlamadın - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/72/41/11/724111b8-71cb-3eea-5929-30cb66ad4173/cover.jpg/600x600bb.jpg", "year": "2024", "ms": 166298},
-    {"title": "Benim İçin Daha Zor", "artistName": "Lia Shine", "album": "Benim İçin Daha Zor - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/3e/5e/e2/3e5ee243-2970-13c6-7b94-5114b348f1c2/cover.jpg/600x600bb.jpg", "year": "2020", "ms": 164500},
-    {"title": "MI AMOR", "artistName": "Lia Shine", "album": "MI AMOR - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/b5/96/fd/b596fd0e-d16e-5d0b-1c03-486d249d4b7f/0.jpg/600x600bb.jpg", "year": "2025", "ms": 152558},
-    {"title": "Bir Şeytan Masalı (feat. GOKO!)", "artistName": "Lia Shine", "album": "Bir Şeytan Masalı", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/51/4a/9c/514a9c18-0a56-d93d-0aad-99d623e191e8/artwork.jpg/600x600bb.jpg", "year": "2021", "ms": 180000},
-    {"title": "Kalbime Gömdüm", "artistName": "Lia Shine & Cairo", "album": "Kalbime Gömdüm - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/d6/01/17/d601170b-3f54-276c-9b18-0fbd1deef00e/0.jpg/600x600bb.jpg", "year": "2023", "ms": 197485},
-    {"title": "Yıldızlara Erişmek", "artistName": "Lia Shine", "album": "Yıldızlara Erişmek - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/da/60/49/da6049de-9a4a-2595-c80c-7ac499c2fd29/cover.jpg/600x600bb.jpg", "year": "2020", "ms": 198250},
-    {"title": "Bensiz", "artistName": "Ohash & Lia Shine", "album": "Erotomania", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/b8/8e/d9/b88ed9a0-343b-4f47-01cb-323b70c66750/0.jpg/600x600bb.jpg", "year": "2023", "ms": 168018},
-    {"title": "Seni Değiştirmişler", "artistName": "Lia Shine", "album": "Seni Değiştirmişler - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/21/cd/f7/21cdf75b-61f8-7736-72ea-72f3f9c1bc8e/cover.jpg/600x600bb.jpg", "year": "2025", "ms": 169934},
-    {"title": "N.A.O.A", "artistName": "Lia Shine", "album": "N.A.O.A - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/64/d4/1b/64d41b29-6950-1ec0-7e1b-bab1ccffa7a2/cover.jpg/600x600bb.jpg", "year": "2025", "ms": 134857},
-    {"title": "Ahtım Var", "artistName": "Lia Shine", "album": "Ahtım Var - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f0/34/08/f0340893-217d-06db-786f-e09a4c1d33f1/artwork.jpg/600x600bb.jpg", "year": "2026", "ms": 146939},
-    {"title": "Hikayem", "artistName": "Lia Shine", "album": "Hikayem - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/38/ee/c0/38eec033-3698-c04b-3623-1c2c785d0fb9/cover.jpg/600x600bb.jpg", "year": "2025", "ms": 211200},
-    {"title": "bir kez sarılamadık", "artistName": "Arda Gezer, Lia Shine, Sali & Archie", "album": "bir kez sarılamadık - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/31/00/83/31008398-bd88-5b45-c95d-0d1956c48c83/cover.jpg/600x600bb.jpg", "year": "2026", "ms": 166957},
-    {"title": "Hiç", "artistName": "Lia Shine", "album": "Hiç - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/2e/da/f5/2edaf55d-a89b-3b11-4940-726259689567/cover.jpg/600x600bb.jpg", "year": "2024", "ms": 243103},
-    {"title": "Aden P2 (Akustik)", "artistName": "Lia Shine", "album": "Aden P2 (Akustik) - Single", "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/59/57/6c/59576c10-a8d2-2059-7c6b-b763455e2af8/cover.jpg/600x600bb.jpg", "year": "2023", "ms": 190000},
+    {
+      "title": "Affetmem",
+      "artistName": "Lia Shine",
+      "album": "Affetmem - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/c0/e9/7e/c0e97e26-ff59-127c-a9ff-da991813818a/196864631822.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 219351
+    },
+    {
+      "title": "Aden P2",
+      "artistName": "Lia Shine",
+      "album": "Aden P2 - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/6e/52/72/6e527213-1fa6-1e96-2d4a-578b86ece778/artwork.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 192795
+    },
+    {
+      "title": "Beni Bana Bırak (feat. Morphia)",
+      "artistName": "Lia Shine",
+      "album": "Bir Şeytan Masalı",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/51/4a/9c/514a9c18-0a56-d93d-0aad-99d623e191e8/artwork.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 152211
+    },
+    {
+      "title": "Değiştim",
+      "artistName": "Lia Shine",
+      "album": "Değiştim - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/92/66/f7/9266f74f-4ff1-94c4-fcc8-c77082c37493/artwork.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 145000
+    },
+    {
+      "title": "Değiştin",
+      "artistName": "Lia Shine",
+      "album": "Değiştin - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/14/6f/8d/146f8d90-3d29-7922-a462-09a717006baf/artwork.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 142000
+    },
+    {
+      "title": "Beni Yanına Al",
+      "artistName": "Lia Shine & Mert Nadir",
+      "album": "Beni Yanına Al - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/00/6d/cf/006dcf18-70b4-03fc-fcd8-f1afae777a9d/cover.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 200143
+    },
+    {
+      "title": "Kaybettik",
+      "artistName": "Lia Shine",
+      "album": "Kaybettik - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/7d/53/5a/7d535aaa-76d5-f815-f19e-a33eda1369c4/artwork.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 248980
+    },
+    {
+      "title": "Benimle Ateş Et",
+      "artistName": "Lia Shine",
+      "album": "Benimle Ateş Et - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/ff/de/02/ffde027f-2828-25d5-a536-f54ff50ca486/artwork.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 177147
+    },
+    {
+      "title": "Ben Gibi Bakmaz",
+      "artistName": "Lia Shine",
+      "album": "Ben Gibi Bakmaz - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music113/v4/33/95/c8/3395c83c-5d09-ce89-0ca6-ad002c50e95f/artwork.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 211073
+    },
+    {
+      "title": "ÇALIKUŞU",
+      "artistName": "GOKO! & Lia Shine",
+      "album": "ÇALIKUŞU - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/9c/62/a4/9c62a4ec-baf1-119b-2c79-6b69357f4b3c/21UMGIM12632.rgb.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 221250
+    },
+    {
+      "title": "Rol",
+      "artistName": "Lia Shine",
+      "album": "Rol - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a5/b9/81/a5b98177-b0b7-60a5-fc10-678e18f0e505/cover.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 155309
+    },
+    {
+      "title": "Aden",
+      "artistName": "Lia Shine",
+      "album": "Aden - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/f7/18/d8/f718d8da-8278-023c-27f7-dad71b56d89d/cover.jpg/600x600bb.jpg",
+      "year": "2019",
+      "ms": 130317
+    },
+    {
+      "title": "Genç Ölemem",
+      "artistName": "Lia Shine",
+      "album": "WBR - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/5e/9b/18/5e9b1806-95d1-48ae-98aa-54451112ae89/cover.jpg/600x600bb.jpg",
+      "year": "2019",
+      "ms": 166000
+    },
+    {
+      "title": "Sen Lazım",
+      "artistName": "Lia Shine",
+      "album": "Sen Lazım - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/25/c7/b7/25c7b72e-9b4e-53b2-7c38-2fc9609a888c/cover.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 218483
+    },
+    {
+      "title": "Kalbim Sana Ait",
+      "artistName": "Lia Shine",
+      "album": "Kalbim Sana Ait - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/2b/c2/80/2bc280a1-5d7f-770c-925b-3d6e3c3a62e0/cover.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 140039
+    },
+    {
+      "title": "Lucifer",
+      "artistName": "Lia Shine",
+      "album": "Bir Şeytan Masalı",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/51/4a/9c/514a9c18-0a56-d93d-0aad-99d623e191e8/artwork.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 183559
+    },
+    {
+      "title": "Bipolar",
+      "artistName": "Lia Shine",
+      "album": "Bipolar - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/7d/6f/05/7d6f05c2-50e5-ed8c-ded1-000e6b8d83dd/cover.jpg/600x600bb.jpg",
+      "year": "2022",
+      "ms": 176999
+    },
+    {
+      "title": "Beni Hiç Anlamadın",
+      "artistName": "Lia Shine",
+      "album": "Beni Hiç Anlamadın - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/72/41/11/724111b8-71cb-3eea-5929-30cb66ad4173/cover.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 166298
+    },
+    {
+      "title": "Benim İçin Daha Zor",
+      "artistName": "Lia Shine",
+      "album": "Benim İçin Daha Zor - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/3e/5e/e2/3e5ee243-2970-13c6-7b94-5114b348f1c2/cover.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 164500
+    },
+    {
+      "title": "MI AMOR",
+      "artistName": "Lia Shine",
+      "album": "MI AMOR - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/b5/96/fd/b596fd0e-d16e-5d0b-1c03-486d249d4b7f/0.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 152558
+    },
+    {
+      "title": "Bir Şeytan Masalı (feat. GOKO!)",
+      "artistName": "Lia Shine",
+      "album": "Bir Şeytan Masalı",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music125/v4/51/4a/9c/514a9c18-0a56-d93d-0aad-99d623e191e8/artwork.jpg/600x600bb.jpg",
+      "year": "2021",
+      "ms": 180000
+    },
+    {
+      "title": "Kalbime Gömdüm",
+      "artistName": "Lia Shine & Cairo",
+      "album": "Kalbime Gömdüm - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/d6/01/17/d601170b-3f54-276c-9b18-0fbd1deef00e/0.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 197485
+    },
+    {
+      "title": "Yıldızlara Erişmek",
+      "artistName": "Lia Shine",
+      "album": "Yıldızlara Erişmek - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music123/v4/da/60/49/da6049de-9a4a-2595-c80c-7ac499c2fd29/cover.jpg/600x600bb.jpg",
+      "year": "2020",
+      "ms": 198250
+    },
+    {
+      "title": "Bensiz",
+      "artistName": "Ohash & Lia Shine",
+      "album": "Erotomania",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/b8/8e/d9/b88ed9a0-343b-4f47-01cb-323b70c66750/0.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 168018
+    },
+    {
+      "title": "Seni Değiştirmişler",
+      "artistName": "Lia Shine",
+      "album": "Seni Değiştirmişler - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/21/cd/f7/21cdf75b-61f8-7736-72ea-72f3f9c1bc8e/cover.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 169934
+    },
+    {
+      "title": "N.A.O.A",
+      "artistName": "Lia Shine",
+      "album": "N.A.O.A - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/64/d4/1b/64d41b29-6950-1ec0-7e1b-bab1ccffa7a2/cover.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 134857
+    },
+    {
+      "title": "Ahtım Var",
+      "artistName": "Lia Shine",
+      "album": "Ahtım Var - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/f0/34/08/f0340893-217d-06db-786f-e09a4c1d33f1/artwork.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 146939
+    },
+    {
+      "title": "Hikayem",
+      "artistName": "Lia Shine",
+      "album": "Hikayem - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/38/ee/c0/38eec033-3698-c04b-3623-1c2c785d0fb9/cover.jpg/600x600bb.jpg",
+      "year": "2025",
+      "ms": 211200
+    },
+    {
+      "title": "bir kez sarılamadık",
+      "artistName": "Arda Gezer, Lia Shine, Sali & Archie",
+      "album": "bir kez sarılamadık - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/31/00/83/31008398-bd88-5b45-c95d-0d1956c48c83/cover.jpg/600x600bb.jpg",
+      "year": "2026",
+      "ms": 166957
+    },
+    {
+      "title": "Hiç",
+      "artistName": "Lia Shine",
+      "album": "Hiç - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/2e/da/f5/2edaf55d-a89b-3b11-4940-726259689567/cover.jpg/600x600bb.jpg",
+      "year": "2024",
+      "ms": 243103
+    },
+    {
+      "title": "Aden P2 (Akustik)",
+      "artistName": "Lia Shine",
+      "album": "Aden P2 (Akustik) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/59/57/6c/59576c10-a8d2-2059-7c6b-b763455e2af8/cover.jpg/600x600bb.jpg",
+      "year": "2023",
+      "ms": 190000
+    }
   ],
   "sehinsah": [
     {
@@ -1012,7 +1229,7 @@
     },
     {
       "title": "Nefret",
-      "artistName": "Arda Gezer, Şehinşah & SALİ",
+      "artistName": "Arda Gezer, Şehinşah & Sali",
       "album": "Nefret - Single",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music122/v4/b7/5a/12/b75a127b-d9d0-a003-aeee-136801ab936d/cover.jpg/600x600bb.jpg",
       "year": "2022",
@@ -2117,8 +2334,8 @@
     {
       "title": "DAYANAMAM",
       "artistName": "Murda & Ezhel",
-      "album": "DUA",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/cf/fe/a2/cffea26f-ebdc-a6a4-05f6-7a5cc974df69/25UMGIM32534.rgb.jpg/600x600bb.jpg",
+      "album": "DAYANAMAM - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/e0/ec/20/e0ec206a-92e5-a015-0e9f-c38369f72c17/25UMGIM00340.rgb.jpg/600x600bb.jpg",
       "year": "2025",
       "ms": 202024
     }
@@ -2161,14 +2378,6 @@
       "artistName": "Maho G & Ben Fero",
       "album": "İzmir'in Ateşi - Single",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/1d/73/34/1d733487-e16e-bb54-b84a-83cac6dd38fb/20UMGIM94671.rgb.jpg/600x600bb.jpg",
-      "year": "2020",
-      "ms": 185849
-    },
-    {
-      "title": "İzmir'in Ateşi",
-      "artistName": "Maho G & Ben Fero",
-      "album": "Yüksekteyim",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/65/0a/c7/650ac759-f4db-5616-ac7d-fab990d88dcd/20UM1IM08629.rgb.jpg/600x600bb.jpg",
       "year": "2020",
       "ms": 185849
     }
@@ -2283,9 +2492,9 @@
     {
       "title": "Şarkılar Sokaklara Ait",
       "artistName": "UZI & Motive",
-      "album": "Mortal Kombat",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/06/40/df/0640df56-6fa2-f4c5-da67-ef8416201a09/0.jpg/600x600bb.jpg",
-      "year": "2026",
+      "album": "Şarkılar Sokaklara Ait - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/1a/85/1b/1a851b52-a6b2-ddbb-d68d-2f06ad7e70f0/0.jpg/600x600bb.jpg",
+      "year": "2025",
       "ms": 175144
     },
     {
@@ -2325,10 +2534,10 @@
     {
       "title": "ama hala",
       "artistName": "Mavi",
-      "album": "ama hala - Single",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music116/v4/d3/d8/89/d3d889f3-709b-e0db-0ae8-6b77783a7bf0/22UMGIM34763.rgb.jpg/600x600bb.jpg",
+      "album": "VERITAS",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music112/v4/95/ef/15/95ef1529-a6e4-c629-5ea8-0123f57b9227/22UMGIM61609.rgb.jpg/600x600bb.jpg",
       "year": "2022",
-      "ms": 267000
+      "ms": 267209
     },
     {
       "title": "askim",
@@ -2931,14 +3140,6 @@
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/dc/23/6d/dc236d1b-307c-94d3-0e2a-6230aadb0d92/cover.jpg/600x600bb.jpg",
       "year": "2025",
       "ms": 169846
-    },
-    {
-      "title": "Zor",
-      "artistName": "Lil Zey",
-      "album": "Kara Tiyatro",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/88/89/8c/88898c61-284f-0c0a-0c8f-06f7268fbfba/21UMGIM40218.rgb.jpg/600x600bb.jpg",
-      "year": "2020",
-      "ms": 180392
     }
   ],
   "heijan": [
@@ -3191,8 +3392,8 @@
     {
       "title": "Kaptan",
       "artistName": "Ati242",
-      "album": "Kaptan - Single",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/8b/46/56/8b46564d-3d97-2496-1063-a807155f3cb1/198391628146.jpg/600x600bb.jpg",
+      "album": "Manifesto",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/fa/f9/55/faf95520-f2d0-42f2-69f0-31a5fedbaffa/198846424330.jpg/600x600bb.jpg",
       "year": "2024",
       "ms": 191173
     },
@@ -3539,8 +3740,8 @@
     {
       "title": "Müptela",
       "artistName": "Joker",
-      "album": "Element",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music114/v4/ec/90/aa/ec90aa7f-5640-f8bb-b1b9-6f9d6d675f23/886447222072.jpg/600x600bb.jpg",
+      "album": "Müptela - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/41/f8/6a/41f86a50-4a2a-a047-aa09-a11627d172c0/886447221730.jpg/600x600bb.jpg",
       "year": "2018",
       "ms": 219808
     },
@@ -3563,8 +3764,8 @@
     {
       "title": "Microphone Show (feat. Ayben)",
       "artistName": "Joker",
-      "album": "Microphone Show",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music69/v4/ca/6f/24/ca6f240c-cc64-cd8d-7f65-3931bb8bae80/dj.iokvtsfa.jpg/600x600bb.jpg",
+      "album": "Microphone Show (feat. Ayben) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music7/v4/c7/b1/42/c7b1424f-64a5-3c05-daee-9c4414e4e9c3/889845411673.jpg/600x600bb.jpg",
       "year": "2015",
       "ms": 218319
     }
@@ -3870,7 +4071,7 @@
       "title": "Aşkın Olayım",
       "artistName": "Simge",
       "album": "Ben Bazen",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music124/v4/a5/11/8b/a5118bc5-746b-1675-2566-21bffc8d6d9d/cover.jpg/600x600bb.jpg",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music115/v4/5f/be/25/5fbe25a2-6307-005b-5faf-a967f0b62ba9/cover.jpg/600x600bb.jpg",
       "year": "2018",
       "ms": 251780
     },
@@ -3935,8 +4136,8 @@
     {
       "title": "Gidenlerden (Mustafa Sandal Saygı 1)",
       "artistName": "Melek Mosso & Mustafa Sandal",
-      "album": "Mustafa Sandal Saygı 1",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/91/ef/37/91ef3718-d087-cfd8-5149-1df177b3ea33/cover.jpg/600x600bb.jpg",
+      "album": "Gidenlerden (Mustafa Sandal Saygı 1) - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0e/77/fe/0e77fe74-2b3c-b2ab-8d86-1d6a1bdd4c01/cover.jpg/600x600bb.jpg",
       "year": "2026",
       "ms": 202000
     },
@@ -4038,8 +4239,7 @@
       "album": "D'ÜNYAM",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9a/f6/28/9af6283d-207d-f04e-f203-2890e251dfe5/artwork.jpg/600x600bb.jpg",
       "year": "2022",
-      "ms": 105001,
-      "no": 1
+      "ms": 105001
     },
     {
       "title": "MAVİ/YOL",
@@ -4047,8 +4247,7 @@
       "album": "D'ÜNYAM",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9a/f6/28/9af6283d-207d-f04e-f203-2890e251dfe5/artwork.jpg/600x600bb.jpg",
       "year": "2023",
-      "ms": 123960,
-      "no": 2
+      "ms": 123960
     },
     {
       "title": "IRMK/AYDINLIK",
@@ -4056,8 +4255,7 @@
       "album": "D'ÜNYAM",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9a/f6/28/9af6283d-207d-f04e-f203-2890e251dfe5/artwork.jpg/600x600bb.jpg",
       "year": "2024",
-      "ms": 136960,
-      "no": 3
+      "ms": 136960
     },
     {
       "title": "RADİKAL",
@@ -4065,8 +4263,7 @@
       "album": "D'ÜNYAM",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9a/f6/28/9af6283d-207d-f04e-f203-2890e251dfe5/artwork.jpg/600x600bb.jpg",
       "year": "2024",
-      "ms": 106684,
-      "no": 4
+      "ms": 106684
     },
     {
       "title": "D'ÜNYAM/MASAL",
@@ -4074,8 +4271,7 @@
       "album": "D'ÜNYAM",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9a/f6/28/9af6283d-207d-f04e-f203-2890e251dfe5/artwork.jpg/600x600bb.jpg",
       "year": "2023",
-      "ms": 163248,
-      "no": 5
+      "ms": 163248
     },
     {
       "title": "CEVHER",
@@ -4083,8 +4279,7 @@
       "album": "D'ÜNYAM",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9a/f6/28/9af6283d-207d-f04e-f203-2890e251dfe5/artwork.jpg/600x600bb.jpg",
       "year": "2024",
-      "ms": 125074,
-      "no": 6
+      "ms": 125074
     },
     {
       "title": "BAYAT",
@@ -4092,8 +4287,7 @@
       "album": "D'ÜNYAM",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9a/f6/28/9af6283d-207d-f04e-f203-2890e251dfe5/artwork.jpg/600x600bb.jpg",
       "year": "2024",
-      "ms": 129533,
-      "no": 7
+      "ms": 129533
     },
     {
       "title": "NEFRET",
@@ -4101,8 +4295,7 @@
       "album": "D'ÜNYAM",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9a/f6/28/9af6283d-207d-f04e-f203-2890e251dfe5/artwork.jpg/600x600bb.jpg",
       "year": "2024",
-      "ms": 159103,
-      "no": 8
+      "ms": 159103
     },
     {
       "title": "ŞANS",
@@ -4110,8 +4303,7 @@
       "album": "D'ÜNYAM",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9a/f6/28/9af6283d-207d-f04e-f203-2890e251dfe5/artwork.jpg/600x600bb.jpg",
       "year": "2024",
-      "ms": 120128,
-      "no": 9
+      "ms": 120128
     },
     {
       "title": "TEK",
@@ -4119,8 +4311,7 @@
       "album": "D'ÜNYAM",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9a/f6/28/9af6283d-207d-f04e-f203-2890e251dfe5/artwork.jpg/600x600bb.jpg",
       "year": "2024",
-      "ms": 194038,
-      "no": 10
+      "ms": 194038
     },
     {
       "title": "Yalan",
@@ -4146,8 +4337,7 @@
       "album": "Yol (feat. Lie Refuge) - Single",
       "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/54/93/d0/5493d050-c67a-4b9c-8290-977c40254add/859796794156_cover.jpg/600x600bb.jpg",
       "year": "2023",
-      "ms": 123960,
-      "no": 1
+      "ms": 123960
     },
     {
       "title": "İnan Bana (feat. Lie Refuge)",

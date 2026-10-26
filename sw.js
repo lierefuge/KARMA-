@@ -30,7 +30,7 @@ const VERSION = "10.68.0"; /* tools/gen-version-json.js ile aynı kaynaktan geli
    "güncelle dedim, güncellenmedi". İçerik hash'i her içerik
    değişiminde adı değiştirir; activate eski önbelleği siler.
    Damgalama: tools/gen-version-json.js (CACHE_KEY alanı). */
-const CACHE_KEY = "8792ba18";
+const CACHE_KEY = "7f435a0d";
 const CACHE = "karma-" + CACHE_KEY;
 const CORE = ["./", "./index.html", "./js/version.js"];
 
