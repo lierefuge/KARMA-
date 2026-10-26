@@ -1,0 +1,169 @@
+#!/usr/bin/env node
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const assert = require('node:assert/strict');
+const { spawnSync } = require('child_process');
+const YAML = require('yaml');
+const ROOT = path.resolve(__dirname, '..');
+const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'karma-music-'));
+const dataDir = path.join(temp, 'js/data');
+fs.mkdirSync(dataDir, { recursive: true });
+fs.mkdirSync(path.join(temp, 'tools'));
+for (const f of ['fetch-new-releases.js', 'ai-enrich.js', 'release-intel-io.js', 'refresh-discographies.js']) {
+  fs.copyFileSync(path.join(ROOT, 'tools', f), path.join(temp, 'tools', f));
+}
+const file = path.join(dataDir, 'release-intel.js');
+const calls = path.join(temp, 'calls');
+const today = new Date(Date.now() + 3 * 3600000).toISOString().slice(0, 10);
+const old = '2020-01-01';
+const source = obj => '/* fixture header */\n(function(K){ K.RELEASE_INTEL = ' + JSON.stringify(obj, null, 1) + ';\n})(window.K = window.K || {});\n';
+const row = (id, title, date = today) => ({ title, artistId: id, artistName: id === 'alpha' ? 'Alpha' : 'Beta',
+  trackArtist: id === 'alpha' ? 'Alpha' : 'Beta', releaseDate: date, album: 'Fixture', art: '',
+  ms: 1000, url: null, preview: null, isNew: true, intel: null });
+function reset(rows = [row('alpha', 'Eski', old), row('beta', 'Eski', old)], ids = { alpha: 1, beta: 2 }) {
+  const releases = Object.fromEntries(rows.map(r => [r.artistId + '::' + require('./release-intel-io').norm(r.title), r]));
+  fs.writeFileSync(file, source({ meta: { source: 'itunes-lookup-tr', count: rows.length, newCount: rows.length, artistIds: ids }, releases }));
+  fs.writeFileSync(calls, '');
+}
+fs.writeFileSync(path.join(dataDir, 'artists.js'), 'window.K={ARTISTS:[{id:"alpha",stageName:"Alpha"},{id:"beta",stageName:"Beta"}]};');
+fs.writeFileSync(path.join(dataDir, 'real-songs.js'), 'window.K={REAL_SONGS:{}};');
+const load = () => { const w = {}; new Function('window', fs.readFileSync(file, 'utf8'))(w); return w.K.RELEASE_INTEL; };
+const bytes = () => fs.readFileSync(file, 'utf8');
+function run(tool, scenario, args = [], key = true) {
+  fs.writeFileSync(calls, '');
+  const r = spawnSync(process.execPath, ['--require', path.join(ROOT, 'tools/fixtures/music-provider.cjs'),
+    path.join(temp, 'tools', tool), '--delay', '0', ...args], {
+    cwd: temp, encoding: 'utf8', timeout: 10000,
+    env: { ...process.env, GEMINI_API_KEY: key ? 'synthetic-test-key' : '', GOOGLE_API_KEY: '',
+      KARMA_MUSIC_SCENARIO: scenario, KARMA_MUSIC_CALLS: calls }
+  });
+  if (r.error) throw r.error;
+  assert(!((r.stdout || '') + (r.stderr || '')).includes('synthetic-test-key'), 'secret leaked');
+  return { ...r, calls: fs.readFileSync(calls, 'utf8').trim().split('\n').filter(Boolean).length };
+}
+let passed = 0;
+function check(name, test) { test(); passed++; console.log('✅ ' + name); }
+try {
+  for (const scenario of ['catalog-empty', 'catalog-json', 'catalog-shape', 'catalog-date', 'album-empty']) {
+    check(scenario + ': previous data byte-preserved', () => {
+      reset(); const before = bytes(); assert.equal(run('fetch-new-releases.js', scenario).status, 1); assert.equal(bytes(), before);
+    });
+  }
+  check('partial outage preserves failed artist, expires successful artist only', () => {
+    reset(); assert.equal(run('fetch-new-releases.js', 'partial').status, 1);
+    assert(load().releases['beta::eski']); assert(!load().releases['alpha::eski']); assert(load().releases['alpha::yeni parça']);
+  });
+  check('duplicates collapsed and guest not assigned primary ownership', () => {
+    reset([]); assert.equal(run('fetch-new-releases.js', 'ok').status, 0);
+    assert.deepEqual(Object.keys(load().releases), ['alpha::yeni parça']);
+    const before = bytes(); assert.equal(run('fetch-new-releases.js', 'ok').status, 0); assert.equal(bytes(), before);
+  });
+  check('near-name artist is not accepted', () => {
+    reset([]); assert.equal(run('fetch-new-releases.js', 'catalog-owner').status, 0); assert.equal(load().meta.count, 0);
+  });
+  check('unrelated artist search result is not accepted', () => {
+    reset([], {}); assert.equal(run('fetch-new-releases.js', 'ok').status, 1); assert.equal(load().meta.count, 0);
+  });
+  check('only scan leaves other artists untouched; dry scan never writes', () => {
+    reset(); const before = bytes(); assert.equal(run('fetch-new-releases.js', 'ok', ['--only', 'alpha', '--dry']).status, 0); assert.equal(bytes(), before);
+    assert.equal(run('fetch-new-releases.js', 'ok', ['--only', 'alpha']).status, 0); assert(load().releases['beta::eski']);
+  });
+  check('catalog refresh preserves enrichment cache', () => {
+    const r = row('alpha', 'Yeni Parça'); r.intel = { note: 'cache', v: 1 }; reset([r]);
+    assert.equal(run('fetch-new-releases.js', 'ok').status, 0); assert.deepEqual(load().releases['alpha::yeni parça'].intel, r.intel);
+  });
+  check('broken local data aborts before network or writes', () => {
+    for (const tool of ['fetch-new-releases.js', 'ai-enrich.js']) {
+      fs.writeFileSync(file, 'broken JSON data'); const before = bytes();
+      const r = run(tool, 'no-network'); assert.equal(r.status, 1); assert.equal(r.calls, 0); assert.equal(bytes(), before);
+    }
+  });
+  for (const scenario of ['ai-empty', 'ai-json', 'ai-duplicate', 'ai-missing', 'ai-invalid', 'quota', 'model404']) {
+    check(scenario + ': invalid AI cannot replace existing data', () => {
+      reset([row('alpha', 'Bir'), row('alpha', 'İki')]); const before = bytes();
+      const r = run('ai-enrich.js', scenario); assert.equal(r.status, 1); assert.equal(bytes(), before);
+      if (scenario === 'quota') assert.equal(r.calls, 4);
+      if (scenario === 'model404') assert.equal(r.calls, 1);
+    });
+  }
+  check('partial AI failure keeps valid results and reports failure', () => {
+    reset([row('alpha', 'Bir'), row('alpha', 'İki')]);
+    assert.equal(run('ai-enrich.js', 'ai-partial').status, 1);
+    assert.equal(load().releases['alpha::bir'].intel, null); assert(load().releases['alpha::iki'].intel);
+  });
+  check('discography wrapper supplies arguments and restores failed writes', () => {
+    reset();
+    for (const f of ['real-songs.js', 'discography.js', 'real-previews.js']) fs.writeFileSync(path.join(dataDir, f), 'original');
+    fs.writeFileSync(path.join(temp, 'tools/fetch-artist-discography.js'), `
+      const fs = require('fs'); const assert = require('node:assert/strict');
+      const [slug, name, id] = process.argv.slice(2);
+      assert(['alpha','beta'].includes(slug)); assert(name); assert(['1','2'].includes(id));
+      fs.writeFileSync('js/data/real-songs.js', 'broken partial write'); process.exit(1);
+    `);
+    assert.equal(run('refresh-discographies.js', 'no-network').status, 1);
+    for (const f of ['real-songs.js', 'discography.js', 'real-previews.js']) assert.equal(fs.readFileSync(path.join(dataDir, f), 'utf8'), 'original');
+  });
+  check('discography ignores date-only rewrites and rejects empty successful output', () => {
+    reset();
+    const names = ['REAL_SONGS', 'DISCOGRAPHY', 'REAL_PREVIEWS'];
+    const files = ['real-songs.js', 'discography.js', 'real-previews.js'];
+    const originals = names.map((name, i) => '/* old date */window.K={'+name+':' + JSON.stringify({
+      alpha: i < 2 ? [{ title: 'A' }] : { A: { p: 'https://example.invalid/a' } },
+      beta: i < 2 ? [{ title: 'B' }] : { B: { p: 'https://example.invalid/b' } }
+    }) + '};');
+    files.forEach((f, i) => fs.writeFileSync(path.join(dataDir, f), originals[i]));
+    fs.writeFileSync(path.join(temp, 'tools/fetch-artist-discography.js'), `
+      const fs = require('fs');
+      for (const file of ['real-songs.js','discography.js','real-previews.js']) {
+        const p = 'js/data/' + file;
+        fs.writeFileSync(p, fs.readFileSync(p, 'utf8').replace('old date', 'new date'));
+      }
+    `);
+    assert.equal(run('refresh-discographies.js', 'no-network').status, 0);
+    files.forEach((f, i) => assert.equal(fs.readFileSync(path.join(dataDir, f), 'utf8'), originals[i]));
+    fs.writeFileSync(path.join(temp, 'tools/fetch-artist-discography.js'), `
+      require('fs').writeFileSync('js/data/real-songs.js', 'window.K={REAL_SONGS:{}};');
+    `);
+    assert.equal(run('refresh-discographies.js', 'no-network').status, 1);
+    files.forEach((f, i) => assert.equal(fs.readFileSync(path.join(dataDir, f), 'utf8'), originals[i]));
+  });
+  check('AI dry requires neither key nor network; missing key fails clearly', () => {
+    reset([row('alpha', 'Bir')]); const before = bytes();
+    const r = run('ai-enrich.js', 'no-network', ['--dry'], false); assert.equal(r.status, 0); assert.equal(r.calls, 0); assert.equal(bytes(), before);
+    assert.equal(run('ai-enrich.js', 'no-network', [], false).status, 1); assert.equal(bytes(), before);
+  });
+  check('AI maps by index, clips ranges, preserves catalog facts and skips cache', () => {
+    reset([row('alpha', 'Bir'), row('alpha', 'İki')]); const before = load();
+    assert.equal(run('ai-enrich.js', 'ai-reordered').status, 0);
+    Object.keys(before.releases).forEach((k, i) => {
+      const r = load().releases[k]; assert.deepEqual({ ...r, intel: null }, before.releases[k]);
+      assert.equal(r.intel.energy, 10); assert.equal(r.intel.fit.newmusic, 1); assert.equal(r.intel.note, 'Sentetik küratör notu ' + i);
+    });
+    assert(bytes().startsWith('/* fixture header */')); const cached = bytes();
+    const r = run('ai-enrich.js', 'no-network'); assert.equal(r.status, 0); assert.equal(r.calls, 0); assert.equal(bytes(), cached);
+    assert.equal(run('ai-enrich.js', 'quota', ['--force']).status, 1); assert.equal(bytes(), cached);
+  });
+  check('limit controls quota consumption', () => {
+    reset([row('alpha', 'Bir'), row('alpha', 'İki')]); assert.equal(run('ai-enrich.js', 'ok', ['--limit', '1']).status, 0);
+    assert.equal(Object.values(load().releases).filter(r => r.intel).length, 1);
+  });
+  check('workflow YAML, midnight cron, dispatch, locks and scoped pushes', () => {
+    const dailyText = fs.readFileSync(path.join(ROOT, '.github/workflows/daily-refresh.yml'), 'utf8');
+    const buildText = fs.readFileSync(path.join(ROOT, '.github/workflows/build-artifact.yml'), 'utf8');
+    const daily = YAML.parse(dailyText), build = YAML.parse(buildText);
+    assert.equal(daily.on.schedule[0].cron, '0 21 * * *');
+    assert.equal(daily.on.workflow_dispatch.inputs.dry_run.default, true);
+    assert.equal(daily.concurrency.group, build.concurrency.group);
+    assert.equal(daily.concurrency['cancel-in-progress'], false); assert.equal(build.concurrency['cancel-in-progress'], false);
+    assert(build.jobs.build.if.includes("github.event_name == 'workflow_dispatch'"));
+    assert(!/git add (?:-A|js\/data\s)/.test(dailyText + buildText));
+    assert(!/HEAD:main|--ref main/.test(dailyText.replace(/^\s*#.*$/gm, '') + buildText.replace(/^\s*#.*$/gm, '')));
+    const ai = daily.jobs.refresh.steps.find(s => s.id === 'ai');
+    assert.equal(ai.env.GEMINI_API_KEY, '${{ secrets.GEMINI_API_KEY }}'); assert(ai['continue-on-error']);
+    assert(daily.jobs.refresh.steps.some(s => s.run && s.run.includes('npm run verify')));
+    assert(daily.jobs.refresh.steps.some(s => s.run === 'node tools/fetch-youtube.js'));
+    assert(daily.jobs.refresh.steps.some(s => s.run === 'node tools/refresh-discographies.js'));
+  });
+  console.log('\nGeçen: ' + passed + ' · Kalan: 0');
+} finally { fs.rmSync(temp, { recursive: true, force: true }); }

@@ -57,6 +57,7 @@
    ============================================================ */
 const fs = require("fs");
 const path = require("path");
+const { norm, validDate, validate, atomicWrite } = require("./release-intel-io.js");
 
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "js", "data", "release-intel.js");
@@ -84,10 +85,10 @@ function loadGlobal(rel, name) {
 }
 
 function writeData(obj, header) {
-  fs.writeFileSync(
+  validate(obj);
+  atomicWrite(
     OUT,
-    header + JSON.stringify(obj, null, 1) + ";\n})(window.K = window.K || {});\n",
-    "utf8"
+    header + JSON.stringify(obj, null, 1) + ";\n})(window.K = window.K || {});\n"
   );
 }
 
@@ -95,17 +96,6 @@ function writeData(obj, header) {
    TÜRKÇE TUZAĞI: "KARARDI".toLowerCase() → "karardi" ama şarkının
    yazımı "Karardı" → "karardı". ı ≠ i olduğu için eşleşme kaçar.
    Ayrıca İ→i, I→ı dönüşümü elle yapılmalı. */
-function norm(s) {
-  return String(s == null ? "" : s)
-    .replace(/İ/g, "i")
-    .replace(/I/g, "ı")
-    .toLowerCase()
-    .replace(/[’'`´]/g, "")
-    .replace(/["“”„]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 /* anahtar: "<slug>::<normalize başlık>" */
 function keyOf(slug, title) { return slug + "::" + norm(title); }
 
@@ -117,7 +107,9 @@ function trToday() {
   return new Date(Date.now() + TR_OFFSET).toISOString().slice(0, 10);
 }
 function dayNum(isoDate) {
-  const t = Date.parse(String(isoDate || "").slice(0, 10) + "T00:00:00Z");
+  const date = String(isoDate || "").slice(0, 10);
+  if (!validDate(date)) return null;
+  const t = Date.parse(date + "T00:00:00Z");
   return isFinite(t) ? Math.floor(t / 864e5) : null;
 }
 function ageDays(isoDate, todayIso) {
@@ -133,11 +125,16 @@ async function getJSON(url, tries) {
     try {
       const ctl = new AbortController();
       const t = setTimeout(() => ctl.abort(), 15000);
-      const r = await fetch(url, { headers: { "User-Agent": UA, Accept: "application/json" }, signal: ctl.signal });
-      clearTimeout(t);
-      if (!r.ok) throw new Error("HTTP " + r.status);
-      const txt = await r.text();
-      return JSON.parse(txt.replace(/^\uFEFF/, ""));
+      try {
+        const r = await fetch(url, { headers: { "User-Agent": UA, Accept: "application/json" }, signal: ctl.signal });
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        const txt = await r.text();
+        const data = JSON.parse(txt.replace(/^\uFEFF/, ""));
+        if (!data || !Array.isArray(data.results) || data.resultCount !== data.results.length) {
+          throw new Error("geçersiz katalog yanıtı");
+        }
+        return data;
+      } finally { clearTimeout(t); }
     } catch (e) {
       lastErr = e;
       await sleep(400 + i * 700);
@@ -159,7 +156,7 @@ async function resolveArtistId(a) {
   if (exact) return exact.artistId;
   const alias = (a.aliases || []).map(norm).filter(Boolean);
   const aliasHit = list.find((x) => alias.indexOf(norm(x.artistName)) >= 0);
-  return (aliasHit || list[0]).artistId;
+  return aliasHit ? aliasHit.artistId : null;
 }
 
 /* ---------------- sahiplik denetimi ----------------
@@ -171,24 +168,9 @@ function primaryArtist(trackArtist) {
   return (parts[0] || raw).trim();
 }
 
-function namePattern(name) {
-  const n = norm(name).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  if (!n) return null;
-  return new RegExp("(^|[^a-z0-9ı])" + n + "($|[^a-z0-9ı])");
-}
-
 function ownsTrack(trackArtist, artist) {
-  const prim = primaryArtist(trackArtist);
-  if (!prim) return false;
-  const names = [artist.stageName].concat(artist.aliases || []).filter(Boolean);
-  const hay = norm(prim);
-  return names.some((nm) => {
-    const re = namePattern(nm);
-    if (re && re.test(hay)) return true;
-    /* kısa takma ad ("Wegh") tam adın içinde geçebilir */
-    const n = norm(nm);
-    return n && (hay.indexOf(n) >= 0 || n.indexOf(hay) >= 0) && Math.min(n.length, hay.length) >= 4;
-  });
+  const prim = norm(primaryArtist(trackArtist));
+  return !!prim && [artist.stageName].concat(artist.aliases || []).some(n => norm(n) === prim);
 }
 
 /* ---------------- katalog: albüm üzerinden ---------------- */
@@ -198,6 +180,10 @@ async function recentAlbums(artistId, todayIso, windowDays) {
     "&entity=album&limit=200&country=TR"
   );
   const albums = (j.results || []).filter((x) => x.wrapperType === "collection" && x.collectionId);
+  if (!albums.length || !j.results.some(x => x.wrapperType === "artist" && x.artistId === artistId)) {
+    throw new Error("boş veya eksik sanatçı kataloğu; eski kayıtlar korunuyor");
+  }
+  if (albums.some(al => dayNum(al.releaseDate) == null)) throw new Error("geçersiz albüm tarihi");
   return albums.filter((al) => {
     const age = ageDays(al.releaseDate, todayIso);
     /* +2 gün tolerans: iTunes bazı ülkelerde tarihi 1 gün kaydırabiliyor */
@@ -212,8 +198,18 @@ async function albumTracks(albumIds) {
     const j = await getJSON(
       "https://itunes.apple.com/lookup?id=" + ids + "&entity=song&limit=200&country=TR"
     );
-    (j.results || []).forEach((x) => {
-      if (x.wrapperType === "track" && x.trackName) out.push(x);
+    for (const id of albumIds.slice(i, i + 100)) {
+      if (!j.results.some(x => x.wrapperType === "collection" && x.collectionId === id)
+          || !j.results.some(x => x.wrapperType === "track" && x.collectionId === id)) {
+        throw new Error("boş veya eksik albüm yanıtı; eski kayıtlar korunuyor");
+      }
+    }
+    j.results.forEach((x) => {
+      if (x.wrapperType === "track") {
+        if (typeof x.trackName !== "string" || !x.trackName.trim() || !x.artistName
+            || dayNum(x.releaseDate) == null || !x.trackId) throw new Error("geçersiz katalog kaydı");
+        out.push(x);
+      }
     });
     await sleep(DELAY);
   }
@@ -229,6 +225,7 @@ async function scanArtist(a, artistId, ctx) {
   const tracks = await albumTracks(albums.map((al) => al.collectionId));
 
   const rows = [];
+  const seen = new Set();
   let scanned = 0;
   tracks.forEach((t) => {
     scanned++;
@@ -237,6 +234,9 @@ async function scanArtist(a, artistId, ctx) {
     /* konuk tuzağı: parça bu sanatçının değilse atla */
     if (!ownsTrack(t.artistName, a)) return;
 
+    const key = keyOf(a.id, t.trackName);
+    if (seen.has(key)) return;
+    seen.add(key);
     const known = ctx.knownBySlug[a.id] || new Set();
     rows.push({
       title: t.trackName,
@@ -259,6 +259,8 @@ async function scanArtist(a, artistId, ctx) {
 
 /* ---------------- ana akış ---------------- */
 (async function main() {
+  if (!Number.isInteger(DAYS) || DAYS < 1 || !Number.isInteger(PER_ARTIST) || PER_ARTIST < 1
+      || !Number.isFinite(DELAY) || DELAY < 0) throw new Error("geçersiz tarama seçenekleri");
   const started = Date.now();
   const today = trToday();
 
@@ -268,9 +270,7 @@ async function scanArtist(a, artistId, ctx) {
   /* eski dosyayı oku — meta ve intel blokları taşınacak */
   let prev = { meta: {}, releases: {} };
   if (fs.existsSync(OUT)) {
-    try { prev = loadGlobal("js/data/release-intel.js", "RELEASE_INTEL") || prev; } catch (e) {
-      console.warn("  ⚠ eski release-intel.js okunamadı, sıfırdan üretilecek: " + e.message);
-    }
+    prev = validate(loadGlobal("js/data/release-intel.js", "RELEASE_INTEL"));
   }
   const prevMeta = prev.meta || {};
   const prevReleases = prev.releases || {};
@@ -292,15 +292,16 @@ async function scanArtist(a, artistId, ctx) {
   console.log("  sanatçı    : " + roster.length + (ONLY ? " (--only)" : ""));
   console.log("  kaynak     : iTunes Lookup API (album → song, country=TR)\n");
 
-  const ids = Object.assign({}, REFRESH_IDS ? {} : (prevMeta.artistIds || {}));
+  const ids = Object.assign({}, prevMeta.artistIds || {});
   const releases = Object.assign({}, prevReleases);
+  const successful = new Set();
   let scannedTotal = 0, freshTotal = 0, added = 0, updated = 0, errors = 0;
 
   for (let i = 0; i < roster.length; i++) {
     const a = roster[i];
     const tag = "[" + String(i + 1).padStart(2) + "/" + roster.length + "] " + (a.stageName || a.id).padEnd(18);
     try {
-      let artistId = ids[a.id];
+      let artistId = REFRESH_IDS ? null : ids[a.id];
       if (!artistId) {
         artistId = await resolveArtistId(a);
         await sleep(DELAY);
@@ -309,6 +310,7 @@ async function scanArtist(a, artistId, ctx) {
       ids[a.id] = artistId;
 
       const res = await scanArtist(a, artistId, { today, knownBySlug });
+      successful.add(a.id);
       scannedTotal += res.scanned;
       freshTotal += res.fresh;
 
@@ -353,9 +355,16 @@ async function scanArtist(a, artistId, ctx) {
     const r = releases[k];
     if (!r || !r.releaseDate) return;
     const age = ageDays(r.releaseDate, today);
-    if (age == null || age > DAYS) return;
+    if (successful.has(r.artistId) && (age == null || age > DAYS)) return;
     kept[k] = r;
   });
+
+  if (!Object.keys(kept).length && Object.keys(prevReleases).length) {
+    console.warn("⚠ Boş sonuç mevcut veriyi ezmeyecek; dosya korunuyor.");
+    process.exitCode = 1;
+    return;
+  }
+  if (errors) process.exitCode = 1;
 
   /* ---- deterministik sıra: yeni → eski, eşitlikte başlık ---- */
   const ordered = {};

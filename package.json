@@ -20,7 +20,8 @@
     "deploy:itch:dry": "node tools/itch-deploy.js --dry"
   },
   "devDependencies": {
-    "jsdom": "^30.1.1"
+    "jsdom": "^30.1.1",
+    "yaml": "^2.9.1"
   },
   "_not_jsdom": "jsdom 30+ ZORUNLU: önceki sürümler uzun simülasyonlarda (~1000 oyun günü) heap'i tüketip 'FATAL ERROR: Reached heap limit' veriyor."
 }

@@ -117,6 +117,7 @@ let built = false;
 
 /* ---------- 4) test paketleri ---------- */
 const SUITES = [
+  { id: "music-refresh", script: "tools/smoke-music-refresh.js", label: "Otomatik müzik · katalog/AI hata korumaları · workflow" },
   { id: "social-refresh", script: "tools/smoke-social-refresh.js", label: "Sosyal uygulamalar · paylaşım · kalıcı etkileşimler" },
   { id: "journey", script: "tools/smoke-journey.js", label: "İlk ay · sözleşmeler · konser gideri · lisans hakları" },
   /* altyapı en önce: CI/sürüm/motor-veri ayrımı bozuksa diğer adımların
