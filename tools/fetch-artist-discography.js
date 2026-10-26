@@ -18,6 +18,7 @@
    ============================================================ */
 const fs = require("fs");
 const path = require("path");
+const { norm } = require("./release-intel-io.js");
 
 const ROOT = path.resolve(__dirname, "..");
 const [, , slug, name, forcedId] = process.argv;
@@ -108,7 +109,13 @@ async function allSongs(artistId) {
   if (!songs.length) { console.error("Şarkı bulunamadı — veri dosyaları DEĞİŞTİRİLMEDİ."); process.exit(1); }
 
   /* ---------- sıralama: sanatçının kendi işleri önce, sonra yeni→eski ---------- */
-  const isOwn = (s) => (s.artistName || "").toLowerCase().startsWith(name.toLowerCase());
+  const roster = loadData("js/data/artists.js", "ARTISTS") || [];
+  const artist = roster.find(a => a.id === slug);
+  const names = [name].concat(artist ? [artist.stageName].concat(artist.aliases || []) : []).map(norm);
+  const isOwn = s => {
+    const primary = String(s.artistName || "").split(/\s*(?:,|&|\bfeat\.?\b|\bft\.?\b|\bx\b|\bvs\.?\b|\/)\s*/i)[0];
+    return names.includes(norm(primary));
+  };
   const isSingle = (s) => /- single$/i.test(s.album || "");
   songs = songs
     .map((s) => ({ ...s, _score: (isOwn(s) ? 100 : 0) + (isSingle(s) ? 20 : 0) + (parseInt(s.year, 10) || 0) }))

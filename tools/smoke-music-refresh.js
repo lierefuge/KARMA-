@@ -10,7 +10,7 @@ const temp = fs.mkdtempSync(path.join(os.tmpdir(), 'karma-music-'));
 const dataDir = path.join(temp, 'js/data');
 fs.mkdirSync(dataDir, { recursive: true });
 fs.mkdirSync(path.join(temp, 'tools'));
-for (const f of ['fetch-new-releases.js', 'ai-enrich.js', 'release-intel-io.js', 'refresh-discographies.js']) {
+for (const f of ['fetch-new-releases.js', 'ai-enrich.js', 'release-intel-io.js', 'refresh-discographies.js', 'fetch-artist-discography.js']) {
   fs.copyFileSync(path.join(ROOT, 'tools', f), path.join(temp, 'tools', f));
 }
 const file = path.join(dataDir, 'release-intel.js');
@@ -28,6 +28,7 @@ function reset(rows = [row('alpha', 'Eski', old), row('beta', 'Eski', old)], ids
 }
 fs.writeFileSync(path.join(dataDir, 'artists.js'), 'window.K={ARTISTS:[{id:"alpha",stageName:"Alpha"},{id:"beta",stageName:"Beta"}]};');
 fs.writeFileSync(path.join(dataDir, 'real-songs.js'), 'window.K={REAL_SONGS:{}};');
+fs.writeFileSync(path.join(dataDir, 'real-youtube.js'), 'window.K={REAL_YT:{}};');
 const load = () => { const w = {}; new Function('window', fs.readFileSync(file, 'utf8'))(w); return w.K.RELEASE_INTEL; };
 const bytes = () => fs.readFileSync(file, 'utf8');
 function run(tool, scenario, args = [], key = true) {
@@ -108,10 +109,12 @@ try {
     reset();
     const names = ['REAL_SONGS', 'DISCOGRAPHY', 'REAL_PREVIEWS'];
     const files = ['real-songs.js', 'discography.js', 'real-previews.js'];
-    const originals = names.map((name, i) => '/* old date */window.K={'+name+':' + JSON.stringify({
-      alpha: i < 2 ? [{ title: 'A' }] : { A: { p: 'https://example.invalid/a' } },
-      beta: i < 2 ? [{ title: 'B' }] : { B: { p: 'https://example.invalid/b' } }
-    }) + '};');
+    const song = title => ({ title, artistName: title === 'A' ? 'Alpha' : 'Beta', album: 'Fixture',
+      year: '2026', art: 'https://example.invalid/art.jpg', ms: 120000 });
+    const originals = names.map((name, i) => '/* old date */window.K = window.K || {}; window.K.'+name+' = ' + JSON.stringify({
+      alpha: i === 0 ? [song('A')] : i === 1 ? [{ title: 'Fixture', tracks: ['A'] }] : { A: { p: 'https://example.invalid/a', a: 'https://music.apple.com/tr/a' } },
+      beta: i === 0 ? [song('B')] : i === 1 ? [{ title: 'Fixture', tracks: ['B'] }] : { B: { p: 'https://example.invalid/b', a: 'https://music.apple.com/tr/b' } }
+    }) + ';');
     files.forEach((f, i) => fs.writeFileSync(path.join(dataDir, f), originals[i]));
     fs.writeFileSync(path.join(temp, 'tools/fetch-artist-discography.js'), `
       const fs = require('fs');
@@ -127,6 +130,64 @@ try {
     `);
     assert.equal(run('refresh-discographies.js', 'no-network').status, 1);
     files.forEach((f, i) => assert.equal(fs.readFileSync(path.join(dataDir, f), 'utf8'), originals[i]));
+  });
+  check('daily merge preserves missing songs/media and admits only fully verified additions', () => {
+    reset();
+    const globals = ['REAL_SONGS', 'DISCOGRAPHY', 'REAL_PREVIEWS'];
+    const files = ['real-songs.js', 'discography.js', 'real-previews.js'];
+    const song = title => ({ title, artistName: 'Alpha', album: 'Old', year: '2026', art: 'https://example.invalid/art.jpg', ms: 1000 });
+    const preview = { p: 'https://example.invalid/audio', a: 'https://music.apple.com/tr/a' };
+    const original = [
+      { alpha: [song('old'), song('missing')], beta: [song('beta')] },
+      { alpha: [{ title: 'Old', tracks: ['old', 'missing'] }], beta: [{ title: 'Old', tracks: ['beta'] }] },
+      { alpha: { old: preview, missing: preview }, beta: { beta: preview } }
+    ];
+    const write = (data, index) => '/* fixture date */(function(K){ K.' + globals[index] + ' = ' + JSON.stringify(data) + ';})(window.K=window.K||{});';
+    files.forEach((f, i) => fs.writeFileSync(path.join(dataDir, f), write(original[i], i)));
+    fs.writeFileSync(path.join(dataDir, 'real-youtube.js'), 'window.K={REAL_YT:' + JSON.stringify({ alpha: {
+      ready: { v: 'abcdefghijk', t: 'Alpha ready' }, noPreview: { v: 'abcdefghijl', t: 'Alpha noPreview' },
+      badVideo: { v: 'bad', t: 'invalid' }
+    } }) + '};');
+    fs.writeFileSync(path.join(temp, 'tools/fetch-artist-discography.js'), `
+      if (process.argv[2] === 'beta') process.exit(0);
+      const fs = require('fs');
+      const names = ${JSON.stringify(globals)}, files = ${JSON.stringify(files)};
+      const song = ${song.toString()};
+      const candidates = [
+        [{ ...song('old'), year: '' }, song('ready'), song('noPreview'), song('noVideo'), song('badVideo')],
+        [{ title: 'New', tracks: ['ready', 'noVideo', 'noPreview'] }],
+        { ready: ${JSON.stringify(preview)}, noVideo: ${JSON.stringify(preview)}, badVideo: ${JSON.stringify(preview)} }
+      ];
+      files.forEach((file, i) => {
+        const w={}; new Function('window', fs.readFileSync('js/data/'+file,'utf8'))(w);
+        w.K[names[i]].alpha = candidates[i];
+        fs.writeFileSync('js/data/'+file, 'window.K={'+names[i]+':'+JSON.stringify(w.K[names[i]])+'};');
+      });
+    `);
+    const betaBefore = original.map(data => JSON.stringify(data.beta));
+    const mergedRun = run('refresh-discographies.js', 'no-network');
+    assert.equal(mergedRun.status, 0, mergedRun.stdout + mergedRun.stderr);
+    const payloads = files.map((f, i) => { const w={}; new Function('window', fs.readFileSync(path.join(dataDir,f),'utf8'))(w); return w.K[globals[i]]; });
+    assert.deepEqual(payloads[0].alpha.map(r => r.title), ['old', 'missing', 'ready']);
+    assert.deepEqual(payloads[2].alpha.old, preview); assert.deepEqual(payloads[2].alpha.missing, preview);
+    assert.deepEqual(payloads[1].alpha.find(a => a.title === 'New').tracks, ['ready']);
+    payloads.forEach((data, i) => assert.equal(JSON.stringify(data.beta), betaBefore[i]));
+    const before = files.map(f => fs.readFileSync(path.join(dataDir, f), 'utf8'));
+    assert.equal(run('refresh-discographies.js', 'no-network').status, 0);
+    files.forEach((f, i) => assert.equal(fs.readFileSync(path.join(dataDir,f),'utf8'), before[i]));
+  });
+  check('single artist CLI recognizes a roster alias without treating guests as owners', () => {
+    fs.copyFileSync(path.join(ROOT, 'tools/fetch-artist-discography.js'), path.join(temp, 'tools/fetch-artist-discography.js'));
+    const roster = fs.readFileSync(path.join(dataDir, 'artists.js'));
+    fs.writeFileSync(path.join(dataDir, 'artists.js'), 'window.K={ARTISTS:[{id:"alpha",stageName:"Alpha Alias",aliases:["Alpha"]}]};');
+    const r = spawnSync(process.execPath, ['--require', path.join(ROOT, 'tools/fixtures/music-provider.cjs'),
+      path.join(temp, 'tools/fetch-artist-discography.js'), 'alpha', 'Alpha Alias', '11'], {
+      cwd: temp, encoding: 'utf8', timeout: 10000, env: { ...process.env, KARMA_MUSIC_SCENARIO: 'ok', KARMA_MUSIC_CALLS: calls }
+    });
+    assert.equal(r.status, 0, r.stderr);
+    const w={}; new Function('window', fs.readFileSync(path.join(dataDir,'discography.js'),'utf8'))(w);
+    assert.equal(w.K.DISCOGRAPHY.alpha.length, 1); assert(r.stdout.includes('kendi: 1'));
+    fs.writeFileSync(path.join(dataDir, 'artists.js'), roster);
   });
   check('AI dry requires neither key nor network; missing key fails clearly', () => {
     reset([row('alpha', 'Bir')]); const before = bytes();
