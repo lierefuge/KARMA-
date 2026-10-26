@@ -41,7 +41,7 @@
       if (s.catalogSold && !(p.songs || []).some(x => !x.masterSold)) return;
       const chance = 0.025 + p.popularity / 1100 + Math.min(0.05, p.songs.length / 500);
       if (!U.chance(chance)) return;
-      const pool = p.songs.filter(x => !x.masterSold).slice().sort((a, b) => (b.streams || 0) - (a.streams || 0)).slice(0, 8);
+      const pool = p.songs.filter(x => !x.masterSold && !x.exclusiveSync).slice().sort((a, b) => (b.streams || 0) - (a.streams || 0)).slice(0, 8);
       if (!pool.length) return;
       const song = U.pick(pool);
       const t = U.pick(K.catalog.SYNC_TYPES);
@@ -76,6 +76,13 @@
     resolveSync(accept) {
       const s = K.state, o = s.pendingSync;
       if (!o) return;
+      const licensedSong = s.player.songs.find(x => x.id === o.songId);
+      if (accept && (!licensedSong || licensedSong.masterSold || licensedSong.exclusiveSync)) {
+        s.pendingSync = null;
+        K.toast("Teklif geçersiz", "Şarkının kullanım hakları bu anlaşmaya uygun değil.", "warn");
+        K.save(); K.refresh();
+        return false;
+      }
       if (accept) {
         const cut = (K.career && K.career.labelCut) ? K.career.labelCut("sync", o.fee) : 0;
         K.economy.earn(o.fee - cut, "sync");

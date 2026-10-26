@@ -128,9 +128,9 @@ function run() {
       (verNum[0] === 10 && verNum[1] > 37) ||
       (verNum[0] === 10 && verNum[1] === 37 && (verNum[2] || 0) >= 0);
     ok("S1 · sürüm en az 10.37 (10.32 gerilemesi yok)", atLeast, String(pkg));
-    ok("S1 · README'de v10.37 başlığı var", /GÜNCELLEME v10\.37/.test(read("README.md")));
-    ok("S1 · README'de v10.33–v10.36 başlıkları var",
-      /v10\.36/.test(read("README.md")) && /v10\.33/.test(read("README.md")));
+    ok("S1 · Sürüm arşivinde v10.37 başlığı var", /GÜNCELLEME v10\.37/.test(read("docs/update-history.md")));
+    ok("S1 · Sürüm arşivinde v10.33–v10.36 başlıkları var",
+      /v10\.36/.test(read("docs/update-history.md")) && /v10\.33/.test(read("docs/update-history.md")));
   }
 
   /* =========================================================

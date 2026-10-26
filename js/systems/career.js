@@ -440,6 +440,7 @@
         distLeadDays: distDesc.leadDays || 7,
         distPremium: !!distDesc.premium,
         masterOwner: masterOwner,
+        labelTerms: K.label.releaseTerms(),
         coverSeed: opts.coverSeed || U.uid("cv"),
         /* v10.41 — B grubu METADATA
            Gerçek dağıtım formunun zorunlu alanları: bölge, dil,
@@ -638,6 +639,7 @@
           distributorName: rel.distributor || null,
           distCommission: rel.distCommission || 0,
           masterOwner: rel.masterOwner || "artist",
+          labelTerms: rel.labelTerms === undefined ? undefined : { ...rel.labelTerms },
           albumTitle: rel.title,
           trackNo: i + 1,
           budget: (rel.trackBudgets && rel.trackBudgets[i] != null) ? rel.trackBudgets[i] : rel.budget,

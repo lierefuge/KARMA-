@@ -67,11 +67,11 @@
           <div class="xq-text">${U.escape(String(post.quoteOf.text || "").slice(0, 180))}</div>
         </div>` : ""}
         <div class="xp-actions">
-          <span class="xp-act" data-pact="post-open" data-arg="${post.id}" style="cursor:pointer">${XI.reply}<b>${U.compact(post.comments || 0)}</b></span>
-          <span class="xp-act xp-repost ${reposted ? "on" : ""}" data-pact="x-repost" data-arg="${post.id}">${XI.repost}<b>${U.compact(K.interactions.repostCount(key, post.shares))}</b></span>
-          <span class="xp-act xp-like ${liked ? "on" : ""}" data-pact="like" data-arg="${key}">${XI.heart}<b>${U.compact(K.interactions.likeCount(key, baseLikes))}</b></span>
-          <span class="xp-act xp-save ${saved ? "on" : ""}" data-pact="x-save" data-arg="${post.id}">${XI.bookmark}</span>
-          <span class="xp-act" data-pact="x-share" data-arg="${post.id}" style="cursor:pointer">${XI.share}</span>
+          <button type="button" aria-label="Yorumlar" class="xp-act" data-pact="post-open" data-arg="${post.id}" style="cursor:pointer">${XI.reply}<b>${U.compact(post.comments || 0)}</b></button>
+          <button type="button" aria-label="Yeniden gönder" class="xp-act xp-repost ${reposted ? "on" : ""}" data-pact="x-repost" data-arg="${post.id}">${XI.repost}<b>${U.compact(K.interactions.repostCount(key, post.shares))}</b></button>
+          <button type="button" aria-label="Beğen" class="xp-act xp-like ${liked ? "on" : ""}" data-pact="like" data-arg="${key}">${XI.heart}<b data-like-count="${baseLikes}">${U.compact(K.interactions.likeCount(key, baseLikes))}</b></button>
+          <button type="button" aria-label="Kaydet" class="xp-act xp-save ${saved ? "on" : ""}" data-pact="x-save" data-arg="${post.id}">${XI.bookmark}</button>
+          <button type="button" aria-label="Paylaş" class="xp-act" data-pact="x-share" data-arg="${post.id}" style="cursor:pointer">${XI.share}</button>
           <span class="xp-act muted">${XI.chart}<b>${U.compact(post.views || Math.round((post.likes || 0) * 12))}</b></span>
         </div>
       </div>
@@ -83,7 +83,7 @@
 
     render(params) {
       const view = {
-        title: "X", sub: "Ne oluyor?",
+        chrome: "x", title: "X", sub: "",
         shellClass: "app-x",
         tabPos: "bottom",
         tabs: [
@@ -93,30 +93,25 @@
           { id: "mine", label: "Profilim", icon: XI.user }
         ],
         activeTab: params.tab || "feed",
+        state: { feed: "foryou", query: "" },
+        onMount: root => { const input = root.querySelector("[data-x-search]"); if (input) input.addEventListener("input", () => { view.state.query = input.value; root.querySelector("[data-x-results]").innerHTML = K.phone.appById("x").searchHTML(input.value); }); },
         render: (tab) => {
           const app = K.phone.appById("x");
-          if (tab === "explore") return app.exploreHTML();
+          if (tab === "explore") return `<div class="social-search"><input data-x-search aria-label="X’te ara" placeholder="Ara" value="${U.escape(view.state.query)}"></div><div data-x-results>${view.state.query ? app.searchHTML(view.state.query) : app.exploreHTML()}</div>`;
           if (tab === "notif") { K.interactions.markNotifsRead("x"); return app.notifHTML(); }
           if (tab === "mine") return app.mineHTML();
-          return app.feedHTML();
+          return app.feedHTML(view.state.feed);
         },
         onAction: (act, el) => {
           const app = K.phone.appById("x");
-          if (act === "open-profile") app.openProfile(el.dataset.arg);
+          if (act === "x-feed") { view.state.feed = el.dataset.arg; K.save(); K.phone.reRender(); }
+          else if (act === "x-preferences") K.socialActions.preferences("x");
+          else if (act === "open-profile") app.openProfile(el.dataset.arg);
           else if (act === "post-open") app.openPost(el.dataset.arg);
-          else if (act === "x-repost") { const on = K.interactions.toggleRepost("x_" + el.dataset.arg); K.toast(on ? "↻ Yeniden gönderildi" : "Geri alındı", "", "ok"); K.phone.reRender(); }
-          else if (act === "x-save") { const on = K.interactions.toggleSave("x_" + el.dataset.arg); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.phone.reRender(); }
-          else if (act === "x-share") K.ui.actionSheet("Gönderiyi paylaş", [
-            { label: "↻ Yeniden gönder", onClick: () => { K.interactions.toggleRepost("x_" + el.dataset.arg); K.phone.reRender(); } },
-            { label: "✍️ Alıntıla", onClick: () => { const p = (K.state.feed.x || []).find(x => x.id === el.dataset.arg); app.newPost(p ? "\u201C" + p.text + "\u201D" : ""); } },
-            { label: "💬 DM'de paylaş", onClick: () => K.phone.openApp("messages") },
-            { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") }
-          ]);
-          else if (act === "post-more") K.ui.actionSheet("Gönderi", [
-            { label: "↻ Yeniden gönder", onClick: () => { K.interactions.toggleRepost("x_" + el.dataset.arg); K.toast("↻ Paylaşıldı", "", "ok"); K.phone.reRender(); } },
-            { label: "✍️ Alıntıla", onClick: () => { const p = (K.state.feed.x || []).find(x => x.id === el.dataset.arg); app.newPost(p ? "\u201C" + p.text + "\u201D" : ""); } },
-            { label: "🚫 Engelle", cls: "destructive", onClick: () => K.toast("🚫 Engellendi", "", "warn") }
-          ]);
+          else if (act === "x-share") K.phone.appById("x").sharePost(el.dataset.arg);
+          else if (act === "x-repost") { const on = K.interactions.toggleRepost("x_" + el.dataset.arg); K.toast(on ? "↻ Yeniden gönderildi" : "Geri alındı", "", "ok"); K.save(); K.phone.reRender(); }
+          else if (act === "x-save") { const on = K.interactions.toggleSave("x_" + el.dataset.arg); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.save(); K.phone.reRender(); }
+          else if (act === "post-more") app.sharePost(el.dataset.arg);
           else if (act === "new-post") app.newPost();
           else if (act === "promote") app.promotePicker();
           else if (act === "trend-open") app.openTrend(el.dataset.arg);
@@ -125,10 +120,19 @@
       return view;
     },
 
-    feedHTML() {
-      const posts = K.social.feedFor("x").slice().sort((a, b) => b.day - a.day);
-      return `<button class="btn btn-ghost btn-sm" data-pact="new-post" style="align-self:flex-start">${XI.compose} Gönderi Yaz</button>` +
-        posts.map(p => postHTML(p, { clickable: true })).join("");
+    sharePost(id) { K.socialActions.share("x", (K.state.feed.x || []).find(p => p.id === id)); },
+
+    searchHTML(query) {
+      const q = query.trim().toLocaleLowerCase("tr");
+      const posts = K.social.feedFor("x").filter(p => K.socialActions.visible("x", p) && (p.text + " " + p.authorName).toLocaleLowerCase("tr").includes(q));
+      return posts.map(p => postHTML(p, { clickable: true })).join("") || '<div class="empty-note"><b>Sonuç bulunamadı</b>Başka bir ad veya kelime dene.</div>';
+    },
+
+    feedHTML(mode) {
+      const posts = K.social.feedFor("x").filter(p => K.socialActions.visible("x", p) && (mode !== "following" || p.mine || K.interactions.isFollowed(p.authorId))).sort((a, b) => b.day - a.day);
+      return `<div class="x-feed-tabs">${[["foryou", "Sana özel"], ["following", "Takip edilenler"]].map(([id, label]) => `<button data-pact="x-feed" data-arg="${id}" aria-selected="${(mode || "foryou") === id}" class="${(mode || "foryou") === id ? "active" : ""}">${label}</button>`).join("")}</div>` +
+        (posts.map(p => postHTML(p, { clickable: true })).join("") || '<div class="empty-note"><b>Akışın henüz boş</b>Keşfet’ten sanatçıları bulup takip edebilirsin.</div>') +
+        `<button class="x-compose-fab" data-pact="new-post" aria-label="Gönderi yaz">${XI.compose}</button>`;
     },
 
     exploreHTML() {
@@ -253,15 +257,10 @@
           const app = K.phone.appById("x");
           if (act === "open-profile") app.openProfile(el.dataset.arg);
           else if (act === "post-open") app.openPost(el.dataset.arg);
-          else if (act === "x-repost") { const on = K.interactions.toggleRepost("x_" + post.id); K.toast(on ? "↻ Yeniden gönderildi" : "Geri alındı", "", "ok"); K.phone.reRender(); }
-          else if (act === "x-save") { const on = K.interactions.toggleSave("x_" + post.id); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.phone.reRender(); }
+          else if (act === "x-share") K.phone.appById("x").sharePost(el.dataset.arg);
+          else if (act === "x-repost") { const on = K.interactions.toggleRepost("x_" + post.id); K.toast(on ? "↻ Yeniden gönderildi" : "Geri alındı", "", "ok"); K.save(); K.phone.reRender(); }
+          else if (act === "x-save") { const on = K.interactions.toggleSave("x_" + post.id); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.save(); K.phone.reRender(); }
           else if (act === "x-quote") K.phone.appById("x").quotePost(post.id);
-          else if (act === "x-share") K.ui.actionSheet("Paylaş", [
-            { label: "✏️ Alıntıla", onClick: () => K.phone.appById("x").quotePost(post.id) },
-            { label: "↻ Yeniden gönder", onClick: () => { K.interactions.toggleRepost("x_" + post.id); K.phone.reRender(); } },
-            { label: "💬 DM'de paylaş", onClick: () => K.phone.openApp("messages") },
-            { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") }
-          ]);
           else if (act === "reply-send") {
             const inp = U.qs("[data-x-reply]");
             if (inp && inp.value.trim()) {
@@ -307,6 +306,8 @@
         onAction: (act, el) => {
           if (act === "dm") K.phone.openApp("messages", { artistId: el.dataset.arg });
           else if (act === "post-open") K.phone.appById("x").openPost(el.dataset.arg);
+          else if (act === "x-share") K.phone.appById("x").sharePost(el.dataset.arg);
+          else if (act === "x-save" || act === "x-repost") { K.interactions[act === "x-save" ? "toggleSave" : "toggleRepost"]("x_" + el.dataset.arg); K.save(); K.phone.reRender(); }
         }
       });
     },
@@ -329,8 +330,9 @@
         onAction: (act, el) => {
           if (act === "post-open") app.openPost(el.dataset.arg);
           else if (act === "open-profile") app.openProfile(el.dataset.arg);
-          else if (act === "x-repost") { const on = K.interactions.toggleRepost("x_" + el.dataset.arg); K.toast(on ? "↻ Yeniden gönderildi" : "Geri alındı", "", "ok"); K.phone.reRender(); }
-          else if (act === "x-save") { const on = K.interactions.toggleSave("x_" + el.dataset.arg); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.phone.reRender(); }
+          else if (act === "x-share") K.phone.appById("x").sharePost(el.dataset.arg);
+          else if (act === "x-repost") { const on = K.interactions.toggleRepost("x_" + el.dataset.arg); K.toast(on ? "↻ Yeniden gönderildi" : "Geri alındı", "", "ok"); K.save(); K.phone.reRender(); }
+          else if (act === "x-save") { const on = K.interactions.toggleSave("x_" + el.dataset.arg); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.save(); K.phone.reRender(); }
           else if (act === "trend-post") { K.phone.back(); setTimeout(() => app.newPost("", el.dataset.arg), 40); }
         }
       });
@@ -368,6 +370,7 @@
               const feed = K.state.feed.x || [];
               const fresh = feed.find(p2 => p2 && p2.mine && p2.text === text);
               if (fresh) fresh.quoteOf = quote;
+              K.save(); K.phone.reRender();
             }
             K.toast(res.title, res.msg, res.kind);
           }}

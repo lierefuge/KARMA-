@@ -349,7 +349,7 @@
         <div class="seg ${bottom ? "seg-bottom" : ""} ${chrome ? "seg-" + chrome : ""}" data-tabs>
           ${v.tabs.map(t => {
             const on = (v.activeTab || v.tabs[0].id) === t.id;
-            return `<button data-tab="${t.id}" class="${on ? "active" : ""}${t.cls ? " " + t.cls : ""}">
+            return `<button data-tab="${t.id}" class="${on ? "active" : ""}${t.cls ? " " + t.cls : ""}" aria-label="${U.escape(t.label)}" aria-current="${on ? "page" : "false"}">
               ${t.icon ? `<span class="tb-ic">${t.icon}</span>` : ""}
               ${t.iconOnly ? "" : `<span class="tb-lb">${U.escape(t.label)}</span>`}
             </button>`;
@@ -416,34 +416,29 @@
     chromeHTML(v, chrome) {
       const needBack = K.phone.views.length > 1;
       const back = needBack ? `<button class="brand-back" data-back aria-label="Geri">‹</button>` : "";
-      const unreadIg = (K.interactions && K.interactions.unreadCount) ? (K.interactions.unreadCount("instagram") || 0) : 0;
 
+      if (chrome === "x") {
+        return `<div class="brand-top brand-x">${back}<button class="social-profile-btn" data-tab="mine" aria-label="Profil">${K.ui.avatar(K.state.player.stageName, 28, true)}</button><b class="x-wordmark">𝕏</b><button class="social-icon-btn" data-pact="x-preferences" aria-label="Akış tercihleri">☷</button></div>`;
+      }
+      const searchIcon = '<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="7.5"/><path d="m16 16 5 5"/></svg>';
+      const bellIcon = '<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 6-3 8-3 8h18s-3-2-3-8M10 20a2 2 0 0 0 4 0"/></svg>';
       if (chrome === "instagram") {
         const onProfile = v.activeTab === "profile";
-        return `<div class="brand-top brand-ig">
-          ${back}
-          ${onProfile
-            ? `<div class="ig-top-username">${U.escape(K.state.player.stageName.toLowerCase().replace(/\s/g, ""))}</div>`
-            : `<div class="ig-wordmark">Instagram</div>`}
-          <div class="ig-top-actions">
-            ${onProfile ? `<button class="ig-top-btn" data-tab="feed" aria-label="Ana sayfa">⌂</button>` : ""}
-            <button class="ig-top-btn" data-pact="ig-activity" aria-label="Bildirimler">
-              <span class="ig-heart">♡</span>
-              ${unreadIg ? `<b class="ig-badge">${Math.min(9, unreadIg)}</b>` : ""}
-            </button>
-            <button class="ig-top-btn" data-pact="ig-inbox" aria-label="Mesajlar">✈</button>
-          </div>
+        const unread = K.interactions.unreadNotifications("instagram");
+        return `<div class="brand-top brand-ig reference-ig">
+          ${back}<button class="ig-top-btn ig-create" data-pact="new-post" aria-label="Oluştur">+</button>
+          ${onProfile ? `<b class="ig-top-username">${U.escape(K.state.player.stageName)}</b>` : `<button class="ig-feed-title" data-pact="ig-feed-menu">${v.state && v.state.feed === "following" ? "Takip ettiklerin" : "Senin için"} <span>⌄</span></button>`}
+          <button class="ig-top-btn ig-notification" data-pact="ig-activity" aria-label="Bildirimler"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21 3 12a5.5 5.5 0 0 1 9-6 5.5 5.5 0 0 1 9 6z"/></svg>${unread ? '<i class="social-unread-dot"></i>' : ''}</button>
         </div>`;
       }
-
       if (chrome === "youtube") {
-        return `<div class="brand-top brand-yt">
-          ${back}
-          <div class="yt-wordmark"><span class="yt-play">▶</span> YouTube</div>
+        const you = v.activeTab === "library";
+        const count = K.ytnotif.unread();
+        return `<div class="brand-top brand-yt">${back}
+          ${you ? '<button class="yt-account" data-pact="yt-account">Hesaplar ⌄</button>' : '<div class="yt-wordmark"><span class="yt-play">▶</span> YouTube</div>'}
           <div class="yt-top-actions">
-            <button class="yt-top-btn" data-pact="yt-search-focus" aria-label="Ara">⌕</button>
-            <button class="yt-top-btn" data-pact="yt-notifs" aria-label="Bildirimler">🔔</button>
-            <button class="yt-top-btn yt-avatar" data-tab="mine" aria-label="Kanalım">${K.ui.avatar(K.state.player.stageName, 24, true)}</button>
+            <button class="yt-top-btn social-bell" data-pact="yt-notifs" aria-label="Bildirimler">${bellIcon}${count ? `<b>${Math.min(count, 99)}</b>` : ''}</button>
+            <button class="yt-top-btn" data-pact="yt-search-focus" aria-label="Ara">${searchIcon}</button>
           </div>
         </div>`;
       }
@@ -497,7 +492,11 @@
       const tab = e.target.closest("[data-tab]");
       if (tab) {
         const v = K.phone.views[K.phone.views.length - 1];
-        if (v) { v.activeTab = tab.dataset.tab; K.phone.renderTop(); }
+        if (v) {
+          const target = (v.tabs || []).find(t => t.id === tab.dataset.tab);
+          if (target && target.action && v.onAction) { v.onAction(target.action, tab, v); return; }
+          v.activeTab = tab.dataset.tab; K.phone.renderTop();
+        }
         return;
       }
 
@@ -513,6 +512,13 @@
           /* SVG ikonlu beğeni düğmelerinde metni EZME (Instagram gibi);
              yalnızca .on sınıfı ile renk/dolgu değişir. */
           if (!actEl.querySelector("svg")) actEl.textContent = on ? "♥" : "♡";
+          K.save();
+          const count = actEl.querySelector("[data-like-count]");
+          if (count) count.textContent = K.util.compact(K.interactions.likeCount(actEl.dataset.arg, +count.dataset.likeCount));
+          document.querySelectorAll("[data-like-for]").forEach(label => {
+            if (label.dataset.likeFor === actEl.dataset.arg) label.textContent = K.util.compact(K.interactions.likeCount(actEl.dataset.arg, +label.dataset.baseLikes)) + " beğenme";
+          });
+          actEl.setAttribute("aria-pressed", String(on));
           const v0 = K.phone.views[K.phone.views.length - 1];
           if (v0 && v0.state) v0.state.dirty = true;
           return;
@@ -543,7 +549,8 @@
         if (pact === "spotlight") { if (K.spotlight) K.spotlight.open(); return; }
         if (pact === "follow") {
           const on = K.interactions.toggleFollow(actEl.dataset.arg);
-          actEl.classList.toggle("following", !on);
+          K.save();
+          actEl.classList.toggle("following", on);
           actEl.textContent = on ? "Takip Ediliyor" : "Takip Et";
           return;
         }

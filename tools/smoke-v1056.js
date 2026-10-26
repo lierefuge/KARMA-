@@ -51,7 +51,7 @@ function run() {
   const utilSrc = read("js/core/util.js");
   const stateSrc = read("js/core/state.js");
   const setSrc = read("js/systems/settings.js");
-  const readme = read("README.md");
+  const readme = read("docs/update-history.md");
 
   /* =========================================================
      A) ZAMAN ÇİZELGESİ — tek takvim
@@ -189,7 +189,7 @@ function run() {
   /* =========================================================
      F) BELGE — içerik/hukuk notu
      ========================================================= */
-  ok("F1 · README'de gerçek sanatçı içerik notu var",
+  ok("F1 · Sürüm arşivinde gerçek sanatçı içerik notu var",
     /gerçek sanatç|kurgusal|diss/i.test(readme) && /v10\.56/.test(readme));
 
   /* =========================================================

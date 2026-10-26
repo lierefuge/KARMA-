@@ -1,0 +1,2782 @@
+# Geçmiş sürüm notları
+
+[README’ye dön](../README.md)
+
+Bu arşiv, önceki README’deki v2–v10.66 güncelleme notlarını korur.
+Buradaki sayılar, test sonuçları ve davranış açıklamaları ilgili sürümün
+tarihsel kaydıdır. Güncel kullanım için [README](../README.md),
+yeni çıkış akışı için [v10.67 notları](v10.67.md) ve
+[ilk ay rehberini](first-month.md) kullan.
+
+## GÜNCELLEME v10.66 — GERÇEKÇİLİK TURU (6 YÜZEY · 30 ÖZELLİK)
+
+Uygulamalar "iskelet" olmaktan çıktı: bugünün gerçek ürünlerinde olan
+davranışlar eklendi. Yeni süit: `tools/smoke-v1066.js` (**83 kontrol**).
+
+### 1 · 📸 Instagram
+Doğrulanmış rozet (itibar ≥65 / popülerlik ≥55) · gönderiye **konum + kişi
+etiketleme** (feed ve gönderi görünümünde) · öne çıkanlar artık veriden
+(Yayınlar/Stüdyo/Kulis/Fan) · **gönderi analizi**: erişim, gösterim, etkileşim
+oranı, kaydetme, profil ziyareti, yeni takipçi.
+
+### 2 · 🎧 Spotify
+**Kuyruk** (liste çal → sıradaki) · **karıştır** (deterministik sıra) ·
+**tekrar** (kapalı/tüm/tek) · **senkron şarkı sözleri** · **Canvas**
+(kapak arkasında yavaş renk akışı, `prefers-reduced-motion` desteği) ·
+**haftalık keşif**: her 7 oyun gününde yenilenen 12 şarkılık kişisel liste.
+
+### 3 · 🎵 TikTok
+Doğrulanmış rozet · **duet / stitch** (orijinali referans alan gönderi,
+profilde etiketli) · **ses sayfasından videoyu açma** (istatistik + duet/stitch
+kısayolları) · her kartta "⋯" menüsü.
+
+### 4 · 𝕏 X
+**Alıntı tweet** (alıntılanan gönderi kart olarak render edilir) · **yer imleri
+sekmesi** · oyuncu mavi tiki.
+
+### 5 · ▶️ YouTube
+**Yorum beğenisi** · **yorum yanıtı** (girintili, boş yanıt reddedilir) ·
+**abone zili** (yalnızca abonelerde) · **Shorts dikey kaydırma** (1/10 sayacı,
+dokunmatik) · **para kazanma eşiği** (1.000 abone + 4.000 saat → reklam geliri).
+
+### 6 · 🏛 Stüdyo + Yayın + Şirket
+**Oda kademeleri** (ev → yarı-pro → profesyonel; itibar kapılı) · **mühendis
+tutma** (4 seviye, hata riski) · **seans süresi** (azalan verim: +0/+3/+5/+6,
+yorgunluk artar) · **mağaza önizlemesi** (Spotify/Apple/YouTube kartları) ·
+**ön kayıt sayfası** (her 200 kayıt ilk gün ivmesine %1, tavan %35) ·
+**360 sözleşme maddeleri** + 60 günde bir yeniden pazarlık · **şirket
+departmanları** (A&R kalite, Pazarlama erişim, Dağıtım teslim süresi; aylık
+gider şirket kasasından).
+
+### Doğrulama
+```
+npm run verify        →  53/53 adım temiz
+tools/smoke-v1066.js  →  83 kontrol
+```
+
+## GÜNCELLEME v10.65 — PARA AKIŞI · İLK 10 DAKİKA · TASLAKLAR · ERİŞİLEBİLİRLİK
+
+v10.64'ün üzerine dört parça. Yeni test: `tools/smoke-v1065.js` (**35 kontrol**).
+
+### 1 · 💸 Para akışı defteri
+`earn()` / `spend()` zaten bir `reason` taşıyordu ama hiçbir yerde toplanmıyordu:
+oyuncu "param nereden geldi, nereye gitti" sorusunu cevaplayamıyordu. Artık her
+hareket **kaynak etiketiyle** sınırlı bir deftere yazılır (`moneyLog`, 600 kayıt ≈
+birkaç ay; save şişmez). Analiz sekmesindeki **Para akışı** paneli son 30 günü
+gösterir: giren / çıkan / net / hareket sayısı, gelir kaynakları (telif, merch,
+konser, yan iş…) ve giderler (beat, terapi, tur…) tutara göre sıralı.
+Katalog sahipliği, hızlandırma ücreti ve iptal iadesi de deftere düşer.
+
+### 2 · 🚀 İlk 10 dakika rehberi
+Yeni oyuncu geniş oyunun neresinden başlayacağını bilmiyordu. Kariyer sekmesinde
+6 adımlı rehber: kimlik seç → stüdyoyu aç → ilk yayın → sosyal gönderi → yan iş
+vardiyası → ilk gelir. Adımlar **state'ten türer** (uydurma ilerleme yok), her
+adımın çalışan bir düğmesi var, ilerleme çubuğu doluyor. Hepsi bitince gün
+geçişinde **tek seferlik** ödül (+₺2.000, +1 itibar); rehber gizlenebilir.
+
+### 3 · 💾 Proje taslakları
+Sihirbazı kapatınca girilen her şey kayboluyordu. Artık sihirbaz alt çubuğundaki
+**💾 Taslak** ile çalışma saklanır (en fazla 5), Stüdyo sekmesindeki "Taslaklar"
+paneline düşer ve **Devam et** ile kaldığı adımdan açılır. Taslak **para
+harcamaz** — maliyet yalnızca yayınlama anında düşer.
+
+### 4 · ♿ Mobil & erişilebilirlik turu
+- Klavye odağı artık görünür (`:focus-visible`, 2px halka)
+- Dokunma hedefleri ≥32 px (düğmeler, çipler, ikon düğmeleri); 430 px'te
+  ölçüldü: 28 px altı hedef **yok**
+- Yeni stüdyo panelleri mobilde sarar: takvim 4 sütun, hat kontrolleri tam
+  genişlik, parça kütüphanesi satırları kırılır
+- Sekme çubuğu 981–1399 px arasında **6×2 ızgara** (tek başına alt satıra
+  düşen sekme kalmıyor)
+
+### 5 · Doğrulama
+```
+npm run verify        →  52/52 adım temiz
+tools/smoke-v1065.js  →  35 kontrol
+```
+Mobil kontrol: yatay taşma yok (404/404 px), konsolda hata yok.
+
+## GÜNCELLEME v10.64 — STÜDYO 2.0 (hat kontrolü · takvim · parça detayı)
+
+v10.63'ün üzerine inşa edilir. Stüdyo merkezi artık yalnızca "gösterge paneli"
+değil, **yönetim** ekranı. Yeni test: `tools/smoke-v1064.js` (**33 kontrol**).
+
+### 1 · ⚡ Yayın hattı kontrolü
+Yayın teslim edildikten sonra oyuncu elini tamamen çekmiyordu. Üç karar geldi:
+
+- **İptal** — proje hattan çıkar, **kısmi iade** yapılır. İade oranı ilerledikçe
+  düşer (`%55 → %15`); erken vazgeçmek daha az maliyetlidir. İtibar −1.
+  Şirket adına çıkan yayında nakit iade yok (parayı şirket ödedi).
+- **Hızlandır** — maliyetin **%25'i** (en az 5.000 ₺) ödenir, kalan süre **%40**
+  kısalır. Bedeli: parça kalitesi **−3**, oyuncu yorgunluğu +6. Proje başına bir kez;
+  editoryal incelemeden sonra kullanılamaz.
+- **Ad düzenle** — yalnızca hazırlık aşamasında; dağıtıcıya metadata gittikten
+  sonra kilitli.
+
+### 2 · 🗓 Üretim takvimi
+Önümüzdeki **7 gün**: çıkış günleri işaretlenir, bugün vurgulanır, boş günler
+görünür. Aynı güne iki yayın düşerse **çakışma uyarısı** çıkar ("aynı gün iki
+yayın birbirini yer"). Yeni state yok — `startDay + waitDays`'ten türetilir.
+
+### 3 · ⓘ Parça detayı
+Kütüphanedeki her satırdan açılır: genel kalite, beat, vokal, mix/master, hook
+gücü ve söz puanı çubukları; Spotify/Apple/YouTube dağılımı; zirve sırası, gelir,
+sönüm hızı, dağıtıcı ve ISRC. "Dinle" oynatıcıyı açar.
+
+### 4 · 🎧 Öneriler sihirbazı ön dolumlu açıyor
+"Bu türde başla" artık boş sihirbaz açmıyor: oyuncunun türü + öneriye uygun
+bütçe/pazarlama ile geliyor (trend → pazarlama 6.000 ₺, ilk çıkış → 2.000 ₺,
+sessizlik sonrası → 8.000 ₺). Sihirbazın kendisi değişmedi; yalnızca başlangıç değerleri.
+
+### 5 · Doğrulama
+```
+npm run verify   →  51/51 adım temiz
+tools/smoke-v1064.js → 33 kontrol
+```
+
+## GÜNCELLEME v10.63 — STÜDYO MERKEZİ (öneri · devam eden iş · kütüphane)
+
+v10.62.2'nin üzerine inşa edilir; **oyun motoruna, ekonomiye ve dağıtım
+sihirbazına dokunulmadı**. Stüdyo sekmesi 1280×900'de yarısı boş duruyordu:
+tek bir kart ve altında geniş bir boşluk vardı. Boşluk üç işlevsel bölümle
+dolduruldu. Yeni test: `tools/smoke-v1063.js` (**40 kontrol**).
+
+### 1 · 📚 Parça kütüphanesi
+Yayınlanmış her parça tek listede: kapak, tür, çıkış günü, kalite, toplam
+dinlenme, günlük akış ve liste derecesi. Dört süzgeç (**Tümü · En çok
+dinlenen · Yeni · Listede**) ve dört özet rakam (parça, toplam dinlenme,
+ortalama kalite, en iyi derece). Her satırda **▶ Dinle** gerçek oynatıcıyı açar.
+Süzgeç seçimi sekme değişiminde korunur.
+
+### 2 · ⏳ Devam eden işler
+Yayın hattındaki her proje aşama çipleri (Prodüksiyon → Kuyruk → Editoryal →
+Yayın), **gerçek ilerleme yüzdesi**, kalan gün ve maliyetle gösterilir; her
+kartın altında **Detay** düğmesi Yayınlar sekmesine gider. Hat boşsa boş durum
+kartı çıkar.
+
+### 3 · 💡 Üretim önerileri
+Öneriler rastgele değil: mevcut state'ten türetilir ve ağırlıklandırılır
+(en yüksek 4 tanesi gösterilir). Kaynaklar: tür↔gündem uyumu
+(`industry.trendMatch`), en sıcak gündem başlığı, iki becerinin düşük olanı,
+yorgunluk/stres, katalog sessizliği ve kasa. Her önerinin **çalışan** bir
+eylemi vardır: sihirbazı açar, ilgili sekmeye gider, pratik yapar veya dinlenir.
+
+### 4 · 🎧 Hero kartı
+Adım şeridi artık `WIZ_STEPS`'ten **tek kaynaktan** üretilir (6 adım),
+altında canlı katalog özeti (parça · dinlenme · son yayın · ortalama kalite)
+ve sağ kartta üç metre: gündem uyumu, kayıt hazırlığı, katalog tazeliği.
+
+### 5 · 🧭 Sekme çubuğu taşması düzeltildi
+Ölçüldü: 12 sekme için 963 px gerekiyor, 1280 px ekranda 843 px yer vardı —
+**Girişim ve Olaylar görünmüyordu**. 1400 px altında sekme çubuğu artık alta
+sarar; hiçbir sekme erişilemez kalmaz.
+
+### 6 · Doğrulama
+Sekmedeki **her düğme** tek tek tıklandı (jsdom + gerçek Chromium): bilinmeyen
+eylem yok, istisna yok, her tıklamanın gözlenebilir etkisi var. Bozuk kayıt
+(eksik `tracks`, boş parça) stüdyoyu çökertmez.
+
+```
+npm run verify   →  50/50 adım temiz
+```
+
+### 7 · 🏗 Build artık CI'da üretiliyor (altyapı — oyun sürümü değişmedi)
+Tek dosya build 2,6 MB olduğu için bazı yazma yollarıyla (API/entegrasyon,
+1 MiB sınırı) gönderilemiyordu. `tools/verify.js` içindeki **"build güncel mi"**
+kontrolü gevşetilmedi; bunun yerine build'i GitHub'ın kendisi üretiyor:
+`.github/workflows/build-artifact.yml` → üretir, `npm run verify` ile doğrular,
+**ancak geçerse** commit eder. Doğrulama düşerse hiçbir şey commit edilmez.
+
+İş akışı sonunda `gh workflow run tests.yml` ile **Doğrulama** açıkça tetiklenir
+(`permissions: actions: write`) — çünkü `GITHUB_TOKEN` ile atılan push'lar
+başka iş akışlarını tetiklemez. Böylece her build'den sonra yeşil tik elle
+tıklamadan oluşur. Ayrıntı: `docs/build-artifact.md`.
+
+Aynı turda bir gürültü kaynağı da kapatıldı: `tools/gen-version-json.js`
+`built` damgasını her çağrıda yeniliyordu, bu yüzden build güncel olsa bile
+CI boş bir commit atıyordu. Artık `built` yalnızca sürüm/önbellek/tarih
+gerçekten değişince yenileniyor.
+
+Canlı doğrulama (2026-10-23): elle tetiklenen build → `success`; aynı saniyede
+`workflow_dispatch` kaynaklı **yeni Doğrulama** run'ı → `success`. Workflow
+permissions: Read and write.
+
+---
+
+## GÜNCELLEME v10.60 — NPC RELEASE → EKONOMİ ENTEGRASYONU
+
+v10.59'un üzerine inşa edilir; **hiçbir sistem yeniden yazılmadı**, mevcut
+UI/CSS/menü/denge korundu. Yeni test: `tools/smoke-v1060.js` (**76 kontrol**,
+16 senaryo). Sorun şuydu: NPC yayını oyuncunun dünyasından kopuk bir sayı
+sistemiydi — ilk stream hesaplanmıyor, flop'ta bile aylık dinleyici artıyor,
+NPC kendi şarkısıyla listeye giremiyor, trend/label/feature etkisi yoktu.
+
+### 1 · 🔗 Ortak release hattı
+NPC yayını artık oyuncunun kullandığı zinciri izler: **ilk stream → günlük
+akış → popülerlik → aylık dinleyici → chart → kariyer**. Tüm ek hesaplar
+deterministiktir; mevcut RNG akışı **bire bir korunur** (denge bozulmaz).
+
+### 2 · 🌊 İlk stream + günlük akış
+Aylık dinleyiciden günlük taban akış türetilir; kalite, momentum, trend, label,
+sosyal güç ve zamanlama ile modüle edilir. Akış her gün %7 söner ve sanatçının
+toplam stream'ine yazılır (60 gün / 200 dinlenme altı temizlenir).
+
+### 3 · 📈 Popülerlik + aylık dinleyici
+Hit popülerliği artırır, flop azaltır. Aylık dinleyici tabanı **yumuşakça**
+kayar (hit ×1,006 · flop ×0,988) — ani sıçrama yok, düşüş kalıcı ama ılımlı.
+
+### 4 · 🏆 Chart'ta gerçek rekabet
+NPC yayınları günlük dinlenmeye göre ulusal listeye **girer** (≥20.000/gün,
+≤45 gün). Böylece NPC hit'i oyuncunun sırasını aşağı itebilir, oyuncunun hit'i
+NPC'leri geriye itebilir. UI değişmedi — mevcut chart satırları kullanılır.
+
+### 5 · 🔥 Trend bağlantısı
+Sanatçının türü gündemdeyse yayın ivme kazanır (`TREND_TAGS`). Büyük NPC
+hit'leri ertesi gün gündeme **trend etiketi** olarak düşer.
+
+### 6 · 🏢 Label etkisi (garanti değil)
+Şirketin gücü + itibarı ilk görünürlüğü artırır (faktör 0,9–1,25). Güçlü label
+avantaj sağlar ama **başarıyı garanti etmez**; kaliteli iş zayıf label'da da patlar.
+
+### 7 · 🤝 Feature kitlesi
+Ortak iş, iki sanatçının kitlelerini birleştirir: ilk stream artar, iki taraftan
+takipçi akar. Feature ortağı artık **kimlik olarak** kaydedilir.
+
+### 8 · 📊 Kariyer geçmişi + yay
+Her yayın kariyer geçmişine **başlık · stream · sonuç** olarak yazılır
+(`releaseLog`, 10 kayıt). Hit/flop serileri mevcut `arcOf()` yaylarını besler.
+
+### 9 · 📱 Platforma özel sosyal etkileşim
+Gönderi artık ilgili platformun kitlesini kullanır: X→X, TikTok→TikTok,
+YouTube→abone, Instagram→IG. Veri yoksa güvenli geri dönüş.
+
+### 10 · ⚙️ Performans · save · determinizm
+Ağır iş yok (yalnızca yayın yapan sanatçı işlenir). Yeni alanlar `ensure()` ve
+`state.js` göç bloğuyla eski kayıtlara eklenir; `compactState` kırpar. Günlük
+simülasyon yolu **`Math.random()` kullanmaz**.
+
+### Doğrulama
+`npm run verify` — **45/45 adım**. Denge simülasyonu 0 yüksek / 0 orta bulgu.
+Build bayt bayt aynı; eski kayıtlar bozulmaz.
+
+---
+
+## GÜNCELLEME v10.59 — ENDÜSTRİ HAFIZASI · NPC KARİYER · YAŞAYAN LABEL
+
+v10.58'in üzerine inşa edilir; hiçbir mevcut sistem yeniden yazılmadı. Yeni
+dosya: `js/systems/labelsim.js`. Yeni test: `tools/smoke-v1059.js`
+(**55 kontrol**, 14 senaryo).
+
+### 1 · 🧠 NPC hafızası (kalıcı)
+Her sanatçı için yaşanan olaylar yapılandırılmış biçimde saklanır:
+`{gün, tür, karşı taraf, ilişki etkisi, ağırlık, kısa not}`. İki katman: son 12
+olayın dökümü + kırpılmayan **tür sayaçları** (`feat_ok`, `beef`, `diss`,
+`support`, `award`…). Günlük döngü yalnızca sayacı okur; ağır tarama yapılmaz.
+
+### 2 · 🔗 Geçmişin ilişkiye etkisi
+Hafızanın net duygusu, samimiyeti **çok yavaş** biçimlendirir (günlük ±0.12
+sınırı). Böylece başarılı bir ortak iş aylar sonra hâlâ kapı açar; bir husumet
+kalıcı mesafe yaratır. Olumlu geçmiş, yeni bir **feature teklifini**
+kendiliğinden doğurabilir.
+
+### 3 · 📊 NPC kariyer geçmişi
+Sanatçı başına kalıcı istatistik: release/hit/flop sayısı, toplam stream, zirve
+dinleyici ve popülerlik, feature/ödül sayısı, **şirket geçmişi**, dönüm
+noktaları, son hit/flop, momentum ve trend.
+
+### 4 · 🌊 Kariyer yayları (arc)
+Yalnızca gerçek istatistiklerden türetilir (son 6 yayın sonucu + popülerlik +
+zirveye uzaklık): **Çaylak · Yükselen yıldız · Zirvede · İstikrarlı · Viral
+patlama · Comeback · Düşüşte · Unutulmaya başlayan**.
+
+### 5 · 🎤 NPC'lerin birbirine tepkisi
+Bir sanatçı hit/flop/transfer yaşadığında dostları, rakipleri ve label
+arkadaşları duruma göre paylaşım yapar; bu tepkiler **dostluk/rekabet ağırlığını
+da** değiştirir.
+
+### 6 · 🏢 Yaşayan label simülasyonu (`labelsim.js`)
+Şirketler statik satır olmaktan çıkar. Her şirketin **stratejisi** (tür ağırlığı,
+seviye tercihi, keşif gücü, kadro kapasitesi), **itibarı** (kadronun gerçek
+performansından) ve **rekabeti** (yükselen sanatçıyı kapma) vardır.
+
+### 7 · 🤝 Label rekabeti + poaching
+Şirketler NPC sanatçılar için yarışır: bir sanatçı yükseldiğinde rakip şirket
+keşfe çıkar. Transfer; eski/yeni kadroyu, itibarı, sanatçı-kariyer geçmişini ve
+sektör tarihini etkiler. Olasılık; popülerlik, dinleyici, son başarı, mevcut
+şirket itibarı, ilişki, tür uyumu ve momentuma bağlıdır.
+
+### 8 · 🏷️ Oyuncunun şirketi
+Oyuncu kendi şirketini kurduğunda sistemden yararlanır: kadrosu **itibar**
+kazanır, rakip şirketler kadrosuna göz koyabilir (ilişki + şirket gücü sanatçıyı
+korur), sanatçı kaybedebilir ve bu olay oyuncuya **öncelikli bildirim** olarak düşer.
+
+### 9 · 📜 Endüstri hafızası (uzun vadeli)
+Önemli olaylar yıl etiketiyle saklanır: “X büyük çıkış yaptı”, “X major label'a
+transfer oldu”, “Player ile X ortak single çıkardı”. **Gündem → 🏭 Endüstri**
+sekmesinde “Sektör tarihi” olarak görünür.
+
+### 10 · ⏱️ Günlük simülasyon + spam kontrolü
+Tümü mevcut `advanceDay` zincirine bağlanır; ağır loop yok. Bildirimler günde en
+çok 3 öncelikli olayla sınırlıdır. Günlük simülasyon **`Math.random()`
+kullanmaz** (deterministik hash RNG) — denge/kariyer eğrileri değişmez.
+
+### Doğrulama
+`npm run verify` — **44/44 adım**. Denge simülasyonu 0 yüksek / 0 orta bulgu.
+Eski kayıtlar bozulmaz: `state.js` göç bloğu + `ensure()` savunmacı tamamlama.
+
+---
+
+## GÜNCELLEME v10.58 — YAŞAYAN ENDÜSTRİ (NPC ağı · kariyer olayları · oyuncu yankısı)
+
+Bu sürüm KARMA'yı "menülerle dolu oyun"dan **oyuncudan bağımsız akan bir
+sektöre** taşır. Yeni dosya: `js/systems/industry.js`. Yeni test:
+`tools/smoke-v1058.js` (**33 kontrol**).
+
+### 1 · 🕸️ NPC–NPC ilişki ağı (kalıcı)
+Sanatçıların artık birbirleriyle **dostluk ve rekabet** bağları var. Ağ,
+şirket/tür yakınlığından deterministik olarak tohumlanır ve kayıtla birlikte
+saklanır (çift yönlü, simetrik). Feature yaptıkça dostluk, gerilim yaşandıkça
+rekabet güçlenir.
+
+### 2 · 🎬 Oyuncudan bağımsız kariyer olayları
+Her gün dünya kendi kendine ilerler (günde en çok 2 olay — spam yok):
+ortak iş, **şirket değişimi (transfer)**, konser duyurusu ve iki sanatçı
+arasında gerilim. Hepsi sosyal akışa gönderi bırakır.
+
+### 3 · 📉 Her yayın tutmaz
+NPC yayınları artık tek yönlü büyümüyor: ara sıra **tutmayan iş** (popülerlik
+düşer) ya da **patlayan iş** (popülerlik sıçrar) çıkar. `game.npcRelease`
+sonucu bu katmandan geçer.
+
+### 4 · 🤝 Oyuncu eyleminin sektöre yankısı
+Bir sanatçıyla **feature** yayınlarsan: partnerin kitlesinden dinleyici/takipçi
+akar, partnerin **dostları över, rakipleri gönderme yapar**, sektör momentumu
+artar ve **şirket ilgisi** doğar. Bir sanatçıyla **kavga edersen**: hedefin
+dostları tavır alır, rakipleri mesafeyi sever, sektör konuşur.
+
+### 5 · 📨 Teklif ekonomisi + öncelikli bildirim
+Sektör momentumu birikince (büyük hamleler sonrası) oyuncuya **seviyesine uygun**
+bir şirket teklifi gelebilir (küçük → bağımsız → büyük → major). Önemli dünya
+olayları `priority` alanlı bildirim olarak düşer; önemsiz olaylar özet içinde kalır.
+
+### 6 · 🏭 Arayüz: Gündem → Endüstri sekmesi
+**Gündem** uygulamasına "🏭 Endüstri" sekmesi eklendi: sektörden son hareketler
+(transfer, ortak iş, konser, gerilim, ödül) tek akışta görünür.
+
+### Doğrulama
+`npm run verify` — 43/43 adım. Denge simülasyonu 0 yüksek / 0 orta bulgu.
+Endüstri katmanı **Math.random() kullanmaz** (kendi deterministik RNG'si);
+böylece mevcut kariyer/denge eğrileri değişmez, eski kayıtlar bozulmaz.
+
+---
+
+## GÜNCELLEME v10.57 — GERÇEKLİK DENETİMİ 2 (enflasyon tutarlılığı · sezon · ödül sezonu)
+
+İkinci gerçekçilik turu dört konuyu ele aldı. Yeni test: `tools/smoke-v1057.js`
+(**20 kontrol**).
+
+### 1 ·  Enflasyon tutarlılığı
+Oyun 43%/yıl enflasyon simüle ediyor ve **giderler** endeksle artıyordu; ama
+birçok **nominal tutar sabit** kalmıştı ve yıllar geçtikçe gerçekte ucuzluyordu:
+- **Varlık alım fiyatı** (bakım zaten endeksliydi) → artık `K.assets.costNow()`.
+  Satışta da gerçekten ödenen (enflasyonlu) fiyat esas alınır.
+- **Konser** mekân kirası, sahne prodüksiyonu, merch birim fiyatı ve
+  **bilet tabanı** → hepsi endekse bağlandı.
+- **Yan iş ücreti**, **sponsorluk** ve **yazarlık** ücretleri → nominal gelir
+  olarak endeksle artar (yoksa sabit 620 ₺’lik vardiya değersizleşiyordu).
+
+### 2 ·  Sezonluk konser talebi (yaz turnesi)
+Konser/turne talebi takvimden bağımsızdı. Artık **yaz aylarında (Haz–Ağu)
+×1,15**, geçiş aylarında ×1,06, **kışın (Ara–Şub) ×0,90**. Ulusal bir turne
+planlarken zamanlama gerçekten önemlidir.
+
+### 3 ·  Ödül sezonu takvime bağlandı
+Tören eskiden gün sayacıyla (her 360 gün) yılın rastgele bir ortasında
+yapılıyordu. Gerçekte ödüller yıl sonunda (Kas–Oca) toplanır; artık tören her
+**takvim yılının Ocak ayında (15’i)** yapılır.
+
+### 4 ·  Sertifika notu dürüstleştirildi
+Kod, eşiklerin “gerçek RIAA ölçeğinden uyarlandığını” söylüyordu. Oysa RIAA
+1.500 dinlenme = 1 birim sayar (platin ≈ **1,5 milyar** dinlenme). Eşikler
+bilinçli olarak Türkiye/oyun ölçeğine uyarlanmıştır; not artık bunu açıkça ve
+RIAA’nın gerçek sayılarıyla birlikte anlatıyor.
+
+---
+
+## GÜNCELLEME v10.56 — GERÇEKLİK DENETİMİ (takvim · ekonomi · yaş · husumet)
+
+Oyun gerçekçilik üzerine kurulu olduğu için, bağımsız bir denetim “gerçek
+dünyayla çelişen” özellikleri aradı. Bulunanlar giderildi. Yeni test:
+`tools/smoke-v1056.js` (**34 kontrol**).
+
+### 1 · 🗓️ Zaman çizelgesi artık tek takvim
+Oyun **gerçek tarihten** başlıyor (`dateStart = todayISO`) ama NPC şarkı
+yılları `2008 + gün/365` ile üretiliyordu: gün 400'de (gerçek 2027) şarkı
+“2009” etiketi alıyordu. Ayrıca `util.fromISO` varsayılanı ve `index.html`
+statik yer tutucusu 2008'e sabitti. Hepsi gerçek takvime bağlandı.
+
+### 2 · 💸 Ekonomi gerçek değerlere yaklaştırıldı
+- **YouTube telifi:** `0,008 $` → `0,0018 $`. YouTube reklam geliri
+  Spotify'ın ~1/3'üdür; eski değer gerçeğin 4–8 katıydı ve YouTube'u
+  haksız biçimde en kârlı platform yapıyordu.
+- **Enflasyon:** aylık `%2,1` (≈%28/yıl) → `%3,0` (≈%43/yıl). Türkiye
+  2024–26 gerçeğine yakın.
+- **Vergi dilimleri:** uydurma “₺15.000'e kadar %0” yerine asgari ücret
+  düzeyi muafiyeti + kademeli gelir vergisi (%15/20/27/35).
+
+### 3 · 🔞 Yaş artık bir kapı
+15 yaşındaki oyuncu **plak şirketi kurabiliyor**, gece kulübü/kafe ve
+lüks araba alıyor, **alkol ve bahis sponsorluğu** imzalayabiliyordu.
+Artık: şirket kurma 18+, mülk/araç/işletme 18+ (küçük gösteriş ürünleri
+16+), alkol ve bahis sponsorluğu 18+ (teklif bile gösterilmez).
+
+### 4 · 📉 Sınırsız büyüme ve “dinleyicisiz dinleyici”
+- **NPC tavanı:** `_base` her gün çarpımsal büyüyordu (pop 88 için
+  ≈%31/yıl), tavan yoktu; 5 oyun yılında Şehinşah 4,2M → ~16M oluyordu.
+  Artık lojistik büyüme: popülerliğe bağlı tavana yaklaşırken hız sıfıra
+  iner.
+- **Dinleyici tabanı:** hiç yayın yapmayan sanatçının aylık dinleyicisi
+  olmaz; taban yalnızca katalog varsa uygulanır (55 → 30).
+
+### 5 · ⚖️ Gerçek sanatçılarla husumet — güvenlik anahtarı
+Gerçek sanatçılar kurgusal diss/beef senaryolarında yer alıyordu (isim/
+benzerlik ve itibar riski). Yeni ayar **“Gerçek sanatçılarla husumet/diss”
+varsayılan KAPALI**: oyun gerçek kişiler hakkında husumet içeriği
+üretmez; gerçek sanatçılar yalnızca **saygı/anılma** bağlamında geçer.
+İsteyen oyuncu ayarlardan açabilir.
+
+> **İçerik notu:** KARMA bir kurgudur. Oyunda adı geçen gerçek
+> sanatçılar yalnızca referans/temsil amaçlıdır; onlara atfedilen
+> hiçbir söz, olay veya ilişki gerçeği yansıtmaz. Sayısal değerler
+> temsilîdir.
+
+### Doğrulama
+`node tools/verify.js` → tüm adımlar · denge simülasyonu: 0 yüksek bulgu.
+
+---
+
+## GÜNCELLEME v10.55 — SAĞLAMLIK & ERİŞİLEBİLİRLİK (bağımsız inceleme düzeltmeleri)
+
+Bağımsız bir kod incelemesinin bulduğu kusurlar giderildi. Dördü de
+"oyuncunun göremediği" hata sınıfındandı: kayıt sessizce kaybolabiliyor,
+kayıt dosyası gereksiz şişiyor, listeler erken kariyerde ölü kalıyor ve
+arayüz ekran okuyuculara kapalıydı. Yeni test: `tools/smoke-v1055.js`
+(**31 kontrol**).
+
+### 1 · 💾 Kayıt artık dürüst ve hafif
+- **Şişme:** `_npcSongs` TÜRETİLMİŞ bir önbellekti ama state kökünde
+  yaşadığı için her kayıtta diske yazılıyordu. Ölçüm: 500 günlük oyunda
+  kaydın **~%30'u (194 KB)** yalnızca bu önbellekti. Artık türetilmiş
+  alanlar serileştirmeden çıkarılır (slot kaydı + dışa aktarma dâhil).
+- **Sessiz hata:** Kota dolduğunda `K.save()` `false` dönüyordu ama arayüz
+  yine de “Kaydedildi” diyordu. Artık başarısızlık kırmızı uyarıyla
+  bildirilir; kota hâlinde bir kez **kırpılmış kayıt** denenir ki ilerleme
+  tamamen kaybolmasın.
+
+### 2 · 📈 “Yükselen 20” — erken kariyer basamağı
+- **Sorun:** Ulusal KARMA Top 30 gerçek liste anlık görüntüsüyle kurulur;
+  en alt sıra bile günlük ~58.000 dinlenme ister. Normal oynayışta oyuncu
+  bu listeye **hiç** giremiyordu — “Listeler” sekmesinin ana vaadi ilk
+  ~1,5 yıl ölüydü.
+- **Çözüm:** Ulusal listenin ALTINA bir basamak eklendi. “Yükselen 20”,
+  oyuncunun ilk yayınlarıyla aynı ölçekte yarışan anonim çıkış
+  sanatçılarından ve oyuncunun kendi işlerinden kurulur (~15–1.600/gün
+  merdiven). Oyuncu ilk günden tırmandığı bir tablo görür; ulusal liste
+  hak edilmiş hedef olarak kalır.
+
+### 3 · ♿ Erişilebilirlik
+- Sekmelere `role="tablist"/"tab"` + `aria-selected`, bölüm paneline
+  `role="tabpanel"`, toast yığınına `aria-live="polite"`, ikon
+  düğmelerine `aria-label`, telefon ekranına `role="region"`.
+- Ana ekran çubuğu gerçek bir `<button>` oldu (klavye ile erişilebilir,
+  odak halkası eklendi).
+
+### 4 · ⚠️ Çalışma anı hataları görünür
+- Yakalanmamış hatalar ve reddedilen promise'ler artık **bir kez** toast
+  ile duyurulur ve `K.lastError`'da saklanır. Önceden yalnızca konsola
+  düşüyordu; oyuncu oyunun sessizce bozulduğunu fark etmiyordu.
+
+### 5 · 🧹 Hijyen
+- `package-lock.json` artık takip edilir (jsdom sürümü kritik — ortamlar
+  arası tekrarlanabilirlik).
+- `state.js`'teki mükerrer/bayat B-6 yorumu kaldırıldı.
+
+### Doğrulama
+`node tools/verify.js` → **40/40 adım** · denge simülasyonu: 0 yüksek bulgu.
+
+---
+
+## GÜNCELLEME v10.54 — SÖZ GÖNDER (söz yazarı kredisi + yayın telifi)
+
+Artık DM'den bir sanatçıya **kendi sözünü gönderebilirsin**. Sanatçı kabul
+ederse şarkıyı **kendi adına** yayınlar, sen **söz yazarı** olarak kredilenirsin.
+Peşin ücret + 40 gün boyunca azalan **yayın telifi** kazanırsın.
+Yeni test: `tools/smoke-v1054.js` (**27 kontrol**).
+
+### 1 · ✍️ Söz Gönder
+- DM'de **“✍️ Söz Gönder”** çipi (tanışmış + samimiyet ≥45 iken).
+- Açılan modalda sözlerini yaz/yapıştır ve **tema** seç (Aşk, Sokak, Para…).
+- Söz gerçek `K.lyrics.analyze` ile puanlanır; ustalığın ve metnin kalitesi
+  şarkının kalitesine yansır.
+
+### 2 · 🤝 Sanatçı değerlendirir
+- Kabul olasılığı: **samimiyet + söz kalitesi + sanatçının çalışkanlığı**,
+  ayrıca sanatçının **müsaitliği** (turne/albüm/uyku iken daha zor).
+- Reddedilirse DM'de nazik bir cevap gelir; samimiyet azıcık düşer.
+
+### 3 · 🎤 Sanatçı kendi adına yayınlar
+- Kabul edilirse şarkı **senin yayının olmaz**; sanatçı çıkarır (listede yükselir,
+  popülerliği artar — tıpkı gerçek bir çıkış gibi).
+- Sen **söz yazarı** olarak kredilenirsin: bildirim, endüstri kaydı ve
+  sanatçının DM'inde teşekkür mesajı.
+
+### 4 · 💰 Peşin ücret + yayın telifi
+- Peşin ücret: sanatçı büyüklüğü × söz kalitesi.
+- Ardından **40 gün** boyunca günlük telif (yayın döngüsü gibi azalarak).
+- Tüm kazanç **Kariyer → Başkası İçin Yazmak** panelinde listelenir:
+  her yayınlanan sözün sanatçısı, kalitesi, peşin ücreti ve toplam kazancı.
+
+---
+
+## GÜNCELLEME v10.53 — FT ARTIK STÜDYODA (oyuncu kontrollü ortak iş)
+
+**Sorun:** Bir sanatçı sana feature (FT) teklif edip kabul edince ortak şarkı
+**otomatik** üretiliyordu — söz, beat ve kalite verilmediği için hep aynı vasat
+sonuç çıkıyordu. Sen teklif edince de aynıydı. Şarkı üzerinde hiçbir kontrolün
+yoktu.
+
+**Çözüm:** FT/ortak iş anlaşmaları artık şarkı **üretmiyor**; seni **stüdyoya**
+yönlendiriyor. Sözü, beat'i, kaliteyi ve çıkış tarihini sen belirliyorsun.
+Yeni test: `tools/smoke-v1053.js` (**24 kontrol**).
+
+### 1 · 🎧 Anlaşma → stüdyo
+- Sanatçı kabul edince (ister sen teklif et, ister o teklif etsin) şarkı
+  **otomatik yayınlanmaz**. Anlaşma `rel.deal = { status: "agreed" }` olarak
+  kaydedilir ve **stüdyo sihirbazı** ortak sanatçı önceden seçili şekilde açılır.
+- Stüdyoda sözü yazarsın, beat/kalite/prodüksiyon planını seçersin, çıkış
+  tarihini belirlersin. Yayınlanan parça artık **senin emeğinle** çıkar.
+- Ortak iş beklerken DM'de **“🎧 Ortak İşi Hazırla”** düğmesi kalır; dilediğin an
+  stüdyoya dönersin.
+
+### 2 · 🤝 Anlaşma tamamlama
+- Stüdyoda yayınlanan ortak iş, o sanatçıyla anlaşmayı otomatik **“released”**
+  yapar. Böylece aynı sanatçıyla iş **askıda kalmaz** ve tekrar teklif gelmez.
+- Anlaşma “agreed” durumundayken o sanatçıya yeni FT/ortak proje teklifi
+  düğmesi çıkmaz (çift anlaşma olmaz).
+
+### 3 · 🎤 Ortak EP de aynı yoldan
+- `Ortak Proje (EP)` anlaşması da artık otomatik üretmiyor; stüdyoda 4 parçalık
+  EP'yi kendin hazırlıyorsun.
+
+### 4 · 💬 Zihin katmanı uyumu
+- NPC zihin katmanı “agreed” anlaşmayı tanır: takip mesajı ve önerilen cevaplar
+  artık *“şarkıyı stüdyoda hazırlayınca haber ver”* / *“stüdyoyu açıp
+  hazırlıyorum”* yönünde.
+
+---
+
+## GÜNCELLEME v10.52 — GÜNDELİK RUTİN · ANLAYAN DM · FT İŞLEME
+
+Sanatçılar artık **her an hazır değil**: kendi günlük rutinleri var. Ayrıca DM
+motoru bağlamı **anlayan** ve oyuncunun yazımından **öğrenen** bir katmana
+yükseldi; feature (FT) anlaşmaları da nihayet **kalıcı olarak işleniyor**.
+Yeni test: `tools/smoke-v1052.js` (**36 kontrol**).
+
+Yeni dosyalar: `js/systems/time.js` (oyun-içi saat), `js/systems/routine.js`
+(rutin + müsaitlik), `js/systems/dmai.js` (anlayan/öğrenen DM katmanı).
+Değişenler: `js/systems/chat.js`, `js/systems/relations.js`,
+`js/systems/npcmind.js`, `js/apps/messages.js`, `js/apps/phone.js`,
+`js/core/state.js`, `css/apps.css`, `index.html`.
+
+### 1 · 🕐 Gündelik rutin (karaktere göre cevap saatleri)
+Telefonda zaten görünen saat artık **tek kaynaktan** gelir (`systems/time.js`:
+gün 0 → 09:41, her gün +47 dk). Her sanatçının bir **kronotipi** var:
+trap/drill sanatçıları **gece kuşu**, pop sanatçıları **gündüzcü**, rap ise
+ağırlıkla **akşamcı**. Günün saatine göre sanatçı ya **müsait** (🟢) ya da
+**uyuyor** (😴) olur.
+
+### 2 · 🎤 Meşguliyet: turne / albüm / stüdyo
+Haftalık deterministik pencere + yaz/turne mevsimi etkisiyle sanatçılar
+**turnede** (🎤), **albüm döneminde** (🎧) veya **stüdyoda** (🎚️) olabilir.
+Bu durumlar cevap **şansını** düşürür, cevap **gecikmesini** uzatır ve önce
+kısa bir **"şu an müsait değilim, sonra dönerim"** yanıtı getirir; gerçek
+cevap gelince başına "yeni gördüm, uyuyordum" tonu eklenir.
+
+### 3 · 🧩 Anlayan DM katmanı (`dmai.js`)
+- **Çoklu niyet** + **varlık çıkarımı**: mesajdan şarkı adı, geçen sanatçı,
+  para miktarı ("5 bin lira" → 5000) ve zaman ifadesi çekilir; cevap bu
+  somut bilgiye bağlanır.
+- **Duygu tonu**: heyecanlı / öfkeli / üzgün / aceleci ayrımı.
+- **Öğrenme**: oyuncunun kullandığı kelimeler niyete bağlanır ve **kayıtla
+  saklanır** (`state.dmLex`). "Yeni iş" deyip duran oyuncu için motor zamanla
+  o ifadeyi müzik niyeti olarak tanır.
+
+> Dürüst not: Bu bir **dil modeli değil**. Gerçek üretken bir yapay zeka
+> model/sunucu gerektirir; tarayıcıda çevrimdışı çalışan oyun bunu koşturamaz.
+> Buradaki "öğrenme", oyuncunun kendi yazımından kelime-niyet istatistiği
+> tutan hafif bir çevrimiçi öğrenmedir — belirgin şekilde akıllanır, ama
+> sınırları vardır.
+
+### 4 · 🔥 FT anlaşmaları artık işleniyor
+Eskiden DM'de feature konuşulup kabul edilse bile bu **kaydedilmiyordu**;
+üstelik gelen feature teklifi kabul edildiğinde `rel.flags.feature`
+işaretlenmediği için aynı sanatçı **tekrar tekrar** teklif gönderiyordu.
+Artık her anlaşma `rel.deal` altında **kalıcı** tutulur (tür · durum · şarkı ·
+gün), hafızaya yazılır ve günlük tick aynı sanatçıdan yeniden teklif üretmez.
+DM'de feature önerildiği anda bir **bekleyen anlaşma** açılır; buton onu
+tamamlar.
+
+### 5 · 💬 Tutarlılık
+"Naber/nasılsın" artık sabit havuzdan değil, sanatçının **kendi sesi**
+korunarak **gerçek durumundan** (rutin + ruh hali + son işler) cevaplanır.
+Anlaşma varsa sanatçı konuyu **hatırlar ve sürdürür**.
+
+---
+
+## GÜNCELLEME v10.50 — NPC ZİHİN KATMANI (RPG) · Lia Shine
+
+DM artık **tek atışlık cevap havuzu değil**: her sanatçının bir **iç durumu**
+var. Yeni motor: `js/systems/npcmind.js`. Yeni test: `tools/smoke-v1050.js`
+(**44 kontrol**).
+
+Değişen dosyalar: `js/systems/npcmind.js` (yeni motor), `js/systems/chat.js`,
+`js/systems/relations.js`, `js/apps/messages.js`, `css/apps.css`, `index.html`,
+`js/data/artists.js`, `js/data/artist-photos.js`, `js/data/labels.js`,
+`js/data/chat-profiles.js`, `js/data/personality.js`, `js/data/real-songs.js`,
+`js/data/discography.js`, `js/data/real-previews.js`.
+
+### 1 · 🧠 Konuşma hafızası (artık hatırlıyor)
+
+Sanatçı ne konuştuğunuzu, ne söz verdiğini ve **cevaplanmamış sorusunu**
+hatırlar. Bir sonraki sohbette laf arasında açar:
+“Geçen konuştuğumuz yeni iş ne oldu, çıktı mı?” Bekleyen bir sorusu varsa
+kısa **evet/hayır** cevabın onu çözer. Tümü `rel._mind` içinde kalıcıdır.
+
+### 2 · 🌡️ Ruh hali (her gün değişir)
+
+Her sanatçının **günlük** bir ruh hali olur: 😌 Sakin · 🔥 Hype · 🥱 Yorgun ·
+😤 Gergin · 🥀 Üzgün · 😠 Öfkeli. Ruh hali üç şeyi etkiler:
+· **cevap tonu** (durum cümlesi) · **samimiyet çarpanı** (üzgünken 1.10,
+öfkeliyken 0.55) · **cevap gecikmesi** (hype anında, yorgun saatler sonra).
+Yüksek beef ısısı sanatçıyı öfkeli yapar; ruh hali DM başlığında rozet olarak
+görünür.
+
+### 3 · 🗣️ Dedikodu ağı + hikâye yayları
+
+Bir ilişki dönüm noktasına gelince (aşama atlama) veya birine hakaret edince,
+**aynı şirketteki/türdeki** sanatçılar bunu duyar ve bir sonraki sohbette açar.
+Amiral sanatçılara (Şehinşah, wegh Rumi, Lie Refuge, Lia Shine) özel
+**3 beat'lik ilişki yayı** aşamaya gelince bir kez oynar.
+
+### 4 · 💬 Önerilen cevaplar (RPG hızlı seçenek)
+
+Serbest yazışma korunur; üstüne **bağlamsal öneriler** gelir — her biri bir
+ton etiketiyle (sıcak · net · cesur · empatik · profesyonel). Bekleyen soru,
+ruh hali ve aşamaya göre üretilir.
+
+### 5 · 🎤 Yeni sanatçı: **Lia Shine**
+
+Sivas doğumlu, Şehinşah'ın keşfettiği emotional / sad trap sanatçısı.
+· **Gerçek veri**: 31 gerçek şarkı + 25 gerçek albüm/single + 31 gerçek önizleme
+· **Kendi ağzı** (`chat-profiles.js`) ve **kişilik profili** (`personality.js`,
+  “Yaralı Yıldız”) — kırılgan, samimi, sadık; boş övgü onu soğutur
+· Hypers Music kadrosunda; Şehinşah'ın yanında konumlanır
+
+### Doğrulama
+`node tools/verify.js` — 36 adımlı zincir. v10.50 testi: `tools/smoke-v1050.js`.
+
+---
+
+## GÜNCELLEME v10.49 — Hata avı: çıkış günü takvimi · ölü kodlar · görsel/veri
+
+Oyunun genel gözden geçirmesinde bulunan, çoğu **sessizce yanlış çalışan**
+hatalar kapatıldı. Yeni regresyon testi: `tools/smoke-v1049.js` (**17 kontrol**).
+
+Değişen dosyalar: `js/data/release-meta.js`, `js/data/editorial.js`,
+`js/systems/career.js`, `js/systems/platforms.js`, `js/systems/relations.js`,
+`js/systems/imagery.js`, `js/apps/messages.js`, `js/apps/youtube.js`,
+`js/core/game.js`, `js/core/state.js`.
+
+### 1 · 📅 Çıkış günü takvimi artık gerçek (en önemli)
+
+Oyunun **iki takvimi** vardı: telefon takvimi gerçek hafta gününü gösterirken
+çıkış sistemi **sentetik** bir hafta günü varsayıyordu (`Gün 0 = Pazartesi`).
+İkisi **4 güne kadar kayabiliyordu**: “Gün 25 · Cuma” denen bir yayın gerçek
+takvimde **Salı**'ya düşüyordu. `K.meta.weekdayOf` artık tarihi gerçek takvimden
+(`dateForDay`) türetir; “Cuma” hedefi gerçekten Cuma'ya oturur ve liste
+fit'i de doğru günü ödüllendirir.
+
+### 2 · 🧹 Ölü kodlar (hiç etki etmeyen kurallar)
+
+- **Explicit liste cezası:** explicit parçaların editoryal listeleri kısması
+gereken blok, pitch listeleri **atanmadan önce** çalıştığı için hiç devreye
+girmiyordu. Artık pitch listelerinden sonra uygulanır.
+- **Grup sohbet satırları:** `groupLine` `artist.genre === "rap" ? "genel" : "genel"`
+idi — kadro/ortak proje havuzları hiç görünmüyordu. Artık grubun türü (`kind`)
+kullanılır.
+- **iTunes görsel arama terimi:** `aliases[0] ? stageName : stageName` her iki
+durumda da sahne adını veriyordu; alias yok sayılıyordu.
+
+### 3 · 🐛 Görsel & veri
+
+- **YouTube kanal banner'ı** `style="linear-gradient(...)"` üretiyordu — geçersiz
+CSS. Artık `background:linear-gradient(...)`.
+- **Platform arama sonucu “yıl” alanı** `? 2024 : 2024` ile **hep 2024**
+dönüyordu; artık şarkının gerçek yayın yılı.
+- **Bildirim kuyruğu:** bazı sistemler 60 ile sınırlıyor, bazıları sınırlamıyordu;
+uzun kariyerde dizi sınırsız büyüyüp kaydı şişiriyordu. `game.nextDay` sonunda
+merkezî kapak.
+- **Taze oyun bildirim alanı:** üst düzey `notifications` tanımlı değildi (yalnızca
+kullanılmayan `player.notifications` vardı); `(x || [])` korumalarına güveniyordu.
+Artık açıkça tanımlı.
+
+---
+
+## GÜNCELLEME v10.48 — Editoryal/playlist derinliği: pitch stratejisi · liste bakımı
+
+Listeler artık sadece bir eşik değil; **editoryal ekibe nasıl başvurduğun** ve
+**listeye girdikten sonra orada nasıl kaldığın** ayrı birer karar. Yeni motor:
+`js/data/editorial.js`. Yeni test paketi: `tools/smoke-v1048.js` (**57 kontrol**).
+
+Değişen dosyalar: `js/data/editorial.js` (yeni motor), `js/systems/platforms.js`,
+`js/systems/career.js`, `js/systems/lists.js`, `js/ui/career-ui.js`,
+`css/career.css`, `index.html`.
+
+### 1 · 📋 Editoryal listeler artık gerçek
+
+`Rap Türkiye`, `Trap Zone TR`, `Drill Türkiye`, `Yeni Çıkanlar`, `Gece Modu`,
+`Pop Türkiye` — her biri **gerçek sanatçıların gerçek şarkılarından** (504 gerçek
+parçalık arşivden) derlenen, **~10 parçalık küratörlü listeler**. Liste sırası ve
+kadro deterministiktir. Şarkın editoryal bir listeye girdiyse veya pitch'ten kabul
+aldıysa **gerçek sanatçıların arasında** listelenir (`★` ile işaretli).
+
+### 2 · ✉️ Pitch stratejisi
+
+Yayın öncesi editoryal ekibe üç farklı şekilde başvurabilirsin:
+
+| Strateji | Maliyet | Etki |
+|---|---|---|
+| ✉️ **Standart Pitch** | ₺9.000 | Temel başvuru |
+| 📊 **Veri Destekli** | ₺28.000 | +8 puan, kabul eşiği ×1.25 |
+| 🤝 **Plugger** | ₺70.000 | +16 puan, kabul eşiği ×1.60 (bağımsız playlist avukatı) |
+
+Strateji hem puanı hem kabul eşiğini değiştirir; plugger ile kabul oranı belirgin
+şekilde yükselir (test: 40 denemede standart < plugger).
+
+### 3 · 🔄 Liste bakımı
+
+Listeye girmek yetmez — **kalmak** gerekir. Editoryal bir listede olan şarkına
+bakım yapabilirsin:
+
+| Bakım | Maliyet | Süre |
+|---|---|---|
+| 🔄 **Liste Tazeleme** | ₺15.000 | 6 gün |
+| 📣 **Liste Promosyonu** | ₺40.000 | 10 gün |
+| 🤝 **Curator İlişkisi** | ₺80.000 | 20 gün |
+
+Bakım sürerken şarkı **listeden düşmez** ve **listenin üst sıralarına çekilir**
+(`systems/lists.js` günlük değerlendirmesi bakımı dikkate alır).
+
+### Arayüz
+
+- **Yayınlar** sekmesinin başında **Editoryal Listeler** ızgarası: 6 küratörlü
+  liste, ilk 5 parça, şarkın varsa `★` ve "N şarkın" rozeti.
+- Yayın hattında **3 pitch stratejisi çipi** (pencere uygun değilse pasif).
+- Şarkı kartında, editoryal listedeyse **3 bakım çipi**; bakım sürerken kalan gün rozeti.
+
+### Doğrulama
+
+```
+node tools/smoke-v1048.js
+→ 57/57 kontrol geçti
+```
+
+---
+
+## GÜNCELLEME v10.46 — Katalog: remaster · deluxe sürüm · yıldönümü
+
+Yayınlanmış iş zamanla yaşlanıp dinlenmesi düşerken oyuncunun elinde hiçbir
+araç yoktu. Bu sürüm **katalog yönetimini** ekliyor: eski işi yeniden
+canlandırmak artık bir strateji. Yeni motor: `js/data/reissue.js`.
+Yeni test paketi: `tools/smoke-v1046.js` (**56 kontrol**).
+
+Değişen dosyalar: `js/data/reissue.js` (yeni motor), `js/ui/career-ui.js`
+(şarkı + albüm kartları), `css/career.css`, `index.html`.
+
+### Üç işlem
+
+| # | İşlem | Kapsam | Ne yapar |
+|---|---|---|---|
+| **🎚️** | **Remaster** | Şarkı | Stüdyo (₺30k, +3 kalite) / Analog (₺75k, +6 kalite). Kalite yükselir, ivme eklenir, **çürüme yavaşlar**. Şarkı başına 1. |
+| **💎** | **Deluxe Sürüm** | Albüm | Albümü **2 bonus parça** ile yeniden yayınlar; mevcut parçalara ivme ekler, itibar getirir. Albüm başına 1. |
+| **🎂** | **Yıldönümü** | Albüm | Bir yılını (365 gün) dolduran albümü kutlar; bütün parçalar güçlü bir **nostalji ivmesi** kazanır. Albüm başına 1. |
+
+### Yaş eşikleri
+
+Katalog, taze işin değil **geçmişin** işidir. Her işlem bir yaş eşiği ister:
+remaster **90 gün** (analog **120 gün**), deluxe **120 gün**, yıldönümü **365 gün**.
+Eşiği gelmemiş işlemler arayüzde **pasif (kesik çerçeveli)** çip olarak görünür
+ve kalan günü gösterir.
+
+### Arayüz
+
+- **Yayınlar** sekmesinde her şarkının "Yayın sonrası" satırına **remaster** çipleri eklendi.
+- **Albümler** sekmesinde her albüm kartına **Deluxe Sürüm** ve **Yıldönümü** çipleri eklendi.
+- Tamamlanan işlemler **"✓ … yenilendi / yayınlandı / kutlandı"** rozetiyle görünür.
+
+### Doğrulama
+
+```
+node tools/smoke-v1046.js
+→ 56/56 kontrol geçti
+```
+
+---
+
+## GÜNCELLEME v10.45 — Yayın sonrası kariyer: radyo · remix · klip
+
+Bir şarkı yayınlandığında iş bitmiyordu; oyuncunun yayın sonrası elinde hiçbir
+kaldıraç yoktu. Bu sürüm **Yayınlar** sekmesindeki her yayınlanmış şarkıya bir
+**"Yayın sonrası"** satırı ekliyor: klip, radyo kampanyası ve remix.
+Yeni motor: `js/data/postrelease.js`. Yeni test paketi: `tools/smoke-v1045.js`
+(**49 kontrol**).
+
+Değişen dosyalar: `js/data/postrelease.js` (yeni motor), `js/ui/career-ui.js`
+(yayın kartı + işleyiciler), `css/career.css`, `index.html`.
+
+### Üç kaldıraç
+
+| # | Kaldıraç | Ne yapar |
+|---|---|---|
+| **📻** | **Radyo kampanyası** | Yerel / Dijital / Ulusal olmak üzere 3 kademe. Belirli bir süre airplay desteği satın alır; şarkıya radyo ivmesi (`boosts.radio`) ve liste çekişi ekler. Kampanya bitince tekrar açılabilir. |
+| **🔀** | **Remix** | Prodüktör / Feat. / Büyük Remix olmak üzere 3 kademe. Katalogda **yeni bir sürüm** doğurur (kendi dinlenmesini toplar) ve orijinal şarkıya can suyu verir. Şarkı başına **1 remix**. |
+| **🎬** | **Klip** | Mevcut `K.video` sistemi artık yayın kartından da erişilebilir (Sokak / Stüdyo / Sinematik). |
+
+### Denge
+
+- **Radyo** geçicidir: 10–14 gün sürer, maliyeti kademeyle artar (₺20.000 → ₺75.000).
+- **Remix** kalıcıdır: kaliteyi kademeye göre kaydırır (prodüktör −2, büyük +4),
+  yeni sürüm orijinalin temposundan beslenir ama sıfırdan başlar.
+- Kaldırılmış (takedown) şarkılara kampanya uygulanamaz; remix'in kendisi
+  yeniden remixlenemez.
+
+### Arayüz
+
+Yayınlanan şarkı kartının altında **"Yayın sonrası"** satırı: klip / radyo /
+remix çipleri. Aktif kampanya **"📻 … · N gün kaldı"**, tamamlanan işlemler
+**"✓ … yayınlandı"** rozetiyle görünür; düğmeler otomatik gizlenir.
+
+### Doğrulama
+
+```
+node tools/smoke-v1045.js
+→ 49/49 kontrol geçti
+```
+
+---
+
+## GÜNCELLEME v10.44 — Prodüksiyon süreci: kayıt · mix · master · revizyon
+
+Eskiden prodüksiyon üç kaydırıcıydı (altyapı / vokal / mix kalitesi). Gerçekte
+bir şarkı böyle çıkmaz: beat'i seçersin, **kayıt oturumuna** girersin, mix'i
+kime yaptırdığına karar verirsin, master'dan geçirirsin ve mix raporundaki
+sorunları **kabul mü edip revize mi istediğine** karar verirsin. Bu sürüm o
+zinciri stüdyoya ekliyor. Yeni motor: `js/data/production.js`.
+Yeni test paketi: `tools/smoke-v1044.js` (**63 kontrol**).
+
+Değişen dosyalar: `js/data/production.js` (yeni motor), `js/ui/career-ui.js`
+(stüdyo Adım 2 bloğu + işleyiciler + tahmin), `js/systems/career.js`
+(maliyet + yayına `prodPlan`), `css/studio-wizard.css`, `index.html`.
+
+### Dört aşama
+
+| # | Aşama | Seçenekler | Etki |
+|---|---|---|---|
+| **1** | **Kayıt oturumu** | Tek alış · Katmanlı kayıt · Stüdyo oturumu | Vokal kalitesi (+0/+8/+16), maliyet ve gün |
+| **2** | **Mix** | Kendi mix'in · Stüdyo mix · Usta mix | Mix kalitesi (+0/+10/+18), maliyet ve gün |
+| **3** | **Master** | Master yok · Dijital · Analog | Yükseklik (−4/0/+3); "yok" sesi geriye çeker |
+| **4** | **Revizyon** | Mix'i kabul et · Revize iste | Azalan verimle kalite artışı (0 → +5 → +8), para + gecikme |
+
+### Revizyon kararı
+
+Seçtiğin mix'e göre **deterministik bir mix raporu** üretilir (vokal geride,
+bas boğuk, nakarat yükselmiyor…). Riskli mix'te daha çok sorun çıkar. Her
+revizyon bir sorunu kapatır, kaliteyi yükseltir (ilk revizyon **+5**, ikincisi
+**+8** — azalan verim) ama **₺5.000** ve **2 gün** ekler. En fazla **2** revizyon.
+
+### Entegrasyon
+
+- Seçtiğin süreç, mevcut kalite kaydırıcılarının **üstüne eklenir** ve gerçek
+yayın kalitesine (`vocalQuality` / `mixQuality`) yansır.
+- Süreç maliyeti yayın maliyetine girer (`prodCost`) ve bakiye ödemesi buna
+göre hesaplanır.
+- Seçim `prodPlan` olarak yayına işlenir (üretim puanı dâhil).
+
+### Arayüz
+
+- Stüdyo **Adım 2 · Prodüksiyon** altında **"Kayıt & Mix Süreci"** bloğu
+- Üç sıra seçim çipi (oturum / mix / master) — seçili olan vurgulanır
+- **Revizyon kararı** paneli: mix notları + *kabul et* / *revize iste* düğmeleri
+- Alt satırda zincir özeti: `Stüdyo oturumu → Usta mix → Analog master · üretim +₺… · +N gün · üretim puanı X/100`
+
+### Düzeltme — 10.44.1 (çıkış günü tutarlılığı)
+
+Hedef çıkış günü seçimi yan özet ile çelişiyordu: hazırlık süresi "18 gün"
+görünürken seçilen gün ne olursa olsun çıkış hep "18 gün sonra" sanılıyordu.
+Sebep, bazı gösterimlerin **kaydırılmamış** günü (`gün + bekleme`), bazılarının
+ise hedef hafta gününe **kaydırılmış** günü göstermesiydi.
+
+Artık planlanan çıkış günü **tek yerde** (`plannedRelDay`) hesaplanıyor;
+yan özet, okuma alanları ve gerçek yayın hep aynı günü kullanıyor. Yani hedef
+hafta günü değiştiğinde çıkış günü ve hafta günü birlikte değişir
+(örn. gün 1'de: Cuma → Gün 25 · Perşembe → Gün 24 · Pazartesi → Gün 21).
+
+### Doğrulama
+
+```
+node tools/smoke-v1044.js
+→ 77/77 kontrol geçti
+
+node tools/verify.js
+→ tüm adımlar geçti
+```
+
+---
+
+## GÜNCELLEME v10.43 — Yan işler: başvuru · vardiya · yorgunluk · denge
+
+Yan işler vardı ama fazla kolaydı: her "açık" iş tek tıkla yapılıyor, oyuncu
+günde beş iş çevirip kariyerini yan işle döndürebiliyordu. Bu sürüm yan işleri
+gerçek hayattaki gibi **bir işe girme sürecine** bağladı. Yeni test paketi:
+`tools/smoke-v1043.js` (**61 kontrol**). Boru hattı: **30/30 → 31/31 adım**.
+
+Değişen tek dosya: `js/systems/jobs.js` (+ `js/core/state.js` ve `js/core/game.js`
+başlangıç/tick alanları, `js/ui/career-ui.js` yan işler sekmesi).
+
+### Dört mekanik
+
+| # | Mekanik | Ne değişti |
+|---|---|---|
+| **1** | **Başvuru** | İşe girmek için **başvurursun**; yanıt ertesi gün gelir. Kabul/ret, beceri uygunluğuna ve itibara bağlıdır. Reddedilirsen **5 gün** tekrar başvuramazsın. Aynı anda en fazla **2** bekleyen başvuru olur. |
+| **2** | **Vardiya** | Her iş bir **vardiyadır** (sabah/akşam/gece etiketiyle). Günde en fazla **3 vardiya**. Üst üste çalışırsan verim düşer (×0,75 · ×0,56 · ×0,42 …). |
+| **3** | **Yorgunluk** | Vardiya yorgunluk biriktirir; yorgunluk ücreti düşürür (%40'a kadar) ve **80+** yorgunlukta iş yapamazsın. Günü **dinlenmeye** ayırırsan 25 puan toparlanırsın — ama o gün vardiya yok. |
+| **4** | **Denge** | Ün ve takipçi arttıkça yan iş ücreti ve kapılar kapanır; yan iş erken oyunun can simidi olur, motoru değil. |
+
+### Serbest işler
+
+Bazı işler başvuru gerektirmez — doğrudan yapılır:
+
+- **Sokak performansı** (15+) — meydanda çal, küçük kitle + tecrübe
+- **Beat satışı** (Müzikal Yetenek 12+) — beat'lerini online sat
+
+Bunlar ilk günden çalışılabilir; resmi işler (kafe, market, kurye, stüdyo…)
+başvuru ister.
+
+### Arayüz
+
+- **Vardiya Hakkı X/3** sayacı ve **yorgunluk çubuğu**
+- Her kartta durum rozeti: *başvurulmadı · başvuru bekliyor · kadroda ✓ · serbest · reddedildi*
+- Bağlama göre tek düğme: **📨 Başvur** ya da **💼 Vardiyaya gir**
+- **😴 Bugünü dinlenmeye ayır** düğmesi (günde bir kez)
+
+### Geriye uyum
+
+Eski kayıtlarda `jobApps` yoksa giriş seviyesi işler (kafe, market, sokak)
+"işe alınmış" sayılır; oyuncu işsiz kalmaz. Yeni oyunda ise başvuru akışı
+baştan işler.
+
+### Doğrulama
+
+```
+node tools/build-single.js && node tools/verify.js
+→ 31/31 adım geçti
+
+node tools/smoke-v1043.js
+→ 61/61 kontrol geçti
+```
+
+---
+
+## GÜNCELLEME v10.42 — Distribütör & Sözleşme: kim dağıtıyor?
+
+v10.40 dağıtım formunu gerçekçi yaptı ama tek bir soru eksik kaldı:
+**kim dağıtıyor?** Oyunda sanatçı hep kendi kendine dağıtıyormuş gibi sabit
+maliyetle çalışıyordu. Gerçekte sanatçı bir distribütöre (DistroKid / TuneCore /
+CD Baby / Amuse / Believe…) kaydolur ve o distribütörün **ticari modeli**
+kariyeri doğrudan etkiler. Yeni modül: `js/data/distributors.js`. Yeni test
+paketi: `tools/smoke-v1042.js` (**55 kontrol**). Boru hattı: **29/29 → 30/30 adım**.
+
+### Distribütör artık gerçek bir karar
+
+| Distribütör | Model | Ücret | Kesinti | Teslim | Premium mağaza |
+|---|---|---|---|---|---|
+| **KARMA Dağıtım** | Ücretsiz | — | %18 | 10 gün | ✓ |
+| **Amuse** | Ücretsiz | — | %25 | 14 gün | ✗ |
+| **CD Baby** | Tek seferlik | 2.600 ₺/yayın | %9 | 7 gün | ✓ |
+| **TuneCore** | Yayın başına | 1.400 ₺/yayın | %0 | 5 gün | ✓ |
+| **Ditto Music** | Yıllık üyelik | 6.900 ₺/yıl | %0 | 6 gün | ✓ |
+| **DistroKid** | Yıllık üyelik | 9.900 ₺/yıl | %0 | 3 gün | ✓ |
+| **Believe** | Etiket | — | %5 | 4 gün | ✓ (itibar 45+) |
+| **The Orchard** | Major | — | %3 | 3 gün | ✓ (itibar 60+) |
+
+Denge şudur: ucuz distribütör **çok keser ve geç teslim eder**; pahalısı
+**az keser, hızlı teslim eder, tüm mağazalara sokar**.
+
+- **Ücret modeli** — ücretsiz / yayın başına / tek seferlik / yıllık üyelik / etiket.
+  Yıllık üyelikte ücret **365 günde bir** alınır; o yıl içindeki yayınlar ücretsizdir.
+- **Kesinti (komisyon)** — streaming brütünden distribütörün payı teliften düşülür.
+- **Teslim süresi (lead time)** — her distribütörün minimum ön süresi var (3–14 gün).
+  Çıkış tarihi bu süreden erken seçilirse yayın **otomatik olarak** öne kaydırılır.
+- **Premium mağaza erişimi** — ücretsiz/kısıtlı distribütörler Apple/TIDAL/Amazon'a
+  giremez; o mağaza seçenekleri kilitlenir ve seçimden düşer.
+- **İtibar kapısı** — Believe (45+) ve The Orchard (60+) yeterli itibarla ya da
+  şirket sahibiysen açılır.
+
+### Master sahipliği: “yayın kime ait?”
+
+Yayının **master**'ı (kayıt hakkı) sözleşmeden gelir:
+
+- **Şirket adına** — şirket master'a sahiptir, yayını daha çok iter (dinlenme ×1.06),
+  karşılığında şirket payı tam işler.
+- **Kendi adına** — sanatçı master'a sahiptir; şirket “dağıtım” rolüne düşer,
+  payı **yarıya iner** ama şirket desteği azalır (dinlenme ×0.96).
+
+Şirket altındayken stüdyoda iki yol seçilir: **şirketin distribütörü** (masrafı
+şirket üstlenir) ya da **kendi distribütörün** (ücreti sen ödersin).
+
+### Şirket sözleşmeleri artık gerçek bir metin
+
+`labelOfferTerms` artık **master** ve **distribütör** şartlarını da taşır;
+imzalanan sözleşme şirket sekmesinde tam metin olarak görünür:
+
+- taraflar, anlaşma türü (standart / 360), avans, şirket–sanatçı payı,
+  **master sahibi**, **distribütör**, süre, 360 pay kalemleri (turne/merch/sync)
+- avans recoup ilerlemesi
+- **imza damgası** (sanatçı adı + imza günü)
+
+### Geriye uyum
+
+Varsayılan distribütör (`KARMA Dağıtım`) premium mağazalara açıktır; distribütör
+seçimine dokunmayan oyuncu için hiçbir şey değişmez. Eski kayıtlarda distribütör
+bilgisi yoksa şarkılar `karma` ve %18 kesinti varsayılanıyla davranır.
+
+### Doğrulama
+
+```
+node tools/build-single.js && node tools/verify.js
+→ 30/30 adım geçti
+
+node tools/smoke-v1042.js
+→ 55/55 kontrol geçti
+```
+
+---
+
+## GÜNCELLEME v10.41 — Şarkı biçimi: parça artık gerçek bir yapı
+
+Söz atölyesinde **her parça sabit yedi bölümden** oluşuyordu: giriş · verse ·
+hook · nakarat · köprü · outro. Gerçek bir şarkı böyle değildir — iki verse
+olur, nakarat üç kez tekrar eder, son nakarat farklı biter, pre-nakarat girer.
+Bu sürüm **bölüm yapısını oyuncunun kararı** hâline getirdi. Yeni test paketi:
+`tools/smoke-v1041.js` (**142 kontrol**). Boru hattı: **28/28 → 29/29 adım**.
+
+Yeni modül: `js/data/song-form.js` — yuva→anahtar çözümü, 8 hazır biçim,
+süre ve biçim puanı.
+
+### Bölüm artık bir DİZİ, sabit liste değil
+
+Her parçanın kendi **yuva dizisi** var (`slots`). `verse` yuvası sırayla
+`verse` → `verse2` → `verse3` anahtarlarına açılır; `chorus` yuvası ilk geçişte
+`chorus`, **son geçişte `chorusLast`** olur (son nakarat farklı yazılabilsin);
+`prechorus` da `prechorus` → `prechorus2` diye çoğalır.
+
+| Anahtar | Etiket |
+|---|---|
+| `verse` / `verse2` / `verse3` | Verse 1 / 2 / 3 |
+| `chorus` | Nakarat |
+| `chorusLast` | Nakarat (son) |
+| `prechorus` / `prechorus2` | Pre-Nakarat |
+| `bridge` · `intro` · `outro` | Köprü · Giriş · Çıkış |
+
+**Nakarat paylaşılır:** aynı nakarat bütün geçişlerde tek metinden okunur
+(`×3` rozeti). Son nakarat boş bırakılırsa normal nakarattan devralır — yani
+"sonu farklı yazmak" opsiyonel bir karardır, zorunluluk değil.
+
+### 8 hazır biçim
+
+| Biçim | Yapı |
+|---|---|
+| **Klasik** | Giriş · Verse · Nakarat · Verse · Nakarat (son) · Çıkış |
+| **Üçlü nakarat** | 3 verse + 3 nakarat (uzun, ticari) |
+| **Hook önce** | Nakarat başta — TikTok/pitch düzeni |
+| **Köprülü** | Klasik + köprü |
+| **Bar'lar** | Nakaratsız, saf rap akışı |
+| **Epik** | Pre-nakarat + köprü, en uzun |
+| **Kısa** | 4 yuva — tek single |
+| **Serbest** | Boş tuval, kendin kur |
+
+Zaman çizelgesinden yuva **ekleyip çıkarabilir** (en az 2), yuvaları **← →**
+ile **taşıyabilirsin**. "Biçimi tümüne uygula" tek tuşla bütün parçalara yayar.
+
+### Süre artık yapıdan TÜRER
+
+Eskiden parça süresi sözlerden bağımsız, sabit bir aralıkta üretiliyordu.
+Artık **bölüm yapısı süreyi belirler** (`durationForSlots`): 4 yuvalı kısa
+parça 2 dakikanın altında kalır, epik yapı 6 dakikaya yaklaşır. Süre
+deterministiktir (parça adına bağlı ±15 sn) ve **90–420 sn** aralığına
+kıstırılır.
+
+### Biçim puanı
+
+`lyricStructureScore` yapıyı değerlendirir: dengeli nakarat/verse dağılımı
+puan kazandırır; **tekrar şişmesi** ve **nakaratsız yapı** puan kaybettirir.
+Söz analizine girer (`formScore` × 0.6) ve yayın kalitesini etkiler.
+
+### Arayüz
+
+- **Biçim çipleri** (`.lyr-tmpl`) — 8 hazır biçim, aktif olan işaretli
+- **Zaman çizelgesi** (`.sl-slot`) — bölüm sırası, taşı/sil, renk kodlu
+- **`+ bölüm` düğmeleri** (`.sl-add`) — istediğin bölümü ekle
+- **İstatistik şeridi** (`.sl-stats`) — tahmini süre · biçim puanı · yazılacak bölüm sayısı
+- Her bölüm için ayrı kart; `chorusLast` kartı **opsiyonel** (kesik çerçeve)
+- Kenar çubuğu "X/Y parçanın sözü tam" sayacı yapıyı bilir
+
+### Geriye uyum
+
+Eski kayıtlar (sabit yedi bölüm) bozulmaz: temel bölümler doluysa parça yine
+"tam" sayılır; yapı anahtarları yoksa düz liste gibi davranır.
+
+### Doğrulama
+
+```
+node tools/build-single.js && node tools/verify.js
+→ 29/29 adım geçti
+
+node tools/smoke-v1041.js
+→ 142/142 kontrol geçti
+```
+
+---
+
+## GÜNCELLEME v10.40 — Gerçek dağıtım formu: parça · metadata · teknik
+
+Stüdyonun **dağıtım adımı** gerçek distribütörlerin (DistroKid / TuneCore /
+CD Baby / Amuse / Believe) zorunlu alanlarıyla karşılaştırıldı ve **18 eksik
+kapatıldı**. Üç grupta toplandı: **A) parça seviyesi · B) metadata ·
+C) teknik gereksinimler**. Yeni test paketi: `tools/smoke-v1040.js`
+(**144 kontrol**). Boru hattı: **27/27 → 28/28 adım**.
+
+Yeni modül: `js/data/release-meta.js` — ISRC/UPC üretimi, bölge, dil, kredi
+rolleri, telif bölüşümü, explicit etkisi, teknik sınırlar.
+
+### A) Parça seviyesi — satır artık gerçek bir form
+
+| # | Özellik | Ne değişti |
+|---|---|---|
+| **A1** | **Parça sırası** | Her satırda ↑ ↓ taşıma. Sıra artık anlamlı: **açılış parçası kalite +2** alır (`trk-open` işaretli). Albümde açılış/kapanış seçimi gerçek bir sanat kararı oldu. |
+| **A2** | **Parça bazında feat** | Eskiden tek bir yayın-seviyesi `featWith` vardı ve 12 parçalı albümde 12 parçaya da aynı ortak sanatçı yazılıyordu. Artık her parçanın kendi `feat` alanı var; Üretim adımındaki seçim "tümüne uygula" kolaylığına dönüştü ve hangi parçada kim olduğunu özetliyor. |
+| **A3** | **Explicit bayrağı** | Kapaktaki "E" sadece görseldi; mağazaya bildirilen bir bayrak yoktu. Artık parça başına açılıp kapanıyor. **Yeni denge ekseni:** erişim ×0.94, editoryal liste ×0.68, pitch −14 puan — ama çekirdek kitle ×1.12, kütle ×1.05. Sert dil sokakta işe yarar, radyoda yaramaz. |
+| **A4** | **ISRC kayıt kodu** | Her parçaya distribütörün atadığı `TR-KRM-YY-NNNNN` kodu. Dağıtım adımında liste halinde görünür, şarkıya işlenir. |
+| **A5** | **Örnek hakkı kararı** | Sample altyapısında 15.000 sabit ücret sessizce ekleniyordu; oyuncunun seçeneği yoktu. Artık **"hakkı öde" (₺14.000) ya da "riski göze al"**. Ödenmezse ilk 30 günde **takedown riski** (%16 toplam) — yayın mağazalardan çekilir. |
+| **A6** | **Enstrümantal sürüm** | ₺5.000'e sözsüz sürüm; günlük dinlenmeye +%5. |
+
+### B) Metadata — dağıtım formunun zorunlu alanları
+
+| # | Alan | Etkisi |
+|---|---|---|
+| **B1** | **Krediler** | Söz yazarı · Besteci · Prodüktör · Aranjör · Mix & Mastering. Her rol için kime kredi verileceği (Sen / bir sanatçı) ve yüzde payı. |
+| **B2** | **Telif bölüşümü** | Krediler + feature payı + beat lisans puanı tek panelde; kalan senin net payın. %100 aşılırsa uyarı. |
+| **B3** | **Bölge** | 8 bölge + "Dünya Geneli". Kapsam erişimi (×0.30–×1.30) ve **dağıtım maliyetini** (×0.55–×1.55) belirler. |
+| **B4** | **Yayın dili** | 8 dil. Seçili bölgelerin diliyle uyuşursa erişim **+%14**'e kadar artar; enstrümantal dil bariyerini aşar. |
+| **B5** | **℗ / © telif yılı** | Yayında görünen telif satırı (`Etiket ℗ 2028`). |
+| **B6** | **Etiket adı** | Bağımsızken sabit "KARMA Dağıtım" yazıyordu; artık kendi etiket adını koyabiliyorsun. |
+| **B7** | **UPC barkodu** | 13 haneli barkod — **EAN kontrol basamağı gerçekten hesaplanıyor**, uydurma değil. |
+
+### C) Teknik gereksinimler — mağaza gerçekten reddeder
+
+| # | Özellik | Kural |
+|---|---|---|
+| **C1** | **Kapak çözünürlüğü** | Mağaza alt sınırı **1400×1400**. 600×600 seçilirse **yayın gönderilemez** (adım kilitlenir, açık gerekçeyle). 3000×3000 önerilen. |
+| **C2** | **Ses formatı reddi** | Telefon demosu (M4A 128 kbps) gibi düşük kaliteli kaynakları **Apple Music, TIDAL, Amazon reddeder**; Spotify/YouTube kabul eder. Çakışma varsa adım kilitlenir ve tek tuşla "sorunlu mağazaları kaldır" sunulur. |
+| **C3** | **Çıkış günü** | Endüstri standardı **cuma**. Hazırlık süresi en az seçtiğin kadar, ama takvim hedef gün gününe kayar. Cuma ×1.00, pazartesi ×0.91. |
+| **C4** | **YouTube Content ID** | ₺3.500; başkaları şarkını kullanınca otomatik telif geliri (günlük dinlenmenin %3.5'i). |
+| **C5** | **Takedown / yeniden yükleme** | Yayınlanmış bir işi mağazalardan çekebilirsin; kaldırılmış bir işi ₺6.000'e düzeltilmiş sürümle geri gönderebilirsin. |
+
+### Doğrulama
+
+```
+node tools/build-single.js && node tools/verify.js
+→ 28/28 adım geçti
+
+node tools/smoke-v1040.js
+→ 144/144 kontrol geçti
+```
+
+---
+
+## GÜNCELLEME v10.39 — Stüdyo parça adımı: sözler artık parça başına
+
+Stüdyo sihirbazının **parça adımı** baştan ele alındı. Sekiz hata ölçülüp
+kapatıldı, yayın türü kuralları netleşti ve **sözler parça başına** ayrıldı.
+Yeni test paketi: `tools/smoke-v1039.js` (**68 kontrol**). Boru hattı: **26/26 → 27/27 adım**.
+
+###  Yayın türü kuralı artık tek ve net
+
+| Parça | Tür |
+|---|---|
+| 1 | **Single** |
+| 2–8 | **EP** |
+| 9–30 | **Albüm** |
+
+Eski kural (`1 → Single · 2 → Çift · 3-4 → EP · 5-11 → Albüm · 12+ → Deluxe`)
+hem ekrandaki üç kartla çelişiyordu hem de "Çift" ve "Deluxe" için hiç kart
+yoktu — 12 parça seçen oyuncu ekranda "Albüm" görüyordu. Üç kart artık kurala
+birebir uyuyor. Parça tavanı **14 → 30**'a çıktı (`K.career.MAX_TRACKS`, slider +
+kartlar + `createRelease` hepsi tek kaynaktan).
+
+###  Sözler artık PARÇA BAŞINA (en büyük hata)
+
+`createRelease` tek bir `lyricSections` kullanıyordu: 14 parçalı bir albümde
+**14 şarkının sözü de aynıydı** ve hepsi aynı söz skorunu alıyordu. Artık:
+
+- her parçanın kendi söz nesnesi var (`tracks[i].lyrics`)
+- söz atölyesinde **parça seçici şerit** (kaç bölümün dolu olduğunu gösterir)
+- **"Kalanları Otomatik Doldur"** — boş parçaları tek tuşla doldurur, dolu olanlara dokunmaz
+- **"Bu sözü tümüne uygula"** — bilinçli olarak aynı sözü kopyalamak isteyenler için
+- her parça **kendi söz skorunu** alır → albüm içinde kalite artık değişiyor
+- yayın skoru parçaların ortalaması; `rel.lyrics.perTrack` özeti tutuluyor
+
+###  Dosya yükleme adımı kaldırıldı
+
+Yükleme mekaniği oyuncuya hiçbir şey katmıyordu: ilerleme çubuğu izletiyor,
+karar verme anı yaratmıyordu. Kayıt kaynağı seçimi (Stüdyo/Ev/Canlı/Sample/
+Telefon) kaliteyi ve maliyeti zaten etkiliyordu — o **kaldı** ve parça satırına
+döndü. Artık satır doğrudan kaynağın etkisini yazıyor:
+`WAV · 24-bit / 48kHz · 42 MB · kalite +6`.
+
+###  Düzeltilen hatalar (ölçüldü)
+
+| # | Hata | Önce | Sonra |
+|---|---|---|---|
+| 1 | Adlar boşluksuz birleşiyordu (`SisliSonu`) | 37/100 | **0/200** |
+| 2 | "N yüklendi" sayacı her tuşta siliniyordu | kayboluyordu | kalıcı → toplam süre |
+| 3 | Adım sayacı "Adım 1/5" | yanlış | **"Adım 1/6"** |
+| 4 | Tip kartları eksik/çelişkili | 3 kart, yanlış aralık | kurala birebir uyar |
+| 5 | Sayı artırılınca isim çakışması | 12/30 tur | **0/30** |
+| 6 | Süre göstergesi sabit "3:24" | tek değer | **parça başına** (2:00–6:00) |
+| 7 | Kenar çubuğu "Albüm (5 parça)" | gereksiz tekrar | **"Albüm"** |
+| 8 | Düğmelerde emoji ( ＋ ⬆) | emoji | **SVG** |
+
+Kök neden (1): `suggestTitle()` içinde `.trim()` birleştirme boşluğunu yiyordu —
+bu sadece stüdyoyu değil, **tüm oyundaki şarkı adı üretimini** etkiliyordu.
+
+---
+
+## GÜNCELLEME v10.38 — Kapak üreticisi: taşma bitti, düzenler geldi
+
+Kapak üreticisi çalışıyordu ama ürettiği kapaklar "garip" duruyordu. Üç ayrı
+kök neden bulundu ve üçü de kapatıldı. Yeni test paketi: `tools/smoke-cover.js`
+(**72 kontrol**). Boru hattı: **25/25 → 26/26 adım**.
+
+### Bulgu 1 — Yazı kapağa sığmıyordu
+
+`coverSVG` başlığı boşluklardan bölüyordu ama **genişliği hiç ölçmüyordu**.
+`Mono` fontunda (`letter-spacing: 1`) 74px punto ile "Sokak Işıkları" 600px
+tuvali aşıp sağdan kesiliyordu; uzun tek kelimeler ("Anadolu") her fontta
+taşıyordu.
+
+**Çözüm:** punto artık **ölçülerek** seçiliyor.
+`textW(str, size, font)` her fontun karakter başına genişlik katsayısıyla
+tahmini genişliği hesaplar; `fitLines` önce satırları sarar, sığmazsa puntoyu
+2'şer küçültür ve son çare olarak genişlikten geriye ölçekler — **taşma
+matematiksel olarak imkânsız**. Test, 16 × 12 × 8 × 7 = **10.752 kombinasyonu**
+ve uzun tek kelime senaryolarını tarayıp sıfır taşma doğruluyor.
+
+### Bulgu 2 — Desenler ve şekiller görünmüyordu
+
+12 desenin 11'i `0.07–0.13`, 11 şeklin tamamı `0.16` opaklıktaydı. Galeri
+çıkarıldığında "Düz" ile "Izgara" arasında gözle fark yoktu — yani
+seçeneklerin çoğu **ölü**ydü.
+
+**Çözüm:** desenler `0.13–0.26`, şekiller `0.30–0.50` bandına çıkarıldı.
+Test artık her desenin ve şeklin çıktıyı gerçekten değiştirdiğini ve görünür
+opaklıkta olduğunu kilitliyor.
+
+### Bulgu 3 — "Rastgele Kapak" oyuncunun ayarlarını siliyordu
+
+`st.coverOpts = { style, pattern, text, hue, grain }` — tüm nesne
+değiştirildiği için **font, hizalama, şekil ve "Sanatçı adı" sessizce
+sıfırlanıyordu**. Aynı hata kenar çubuğunda da vardı: stil değiştirildiğinde
+özet "Gece · Merkez" yazmaya devam ediyordu.
+
+**Çözüm:** rastgele artık yalnız stil/desen/şekil/ton/grain değiştirir;
+font, düzen ve ek katmanlar korunur. Kenar çubuğu özeti `renderStepList()`
+ile her değişimde tazelenir. Mağaza önizlemesindeki 🟢🍎▶️ emojileri de
+v10.34'te eklenen gerçek marka SVG'leriyle değiştirildi.
+
+### Yeni seçenekler
+
+| Grup | Önce | Sonra |
+|---|---|---|
+| Palet | 8 | **16** (Mor · Kan · Okyanus · Gül · Retro · Zehir · Gün Batımı · Kâğıt) |
+| Düzen | — (hiza) | **8 kompozisyon** |
+| Desen | 6 | **12** |
+| Şekil | 5 | **12** |
+| Yazı | 3 | **5** |
+| Font | 4 | **7** |
+| Ek katman | 2 | **5** |
+
+**Düzenler (yeni):** Merkez · Üst · Alt · Şerit · Alt Blok · Dev Harf · Köşe ·
+Dergi (büyük başlık + ince ayırıcı çizgi).
+
+**Ek katmanlar (yeni):** çerçeve · **explicit (E) işareti** · yıl etiketi
+(oyun takviminden otomatik) · grain · sanatçı adı.
+
+Kapak üreticisi `js/ui/components.js` içinden çıkarılıp kendi modülüne taşındı:
+`js/ui/cover.js`. Eski 7 ve 11 parçalı kapak kayıtları bozulmadan çözülür
+(hiza alanı düzene çevrilir).
+
+### Fontlar hakkında bir not
+
+Kapak bir `data:` **SVG görüntüsü** olarak çizilir ve görüntü bağlamındaki SVG
+sayfanın web fontlarına **erişemez** — adı geçen font bulunamazsa render motoru
+serif'e düşer. Bu yüzden fontlar yalnız `sans-serif` / `serif` / `monospace`
+ailelerinden kurulur; ayrışma ağırlık, harf aralığı ve `textLength`
+sıkıştırmasıyla üretilir. Böylece her platformda **aynı** görünür. (Eski
+"İnce" Inter 300 istiyordu ama 300 yüklü değildi, "Dar" ise sistemde
+bulunmayan Arial Narrow'a güveniyordu — ikisi de Blok'tan ayırt edilemiyordu.)
+
+---
+
+## GÜNCELLEME v10.37 — Gerçek uygulama düzeni (2. dalga) · pil kaldırıldı
+
+v10.35 (Spotify) ve v10.36 (Instagram) alt sekmeleri emoji'den gerçek SVG
+simgelere geçirmişti ama diğer beş uygulama emoji sekme ikonlarıyla kalmıştı:
+telefonun içinde iki uygulama gerçek, beşi oyuncak gibi duruyordu. Bu sürüm o
+tutarsızlığı kapatır ve pil mekaniğini tamamen kaldırır.
+
+### 📱 Beş uygulama gerçek düzene geçti
+
+Her uygulama kendi SVG simge takımını ve alt sekme davranışını aldı
+(pasif = ince çizgi, aktif = **dolu** simge — gerçek uygulamaların ortak kuralı):
+
+| Uygulama | Alt sekme | Etiket | Aktif renk |
+|---|---|---|---|
+| **X** | 4 SVG sekme + SVG gönderi eylemleri (yanıt · repost · beğeni · kaydet · paylaş · görüntüleme) | yok (gerçek X gibi) | beyaz |
+| **YouTube** | 5 SVG sekme + SVG oynatma denetimleri, Shorts yan eylemleri, zil | var | beyaz |
+| **TikTok** | 4 SVG sekme + beyaz dolu sağ eylemler (kalp · yorum · paylaş · kaydet) | yok (gerçek TikTok gibi) | beyaz + cyan parıltı |
+| **Apple Music** | 4 SF-Symbols tarzı SVG sekme | var | `#fa233b` |
+| **Mesajlar** | 5 iOS SVG sekme (sohbet · gruplar · istekler · teklifler · yeni DM) | var | `#0a84ff` |
+
+Yeni katman: **`css/apps-real.css`** — beş uygulamanın alt barını, simge
+değişimini ve gönderi eylem satırını tek yerde tanımlar. Mevcut içerik/render
+fonksiyonlarına dokunulmadı; yalnızca görsel katman değişti.
+
+### 🔋 Pil mekaniği tamamen kaldırıldı
+
+Pil, oyuncuya sürekli bakım yükü bindiriyordu ve **kod kendi yorumuyla
+çelişiyordu**: `phoneos.js` yorumu *"telefon GECE şarj olur"* diyordu ama
+`daily()` hiçbir zaman şarj etmiyordu — yalnızca günde %14–22 boşaltıyordu.
+Yani ~5–7 günde telefon kapanıyor, oyuncu her gün elle şarj etmek zorunda
+kalıyordu. Pil artık bir engel değil; telefon her zaman açık.
+
+Kaldırılanlar: `battery()` · `charge()` · günlük boşalma · "telefon kapandı"
+ekranı · durum çubuğu pil göstergesi · Kontrol Merkezi ve Ayarlar'daki pil
+kartları/şarj düğmeleri/"pil tasarrufu" anahtarı. Eski kayıtlardaki `battery`,
+`phoneDead` ve `phone.batterySaver` alanları yüklemede silinir.
+
+### 🏷️ Sürüm etiketi gerçeğe çekildi
+
+Kod v10.36'ya kadar gelmişti ama `package.json`, `js/version.js`,
+`version.json` ve `sw.js` hâlâ **10.32.0** diyordu. Sebep: `tools/release.js`
+sürümü **yalnızca argüman verilirse** artırıyor; sürümler argümansız
+çalıştırıldığı için yalnızca önbellek damgası tazelenmişti. Bu sürümden
+itibaren meta veri kodla aynı hizada.
+
+---
+
+## GÜNCELLEME v10.36 — Instagram gerçek uygulama düzeni
+
+- Alt sekmede aktif simge **dolar** (gerçek IG davranışı)
+- Gönderi eylemleri SVG: kalp · yorum · paylaş · kaydet
+- Hikâye "+" rozeti, başlıkta "kullanıcı · süre" tek satır
+
+## GÜNCELLEME v10.35 — Spotify gerçek uygulama düzeni
+
+- SVG alt sekme simgeleri (emoji yerine), sekmesiz sanatçı sayfası
+- **Beğenilen Şarkılar** (mor→beyaz kalp karosu) ve çalma listesi başlığı
+
+## GÜNCELLEME v10.34 — Gerçek marka logoları
+
+- Telefon ana ekranı uygulamaları emoji/karakter yerine **inline SVG marka
+  işaretleri** kullanıyor (`js/ui/brand-icons.js`)
+
+## GÜNCELLEME v10.33 — Olay/skandal gerçekçiliği
+
+- Olay sıklığı azaltıldı, ün eşiği + tekrar engeli + çakışma temizliği
+  (`systems/crisis.js` · `systems/incidents.js`)
+
+---
+
+## GÜNCELLEME v10.32 — Katalog sönümü: "yayın yapmazsan kitle erir"
+
+Denge simülasyonunun bulduğu **son ORTA bulgu** kapatıldı ve neden olduğu
+oyun açığı giderildi. Yeni test paketi: `tools/smoke-silence.js` (**23 kontrol**).
+Boru hattı: `tools/smoke-updater.js` (v10.31.1) ile birlikte **24/24 adım**.
+
+### 🔍 Bulgu — ölü katalog ölümsüzdü
+
+`tools/sim-balance.js` üç profili 120 gün yayınsız bırakıp düşüşü ölçüyordu:
+
+| Profil | 120 günde aylık dinleyici kaybı |
+|---|---|
+| Rahat | %58 |
+| Standart | %38 |
+| **Grinder** | **%18** ❌ (eşik %25) |
+
+Kök neden popülerlik değildi: **şarkı başına dinlenme tabanı sabit `5`** idi
+(`Math.max(5, song.dailyStreams * …)`). Grinder profilinin 34 şarkılık ölü
+kataloğunda en iyi şarkı günde **5** dinleniyordu, ama 34 × 5 = **170/gün**
+dinlenme üretiyordu — yani **günlük dinlenmenin %100'ü** ve aylık dinleyicinin
+**%94'ü** yalnızca tabandan geliyordu.
+
+Sonuç: katalog büyüklüğü kitleyi **doğrusal olarak ve süresiz** ayakta tutuyordu.
+34 flop şarkı, kalıcı ~2.500 "aylık dinleyici" demekti. Oyuncuya **"yayın yap"
+baskısı kalmıyordu** — simülasyonun çekirdek halkası (yüksel → zirve → düş) kopuktu.
+
+### 🔧 Çözüm — taban artık sönümleniyor (unutulma)
+
+- **Şarkı başına taban sabit değil, sönümlü**: `catFloor = catalogFloor × silenceDecay()`
+- **`K.game.silenceDecay()`** — son yayından sonra:
+  - ilk **30 gün ceza yok** (iki single arası normal aralık)
+  - sonrasında günlük `0,9945` (yarı ömür ≈ 126 gün)
+  - alt sınır `0,22` — sanatçı tamamen sıfırlanmaz, ama görünmez kalırsa kitlesini kaybeder
+- **`K.game.daysSinceRelease()`** — katalogdaki en yeni yayın esas alınır;
+  `publishedDay` yok/0 olan demo parçalar sayılmaz (kenar durum testle kilitli)
+- Sabitler `K.ECON` içinde: `silenceGrace` · `silenceDecay` · `silenceFloor` · `catalogFloor`
+
+**Aktif oynayış hiç etkilenmedi** — lütuf süresi (30 gün) içinde çarpan `1`'dir;
+casual ve standard profillerinin eğrileri birebir aynı kaldı.
+
+### 📉 Ceza artık GÖRÜNÜR — `K.game.silenceWarning()`
+
+Oyuncuyu görünmez bir cezayla cezalandırmak haksız hissi verir. Eşikler
+(30+15 · +45 · +90 · +180 gün) geçildiğinde **tek seferlik** uyarı düşer:
+
+> 📉 **Katalog sönümleniyor** — 75 gündür yayın yok. Dinleyici tabanı %61'ine
+> indi — yeni bir yayın dalgayı yeniden besler.
+
+Yeni yayın yapıldığında sayaç kendiliğinden sıfırlanır.
+
+### 📊 Kalibrasyon sonucu
+
+| Profil | Önce | Sonra |
+|---|---|---|
+| Rahat | %58,6 | %58,7 |
+| Standart | %37,7 | %37,8 |
+| **Grinder** | **%18,2** ❌ | **%58,5** ✅ |
+
+`tools/sim-balance.js` → **0 yüksek · 0 orta** bulgu.
+
+### ✅ Issue #2 — açık bulguların hepsi tamamlandı
+
+`#2` numaralı issue'nun "açık bulgular" listesi kodda ID'leriyle
+karşılanmış durumda; issue yalnızca güncellenmemişti. Kanıtlar:
+
+| Bulgu | Durum | Kanıt |
+|---|---|---|
+| **B-5** `chat.js` 88 KB tek modül | ✅ | `data/chat-profiles.js` (v10.18 · B-5) — veri/motor ayrıldı; `chat.js` 52 KB'a indi |
+| **B-6** `persona.js` / `personality.js` karışıklığı | ✅ | İki dosyanın başlığında karşılıklı `(B-6)` ayrım notu + ayrı global önekler |
+| **B-7** testlerde sabit `setTimeout(run, 2600)` | ✅ | `harness.js → whenReady()` (süre değil hazır olma durumu) |
+| **P-1** build'in %21'i gömülü veri | ✅ | `data/lazy.js` (v10.16 · P-1) — 350,7 KB JSON'a taşındı, yürütme maliyeti 0 |
+| **P-2** `real-previews.js` filtrelenmiyor | ✅ | `smoke-previews.js` veri değişmezini kilitliyor |
+
+Issue'da **açık kalan tek başlıklar** iki özellik önerisi:
+kişilik katmanını diğer amiral sanatçılara yaymak (Ceza, Sagopa Kajmer,
+Ezhel) ve kişilik katsayılarını oyuncuya görünür kılmak.
+
+### 🔧 Süreç düzeltmesi — sabit adım sayısı kaldırıldı
+
+`tools/verify.js` başlığında bu ders zaten alınmıştı (sabit sayı yazılmaz);
+aynı bayat sayılar `.github/workflows/tests.yml`, `index.html` ve `README.md`
+içinde kalmıştı ("11/12 adım", gerçek sayı artık 24). Sayılar kaldırıldı —
+doğru değer yalnızca `SONUÇ: n/m` satırında görünür.
+
+---
+
+## GÜNCELLEME v10.31 — Çoklu erişim temizliği: tek ana yuva kuralı
+
+Bazı işlevler birden çok yüzeyden erişilebiliyordu ve bakımı zorlaşıyordu.
+Bu sürüm **"her işlevin tek ana yuvası olur; diğer yüzeyler yalnızca oraya
+yönlendirir"** kuralını uygulamaya başlıyor. Yeni test: `tools/smoke-v1031.js`
+(**28 kontrol**).
+
+**Ayrım:** Sol panel = yönetim & üretim · Telefon = tüketim & iletişim.
+
+### 🗑️ Ölü kod kaldırıldı
+- `career-ui.js → renderStats()` — tanımlıydı ama **hiç çağrılmıyordu** (Analiz/Kariyer'in kopyası).
+- `career-ui.js → act === "open-settings"` — handler vardı, düğme üretilmiyordu.
+- **"Kariyer Detayı" modalı** — Kariyer sekmesindeki düğme kaldırıldı; içeriği Analiz'e taşındı.
+
+### 📰 Röportaj: tek motor
+Röportajın **üç ayrı sonuç motoru** vardı (basın teklifi · gazeteci araması · gazeteci DM).
+Artık tek karar ekranı var: **`K.press.interview()`**.
+- Sol panel → Olaylar → "🎤 Röportaj ver" (manuel giriş)
+- Telefon → Aramalar (gazeteci) → kabul → **aynı karar ekranı**
+- Telefon → Mesajlar (gazeteci DM) → kabul → **aynı karar ekranı**
+
+### 📊 Analiz: net ayrışma
+- **Sol panel → Analiz** = tüm-platform **yönetim özeti** (toplam dinlenme, platform kırılımı,
+  14 günlük grafik, aktif listeler, son yayınlar) + yeni **Kariyer durumu** paneli.
+- **Telefon → Spotify/Apple Artist** = yalnız **kendi platformunun** verisi. Global "aylık
+dinleyici", "takipçi", "global albüm listesi" ve global trend bu uygulamalardan çıkarıldı;
+yerine platforma özel toplamlar/kaydetme/Shazam/liste geldi.
+- **Karma Artists** (telif/ödeme paneli) olduğu gibi kalır — o bir ödeme paneli, analiz değil.
+
+---
+
+## GÜNCELLEME v10.30 — İletişim katmanı: aramalar · gönderi türü · teklif kuyruğu · yabancı DM'ler
+
+Dört yeni/derinleştirilmiş sistem; hepsi birbirine bağlı. Yeni test paketi:
+`tools/smoke-v1030.js` (**80 kontrol**).
+
+### 1) 📞 Gelen aramalar — `systems/calls.js` + `apps/calls.js`
+Telefon artık **çalıyor**. 10 arama türü (menajer, şirket A&R, gazeteci, radyo,
+sponsor, festival, hayran, sanatçı, mahalle/aile, **dolandırıcı**) gelir ve her biri
+bir KARARA bağlanır:
+
+| Karar | Sonuç |
+|---|---|
+| **📞 Aç** | Konuşma seçenekleri; her seçeneğin somut sonucu (para, şöhret, itibar, imaj, stres, ilişki, teklif) |
+| **📵 Reddet** | Kaçan fırsat / bozulan ilişki / itibar kaybı |
+| **✉️ Mesaj** | Yazılı yanıt; bazı arayanlar metni tercih eder |
+
+Her arama **sürelidir** (`expiresDay`); süre dolarsa "cevapsız" olur ve sonucu yine
+de vardır. Aramalar gün geçişinden sonra otomatik açılır; kaçarsan **Telefon**
+uygulamasının *Gelen* sekmesinde bekler. Yanlış numara yok: dolandırıcı ön ödeme
+istersen paranı alır, gazeteciyi reddedersen olumsuz haber çıkar.
+
+### 2) 📈 Gönderi stratejisi — içerik TÜRÜ (`systems/social.js`)
+Gönderi atarken artık **ne tür** bir içerik olduğunu seçiyorsun:
+
+| Tür | Erişim | İmaj / İtibar | Risk |
+|---|---|---|---|
+| 📈 **Erişim** | Yüksek (×1,45 etkileşim + takipçi) | Hafif nötr | — |
+| ✨ **İmaj** | Düşük (×0,72) | +itibar, +imaj | — |
+| 🎲 **Risk** | %52 patlama (×2,4 + viral) | %48 tepki (−itibar/imaj, kriz riski) | Yüksek |
+
+Tür seçici Instagram ve X gönderi modallarında. `K.social.playerPost()` sonuç
+motorunu yönetir.
+
+### 3) 🤝 Teklif kuyruğu + pazarlık — `systems/relations.js`
+Teklifler artık **süreli ve birikimli**:
+- Her teklife `expiresDay` atanır; süre dolarsa **geri çekilir** ve ilişki/itibar maliyeti doğar.
+- **Pazarlık**: daha iyi şart istersin; karşı taraf kaldıraca (samimiyet + popülerlik + itibar)
+  ve isteğin büyüklüğüne göre **kabul / kısmi taviz / geri çekilme** ile karşılık verir.
+- Teklif kartında geri sayım (⏳) ve 🤝 Pazarlık düğmesi; teklif türüne göre farklı alanlar
+  (feature gelir payı; şirket avansı/payı/süresi).
+
+### 4) 💜⚠️📰 Yabancı DM'ler — `systems/dms.js`
+Gelen kutusuna artık üç yabancı düşer; ikisi **engelle / yanıtla**:
+- 💜 **Hayran** — sıcak yanıt sadakat ve takipçi kazandırır; engellersen kaybedersin.
+- ⚠️ **Dolandırıcı** — sahte ödül/playlist; ödeme yaparsan para gider, detay sorarsan kaçar, engelle güvenli.
+- 📰 **Gazeteci** — röportaj kabulü itibar kazandırır; engellersen basın ilişkilerin zedelenir.
+
+Her mesaj süreli; **engellenen hesap** kalıcı olarak listeye girer ve bir daha yazamaz
+(İstekler sekmesinde "🚫 engellenen hesap" satırından yönetilir).
+
+### 🔗 Entegrasyon
+- `game.js` günlük tick zinciri: `calls.tick()` + `dms.tick()`; gün geçişinde çalan arama otomatik açılır.
+- Aramalar/DM'ler mevcut sistemleri besler: `economy` (para), `game.addFame` (şöhret tavanı),
+  `press` (imaj/itibar), `relations` (samimiyet, teklif), `mental` (stres), `festivals`, `shady` (payola).
+- `contacts.byId` artık yabancı gönderenleri de çözer; böylece Mesajlar/avatar altyapısı ortak çalışır.
+
+---
+
+## GÜNCELLEME v10.29 — Akıl sağlığı ekseni üç sisteme daha bağlandı
+
+v10.28'de eklenen stres ekseni yalnızca **kayıt kalitesini** ve **yayın kilidini**
+etkiliyordu. Artık sanatçının kafası **üç yerde daha** hissediliyor.
+
+### 🔗 Yeni bağlantılar
+
+| Sistem | Ne oluyor | Çarpan (stres 100'de) |
+|---|---|---|
+| ⚔️ **Diss kaydetme** (`beef.js`) | Dağınık kafayla yazılan gönderme **zayıf** kalır | `dissMult` → **0,55** |
+| 🎤 **Konser performansı** (`concerts.js`) | Sahneden daha az şöhret/hayran kazanılır | `performanceMult` → **0,60** |
+| 💬 **DM yanıt tonu** (`chat.js`) | Mesajların **ters teper**; sanatçı mesafe koyar | `dmMult` → **0,55** |
+
+Hepsi **40 stresin altında etkisizdir** (çarpan 1,00) — yani sistem “stres 40'ı geçtiyse
+bozulmaya başlar” diye öngörülebilir davranır.
+
+### ⚔️ Diss: öfkeli ama dağınık
+
+`noteDissTrack()` artık hem **etkiyi** hem **yayılımı** ölçekler. Ayrıca kayda
+`(dağınık)` notu düşer ve bildirim *“Stresin yüksek — sözler dağınık”* der.
+
+| Stres | Husumet | `boosts.diss` | Şöhret kazancı |
+|---|---|---|---|
+| 20 | 18,0 | 0,450 | +1,20 |
+| 70 | 14,0 | 0,349 | +0,93 |
+| 95 | **10,6** | **0,264** | **+0,70** |
+
+### 🎤 Konser: salon dolar ama izlenim düşer
+
+Sahne kazancı ayrıldı: **bilet/katılım etkilenmez** (salon doludur — bilet satışı ayrı
+bir aşamada olur), ama **şöhret, itibar ve hayran kazancı** düşer. Turne durakları da aynı
+şekilde ölçeklenir, her durakta `performance` değeri kaydedilir.
+
+| Stres | Şöhret | Hayran |
+|---|---|---|
+| 20 | 2,70 | 127 |
+| 70 | 2,16 | 101 |
+| 95 | **1,71** | **80** |
+
+### 💬 DM: sanatçı stresini hisseder
+
+- Samimiyet kazancı ölçeklenir (stres 95'te **1,16 → 0,68**)
+- Sanatçı **mesafe koyan bir cümle** ekler: *“Bugün biraz gergin gibisin.”* ·
+  *“Bir şey mi oldu? Bana ters konuşuyorsun.”* · *“Sen iyi değilsin. Dinlen, sonra yazarım.”*
+- Dönüş değeri `stressed` ve `dmMult` alanlarıyla bunu bildirir
+- **Tutarlılık:** selamlaşma ve “seni tanımıyorum” (cold) yolları da ölçeklenir ve aynı
+alanları döndürür — aksi halde “Selam” yazan oyuncu cezadan muaf kalırdı (bu, test
+ yazılırken yakalandı)
+
+### 🧪 Testler: `smoke-expansion.js` 135 → **162 kontrol**
+
+Yeni **J) DERİN BAĞLANTILAR** bölümü:
+
+- **J1** çarpan API'si — 40 altında 1,00 · ton eşikleri (gergin→yuksek→tukenmis) · taban değerler
+- **J2** diss — iki koşuda karşılaştırma (husumet, `boosts.diss`, dinlenme, viral, şöhret,
+  “dağınık” kaydı)
+- **J3** konser — aynı konser iki streste; şöhret/hayran düşer, **katılım aynı kalır**,
+  `performance` kaydedilir
+- **J4** DM — çarpan, `stressed` işareti, **mesafe cümlesinin gerçekten üretildiği** (40 deneme),
+  selamlaşma yolunun da ölçeklendiği
+- **J5** statik entegrasyon — üç dosya `K.mental.*` okuyor mu, çarpanlar tanımlı mı
+
+---
+
+## GÜNCELLEME v10.28 — GENİŞLEME PAKETİ: altı yeni sistem
+
+Bu sürüm oyuna **altı yeni sistem** ekler ve hepsi tek bir sekmede toplanır:
+**💼 Girişim**. Ortak tema: *oyunun eksik kalan gerçekçilik katmanları*.
+
+| # | Sistem | Dosya | Ne katar |
+|---|---|---|---|
+| 1 | ✍️ Başkası için yazmak | `systems/writing.js` | Gelir + network; gölge/kredili ikilemi |
+| 2 | 👕 Ürün markası | `systems/merch.js` | Drop ekonomisi, stok riski, marka değeri |
+| 3 | 🏎️ Varlık & gösteriş | `systems/assets.js` | Statü + **aylık bakım** (para harcama yeri) |
+| 4 | 🧠 Akıl sağlığı | `systems/mental.js` | Stres/tükenme ekseni, zorunlu ara |
+| 5 | 🎰 Karanlık taraf | `systems/shady.js` | Bot dinlenme & payola + tespit/yasak |
+| 6 | 🌍 Uluslararası | `systems/intl.js` | Diaspora pazarı, nüfuz, yurt dışı telif |
+
+### 1) ✍️ Başkası için şarkı yazmak — `systems/writing.js`
+
+Oyuncu zaten bir **gölge yazar tutabiliyordu** ama kendisi yazamıyordu. Artık yazabiliyor.
+Asıl gerilim **iki mod** arasında:
+
+| Mod | Ücret | Bedel |
+|---|---|---|
+| 🎭 **Gölge** | **×1,35** | Adın geçmez; iş sayısı arttıkça **açığa çıkma riski** birikir |
+| ✍️ **Kredili** | ×0,85 | İtibar +3, samimiyet +5, “yazarlık” kimliği |
+
+Açığa çıkarsan imaj ve itibar yanar, “kendi işini yapmıyor” eleştirisi yayılır.
+Kapsamlar: hook (2 gün) · verse (3) · tam şarkı (5). Ustalık = müzik + stüdyo becerisi.
+
+### 2) 👕 Ürün / streetwear markası — `systems/merch.js`
+
+Merch şimdiye kadar **yalnızca konsere bağlıydı** (katılımın %18'i). Artık kendi markanı
+kurup **drop** çıkarıyorsun: tasarım kademesi, adet, fiyat.
+
+- **Fiyat duyarlılığı:** pahalı fiyat → az satış, iyi marj
+- **Stok riski:** elde kalan ürün **zarardır** (üretim maliyeti geri gelmez)
+- **Tükenme (sell-out):** marka değeri + şöhret + yeniden stok baskısı
+- Marka değeri büyüdükçe **premium koleksiyon** açılır
+- Sinerji: moda sponsorluğu talebi +%18, viral trend +%15
+- Drop sonrası **14 gün üretim molası** (spam yok)
+
+### 3) 🏎️ Varlık & gösteriş — `systems/assets.js`
+
+Oyunda parayı harcayacak **statü kalemi yoktu** (ölçüm: ÇALIŞKAN profil 420 günde net
+~413 bin ₺ kâr ediyor). Yedi varlık eklendi — her biri **imaj + itibar** verir, karşılığında
+**aylık bakım** ister:
+
+| Varlık | Maliyet | Aylık bakım | İşlev |
+|---|---|---|---|
+| ⌚ Kol Saati | 180.000 | 900 | imaj |
+| 💎 Elmas Zincir | 260.000 | 1.200 | imaj · **soyulma riski** |
+| 🎛️ Kendi Stüdyosu | 350.000 | 6.000 | kayıt maliyeti ×0,85 · kalite +2 |
+| ☕ Kafe / Kulüp | 700.000 | 8.000 | **pasif gelir** |
+| 🏎️ Lüks Araba | 900.000 | 9.000 | imaj |
+| 🏢 Şirket Binası | 1.200.000 | 18.000 | şirket gücü · itibar |
+| 🏠 Şehir Evi | 1.400.000 | 14.000 | **stres azaltır** |
+
+**Bakım ödenemezse imaj zedelenir** (“gösteriş borçla dönmez” haberleri). Satışta %40
+değer kaybı var. Toplam bakım **pasif gelirden büyük** — yani varlık net giderdir; satın
+aldığın şey statü ve işlevsel bonus.
+
+### 4) 🧠 Akıl sağlığı & tükenmişlik — `systems/mental.js`
+
+`fatigue` yalnızca “dikkat dalgası”nın doygunluğuydu — sanatçının kafası değil. Artık bir
+**stres** ekseni var (0-100).
+
+**Stres kaynakları:** borç · kriz · beef gerilimi · **çıkış hattı (0,35/gün)** · aktif kariyer
+temposu (0,12) · yazarlık işi (0,20) · ürün drop'u (0,15) · turne (0,40) · yurt dışı turne (0,30)
+· kötü imaj · şöhret baskısı.
+
+**Çıkışlar:** 🌿 dinlen (−13, ücretli) · 🛋️ terapi (−0,9/gün) · 🏖️ tatil (−42 ama popülerlik düşer)
+· 🗣️ **açık konuşma** (bir kez: imaj riski ↔ süperfan + itibar).
+
+**Sonuçlar:** kayıt kalitesi çarpanı (100 streste ×0,83) · %85+ kamusal taşma · **%100 → 14 gün
+ZORUNLU ARA** (yayın yapamazsın, hayran kaybı).
+
+**Kalibrasyon (ölçüldü, 720 gün):** stresi 70'te dinlenen aktif oyuncu **0 tükenme** yaşıyor
+(16 dinlenme ile idare ediyor); **hiç dinlenmeyen aktif oyuncu 8 kez tükeniyor ve 112 gün
+kaybediyor**; yayın yapmayan pasif oyuncunun stresi 10'da kalıyor.
+
+### 5) 🎰 Karanlık taraf: bot dinlenme & payola — `systems/shady.js`
+
+Endüstrinin gerçeği olan **kısa yol** artık oyunda — ama bedeliyle.
+
+| Paket | Maliyet | Dinlenme | Şüphe |
+|---|---|---|---|
+| 🐜 Küçük | 45.000 | +250 bin | +8 |
+| 🐝 Orta | 140.000 | +900 bin | +18 |
+| 🦗 Büyük | 400.000 | +3 Mn | +34 |
+| 📻 Payola | 60.000 | listeye giriş | +10 |
+
+**Tespit:** günlük şans = şüphe/100 × %7,5. Tespitte **bot dinlenmenin %70'i silinir**, imaj −8,
+itibar −10, 1 strike. **3 strike → 60 gün platform yasağı** (telif geliri **×0,45**).
+Şüphe zamanla çok yavaş azalır.
+**Dürüst kalana ödül:** 360. güne kadar hiç kullanmayan oyuncuya itibar +8.
+
+### 6) 🌍 Uluslararası / diaspora çıkışı — `systems/intl.js`
+
+Türk rapinin son yıllardaki gerçek hikâyesi (Avrupa diasporası) oyunda yoktu. Beş pazar:
+
+| Pazar | Pazar gücü | Giriş | Min. pop |
+|---|---|---|---|
+| 🇩🇪 Almanya | ×3,0 | 260.000 | 25 |
+| 🇳🇱 Hollanda | ×1,1 | 180.000 | 28 |
+| 🇫🇷 Fransa | ×1,2 | 240.000 | 32 |
+| 🇬🇧 İngiltere | ×0,9 | 320.000 | 38 |
+| 🇺🇸 ABD | ×1,6 | 900.000 | 48 |
+
+Her pazarın **nüfuzu** (0-100) var; hedef popülerlik + yabancı feature + turne + global
+dinlenmeyle büyür, ilgisiz kalırsan **söner**. Eylemler: 🌍 pazara gir · ✈️ diaspora turnesi
+(**%15 vize reddi**, %18 lojistik aşımı) · 🤝 yabancı feature. Aşamalar: kapalı → diaspora →
+Avrupa turu → küresel. Nüfuz **aylık yurt dışı telif** üretir.
+
+### 🔌 Entegrasyon (yeni sistemler izole değil)
+
+- `core/game.js` — altısı günlük tick'te, ikisi aylık döngüde
+- `systems/career.js` — kayıt kalitesi **stres çarpanı** + **kendi stüdyosu** bonusu; tükenmişlikte **yayın kilidi**
+- `systems/economy.js` — **varlık bakımı** aylık gidere girer; **platform yasağı** telif çarpanı
+- `css/expansion.css` — yeni arayüz stilleri (karanlık taraf görsel olarak ayrışır)
+- `core/state.js` — taze oyun şablonu **ve** eski kayıt göçü (iki yolda da varsayılan)
+
+### 🧪 Yeni test paketi: `tools/smoke-expansion.js` (135 kontrol)
+
+Bölümler: **A** kurulum · **B** yazarlık (gölge/kredili/açığa çıkma) · **C** ürün (maliyet,
+satış, tükenme, bekleme) · **D** varlık (kilitler, bakım gidere girdi mi, ödenemezse imaj) ·
+**E** akıl sağlığı (kaynaklar, eylemler, kalite cezası, **tükenme → yayın kilidi**) ·
+**F** karanlık taraf (şüphe, tespit, geri alma, 3 strike → yasak, temiz ödül) ·
+**G** uluslararası (giriş, nüfuz, turne, feature, aylık telif, aşamalar) ·
+**H** entegrasyon (statik: tick zinciri, kalite, ekonomi, index.html, UI, CSS) ·
+**I** **denge** (drop kâr oranı < 3×, varlık net gider, ücret bantları, ceza eşikleri).
+
+Test yazılırken **üç gerçek hata** yakalandı ve düzeltildi:
+1. **Marka kurulmadan drop başlatılabiliyordu** (kontrol eksikti)
+2. **Tükenme hiç tetiklenmiyordu** — eşik, günlük düşüşten *sonra* kontrol ediliyordu;
+   terapi/ev/süperfan rahatlaması stresi 100'ün altına indiriyordu
+3. **Stres pratikte hiç birikmiyordu** — yalnızca kriz/borç/beef bekleniyordu; normal
+   çalışma temposu baskısı eklenerek sistem canlandırıldı (yukarıdaki kalibrasyon ölçümü)
+
+---
+
+## GÜNCELLEME v10.27 — B-6 kapatıldı: oyuncu kimliği ↔ NPC kişiliği ayrıştırıldı
+
+### 🏷️ Sorun: tek harfle ayrılan iki global
+
+```
+data/persona.js       (OYUNCU)  →  K.PERSONAS      · K.personaById · K.identityScore
+data/personality.js   (NPC)     →  K.PERSONALITY   · K.personality
+```
+
+Global'ler **yalnızca tek bir harfle** ayrılıyordu (`K.PERSONAS` ↔ `K.PERSONALITY`).
+Asıl tehlike `K.PERSONAS` (oyuncu *listesi*) ile `K.personality` (NPC *motoru*)
+karışıklığıydı: yanlış olanı yazmak `undefined` döndürür ve hata **sessizce**
+yanlış davranışa dönüşür — hata vermez, sadece çalışmaz.
+
+### 🔀 Çözüm: global'ler açık önekli
+
+| Taraf | Dosya (değişmedi) | Veri | Motor / yardımcılar |
+|---|---|---|---|
+| **Oyuncu** | `data/persona.js` | `K.PLAYER_PERSONAS` | `K.playerPersonaById` · `K.playerPersonaFit` · `K.playerIdentityScore` |
+| **NPC** | `data/personality.js` | `K.NPC_PERSONALITY` | `K.npcPersonality` |
+
+- Tüm çağrı yerleri güncellendi — oyuncu: `career-ui.js`, `career.js` ·
+  NPC: `chat.js`, `instagram.js`, `tools/smoke-personality.js`
+- Her iki dosyanın **başlığı** artık “bu hangi taraf, komşusu hangisi, global'i ne”
+  diye açıkça yazıyor; `index.html`’e de aynı uyarı eklendi
+- `state.js`’teki `player.persona` yorumu NPC katmanıyla ilgisiz olduğunu belirtiyor
+
+**Kayıt uyumluluğu:** oyuncunun seçtiği kimlik `player.persona` alanında saklanıyor;
+bu alan **kasıtlı olarak değiştirilmedi** (eski kayıtlar bozulmasın). Alan zaten
+`player` altında olduğu için belirsizlik taşımıyor.
+
+> **Dürüst not — dosya adları neden değişmedi?**
+> Asıl temiz çözüm dosyaları `player-persona.js` / `npc-personality.js` olarak
+> yeniden adlandırmaktı ve bu **yapıldı, doğrulamadan geçti**. Ancak GitHub'a
+> yazmak için kullanılan entegrasyonda **dosya silme yeteneği yok**
+> (`createOrUpdateFileContents` yalnızca oluşturur/güncelller). Eski adlar
+> uzakta silinemeyeceği için **kalıcı yetim dosyalar** kalacaktı — bu, düzeltmeye
+> çalıştığımız “bayat referans” sorununun ta kendisi. Yarım yeniden adlandırma,
+> açık bir “adlandırmama”dan kötü olduğu için adlar geri alındı ve belirsizlik
+> **kodun dokunduğu yerde** (global adlarında) çözüldü.
+>
+> Dosya adlarını da değiştirmek isterseniz yerel bir terminalde:
+> `git mv js/data/persona.js js/data/player-persona.js` ve
+> `git mv js/data/personality.js js/data/npc-personality.js`, ardından `index.html`
+> ile iki başlığı güncelleyip `node tools/release.js minor --verify`.
+
+### 🧪 Yapısal invariant: `tools/smoke-tooling.js` (51 → 66 kontrol)
+
+Yeni **I) B-6 İNVARYANTI** bloğu ayrımı kalıcı olarak kilitler:
+
+- Eski belirsiz adların **hiçbir kaynakta** geçmediğini tarar (`js/` + `index.html` +
+  `tools/`; yorumlar ayıklanır, negatif bakış ile `K.personality` ↔ `K.npcPersonality`
+  ayrılır, tarayıcı kendi dosyasını atlar)
+- Her tarafın **kendi** global'ini kurduğunu denetler
+- **Çapraz sızma yok:** oyuncu dosyası NPC global'ini (ve tersi) tanımlamamalı
+- Her iki **başlığın komşu dosyayı adıyla gösterdiğini** denetler (belge disiplini)
+- `index.html`’in ikisini de doğru sırayla yüklediğini denetler
+
+**Kilidin kanıtı (mutasyon testi):** iki ayrı mutasyon denendi ve ikisi de yakalandı:
+
+```
+· I · eski belirsiz global adları hiçbir kaynakta yok — js/systems/chat.js → K.personality
+· I · iki taraf BİRBİRİNİN global'ini tanımlamıyor (çapraz sızma yok)
+```
+
+---
+
+## GÜNCELLEME v10.26 — Önizleme kapsamı %100 · YouTube kapsamı %77,8 · Türkçe harf hatası
+
+### ✅ Önizlemeler tamamlandı: %99,0 → **%100** (504/504)
+
+Eksik olan **5 şarkının 5'i de** iTunes'da bulundu ve her biri **HEAD isteğiyle
+HTTP 200** doğrulandı:
+
+| Şarkı | Canlı kayıt |
+|---|---|
+| `muti` — İlle De Sen | Muti & Azer Bülbül |
+| `lierefuge` — RADİKAL | Lie Refuge |
+| `lierefuge` — CEVHER | Lie Refuge |
+| `lierefuge` — TEK | Lie Refuge |
+| `lierefuge` — İnan Bana (feat. Lie Refuge) | Lil deez |
+
+**Neden `fetch-artist-discography.js` kullanılmadı?** O araç bir sanatçının TÜM
+bloğunu canlı veriyle **yeniden yazar** ve küratörlü veriyi bozar:
+
+- “Muti” bloğunu **Heijan'ın** artistId'siyle çekmek 8 küratörlü ortak çalışmayı
+  **68 Heijan şarkısıyla** değiştirirdi (iTunes'da “Muti” adında 3 farklı sanatçı var)
+- Lierefuge bloğundaki konuk parçalar (*Yol (feat. Lie Refuge)*, *İnan Bana (feat. Lie Refuge)*)
+  canlı listede yok → **silinirdi**
+
+Bu yüzden yeni ve **hedefli** bir araç yazıldı: `tools/fetch-missing-previews.js`.
+Yalnızca eksik önizlemeyi ekler; mevcut kayıtların hiçbirine dokunmaz.
+İki strateji kullanır: (1) başlık+sanatçı araması, (2) **sanatçı katalog taraması**
+(başlık araması niş sanatçıda boş dönerken katalog şarkıyı bulur — Lierefuge'ün üç
+şarkısı tam olarak böyle bulundu).
+
+### 🎬 YouTube kapsamı %52,6 → **%77,8** (+127 kayıt)
+
+Ölçüm açığın tamamının **amiral sanatçılarda** olduğunu gösterdi (Şehinşah 8/187,
+wegh Rumi 1/48). `real-youtube.js` elle üretilmişti ve **yeniden üretilemiyordu**.
+Yeni araç `tools/fetch-youtube.js` bunu üretilebilir kılıyor:
+
+- Yetkili kanalların **tüm yüklemeleri sayfalanır** (innertube continuation):
+  Şehinşah resmî 233 + Topic 84, wegh Rumi 33 video
+- Her video **oembed** ile doğrulanır (gömülemeyen videolar elenir)
+- Eşleşme **katı**: şarkı adı başlıkta **kelime öbeği** olmalı
+- **Yanlış bağlamayı önleyen üç kural** — hepsi gerçek bir hatadan doğdu:
+  1. **Şarkı olmayan videolar elenir.** `Kunteper` yanlışlıkla *“Kunteper (Teaser)”*
+     videosuna bağlanıyordu: `norm()` parantez içeriğini sildiği için “Teaser”
+     işareti kayboluyordu. Artık işaret **ham başlıkta** aranır.
+  2. **Çakışma çözümü.** `Prenses` ve `Prenses [Remix]` normalleşince aynı oluyor ve
+     özgün şarkının videosu **remix'e** bağlanıyordu. Artık *kesinlik*
+     (ortak kelime ÷ şarkı kelime sayısı) karşılaştırılır: 1/1 > 1/2.
+  3. **Kısa/genel adlar** fazladan kelime kabul etmez → “Yalan” şarkısı
+     “Yalan Dünya” videosuna bağlanmaz.
+
+Sonuç: **Şehinşah 107** (+99) ve **wegh Rumi 29** (+28) kayıt. Kalan eksikler
+(Şehinşah 80, wegh 19, Lierefuge 11) **gerçekten YouTube'da yok**: sanatçının tüm
+kanal envanteri ve başlık bazlı 11 ayrı arama ile doğrulandı. “Wegh - Topic”
+kanalı mevcut değil; yalnızca fan kanalları var ve onlar **bilinçli olarak
+kullanılmadı** (yanlış bağlama riski).
+
+### 🇹🇷 Türkçe büyük/küçük harf hatası (gerçek hata)
+
+`"KARARDI".toLowerCase()` → `"karardi"`, ama şarkının yazımı `"Karardı"` → `"karardı"`.
+Türkçe'de `I` harfinin küçüğü `ı` olduğu için JS bunu `i` yapar ve eşleşme **sessizce
+düşer**. Bu hata hem YouTube eşleştirmesinde (wegh Rumi'nin *Karardı Bulutlar* şarkısı
+bulunamıyordu) hem de `systems/preview.js`'teki normalleştirilmiş başlık aramasında
+vardı. Artık `ı/İ/I/i` tek harfe katlanır (`trFold`) ve `"İ".toLowerCase()`'in ürettiği
+birleşik nokta (U+0307) temizlenir.
+
+### 🧪 Test paketi genişletildi: `tools/smoke-previews.js` (50 kontrol)
+
+Yeni bloklar: **F · YouTube** (her kayıt gerçek şarkıya bağlı mı, geçerli videoId,
+başlık doğrulanmış, kapsam ≥ %70, Şehinşah ≥ 100 / wegh ≥ 25 gerileme kilidi) ve
+**G · Türkçe katlama** (büyük harfli ve karışık ı/i yazımla önizleme bulunuyor mu).
+Ayrıca önizleme kapsamı artık **%100** olarak kilitli.
+
+---
+
+## GÜNCELLEME v10.25 — P-2 kapatıldı: önizleme süzgeci + kalıcı veri kilidi
+
+### 🎧 P-2 hakkında dürüst durum
+
+Issue #2'deki **P-2** maddesi (*“real-previews.js filtrelenmiyor”*) yeniden ölçüldü.
+Sonuç v10.17'deki notla **aynı**: filtrelenecek kayıt yok.
+
+| Ölçüm | Sonuç |
+|---|---|
+| Önizleme kaydı | **497** |
+| Ses URL'i (`p`) eksik/bozuk olan | **0** |
+| Apple linki (`a`) eksik/bozuk olan | **0** |
+| `real-songs` içinde karşılığı olmayan (boşa düşen) kayıt | **0** |
+
+Yani “kullanılmayan önizlemeleri at” planı **boşa çıkar**; veri zaten sıkı. Uydurma
+bir kazanç yazmak yerine iki gerçek iş yapıldı.
+
+### 🧹 Gerçek hata: oynatılabilirlik süzgeci yoktu — `systems/preview.js`
+
+`find()` kaydı **olduğu gibi** döndürüyordu ve **çağıran taraf oynatılabilirliği
+denetlemiyordu**. Bu yüzden `p` (30 sn ses) eksik/bozuk bir kayıtta:
+
+- `has()` yanlışlıkla **`true`** dönüyordu → arayüzde **ölü bir ▶ düğmesi**,
+- `play()` ise `audio.src = undefined` yazıp **“ses yüklenemedi”** hatası veriyordu.
+
+Bugün veri sağlam olduğu için bu hata görünmüyordu — ama veri bir gün yeniden
+üretildiğinde (`tools/fetch-artist-discography.js`) sessizce kullanıcıya yansırdı.
+Artık oynatılabilirlik **tek bir süzgeçten** geçiyor:
+
+- `validUrl()` — `p` için yalnızca `http(s)` / `data:audio` kabul edilir;
+  `"undefined"`, `null`, boş string ve `javascript:` reddedilir.
+- `playable(entry)` → **30 sn ses şart**; `has()` ve `play()` bunu kullanır.
+- `usable(entry)` → ses **veya** sayfa bağlantısı; normalleştirilmiş başlık indeksi
+  boş/bozuk kayıtları artık **indekslemez**.
+- `links()` geçersiz `a` değerini bağlantıya çevirmez; Apple aramasına düşer.
+
+Bu arada **ölü kod** da düzeltildi: `play()` içindeki “önizleme yoksa tam sürüm
+çal” dalı `K.preview.has(cur)` ile koşuluyordu — `has()` de `find()`'a bağlı olduğu
+ için o dal **hiç çalışamıyordu**. Artık `hasFull()` ile çalışıyor.
+
+### 📉 Ölçülen gerçek durum: 5 şarkının önizlemesi yok
+
+Dürüst kayıt — önizleme **kapsamı** tam değil (hiç olmadı):
+
+```
+real-songs    : 504 şarkı
+real-previews : 497 kayıt   → 5 şarkının önizlemesi YOK
+  · muti       — İlle De Sen           (YouTube tam sürüm var)
+  · lierefuge  — RADİKAL               (YouTube tam sürüm var)
+  · lierefuge  — İnan Bana (feat. …)   (YouTube tam sürüm var)
+  · lierefuge  — CEVHER                (YouTube tam sürüm YOK)
+  · lierefuge  — TEK                   (YouTube tam sürüm YOK)
+```
+
+Bu bir çöküş değil: `audio.js` önizleme bulamazsa **sentezlenmiş döngüye** düşer,
+yani oyun çalınabilir kalır. Kapsam **%98,6**. Test artık bu tabanın altına
+düşmeyi hata sayıyor, ama “kapsam tam” gibi **olmayan bir şeyi iddia etmiyor**.
+
+### 🧪 Yeni test paketi: `tools/smoke-previews.js` (42 kontrol)
+
+- **A · VERİ** — 497 kaydın tamamında geçerli `p` ve `a`; boş kayıt yok; şişme yok
+- **B · TUTARLILIK** — boşa düşen kayıt yok; kapsam ≥ %98; önizlemesiz şarkı **zarif** düşüyor
+  (`has()` false + `play()` çökmüyor → sentez yedeği)
+- **C · SÜZGEÇ** — 6 bozuk kayıt biçimi (`p` yok/boş/`"undefined"`/`null`/kötü şema/boş nesne)
+  için `has()` false; geçerli `p` varken true (**aşırı süzme yok**)
+- **D · BAĞLANTI** — geçersiz `a` bozuk bağlantı üretmiyor; geçerli Apple linki korunuyor
+- **E · GÜVENLİK** — `null`/boş/başlıksız girdiyle çökmüyor, `NaN`/`undefined` sızmıyor
+
+**Kilidin kanıtı (mutasyon testi):** süzgeç geçici olarak kaldırıldığında süit
+**6 kontrolde kırmızı** oluyor ve tam da bozuk kayıt biçimlerini işaret ediyor.
+Yani test süs değil, gerçek bir kilit.
+
+---
+
+## GÜNCELLEME v10.24 — Şirket ekonomisi gerçekçileştirildi · ölü yapılandırma temizliği
+
+### 💼 Şirket (label) geliri iki katmanlı hatadan kurtarıldı — `systems/economy.js`
+Oyuncunun kendi şirketi, oyunun **tek gelir yoluydu ki kur/enflasyon uygulanmıyordu**.
+`labelDailyNet()` iki ayrı hata taşıyordu:
+
+1. **Eski sabit kur.** `gross = rosterStreams × K.ECON.royaltyPerStream` (0,0011 ₺)
+   kullanılıyordu. Bu sabit `state.js` içinde zaten *“(eski)”* diye işaretliydi ve
+   **kur dönüşümü, enflasyon, platform karması ve 30 sn eşiği yoktu**. v10.7'de
+   `rate()` için düzeltilen hatanın (*“telif tam baseFx katı eksik ödeniyordu”*)
+   aynısı bu dalda kalmıştı — şirket geliri gerçekçi değerin kabaca **1/220'si** kadardı.
+2. **Sözleşme payı tersti.** `share = 1 − royalty/100` şirkete **sanatçının** payını
+   veriyordu. `label.royalty` sözleşmede *şirketin* payıdır (bkz. `settleMonth`:
+   sanatçı `1 − royalty/100` alır). Yani şirket %30 yerine %70 alıyordu.
+
+Yeni model gerçek bir kâr/zarar tablosudur:
+
+| Kalem | Hesap |
+|---|---|
+| Brüt gelir | kadro dinlenmesi × `econ.avgRate()` (ağırlıklı **kur + enflasyon**) |
+| Şirket cirosu | brüt × sözleşme payı × menajer etkisi |
+| İşletme gideri | brüt × `labelOpexShare` (tanıtım + kayıt + A&R + dağıtım) |
+| **Net** | ciro − gider |
+
+- Yeni sabitler: `storeMix` · `labelBillableShare: 0.88` · `labelOpexShare: 0.18`
+- Yeni yardımcı: `K.econ.avgRate()` — platform ayrımı olmayan gelirler için ağırlıklı ₺/dinlenme
+- Ölçüm (1. yıl, 1M dinleyici/ay): **~25.900 ₺/ay** — eskiden ~770 ₺/ay idi
+- Düşük paylı (sanatçıya cömert) sözleşme artık oyuncuya **zarar yazdırabiliyor** — gerçekte olduğu gibi
+- `label.royalty` artışı geliri **artırıyor** (eskiden azaltıyordu)
+
+### 📈 Kadro büyümesine gerçekçi tavan — `systems/label.js`
+Kadro sanatçısının dinleyicisi `monthly *= 1..1,008` ile büyüyordu: günde ortalama
+**%0,4 bileşik** artış ve **hiçbir üst sınır yok**. 520 günlük simülasyonda kadro
+10M → **70M** aylık dinleyiciye çıkıyor, yeni gelir formülüyle birlikte şirket aylık
+**~3,5M ₺** üretiyordu — yani düzeltilen formülün altında üstel bir taban vardı.
+
+Oyuncunun kendi eğrisi bu sorundan **v10.17'de** kurtarılmıştı (dikkat dalgası:
+yüksel→zirve→düş), ama kadro NPC'lerine uygulanmamıştı. Artık tavan oyunun
+**kendi kalibrasyonundan** gelir (`core/game.js` `listenerTarget`):
+
+> aylık dinleyici ≈ **popülerlik² × 700**
+
+Popülerlik 99'da durduğu için tavan da ~6,9M'da durur; sanatçı tavana kadar büyür,
+sonra **platoda dalgalanır** — gerçek bir kariyer gibi. Aynı senaryonun sonucu:
+kadro 20M'da platoya oturur, aylık gelir ~1,2M ₺'de dengelenir (üstel değil,
+**kur + enflasyon** kaynaklı ılımlı artış).
+
+### 🔗 Katalog bütünlüğü hatası — `systems/label.js`
+`releaseForArtist()` katalog kaydını ekledikten sonra `label.catalog`'a **yeni bir rastgele
+id** push ediyordu (`U.uid("cat")`), yani şirket kataloğundaki referansların hiçbiri gerçek
+bir kayda karşılık gelmiyordu. Şirket gücü `catalog.length` üzerinden hesaplandığı için bu,
+**boşa düşen id'lerle** şişiyordu. Artık `catalogAdd()`'in döndürdüğü **gerçek kaydın id'si** yazılır.
+
+### 🧹 Ölü yapılandırma kaldırıldı — `core/state.js`
+Hiçbir yerde kullanılmayan ve "eski" diye işaretli sabitler silindi:
+`royaltyPerStream` · `taxRate` · `taxFreeMonthly` · `streamRevenueShare` · `messageCooldown`.
+Bunlar "ayar varmış" gibi görünüp yanlış yere bağlanabildiği için (v10.7'deki
+`royaltyPerStream` hatası tam olarak böyle doğdu) kaldırıldı.
+
+### 🧪 Yeni test paketi: `tools/smoke-label.js` (37 kontrol)
+Şirket ekonomisini ve hataların sessizce geri dönmesini engeller:
+veri · kur · sıfır durumu · gelir · **pay yönü** · gerçekçilik bandı · kur/enflasyon ölçekleme ·
+menajer etkisi · katalog bütünlüğü · güvenlik · **kadro tavanı**. `verify.js` zincirine eklendi.
+
+### 📝 Bayat yorum düzeltmeleri
+`core/game.js` içindeki kalibrasyon notu hâlâ *“şirket kurma eşiği 45”* diyordu;
+`labelFoundMinPop` v10.8'den beri **28** (≈ 550 bin aylık dinleyici). Not güncellendi.
+
+### ♻️ Önbellek damgası bayat kalmıştı
+`index.html` içindeki tüm `?v=` referansları `aa2d881b` iken içerik hash'i `5ec13ef1` idi —
+yani oyuncular eski JS/CSS'i önbellekten okuyordu. Bu, `verify.js` zincirinde **iki adımı**
+(önbellek + mobil katman) birden düşürüyordu; damga yenilendi.
+
+---
+
+## GÜNCELLEME v10.19 — Festival devresi · güncelleme altyapısı · iki gerçek hata
+
+### 🎪 Festival devresi — `systems/festivals.js` + `data/festivals.js`
+Konserde mekânı sen kiralarsın; festivalde bir **line-up'a girmeye çalışırsın**.
+Bu yüzden ayrı ve kendi ekonomisi olan bir sistem:
+
+| Slot | Ücret × | Kitle × | Prestij × |
+|---|---|---|---|
+| ☀️ Gündüz Sahnesi | 0.30 | 0.55 | 0.25 |
+| 🌇 Gün Batımı | 0.55 | 0.78 | 0.60 |
+| 🌆 Prime-Time | 1.00 | 1.00 | 1.00 |
+| 🎧 Ana Sahne Öncesi | 1.50 | 1.18 | 1.50 |
+| 👑 Headliner | 2.60 | 1.42 | 2.60 |
+
+- **10 festival · 4 tier** (yerel → şehir → ulusal → amiral), yaz sezonu (Haziran–Eylül)
+- Slot, popülerliğine göre **otomatik tahsis** edilir; tier başına eşikler sabit
+- **Başvuru penceresi** edisyondan 45 gün önce açılır, 3 gün kala kapanır
+- **Strateji seçimi:** ücret odaklı · dengeli · kitle odaklı (ücret ↔ hayran dengesi)
+- **Çakışma koruması:** aynı gün (±1) konser/turne/festival olamaz
+- Performans sonucu: kitle, ücret, hayran, şöhret, itibar + **🔥 sahne anı**
+  (viral) ve **⚠️ aksilik** olasılıkları; yüksek slotlarda **backstage** samimiyeti
+- Amiral festival headliner'ı `player.flagshipHeadliner` olarak işaretlenir
+
+### 🔄 Güncelleme altyapısı — oyuncu artık yeni sürümü görebiliyor
+Önbellek hash'i (`?v=`) yalnızca sayfa **yenilendiğinde** işe yarıyordu; oyunu açık
+bırakan oyuncu eskisini çalıştırmaya devam ediyordu.
+
+| Dosya | Görev |
+|---|---|
+| `sw.js` | Service Worker — HTML **network-first**, `?v=` damgalı varlıklar **cache-first** |
+| `js/systems/updater.js` | `version.json`'u karşılaştırır, **"Yeni sürüm hazır → Güncelle"** şeridi gösterir |
+| `tools/gen-version-json.js` | `version.json` üretir + `sw.js` sürümünü damgalar |
+| `.github/workflows/deploy-pages.yml` | Modüler sürümü **GitHub Pages**'e dağıtır |
+| `.github/workflows/release.yml` | `git tag v*` → **GitHub Release** + tek dosya build |
+| `tools/itch-deploy.js` | itch.io paketi + `butler push` (secret varsa) |
+
+Tek dosya build'inde (`KARMA-Oyun.html`) bu katman **kendini kapatır** — orada
+sunucu yoktur, hata vermez.
+
+**Pages'i açmak için (tek seferlik):** Settings → Pages → Source = GitHub Actions,
+sonra Actions → Variables → `PAGES_ENABLED = true`. Bu tanımlanana kadar deploy
+iş akışı atlanır ve **yeşil kalır**.
+
+### 🐞 İki gerçek hata kapatıldı
+
+**1. CI'da Node sürümü çelişkisi** — `.github/workflows/tests.yml` `node-version: "20"`
+kullanıyordu; `package.json` `engines.node: ">=22.15"` ve jsdom 30 Node 22+ istiyor.
+Her push kırmızı gelmeliydi. → **node 24**.
+
+**2. `tools/sim-balance.js` içinde sabit yerel yol** —
+`require("/home/user/node_modules/jsdom")`. Bu yol yalnızca geliştiricinin
+makinesinde vardı; depo kökünde `npm install` yapan **her** ortamda (CI dâhil)
+denge simülasyonu adımı çöküyordu. → `KARMA_JSDOM` → yerel `node_modules` → ev
+dizini sırasıyla denenir (`harness.js` ile aynı çözümleme).
+
+### 🧪 Yeni test paketi: `tools/smoke-festivals.js` (61 kontrol)
+Veri bütünlüğü · slot monotonluğu · takvim/pencere tutarlılığı ·
+başvuru→kayıt→çözüm uçtan uca · çakışma koruması · şema/kalıcılık.
+
+### 📱 Telefon gerçekçiliği
+- **Alt kenardan yukarı çek → ana ekran**, **üstten aşağı çek → Kontrol Merkezi**
+  (hareket yalnızca kenar bölgesinde başlarsa sayılır; liste kaydırması bozulmaz)
+- **Dokunsal geri bildirim** (`navigator.vibrate`) — uygulama açma, eve dönme
+
+### 🔧 Süreç düzeltmesi
+`tools/verify.js` başlığındaki sabit adım sayısı kaldırıldı: "11 adım" yazıyordu,
+gerçek sayı 13'tü, sonra 15 oldu. Sayı artık yalnızca `SONUÇ: n/m` satırında ve
+**doğru** görünür.
+
+---
+
+## GÜNCELLEME v10.18 — Doğrulama, CI ve motor/veri ayrımı (bu sürüm)
+
+Bu sürümde **yeni oyun özelliği yok.** Tamamen *güvenilirlik* ve *bakım*
+üzerine: son dört güncellemede canlıya çıkan hataların sınıfını kapatıyor.
+
+### 🧪 B-7 — Testler artık süre değil KOŞUL bekliyor
+
+Altı test aracı boot için `setTimeout(run, 2600)` kullanıyordu: "herhâlde
+2,6 saniyede hazır olur". Yavaş makinede/CI'da yanlış kırmızı, hızlı
+makinede gereksiz bekleme üretiyordu.
+
+**Yeni: `tools/harness.js`** — ortak test altyapısı. `whenReady()` oyunun
+`K.phone`, `K.career`, `K.game`, `K.state` ile gerçekten boot olduğunu yoklar.
+Testler ayrıca **ihtiyaç duydukları veriyi** bildirir:
+
+```js
+H.whenReady(dom, {
+  label: "tembel veri hazır",
+  ready: K => K.lazy.loaded("real-songs") && K.lazy.loaded("discography")
+}).then(run)
+```
+
+Bu düzeltme hemen kendini kanıtladı: `smoke-social` koşul bildirmediği hâlde
+4 kontrol kırmızı verdi (diskografi "0 yayın") — çünkü boot anında tembel veri
+henüz gelmemişti. Eski sabit bekleme bu sorunu **gizliyordu**.
+
+Sonuç: `apps` 2,6 sn → **2,2 sn** · `social` 2,6 sn → **1,6 sn** · süitler artık
+gerçek bir hazır olma sinyaline bağlı.
+
+### 🔀 B-5 — Motor ve veri ayrıldı
+
+`systems/chat.js` **88,5 KB**'lık tek bir modüldü: DM motoru + niyet sözlüğü +
+12 sanatçı profili iç içe. Her yeni profil 3.000 satırlık dosyayı düzenlemeyi
+gerektiriyordu.
+
+| Dosya | İçerik | Boyut |
+|---|---|---|
+| `js/systems/chat.js` | **Motor** — niyet analizi, cevap seçimi, kurallar | 88,5 → **50,1 KB** |
+| `js/data/chat-profiles.js` | **Veri** — sanatçıya özel ağızlar | **41,1 KB** (yeni) |
+
+Taşıma **kayıpsız** kanıtlandı: çıkarılan nesne literal'inin sha256'sı eski
+`chat.js` içeriğiyle birebir aynı (`6b6173189aef`). Ayrıca geri düşüş var:
+profil dosyası yüklenmezse motor boş nesneyle çalışır ve genel/tür havuzlarına
+düşer — **çökmez**.
+
+### ⚠️ v10.18.1 — CI kırmızısının nedeni: jsdom sürümü
+
+v10.18.0 yayınında CI'nın "Tam doğrulama" adımı **kırmızı** geldi.
+Teşhis (yerelde yeniden üretildi):
+
+| jsdom | Kariyer eğrisi süiti (~1.100 oyun günü) |
+|---|---|
+| **24.1.3** (o gün kullanılan) | ❌ `FATAL ERROR: Reached heap limit — JavaScript heap out of memory` |
+| **30.1.1** | ✅ 24/24 |
+
+Yani hata oyun kodunda değil, **test bağımlılığının sürümündeydi**: eski jsdom
+uzun simülasyonlarda DOM düğümlerini ve zamanlayıcıları yeterince bırakmıyor,
+heap tükeniyor. Yerelde jsdom 30 kurulu olduğu için sorun görünmüyordu —
+bu yüzden CI'ya kadar fark edilmedi.
+
+**Düzeltme:**
+- `package.json` → `jsdom: "^30.1.1"`, `engines.node: ">=22.15"`
+  (jsdom 30 Node `^22.22.2 || ^24.15.0 || >=26` ister)
+- CI iş akışı → `node-version: "24"`
+- **Sürüm kapısı:** `tools/harness.js` → `jsdomVersion()` + `MIN_JSDOM = 30`;
+  `tools/verify.js` artık **0. adımda** jsdom sürümünü denetler ve eski sürümde
+  net bir mesajla durur:
+  ```
+  ❌ jsdom sürümü >= 30 — kurulu: 24.1.3
+     YÜKSELTİN: `npm install jsdom@^30` (eski sürümler uzun testlerde OOM veriyor)
+  ```
+  Böylece aynı hata sessizce tekrarlanamaz.
+
+### 🤖 CI — her push'ta tam doğrulama
+
+**Yeni: `.github/workflows/tests.yml`** + **`tools/verify.js`**
+
+```bash
+npm run verify     # tam zincir · ~2 dakika
+```
+
+| # | Adım | Ne korur |
+|---|---|---|
+| 1 | Önbellek sürümü | `?v=` içerik hash'iyle uyumlu mu |
+| 2 | Tek dosya build | üretilebiliyor mu (geçici dosyaya, ağaç bozulmaz) |
+| 3 | **Build güncel mi** | depodaki `KARMA-Oyun.html` kaynaklarla **bayt bayt** aynı mı |
+| 4 | Altı test paketi | mobil · tembel veri · kariyer eğrisi · kişilik · uygulamalar · sosyal |
+| 5 | Denge simülasyonu | YÜKSEK önem bulgusu var mı |
+| 6 | Runtime sağlığı | süitlerde yakalanmamış hata var mı |
+
+**3. adım bu sürümün en önemli koruması:** build'i güncellemeyi unutmak artık
+yapısal olarak imkânsız — CI yakalar.
+
+### 🚀 `npm run release` — tek komutluk yayın ritüeli
+
+Eskiden üç elle adımdı (damgala → build → commit'le) ve biri unutulabiliyordu.
+
+```bash
+npm run release -- patch --verify    # 10.18.0 → 10.18.1, damgala, build, doğrula
+npm run release -- minor --verify    # 10.18.0 → 10.19.0
+```
+
+Sürüm `package.json` **ve** `js/version.js` içine birlikte yazılır.
+
+### 🏷️ Sürüm artık görünür
+
+`js/version.js` → `K.VERSION` (**10.18.0**). Önbellek hash'i makine içindir
+ve okunaksızdır; sürüm insan içindir. **Ayarlar penceresinin altında**
+görünür — "canlıda hangi sürüm var?" sorusunun tek bakışta cevabı.
+
+### 🖥️ `npm run serve` — yerel önizleme
+
+Modüler sürümü `file://` ile açmak **çalışmaz**: tembel veri katmanı
+ihtiyaç anında alt kaynak çeker, tarayıcılar bunu `file://` altında engeller.
+
+```bash
+npm run serve     # http://localhost:8080
+```
+
+### 📋 Güncelleme disiplini (bu sürümden sonra)
+
+1. Değişikliği yap
+2. `npm run verify` — **tüm adımlar yeşil olmadan devam etme**
+3. `npm run release -- patch --verify`
+4. Commit + tag (`git tag v10.18.0`)
+
+> **Not:** Sürüm etiketi (`git tag`) GitHub connector'ında yazma aracı yok;
+> etiketi GitHub arayüzünden veya bir token'la `git push --follow-tags` ile
+> oluşturman gerekir. Sürüm numarası zaten `package.json` + `K.VERSION`
+> içinde tutuluyor, etiket yalnızca kolaylık.
+
+---
+
+## GÜNCELLEME v10.17 — Tembel veri katmanı + kariyer eğrisi
+
+### 📦 P-1 — Ağır veri kritik yoldan çıkarıldı
+
+Gerçek şarkı/önizleme/diskoğrafi verisi (~408 KB) sayfa açılışında hem
+**indiriliyor** hem **çalıştırılıyordu**. Mobilde ilk açılışın en büyük maliyeti buydu.
+
+**Yeni: `js/data/lazy.js` — iki mod, tek arayüz**
+
+| Mod | Davranış |
+|---|---|
+| **Modüler** (GitHub Pages) | Dört veri dosyası açılışta yüklenmez; ihtiyaç anında bir `script` etiketi eklenip ağdan indirilir |
+| **Tek dosya** (`KARMA-Oyun.html`) | Veri `type="application/json"` taşıyan bir blok olarak gömülür. Tarayıcı JSON bloğunu **yorumlamaz**; içerik ihtiyaç anında `JSON.parse` edilir |
+
+`tools/build-single.js` hangi dosyaların tembel olduğunu `lazy.js` kayıt defterinden
+okur ve veriyi `node:vm` içinde gerçekten çalıştırıp `JSON.stringify` ile gömer — böylece
+dönüşüm regex'e bağlı değil, **her zaman geçerli JSON**.
+
+**Ölçülen kazanç** (tek dosya build):
+
+```
+Toplam          1844,6 KB → 1801,0 KB
+Gömülü veri      398,0 KB JS → 337,4 KB JSON  (%15,2 küçülme)
+JS yürütme       ~398 KB için TAMAMEN SIFIR
+```
+
+**Hangi veri gerçekten tembel?** Boot sonrası ölçüm (`smoke-lazy.js` raporluyor):
+
+```
+real-songs=ready   ← çekirdek içerik: ilk ekran şarkı listesi çizer, meşru
+real-previews=idle ← çalma anına kadar yüklenmez
+ discography=idle  ← sanatçı profiline kadar yüklenmez
+real-youtube=idle  ← video oynatılana kadar yüklenmez
+```
+
+> **Dürüst not — P-2 ölçüldü ve BOŞA ÇIKTI:** “kullanılmayan önizleme kayıtlarını
+> at” planı denendiğinde 497 kaydın **tamamı** kullanımda ve boş URL yok. Veri zaten sıkı;
+> bu madde iptal edildi, uydurma bir kazanç yazılmadı.
+>
+> Ayrıca `real-songs` boot'ta yükleniyor — bu bir eksiklik değil: ilk ekran gerçek
+> şarkı listesi çiziyor. Kazanç onun **artık JS olarak çalıştırılmaması** ve JSON
+> biçiminin %15 daha küçük olmasıdır.
+
+**Önizleme alanları gömülmekten çıkarıldı:** `npcSongs()` her şarkı nesnesine
+`preview`/`appleUrl` yazıyordu; bu yüzden şarkı listesi çizen **her** ekran 143 KB'lık
+önizleme verisini çekiyordu. Artık `K.preview.find()` önizlemeyi çalma anında
+`artistId`+`title` ile kendisi arıyor — davranış aynı, veri tembel.
+
+### 📈 Denge — “yüksel → zirve → düş” eğrisi
+
+**Ölçülen sorun:** 30 günde bir yayın yapan sanatçıda aylık dinleyici 420 gün boyunca
+**tek yönlü** artıyordu (172 → 76.490); hiç zirve yapmıyor, hiç düşmüyordu.
+
+**Model — dikkat dalgası + doygunluk (`K.ECON` attention*/fatigue*):**
+her yayın bir **dalga** (attention) ekler, dalga her gün söner (`0.978`); ama her yayın
+**doygunluk** biriktirir ve doygunluk sonraki yayının kazancını kısar. Bu iki zıt kuvvet
+doğal olarak yükseliş → zirve/plato → düşüş üretir ve üstel sınırsız büyümeyi engeller.
+
+**Sonuç (ybkz. `smoke-balance.js`):**
+
+| Senaryo | Başlangıç | Zirve | Son | Düşüş |
+|---|---|---|---|---|
+| 1 yayın + 300 gün sessizlik | 165 | **1323** (gün 47) | 142 | **%89** |
+| 240 gün yayın + 180 gün sessizlik | 165 | **70.376** (gün 257) | 18.567 | **%74** |
+| 420 gün kesintisiz yayın | 165 | 110.856 | 110.856 | büyüme **içbükey** |
+
+`sim-balance.js` artık **0 orta/yüksek bulgu** veriyor (öncesi: 4). Araç da düzeltildi:
+ana koşudan sonra **sessizlik aşaması** eklenir ve düşüş orada ölçülür; ayrıca
+“üstel büyüme” sabit bir eşik yerine **eğrinin içbükeyliği** ile sınanır.
+
+### ✅ İki yeni test
+
+```bash
+node tools/smoke-lazy.js       # 51 kontrol
+node tools/smoke-balance.js    # 24 kontrol
+```
+
+- **`smoke-lazy.js`** — soğuk açılış (JSON blokları çıkarılmış kopyada veri hiç
+gelmezken tüm sekmeler/profiller çökmemeli), JS→JSON **kayıpsız dönüşüm** (kaynakla
+birebir karşılaştırma), modüler `index.html`'in ağır dosyaları eager yüklememesi,
+tek dosya build'inde JS yerine JSON bulunması, `</script>` kaçışı ve **geçiş penceresi
+koruması** (`K.lazy` yokken tüketiciler eski global'e düşmeli).
+- **`smoke-balance.js`** — dalga mekaniği birim testleri (doygunluk kazancı gerçekten
+kısıyor mu, tavanlar aşılıyor mu), üç kontrollü senaryo, NaN/sonsuz sızması ve
+**determinizm** (bağımsız ikinci boot + aynı tohum = aynı eğri).
+
+### 🛡️ Geçiş penceresi koruması
+
+19 dosya ayrı ayrı yayınlandığı için “`K.lazy` henüz yüklenmemiş ama çağrılıyor”
+durumu gerçekten oluşabilir. Tüketicilerin tamamı artık eski global'e düşen bir
+guard taşır (`K.lazy ? K.lazy.songs(id) : ((K.REAL_SONGS && K.REAL_SONGS[id]) || [])`),
+yani yarım uygulanmış bir depo durumu bile oyunu kırmaz.
+
+---
+
+## GÜNCELLEME v10.15 — Mobil/dokunmatik katman + otomatik önbellek sürümü
+
+### 📱 Mobil kırılmalar — yedi kök neden bulundu ve kapatıldı
+
+Mobilde "yerler kırılıyor, yarıda kalıyor, bazı tuşlar çalışmıyor" şikâyetinin
+arkasında tek bir hata değil, birbirini besleyen yedi ayrı hata vardı. Hepsi
+kodda doğrulandı:
+
+| # | Sorun | Neden oluyordu | Çözüm |
+|---|---|---|---|
+| **M-1** | Ekranın altı **kesiliyor** | `#app { height: 100vh }` — mobil tarayıcıda `100vh` adres çubuğunun arkasındaki alanı da sayar; `body { overflow: hidden }` yüzünden ulaşılamayan bir şerit kalır | `100dvh` (+ `100vh` yedeği, `@supports` ile) ve `svh` güvencesi |
+| **M-2** | **Bazı tuşlar çalışmıyor** | iPhone çentiği ve home göstergesi alt barın/dock'un üstüne biniyordu; göstergenin şeridi dokunuşu yiyordu | `viewport-fit=cover` + `env(safe-area-inset-*)` tüm kenarlarda |
+| **M-3** | Odaklanınca **düzen bozuluyor** | Tüm girdiler 13px'ti. iOS, 16px altı girdiye odaklanınca sayfayı kendiliğinden büyütür | Dokunmatik cihazlarda girdiler 16px (`pointer: coarse`) |
+| **M-4** | Aşağı çekince **sayfa yenileniyor** | Pull-to-refresh; kaydedilmemiş ilerleme kayboluyordu | `overscroll-behavior: none` |
+| **M-5** | Dokunuşlar **geç/şımarık** tepki veriyor | 300 ms dokunuş gecikmesi + çift dokunuş zoom'u; `:hover` dokunmatikte güvenilmez | `touch-action: manipulation`, tap-highlight temizliği, `:active` geri bildirimi, 44px dokunma hedefi |
+| **M-6** | Paneller **dikeyde kırpılıyor** | Mobilde `.layout { overflow: hidden }` taşıyordu | Panel içi kaydırma korunur, alt çubuk payı eklenir |
+| **M-7** | Telefon **aşırı daralıyor**, dikey alan boşa gidiyor | Sabit 390:800 oranı küçük ekranda dikey alanı heba ediyordu | ≤620px'te oran bırakılır, sahne doldurulur; çerçeve inceltilir |
+
+### 🧭 Bölüm değiştirici artık **alt gezinme çubuğu**
+
+Dar ekranda "Sanatçı / Kariyer ↔ Telefon" düğmeleri üst bardan alınıp **sabit alt çubuğa**
+(güvenli alanın üstüne, başparmak erişimine) taşındı. Düğüm ve JS aynı kaldı —
+sadece konum değişti. Etiketler iki biçimli: dar ekranda uzun metin yerine kısa metin.
+
+### 🗂️ `css/mobile.css` — mobil kurallar tek dosyada
+
+Önceden mobil kurallar **21 ayrı `@media` bloğuna** dağılmıştı ve hangi kuralın
+kazandığı yükleme sırasına bağlıydı. Artık mobil/dokunmatik katman tek dosyada ve
+**en son** yükleniyor, böylece alttaki 25 CSS dosyasını öngörülebilir biçimde ezer.
+
+### ♻️ B-8 — Önbellek sürümü artık OTOMATİK
+
+`index.html` içindeki **101 yerel referans** `?v=10.14` gibi elle artırılan bir numara
+taşıyordu. Bir güncellemede unutulursa tarayıcı eski JS'i çalıştırır: **kod değişir,
+oyuncuda hiçbir şey değişmez.** Teşhisi zor, etkisi büyük bir hata sınıfı.
+
+Artık sürüm, `css/` ve `js/` dosyalarının içeriğinden üretilen bir hash:
+
+```bash
+node tools/bump-cache.js          # ?v= değerlerini yeni hash ile damgalar
+node tools/bump-cache.js --check  # yalnızca denetle (bayatsa exit 1)
+node tools/build-single.js        # build + entegre önbellek denetimi
+```
+
+İçerik değişmedikçe hash sabit kalır (gereksiz önbellek kaybı yok); tek bir dosya
+değişince hash değişir ve istemci yeni sürümü kesin olarak indirir.
+
+### ✅ Yeni test: `node tools/smoke-mobile.js`
+
+35 kontrol — yedi kırılma sınıfının her biri için kural varlığı, yükleme sırası,
+tek dosya build'e gömülme sırası, `viewport-fit` aktarımı ve önbellek sürümü
+tutarlılığı. Ayrıca **gerçek invaryant**: hiçbir CSS dosyası `100vh`'ı
+`!important` ile sabitleyemez (sabitlemek dvh düzeltmesini ezer). Negatif testle
+doğrulandı — invariant bilerek kırıldığında test hata veriyor.
+
+```bash
+node tools/bump-cache.js && node tools/build-single.js
+node tools/smoke-mobile.js
+node tools/smoke-personality.js
+node tools/smoke-apps.js
+node tools/smoke-social.js
+node tools/sim-balance.js
+```
+
+---
+
+## GÜNCELLEME v10.14 — Sanatçı kişilik katmanı + günümüz sahnesi
+
+### 🎭 Şehinşah ve wegh Rumi artık KENDİ karakteriyle konuşuyor
+
+Şehinşah'ın DM'de bir kısmı kendi sesiyle, bir kısmı herkesle aynı cümleyle
+konuşuyordu; wegh Rumi'nin ise hiç DM profili yoktu — UZI ile aynı trap
+havuzundan cevap veriyordu. Bu sürüm ikisini de kendi karakterine oturttu.
+
+**Yeni dosya: `js/data/personality.js` — derin kişilik katmanı (NPC)**
+*(v10.27'de B-6 gereği global'ler `K.NPC_PERSONALITY` / `K.npcPersonality` oldu)*
+
+`chat.js` içindeki `PROFILES` yalnızca *cümle havuzu* tutuyordu. Eksik olan
+davranış modeliydi: bir sanatçı neyi sever, neye soğur, nerede susar.
+Artık her iki sanatçı için şunlar tanımlı:
+
+| Alan | İşlev |
+|---|---|
+| `archetype` / `essence` | Karakter özü (ör. Şehinşah → "Mistik Kral") |
+| `loves` / `redLines` | Samimiyeti ne hızlandırır, ne kırar |
+| `speech` | Cümle ritmi, kelime seçimi, kaçındığı ağız |
+| `bias` | Niyet bazlı samimiyet katsayısı (24 niyet) |
+| `openings` / `quote` | Kendine özgü açılış kalıbı |
+| `test` | Oyun içi “kişilik testi” kartı |
+
+**Sonuç:** aynı mesaj artık aynı puanı getirmiyor. Şehinşah'a boş övgü ile
+somut bir söz eleştirisi, wegh'e taklit tavsiyesi ile üretim sorusu ayrı
+karşılanıyor (bkz. `bias`).
+
+### 🗣️ Şehinşah profili yenilendi (ölçülü ton)
+
+- Eksik niyetler eklendi: `feature`, `hangout`, `company`, `diss`, `news`,
+  `question`, `support`, `bye`, `beef`
+- Kendi `extras`, `followup`, `reaction` ve `diss` havuzu geldi
+- Argo ve gürültülü kibir profilden çıkarıldı; ağız tutarlılığı testle
+  korunuyor (`kanka/lan/olm` yasağı)
+- Sataşma kültürüne girmez — mesafeden cevap verir
+
+### 🆕 wegh Rumi profili (ilk kez)
+
+Hızlı, kısa, üretim takıntılı, bağımsızlık vurgulu bir ağız: `kayıt / mix /
+beat / sound` sözlüğü, özel hayatta ketumluk, sahne ile samimi ama kulis
+laflarına kapalı. 24 niyetin tamamı kendi havuzundan karşılanıyor.
+
+### 💬 Sosyal medya yorumları sanatçıya özel
+
+Eskiden yalnızca `label: "argo"` profili özel yorum alıyordu; diğer 35
+sanatçı aynı yorumu paylaşıyordu. Artık `PROFILES[id].reaction` varsa
+(övgü / eleştiri / nötr) kendi ağzıyla yorum yapıyor. Aynı şey `diss`
+için de geçerli.
+
+### 🏷️ Profilde “kişilik testi” kartı
+
+Instagram sanatçı profilinde yalnızca kişilik profili tanımlı sanatçılarda
+görünen bir kart: kod (ŞAH-1 / WGH-2), arketip, katsayı çubukları,
+“işe yarayan” ve “kırmızı çizgi” listesi. CSS: `css/instagram.css`.
+
+### 📰 Günümüz sahnesi gündeme eklendi
+
+Müzik haber havuzuna 12 yeni başlık girdi; oyun artık eski gündemi değil
+bugünün ekonomisini konuşuyor: tekli döngüsü, algoritmanın ilk 10 saniyesi,
+yapay zekâ ve telif tartışması, aracısız yayın, melodik trap, drill'in
+Türkiye'de yerleşmesi, phonk/hyperpop, sample savaşı, kısa video
+challenge'ları, plak–kaset dönüşü.
+
+### ✅ Yeni test: `node tools/smoke-personality.js`
+
+263 kontrol: profil bütünlüğü, “kendi sesiyle konuşuyor mu” (genel havuza
+düşme oranı), iki sanatçının ses ayrımı, ağız tutarlılığı, kişilik
+ağırlığı (övgü > hakaret, müzik > flört), yorum/diss özelliği ve
+şablon artığı (`undefined`, `{song}` vb.) kontrolü.
+
+```bash
+node tools/build-single.js
+node tools/smoke-personality.js
+node tools/smoke-apps.js
+node tools/smoke-social.js
+node tools/sim-balance.js
+```
+
+---
+
+## GÜNCELLEME v10.6 — Sosyal medya + her sanatçının PP'si + tam diskografi
+
+### 📸 Sosyal medya görünüm onarımı — kök neden bulundu
+Hikâyelerin yarısı kesik, TikTok/Reels kartları ezik görünüyordu. Sebep tek bir
+CSS kuralıydı: `.app-body` bir flex kolonudur ve çocukları varsayılan
+`flex-shrink:1` ile **dikeyde eziliyordu** (kaydırma kapsayıcılarının içerik
+minimum yüksekliği 0'a düşer). `css/phone.css`'e `.app-body > * { flex: 0 0 auto }`
+eklendi — hikâye şeridi, gönderi kartları ve akış blokları artık sabit.
+Ölçüm: hikâye şeridi 111px, halka 66×66, gönderi medyası 1:1.
+
+### 🟣 Instagram gerçek Instagram gibi yeniden yazıldı (`css/instagram.css` + `apps/instagram.js`)
+- **Üst bar:** serif *Instagram* logosu + kalp (etkinlik, rozetli) + uçak (DM) düğmeleri.
+- **Hikâye şeridi:** gerçek PP'li halkalar, gradyan çerçeve, görülmüş/görülmemiş ayrımı,
+  “Hikâyen” için mavi **+** rozeti. Yatay kaydırma; hiçbir hikâye kesilmez.
+- **Gönderi kartı:** avatarlı başlık, **gerçek albüm kapağı** (şarkıya bağlı gönderilerde),
+  kalp/yorum/gönder/kaydet satırı, beğeni sayısı, açıklama, yorum bağlantısı.
+- **Çift dokunarak beğenme:** medyaya iki kez dokun → kalp patlaması animasyonu.
+- **Alt sekme çubuğu:** gerçek IG'nin SVG ikonları (ev · arama · reels) ve
+  profil sekmesinde **senin profil resmin**.
+- **Profil:** büyük PP'li gradyan halka, istatistikler, bio (aka + tür + şehir),
+  eylem düğmeleri, öne çıkanlar (Müzik/Sahne/Kulis/Fan) ve **sekmeli ızgara**
+  (Gönderiler / Reels / Etiketli).
+- **Keşfet:** arama kutusu + gerçek kapaklı ızgara + sanatçı ızgarası.
+- **Reels:** 9:16 tam ekran, gerçek kapak, yan eylemler, ses bilgisi.
+- **DM gelen kutusu:** çevrimiçi noktası, son mesaj, okunmamış göstergesi;
+  satıra dokununca gerçek DM sohbeti açılır.
+
+### ↔️ Kaydırma hareketleri (istediğin gibi)
+Instagram içinde **sağa kaydır → DM gelen kutusu**, **sola kaydır → canlı yayın**.
+Gerçek görünüm yığını içinde çalışır (uygulamadan çıkmaz). Test ile doğrulanır.
+
+### 🖼️ Her sanatçının GERÇEK profil resmi (`js/data/artist-photos.js`)
+36/36 sanatçı için Deezer açık API'sinden gerçek fotoğraf çekilip oyuna gömüldü
+(`picture_xl`, 500×500). **Neden gömülü?** Deezer CORS başlığı göndermediği için
+tarayıcıdan doğrudan çağrılamaz; gömülü veri hem çevrimdışı çalışır hem anında yüklenir.
+`K.imagery.portrait()` artık sırayla **gömülü PP → Wikipedia → albüm kapağı → gradyan**
+kullanır; PP eksik olsa bile `blanketHydrate()` arka planda tamamlar.
+Renkli avatarlar oyunda her yerde (Spotify, Apple, YouTube, TikTok, X, Mesajlar,
+yorum balonları) aynı gerçek yüzü gösterir.
+Yenilemek için: `node tools/fetch-artist-photos.js`
+
+### 🎵 Şehinşah ve wegh Rumi — TAM diskografi
+| Sanatçı | Şarkı | Kendi | Feature | Önizleme | Kendi yayını |
+|---|---|---|---|---|---|
+| **Şehinşah** | **187** | 105 | 82 | 187/187 | 55 albüm/single |
+| **wegh Rumi** | **48** | 40 | 8 | 48/48 | 28 albüm/single |
+
+Oyun genelinde gerçek şarkı sayısı 278 → **504**'e çıktı. Hepsi 30 saniyelik
+**gerçek ses önizlemesi** ve Apple Music bağlantısı taşır.
+Yenilemek için: `node tools/fetch-artist-discography.js weghrumi "wegh"`
+
+### 🆕 “Tüm şarkılar” görünümü (Spotify + Apple Music)
+Sanatçı profili artık **Popüler (10 / 187)** gösterir ve altında
+**“Tüm şarkıları gör”** satırı bulunur. Açılan görünüm tüm katalogu **yıla göre**
+gruplar (2026 → 2001), arama kutusu içerir ve her satırı çalınabilir.
+Apple Music sayfası 20 satırla sınırlanıp aynı görünüme bağlandı.
+
+### 🐛 Düzeltilen altyapı hataları
+- **`tools/build-single.js` çalışmıyordu:** `?v=10.5` önbellek sorgusunu dosya yolu
+  sanıp `ENOENT` veriyordu. Tek dosya derlemesi artık çalışıyor (`stripQuery`).
+- **Önbellek sürümü 10.5 → 10.6:** tarayıcı eski kopyayı kullanmaz.
+- **Veri üreticileri repoya eklendi** (önceden yoktu, veri “otomatik üretildi”
+  diyordu ama script yoktu): `tools/fetch-artist-discography.js`,
+  `tools/fetch-artist-photos.js`.
+
+### 🧪 Yeni test paketi: `node tools/smoke-social.js`
+48 kontrol: PP kapsamı (36/36), Instagram yapısı ve kaydırma hareketleri,
+çift dokunarak beğenme, DM gelen kutusu, tam diskografi ve önizleme oranları,
+TikTok/X/Mesajlar render + PP kullanımı. Mevcut `smoke-apps.js` de 0 hatayla geçiyor.
+
+---
+
+## GÜNCELLEME v10 — Gerçeklik katmanı + görünüm stabilizasyonu
+
+### Ekonomi ve endüstri gerçekçiliği
+- **30 saniye eşiği (`K.econ.billable`):** dinlenmenin bir kısmı gelir sayılmaz.
+  Kalite, giriş uzunluğu ve hook gücü belirler (%8–34 arası atlama). Arayüzde
+  "30 sn üstü dinlenme" olarak görünür.
+- **Telif ödeme gecikmesi (`K.ECON.payoutLag`):** mağazalar dinlenmeyi geç raporlar —
+  Spotify 60 · Apple 45 · YouTube 75 · diğer 55 gün. Dinlenme önce **rapor kuyruğuna**
+  girer; kasa panelinde "yolda olan para" ve "rapor bekleyen dinlenme" olarak görünür.
+- **Kur (USD/₺) dalgalanması:** telif gelirleri kurla ölçeklenir. Aylık ortalama
+  değer kaybı + ara sıra ani şok; kasa panelinde kur ve günlük değişim yüzdesi.
+- **Enflasyon endeksi:** maliyetler VE telif nominal olarak birlikte artar.
+- **Kademeli gelir vergisi (`K.ECON.taxBrackets`):** %0 / %15 / %22 / %30 dilimleri;
+  efektif oran panelde gösterilir. Ödenmeyen borca **aylık %3,5 gecikme faizi** işler.
+- **Kâr marjı:** her ayın gelir/gider dengesi hesaplanır; negatifse uyarı gelir.
+- **4. gelir kalemi:** Spotify/Apple/YouTube yanında Deezer, Amazon, TIDAL,
+  SoundCloud, Instagram toplamı "diğer mağazalar" olarak ayrı ücretlenir.
+
+### Denge ve gerçekçilik düzeltmeleri (test sırasında bulundu)
+- **Viral artık SÜRELİ.** `song.viral` bir kez açıldığında asla kapanmıyordu;
+  şarkı her gün %1 büyüyüp sonsuza dek şişiyordu. Artık 16–34 günlük trend
+  penceresi var, dolunca söner ve kullanıcıya bildirim gider.
+- **Liste etkisi doyuma uğrar (`K.lists.LIFT_CAP`).** Her liste girişi
+  `dailyStreams`'i kalıcı çarpıyordu → çok listeye giren şarkı üstel büyüyordu
+  (400 günde ~30 kat). Artık kümülatif etki ~3×'te durur.
+- **Olay etkileri geçici.** Olay/trend bonusları kalıcı taban değişikliği değil,
+  sönümlenen `boosts` kalemi olarak uygulanır.
+- **Ses trendi biter.** TikTok sesi momentum eşiğin altına düşünce kapanır ve
+  etkisi 20 gün içinde sıfıra iner (eskiden video sayısı sonsuza dek büyüyordu).
+
+  Sonuç (400 günlük simülasyon): dinlenme 86 **milyar**dan 27,9 **milyon**a indi;
+  şarkı artık yükseliyor → zirve yapıyor → **düşüyor**.
+
+### Görünüm stabilizasyonu ("cıvık durmasın")
+- **Tek köşe yuvarlaklığı ölçeği:** `--radius-xs/s/m/l/pill`. Dağınık 20 farklı
+  değer (3px, 7px, 9px, 11px, 13px, 18px…) kaldırıldı; **176 sabit değer + 44 hap**
+  token'a bağlandı. `--radius-m` 16→14, `--radius-l` 24→20.
+- **Bulanıklık tamamen kaldırıldı:** 11 adet `backdrop-filter: blur()` silindi —
+  panel kenarları netleşti, metin keskinleşti, telefonda kaydırma hızlanır.
+- **Gölgeler sadeleşti:** dev `0 18px 60px` → `0 10px 30px`, `0 4px 20px` → `0 2px 10px`.
+  20 CSS dosyası düzeltildi.
+
+---
+
+## GÜNCELLEME v8 — Faz 2: iş, sponsorluk, duayen, A&R, ödül, muhasebe 
+
+- **Sponsorluk + sell-out:** kötü imajlı marka anlaşması itibar ve takipçi kaybettirir,
+  “satıldı” tepkisi gelir (`selloutUntil`).
+- **Yeni yan işler:** stüdyo kiralama, müzik dersi verme, **DJ seti / kulüp gecesi**.
+- **Röportaj riski:** 🎤 röportajda cevap seçersin — Alçakgönüllü / İddialı / Provokatif.
+  Provokatifte **kötü alıntı** riski (itibar −3). Olaylar sekmesinden.
+- **Duayen ilişkileri:** camianın saygı duyduğu isimler (`K.beef.isDuayen`). Saygı = büyük
+  itibar, diss = camia tepkisi (tüm duayenler soğur). 70+ samimiyet → **mentorluk kalite bonusu**.
+- **A&R toplantısı:** şirket üzerinden yayında A&R **revizyon isteyebilir**; uygula (+4 kalite,
+  ₺8.000, +3 gün) ya da yoksay (itibar −2). Yayınlar sekmesinde.
+- **Ödül töreni:** adaylık/kazanma sonrası **konuşma seçimi** (Alçakgönüllü / Gururlu /
+  Rakibe gönderme) imaj-itibar-popülerlik dengesini değiştirir.
+- **Muhasebe:** aylık **gelir / gider / vergi / net** raporu Kariyer sekmesinde.
+- **Hedefler kitabı:** 8 yeni başarım (liste, radyo, tam dağıtım, ghostwriter'sız 10 şarkı,
+  sözleşme, saygı, mentor).
+- **Telefon rozeti:** Gündem uygulaması son 3 günün bildirimlerini rozetler.
+- **▶ Dinle:** söz atölyesinde stüdyo önizlemesini gerçekten dinle (`K.audio`).
+
+## GÜNCELLEME v7 — Kişilik, söz editörü 2.0, beat pazarı
+
+Faz 1 (gerçekçilik listesi):
+
+- **Sanatçı kimliği (player persona) — `js/data/persona.js`:** Sokak / Melankolik / Deneysel /
+  (v10.27'de B-6 gereği global'ler `K.PLAYER_PERSONAS` / `K.playerPersonaById` oldu)
+  
+  Eğlence / Hikâye Anlatıcı. Şarkılar personanla tutarlıysa itibar, sadakat ve ivme artar;
+  tutarsızsa **“kimlik uyuşmazlığı”** uyarısı ve itibar kaybı gelir. Kariyer sekmesinde
+  kimlik kartı + **tutarlılık yüzdesi**. Yeniden markalama itibarı yorar.
+- **Söz editörü 2.0:** hece/ölçü motoru (`K.meter`), **ölçü dengesi**, **iç kafiye**
+  (`K.rhyme.internal`), **vurucu mısra (punchline)** tespiti. Analiz panelinde ve yapıcı
+  geri bildirimde yer alır.
+- **Ghostwriter:** söz yazarı tut (₺15.000) — sözler güçlenir ama **sızma riski**
+  (itibar −6, imaj −5). Ghostwriter kullanımı yayında işaretlenir.
+- **Beat pazarı:** her gün 3 prodüktör beat'i; satın al → **beat envanteri**; envanterden
+  kullanırsan kalite artar (`+` puanlar).
+- **Yayın stratejisi:** Standart / **🎬 Snippet paylaş** (ilk gün ivmesi +, ₺8.000) /
+  **🌫️ Sürpriz çıkış** (sessiz başlar).
+- **📻 Radyo prömiyeri:** şanslıysa şarkın prime-time bir programda ilk kez çalar;
+  bildirim + dinlenme ivmesi.
+
+## GÜNCELLEME v6 — Söz atölyesi, DM düzeltmesi, diss/saygı, şirket akışı
+
+- **Söz Atölyesi (yeni adım):** 6 adımlı stüdyoda artık ayrı bir söz editörü var.
+  Bölümler: **Intro · Verse · Hook · Chorus · Bridge · Outro**. Her bölüme öneri
+  üretilebilir; **kafiye şeması** (AABB/ABAB...), **kafiye yoğunluğu**, **lirikal açı**
+  (melankolik/agresif/samimi/epik/hikâye/meydan okuma) hesaplanır.
+- **Yapıcı geri bildirim:** sayı yerine anlamlı dil — “Sözler oturmuş…”,
+  “Durumun iyi değil; anlatı dağınık, akış zayıf.” Asla “kötü” denmez.
+- **Gündem ayrı takip:** sözlerde gündem konusu yazmak GEREKMEZ. Tema, güncel
+  gündem kategorisine denk geliyorsa ivme kazanır (`K.news.themeAffinity`).
+- **DM düzeltmesi:** cevaplar **tek mesaj** (spam yok), bağlama göre anlamlı
+  (`K.chat.contextReply`), rastgele kelime yansıtma kaldırıldı, takip soruları azaldı.
+- **Çevre (mahalle/semt) artık şarkı çıkarmadan yazmıyor.**
+- **Diss / saygı algılama:** sözlerde anılan sanatçı tespit edilir ve tonuna göre
+  **saygı** (ilişki + itibar) ya da **diss** (husumet) uygulanır. Aynı şirketteki
+  arkadaşlar da etkilenir (`K.labelmates`).
+- **Şirket akışı + distribütör:** sözleşmeliysen yayını **şirket çıkarır**
+  (“Şirkete Gönder”), masrafın bir kısmını üstlenir ve distribütör (The Orchard,
+  Believe, Ditto Music, Sony Music Distribution...) devreye girer.
+  Gerçek kadrolar: **PMC Music** (Patron, Ati242, Heijan, Muti), No.1 (UZI, Motive,
+  Cakal), Hypers (Şehinşah, wegh Rumi, Lil Zey) gibi.
+- Rakip sistemindeki saçma “bana diss yapar mısın” mesajı kaldırıldı.
+
+## GÜNCELLEME v5 — Yükleme, mağaza seçimi, analiz
+
+- **Parça yükleme alanları:** her parça bir dosya gibi yüklenir (ilerleme çubuğu, dosya
+  tipi/bit/size, süre). Yükleme tamamlanmadan yayına geçilemez.
+- **Kayıt kaynağı (`js/data/distro.js`):** Stüdyo / Ev / Canlı / Sample / Telefon demosu.
+  Kaynak kaliteyi (±qAdd) ve maliyeti (×costMult) belirler. Kaynak değişince yükleme sıfırlanır.
+- **Mağaza dağıtım seçimi:** 9 mağaza (Spotify, Apple, YouTube, TikTok, Deezer, Amazon,
+  TIDAL, SoundCloud, Instagram/Facebook) seçilebilir. Seçim **dağıtım ücretini** ve
+  **erişim çarpanını** (`K.distroReach`, 0.55–1.25) belirler; erişim ilk gün dinlenmesini
+  ve liste giriş çekişini etkiler.
+- **Kapak tasarımcısı derinleşti:** yazı tipi (4), yerleşim (3), şekil (5),
+  sanatçı adı aç/kapa, renk tonu, grain, 8 stil, 6 desen, 3 yazı modu + mağaza önizlemesi.
+- **Yayın analitiği sekmesi:** toplam dinlenme, aylık dinleyici, aktif liste, en iyi sıra;
+  son 14 gün grafiği; Spotify/Apple/YouTube kırılımı; son yayınlar tablosu.
+- **Mağaza içi listeler:** Spotify/Apple/YouTube sayfalarında oyuncunun girdiği listeler
+  ve **Yeni Çıkanlar** bölümü (`K.ui.storeLists`).
+- **Şirket paneli** dağıtım konsolu diliyle (nötr yüzey + tek aksan) yeniden giydirildi.
+- **Denge:** kolay/normal/zor için liste girişi (`lists`) ve DM (`dm`) çarpanları.
+- **DM:** listede/chart'ta başarı → erişilebilir bir sanatçıdan tebrik DM'i;
+  popülerlik arttıkça ünlü yazma eşiği kademeli açılır.
+
+## GÜNCELLEME v4 — Dağıtım konsolu + kapak tasarımcısı
+
+- **Stüdyo artık bir yayın dağıtım konsolu gibi:** sol kenarda marka (KARMA DISTRO),
+  dikey adım listesi ve canlı özet; sağda numaralı form blokları.
+  DistroKid/TuneCore akışı örnek alındı: Yayın Bilgileri → Yayın Türü → Parça Listesi →
+  Prodüksiyon & Sözler → Kapak → Tanıtım → **Dağıtım** (mağaza seçimi + özet + maliyet).
+- **Tema bütünleştirildi:** tek aksan (`--karma`), nötr yüzeyler; renkli kutular yerine
+  sade yardım satırları ve numaralı blok başlıkları. Sarı/yeşil/kırmızı yalnızca durum için.
+- **Geçiş animasyonları:** adımlar arasında yön duyarlı kayma (ileri/geri), adım
+  göstergesinde durum geçişi, kapak değişiminde pop animasyonu.
+- **Kapak tasarımcısı yenilendi:** 8 stil · 6 desen (Düz/Halka/Çizgi/Izgara/Nokta/Dalga) ·
+  3 yazı modu (Monogram/Başlık/Yazısız) · renk tonu kaydırıcısı · grain (doku) · rastgele.
+  Kapak artık gerçek bir **600×600 SVG** olarak üretilir (`K.coverSVG`, seed biçimi
+  `cv~stil~desen~yazı~ton~grain~başlık`) ve **Spotify / Apple / YouTube mağaza
+  önizlemesinde** canlı gösterilir. Şarkılar albüm kapağını paylaşır.
+- Yayın türü kartları (Single/EP/Albüm) parça sayısını hızlı ayarlar.
+
+## GÜNCELLEME v3 — Stüdyo sihirbazı
+
+- **Stüdyo baştan yazıldı:** tek uzun form yerine **5 adımlı sihirbaz**:
+  1. **Parçalar** — parça sayısı ve adları. Çok parçalı yayınlarda zorunlu başlık
+     alanı KALDIRILDI; proje adı isteğe bağlı, boşsa otomatik üretilir.
+  2. **İçerik** — altyapı, vokal, parça türü, mix, sözler ve gündem, parça başına bütçe, feature.
+  3. **Kapak** — 8 hazır kapak stili + rastgele kapak, canlı önizleme.
+  4. **Pazarlama** — pazarlama bütçesi ve lansman süresi.
+  5. **Yayın** — özet (format, kalite, gündem, maliyet, kasa) ve yayına ekleme.
+- **Gereksiz bilgi temizliği:** "Adım adım rehber" listesi ve 7 kartlı yan panel
+  kaldırıldı; yerine üstte kompakt 4 maddelik özet şeridi geldi.
+- **Yazım düzeltmesi:** format kuralı artık doğru yazılıyor (5–11 albüm · 12+ deluxe).
+- Adım göstergesi tıklanabilir; "İleri/Geri" alt barda sabit durur.
+- Kapak stilleri `K.COVER_STYLES` · seed biçimi `cs:<stil>_<rastgele>`.
+
+## GÜNCELLEME v2 — Gerçekçilik katmanı
+
+Bu sürümde eklenenler:
+
+- **Stüdyo:** format artık parça sayısından otomatik türetilir
+  (1 Single · 2 Çift · 3-4 EP · **5+ Albüm** · 12+ Deluxe).
+- **Parça başına bütçe:** her parçanın kendi üretim bütçesi ve buna bağlı
+  kendi kalitesi vardır; toplam üretim maliyeti parça bütçelerinin toplamıdır.
+  (`js/systems/career.js` → `_trackBudgets`, `releaseCost`; `js/ui/career-ui.js`)
+- **Platform listeleri (`js/systems/lists.js`):** Spotify/Apple/YouTube/airplay
+  girişleri olasılıksaldır, yayın günü girilmez, her şarkı her listeye girmez.
+  Giriş kalite + pazarlama + PR + gündem + takipçi + pitch ile hesaplanır.
+- **Mahalle/semt çevresi (`js/systems/contacts.js`):** 13 kalıcı, isimli ve
+  yüzlü (SVG portre) tanıdık; her mesaj somut bir olaya bağlı (yeni şarkı, liste,
+  virallik, gündem, sessizlik, kendi projesi). Yeni oyunda ünlü sanatçı DM atmaz.
+- **Zor mod:** sayısal kalite/tahmin değerleri arayüzde gizlenir (`body.hide-values`).
+

@@ -237,7 +237,8 @@
 
       return `
         <div class="c-block">
-          ${K.careerUI.onboardingHTML()}
+          ${K.journey ? K.journey.html() : ""}
+          ${s.journey && !p.onboardDismissed ? `<details class="journey-help"><summary>Temel kontroller · İlk 10 dakika rehberi</summary>${K.careerUI.onboardingHTML()}</details>` : K.careerUI.onboardingHTML()}
           <div class="artist-hero">
             ${K.ui.avatar(p.stageName, 74)}
             <div class="meta">
@@ -4890,6 +4891,8 @@ div class="chart-row ${e.mine ? "me" : ""}">
         return;
       }
       /* v10.63 — stüdyo hub kısayolları */
+      if (act === "journey-choice") { K.journey.choose(btn.dataset.event, btn.dataset.choice); return; }
+      if (act === "journey-cancel") { K.journey.cancel(); return; }
       if (act === "go-tab") {
         K.careerUI.setTab(btn.dataset.arg);
         return;

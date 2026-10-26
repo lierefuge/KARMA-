@@ -1143,7 +1143,7 @@
         if (patch.advance != null) t.advance = Math.max(0, mix(t.advance || 0, patch.advance));
         if (patch.artistShare != null) {
           const share = U.clamp(mix(t.artistShare || (100 - (t.royalty || 30)), patch.artistShare), 20, 90);
-          t.artistShare = share; t.royalty = 100 - share;
+          t.artistShare = share; t.artistRoyalty = share; t.royalty = 100 - share;
         }
         if (patch.lengthDays != null) t.lengthDays = Math.max(90, mix(t.lengthDays || 365, patch.lengthDays));
       }

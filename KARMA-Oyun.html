@@ -1325,6 +1325,25 @@ textarea:focus-visible {
 .live-strip b { font-size: 11px; font-weight: 800; }
 .live-strip span { font-size: 10px; color: var(--text-2); }
 
+/* First-month career decisions */
+.journey-card { padding: 18px; margin-bottom: 18px; border: 1px solid var(--border); border-radius: 16px; background: var(--bg-card, #171923); }
+.journey-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.journey-card h2 { margin: 5px 0 14px; font-size: 20px; }
+.journey-card h3 { margin: 18px 0 8px; font-size: 15px; }
+.journey-card p { line-height: 1.6; font-size: 13px; overflow-wrap: anywhere; }
+.journey-targets { display: grid; gap: 8px; }
+.journey-targets > div { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 12px; }
+.journey-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 8px; }
+.journey-choices .btn { display: flex; flex-direction: column; align-items: flex-start; white-space: normal; text-align: left; padding: 12px; }
+.journey-choices span { font-size: 11px; line-height: 1.6; opacity: .8; }
+.journey-card details { margin-top: 14px; }
+.journey-card summary { cursor: pointer; padding: 8px 0; font-size: 13px; }
+.journey-entry { margin: 12px 0; border-top: 1px solid var(--border); padding-top: 10px; font-size: 12px; }
+@media (max-width: 480px) { .journey-card { padding: 12px; } .journey-targets > div { flex-wrap: wrap; } }
+
+.journey-help { margin-bottom: 18px; }
+.journey-help > summary { cursor: pointer; padding: 10px 0; font-size: 13px; color: var(--text-2); }
+
 </style>
 <style>
 /* ==== css/phone.css ==== */
@@ -7482,6 +7501,153 @@ body.hide-values .brand-sub::after {
 
 </style>
 <style>
+/* ==== css/social-refresh.css ==== */
+/* Phone-native social surfaces. Scoped to the four apps and shared action views. */
+.app-x, .app-instagram, .app-youtube, .app-tiktok { color: #f5f5f5; font-family: Arial, Helvetica, sans-serif; }
+.app-x { background: #000; }
+.app-x .app-body { padding: 0; gap: 0; position: relative; }
+.brand-x { justify-content: space-between; min-height: 48px; padding: 8px 14px; }
+.x-wordmark { font-size: 27px; line-height: 1; }
+.social-profile-btn, .social-icon-btn { background: none; border: 0; color: inherit; padding: 4px; cursor: pointer; }
+.social-icon-btn { font-size: 23px; }
+.x-feed-tabs { display: flex; position: sticky; top: 0; z-index: 4; background: rgba(0,0,0,.94); border-bottom: 1px solid #2f3336; }
+.x-feed-tabs button { flex: 1; background: none; color: #71767b; border: 0; padding: 15px 4px; font-size: 12px; font-weight: 700; position: relative; cursor: pointer; }
+.x-feed-tabs button.active { color: #e7e9ea; }
+.x-feed-tabs button.active::after { content: ''; position: absolute; bottom: 0; height: 4px; background: #1d9bf0; border-radius: 4px; left: 25%; right: 25%; }
+.app-x .x-post { border-bottom: 1px solid #2f3336; padding: 12px 10px; gap: 9px; margin: 0; }
+.app-x .xp-text { font-size: 13px; line-height: 1.5; margin: 5px 0 10px; }
+.app-x .xp-name { font-size: 12px; }
+.app-x .xp-handle { font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.app-x .xp-head { flex-wrap: wrap; gap: 3px; }
+.app-x .xp-actions { gap: 4px; justify-content: space-between; }
+.app-x .xp-act { background: none; border: 0; padding: 2px 0; color: #71767b; font: inherit; display: inline-flex; gap: 3px; align-items: center; cursor: pointer; }
+.app-x .xp-act b { font-size: 9px; font-weight: 400; }
+.app-x .xp-act svg { width: 16px; height: 16px; }
+.app-x .xp-like.on { color: #f91880; }
+.app-x .xp-repost.on { color: #00ba7c; }
+.app-x .xp-save.on { color: #1d9bf0; }
+.x-compose-fab { position: sticky; bottom: 15px; align-self: flex-end; margin: 0 14px 14px; flex-shrink: 0; width: 49px; height: 49px; border: 0; border-radius: 50%; background: #1d9bf0; color: white; display: grid; place-items: center; box-shadow: 0 3px 14px #0008; cursor: pointer; }
+.x-compose-fab svg { width: 23px; height: 23px; }
+.app-x .seg-bottom { background: #000; border-top: 1px solid #2f3336; }
+.social-search { padding: 9px 12px; }
+.social-search input { width: 100%; padding: 11px 15px; border: 1px solid transparent; border-radius: 24px; background: #202327; color: #e7e9ea; font-size: 13px; }
+.social-search input:focus { border-color: #1d9bf0; outline: none; }
+.social-menu-row, .social-person { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; border-bottom: 1px solid #ffffff18; background: none; padding: 16px 8px; color: inherit; text-align: left; cursor: pointer; font-size: 13px; }
+.social-menu-row span:last-child, .social-person span:last-child { margin-left: auto; }
+.social-share-preview { padding: 18px; line-height: 1.6; border: 1px solid #ffffff22; border-radius: 14px; overflow-wrap: anywhere; }
+.social-comment { display: flex; gap: 10px; padding: 12px 0; }
+.social-comment b { font-size: 12px; }
+.social-comment p { margin-top: 5px; font-size: 13px; overflow-wrap: anywhere; }
+.social-comment-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid #ffffff22; }
+.social-comment-form input { width: 0; flex: 1; min-width: 0; border: 0; background: #ffffff12; border-radius: 18px; color: inherit; padding: 10px; }
+.social-comment-form button { border: 0; background: none; color: #3ea6ff; font-weight: bold; cursor: pointer; }
+.app-instagram .brand-ig { min-height: 52px; background: #000; border: 0; }
+.app-instagram .ig-wordmark { font-size: 25px; }
+.app-instagram .ig-stories { padding-top: 8px; border-bottom: 1px solid #262626; }
+.app-instagram .ig-post { margin: 0; border: 0; border-radius: 0; background: #000; }
+.app-instagram .ig-post-head { padding: 12px; }
+.app-instagram .ig-media { border-radius: 0; }
+.app-instagram .ig-actions { padding: 10px 12px 4px; }
+.app-instagram .ig-actions button { min-width: 28px; min-height: 32px; }
+.app-instagram .ig-body { padding: 4px 12px 16px; }
+.app-instagram .seg-bottom { background: #000; border-top: 1px solid #262626; }
+.app-instagram .social-create-tab .tb-ic { border: 2px solid currentColor; border-radius: 6px; width: 22px; height: 22px; font-size: 24px; line-height: 17px; }
+.app-instagram .ig-reels { gap: 0; }
+.app-instagram .ig-reel { min-height: 410px; scroll-snap-align: start; }
+.app-youtube .brand-yt { background: #0f0f0f; min-height: 50px; padding: 10px 12px; }
+.app-youtube .yt-wordmark { font-size: 19px; letter-spacing: -1px; }
+.app-youtube .yt-play { background: #f03; color: white; border-radius: 6px; width: 28px; height: 19px; font-size: 11px; display: grid; place-items: center; }
+.app-youtube .yt-top-actions { gap: 12px; }
+.app-youtube .filter-chips { padding: 8px 12px 12px; margin: 0; gap: 7px; }
+.app-youtube .fchip { border-radius: 7px; padding: 7px 11px; background: #272727; border: 0; font-weight: 600; }
+.app-youtube .fchip.active { background: #f1f1f1; color: #0f0f0f; }
+.app-youtube .yt-video { margin-bottom: 12px; }
+.app-youtube .yt-thumb { border-radius: 0; }
+.app-youtube .yt-video .vt { font-size: 13px; line-height: 1.4; }
+.app-youtube .yt-video .vm { font-size: 10px; line-height: 1.5; }
+.app-youtube .social-create-tab .tb-ic { background: #272727; border-radius: 50%; width: 32px; height: 32px; font-size: 27px; line-height: 30px; }
+.app-youtube .social-create-tab .tb-lb { display: none; }
+.yt-you-header { display: flex; align-items: center; gap: 12px; padding: 20px 14px; }
+.yt-you-header h2 { font-size: 20px; margin: 0 0 8px; }
+.app-tiktok .app-body { padding: 0; gap: 0; scroll-snap-type: y mandatory; }
+.app-tiktok .tt-feed { margin: 0; gap: 0; }
+.app-tiktok .tt-card { aspect-ratio: auto; min-height: 420px; height: var(--social-video-height, 450px); flex-shrink: 0; scroll-snap-align: start; scroll-snap-stop: always; }
+.app-tiktok .brand-tt { min-height: 45px; flex-shrink: 0; }
+.app-tiktok .tt-seg { gap: 16px; }
+.app-tiktok .tt-seg button { font-size: 13px; font-weight: 700; }
+.app-tiktok .tt-side { right: 8px; bottom: 86px; gap: 14px; }
+.app-tiktok .tt-bottom { padding: 14px 62px 18px 12px; }
+.app-tiktok .tt-desc { font-size: 12px; line-height: 1.5; }
+.app-tiktok .tt-user { font-size: 13px; }
+.app-tiktok .seg-bottom { min-height: 56px; }
+.app-tiktok .seg-bottom button .tb-lb { display: block; font-size: 8px; margin-top: 4px; white-space: nowrap; }
+.app-tiktok .seg-bottom button svg { width: 23px; height: 23px; }
+.app-tiktok .social-create-tab .tb-ic { background: #fff; color: #000; border-radius: 6px; width: 35px; height: 25px; box-shadow: -4px 0 #25f4ee, 4px 0 #fe2c55; display: grid; place-items: center; }
+.app-tiktok .social-create-tab .tb-lb { display: none; }
+.social-compose .app-body { padding: 16px; gap: 16px; }
+.social-cover-preview { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 20px; min-height: 180px; border-radius: 12px; background: linear-gradient(140deg,#142838,#39132d); font-size: 50px; }
+.social-cover-preview span { font-size: 13px; }
+.social-compose textarea, .social-compose select { width: 100%; background: #202020; color: white; border: 1px solid #444; border-radius: 8px; padding: 10px; }
+.app-shell :is(.social-icon-btn,.social-profile-btn,.social-menu-row,.xp-act,.x-compose-fab):focus-visible { outline: 2px solid #3ea6ff; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .app-shell.snap .app-body { scroll-behavior: auto; } }
+/* Supplied Android references: Instagram feed and YouTube Home / You. */
+.app-instagram { background: #0c1014; }
+.app-instagram .reference-ig { background: #0c1014; justify-content: space-between; padding: 10px 12px; }
+.ig-feed-title { font: 700 17px Arial, sans-serif; background: none; border: 0; color: #f5f5f5; cursor: pointer; }
+.ig-feed-title span { font-size: 14px; margin-left: 4px; }
+.reference-ig .ig-create { font-size: 32px; font-weight: 300; line-height: 30px; }
+.reference-ig .ig-notification { position: relative; width: 32px; height: 32px; }
+.social-unread-dot { position: absolute; right: 1px; top: 0; width: 7px; height: 7px; background: #ff3040; border-radius: 50%; }
+.app-instagram .ig-stories { gap: 13px; padding: 10px 10px 14px; border: none; }
+.app-instagram .ig-story { width: 66px; min-width: 66px; }
+.app-instagram .ig-story-ring { width: 65px; height: 65px; padding: 2px; }
+.app-instagram .ig-story-img { width: 57px; height: 57px; }
+.app-instagram .ig-story-name { font-size: 10px; margin-top: 5px; }
+.app-instagram .ig-post, .app-instagram .seg-bottom { background: #0c1014; }
+.app-instagram .ig-media { aspect-ratio: 4/5; }
+.app-instagram .seg-bottom button.active { background: #25292d; border-radius: 28px; }
+.app-instagram .seg-bottom { padding: 6px 8px; gap: 5px; }
+.app-instagram .seg-bottom button { min-height: 37px; }
+.app-youtube .yt-home-search { display: none; }
+.app-youtube .yt-home-search.open { display: flex; }
+.social-bell { position: relative; }
+.social-bell b { position: absolute; top: -4px; right: -5px; min-width: 13px; height: 13px; padding: 1px 3px; border-radius: 12px; background: #c03; color: white; font-size: 9px; }
+.yt-account { color: #f1f1f1; border: 1px solid #444; border-radius: 22px; background: none; padding: 7px 11px; font: 600 11px Arial, sans-serif; cursor: pointer; }
+.yt-short-shelf { padding: 10px; }
+.yt-short-shelf h2 { display: flex; align-items: center; gap: 9px; font-size: 17px; margin: 10px 0 14px; }
+.yt-short-shelf h2 > span { color: #f03; font-size: 26px; }
+.yt-short-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.yt-short-tile { position: relative; aspect-ratio: 9/15; border: none; border-radius: 9px; overflow: hidden; color: white; text-align: left; cursor: pointer; }
+.yt-short-tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.yt-short-tile > span { position: absolute; bottom: 0; left: 0; right: 0; padding: 35px 7px 9px; font-size: 12px; font-weight: 600; background: linear-gradient(transparent,#000c); }
+.yt-you-header { padding: 17px 12px 12px; }
+.yt-you-header h2 { font-size: 20px; }
+.yt-you-header span { color: #aaa; font-size: 11px; }
+.yt-view-channel { background: #f1f1f1; color: #0f0f0f; border: 0; border-radius: 20px; padding: 9px; margin: 4px 12px 18px; cursor: pointer; font-size: 12px; font-weight: 600; }
+.yt-history, .yt-library { padding: 10px 12px; }
+.yt-history h2, .yt-library h2 { font-size: 17px; margin: 0 0 14px; }
+.yt-history-row { display: flex; overflow-x: auto; gap: 10px; }
+.yt-history-card { background: none; border: 0; color: inherit; text-align: left; width: 125px; flex-shrink: 0; padding: 0; cursor: pointer; }
+.yt-history-card b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-weight: 500; font-size: 11px; margin-top: 7px; }
+.yt-history-card small, .yt-collection small { display: block; color: #aaa; font-size: 10px; margin-top: 5px; }
+.yt-history-art { display: grid; place-items: center; height: 70px; overflow: hidden; border-radius: 8px; background: #242424; }
+.yt-history-art img, .yt-collection-art img { width: 100%; height: 100%; object-fit: cover; }
+.yt-collection { display: flex; align-items: center; gap: 12px; padding: 9px 0; width: 100%; border: none; background: none; color: inherit; text-align: left; cursor: pointer; }
+.yt-collection > span:last-child { margin-left: auto; }
+.yt-collection b { font-size: 12px; font-weight: 500; }
+.yt-collection-art { width: 104px; height: 65px; border-radius: 9px; overflow: hidden; flex-shrink: 0; display: grid; place-items: center; box-shadow: 0 -4px #555; }
+.yt-collection-symbol { font-size: 24px; color: #fff; }
+.app-x .xp-actions > .muted { display: none; }
+.app-x .xp-actions > * { min-width: 0; }
+.app-x .app-body { overflow-x: hidden; }
+
+.app-instagram .app-body { padding: 0; gap: 0; }
+.app-youtube [hidden] { display: none !important; }
+
+.app-x .xp-act:not(.on) .x-on, .app-x .xp-act.on .x-off { display: none; }
+
+</style>
+<style>
 /* ==== css/mobile.css ==== */
 /* ============================================================
    KARMA — css/mobile.css   (v10.15)
@@ -7960,8 +8126,8 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.67.0";
-  K.VERSION_DATE = "2026-10-23";
+  K.VERSION = "10.68.0";
+  K.VERSION_DATE = "2026-10-26";
 })(window.K = window.K || {});
 /* v10.67.0 — yeni çıkış akışı (release-intel) + takvim tabanlı playlist rotasyonu. */
 
@@ -13436,6 +13602,7 @@ window.K = window.K || {};
     const s = {
       version: 2,
       day: 1,
+      journey: { closed: {}, history: [], milestones: {}, lastDay: -2 },
       dateStart: K.util.todayISO(),  // oyun gün 1'in gerçek takvim tarihi
       balance: K.ECON.startBalance,
       started: false,
@@ -14087,6 +14254,7 @@ window.K = window.K || {};
     _advanceDay() {
       const s = K.state;
       s.day += 1;
+      if (K.label && K.label.expirePlayerContract) K.label.expirePlayerContract();
       s.player.messagesSentToday = 0;
 
       // YAŞ: oyun gerçek takvim üzerinden ilerler. Oyuncunun doğum günü
@@ -14156,6 +14324,7 @@ window.K = window.K || {};
       if (K.industry && K.industry.tick) K.industry.tick();
       /* v10.59 — yaşayan label: keşif · transfer · rekabet · itibar */
       if (K.labelSim && K.labelSim.tick) K.labelSim.tick();
+      if (K.journey) K.journey.tick();
       if (K.concerts && K.concerts.tick) K.concerts.tick();
       if (K.festivals && K.festivals.tick) K.festivals.tick();
       if (K.rollout && K.rollout.tick) K.rollout.tick();
@@ -15038,6 +15207,7 @@ window.K = window.K || {};
     royalty_month: "Telif (aylık)", intl_royalty: "Yurt dışı telif",
     cancel_refund: "İptal iadesi", rush_fee: "Hızlandırma ücreti",
     merch: "Merch", merch_sale: "Merch satışı", sponsor: "Sponsorluk", sponsor_month: "Sponsorluk (aylık)",
+    concert_settlement: "Konser kalan gideri", journey_session: "Dinleme seansı", journey_travel: "Sahne ulaşımı", journey_show: "Açık mikrofon ücreti",
     tour: "Konser", concert: "Konser", festival: "Festival", concert_advance: "Konser avansı",
     tour_cost: "Tur gideri", tour_advance: "Tur avansı", intl_tour: "Yurt dışı tur", intl_enter: "Yurt dışı giriş",
     writing: "Söz yazımı", ghostwriter: "Ghostwriting", publishing: "Yayın geliri", publishing_advance: "Yayın avansı",
@@ -15309,8 +15479,9 @@ window.K = window.K || {};
       const lag = K.ECON.payoutLag;
       K.econ.ensure();
 
-      let labelPct = p.labelId ? ((K.labelById(p.labelId) || {}).royalty || 50) : 0;
-      if (K.team && K.team.bonus) labelPct = Math.max(0, labelPct - K.team.bonus().lawyerCut * 100);
+      const currentTerms = K.label.releaseTerms();
+      const lawyerCut = K.team && K.team.bonus ? K.team.bonus().lawyerCut * 100 : 0;
+      const dealPools = new Map();
 
       /* ---- 1) BU AYIN dinlenmesini rapor kuyruğuna al (henüz para yok) ---- */
       p.royalties = p.royalties || [];
@@ -15327,6 +15498,7 @@ window.K = window.K || {};
           queued += total;
           p.royalties.push({
             songId: song.id, reportedDay: s.day, streams: single,
+            labelTerms: { ...(song.labelTerms || currentTerms) },
             due: {
               spotify: s.day + lag.spotify, apple: s.day + lag.apple,
               youtube: s.day + lag.youtube, other: s.day + lag.other
@@ -15354,6 +15526,9 @@ window.K = window.K || {};
 
       p.royalties.forEach(r => {
         const song = songById[r.songId];
+        const terms = r.labelTerms || (song && song.labelTerms) || currentTerms;
+        const labelPct = Math.max(0, U.clamp(terms.royalty || 0, 0, 100) - lawyerCut);
+        const contract = [p.labelDeal].concat(p.labelHistory || []).find(d => d && d.id === terms.dealId);
         K.econ.STORES.forEach(st => {
           if (r.paid[st]) return;
           if (s.day < r.due[st]) { waiting += (r.streams[st] || 0); return; }
@@ -15379,6 +15554,7 @@ window.K = window.K || {};
           const share = (song && song.revenueShare != null) ? song.revenueShare : 1;
           if (share < 1) { const c = pool * (1 - share); pool -= c; featureCutTotal += c; }
           artistPool += pool;
+          if (contract) dealPools.set(contract, (dealPools.get(contract) || 0) + pool);
         });
       });
       p.royalties = p.royalties.filter(r => K.econ.STORES.some(st => !r.paid[st]));
@@ -15396,11 +15572,14 @@ window.K = window.K || {};
       /* --- AVANS RECOUP: sanatçıya kalan pay ÖNCE avans borcunu kapatır --- */
       let recoup = 0, recoupedNow = false;
       const deal = p.labelDeal;
-      if (deal && (deal.recouped || 0) < deal.advance) {
-        recoup = Math.min(artistPool, deal.advance - (deal.recouped || 0));
-        deal.recouped = (deal.recouped || 0) + recoup;
-        if (deal.recouped >= deal.advance) { recoupedNow = true; deal.recoupedDay = s.day; }
-      }
+      dealPools.forEach((pool, contract) => {
+        const taken = Math.min(Math.round(pool), Math.max(0, (contract.advance || 0) - (contract.recouped || 0)), artistPool - recoup);
+        if (taken <= 0) return;
+        recoup += taken;
+        contract.recouped = (contract.recouped || 0) + taken;
+        if (contract.recouped >= contract.advance) { recoupedNow = true; contract.recoupedDay = s.day; }
+      });
+      const recoupLeft = [deal].concat(p.labelHistory || []).reduce((n, d) => n + (d ? Math.max(0, (d.advance || 0) - (d.recouped || 0)) : 0), 0);
       const net = Math.max(0, artistPool - recoup);
 
       if (net > 0) K.economy.earn(net, "royalty_month");
@@ -15413,11 +15592,11 @@ window.K = window.K || {};
       }
 
       if (recoup > 0) {
-        const left = deal ? Math.max(0, deal.advance - deal.recouped) : 0;
+        const left = recoupLeft;
         K.toast("🏦 Avans geri ödemesi", `Teliften ${U.money(recoup)} kesildi · kalan avans ${U.money(left)}`, recoupedNow ? "ok" : "warn");
         if (recoupedNow) {
           s.notifications = (s.notifications || []).concat([{
-            title: "🏦 Avans kapandı", msg: "Avansın tamamı geri ödendi. Bundan sonra telif doğrudan sana geliyor.", kind: "ok", day: s.day
+            title: "🏦 Avans kapandı", msg: "Bir sözleşmenin avansı tamamen ödendi. O sözleşmenin sonraki teliflerinden avans kesilmeyecek.", kind: "ok", day: s.day
           }]).slice(-60);
         }
       }
@@ -15433,7 +15612,7 @@ window.K = window.K || {};
         queued: Math.round(queued), waiting: Math.round(waiting),
         pendingValue: pend.value, pendingStreams: pend.streams,
         fx: K.econ.ensure().fx, infl: K.econ.infl(),
-        recoupLeft: deal ? Math.max(0, deal.advance - (deal.recouped || 0)) : 0
+        recoupLeft
       };
       p.payouts = p.payouts || [];
       p.payouts.unshift(payout);
@@ -15982,7 +16161,7 @@ window.K = window.K || {};
       if (s.catalogSold && !(p.songs || []).some(x => !x.masterSold)) return;
       const chance = 0.025 + p.popularity / 1100 + Math.min(0.05, p.songs.length / 500);
       if (!U.chance(chance)) return;
-      const pool = p.songs.filter(x => !x.masterSold).slice().sort((a, b) => (b.streams || 0) - (a.streams || 0)).slice(0, 8);
+      const pool = p.songs.filter(x => !x.masterSold && !x.exclusiveSync).slice().sort((a, b) => (b.streams || 0) - (a.streams || 0)).slice(0, 8);
       if (!pool.length) return;
       const song = U.pick(pool);
       const t = U.pick(K.catalog.SYNC_TYPES);
@@ -16017,6 +16196,13 @@ window.K = window.K || {};
     resolveSync(accept) {
       const s = K.state, o = s.pendingSync;
       if (!o) return;
+      const licensedSong = s.player.songs.find(x => x.id === o.songId);
+      if (accept && (!licensedSong || licensedSong.masterSold || licensedSong.exclusiveSync)) {
+        s.pendingSync = null;
+        K.toast("Teklif geçersiz", "Şarkının kullanım hakları bu anlaşmaya uygun değil.", "warn");
+        K.save(); K.refresh();
+        return false;
+      }
       if (accept) {
         const cut = (K.career && K.career.labelCut) ? K.career.labelCut("sync", o.fee) : 0;
         K.economy.earn(o.fee - cut, "sync");
@@ -16585,6 +16771,7 @@ window.K = window.K || {};
     calendar(limit) {
       const s = K.state;
       const ev = [];
+      if (s.journey && s.journey.booking) ev.push({ day: s.journey.booking.dueDay, icon: "🤝", title: K.journey.EVENTS[s.journey.booking.id].title, kind: "journey" });
       // yayın hattı
       (s.player.releases || []).forEach(r => {
         const d = r.startDay + r.waitDays;
@@ -16623,6 +16810,201 @@ window.K = window.K || {};
     }
   };
 })(window.K = window.K || {});
+
+</script>
+<script>
+/* ==== js/systems/journey.js ==== */
+/* First month: persistent local relationships, commitments and visible consequences.
+   Offers follow actual releases; a missed deadline never blocks the normal career. */
+(function (K) {
+  "use strict";
+  const U = K.util;
+  const EVENTS = {
+    circle: { title: "İlk çevren", role: "producer", text: "Semt prodüktörün iki gün sonra ev stüdyosunda. İlk adımını nasıl atmak istersin?", choices: [
+      { id: "meet", label: "Dinlemeye git", note: "2 gün sonra · yorgunluk +6 · prodüktörle samimiyet artar", days: 2, fatigue: 6 },
+      { id: "practice", label: "Evde prova yap", note: "2 gün sonra · yorgunluk +10 · müzik becerisi +1", days: 2, fatigue: 10 },
+      { id: "pass", label: "Şimdilik kendi planım", note: "Masraf ve ceza yok" }
+    ] },
+    session: { title: "Yayın öncesi son dinleme", role: "producer", text: "Prodüktörün hazırladığın parçayı birlikte dinlemeyi öneriyor. Kayıt hâlâ düzenlenebilir durumda.", choices: [
+      { id: "together", label: "Birlikte düzenle", note: "₺1.200 · 2 gün sonra · kalite +3 · yorgunluk +8 · samimiyet artar", cost: 1200, days: 2, fatigue: 8 },
+      { id: "solo", label: "Kendim prova edeyim", note: "Ücretsiz · 2 gün sonra · kalite +1 · yorgunluk +12", days: 2, fatigue: 12 },
+      { id: "pass", label: "Mevcut kaydı koru", note: "Masraf ve ceza yok" }
+    ] },
+    stage: { title: "İlk küçük sahne", role: "dj", text: "Mahalli DJ, yayınladığın şarkıyla açık mikrofon gecesinde kısa bir set istiyor. Sabit ücret ₺1.500; ulaşım ₺400.", choices: [
+      { id: "show", label: "Sahneye söz ver", note: "₺400 şimdi · 3 gün sonra ₺1.500 · yorgunluk +12 · DJ ile samimiyet artar", cost: 400, days: 3, fatigue: 12 },
+      { id: "share", label: "Evden tanıtım hazırla", note: "Ücretsiz · 2 gün sonra · şarkıya küçük tanıtım etkisi · yorgunluk +6", days: 2, fatigue: 6 },
+      { id: "pass", label: "Bu kez katılma", note: "Masraf ve ceza yok" }
+    ] },
+    followup: { title: "Seni yeniden dinleyen biri", role: "fan", text: "İlk dinleyicilerinden biri yeni şarkını soruyor. Bu küçük çevreyle bağını nasıl sürdüreceksin?", choices: [
+      { id: "reply", label: "Sohbet için vakit ayır", note: "1 gün sonra · hayranla samimiyet artar · yorgunluk +4", days: 1, fatigue: 4 },
+      { id: "practice", label: "Yeni işe hazırlan", note: "2 gün sonra · müzik becerisi +1 · yorgunluk +10", days: 2, fatigue: 10 },
+      { id: "pass", label: "Biraz ara ver", note: "Masraf ve ceza yok" }
+    ] }
+  };
+  K.journey = {
+    EVENTS,
+    ensure() {
+      const s = K.state;
+      // Established careers are not restarted when an older save is loaded.
+      if (!s.journey && s.day <= 30) s.journey = { closed: {}, history: [], milestones: {}, lastDay: -2 };
+      const j = s.journey;
+      if (!j) return null;
+      j.closed = j.closed || {}; j.history = j.history || []; j.milestones = j.milestones || {};
+      return j;
+    },
+    contact(role) { return K.contacts.list().find(c => c.role === role); },
+    tell(role, text, affinity) {
+      const c = K.journey.contact(role);
+      if (!c) return;
+      K.relation(c.id).met = true;
+      if (affinity) K.relations.addAffinity(c.id, affinity, "ilk_ay", { uncapped: true });
+      K.relations.pushArtistMessage(c.id, text, "chat", { topic: "ilk_ay", silent: true });
+    },
+    note(title, text) {
+      const s = K.state, j = K.journey.ensure();
+      j.history.unshift({ day: s.day, title, text });
+      j.history = j.history.slice(0, 16);
+      s.notifications = (s.notifications || []).concat({ day: s.day, title, msg: text, kind: "" }).slice(-60);
+      K.toast(title, text, "");
+    },
+    targets() {
+      const p = K.state.player, j = K.state.journey || {};
+      const sg = (p.songs || []);
+      return [
+        { id: "release", title: "İlk şarkını yayınla", done: sg.length > 0, act: "open-studio", label: "Stüdyoya git" },
+        { id: "listeners", title: "50 aylık dinleyiciye ulaş", done: (p.monthly || 0) >= 50 && sg.length > 0, act: "go-tab", arg: "releases", label: "Şarkını tanıt" },
+        { id: "income", title: "Müzikten ilk ₺1.000 gelir", done: (p.totalStreamRevenue || 0) + (j.showIncome || 0) >= 1000, act: "go-tab", arg: "analytics", label: "Gelirleri gör" }
+      ];
+    },
+    tick() {
+      const s = K.state, p = s.player, j = K.journey.ensure();
+      if (!j) return;
+      if (j.booking && s.day >= j.booking.dueDay) K.journey.finish();
+      K.journey.targets().forEach(t => {
+        if (t.done && !j.milestones[t.id]) {
+          j.milestones[t.id] = s.day;
+          K.journey.note("Kariyer adımı", t.title + " — tamamlandı.");
+        }
+      });
+      if (j.pending && s.day > j.pending.deadline) {
+        j.closed[j.pending.id] = "missed";
+        K.journey.note("Fırsatın zamanı geçti", EVENTS[j.pending.id].title + ": kendi planınla devam edebilirsin.");
+        j.pending = null; j.lastDay = s.day;
+      }
+      if (s.day > 30 || j.pending || j.booking || s.day - j.lastDay < 2) return;
+      const rel = (p.releases || []).find(r => r.stage === "prep" && (s.day + 2 - r.startDay) / Math.max(1, r.waitDays) < 0.4);
+      const song = (p.songs || []).find(x => !x.takenDown);
+      let id;
+      if (!j.closed.circle) id = "circle";
+      else if (!j.closed.session && rel) id = "session";
+      else if (!j.closed.stage && song) id = "stage";
+      else if (!j.closed.followup && j.closed.stage && song && s.day >= 20) id = "followup";
+      if (!id) return;
+      j.pending = { id, deadline: Math.min(30, s.day + 5), targetId: id === "session" ? rel.id : (song && song.id) };
+      const e = EVENTS[id];
+      K.journey.tell(e.role, e.text, 0);
+      K.journey.note(e.title, "Kariyerindeki İlk Ay kartında kararını verebilirsin. Son gün: " + j.pending.deadline + ".");
+    },
+    choose(id, choiceId) {
+      const s = K.state, p = s.player, j = K.journey.ensure();
+      if (!j || !j.pending || j.pending.id !== id || j.booking || s.day > j.pending.deadline) return false;
+      const e = EVENTS[id], ch = e.choices.find(c => c.id === choiceId);
+      if (!ch) return false;
+      if (ch.days && ((p.fatigue || 0) + ch.fatigue > 100 || (K.mental && K.mental.onHiatus()))) {
+        K.toast("Biraz dinlen", "Bu hazırlık için yeterli enerjin yok.", "warn"); return false;
+      }
+      const dueDay = s.day + (ch.days || 0);
+      if (id === "session" && ch.days) {
+        const rel = (p.releases || []).find(r => r.id === j.pending.targetId);
+        if (!rel || rel.stage !== "prep" || (dueDay - rel.startDay) / Math.max(1, rel.waitDays) >= 0.4) {
+          K.toast("Seans için süre kalmadı", "Proje dağıtıma geçiyor. Mevcut kaydı koruyarak devam edebilirsin.", "warn"); return false;
+        }
+      }
+      if (choiceId === "show" && K.journey.busyOn(dueDay)) {
+        K.toast("Takvim çakışıyor", "Aynı gün başka bir sahneye söz verdin.", "warn"); return false;
+      }
+      if (ch.cost && !K.economy.spend(ch.cost, id === "stage" ? "journey_travel" : "journey_session")) {
+        K.toast("Yetersiz bakiye", U.money(ch.cost) + " gerekiyor.", "warn"); return false;
+      }
+      const targetId = j.pending.targetId;
+      j.pending = null; j.closed[id] = choiceId; j.lastDay = s.day;
+      if (ch.days) {
+        p.fatigue = U.clamp((p.fatigue || 0) + ch.fatigue, 0, 100);
+        j.booking = { id, choiceId, targetId, dueDay, cost: ch.cost || 0 };
+        K.journey.note(e.title, ch.label + ": Gün " + dueDay + " için planlandı. " + ch.note);
+      } else K.journey.note(e.title, "Bu fırsatı pas geçtin; kariyerine kendi planınla devam ediyorsun.");
+      K.save(); K.refresh(); return true;
+    },
+    busyOn(day) {
+      const s = K.state;
+      return (s.concerts || []).some(c => c.status === "planlandı" && c.day === day) ||
+        !!(s.tour && s.tour.queue.some(c => c.day === day));
+    },
+    cancel(systemReason) {
+      const j = K.journey.ensure(), b = j && j.booking;
+      if (!b) return false;
+      j.booking = null; j.lastDay = K.state.day;
+      const refund = systemReason ? b.cost : Math.floor(b.cost / 2);
+      if (refund) K.economy.earn(refund, "cancel_refund");
+      const promised = ["meet", "together", "show", "reply"].includes(b.choiceId);
+      const text = systemReason || ("Planı iptal ettin. İade: " + U.money(refund) + (promised ? "; verdiğin söz nedeniyle samimiyet azalır." : "."));
+      if (!systemReason && ["meet", "together", "show", "reply"].includes(b.choiceId)) K.journey.tell(EVENTS[b.id].role, "Bu kez olmadı. Bir daha plan yaparken haberleşelim.", -2);
+      K.journey.note(EVENTS[b.id].title, text);
+      K.save(); K.refresh(); return true;
+    },
+    finish() {
+      const s = K.state, p = s.player, j = K.journey.ensure(), b = j.booking;
+      if (!b) return;
+      const rel = (p.releases || []).find(x => x.id === b.targetId);
+      const song = (p.songs || []).find(x => x.id === b.targetId && !x.takenDown);
+      if (b.id === "session" && (!rel || rel.stage !== "prep")) {
+        K.journey.cancel("Kayıt artık düzenlenebilir durumda değil. Seans ücreti tamamen iade edildi."); return;
+      }
+      if (b.id === "stage" && (!song || (b.choiceId === "show" && (K.journey.busyOn(b.dueDay) || K.mental.onHiatus())))) {
+        K.journey.cancel("Şarkı veya sahne takvimi değişti. Plan iptal edildi; ödenen masraf iade edildi."); return;
+      }
+      j.booking = null; j.lastDay = s.day;
+      let text;
+      if (b.choiceId === "practice") {
+        p.skills.music = U.clamp((p.skills.music || 0) + 1, 0, 100);
+        text = "Prova tamamlandı. Müzik becerin +1; bir sonraki kayda daha hazırsın.";
+      } else if (b.id === "circle") {
+        K.journey.tell("producer", "Geldiğin iyi oldu. Kaydın hazır olunca birlikte dinleyelim.", 4);
+        text = "Ev stüdyosunda tanıştınız. Prodüktörle samimiyet arttı; ilk projen hazır olunca yeni bir seans fırsatı doğacak.";
+      } else if (b.id === "session") {
+        const gain = b.choiceId === "together" ? 3 : 1;
+        (rel.tracks || []).forEach(t => { t.quality = U.clamp((t.quality || 50) + gain, 0, 99); });
+        if (b.choiceId === "together") K.journey.tell("producer", "Söz verdiğin gibi geldin. Nakaratı toparladık; çıkınca bana da yolla.", 3);
+        text = "“" + rel.title + "” düzenlendi. Parça kaliteleri +" + gain + " (en fazla 99).";
+      } else if (b.id === "stage") {
+        song.boosts = song.boosts || {};
+        song.boosts.journey = (song.boosts.journey || 0) + (b.choiceId === "show" ? 0.08 : 0.12);
+        if (b.choiceId === "show") {
+          K.economy.earn(1500, "journey_show"); j.showIncome = (j.showIncome || 0) + 1500;
+          K.journey.tell("dj", "Küçük bir geceydi ama sözünü tuttun. Set ücretin gönderildi. Bir sonraki işte haberleşiriz.", 4);
+          text = "Açık mikrofon setini tamamladın. ₺1.500 ücret − ₺400 ulaşım = ₺1.100 net; DJ ile samimiyet artar. Şarkın küçük bir tanıtım etkisi kazandı.";
+        } else text = "Evden hazırladığın tanıtım yayında. “" + song.title + "” küçük bir dinlenme desteği aldı; etkisini sonraki günlerde göreceksin.";
+      } else {
+        K.journey.tell("fan", j.showIncome ? "O küçük sahneden beri dinliyorum. Cevap vermen mutlu etti; yeni parçanı bekliyorum." : "İlk parçandan beri buradayım. Sohbet için sağ ol, yeni işini bekliyorum.", 5);
+        text = "İlk dinleyicinle bağını güçlendirdin. Samimiyet arttı; aynı kişi Mesajlar'da seni hatırlıyor.";
+      }
+      K.journey.note(EVENTS[b.id].title, text);
+    },
+    html() {
+      const s = K.state, j = s.journey;
+      if (!j) return "";
+      const pending = j.pending, b = j.booking;
+      const e = pending && EVENTS[pending.id];
+      const name = e && (s.contacts || []).find(c => c.role === e.role);
+      return `<section class="journey-card" aria-label="Kariyerindeki ilk ay">
+        <div class="journey-head"><div><span class="ob-hint">KARİYERİNDEKİ İLK AY</span><h2>${s.day <= 30 ? "Kendi çevreni kur" : "İlk ayın hikâyesi"}</h2></div><span class="pill">${Math.min(30, s.day)} / 30 gün</span></div>
+        <div class="journey-targets">${K.journey.targets().map(t => `<div><b>${j.milestones[t.id] || t.done ? "✓" : "○"} ${U.escape(t.title)}</b>${j.milestones[t.id] || t.done ? "" : `<button class="btn btn-xs btn-ghost" data-act="${t.act}" data-arg="${t.arg || ""}">${t.label}</button>`}</div>`).join("")}</div>
+        ${e ? `<h3>${U.escape(e.title)}</h3><p>${name ? U.escape(name.stageName) + " · " : ""}${U.escape(e.text)}</p><p class="ob-hint">Karar için son gün: ${pending.deadline}</p><div class="journey-choices">${e.choices.map(c => `<button class="btn btn-ghost" data-act="journey-choice" data-event="${pending.id}" data-choice="${c.id}" ${(c.cost || 0) > s.balance ? "disabled" : ""}><b>${c.label}</b><span>${c.note}</span></button>`).join("")}</div>` : b ? `<h3>${U.escape(EVENTS[b.id].title)} · Gün ${b.dueDay}</h3><p>${U.escape(EVENTS[b.id].choices.find(c => c.id === b.choiceId).note)}</p><p class="ob-hint">İptal edersen ${U.money(Math.floor(b.cost / 2))} iade edilir.${["meet", "together", "show", "reply"].includes(b.choiceId) ? " Verdiğin söz nedeniyle samimiyet azalır." : ""}</p><button class="btn btn-sm btn-ghost" data-act="journey-cancel">Planı iptal et</button>` : `<p class="ob-hint">${s.day <= 30 ? "Yeni fırsatlar projen ve yayının ilerledikçe gelecek. Beklerken üret, dinlen veya yan işlerinden gelir kazan." : "İlk ay tamamlandı. Yayınların, ilişkilerin ve gelir hedeflerinle kariyerine devam et."}</p>`}
+        ${j.history.length ? `<details><summary>Kariyer günlüğü (${j.history.length})</summary>${j.history.map(h => `<div class="journey-entry"><b>Gün ${h.day} · ${U.escape(h.title)}</b><p>${U.escape(h.text)}</p></div>`).join("")}</details>` : ""}
+      </section>`;
+    }
+  };
+})(window.K);
 
 </script>
 <script>
@@ -21720,6 +22102,7 @@ window.K = window.K || {};
         distLeadDays: distDesc.leadDays || 7,
         distPremium: !!distDesc.premium,
         masterOwner: masterOwner,
+        labelTerms: K.label.releaseTerms(),
         coverSeed: opts.coverSeed || U.uid("cv"),
         /* v10.41 — B grubu METADATA
            Gerçek dağıtım formunun zorunlu alanları: bölge, dil,
@@ -21918,6 +22301,7 @@ window.K = window.K || {};
           distributorName: rel.distributor || null,
           distCommission: rel.distCommission || 0,
           masterOwner: rel.masterOwner || "artist",
+          labelTerms: rel.labelTerms === undefined ? undefined : { ...rel.labelTerms },
           albumTitle: rel.title,
           trackNo: i + 1,
           budget: (rel.trackBudgets && rel.trackBudgets[i] != null) ? rel.trackBudgets[i] : rel.budget,
@@ -22749,9 +23133,42 @@ window.K = window.K || {};
       };
     },
 
+    // Snapshot rights at delivery. Expiry ends new obligations, not old master rights.
+    releaseTerms() {
+      const p = K.state.player, d = p.labelDeal;
+      if (!p.labelId) return { labelId: null, royalty: 0, dealId: null };
+      if (d && !d.id) d.id = U.uid("deal");
+      const l = K.labelById(p.labelId) || {};
+      return { labelId: p.labelId, royalty: d && d.labelRoyalty != null ? d.labelRoyalty : (l.royalty == null ? 50 : l.royalty), dealId: d ? d.id : null };
+    },
+
+    expirePlayerContract() {
+      const s = K.state, p = s.player, d = p.labelDeal;
+      if (!p.labelId || !d || s.day < (d.startDay || 0) + (d.lengthDays || 180)) return false;
+      const terms = K.label.releaseTerms();
+      // Older saves have no per-release snapshot: preserve their existing rights.
+      (p.songs || []).concat(p.releases || []).forEach(x => {
+        if (x.labelTerms === undefined) x.labelTerms = { ...terms };
+      });
+      (p.royalties || []).forEach(r => {
+        if (r.labelTerms === undefined) {
+          const song = (p.songs || []).find(x => x.id === r.songId);
+          r.labelTerms = { ...((song && song.labelTerms) || terms) };
+        }
+      });
+      d.endedDay = s.day;
+      p.labelHistory = p.labelHistory || [];
+      p.labelHistory.push(d);
+      p.labelId = null;
+      p.labelDeal = null;
+      K.toast("🏢 Sözleşmen tamamlandı", "Yeni yayınlarında bağımsızsın. Önceki yayınların hakları ve kalan avans hesabı korunuyor.", "ok");
+      return true;
+    },
+
     /* sözleşme yükümlülüğü: uzun süre yayın yoksa şirket uyarır (itibar −) */
     playerContractTick() {
       const s = K.state, p = s.player;
+      K.label.expirePlayerContract();
       if (!p.labelId || !p.labelDeal) return;
       const lastRel = Math.max(0, p.labelDeal.startDay || 1, ...(p.songs || []).map(x => x.publishedDay || 0));
       const idle = s.day - lastRel;
@@ -23985,7 +24402,7 @@ window.K = window.K || {};
         if (patch.advance != null) t.advance = Math.max(0, mix(t.advance || 0, patch.advance));
         if (patch.artistShare != null) {
           const share = U.clamp(mix(t.artistShare || (100 - (t.royalty || 30)), patch.artistShare), 20, 90);
-          t.artistShare = share; t.royalty = 100 - share;
+          t.artistShare = share; t.artistRoyalty = share; t.royalty = 100 - share;
         }
         if (patch.lengthDays != null) t.lengthDays = Math.max(90, mix(t.lengthDays || 365, patch.lengthDays));
       }
@@ -29029,6 +29446,13 @@ window.K = window.K || {};
           const cut = (K.career && K.career.labelCut) ? K.career.labelCut("touring", grossRev) : 0;
           const revenue = Math.max(0, grossRev - cut);
           K.economy.earn(revenue, "concert");
+          // Settle the remaining booked cost once; insufficient cash becomes debt.
+          const remainingCost = Math.max(0, (cn.cost || 0) - (cn.advance || 0));
+          const paidCost = Math.min(Math.max(0, s.balance), remainingCost);
+          if (paidCost > 0) K.economy.spend(paidCost, "concert_settlement");
+          if (remainingCost > paidCost) s.player.debt = (s.player.debt || 0) + remainingCost - paidCost;
+          cn.settledCost = (cn.advance || 0) + paidCost;
+          cn.costDebt = remainingCost - paidCost;
           if (cut > 0) K.toast("🏢 360 payı", `Şirket konser gelirinden ${U.money(cut)} aldı.`, "warn");
           /* v10.29 — AKIL SAĞLIĞI: sahne performansı stresten etkilenir.
              Dağınık kafayla çıkılan sahne daha az şöhret/hayran kazandırır.
@@ -37579,7 +38003,8 @@ window.K = window.K || {};
 
       return `
         <div class="c-block">
-          ${K.careerUI.onboardingHTML()}
+          ${K.journey ? K.journey.html() : ""}
+          ${s.journey && !p.onboardDismissed ? `<details class="journey-help"><summary>Temel kontroller · İlk 10 dakika rehberi</summary>${K.careerUI.onboardingHTML()}</details>` : K.careerUI.onboardingHTML()}
           <div class="artist-hero">
             ${K.ui.avatar(p.stageName, 74)}
             <div class="meta">
@@ -42232,6 +42657,8 @@ div class="chart-row ${e.mine ? "me" : ""}">
         return;
       }
       /* v10.63 — stüdyo hub kısayolları */
+      if (act === "journey-choice") { K.journey.choose(btn.dataset.event, btn.dataset.choice); return; }
+      if (act === "journey-cancel") { K.journey.cancel(); return; }
       if (act === "go-tab") {
         K.careerUI.setTab(btn.dataset.arg);
         return;
@@ -42950,6 +43377,96 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
 </script>
 
+  <script>
+/* ==== js/systems/social-actions.js ==== */
+/* Shared phone actions: real in-game sharing, clipboard and feed preferences. */
+(function (K) {
+  "use strict";
+  const U = K.util;
+  K.socialActions = {
+    prefs() {
+      const p = K.state.player;
+      p.socialPrefs = p.socialPrefs || {};
+      p.socialPrefs.hidden = p.socialPrefs.hidden || {};
+      p.socialPrefs.blocked = p.socialPrefs.blocked || {};
+      return p.socialPrefs;
+    },
+    visible(platform, item) {
+      const p = K.socialActions.prefs();
+      return !(p.hidden[platform] || []).includes(item.id) && !(p.blocked[platform] || []).includes(item.authorId || item.channelId);
+    },
+    hide(platform, id) {
+      const p = K.socialActions.prefs();
+      p.hidden[platform] = Array.from(new Set((p.hidden[platform] || []).concat(id))).slice(-200);
+      K.save(); K.phone.reRender();
+      K.toast("Akıştan gizlendi", "Akış tercihleri bölümünden geri alabilirsin.", "");
+    },
+    preferences(platform) {
+      K.phone.pushView({ title: "Akış tercihleri", shellClass: "app-" + platform,
+        render: () => `<div class="empty-note"><b>Gizlenen içerikler</b>${(K.socialActions.prefs().hidden[platform] || []).length} içerik akışından gizlendi.</div><button class="btn" data-pact="reset-hidden">Gizlenenleri tekrar göster</button>`,
+        onAction: act => { if (act === "reset-hidden") { K.socialActions.prefs().hidden[platform] = []; K.save(); K.phone.reRender(); } }
+      });
+    },
+    async copy(text) {
+      try {
+        if (!navigator.clipboard || !navigator.clipboard.writeText) throw new Error("clipboard unavailable");
+        await navigator.clipboard.writeText(text);
+        K.toast("Kopyalandı", "Paylaşım metni panoya kopyalandı.", "ok");
+      } catch (_) {
+        K.ui.modal({ title: "Paylaşım metni", body: `<label class="field">Metni seçip kopyalayabilirsin<textarea readonly rows="4">${U.escape(text)}</textarea></label>`, actions: [{ label: "Tamam" }] });
+      }
+    },
+    share(platform, item) {
+      if (!item) return;
+      const text = `${item.authorName || item.channel || K.state.player.stageName}: ${item.text || item.title || ""}`;
+      K.phone.pushView({ title: "Paylaş", shellClass: "app-" + platform,
+        render: () => `<div class="social-share-preview">${U.escape(text)}</div>
+          <button class="social-menu-row" data-pact="copy-share">Paylaşım metnini kopyala <span>↗</span></button>
+          <button class="social-menu-row" data-pact="send-share">Mesajla gönder <span>›</span></button>
+          ${platform === "x" ? '<button class="social-menu-row" data-pact="quote-share">Alıntıla <span>›</span></button>' : ''}
+          <button class="social-menu-row" data-pact="hide-share">Bu içerikle ilgilenmiyorum <span>−</span></button><button class="social-menu-row" data-pact="feed-preferences">Akış tercihleri <span>›</span></button>`,
+        onAction: act => {
+          if (act === "feed-preferences") K.socialActions.preferences(platform);
+          else if (act === "copy-share") K.socialActions.copy(text);
+          else if (act === "send-share") K.socialActions.sendPicker(text);
+          else if (act === "quote-share") K.phone.appById("x").quotePost(item.id);
+          else if (act === "hide-share") { K.phone.back(); K.socialActions.hide(platform, item.id); }
+        }
+      });
+    },
+    sendPicker(text) {
+      let sent = false;
+      const list = K.contacts.list().concat(K.interactions.followedArtists());
+      const people = list.filter((a, i) => list.findIndex(b => b.id === a.id) === i);
+      K.phone.pushView({ title: "Mesajla gönder", shellClass: "social-picker",
+        render: () => `<p class="muted">Bir alıcı seç</p>` + people.map(a => `<button class="social-person" data-pact="send-person" data-arg="${U.escape(a.id)}">${K.ui.artistAvatar(a.id, 36, true)}<span>${U.escape(a.stageName)}</span><span>Gönder</span></button>`).join(""),
+        onAction: (act, el) => {
+          if (act !== "send-person" || sent) return;
+          const before = K.state.player.messagesSentToday;
+          K.relations.sendMessage(el.dataset.arg, text);
+          if (K.state.player.messagesSentToday === before) return;
+          sent = true; K.save(); K.phone.back(); K.toast("Mesaj gönderildi", "Paylaştığın içerik sohbete eklendi.", "ok");
+        }
+      });
+    },
+    comments(key, title) {
+      K.phone.pushView({ title: "Yorumlar", sub: title || "", shellClass: "social-comments",
+        render: () => K.interactions.commentsFor(key, 6).map(c => `<div class="social-comment">${K.ui.avatar(c.user, 30, true)}<div><b>${U.escape(c.user)}</b><p>${U.escape(c.text)}</p></div></div>`).join(""),
+        composer: '<form class="social-comment-form"><input data-social-comment maxlength="500" aria-label="Yorum yaz" placeholder="Yorum ekle…"><button type="button" data-pact="send-comment">Gönder</button></form>',
+        onAction: act => {
+          if (act !== "send-comment") return;
+          const input = document.querySelector('[data-social-comment]');
+          if (!input || !input.value.trim()) return;
+          K.interactions.addComment(key, input.value.trim()); K.phone.reRender();
+        },
+        onMountFull: root => { const form = root.querySelector('form'); if (form) form.addEventListener('submit', e => { e.preventDefault(); form.querySelector('button').click(); }); }
+      });
+    }
+  };
+})(window.K);
+
+</script>
+
   <!-- ================= PHONE APPS ================= -->
   <script>
 /* ==== js/apps/phone.js ==== */
@@ -43304,7 +43821,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         <div class="seg ${bottom ? "seg-bottom" : ""} ${chrome ? "seg-" + chrome : ""}" data-tabs>
           ${v.tabs.map(t => {
             const on = (v.activeTab || v.tabs[0].id) === t.id;
-            return `<button data-tab="${t.id}" class="${on ? "active" : ""}${t.cls ? " " + t.cls : ""}">
+            return `<button data-tab="${t.id}" class="${on ? "active" : ""}${t.cls ? " " + t.cls : ""}" aria-label="${U.escape(t.label)}" aria-current="${on ? "page" : "false"}">
               ${t.icon ? `<span class="tb-ic">${t.icon}</span>` : ""}
               ${t.iconOnly ? "" : `<span class="tb-lb">${U.escape(t.label)}</span>`}
             </button>`;
@@ -43371,34 +43888,29 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     chromeHTML(v, chrome) {
       const needBack = K.phone.views.length > 1;
       const back = needBack ? `<button class="brand-back" data-back aria-label="Geri">‹</button>` : "";
-      const unreadIg = (K.interactions && K.interactions.unreadCount) ? (K.interactions.unreadCount("instagram") || 0) : 0;
 
+      if (chrome === "x") {
+        return `<div class="brand-top brand-x">${back}<button class="social-profile-btn" data-tab="mine" aria-label="Profil">${K.ui.avatar(K.state.player.stageName, 28, true)}</button><b class="x-wordmark">𝕏</b><button class="social-icon-btn" data-pact="x-preferences" aria-label="Akış tercihleri">☷</button></div>`;
+      }
+      const searchIcon = '<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="7.5"/><path d="m16 16 5 5"/></svg>';
+      const bellIcon = '<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 6-3 8-3 8h18s-3-2-3-8M10 20a2 2 0 0 0 4 0"/></svg>';
       if (chrome === "instagram") {
         const onProfile = v.activeTab === "profile";
-        return `<div class="brand-top brand-ig">
-          ${back}
-          ${onProfile
-            ? `<div class="ig-top-username">${U.escape(K.state.player.stageName.toLowerCase().replace(/\s/g, ""))}</div>`
-            : `<div class="ig-wordmark">Instagram</div>`}
-          <div class="ig-top-actions">
-            ${onProfile ? `<button class="ig-top-btn" data-tab="feed" aria-label="Ana sayfa">⌂</button>` : ""}
-            <button class="ig-top-btn" data-pact="ig-activity" aria-label="Bildirimler">
-              <span class="ig-heart">♡</span>
-              ${unreadIg ? `<b class="ig-badge">${Math.min(9, unreadIg)}</b>` : ""}
-            </button>
-            <button class="ig-top-btn" data-pact="ig-inbox" aria-label="Mesajlar">✈</button>
-          </div>
+        const unread = K.interactions.unreadNotifications("instagram");
+        return `<div class="brand-top brand-ig reference-ig">
+          ${back}<button class="ig-top-btn ig-create" data-pact="new-post" aria-label="Oluştur">+</button>
+          ${onProfile ? `<b class="ig-top-username">${U.escape(K.state.player.stageName)}</b>` : `<button class="ig-feed-title" data-pact="ig-feed-menu">${v.state && v.state.feed === "following" ? "Takip ettiklerin" : "Senin için"} <span>⌄</span></button>`}
+          <button class="ig-top-btn ig-notification" data-pact="ig-activity" aria-label="Bildirimler"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21 3 12a5.5 5.5 0 0 1 9-6 5.5 5.5 0 0 1 9 6z"/></svg>${unread ? '<i class="social-unread-dot"></i>' : ''}</button>
         </div>`;
       }
-
       if (chrome === "youtube") {
-        return `<div class="brand-top brand-yt">
-          ${back}
-          <div class="yt-wordmark"><span class="yt-play">▶</span> YouTube</div>
+        const you = v.activeTab === "library";
+        const count = K.ytnotif.unread();
+        return `<div class="brand-top brand-yt">${back}
+          ${you ? '<button class="yt-account" data-pact="yt-account">Hesaplar ⌄</button>' : '<div class="yt-wordmark"><span class="yt-play">▶</span> YouTube</div>'}
           <div class="yt-top-actions">
-            <button class="yt-top-btn" data-pact="yt-search-focus" aria-label="Ara">⌕</button>
-            <button class="yt-top-btn" data-pact="yt-notifs" aria-label="Bildirimler">🔔</button>
-            <button class="yt-top-btn yt-avatar" data-tab="mine" aria-label="Kanalım">${K.ui.avatar(K.state.player.stageName, 24, true)}</button>
+            <button class="yt-top-btn social-bell" data-pact="yt-notifs" aria-label="Bildirimler">${bellIcon}${count ? `<b>${Math.min(count, 99)}</b>` : ''}</button>
+            <button class="yt-top-btn" data-pact="yt-search-focus" aria-label="Ara">${searchIcon}</button>
           </div>
         </div>`;
       }
@@ -43452,7 +43964,11 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       const tab = e.target.closest("[data-tab]");
       if (tab) {
         const v = K.phone.views[K.phone.views.length - 1];
-        if (v) { v.activeTab = tab.dataset.tab; K.phone.renderTop(); }
+        if (v) {
+          const target = (v.tabs || []).find(t => t.id === tab.dataset.tab);
+          if (target && target.action && v.onAction) { v.onAction(target.action, tab, v); return; }
+          v.activeTab = tab.dataset.tab; K.phone.renderTop();
+        }
         return;
       }
 
@@ -43468,6 +43984,13 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           /* SVG ikonlu beğeni düğmelerinde metni EZME (Instagram gibi);
              yalnızca .on sınıfı ile renk/dolgu değişir. */
           if (!actEl.querySelector("svg")) actEl.textContent = on ? "♥" : "♡";
+          K.save();
+          const count = actEl.querySelector("[data-like-count]");
+          if (count) count.textContent = K.util.compact(K.interactions.likeCount(actEl.dataset.arg, +count.dataset.likeCount));
+          document.querySelectorAll("[data-like-for]").forEach(label => {
+            if (label.dataset.likeFor === actEl.dataset.arg) label.textContent = K.util.compact(K.interactions.likeCount(actEl.dataset.arg, +label.dataset.baseLikes)) + " beğenme";
+          });
+          actEl.setAttribute("aria-pressed", String(on));
           const v0 = K.phone.views[K.phone.views.length - 1];
           if (v0 && v0.state) v0.state.dirty = true;
           return;
@@ -43498,7 +44021,8 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         if (pact === "spotlight") { if (K.spotlight) K.spotlight.open(); return; }
         if (pact === "follow") {
           const on = K.interactions.toggleFollow(actEl.dataset.arg);
-          actEl.classList.toggle("following", !on);
+          K.save();
+          actEl.classList.toggle("following", on);
           actEl.textContent = on ? "Takip Ediliyor" : "Takip Et";
           return;
         }
@@ -44828,7 +45352,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             </div>`).join("")
           : `<div class="empty-note"><b>Bildirim yok</b>Kanalına abone ol, video izle ve paylaş — buraya düşer.</div>`,
         onAction: (act) => {
-          if (act === "yt-clear") { K.ytnotif.markRead(); K.toast("🔔 Okundu olarak işaretlendi", "", "ok"); K.phone.reRender(); }
+          if (act === "yt-clear") { K.ytnotif.markRead(); K.toast("🔔 Okundu olarak işaretlendi", "", "ok"); K.save(); K.phone.reRender(); }
         }
       };
     }
@@ -44847,9 +45371,9 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         tabs: [
           { id: "home", label: "Ana Sayfa", icon: YI.home },
           { id: "shorts", label: "Shorts", icon: YI.shorts },
+          { id: "create", label: "Oluştur", icon: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4v16M4 12h16"/></svg>', action: "yt-create", cls: "social-create-tab" },
           { id: "subs", label: "Abonelikler", icon: YI.subs },
-          { id: "library", label: "Kütüphane", icon: YI.library },
-          { id: "mine", label: "Kanalım", icon: YI.user }
+          { id: "library", label: "Siz", icon: YI.user }
         ],
         activeTab: params.tab || "home",
         state: { q: "", filter: "all" },
@@ -44878,26 +45402,30 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
               y0 = null;
               if (Math.abs(dy) < 40) return;
               const app2 = K.phone.appById("youtube");
-              const total = (app2.allVideos() || []).slice(0, 10).length;
+              const total = app2.shortVideos().length;
               const cur = app2.shortIndex(total);
               app2._shortIdx = Math.max(0, Math.min(total - 1, cur + (dy < 0 ? 1 : -1)));
-              K.phone.reRender();
+              K.save(); K.phone.reRender();
             }, { passive: true });
           }
           const input = U.qs("[data-yt-search]", root);
           if (input) {
             const box = U.qs("[data-yt-results]", root);
-            const draw = () => { box.innerHTML = input.value.trim() ? K.phone.appById("youtube").searchHTML(input.value) : ""; };
+            const draw = () => { view.state.q = input.value; const searching = !!input.value.trim(); box.innerHTML = searching ? K.phone.appById("youtube").searchHTML(input.value) : ""; root.querySelector("[data-yt-list]").hidden = searching; };
+            input.value = view.state.q || ""; draw();
             input.addEventListener("input", draw);
           }
         },
         onAction: (act, el, v) => {
           const app = K.phone.appById("youtube");
-          if (act === "watch") { const parts = el.dataset.arg.split("|"); app.watch(parts[0], parts[1], parts[2]); }
+          if (act === "yt-short-open") { app._shortIdx = +el.dataset.arg; v.activeTab = "shorts"; K.phone.reRender(); }
+          else if (act === "yt-account") K.ui.actionSheet("Hesabın", [{ label: K.state.player.stageName + " · Kanalı görüntüle", onClick: () => { v.activeTab = "mine"; K.phone.reRender(); } }]);
+          else if (act === "yt-create") { K.careerUI.openStudioModal(); }
+          else if (act === "watch") { const parts = el.dataset.arg.split("|"); app.watch(parts[0], parts[1], parts[2]); }
           else if (act === "open-channel") app.openChannel(el.dataset.arg);
-          else if (act === "sub") { K.interactions.toggleSub(el.dataset.arg); K.phone.reRender(); }
+          else if (act === "sub") { K.interactions.toggleSub(el.dataset.arg); K.save(); K.phone.reRender(); }
           else if (act === "yt-more") { const q = (el.dataset.arg || "").split("|"); app.moreMenu(q[0], q[1]); }
-          else if (act === "yt-shorts-save") { const on = K.interactions.toggleSave("yt_" + el.dataset.arg); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.phone.reRender(); }
+          else if (act === "yt-shorts-save") { const on = K.interactions.toggleSave("yt_" + el.dataset.arg); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.save(); K.phone.reRender(); }
           else if (act === "yt-shorts-cmt") { const q = (el.dataset.arg || "").split("|"); app.openComments(q[0], q[1], q[2]); }
           else if (act === "yt-comments") { app.openComments(v.id, v.channel, v.channelId); }
           else if (act === "yt-filter") {
@@ -44914,15 +45442,16 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           else if (act === "yt-analytics") app.openAnalytics();
           else if (act === "yt-search-focus") {
             v.activeTab = "home";
+            v.state.searchOpen = true;
             K.phone.reRender();
             const inp = U.qs("[data-yt-search]");
             if (inp) { inp.focus(); }
           }
           else if (act === "short-next" || act === "short-prev") {
-            const total = (app.allVideos() || []).slice(0, 10).length;
+            const total = app.shortVideos().length;
             const cur = app.shortIndex(total);
             app._shortIdx = Math.max(0, Math.min(total - 1, cur + (act === "short-next" ? 1 : -1)));
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
         }
       };
@@ -44932,11 +45461,11 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     /* filtreye göre video listesi */
     listFor(filter) {
       const app = K.phone.appById("youtube");
-      const vids = app.allVideos();
+      const vids = app.allVideos().filter(v => K.socialActions.visible("youtube", v));
       const list = (!filter || filter === "all") ? vids
         : filter === "mine" ? vids.filter(v => v.mine)
         : vids.filter(v => v.kind === filter);
-      const rows = list.slice(0, 18).map(v => videoRow(v, v.channel, v.channelId)).join("");
+      const rows = list.slice(0, 18).map((v, i) => videoRow(v, v.channel, v.channelId) + (i === 0 && (!filter || filter === "all") ? app.shortsShelf() : "")).join("");
       return rows || `<div class="mini-empty">Bu kategoride video yok.</div>`;
     },
 
@@ -45203,37 +45732,34 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     homeHTML(view) {
       const app = K.phone.appById("youtube");
       const f = (view && view.state && view.state.filter) || "all";
-      const chips = [["all", "Tümü"], ["clip", "Klipler"], ["music", "Müzik"], ["mine", "Kanallarım"]];
+      const chips = [["all", "Tümü"], ["music", "Müzik"], ["clip", "Klipler"], ["mine", "Yayınların"]];
       return `
-        <div class="p-search"><span>🔍</span><input data-yt-search type="text" placeholder="YouTube'da ara" /></div>
+        <div class="p-search yt-home-search ${view && view.state.searchOpen ? "open" : ""}"><span>⌕</span><input data-yt-search type="text" placeholder="YouTube'da ara" /></div>
         <div class="filter-chips">
           ${chips.map(([id, l]) => `<button class="fchip ${f === id ? "active" : ""}" data-ytf data-pact="yt-filter" data-arg="${id}">${l}</button>`).join("")}
         </div>
         <div data-yt-results></div>
-        ${K.ui.section("Mağaza Listelerin")}
-        ${K.ui.storeLists("YouTube")}
-        ${K.ui.section("Sizin için")}
-        <div data-yt-list>${app.listFor(f)}</div>`;
+        <div data-yt-list>${app.listFor(f)}</div>
+        ${(K.state.player.songs || []).length ? K.ui.section("Mağaza Listelerin") + K.ui.storeLists("YouTube") : ""}`;
     },
 
-    /* ---------------- KÜTÜPHANE ---------------- */
+    shortsShelf() {
+      const videos = K.phone.appById("youtube").shortVideos().slice(0, 4);
+      return `<section class="yt-short-shelf"><h2><span>▶</span> Shorts</h2><div class="yt-short-grid">${videos.map((v, i) => `<button class="yt-short-tile" data-pact="yt-short-open" data-arg="${i}" style="background:${U.gradientFor(v.id)}">${v.art ? `<img src="${U.escape(v.art)}" alt="" loading="lazy">` : ''}<span>${U.escape(v.title.replace(" (Official Video)", ""))}</span></button>`).join("")}</div></section>`;
+    },
+
+    /* ---------------- SİZ: profil, geçmiş ve kitaplık ---------------- */
     libraryHTML() {
-      const p = K.state.player;
-      const all = K.phone.appById("youtube").allVideos();
-      const watched = (p.watchHistory || []).map(id => all.find(v => v.id === id)).filter(Boolean).slice(0, 8);
-      const liked = all.filter(v => K.interactions.isLiked("yt_" + v.id)).slice(0, 8);
-      const saved = all.filter(v => K.interactions.isSaved("yt_" + v.id)).slice(0, 8);
-      const block = (title, list, empty) => `${K.ui.section(title, `<span class="muted">${list.length}</span>`)}
-        ${list.length ? list.map(v => videoRow(v, v.channel, v.channelId)).join("") : `<div class="mini-empty">${empty}</div>`}`;
-      const likedAll = all.filter(v => K.interactions.isLiked("yt_" + v.id));
-      return `${K.ui.section("Çalma Listeleri")}
-        <div class="p-search" data-pact="yt-playlist" data-arg="liked" style="cursor:pointer">
-          <span>${YI.heart}</span><span style="font-size:12.5px">Beğenilen Müzikler · ${likedAll.length} şarkı</span></div>
-        <div class="p-search" data-pact="yt-playlist" data-arg="saved" style="cursor:pointer">
-          <span>⤓</span><span style="font-size:12.5px">Kaydedilenler · ${all.filter(v => K.interactions.isSaved("yt_" + v.id)).length} video</span></div>`
-        + block("İzlenenler", watched, "Henüz video izlemedin.")
-        + block("Beğenilenler", liked, "Beğendiğin video yok.")
-        + block("Kaydedilenler", saved, "Kaydettiğin video yok.");
+      const p = K.state.player, all = K.phone.appById("youtube").allVideos();
+      const watched = (p.watchHistory || []).map(id => all.find(v => v.id === id)).filter(Boolean).slice(0, 12);
+      const liked = all.filter(v => K.interactions.isLiked("yt_" + v.id));
+      const saved = all.filter(v => K.interactions.isSaved("yt_" + v.id));
+      const cover = v => v && v.art ? `<img src="${U.escape(v.art)}" alt="" loading="lazy">` : '<span class="yt-collection-symbol">▶</span>';
+      const collection = (id, title, list) => `<button class="yt-collection" data-pact="yt-playlist" data-arg="${id}"><span class="yt-collection-art" style="background:${U.gradientFor(title)}">${cover(list[0])}</span><span><b>${title}</b><small>Gizli · ${list.length} video</small></span><span>›</span></button>`;
+      return `<div class="yt-you-header">${K.ui.artistAvatar("player", 56, true)}<div><h2>${U.escape(p.stageName)}</h2><span>@${U.escape(p.stageName.toLowerCase().replace(/\s+/g, ""))}</span></div></div>
+        <button class="yt-view-channel" data-tab="mine">Kanalı görüntüle</button>
+        <section class="yt-history"><h2>Geçmiş <span>›</span></h2><div class="yt-history-row">${watched.length ? watched.map(v => `<button class="yt-history-card" data-pact="watch" data-arg="${U.escape(v.id)}|${U.escape(v.channel)}|${U.escape(v.channelId)}"><span class="yt-history-art">${cover(v)}</span><b>${U.escape(v.title)}</b><small>${U.escape(v.channel)}</small></button>`).join("") : '<p class="mini-empty">İzlediğin videolar burada görünür.</p>'}</div></section>
+        <section class="yt-library"><h2>Kitaplık</h2>${collection("liked", "Beğendiğim videolar", liked)}${collection("saved", "Daha sonra izle", saved)}</section>`;
     },
 
     searchHTML(q) {
@@ -45248,6 +45774,8 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
        Her seferinde tek kart gösterilir; ‹ › düğmeleri ve dokunmatik
        yukarı/aşağı kaydırma sırayı değiştirir (1/10 göstergesi).
        ============================================================ */
+    shortVideos() { return K.phone.appById("youtube").allVideos().filter(v => K.socialActions.visible("youtube", v)).slice(0, 10); },
+
     shortIndex(len) {
       const n = Math.max(0, Number(len) || 0);
       let i = Number(K.phone.appById("youtube")._shortIdx) || 0;
@@ -45257,7 +45785,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
     shortsHTML() {
       const app = K.phone.appById("youtube");
-      const vids = app.allVideos().slice(0, 10);
+      const vids = app.shortVideos();
       if (!vids.length) return `<div class="mini-empty">Henüz Shorts yok.</div>`;
       const idx = app.shortIndex(vids.length);
       const v = vids[idx];
@@ -45495,16 +46023,12 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         onAction: (act, el) => {
           if (act === "watch") { const parts = el.dataset.arg.split("|"); app.watch(parts[0], parts[1], parts[2]); }
           else if (act === "open-channel") app.openChannel(el.dataset.arg);
-          else if (act === "sub") { K.interactions.toggleSub(el.dataset.arg); K.phone.reRender(); }
-          else if (act === "share") K.ui.actionSheet("Paylaş", [
-            { label: "💬 DM'de paylaş", onClick: () => K.phone.openApp("messages") },
-            { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") },
-            { label: "𝕏 X'te paylaş", onClick: () => { K.social.createPost("x", `"${v.title.replace(" (Official Video)", "")}" izleyin 🎬`); K.toast("𝕏 Paylaşıldı", "", "ok"); } }
-          ]);
+          else if (act === "sub") { K.interactions.toggleSub(el.dataset.arg); K.save(); K.phone.reRender(); }
+          else if (act === "share") K.socialActions.share("youtube", v);
           else if (act === "save") {
             const on = K.interactions.toggleSave("yt_" + v.id);
             K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", on ? "Videoyu kaydettin." : "Kaydedilenlerden çıkarıldı.", "ok");
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
           else if (act === "yt-queue-next") K.queue.addNext({ id: v.id, title: v.title.replace(" (Official Video)", ""), artistName: v.channel, art: v.art });
           else if (act === "yt-queue-add") K.queue.add({ id: v.id, title: v.title.replace(" (Official Video)", ""), artistName: v.channel, art: v.art });
@@ -45514,11 +46038,11 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
               if (K.audio.isPlaying()) K.audio.stop();
               else K.audio.play(K.interactions.nowPlaying() || {});
             }
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
           else if (act === "yt-restart") {
             if (K.audio) K.audio.play(K.interactions.nowPlaying() || {});
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
           else if (act === "yt-next") {
             const nv = upNext[0];
@@ -45526,12 +46050,12 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           }
           else if (act === "yt-speed") {
             if (K.audio) K.audio.setRate(parseFloat(el.dataset.arg));
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
           else if (act === "yt-autoplay") {
             K.state.player.ytAutoplay = !(K.state.player.ytAutoplay !== false);
             K.toast("🔁 Oto sıradaki", K.state.player.ytAutoplay ? "Açık" : "Kapalı", "");
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
         }
       });
@@ -45545,13 +46069,13 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       const key = "yt_" + id;
       const saved = K.interactions.isSaved(key);
       K.ui.actionSheet((v ? v.title.replace(" (Official Video)", "") : t.title), [
-        { label: "▶︎ Şimdi çal", onClick: () => { K.interactions.play({ id, title: t.title, artistName: t.artistName, art: t.art }); K.phone.reRender(); } },
+        { label: "▶︎ Şimdi çal", onClick: () => { K.interactions.play({ id, title: t.title, artistName: t.artistName, art: t.art }); K.save(); K.phone.reRender(); } },
         { label: "⏭ Sonra çal", onClick: () => K.queue.addNext({ id, title: t.title, artistName: t.artistName, art: t.art }) },
         { label: "🕒 Sıraya ekle", onClick: () => K.queue.add({ id, title: t.title, artistName: t.artistName, art: t.art }) },
-        { label: saved ? "💾 Kaydı kaldır" : "🔖 Kaydet", onClick: () => { K.interactions.toggleSave(key); K.phone.reRender(); } },
+        { label: saved ? "💾 Kaydı kaldır" : "🔖 Kaydet", onClick: () => { K.interactions.toggleSave(key); K.save(); K.phone.reRender(); } },
         { label: "💬 Yorumlar", onClick: () => { if (v) app.openComments(v.id, v.channel, v.channelId); } },
         { label: "📺 Kanala git", onClick: () => { if (channelId) app.openChannel(channelId); } },
-        { label: "✕ Kapat", onClick: () => {} }
+        { label: "Paylaş", onClick: () => { if (v) K.socialActions.share("youtube", v); } }
       ]);
     },
 
@@ -45596,10 +46120,10 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           if (act === "yt-cmt-like") {
             const on = K.interactions.toggleCommentLike(key, Number(el.dataset.arg));
             K.toast(on ? "❤️ Beğendin" : "Beğeni kaldırıldı", "", "ok");
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           } else if (act === "yt-reply") {
             replyTo = Number(el.dataset.arg);
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
             const inp = U.qs("[data-yt-cmt]");
             if (inp) inp.focus();
           } else if (act === "yt-cmt-send") {
@@ -45615,7 +46139,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
               K.toast("💬 Yorum gönderildi", "", "ok");
             }
             if (inp) inp.value = "";
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
         }
       });
@@ -45692,7 +46216,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             const on = K.interactions.toggleSubBell(cid);
             K.toast(on ? "🔔 Bildirimler açık" : "🔕 Bildirimler kapalı",
               on ? "Yeni videolarda haber verilecek." : "Sessize alındı.", "ok");
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
           else if (act === "yt-play-all" && list[0]) app.watch(list[0].id, list[0].channel, list[0].channelId);
         }
@@ -45726,7 +46250,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           ${vids.length ? vids.map(v => videoRow(v, a.stageName, channelId)).join("") : `<div class="mini-empty">Video bulunamadı.</div>`}`,
         onAction: (act, el) => {
           if (act === "watch") { const [id, ch, chId] = el.dataset.arg.split("|"); app.watch(id, ch, chId); }
-          else if (act === "sub") { K.interactions.toggleSub(el.dataset.arg); K.phone.reRender(); }
+          else if (act === "sub") { K.interactions.toggleSub(el.dataset.arg); K.save(); K.phone.reRender(); }
           else if (act === "dm") K.phone.openApp("messages", { artistId: channelId });
         }
       });
@@ -45808,7 +46332,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       if (own && own.art) return own.art;
     }
     if (post && post.art) return post.art;
-    return null;
+    return post && K.imagery.byArtistId(post.authorId) || null;
   }
 
   function mediaBox(post, cls) {
@@ -45856,7 +46380,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       </div>
 
       <div class="ig-body">
-        <div class="ig-likes">${U.compact(likes)} beğenme</div>
+        <div class="ig-likes" data-like-for="ig_${U.escape(post.id)}" data-base-likes="${post.likes || 0}">${U.compact(likes)} beğenme</div>
         ${K.phone.appById("instagram").captionHTML(post)}
         <div class="ig-cmt-link" data-pact="post-open" data-arg="${U.escape(post.id)}">${U.compact(post.comments)} yorumun tümünü gör</div>
         <div class="ig-meta">${U.ago(post.day, K.state.day)}</div>
@@ -45878,23 +46402,26 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         : `<span class="ig-tab-av">${U.escape(U.initials(K.state.player.stageName))}</span>`;
 
       const view = {
+        chrome: "instagram",
         title: "Instagram",
         sub: "",
         shellClass: "app-instagram",
         tabPos: "bottom",
         tabs: [
           { id: "feed", label: "Ana Sayfa", icon: ICO.home },
-          { id: "explore", label: "Keşfet", icon: ICO.search },
           { id: "reels", label: "Reels", icon: ICO.reels },
+          { id: "inbox", label: "Mesajlar", icon: ICO.navMsg, action: "ig-inbox" },
+          { id: "explore", label: "Ara", icon: ICO.search },
           { id: "profile", label: "Profil", icon: profileIcon }
         ],
         activeTab: params.tab || "feed",
+        state: { feed: "foryou" },
         navRight: `<div class="ig-nav-actions">
           <button class="ig-icon-btn" data-pact="ig-activity" title="Etkinlik">${ICO.navHeart}${navBadge ? `<b style="position:absolute;top:-5px;right:-7px;background:#ff3b5c;color:#fff;font-size:9px;font-weight:800;border-radius:999px;padding:1px 4px">${Math.min(99, navBadge)}</b>` : ""}</button>
           <button class="ig-icon-btn" data-pact="ig-inbox" title="Mesajlar">${ICO.navMsg}</button>
         </div>`,
 
-        /* gerçek Instagram gibi: SAĞA kaydır → DM · SOLA kaydır → canlı yayın */
+        /* Yan hareketler mesajlar ve oluşturma ekranına gider. */
         swipe: {
           right: () => K.phone.pushView(K.phone.appById("instagram").inboxView()),
           left: () => { K.livestream.start("instagram"); K.phone.pushView(K.ui.liveView()); }
@@ -45904,7 +46431,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           if (tab === "reels") return app.reelsHTML();
           if (tab === "explore") return app.exploreHTML();
           if (tab === "profile") return app.profileHTML("player");
-          return app.feedHTML();
+          return app.feedHTML(view.state.feed);
         },
 
         onMount: (root) => {
@@ -45915,18 +46442,23 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
         onAction: (act, el) => {
           const appR = K.phone.appById("instagram");
-          if (act === "open-profile") appR.openProfile(el.dataset.arg);
+          if (act === "ig-feed-menu") K.ui.actionSheet("Akış", [
+            { label: "Senin için", onClick: () => { view.state.feed = "foryou"; K.phone.reRender(); } },
+            { label: "Takip ettiklerin", onClick: () => { view.state.feed = "following"; K.phone.reRender(); } }
+          ]);
+          else if (act === "open-profile") appR.openProfile(el.dataset.arg);
           else if (act === "post-open") appR.openPost(el.dataset.arg);
           else if (act === "post-share") appR.sharePost(el.dataset.arg);
+          else if (act === "reel-cmt") K.socialActions.comments("reel_" + el.dataset.arg, "Reels");
           else if (act === "post-more") appR.postSheet(el.dataset.arg);
           else if (act === "ig-save") {
             const on = K.interactions.toggleSave("ig_" + el.dataset.arg);
             K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "Koleksiyonuna eklendi.", "ok");
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
           else if (act === "ig-activity") { K.interactions.markNotifsRead("instagram"); K.phone.pushView(appR.activityView()); }
           else if (act === "ig-inbox") K.phone.pushView(appR.inboxView());
-          else if (act === "new-post") appR.newPost();
+          else if (act === "new-post") K.ui.actionSheet("Oluştur", [{ label: "Gönderi", onClick: () => appR.newPost() }, { label: "Canlı yayın", onClick: () => { K.livestream.start("instagram"); K.phone.pushView(K.ui.liveView()); } }]);
           else if (act === "promote") appR.promotePicker();
           else if (act === "story") appR.openStory(el.dataset.arg);
           else if (act === "go-live") { K.livestream.start("instagram"); K.phone.pushView(K.ui.liveView()); }
@@ -46067,9 +46599,9 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       return { reach, impressions, likes, comments, saves, profileVisits, follows, eng };
     },
 
-    feedHTML() {
+    feedHTML(mode) {
       const followed = K.interactions.followedArtists();
-      const posts = K.social.feedFor("instagram", { followedOnly: true, limit: 14 });
+      const posts = K.social.feedFor("instagram", { followedOnly: mode === "following", limit: 14 }).filter(p => K.socialActions.visible("instagram", p));
       const stories = (followed.length ? followed : K.artistList()).slice(0, 16);
       const suggested = K.social.suggestedArtists("instagram", 4);
       const seen = (K.phone._storySeen = K.phone._storySeen || {});
@@ -46077,7 +46609,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       const myGrad = `background:${U.gradientFor(K.state.player.stageName)}`;
 
       return `
-        <div class="ig-gesture-hint"><span>← Canlı yayın</span><span>Mesajlar →</span></div>
+
 
         <div class="ig-stories">
           <button class="ig-story" data-pact="story" data-arg="player">
@@ -46096,15 +46628,6 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
               <span class="ig-story-name">${U.escape(a.stageName)}</span>
             </button>`;
           }).join("")}
-        </div>
-
-        <div class="ig-livebar" data-pact="go-live">
-          <span class="lb-dot"></span>
-          <div>
-            <div class="lb-t">Canlı yayın başlat</div>
-            <div class="lb-s">Takipçi kazan · bağış topla · popülerliğini artır</div>
-          </div>
-          <span style="margin-left:auto;font-size:10px;font-weight:800;color:#ff9db0">🔴 CANLI</span>
         </div>
 
         ${posts.length
@@ -46127,7 +46650,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
     /* ---------- REELS ---------- */
     reelsHTML() {
-      const vids = K.phone.appById("youtube").allVideos().slice(0, 10);
+      const vids = K.phone.appById("youtube").allVideos().filter(v => K.socialActions.visible("instagram", v)).slice(0, 10);
       return `<div class="ig-reels">
         ${vids.map((v) => {
           const liked = K.interactions.isLiked("reel_" + v.id);
@@ -46144,7 +46667,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             <div class="r-side">
               <button class="${liked ? "on" : ""}" data-pact="like" data-arg="reel_${U.escape(v.id)}">${ICO.heart}</button>
               <span>${U.compact(Math.round(v.views * 0.06))}</span>
-              <button data-pact="reel-cmt">${ICO.comment}</button>
+              <button data-pact="reel-cmt" data-arg="${U.escape(v.id)}" aria-label="Yorumlar">${ICO.comment}</button>
               <span>${U.compact(Math.round(v.views * 0.003))}</span>
               <button data-pact="post-share" data-arg="${U.escape(v.id)}">${ICO.share}</button>
               <span class="grow"></span>
@@ -46315,7 +46838,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             b.addEventListener("click", () => {
               app._profileTabs = app._profileTabs || {};
               app._profileTabs[b.dataset.arg] = b.dataset.igPtab;
-              K.phone.reRender();
+              K.save(); K.phone.reRender();
             });
           });
         }
@@ -46445,40 +46968,31 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
               K.interactions.addComment("ig_" + post.id, inp.value.trim());
               K.toast("💬 Yorum gönderildi", "", "ok");
               inp.value = "";
-              K.phone.reRender();
+              K.save(); K.phone.reRender();
             } else K.toast("Boş yorum", "", "warn");
           }
-          else if (act === "ig-save") { const on = K.interactions.toggleSave("ig_" + post.id); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.phone.reRender(); }
+          else if (act === "ig-save") { const on = K.interactions.toggleSave("ig_" + post.id); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.save(); K.phone.reRender(); }
           else if (act === "focus-cmt") { const inp = U.qs("[data-ig-cmt]"); if (inp) inp.focus(); }
         }
       });
     },
 
     postSheet(postId) {
-      const mine = !!(K.state.feed && (K.state.feed.instagram || []).find(x => x && x.id === postId && x.mine));
-      if (mine) {
-        K.ui.actionSheet("Gönderi", [
-          { label: "📊 Analizi gör", onClick: () => K.phone.appById("instagram").postInsights(postId) },
-          { label: "🔖 Kaydet", onClick: () => { K.interactions.toggleSave("ig_" + postId); K.toast("🔖 Kaydedildi", "", "ok"); } },
-          { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") }
-        ]);
-        return;
-      }
+      const app = K.phone.appById("instagram");
+      const post = (K.state.feed.instagram || []).find(x => x.id === postId);
+      if (!post) return;
       K.ui.actionSheet("Gönderi", [
-        { label: "✈︎ Paylaş", onClick: () => K.toast("✈︎ Paylaşıldı", "Bağlantı kopyalandı.", "ok") },
-        { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") },
-        { label: "🔖 Kaydet", onClick: () => { K.interactions.toggleSave("ig_" + postId); K.phone.reRender(); } },
-        { label: "🚫 Bildir", cls: "destructive", onClick: () => K.toast("🚫 Bildirildi", "", "warn") }
+        ...(post.mine ? [{ label: "Analizi gör", onClick: () => app.postInsights(postId) }] : []),
+        { label: "Paylaş", onClick: () => app.sharePost(postId) },
+        { label: K.interactions.isSaved("ig_" + postId) ? "Kaydı kaldır" : "Kaydet", onClick: () => { K.interactions.toggleSave("ig_" + postId); K.save(); K.save(); K.phone.reRender(); } },
+        { label: "İlgilenmiyorum", onClick: () => K.socialActions.hide("instagram", postId) },
+        { label: "Akış tercihleri", onClick: () => K.socialActions.preferences("instagram") }
       ]);
     },
 
     sharePost(id) {
-      K.ui.actionSheet("Gönderiyi paylaş", [
-        { label: "📸 Hikâyeme ekle", onClick: () => K.toast("📸 Hikâyene eklendi", "24 saat görünür.", "ok") },
-        { label: "✈︎ DM'de paylaş", onClick: () => K.phone.pushView(K.phone.appById("instagram").inboxView()) },
-        { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") },
-        { label: "🚫 Bildir", cls: "destructive", onClick: () => K.toast("🚫 Bildirildi", "", "warn") }
-      ]);
+      const item = (K.state.feed.instagram || []).find(p => p.id === id) || K.phone.appById("youtube").allVideos().find(v => v.id === id);
+      K.socialActions.share("instagram", item);
     },
 
     /* ============================================================
@@ -46609,7 +47123,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           if (act === "notif-follow") {
             const on = K.interactions.toggleFollow(el.dataset.arg);
             if (on) K.toast("✅ Takip edildi", (K.artistById(el.dataset.arg) || {}).stageName || "", "ok");
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
             return;
           }
           if (act !== "notif-open") return;
@@ -46676,7 +47190,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       const songs = K.state.player.songs;
       if (!songs.length) { K.toast("Şarkın yok", "Önce bir şarkı yayınla.", "warn"); return; }
       K.ui.actionSheet("Hangi şarkıyı tanıtmak istersin?",
-        songs.map((s) => ({ label: s.title, onClick: () => { K.social.promoteSong(s.id, "instagram"); K.phone.reRender(); } })));
+        songs.map((s) => ({ label: s.title, onClick: () => { K.social.promoteSong(s.id, "instagram"); K.save(); K.phone.reRender(); } })));
     }
   });
 })(window.K);
@@ -46733,9 +47247,9 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       <div class="tt-ov"></div>
       <div class="tt-side">
         <div class="tt-av" data-pact="open-profile" data-arg="${v.channelId}">${v.channelId && v.channelId !== "player" ? K.ui.artistAvatar(v.channelId, 40, true) : K.ui.avatar(v.channel, 40, true)}</div>
-        <button class="tt-act ${liked ? "on" : ""}" data-pact="like" data-arg="tt_${U.escape(v.id)}">${TI.heart}<span>${U.compact(Math.round(v.views * 0.1))}</span></button>
+        <button class="tt-act ${liked ? "on" : ""}" data-pact="like" data-arg="tt_${U.escape(v.id)}">${TI.heart}<span data-like-count="${Math.round(v.views * 0.1)}">${U.compact(K.interactions.likeCount("tt_" + v.id, Math.round(v.views * 0.1)))}</span></button>
         <button class="tt-act" data-pact="tt-comments" data-arg="${U.escape(v.id)}">${TI.comment}<span>${U.compact(Math.round(v.views * 0.004))}</span></button>
-        <button class="tt-act" data-pact="tt-share">${TI.share}<span>${U.compact(Math.round(v.views * 0.002))}</span></button>
+        <button class="tt-act" data-pact="tt-share" data-arg="${U.escape(v.id)}" aria-label="Paylaş">${TI.share}<span>${U.compact(Math.round(v.views * 0.002))}</span></button>
         <button class="tt-act ${saved ? "on" : ""}" data-pact="save" data-arg="tt_${U.escape(v.id)}">${TI.bookmark}</button>
         <button class="tt-act" data-pact="tt-more" data-arg="${U.escape(v.id)}" title="Daha fazla">⋯</button>
       </div>
@@ -46744,7 +47258,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         ${v.duetOf ? `<div class="tt-orig">🔀 Duet · ${U.escape(String(v.duetOf).slice(0, 40))}</div>` : ""}
         ${v.stitchOf ? `<div class="tt-orig">✂️ Stitch · ${U.escape(String(v.stitchOf).slice(0, 40))}</div>` : ""}
         <div class="tt-desc">${U.escape(v.title.replace(" (Official Video)", ""))} 🔥 #fyp #rap</div>
-        <div class="tt-sound" data-pact="sound" data-arg="${U.escape(v.title.replace(" (Official Video)", ""))}">${TI.music} Orijinal ses · ${U.escape(v.channel)}</div>
+        <div class="tt-sound" data-pact="sound" data-arg="${U.escape(v.soundTitle || v.title.replace(" (Official Video)", ""))}">${TI.music} ${U.escape(v.soundTitle || ("Orijinal ses · " + v.channel))}</div>
       </div>
     </div>`;
   }
@@ -46761,15 +47275,16 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         /* sola kaydır → kamera/oluştur · sağa kaydır → mesajlar */
         swipe: {
           right: () => K.phone.openApp("messages"),
-          left: () => K.toast("🎬 Oluştur", "Kamera açılıyor… (demo)", "ok")
+          left: () => K.phone.appById("tiktok").createVideo()
         },
         tabs: [
-          { id: "foryou", label: "Senin İçin", icon: TI.home },
+          { id: "foryou", label: "Ana Sayfa", icon: TI.home },
           { id: "following", label: "Takip", icon: TI.users },
-          { id: "trend", label: "Trend Sesler", icon: TI.music },
+          { id: "create", label: "Oluştur", icon: TI.plus, action: "create", cls: "social-create-tab" },
+          { id: "inbox", label: "Gelen Kutusu", icon: TI.comment, action: "tt-inbox" },
           { id: "mine", label: "Profilim", icon: TI.user }
         ],
-        activeTab: params.tab || "trend",
+        activeTab: params.tab || "foryou",
         render: (tab) => {
           const app = K.phone.appById("tiktok");
           if (tab === "foryou") return app.forYouHTML();
@@ -46777,12 +47292,14 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           if (tab === "mine") return app.mineHTML();
           return app.trendHTML();
         },
+        onMount: root => { root.style.setProperty("--social-video-height", Math.max(300, root.clientHeight) + "px"); },
         onAction: (act, el) => {
           const app = K.phone.appById("tiktok");
           if (act === "sound") app.openSound(el.dataset.arg);
           else if (act === "open-profile") app.openProfile(el.dataset.arg);
           else if (act === "tt-comments") app.comments(el.dataset.arg);
-          else if (act === "tt-share") K.toast("↗ Paylaşıldı", "Bağlantı kopyalandı.", "ok");
+          else if (act === "tt-share") K.socialActions.share("tiktok", app.videoById(el.dataset.arg));
+          else if (act === "tt-inbox") K.phone.openApp("messages");
           else if (act === "tt-more") {
             const v = app.videoById(el.dataset.arg);
             if (!v) K.toast("Video bulunamadı", "", "warn");
@@ -46797,34 +47314,49 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           else if (act === "save") {
             const on = K.interactions.toggleSave(el.dataset.arg || ("tt_" + el.dataset.arg));
             K.toast(on ? "★ Kaydedildi" : "Kaldırıldı", "", "ok");
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
           else if (act === "promote") app.promotePicker();
           else if (act === "tt-analytics") app.openAnalytics();
-          else if (act === "create") K.toast("🎬 Oluştur", "Kamera açılıyor… (demo)", "ok");
+          else if (act === "create") app.createVideo();
           else if (act === "go-live") { K.livestream.start("tiktok"); K.phone.pushView(K.ui.liveView()); }
         }
       };
       return view;
     },
 
+    videos() {
+      const mine = (K.state.feed.tiktok || []).filter(p => p.mine).map(p => ({ id: p.id, title: p.text, channel: p.authorName, channelId: "player", views: p.views || (p.likes || 0) * 12, mine: true, art: p.art || null, duetOf: p.duetOf, stitchOf: p.stitchOf, soundTitle: p.soundTitle }));
+      return mine.concat(K.phone.appById("youtube").allVideos()).filter(v => K.socialActions.visible("tiktok", v));
+    },
+
+    createVideo(sound) {
+      let posted = false;
+      K.phone.pushView({ title: "Yeni video", shellClass: "app-tiktok social-compose",
+        render: () => `<div class="social-cover-preview">♫<span>Kısa video</span></div><label class="field">Açıklama<textarea data-tt-caption maxlength="500" placeholder="Videon hakkında bir şeyler söyle…" rows="4"></textarea></label><label class="field">Ses<select data-tt-song><option value="">${U.escape(sound ? sound.title : "Orijinal ses")}</option>${K.state.player.songs.map(s => `<option value="${U.escape(s.id)}">${U.escape(s.title)}</option>`).join("")}</select></label><button class="btn btn-primary" data-pact="publish-video">Yayınla</button>`,
+        onAction: act => {
+          if (act !== "publish-video" || posted) return;
+          const text = document.querySelector("[data-tt-caption]").value.trim();
+          if (!text) { K.toast("Açıklama ekle", "", "warn"); return; }
+          const songId = document.querySelector("[data-tt-song]").value || null;
+          posted = true;
+          const result = K.social.playerPost("tiktok", text, "reach", songId);
+          if (result && result.post && sound && !songId) result.post.soundTitle = sound.title;
+          K.save(); K.phone.back(); K.phone.openApp("tiktok", { tab: "mine" });
+        }
+      });
+    },
+
     forYouHTML() {
-      const vids = K.phone.appById("youtube").allVideos().slice(0, 12);
-      return `
-        <div class="live-cta" data-pact="go-live">
-          <span class="live-dot"></span>
-          <div class="grow"><b style="font-size:12.5px">TikTok Live Başlat</b>
-          <div class="muted" style="font-size:10.5px">Anlık izleyici ve takipçi kazan</div></div>
-          <span style="font-weight:900;color:#ff9db0">🔴 CANLI</span>
-        </div>
-        <div class="tt-feed">${vids.map((v, i) => ttCard(v, i)).join("")}</div>`;
+      const vids = K.phone.appById("tiktok").videos().slice(0, 16);
+      return `<div class="tt-feed">${vids.map((v, i) => ttCard(v, i)).join("")}</div>`;
     },
 
     followingHTML() {
       const followed = K.interactions.followedArtists();
       /* GERÇEKLİK: takip etmediğin hesabın videosu görünmez. */
       const vids = followed.length
-        ? K.phone.appById("youtube").allVideos().filter(v => followed.some(a => a.id === v.channelId))
+        ? K.phone.appById("tiktok").videos().filter(v => followed.some(a => a.id === v.channelId))
         : [];
       const suggested = K.social.suggestedArtists("tiktok", 5);
       return `
@@ -46879,7 +47411,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
     mineHTML() {
       const p = K.state.player;
-      const vids = K.phone.appById("youtube").allVideos().filter(v => v.mine);
+      const vids = K.phone.appById("tiktok").videos().filter(v => v.mine);
       return `
         <div class="tt-song">
           ${K.ui.artistAvatar("player", 50, true)}
@@ -46937,7 +47469,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     },
 
     videoById(videoId) {
-      return (K.phone.appById("youtube").allVideos() || []).find(v => v && v.id === videoId) || null;
+      return K.phone.appById("tiktok").videos().find(v => v && v.id === videoId) || null;
     },
 
     /* duet / stitch: orijinali referans alan yeni bir gönderi üretir */
@@ -46956,6 +47488,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         if (isStitch) fresh.stitchOf = title;
         else fresh.duetOf = title;
         fresh.ofVideoId = v.id;
+        K.save();
       }
       K.toast(isStitch ? "✂️ Stitch oluşturuldu" : "🔀 Duet oluşturuldu",
         (isStitch ? "Kesit" : "Ortak video") + " gönderin akışa eklendi.", "ok");
@@ -46984,7 +47517,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       const p = K.state.player;
       const sounds = (K.shortform && K.shortform.trendList) ? K.shortform.trendList(10) : [];
       const soundVideos = sounds.reduce((n, t) => n + (t.videos || 0), 0);
-      const mine = K.phone.appById("youtube").allVideos().filter(v => v.mine);
+      const mine = K.phone.appById("tiktok").videos().filter(v => v.mine);
       const topVids = mine.slice().sort((a, b) => b.views - a.views).slice(0, 10);
       const videoViews = Math.round((p.tiktok || 0) * 15 + soundVideos * 300);
       const likes = Math.round(videoViews * 0.09);
@@ -47130,9 +47663,9 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
             : `<div class="mini-empty">Henüz video yok.</div>`}`,
         onAction: (act, el) => {
           const pick = () => K.platforms.searchSongs(soundTitle)[0] || (mineSong ? { id: mineSong.id, title: mineSong.title, artistName: K.state.player.stageName, art: null } : null);
-          if (act === "create") K.toast("🎬 Oluştur", "Kamera açılıyor… (demo)", "ok");
+          if (act === "create") app.createVideo({ title: soundTitle });
           else if (act === "open-video") K.phone.appById("tiktok").openVideo(el.dataset.arg);
-          else if (act === "share") K.toast("↗ Paylaşıldı", "", "ok");
+          else if (act === "share") K.socialActions.copy(soundTitle);
           else if (act === "sound-play") { const sg = pick(); if (sg) K.interactions.play(sg); else K.toast("Şarkı bulunamadı", "", "warn"); }
           else if (act === "sound-queue") { const sg = pick(); if (sg) K.queue.add(sg); }
           else if (act === "start-sound") {
@@ -47185,7 +47718,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         onAction: (act) => {
           if (act === "tt-cmt-send") {
             const inp = U.qs("[data-tt-cmt]");
-            if (inp && inp.value.trim()) { K.interactions.addComment(key, inp.value.trim()); inp.value = ""; K.toast("💬 Yorum gönderildi", "", "ok"); K.phone.reRender(); }
+            if (inp && inp.value.trim()) { K.interactions.addComment(key, inp.value.trim()); inp.value = ""; K.toast("💬 Yorum gönderildi", "", "ok"); K.save(); K.phone.reRender(); }
             else K.toast("Boş yorum", "", "warn");
           } else if (act === "tt-reply") { const inp = U.qs("[data-tt-cmt]"); if (inp) inp.focus(); }
         }
@@ -47273,11 +47806,11 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           <div class="xq-text">${U.escape(String(post.quoteOf.text || "").slice(0, 180))}</div>
         </div>` : ""}
         <div class="xp-actions">
-          <span class="xp-act" data-pact="post-open" data-arg="${post.id}" style="cursor:pointer">${XI.reply}<b>${U.compact(post.comments || 0)}</b></span>
-          <span class="xp-act xp-repost ${reposted ? "on" : ""}" data-pact="x-repost" data-arg="${post.id}">${XI.repost}<b>${U.compact(K.interactions.repostCount(key, post.shares))}</b></span>
-          <span class="xp-act xp-like ${liked ? "on" : ""}" data-pact="like" data-arg="${key}">${XI.heart}<b>${U.compact(K.interactions.likeCount(key, baseLikes))}</b></span>
-          <span class="xp-act xp-save ${saved ? "on" : ""}" data-pact="x-save" data-arg="${post.id}">${XI.bookmark}</span>
-          <span class="xp-act" data-pact="x-share" data-arg="${post.id}" style="cursor:pointer">${XI.share}</span>
+          <button type="button" aria-label="Yorumlar" class="xp-act" data-pact="post-open" data-arg="${post.id}" style="cursor:pointer">${XI.reply}<b>${U.compact(post.comments || 0)}</b></button>
+          <button type="button" aria-label="Yeniden gönder" class="xp-act xp-repost ${reposted ? "on" : ""}" data-pact="x-repost" data-arg="${post.id}">${XI.repost}<b>${U.compact(K.interactions.repostCount(key, post.shares))}</b></button>
+          <button type="button" aria-label="Beğen" class="xp-act xp-like ${liked ? "on" : ""}" data-pact="like" data-arg="${key}">${XI.heart}<b data-like-count="${baseLikes}">${U.compact(K.interactions.likeCount(key, baseLikes))}</b></button>
+          <button type="button" aria-label="Kaydet" class="xp-act xp-save ${saved ? "on" : ""}" data-pact="x-save" data-arg="${post.id}">${XI.bookmark}</button>
+          <button type="button" aria-label="Paylaş" class="xp-act" data-pact="x-share" data-arg="${post.id}" style="cursor:pointer">${XI.share}</button>
           <span class="xp-act muted">${XI.chart}<b>${U.compact(post.views || Math.round((post.likes || 0) * 12))}</b></span>
         </div>
       </div>
@@ -47289,7 +47822,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
     render(params) {
       const view = {
-        title: "X", sub: "Ne oluyor?",
+        chrome: "x", title: "X", sub: "",
         shellClass: "app-x",
         tabPos: "bottom",
         tabs: [
@@ -47299,30 +47832,25 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           { id: "mine", label: "Profilim", icon: XI.user }
         ],
         activeTab: params.tab || "feed",
+        state: { feed: "foryou", query: "" },
+        onMount: root => { const input = root.querySelector("[data-x-search]"); if (input) input.addEventListener("input", () => { view.state.query = input.value; root.querySelector("[data-x-results]").innerHTML = K.phone.appById("x").searchHTML(input.value); }); },
         render: (tab) => {
           const app = K.phone.appById("x");
-          if (tab === "explore") return app.exploreHTML();
+          if (tab === "explore") return `<div class="social-search"><input data-x-search aria-label="X’te ara" placeholder="Ara" value="${U.escape(view.state.query)}"></div><div data-x-results>${view.state.query ? app.searchHTML(view.state.query) : app.exploreHTML()}</div>`;
           if (tab === "notif") { K.interactions.markNotifsRead("x"); return app.notifHTML(); }
           if (tab === "mine") return app.mineHTML();
-          return app.feedHTML();
+          return app.feedHTML(view.state.feed);
         },
         onAction: (act, el) => {
           const app = K.phone.appById("x");
-          if (act === "open-profile") app.openProfile(el.dataset.arg);
+          if (act === "x-feed") { view.state.feed = el.dataset.arg; K.save(); K.phone.reRender(); }
+          else if (act === "x-preferences") K.socialActions.preferences("x");
+          else if (act === "open-profile") app.openProfile(el.dataset.arg);
           else if (act === "post-open") app.openPost(el.dataset.arg);
-          else if (act === "x-repost") { const on = K.interactions.toggleRepost("x_" + el.dataset.arg); K.toast(on ? "↻ Yeniden gönderildi" : "Geri alındı", "", "ok"); K.phone.reRender(); }
-          else if (act === "x-save") { const on = K.interactions.toggleSave("x_" + el.dataset.arg); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.phone.reRender(); }
-          else if (act === "x-share") K.ui.actionSheet("Gönderiyi paylaş", [
-            { label: "↻ Yeniden gönder", onClick: () => { K.interactions.toggleRepost("x_" + el.dataset.arg); K.phone.reRender(); } },
-            { label: "✍️ Alıntıla", onClick: () => { const p = (K.state.feed.x || []).find(x => x.id === el.dataset.arg); app.newPost(p ? "\u201C" + p.text + "\u201D" : ""); } },
-            { label: "💬 DM'de paylaş", onClick: () => K.phone.openApp("messages") },
-            { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") }
-          ]);
-          else if (act === "post-more") K.ui.actionSheet("Gönderi", [
-            { label: "↻ Yeniden gönder", onClick: () => { K.interactions.toggleRepost("x_" + el.dataset.arg); K.toast("↻ Paylaşıldı", "", "ok"); K.phone.reRender(); } },
-            { label: "✍️ Alıntıla", onClick: () => { const p = (K.state.feed.x || []).find(x => x.id === el.dataset.arg); app.newPost(p ? "\u201C" + p.text + "\u201D" : ""); } },
-            { label: "🚫 Engelle", cls: "destructive", onClick: () => K.toast("🚫 Engellendi", "", "warn") }
-          ]);
+          else if (act === "x-share") K.phone.appById("x").sharePost(el.dataset.arg);
+          else if (act === "x-repost") { const on = K.interactions.toggleRepost("x_" + el.dataset.arg); K.toast(on ? "↻ Yeniden gönderildi" : "Geri alındı", "", "ok"); K.save(); K.phone.reRender(); }
+          else if (act === "x-save") { const on = K.interactions.toggleSave("x_" + el.dataset.arg); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.save(); K.phone.reRender(); }
+          else if (act === "post-more") app.sharePost(el.dataset.arg);
           else if (act === "new-post") app.newPost();
           else if (act === "promote") app.promotePicker();
           else if (act === "trend-open") app.openTrend(el.dataset.arg);
@@ -47331,10 +47859,19 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       return view;
     },
 
-    feedHTML() {
-      const posts = K.social.feedFor("x").slice().sort((a, b) => b.day - a.day);
-      return `<button class="btn btn-ghost btn-sm" data-pact="new-post" style="align-self:flex-start">${XI.compose} Gönderi Yaz</button>` +
-        posts.map(p => postHTML(p, { clickable: true })).join("");
+    sharePost(id) { K.socialActions.share("x", (K.state.feed.x || []).find(p => p.id === id)); },
+
+    searchHTML(query) {
+      const q = query.trim().toLocaleLowerCase("tr");
+      const posts = K.social.feedFor("x").filter(p => K.socialActions.visible("x", p) && (p.text + " " + p.authorName).toLocaleLowerCase("tr").includes(q));
+      return posts.map(p => postHTML(p, { clickable: true })).join("") || '<div class="empty-note"><b>Sonuç bulunamadı</b>Başka bir ad veya kelime dene.</div>';
+    },
+
+    feedHTML(mode) {
+      const posts = K.social.feedFor("x").filter(p => K.socialActions.visible("x", p) && (mode !== "following" || p.mine || K.interactions.isFollowed(p.authorId))).sort((a, b) => b.day - a.day);
+      return `<div class="x-feed-tabs">${[["foryou", "Sana özel"], ["following", "Takip edilenler"]].map(([id, label]) => `<button data-pact="x-feed" data-arg="${id}" aria-selected="${(mode || "foryou") === id}" class="${(mode || "foryou") === id ? "active" : ""}">${label}</button>`).join("")}</div>` +
+        (posts.map(p => postHTML(p, { clickable: true })).join("") || '<div class="empty-note"><b>Akışın henüz boş</b>Keşfet’ten sanatçıları bulup takip edebilirsin.</div>') +
+        `<button class="x-compose-fab" data-pact="new-post" aria-label="Gönderi yaz">${XI.compose}</button>`;
     },
 
     exploreHTML() {
@@ -47459,15 +47996,10 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           const app = K.phone.appById("x");
           if (act === "open-profile") app.openProfile(el.dataset.arg);
           else if (act === "post-open") app.openPost(el.dataset.arg);
-          else if (act === "x-repost") { const on = K.interactions.toggleRepost("x_" + post.id); K.toast(on ? "↻ Yeniden gönderildi" : "Geri alındı", "", "ok"); K.phone.reRender(); }
-          else if (act === "x-save") { const on = K.interactions.toggleSave("x_" + post.id); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.phone.reRender(); }
+          else if (act === "x-share") K.phone.appById("x").sharePost(el.dataset.arg);
+          else if (act === "x-repost") { const on = K.interactions.toggleRepost("x_" + post.id); K.toast(on ? "↻ Yeniden gönderildi" : "Geri alındı", "", "ok"); K.save(); K.phone.reRender(); }
+          else if (act === "x-save") { const on = K.interactions.toggleSave("x_" + post.id); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.save(); K.phone.reRender(); }
           else if (act === "x-quote") K.phone.appById("x").quotePost(post.id);
-          else if (act === "x-share") K.ui.actionSheet("Paylaş", [
-            { label: "✏️ Alıntıla", onClick: () => K.phone.appById("x").quotePost(post.id) },
-            { label: "↻ Yeniden gönder", onClick: () => { K.interactions.toggleRepost("x_" + post.id); K.phone.reRender(); } },
-            { label: "💬 DM'de paylaş", onClick: () => K.phone.openApp("messages") },
-            { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") }
-          ]);
           else if (act === "reply-send") {
             const inp = U.qs("[data-x-reply]");
             if (inp && inp.value.trim()) {
@@ -47513,6 +48045,8 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         onAction: (act, el) => {
           if (act === "dm") K.phone.openApp("messages", { artistId: el.dataset.arg });
           else if (act === "post-open") K.phone.appById("x").openPost(el.dataset.arg);
+          else if (act === "x-share") K.phone.appById("x").sharePost(el.dataset.arg);
+          else if (act === "x-save" || act === "x-repost") { K.interactions[act === "x-save" ? "toggleSave" : "toggleRepost"]("x_" + el.dataset.arg); K.save(); K.phone.reRender(); }
         }
       });
     },
@@ -47535,8 +48069,9 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         onAction: (act, el) => {
           if (act === "post-open") app.openPost(el.dataset.arg);
           else if (act === "open-profile") app.openProfile(el.dataset.arg);
-          else if (act === "x-repost") { const on = K.interactions.toggleRepost("x_" + el.dataset.arg); K.toast(on ? "↻ Yeniden gönderildi" : "Geri alındı", "", "ok"); K.phone.reRender(); }
-          else if (act === "x-save") { const on = K.interactions.toggleSave("x_" + el.dataset.arg); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.phone.reRender(); }
+          else if (act === "x-share") K.phone.appById("x").sharePost(el.dataset.arg);
+          else if (act === "x-repost") { const on = K.interactions.toggleRepost("x_" + el.dataset.arg); K.toast(on ? "↻ Yeniden gönderildi" : "Geri alındı", "", "ok"); K.save(); K.phone.reRender(); }
+          else if (act === "x-save") { const on = K.interactions.toggleSave("x_" + el.dataset.arg); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.save(); K.phone.reRender(); }
           else if (act === "trend-post") { K.phone.back(); setTimeout(() => app.newPost("", el.dataset.arg), 40); }
         }
       });
@@ -47574,6 +48109,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
               const feed = K.state.feed.x || [];
               const fresh = feed.find(p2 => p2 && p2.mine && p2.text === text);
               if (fresh) fresh.quoteOf = quote;
+              K.save(); K.phone.reRender();
             }
             K.toast(res.title, res.msg, res.kind);
           }}
@@ -50004,6 +50540,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     document.body.classList.toggle("hide-values", !!(K.settings && K.settings.valuesHidden && K.settings.valuesHidden()));
     K.careerUI.init();
     K.phone.init();
+    if (K.journey) K.journey.tick();
 
     // kayıtlı canlı veriyi uygula (varsa), sonra listeyi kur
     if (K.live && K.live.restore) K.live.restore();

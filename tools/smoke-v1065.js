@@ -222,7 +222,9 @@ H.whenReady(dom, { label: "v1065" }).then((K) => {
     const KNOWN = ["open-studio", "go-tab", "lib-filter", "preview-song", "practice", "mh-rest",
       "rel-rush", "rel-cancel", "rel-rename", "song-detail", "draft-resume", "draft-del", "ob-dismiss",
       /* kariyer sekmesinde zaten var olan eylemler */
-      "edit-identity", "persona", "mh-therapy", "mh-holiday", "mh-speak"];
+      "edit-identity", "persona", "mh-therapy", "mh-holiday", "mh-speak",
+      /* İlk ay kararları: tıklama davranışı smoke-journey.js içinde doğrulanır. */
+      "journey-choice", "journey-cancel"];
     const acts = qa("#career-body button").map(b => b.dataset.act).filter(Boolean);
     const unknown = acts.filter(a => KNOWN.indexOf(a) < 0);
     ok("D1 · bilinmeyen eylem yok", unknown.length === 0, unknown.join(",") || "temiz");

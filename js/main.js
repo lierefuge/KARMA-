@@ -204,6 +204,7 @@
     document.body.classList.toggle("hide-values", !!(K.settings && K.settings.valuesHidden && K.settings.valuesHidden()));
     K.careerUI.init();
     K.phone.init();
+    if (K.journey) K.journey.tick();
 
     // kayıtlı canlı veriyi uygula (varsa), sonra listeyi kur
     if (K.live && K.live.restore) K.live.restore();

@@ -49,6 +49,7 @@
     _advanceDay() {
       const s = K.state;
       s.day += 1;
+      if (K.label && K.label.expirePlayerContract) K.label.expirePlayerContract();
       s.player.messagesSentToday = 0;
 
       // YAŞ: oyun gerçek takvim üzerinden ilerler. Oyuncunun doğum günü
@@ -118,6 +119,7 @@
       if (K.industry && K.industry.tick) K.industry.tick();
       /* v10.59 — yaşayan label: keşif · transfer · rekabet · itibar */
       if (K.labelSim && K.labelSim.tick) K.labelSim.tick();
+      if (K.journey) K.journey.tick();
       if (K.concerts && K.concerts.tick) K.concerts.tick();
       if (K.festivals && K.festivals.tick) K.festivals.tick();
       if (K.rollout && K.rollout.tick) K.rollout.tick();

@@ -146,7 +146,7 @@
             </div>`).join("")
           : `<div class="empty-note"><b>Bildirim yok</b>Kanalına abone ol, video izle ve paylaş — buraya düşer.</div>`,
         onAction: (act) => {
-          if (act === "yt-clear") { K.ytnotif.markRead(); K.toast("🔔 Okundu olarak işaretlendi", "", "ok"); K.phone.reRender(); }
+          if (act === "yt-clear") { K.ytnotif.markRead(); K.toast("🔔 Okundu olarak işaretlendi", "", "ok"); K.save(); K.phone.reRender(); }
         }
       };
     }
@@ -165,9 +165,9 @@
         tabs: [
           { id: "home", label: "Ana Sayfa", icon: YI.home },
           { id: "shorts", label: "Shorts", icon: YI.shorts },
+          { id: "create", label: "Oluştur", icon: '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4v16M4 12h16"/></svg>', action: "yt-create", cls: "social-create-tab" },
           { id: "subs", label: "Abonelikler", icon: YI.subs },
-          { id: "library", label: "Kütüphane", icon: YI.library },
-          { id: "mine", label: "Kanalım", icon: YI.user }
+          { id: "library", label: "Siz", icon: YI.user }
         ],
         activeTab: params.tab || "home",
         state: { q: "", filter: "all" },
@@ -196,26 +196,30 @@
               y0 = null;
               if (Math.abs(dy) < 40) return;
               const app2 = K.phone.appById("youtube");
-              const total = (app2.allVideos() || []).slice(0, 10).length;
+              const total = app2.shortVideos().length;
               const cur = app2.shortIndex(total);
               app2._shortIdx = Math.max(0, Math.min(total - 1, cur + (dy < 0 ? 1 : -1)));
-              K.phone.reRender();
+              K.save(); K.phone.reRender();
             }, { passive: true });
           }
           const input = U.qs("[data-yt-search]", root);
           if (input) {
             const box = U.qs("[data-yt-results]", root);
-            const draw = () => { box.innerHTML = input.value.trim() ? K.phone.appById("youtube").searchHTML(input.value) : ""; };
+            const draw = () => { view.state.q = input.value; const searching = !!input.value.trim(); box.innerHTML = searching ? K.phone.appById("youtube").searchHTML(input.value) : ""; root.querySelector("[data-yt-list]").hidden = searching; };
+            input.value = view.state.q || ""; draw();
             input.addEventListener("input", draw);
           }
         },
         onAction: (act, el, v) => {
           const app = K.phone.appById("youtube");
-          if (act === "watch") { const parts = el.dataset.arg.split("|"); app.watch(parts[0], parts[1], parts[2]); }
+          if (act === "yt-short-open") { app._shortIdx = +el.dataset.arg; v.activeTab = "shorts"; K.phone.reRender(); }
+          else if (act === "yt-account") K.ui.actionSheet("Hesabın", [{ label: K.state.player.stageName + " · Kanalı görüntüle", onClick: () => { v.activeTab = "mine"; K.phone.reRender(); } }]);
+          else if (act === "yt-create") { K.careerUI.openStudioModal(); }
+          else if (act === "watch") { const parts = el.dataset.arg.split("|"); app.watch(parts[0], parts[1], parts[2]); }
           else if (act === "open-channel") app.openChannel(el.dataset.arg);
-          else if (act === "sub") { K.interactions.toggleSub(el.dataset.arg); K.phone.reRender(); }
+          else if (act === "sub") { K.interactions.toggleSub(el.dataset.arg); K.save(); K.phone.reRender(); }
           else if (act === "yt-more") { const q = (el.dataset.arg || "").split("|"); app.moreMenu(q[0], q[1]); }
-          else if (act === "yt-shorts-save") { const on = K.interactions.toggleSave("yt_" + el.dataset.arg); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.phone.reRender(); }
+          else if (act === "yt-shorts-save") { const on = K.interactions.toggleSave("yt_" + el.dataset.arg); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.save(); K.phone.reRender(); }
           else if (act === "yt-shorts-cmt") { const q = (el.dataset.arg || "").split("|"); app.openComments(q[0], q[1], q[2]); }
           else if (act === "yt-comments") { app.openComments(v.id, v.channel, v.channelId); }
           else if (act === "yt-filter") {
@@ -232,15 +236,16 @@
           else if (act === "yt-analytics") app.openAnalytics();
           else if (act === "yt-search-focus") {
             v.activeTab = "home";
+            v.state.searchOpen = true;
             K.phone.reRender();
             const inp = U.qs("[data-yt-search]");
             if (inp) { inp.focus(); }
           }
           else if (act === "short-next" || act === "short-prev") {
-            const total = (app.allVideos() || []).slice(0, 10).length;
+            const total = app.shortVideos().length;
             const cur = app.shortIndex(total);
             app._shortIdx = Math.max(0, Math.min(total - 1, cur + (act === "short-next" ? 1 : -1)));
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
         }
       };
@@ -250,11 +255,11 @@
     /* filtreye göre video listesi */
     listFor(filter) {
       const app = K.phone.appById("youtube");
-      const vids = app.allVideos();
+      const vids = app.allVideos().filter(v => K.socialActions.visible("youtube", v));
       const list = (!filter || filter === "all") ? vids
         : filter === "mine" ? vids.filter(v => v.mine)
         : vids.filter(v => v.kind === filter);
-      const rows = list.slice(0, 18).map(v => videoRow(v, v.channel, v.channelId)).join("");
+      const rows = list.slice(0, 18).map((v, i) => videoRow(v, v.channel, v.channelId) + (i === 0 && (!filter || filter === "all") ? app.shortsShelf() : "")).join("");
       return rows || `<div class="mini-empty">Bu kategoride video yok.</div>`;
     },
 
@@ -521,37 +526,34 @@
     homeHTML(view) {
       const app = K.phone.appById("youtube");
       const f = (view && view.state && view.state.filter) || "all";
-      const chips = [["all", "Tümü"], ["clip", "Klipler"], ["music", "Müzik"], ["mine", "Kanallarım"]];
+      const chips = [["all", "Tümü"], ["music", "Müzik"], ["clip", "Klipler"], ["mine", "Yayınların"]];
       return `
-        <div class="p-search"><span>🔍</span><input data-yt-search type="text" placeholder="YouTube'da ara" /></div>
+        <div class="p-search yt-home-search ${view && view.state.searchOpen ? "open" : ""}"><span>⌕</span><input data-yt-search type="text" placeholder="YouTube'da ara" /></div>
         <div class="filter-chips">
           ${chips.map(([id, l]) => `<button class="fchip ${f === id ? "active" : ""}" data-ytf data-pact="yt-filter" data-arg="${id}">${l}</button>`).join("")}
         </div>
         <div data-yt-results></div>
-        ${K.ui.section("Mağaza Listelerin")}
-        ${K.ui.storeLists("YouTube")}
-        ${K.ui.section("Sizin için")}
-        <div data-yt-list>${app.listFor(f)}</div>`;
+        <div data-yt-list>${app.listFor(f)}</div>
+        ${(K.state.player.songs || []).length ? K.ui.section("Mağaza Listelerin") + K.ui.storeLists("YouTube") : ""}`;
     },
 
-    /* ---------------- KÜTÜPHANE ---------------- */
+    shortsShelf() {
+      const videos = K.phone.appById("youtube").shortVideos().slice(0, 4);
+      return `<section class="yt-short-shelf"><h2><span>▶</span> Shorts</h2><div class="yt-short-grid">${videos.map((v, i) => `<button class="yt-short-tile" data-pact="yt-short-open" data-arg="${i}" style="background:${U.gradientFor(v.id)}">${v.art ? `<img src="${U.escape(v.art)}" alt="" loading="lazy">` : ''}<span>${U.escape(v.title.replace(" (Official Video)", ""))}</span></button>`).join("")}</div></section>`;
+    },
+
+    /* ---------------- SİZ: profil, geçmiş ve kitaplık ---------------- */
     libraryHTML() {
-      const p = K.state.player;
-      const all = K.phone.appById("youtube").allVideos();
-      const watched = (p.watchHistory || []).map(id => all.find(v => v.id === id)).filter(Boolean).slice(0, 8);
-      const liked = all.filter(v => K.interactions.isLiked("yt_" + v.id)).slice(0, 8);
-      const saved = all.filter(v => K.interactions.isSaved("yt_" + v.id)).slice(0, 8);
-      const block = (title, list, empty) => `${K.ui.section(title, `<span class="muted">${list.length}</span>`)}
-        ${list.length ? list.map(v => videoRow(v, v.channel, v.channelId)).join("") : `<div class="mini-empty">${empty}</div>`}`;
-      const likedAll = all.filter(v => K.interactions.isLiked("yt_" + v.id));
-      return `${K.ui.section("Çalma Listeleri")}
-        <div class="p-search" data-pact="yt-playlist" data-arg="liked" style="cursor:pointer">
-          <span>${YI.heart}</span><span style="font-size:12.5px">Beğenilen Müzikler · ${likedAll.length} şarkı</span></div>
-        <div class="p-search" data-pact="yt-playlist" data-arg="saved" style="cursor:pointer">
-          <span>⤓</span><span style="font-size:12.5px">Kaydedilenler · ${all.filter(v => K.interactions.isSaved("yt_" + v.id)).length} video</span></div>`
-        + block("İzlenenler", watched, "Henüz video izlemedin.")
-        + block("Beğenilenler", liked, "Beğendiğin video yok.")
-        + block("Kaydedilenler", saved, "Kaydettiğin video yok.");
+      const p = K.state.player, all = K.phone.appById("youtube").allVideos();
+      const watched = (p.watchHistory || []).map(id => all.find(v => v.id === id)).filter(Boolean).slice(0, 12);
+      const liked = all.filter(v => K.interactions.isLiked("yt_" + v.id));
+      const saved = all.filter(v => K.interactions.isSaved("yt_" + v.id));
+      const cover = v => v && v.art ? `<img src="${U.escape(v.art)}" alt="" loading="lazy">` : '<span class="yt-collection-symbol">▶</span>';
+      const collection = (id, title, list) => `<button class="yt-collection" data-pact="yt-playlist" data-arg="${id}"><span class="yt-collection-art" style="background:${U.gradientFor(title)}">${cover(list[0])}</span><span><b>${title}</b><small>Gizli · ${list.length} video</small></span><span>›</span></button>`;
+      return `<div class="yt-you-header">${K.ui.artistAvatar("player", 56, true)}<div><h2>${U.escape(p.stageName)}</h2><span>@${U.escape(p.stageName.toLowerCase().replace(/\s+/g, ""))}</span></div></div>
+        <button class="yt-view-channel" data-tab="mine">Kanalı görüntüle</button>
+        <section class="yt-history"><h2>Geçmiş <span>›</span></h2><div class="yt-history-row">${watched.length ? watched.map(v => `<button class="yt-history-card" data-pact="watch" data-arg="${U.escape(v.id)}|${U.escape(v.channel)}|${U.escape(v.channelId)}"><span class="yt-history-art">${cover(v)}</span><b>${U.escape(v.title)}</b><small>${U.escape(v.channel)}</small></button>`).join("") : '<p class="mini-empty">İzlediğin videolar burada görünür.</p>'}</div></section>
+        <section class="yt-library"><h2>Kitaplık</h2>${collection("liked", "Beğendiğim videolar", liked)}${collection("saved", "Daha sonra izle", saved)}</section>`;
     },
 
     searchHTML(q) {
@@ -566,6 +568,8 @@
        Her seferinde tek kart gösterilir; ‹ › düğmeleri ve dokunmatik
        yukarı/aşağı kaydırma sırayı değiştirir (1/10 göstergesi).
        ============================================================ */
+    shortVideos() { return K.phone.appById("youtube").allVideos().filter(v => K.socialActions.visible("youtube", v)).slice(0, 10); },
+
     shortIndex(len) {
       const n = Math.max(0, Number(len) || 0);
       let i = Number(K.phone.appById("youtube")._shortIdx) || 0;
@@ -575,7 +579,7 @@
 
     shortsHTML() {
       const app = K.phone.appById("youtube");
-      const vids = app.allVideos().slice(0, 10);
+      const vids = app.shortVideos();
       if (!vids.length) return `<div class="mini-empty">Henüz Shorts yok.</div>`;
       const idx = app.shortIndex(vids.length);
       const v = vids[idx];
@@ -813,16 +817,12 @@
         onAction: (act, el) => {
           if (act === "watch") { const parts = el.dataset.arg.split("|"); app.watch(parts[0], parts[1], parts[2]); }
           else if (act === "open-channel") app.openChannel(el.dataset.arg);
-          else if (act === "sub") { K.interactions.toggleSub(el.dataset.arg); K.phone.reRender(); }
-          else if (act === "share") K.ui.actionSheet("Paylaş", [
-            { label: "💬 DM'de paylaş", onClick: () => K.phone.openApp("messages") },
-            { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") },
-            { label: "𝕏 X'te paylaş", onClick: () => { K.social.createPost("x", `"${v.title.replace(" (Official Video)", "")}" izleyin 🎬`); K.toast("𝕏 Paylaşıldı", "", "ok"); } }
-          ]);
+          else if (act === "sub") { K.interactions.toggleSub(el.dataset.arg); K.save(); K.phone.reRender(); }
+          else if (act === "share") K.socialActions.share("youtube", v);
           else if (act === "save") {
             const on = K.interactions.toggleSave("yt_" + v.id);
             K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", on ? "Videoyu kaydettin." : "Kaydedilenlerden çıkarıldı.", "ok");
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
           else if (act === "yt-queue-next") K.queue.addNext({ id: v.id, title: v.title.replace(" (Official Video)", ""), artistName: v.channel, art: v.art });
           else if (act === "yt-queue-add") K.queue.add({ id: v.id, title: v.title.replace(" (Official Video)", ""), artistName: v.channel, art: v.art });
@@ -832,11 +832,11 @@
               if (K.audio.isPlaying()) K.audio.stop();
               else K.audio.play(K.interactions.nowPlaying() || {});
             }
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
           else if (act === "yt-restart") {
             if (K.audio) K.audio.play(K.interactions.nowPlaying() || {});
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
           else if (act === "yt-next") {
             const nv = upNext[0];
@@ -844,12 +844,12 @@
           }
           else if (act === "yt-speed") {
             if (K.audio) K.audio.setRate(parseFloat(el.dataset.arg));
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
           else if (act === "yt-autoplay") {
             K.state.player.ytAutoplay = !(K.state.player.ytAutoplay !== false);
             K.toast("🔁 Oto sıradaki", K.state.player.ytAutoplay ? "Açık" : "Kapalı", "");
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
         }
       });
@@ -863,13 +863,13 @@
       const key = "yt_" + id;
       const saved = K.interactions.isSaved(key);
       K.ui.actionSheet((v ? v.title.replace(" (Official Video)", "") : t.title), [
-        { label: "▶︎ Şimdi çal", onClick: () => { K.interactions.play({ id, title: t.title, artistName: t.artistName, art: t.art }); K.phone.reRender(); } },
+        { label: "▶︎ Şimdi çal", onClick: () => { K.interactions.play({ id, title: t.title, artistName: t.artistName, art: t.art }); K.save(); K.phone.reRender(); } },
         { label: "⏭ Sonra çal", onClick: () => K.queue.addNext({ id, title: t.title, artistName: t.artistName, art: t.art }) },
         { label: "🕒 Sıraya ekle", onClick: () => K.queue.add({ id, title: t.title, artistName: t.artistName, art: t.art }) },
-        { label: saved ? "💾 Kaydı kaldır" : "🔖 Kaydet", onClick: () => { K.interactions.toggleSave(key); K.phone.reRender(); } },
+        { label: saved ? "💾 Kaydı kaldır" : "🔖 Kaydet", onClick: () => { K.interactions.toggleSave(key); K.save(); K.phone.reRender(); } },
         { label: "💬 Yorumlar", onClick: () => { if (v) app.openComments(v.id, v.channel, v.channelId); } },
         { label: "📺 Kanala git", onClick: () => { if (channelId) app.openChannel(channelId); } },
-        { label: "✕ Kapat", onClick: () => {} }
+        { label: "Paylaş", onClick: () => { if (v) K.socialActions.share("youtube", v); } }
       ]);
     },
 
@@ -914,10 +914,10 @@
           if (act === "yt-cmt-like") {
             const on = K.interactions.toggleCommentLike(key, Number(el.dataset.arg));
             K.toast(on ? "❤️ Beğendin" : "Beğeni kaldırıldı", "", "ok");
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           } else if (act === "yt-reply") {
             replyTo = Number(el.dataset.arg);
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
             const inp = U.qs("[data-yt-cmt]");
             if (inp) inp.focus();
           } else if (act === "yt-cmt-send") {
@@ -933,7 +933,7 @@
               K.toast("💬 Yorum gönderildi", "", "ok");
             }
             if (inp) inp.value = "";
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
         }
       });
@@ -1010,7 +1010,7 @@
             const on = K.interactions.toggleSubBell(cid);
             K.toast(on ? "🔔 Bildirimler açık" : "🔕 Bildirimler kapalı",
               on ? "Yeni videolarda haber verilecek." : "Sessize alındı.", "ok");
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
           else if (act === "yt-play-all" && list[0]) app.watch(list[0].id, list[0].channel, list[0].channelId);
         }
@@ -1044,7 +1044,7 @@
           ${vids.length ? vids.map(v => videoRow(v, a.stageName, channelId)).join("") : `<div class="mini-empty">Video bulunamadı.</div>`}`,
         onAction: (act, el) => {
           if (act === "watch") { const [id, ch, chId] = el.dataset.arg.split("|"); app.watch(id, ch, chId); }
-          else if (act === "sub") { K.interactions.toggleSub(el.dataset.arg); K.phone.reRender(); }
+          else if (act === "sub") { K.interactions.toggleSub(el.dataset.arg); K.save(); K.phone.reRender(); }
           else if (act === "dm") K.phone.openApp("messages", { artistId: channelId });
         }
       });

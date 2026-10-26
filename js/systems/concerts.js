@@ -267,6 +267,13 @@
           const cut = (K.career && K.career.labelCut) ? K.career.labelCut("touring", grossRev) : 0;
           const revenue = Math.max(0, grossRev - cut);
           K.economy.earn(revenue, "concert");
+          // Settle the remaining booked cost once; insufficient cash becomes debt.
+          const remainingCost = Math.max(0, (cn.cost || 0) - (cn.advance || 0));
+          const paidCost = Math.min(Math.max(0, s.balance), remainingCost);
+          if (paidCost > 0) K.economy.spend(paidCost, "concert_settlement");
+          if (remainingCost > paidCost) s.player.debt = (s.player.debt || 0) + remainingCost - paidCost;
+          cn.settledCost = (cn.advance || 0) + paidCost;
+          cn.costDebt = remainingCost - paidCost;
           if (cut > 0) K.toast("🏢 360 payı", `Şirket konser gelirinden ${U.money(cut)} aldı.`, "warn");
           /* v10.29 — AKIL SAĞLIĞI: sahne performansı stresten etkilenir.
              Dağınık kafayla çıkılan sahne daha az şöhret/hayran kazandırır.

@@ -202,6 +202,7 @@
     const s = {
       version: 2,
       day: 1,
+      journey: { closed: {}, history: [], milestones: {}, lastDay: -2 },
       dateStart: K.util.todayISO(),  // oyun gün 1'in gerçek takvim tarihi
       balance: K.ECON.startBalance,
       started: false,

@@ -178,6 +178,7 @@
     calendar(limit) {
       const s = K.state;
       const ev = [];
+      if (s.journey && s.journey.booking) ev.push({ day: s.journey.booking.dueDay, icon: "🤝", title: K.journey.EVENTS[s.journey.booking.id].title, kind: "journey" });
       // yayın hattı
       (s.player.releases || []).forEach(r => {
         const d = r.startDay + r.waitDays;

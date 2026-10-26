@@ -1,0 +1,143 @@
+/* Phone-native social surfaces. Scoped to the four apps and shared action views. */
+.app-x, .app-instagram, .app-youtube, .app-tiktok { color: #f5f5f5; font-family: Arial, Helvetica, sans-serif; }
+.app-x { background: #000; }
+.app-x .app-body { padding: 0; gap: 0; position: relative; }
+.brand-x { justify-content: space-between; min-height: 48px; padding: 8px 14px; }
+.x-wordmark { font-size: 27px; line-height: 1; }
+.social-profile-btn, .social-icon-btn { background: none; border: 0; color: inherit; padding: 4px; cursor: pointer; }
+.social-icon-btn { font-size: 23px; }
+.x-feed-tabs { display: flex; position: sticky; top: 0; z-index: 4; background: rgba(0,0,0,.94); border-bottom: 1px solid #2f3336; }
+.x-feed-tabs button { flex: 1; background: none; color: #71767b; border: 0; padding: 15px 4px; font-size: 12px; font-weight: 700; position: relative; cursor: pointer; }
+.x-feed-tabs button.active { color: #e7e9ea; }
+.x-feed-tabs button.active::after { content: ''; position: absolute; bottom: 0; height: 4px; background: #1d9bf0; border-radius: 4px; left: 25%; right: 25%; }
+.app-x .x-post { border-bottom: 1px solid #2f3336; padding: 12px 10px; gap: 9px; margin: 0; }
+.app-x .xp-text { font-size: 13px; line-height: 1.5; margin: 5px 0 10px; }
+.app-x .xp-name { font-size: 12px; }
+.app-x .xp-handle { font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.app-x .xp-head { flex-wrap: wrap; gap: 3px; }
+.app-x .xp-actions { gap: 4px; justify-content: space-between; }
+.app-x .xp-act { background: none; border: 0; padding: 2px 0; color: #71767b; font: inherit; display: inline-flex; gap: 3px; align-items: center; cursor: pointer; }
+.app-x .xp-act b { font-size: 9px; font-weight: 400; }
+.app-x .xp-act svg { width: 16px; height: 16px; }
+.app-x .xp-like.on { color: #f91880; }
+.app-x .xp-repost.on { color: #00ba7c; }
+.app-x .xp-save.on { color: #1d9bf0; }
+.x-compose-fab { position: sticky; bottom: 15px; align-self: flex-end; margin: 0 14px 14px; flex-shrink: 0; width: 49px; height: 49px; border: 0; border-radius: 50%; background: #1d9bf0; color: white; display: grid; place-items: center; box-shadow: 0 3px 14px #0008; cursor: pointer; }
+.x-compose-fab svg { width: 23px; height: 23px; }
+.app-x .seg-bottom { background: #000; border-top: 1px solid #2f3336; }
+.social-search { padding: 9px 12px; }
+.social-search input { width: 100%; padding: 11px 15px; border: 1px solid transparent; border-radius: 24px; background: #202327; color: #e7e9ea; font-size: 13px; }
+.social-search input:focus { border-color: #1d9bf0; outline: none; }
+.social-menu-row, .social-person { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; border-bottom: 1px solid #ffffff18; background: none; padding: 16px 8px; color: inherit; text-align: left; cursor: pointer; font-size: 13px; }
+.social-menu-row span:last-child, .social-person span:last-child { margin-left: auto; }
+.social-share-preview { padding: 18px; line-height: 1.6; border: 1px solid #ffffff22; border-radius: 14px; overflow-wrap: anywhere; }
+.social-comment { display: flex; gap: 10px; padding: 12px 0; }
+.social-comment b { font-size: 12px; }
+.social-comment p { margin-top: 5px; font-size: 13px; overflow-wrap: anywhere; }
+.social-comment-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid #ffffff22; }
+.social-comment-form input { width: 0; flex: 1; min-width: 0; border: 0; background: #ffffff12; border-radius: 18px; color: inherit; padding: 10px; }
+.social-comment-form button { border: 0; background: none; color: #3ea6ff; font-weight: bold; cursor: pointer; }
+.app-instagram .brand-ig { min-height: 52px; background: #000; border: 0; }
+.app-instagram .ig-wordmark { font-size: 25px; }
+.app-instagram .ig-stories { padding-top: 8px; border-bottom: 1px solid #262626; }
+.app-instagram .ig-post { margin: 0; border: 0; border-radius: 0; background: #000; }
+.app-instagram .ig-post-head { padding: 12px; }
+.app-instagram .ig-media { border-radius: 0; }
+.app-instagram .ig-actions { padding: 10px 12px 4px; }
+.app-instagram .ig-actions button { min-width: 28px; min-height: 32px; }
+.app-instagram .ig-body { padding: 4px 12px 16px; }
+.app-instagram .seg-bottom { background: #000; border-top: 1px solid #262626; }
+.app-instagram .social-create-tab .tb-ic { border: 2px solid currentColor; border-radius: 6px; width: 22px; height: 22px; font-size: 24px; line-height: 17px; }
+.app-instagram .ig-reels { gap: 0; }
+.app-instagram .ig-reel { min-height: 410px; scroll-snap-align: start; }
+.app-youtube .brand-yt { background: #0f0f0f; min-height: 50px; padding: 10px 12px; }
+.app-youtube .yt-wordmark { font-size: 19px; letter-spacing: -1px; }
+.app-youtube .yt-play { background: #f03; color: white; border-radius: 6px; width: 28px; height: 19px; font-size: 11px; display: grid; place-items: center; }
+.app-youtube .yt-top-actions { gap: 12px; }
+.app-youtube .filter-chips { padding: 8px 12px 12px; margin: 0; gap: 7px; }
+.app-youtube .fchip { border-radius: 7px; padding: 7px 11px; background: #272727; border: 0; font-weight: 600; }
+.app-youtube .fchip.active { background: #f1f1f1; color: #0f0f0f; }
+.app-youtube .yt-video { margin-bottom: 12px; }
+.app-youtube .yt-thumb { border-radius: 0; }
+.app-youtube .yt-video .vt { font-size: 13px; line-height: 1.4; }
+.app-youtube .yt-video .vm { font-size: 10px; line-height: 1.5; }
+.app-youtube .social-create-tab .tb-ic { background: #272727; border-radius: 50%; width: 32px; height: 32px; font-size: 27px; line-height: 30px; }
+.app-youtube .social-create-tab .tb-lb { display: none; }
+.yt-you-header { display: flex; align-items: center; gap: 12px; padding: 20px 14px; }
+.yt-you-header h2 { font-size: 20px; margin: 0 0 8px; }
+.app-tiktok .app-body { padding: 0; gap: 0; scroll-snap-type: y mandatory; }
+.app-tiktok .tt-feed { margin: 0; gap: 0; }
+.app-tiktok .tt-card { aspect-ratio: auto; min-height: 420px; height: var(--social-video-height, 450px); flex-shrink: 0; scroll-snap-align: start; scroll-snap-stop: always; }
+.app-tiktok .brand-tt { min-height: 45px; flex-shrink: 0; }
+.app-tiktok .tt-seg { gap: 16px; }
+.app-tiktok .tt-seg button { font-size: 13px; font-weight: 700; }
+.app-tiktok .tt-side { right: 8px; bottom: 86px; gap: 14px; }
+.app-tiktok .tt-bottom { padding: 14px 62px 18px 12px; }
+.app-tiktok .tt-desc { font-size: 12px; line-height: 1.5; }
+.app-tiktok .tt-user { font-size: 13px; }
+.app-tiktok .seg-bottom { min-height: 56px; }
+.app-tiktok .seg-bottom button .tb-lb { display: block; font-size: 8px; margin-top: 4px; white-space: nowrap; }
+.app-tiktok .seg-bottom button svg { width: 23px; height: 23px; }
+.app-tiktok .social-create-tab .tb-ic { background: #fff; color: #000; border-radius: 6px; width: 35px; height: 25px; box-shadow: -4px 0 #25f4ee, 4px 0 #fe2c55; display: grid; place-items: center; }
+.app-tiktok .social-create-tab .tb-lb { display: none; }
+.social-compose .app-body { padding: 16px; gap: 16px; }
+.social-cover-preview { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 20px; min-height: 180px; border-radius: 12px; background: linear-gradient(140deg,#142838,#39132d); font-size: 50px; }
+.social-cover-preview span { font-size: 13px; }
+.social-compose textarea, .social-compose select { width: 100%; background: #202020; color: white; border: 1px solid #444; border-radius: 8px; padding: 10px; }
+.app-shell :is(.social-icon-btn,.social-profile-btn,.social-menu-row,.xp-act,.x-compose-fab):focus-visible { outline: 2px solid #3ea6ff; outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .app-shell.snap .app-body { scroll-behavior: auto; } }
+/* Supplied Android references: Instagram feed and YouTube Home / You. */
+.app-instagram { background: #0c1014; }
+.app-instagram .reference-ig { background: #0c1014; justify-content: space-between; padding: 10px 12px; }
+.ig-feed-title { font: 700 17px Arial, sans-serif; background: none; border: 0; color: #f5f5f5; cursor: pointer; }
+.ig-feed-title span { font-size: 14px; margin-left: 4px; }
+.reference-ig .ig-create { font-size: 32px; font-weight: 300; line-height: 30px; }
+.reference-ig .ig-notification { position: relative; width: 32px; height: 32px; }
+.social-unread-dot { position: absolute; right: 1px; top: 0; width: 7px; height: 7px; background: #ff3040; border-radius: 50%; }
+.app-instagram .ig-stories { gap: 13px; padding: 10px 10px 14px; border: none; }
+.app-instagram .ig-story { width: 66px; min-width: 66px; }
+.app-instagram .ig-story-ring { width: 65px; height: 65px; padding: 2px; }
+.app-instagram .ig-story-img { width: 57px; height: 57px; }
+.app-instagram .ig-story-name { font-size: 10px; margin-top: 5px; }
+.app-instagram .ig-post, .app-instagram .seg-bottom { background: #0c1014; }
+.app-instagram .ig-media { aspect-ratio: 4/5; }
+.app-instagram .seg-bottom button.active { background: #25292d; border-radius: 28px; }
+.app-instagram .seg-bottom { padding: 6px 8px; gap: 5px; }
+.app-instagram .seg-bottom button { min-height: 37px; }
+.app-youtube .yt-home-search { display: none; }
+.app-youtube .yt-home-search.open { display: flex; }
+.social-bell { position: relative; }
+.social-bell b { position: absolute; top: -4px; right: -5px; min-width: 13px; height: 13px; padding: 1px 3px; border-radius: 12px; background: #c03; color: white; font-size: 9px; }
+.yt-account { color: #f1f1f1; border: 1px solid #444; border-radius: 22px; background: none; padding: 7px 11px; font: 600 11px Arial, sans-serif; cursor: pointer; }
+.yt-short-shelf { padding: 10px; }
+.yt-short-shelf h2 { display: flex; align-items: center; gap: 9px; font-size: 17px; margin: 10px 0 14px; }
+.yt-short-shelf h2 > span { color: #f03; font-size: 26px; }
+.yt-short-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.yt-short-tile { position: relative; aspect-ratio: 9/15; border: none; border-radius: 9px; overflow: hidden; color: white; text-align: left; cursor: pointer; }
+.yt-short-tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.yt-short-tile > span { position: absolute; bottom: 0; left: 0; right: 0; padding: 35px 7px 9px; font-size: 12px; font-weight: 600; background: linear-gradient(transparent,#000c); }
+.yt-you-header { padding: 17px 12px 12px; }
+.yt-you-header h2 { font-size: 20px; }
+.yt-you-header span { color: #aaa; font-size: 11px; }
+.yt-view-channel { background: #f1f1f1; color: #0f0f0f; border: 0; border-radius: 20px; padding: 9px; margin: 4px 12px 18px; cursor: pointer; font-size: 12px; font-weight: 600; }
+.yt-history, .yt-library { padding: 10px 12px; }
+.yt-history h2, .yt-library h2 { font-size: 17px; margin: 0 0 14px; }
+.yt-history-row { display: flex; overflow-x: auto; gap: 10px; }
+.yt-history-card { background: none; border: 0; color: inherit; text-align: left; width: 125px; flex-shrink: 0; padding: 0; cursor: pointer; }
+.yt-history-card b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-weight: 500; font-size: 11px; margin-top: 7px; }
+.yt-history-card small, .yt-collection small { display: block; color: #aaa; font-size: 10px; margin-top: 5px; }
+.yt-history-art { display: grid; place-items: center; height: 70px; overflow: hidden; border-radius: 8px; background: #242424; }
+.yt-history-art img, .yt-collection-art img { width: 100%; height: 100%; object-fit: cover; }
+.yt-collection { display: flex; align-items: center; gap: 12px; padding: 9px 0; width: 100%; border: none; background: none; color: inherit; text-align: left; cursor: pointer; }
+.yt-collection > span:last-child { margin-left: auto; }
+.yt-collection b { font-size: 12px; font-weight: 500; }
+.yt-collection-art { width: 104px; height: 65px; border-radius: 9px; overflow: hidden; flex-shrink: 0; display: grid; place-items: center; box-shadow: 0 -4px #555; }
+.yt-collection-symbol { font-size: 24px; color: #fff; }
+.app-x .xp-actions > .muted { display: none; }
+.app-x .xp-actions > * { min-width: 0; }
+.app-x .app-body { overflow-x: hidden; }
+
+.app-instagram .app-body { padding: 0; gap: 0; }
+.app-youtube [hidden] { display: none !important; }
+
+.app-x .xp-act:not(.on) .x-on, .app-x .xp-act.on .x-off { display: none; }

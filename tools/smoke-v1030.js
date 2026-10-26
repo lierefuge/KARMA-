@@ -154,20 +154,29 @@ function run() {
     const feedBefore = (s.feed.instagram || []).length;
     const pImg = p.image, pRep = p.reputation;
 
+    // Compare strategies with the same audience and engagement draw. Different
+    // random engagement rates can legitimately reverse absolute like counts.
+    const audience = { ig: p.ig, tiktok: p.tiktok, x: p.x };
+    const postWithSameDraw = (platform, text, type, songId) => {
+      const random = dom.window.Math.random;
+      dom.window.Math.random = H.seededRandom(1030);
+      try { return K.social.playerPost(platform, text, type, songId); }
+      finally { dom.window.Math.random = random; }
+    };
     /* ERİŞİM */
-    const r1 = K.social.playerPost("instagram", "Erişim testi", "reach", "test_song_1");
+    const r1 = postWithSameDraw("instagram", "Erişim testi", "reach", "test_song_1");
     ok("C · erişim gönderisi oluştu", r1 && r1.outcome === "reach" && r1.post && r1.post.postType === "reach");
     ok("C · erişim akışa eklendi", (s.feed.instagram || []).length > feedBefore);
     ok("C · erişim takipçi getirdi", p.ig > 80000, p.ig + "");
     ok("C · erişim imajı hafif nötrleştirdi", p.image <= pImg, pImg + " → " + p.image);
 
     /* İMAJ */
-    const igBefore = p.ig;
-    const r2 = K.social.playerPost("x", "İmaj testi", "image");
+    Object.assign(p, audience);
+    const r2 = postWithSameDraw("x", "İmaj testi", "image");
     ok("C · imaj gönderisi oluştu", r2 && r2.outcome === "image");
     ok("C · imaj itibarı artırdı", p.reputation > pRep, pRep + " → " + p.reputation);
     ok("C · imaj kamu imajını artırdı", p.image > pImg, pImg + " → " + p.image);
-    ok("C · imaj erişimi erişimden düşük tuttu", (r2.post.likes) < (r1.post.likes));
+    ok("C · eşit kitle ve etkileşimde imaj erişimden düşük kaldı", (r2.post.likes) < (r1.post.likes));
 
     /* RİSK — sonuç iki yoldan biri olmalı */
     const r3 = K.social.playerPost("x", "Risk testi", "risk");

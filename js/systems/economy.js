@@ -21,6 +21,7 @@
     royalty_month: "Telif (aylık)", intl_royalty: "Yurt dışı telif",
     cancel_refund: "İptal iadesi", rush_fee: "Hızlandırma ücreti",
     merch: "Merch", merch_sale: "Merch satışı", sponsor: "Sponsorluk", sponsor_month: "Sponsorluk (aylık)",
+    concert_settlement: "Konser kalan gideri", journey_session: "Dinleme seansı", journey_travel: "Sahne ulaşımı", journey_show: "Açık mikrofon ücreti",
     tour: "Konser", concert: "Konser", festival: "Festival", concert_advance: "Konser avansı",
     tour_cost: "Tur gideri", tour_advance: "Tur avansı", intl_tour: "Yurt dışı tur", intl_enter: "Yurt dışı giriş",
     writing: "Söz yazımı", ghostwriter: "Ghostwriting", publishing: "Yayın geliri", publishing_advance: "Yayın avansı",
@@ -292,8 +293,9 @@
       const lag = K.ECON.payoutLag;
       K.econ.ensure();
 
-      let labelPct = p.labelId ? ((K.labelById(p.labelId) || {}).royalty || 50) : 0;
-      if (K.team && K.team.bonus) labelPct = Math.max(0, labelPct - K.team.bonus().lawyerCut * 100);
+      const currentTerms = K.label.releaseTerms();
+      const lawyerCut = K.team && K.team.bonus ? K.team.bonus().lawyerCut * 100 : 0;
+      const dealPools = new Map();
 
       /* ---- 1) BU AYIN dinlenmesini rapor kuyruğuna al (henüz para yok) ---- */
       p.royalties = p.royalties || [];
@@ -310,6 +312,7 @@
           queued += total;
           p.royalties.push({
             songId: song.id, reportedDay: s.day, streams: single,
+            labelTerms: { ...(song.labelTerms || currentTerms) },
             due: {
               spotify: s.day + lag.spotify, apple: s.day + lag.apple,
               youtube: s.day + lag.youtube, other: s.day + lag.other
@@ -337,6 +340,9 @@
 
       p.royalties.forEach(r => {
         const song = songById[r.songId];
+        const terms = r.labelTerms || (song && song.labelTerms) || currentTerms;
+        const labelPct = Math.max(0, U.clamp(terms.royalty || 0, 0, 100) - lawyerCut);
+        const contract = [p.labelDeal].concat(p.labelHistory || []).find(d => d && d.id === terms.dealId);
         K.econ.STORES.forEach(st => {
           if (r.paid[st]) return;
           if (s.day < r.due[st]) { waiting += (r.streams[st] || 0); return; }
@@ -362,6 +368,7 @@
           const share = (song && song.revenueShare != null) ? song.revenueShare : 1;
           if (share < 1) { const c = pool * (1 - share); pool -= c; featureCutTotal += c; }
           artistPool += pool;
+          if (contract) dealPools.set(contract, (dealPools.get(contract) || 0) + pool);
         });
       });
       p.royalties = p.royalties.filter(r => K.econ.STORES.some(st => !r.paid[st]));
@@ -379,11 +386,14 @@
       /* --- AVANS RECOUP: sanatçıya kalan pay ÖNCE avans borcunu kapatır --- */
       let recoup = 0, recoupedNow = false;
       const deal = p.labelDeal;
-      if (deal && (deal.recouped || 0) < deal.advance) {
-        recoup = Math.min(artistPool, deal.advance - (deal.recouped || 0));
-        deal.recouped = (deal.recouped || 0) + recoup;
-        if (deal.recouped >= deal.advance) { recoupedNow = true; deal.recoupedDay = s.day; }
-      }
+      dealPools.forEach((pool, contract) => {
+        const taken = Math.min(Math.round(pool), Math.max(0, (contract.advance || 0) - (contract.recouped || 0)), artistPool - recoup);
+        if (taken <= 0) return;
+        recoup += taken;
+        contract.recouped = (contract.recouped || 0) + taken;
+        if (contract.recouped >= contract.advance) { recoupedNow = true; contract.recoupedDay = s.day; }
+      });
+      const recoupLeft = [deal].concat(p.labelHistory || []).reduce((n, d) => n + (d ? Math.max(0, (d.advance || 0) - (d.recouped || 0)) : 0), 0);
       const net = Math.max(0, artistPool - recoup);
 
       if (net > 0) K.economy.earn(net, "royalty_month");
@@ -396,11 +406,11 @@
       }
 
       if (recoup > 0) {
-        const left = deal ? Math.max(0, deal.advance - deal.recouped) : 0;
+        const left = recoupLeft;
         K.toast("🏦 Avans geri ödemesi", `Teliften ${U.money(recoup)} kesildi · kalan avans ${U.money(left)}`, recoupedNow ? "ok" : "warn");
         if (recoupedNow) {
           s.notifications = (s.notifications || []).concat([{
-            title: "🏦 Avans kapandı", msg: "Avansın tamamı geri ödendi. Bundan sonra telif doğrudan sana geliyor.", kind: "ok", day: s.day
+            title: "🏦 Avans kapandı", msg: "Bir sözleşmenin avansı tamamen ödendi. O sözleşmenin sonraki teliflerinden avans kesilmeyecek.", kind: "ok", day: s.day
           }]).slice(-60);
         }
       }
@@ -416,7 +426,7 @@
         queued: Math.round(queued), waiting: Math.round(waiting),
         pendingValue: pend.value, pendingStreams: pend.streams,
         fx: K.econ.ensure().fx, infl: K.econ.infl(),
-        recoupLeft: deal ? Math.max(0, deal.advance - (deal.recouped || 0)) : 0
+        recoupLeft
       };
       p.payouts = p.payouts || [];
       p.payouts.unshift(payout);

@@ -69,7 +69,7 @@
       if (own && own.art) return own.art;
     }
     if (post && post.art) return post.art;
-    return null;
+    return post && K.imagery.byArtistId(post.authorId) || null;
   }
 
   function mediaBox(post, cls) {
@@ -117,7 +117,7 @@
       </div>
 
       <div class="ig-body">
-        <div class="ig-likes">${U.compact(likes)} beğenme</div>
+        <div class="ig-likes" data-like-for="ig_${U.escape(post.id)}" data-base-likes="${post.likes || 0}">${U.compact(likes)} beğenme</div>
         ${K.phone.appById("instagram").captionHTML(post)}
         <div class="ig-cmt-link" data-pact="post-open" data-arg="${U.escape(post.id)}">${U.compact(post.comments)} yorumun tümünü gör</div>
         <div class="ig-meta">${U.ago(post.day, K.state.day)}</div>
@@ -139,23 +139,26 @@
         : `<span class="ig-tab-av">${U.escape(U.initials(K.state.player.stageName))}</span>`;
 
       const view = {
+        chrome: "instagram",
         title: "Instagram",
         sub: "",
         shellClass: "app-instagram",
         tabPos: "bottom",
         tabs: [
           { id: "feed", label: "Ana Sayfa", icon: ICO.home },
-          { id: "explore", label: "Keşfet", icon: ICO.search },
           { id: "reels", label: "Reels", icon: ICO.reels },
+          { id: "inbox", label: "Mesajlar", icon: ICO.navMsg, action: "ig-inbox" },
+          { id: "explore", label: "Ara", icon: ICO.search },
           { id: "profile", label: "Profil", icon: profileIcon }
         ],
         activeTab: params.tab || "feed",
+        state: { feed: "foryou" },
         navRight: `<div class="ig-nav-actions">
           <button class="ig-icon-btn" data-pact="ig-activity" title="Etkinlik">${ICO.navHeart}${navBadge ? `<b style="position:absolute;top:-5px;right:-7px;background:#ff3b5c;color:#fff;font-size:9px;font-weight:800;border-radius:999px;padding:1px 4px">${Math.min(99, navBadge)}</b>` : ""}</button>
           <button class="ig-icon-btn" data-pact="ig-inbox" title="Mesajlar">${ICO.navMsg}</button>
         </div>`,
 
-        /* gerçek Instagram gibi: SAĞA kaydır → DM · SOLA kaydır → canlı yayın */
+        /* Yan hareketler mesajlar ve oluşturma ekranına gider. */
         swipe: {
           right: () => K.phone.pushView(K.phone.appById("instagram").inboxView()),
           left: () => { K.livestream.start("instagram"); K.phone.pushView(K.ui.liveView()); }
@@ -165,7 +168,7 @@
           if (tab === "reels") return app.reelsHTML();
           if (tab === "explore") return app.exploreHTML();
           if (tab === "profile") return app.profileHTML("player");
-          return app.feedHTML();
+          return app.feedHTML(view.state.feed);
         },
 
         onMount: (root) => {
@@ -176,18 +179,23 @@
 
         onAction: (act, el) => {
           const appR = K.phone.appById("instagram");
-          if (act === "open-profile") appR.openProfile(el.dataset.arg);
+          if (act === "ig-feed-menu") K.ui.actionSheet("Akış", [
+            { label: "Senin için", onClick: () => { view.state.feed = "foryou"; K.phone.reRender(); } },
+            { label: "Takip ettiklerin", onClick: () => { view.state.feed = "following"; K.phone.reRender(); } }
+          ]);
+          else if (act === "open-profile") appR.openProfile(el.dataset.arg);
           else if (act === "post-open") appR.openPost(el.dataset.arg);
           else if (act === "post-share") appR.sharePost(el.dataset.arg);
+          else if (act === "reel-cmt") K.socialActions.comments("reel_" + el.dataset.arg, "Reels");
           else if (act === "post-more") appR.postSheet(el.dataset.arg);
           else if (act === "ig-save") {
             const on = K.interactions.toggleSave("ig_" + el.dataset.arg);
             K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "Koleksiyonuna eklendi.", "ok");
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
           }
           else if (act === "ig-activity") { K.interactions.markNotifsRead("instagram"); K.phone.pushView(appR.activityView()); }
           else if (act === "ig-inbox") K.phone.pushView(appR.inboxView());
-          else if (act === "new-post") appR.newPost();
+          else if (act === "new-post") K.ui.actionSheet("Oluştur", [{ label: "Gönderi", onClick: () => appR.newPost() }, { label: "Canlı yayın", onClick: () => { K.livestream.start("instagram"); K.phone.pushView(K.ui.liveView()); } }]);
           else if (act === "promote") appR.promotePicker();
           else if (act === "story") appR.openStory(el.dataset.arg);
           else if (act === "go-live") { K.livestream.start("instagram"); K.phone.pushView(K.ui.liveView()); }
@@ -328,9 +336,9 @@
       return { reach, impressions, likes, comments, saves, profileVisits, follows, eng };
     },
 
-    feedHTML() {
+    feedHTML(mode) {
       const followed = K.interactions.followedArtists();
-      const posts = K.social.feedFor("instagram", { followedOnly: true, limit: 14 });
+      const posts = K.social.feedFor("instagram", { followedOnly: mode === "following", limit: 14 }).filter(p => K.socialActions.visible("instagram", p));
       const stories = (followed.length ? followed : K.artistList()).slice(0, 16);
       const suggested = K.social.suggestedArtists("instagram", 4);
       const seen = (K.phone._storySeen = K.phone._storySeen || {});
@@ -338,7 +346,7 @@
       const myGrad = `background:${U.gradientFor(K.state.player.stageName)}`;
 
       return `
-        <div class="ig-gesture-hint"><span>← Canlı yayın</span><span>Mesajlar →</span></div>
+
 
         <div class="ig-stories">
           <button class="ig-story" data-pact="story" data-arg="player">
@@ -357,15 +365,6 @@
               <span class="ig-story-name">${U.escape(a.stageName)}</span>
             </button>`;
           }).join("")}
-        </div>
-
-        <div class="ig-livebar" data-pact="go-live">
-          <span class="lb-dot"></span>
-          <div>
-            <div class="lb-t">Canlı yayın başlat</div>
-            <div class="lb-s">Takipçi kazan · bağış topla · popülerliğini artır</div>
-          </div>
-          <span style="margin-left:auto;font-size:10px;font-weight:800;color:#ff9db0">🔴 CANLI</span>
         </div>
 
         ${posts.length
@@ -388,7 +387,7 @@
 
     /* ---------- REELS ---------- */
     reelsHTML() {
-      const vids = K.phone.appById("youtube").allVideos().slice(0, 10);
+      const vids = K.phone.appById("youtube").allVideos().filter(v => K.socialActions.visible("instagram", v)).slice(0, 10);
       return `<div class="ig-reels">
         ${vids.map((v) => {
           const liked = K.interactions.isLiked("reel_" + v.id);
@@ -405,7 +404,7 @@
             <div class="r-side">
               <button class="${liked ? "on" : ""}" data-pact="like" data-arg="reel_${U.escape(v.id)}">${ICO.heart}</button>
               <span>${U.compact(Math.round(v.views * 0.06))}</span>
-              <button data-pact="reel-cmt">${ICO.comment}</button>
+              <button data-pact="reel-cmt" data-arg="${U.escape(v.id)}" aria-label="Yorumlar">${ICO.comment}</button>
               <span>${U.compact(Math.round(v.views * 0.003))}</span>
               <button data-pact="post-share" data-arg="${U.escape(v.id)}">${ICO.share}</button>
               <span class="grow"></span>
@@ -576,7 +575,7 @@
             b.addEventListener("click", () => {
               app._profileTabs = app._profileTabs || {};
               app._profileTabs[b.dataset.arg] = b.dataset.igPtab;
-              K.phone.reRender();
+              K.save(); K.phone.reRender();
             });
           });
         }
@@ -706,40 +705,31 @@
               K.interactions.addComment("ig_" + post.id, inp.value.trim());
               K.toast("💬 Yorum gönderildi", "", "ok");
               inp.value = "";
-              K.phone.reRender();
+              K.save(); K.phone.reRender();
             } else K.toast("Boş yorum", "", "warn");
           }
-          else if (act === "ig-save") { const on = K.interactions.toggleSave("ig_" + post.id); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.phone.reRender(); }
+          else if (act === "ig-save") { const on = K.interactions.toggleSave("ig_" + post.id); K.toast(on ? "🔖 Kaydedildi" : "Kaldırıldı", "", "ok"); K.save(); K.phone.reRender(); }
           else if (act === "focus-cmt") { const inp = U.qs("[data-ig-cmt]"); if (inp) inp.focus(); }
         }
       });
     },
 
     postSheet(postId) {
-      const mine = !!(K.state.feed && (K.state.feed.instagram || []).find(x => x && x.id === postId && x.mine));
-      if (mine) {
-        K.ui.actionSheet("Gönderi", [
-          { label: "📊 Analizi gör", onClick: () => K.phone.appById("instagram").postInsights(postId) },
-          { label: "🔖 Kaydet", onClick: () => { K.interactions.toggleSave("ig_" + postId); K.toast("🔖 Kaydedildi", "", "ok"); } },
-          { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") }
-        ]);
-        return;
-      }
+      const app = K.phone.appById("instagram");
+      const post = (K.state.feed.instagram || []).find(x => x.id === postId);
+      if (!post) return;
       K.ui.actionSheet("Gönderi", [
-        { label: "✈︎ Paylaş", onClick: () => K.toast("✈︎ Paylaşıldı", "Bağlantı kopyalandı.", "ok") },
-        { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") },
-        { label: "🔖 Kaydet", onClick: () => { K.interactions.toggleSave("ig_" + postId); K.phone.reRender(); } },
-        { label: "🚫 Bildir", cls: "destructive", onClick: () => K.toast("🚫 Bildirildi", "", "warn") }
+        ...(post.mine ? [{ label: "Analizi gör", onClick: () => app.postInsights(postId) }] : []),
+        { label: "Paylaş", onClick: () => app.sharePost(postId) },
+        { label: K.interactions.isSaved("ig_" + postId) ? "Kaydı kaldır" : "Kaydet", onClick: () => { K.interactions.toggleSave("ig_" + postId); K.save(); K.save(); K.phone.reRender(); } },
+        { label: "İlgilenmiyorum", onClick: () => K.socialActions.hide("instagram", postId) },
+        { label: "Akış tercihleri", onClick: () => K.socialActions.preferences("instagram") }
       ]);
     },
 
     sharePost(id) {
-      K.ui.actionSheet("Gönderiyi paylaş", [
-        { label: "📸 Hikâyeme ekle", onClick: () => K.toast("📸 Hikâyene eklendi", "24 saat görünür.", "ok") },
-        { label: "✈︎ DM'de paylaş", onClick: () => K.phone.pushView(K.phone.appById("instagram").inboxView()) },
-        { label: "🔗 Bağlantıyı kopyala", onClick: () => K.toast("🔗 Kopyalandı", "", "ok") },
-        { label: "🚫 Bildir", cls: "destructive", onClick: () => K.toast("🚫 Bildirildi", "", "warn") }
-      ]);
+      const item = (K.state.feed.instagram || []).find(p => p.id === id) || K.phone.appById("youtube").allVideos().find(v => v.id === id);
+      K.socialActions.share("instagram", item);
     },
 
     /* ============================================================
@@ -870,7 +860,7 @@
           if (act === "notif-follow") {
             const on = K.interactions.toggleFollow(el.dataset.arg);
             if (on) K.toast("✅ Takip edildi", (K.artistById(el.dataset.arg) || {}).stageName || "", "ok");
-            K.phone.reRender();
+            K.save(); K.phone.reRender();
             return;
           }
           if (act !== "notif-open") return;
@@ -937,7 +927,7 @@
       const songs = K.state.player.songs;
       if (!songs.length) { K.toast("Şarkın yok", "Önce bir şarkı yayınla.", "warn"); return; }
       K.ui.actionSheet("Hangi şarkıyı tanıtmak istersin?",
-        songs.map((s) => ({ label: s.title, onClick: () => { K.social.promoteSong(s.id, "instagram"); K.phone.reRender(); } })));
+        songs.map((s) => ({ label: s.title, onClick: () => { K.social.promoteSong(s.id, "instagram"); K.save(); K.phone.reRender(); } })));
     }
   });
 })(window.K);

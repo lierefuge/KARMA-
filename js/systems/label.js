@@ -376,9 +376,42 @@
       };
     },
 
+    // Snapshot rights at delivery. Expiry ends new obligations, not old master rights.
+    releaseTerms() {
+      const p = K.state.player, d = p.labelDeal;
+      if (!p.labelId) return { labelId: null, royalty: 0, dealId: null };
+      if (d && !d.id) d.id = U.uid("deal");
+      const l = K.labelById(p.labelId) || {};
+      return { labelId: p.labelId, royalty: d && d.labelRoyalty != null ? d.labelRoyalty : (l.royalty == null ? 50 : l.royalty), dealId: d ? d.id : null };
+    },
+
+    expirePlayerContract() {
+      const s = K.state, p = s.player, d = p.labelDeal;
+      if (!p.labelId || !d || s.day < (d.startDay || 0) + (d.lengthDays || 180)) return false;
+      const terms = K.label.releaseTerms();
+      // Older saves have no per-release snapshot: preserve their existing rights.
+      (p.songs || []).concat(p.releases || []).forEach(x => {
+        if (x.labelTerms === undefined) x.labelTerms = { ...terms };
+      });
+      (p.royalties || []).forEach(r => {
+        if (r.labelTerms === undefined) {
+          const song = (p.songs || []).find(x => x.id === r.songId);
+          r.labelTerms = { ...((song && song.labelTerms) || terms) };
+        }
+      });
+      d.endedDay = s.day;
+      p.labelHistory = p.labelHistory || [];
+      p.labelHistory.push(d);
+      p.labelId = null;
+      p.labelDeal = null;
+      K.toast("🏢 Sözleşmen tamamlandı", "Yeni yayınlarında bağımsızsın. Önceki yayınların hakları ve kalan avans hesabı korunuyor.", "ok");
+      return true;
+    },
+
     /* sözleşme yükümlülüğü: uzun süre yayın yoksa şirket uyarır (itibar −) */
     playerContractTick() {
       const s = K.state, p = s.player;
+      K.label.expirePlayerContract();
       if (!p.labelId || !p.labelDeal) return;
       const lastRel = Math.max(0, p.labelDeal.startDay || 1, ...(p.songs || []).map(x => x.publishedDay || 0));
       const idle = s.day - lastRel;
