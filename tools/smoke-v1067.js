@@ -49,7 +49,8 @@ function run() {
   const K = dom.window.K;
   const E = K.editorial;
   const INTEL = K.RELEASE_INTEL || { meta: {}, releases: {} };
-  const recs = Object.keys(INTEL.releases || {}).map(k => INTEL.releases[k]);
+  const actualRecs = Object.keys(INTEL.releases || {}).map(k => INTEL.releases[k]);
+  let recs = actualRecs;
 
   /* ============ A) RELEASE-INTEL VERİSİ ============ */
   ok("A-1 · release-intel yüklendi", !!(K.RELEASE_INTEL && INTEL.releases), typeof K.RELEASE_INTEL);
@@ -79,6 +80,27 @@ function run() {
     return k.indexOf(r.artistId + "::") !== 0;
   });
   ok("A-10 · anahtar biçimi slug::başlık", keyBad.length === 0, keyBad.slice(0, 2).join(","));
+
+  /* Provider metadata can legitimately omit preview/intel. Behavioral checks
+     use a dated synthetic catalog; A and E still validate the shipped data. */
+  const fixtureReleases = {};
+  const fixtureDate = new Date(dom.window.Date.now()).toISOString().slice(0, 10);
+  ["sehinsah", "hidra", "ceza"].forEach((id, artistIndex) => {
+    for (let n = 0; n < 3; n++) {
+      const artist = K.artistById(id);
+      const title = "Sentetik test " + artistIndex + " " + n;
+      fixtureReleases[id + "::" + title.toLowerCase()] = {
+        title, artistId: id, artistName: artist.stageName, trackArtist: artist.stageName,
+        releaseDate: fixtureDate, album: "Sentetik test albümü", art: "", ms: 120000,
+        preview: "https://example.invalid/fixture.m4a", url: null, isNew: true,
+        intel: { genre: "drill", mood: "sakin", energy: 6, tempo: "mid",
+          fit: { rapturkiye: 0.8, traptr: 0.8, drilltr: 0.8, newmusic: 0.8, nightmode: 0.7, popturkiye: 0 },
+          note: "Sentetik küratör test notu", tags: ["test"], model: "fixture", v: 1 }
+      };
+    }
+  });
+  K.RELEASE_INTEL = { meta: { source: "fixture" }, releases: fixtureReleases };
+  recs = Object.values(fixtureReleases);
 
   /* ============ B) ROTASYON ============ */
   const savedRotation = E.rotationInfo().forced;
@@ -157,7 +179,7 @@ function run() {
 
   /* ============ E) SAHİPLİK / KONUK DENETİMİ ============ */
   /* E-1: sahne adı VEYA takma ad eşleşmeli (ör. "wegh Rumi" ↔ "Wegh") */
-  ok("E-1 · her kaydın trackArtist'ı sanatçıyı içerir", recs.every(r => {
+  ok("E-1 · her kaydın trackArtist'ı sanatçıyı içerir", actualRecs.every(r => {
     const a = K.artistById(r.artistId);
     if (!a) return false;
     const hay = String(r.trackArtist || "").toLowerCase();
@@ -167,10 +189,10 @@ function run() {
   ok("E-2 · aynı şarkı iki sanatçıya yazılmamış", (() => {
     const seen = {};
     let dup = 0;
-    recs.forEach(r => { const k = r.title.toLowerCase(); if (seen[k]) dup++; seen[k] = 1; });
+    actualRecs.forEach(r => { const k = r.title.toLowerCase(); if (seen[k]) dup++; seen[k] = 1; });
     return dup === 0;
   })());
-  ok("E-3 · releaseDate gelecekte değil", recs.every(r => {
+  ok("E-3 · releaseDate gelecekte değil", actualRecs.every(r => {
     const t = Date.parse(r.releaseDate + "T00:00:00Z");
     return t <= Date.now() + 864e5 * 2;   /* 2 gün tolerans */
   }));
@@ -293,6 +315,16 @@ function run() {
     teaserOk = !!(tp && tp[0] && tp[0].line && tp[0].line.length > 5);
   } catch (e) {}
   ok("H-8 · haber teaser'ı dolu (AI notu)", teaserOk);
+
+  // Missing optional provider fields must not block the game or catalog updates.
+  // Keep the loaded object identity: lazy.previewFor caches this catalog.
+  recs.forEach(r => { r.intel = null; r.preview = null; });
+  K.RELEASE_INTEL = { meta: {}, releases: fixtureReleases };
+  const withoutAI = E.build("newmusic").songs.filter(s => s.isNew);
+  ok("I-1 · AI olmadan yeni çıkışlar kullanılabilir", withoutAI.length > 0 && withoutAI.every(s => s.note === null));
+  ok("I-2 · önizleme yoksa güvenli null", K.lazy.previewFor(recs[0].artistId, recs[0].title) === null);
+  ok("I-3 · AI yokken haber albüm bilgisine düşer", K.news.releaseTopics(1)[0].line === recs[0].album);
+  K.RELEASE_INTEL = INTEL;
 
   /* ---- rapor ---- */
   const runtime = (errors || []).filter(m => !/fonts|Not implemented/i.test(m));

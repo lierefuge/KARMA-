@@ -2,51 +2,113 @@ name: Gunluk icerik yenile
 
 on:
   schedule:
-    - cron: "0 4 * * *"
+    # UTC 21:00 = ertesi gün Türkiye 00:00; Actions gecikebilir.
+    - cron: "0 21 * * *"
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Yazmadan dene (Gemini API çağrılmaz, commit/build tetiklenmez)"
+        type: boolean
+        default: true
 
 permissions:
   contents: write
   actions: write
 
+# Build ile aynı dalın yazma kilidini paylaş; çalışan güncellemeyi yarıda kesme.
 concurrency:
-  group: daily-refresh
-  cancel-in-progress: true
+  group: content-update-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
       - name: Bagimliliklar
-        run: npm install --no-audit --no-fund
-      - name: Veriyi cek
+        run: npm ci --no-audit --no-fund
+      - name: Yazmadan dene
+        if: inputs.dry_run == true
         run: |
-          node tools/fetch-youtube.js || echo "::warning::youtube cekilemedi"
-          node tools/fetch-artist-discography.js || echo "::warning::diskografi cekilemedi"
-      - name: Degisiklik var mi
-        id: diff
+          node tools/fetch-new-releases.js --dry
+          node tools/ai-enrich.js --dry
+          node tools/refresh-discographies.js --dry
+      - name: Yeni sarkilari cek
+        id: releases
+        if: inputs.dry_run != true
+        continue-on-error: true
+        run: node tools/fetch-new-releases.js
+      - name: Gemini ile zenginlestir
+        id: ai
+        if: inputs.dry_run != true
+        continue-on-error: true
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: node tools/ai-enrich.js --limit 48
+      - name: YouTube guncelle
+        id: youtube
+        if: inputs.dry_run != true
+        continue-on-error: true
+        run: node tools/fetch-youtube.js
+      - name: Diskografileri guncelle
+        id: discography
+        if: inputs.dry_run != true
+        continue-on-error: true
+        run: node tools/refresh-discographies.js
+      - name: Veri farkini kontrol et
+        id: data
+        if: inputs.dry_run != true
         run: |
-          if git diff --quiet; then
+          if git diff --quiet -- js/data/release-intel.js js/data/real-youtube.js js/data/real-songs.js js/data/discography.js js/data/real-previews.js; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
-            git --no-pager diff --stat
           fi
-      - name: Commit
-        if: steps.diff.outputs.changed == 'true'
+      - name: Build ve tam dogrulama
+        if: steps.data.outputs.changed == 'true'
+        run: |
+          npm run build
+          npm run version:json
+          npm run verify
+      - name: Dogrulanmis veri ve gerekli build dosyalarini commit et
+        id: commit
+        if: steps.data.outputs.changed == 'true'
+        env:
+          TARGET_BRANCH: ${{ github.ref_name }}
         run: |
           git config user.name "karma-refresh[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add js/data
-          git commit -m "veri: gunluk icerik yenilemesi ($(date -u +%F))"
-          git push
-      - name: Build tetikle
-        if: steps.diff.outputs.changed == 'true'
+          git add -- js/data/release-intel.js js/data/real-youtube.js js/data/real-songs.js js/data/discography.js js/data/real-previews.js index.html sw.js KARMA-Oyun.html version.json
+          if ! git diff --cached --quiet; then
+            git commit -m "veri: gunluk icerik yenilemesi ($(date -u +%F))"
+            git fetch origin "$TARGET_BRANCH"
+            # Uzak dal ilerlediyse doğrulanmamış birleştirme veya force-push yapma.
+            git merge-base --is-ancestor FETCH_HEAD HEAD
+            git push origin "HEAD:$TARGET_BRANCH"
+          fi
+      - name: Build zincirini tetikle
+        if: steps.commit.outcome == 'success'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh workflow run build-artifact.yml --ref main
+          TARGET_BRANCH: ${{ github.ref_name }}
+        run: gh workflow run build-artifact.yml --ref "$TARGET_BRANCH"
+      - name: Kaynak durumlarini raporla
+        if: always()
+        env:
+          RELEASES: ${{ steps.releases.outcome }}
+          AI: ${{ steps.ai.outcome }}
+          YOUTUBE: ${{ steps.youtube.outcome }}
+          DISCOGRAPHY: ${{ steps.discography.outcome }}
+        run: |
+          echo "### Günlük veri kaynakları" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Yeni çıkışlar: $RELEASES; Gemini: $AI; YouTube: $YOUTUBE; diskografi: $DISCOGRAPHY" >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$RELEASES $AI $YOUTUBE $DISCOGRAPHY" == *failure* ]]; then
+            echo "::warning::Bazı kaynaklar tamamlanamadı; korunmuş veri ve başarılı güncellemeler kullanıldı. Ayrıntılar ilgili adımda."
+            exit 1
+          fi
