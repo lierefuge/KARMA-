@@ -591,3 +591,5 @@
     },
   };
 })(window.K);
+
+/* v10.68 — tetikleme: agac tutarli, tek dosya build yeniden uretilsin. */
