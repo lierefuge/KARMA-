@@ -155,3 +155,31 @@
 
 /* dar ekranda taşma güvenliği */
 .studio-card, .studio-row, .studio-bar { min-width: 0; }
+
+/* ============================================================
+   v10.68 — STÜDYO SERTLEŞTİRME (taşma · yanlış ölçek)
+   Stüdyo bileşenleri TELEFON içinde çiziliyor (ui/studio.js →
+   phone uygulamaları). Telefon çerçevesi masaüstünde de ~390 px
+   olduğu için bu dosyadaki @media kuralları (viewport'a bakar)
+   içeride HİÇ tetiklenmiyordu — dar ekranda taşma/yanlış ölçek
+   şikâyetinin kaynağı bu. .phone-screen `container: phone` tanımlı,
+   doğru araç @container.
+   ============================================================ */
+.studio-card, .studio-row, .studio-note { min-width: 0; }
+.studio-note { overflow-wrap: anywhere; }
+.studio-title, .studio-row-label { min-width: 0; }
+.studio-row-label.wide { flex: 0 0 auto; }
+
+@container phone (max-width: 380px) {
+  .studio-head { flex-wrap: wrap; gap: 6px; }
+  .studio-row { flex-wrap: wrap; }
+  .studio-row-label.wide { width: 100%; }
+  .studio-health-val { font-size: 19px; }
+  .studio-note { padding: 9px 10px; }
+}
+
+@container phone (max-width: 330px) {
+  .studio-card { padding: 10px; }
+  .studio-title { font-size: 12px; }
+  .studio-health-val { font-size: 17px; }
+}
