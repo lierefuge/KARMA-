@@ -249,10 +249,11 @@ H.whenReady(dom, { label: "v1064" }).then((K) => {
       "presale-open", "store-preview", "store-prev-tab", "clause-negotiate", "dept-up"];
     const targets = qa("#career-body button").map(b => ({
       act: b.dataset.act, arg: b.dataset.arg, rel: b.dataset.rel,
-      disabled: !!b.disabled, label: (b.textContent || "").trim()
+      disabled: !!b.disabled, sroom: b.dataset.sroom, label: (b.textContent || "").trim()
     }));
     const unknown = targets.filter(t => t.act && KNOWN.indexOf(t.act) < 0);
-    const noAct = targets.filter(t => !t.act && !t.disabled);
+    /* v10.70 — stüdyo odası düğmeleri (data-sroom) kendi işleyicisine sahiptir */
+    const noAct = targets.filter(t => !t.act && !t.disabled && !t.sroom);
     const noLabel = targets.filter(t => !t.label && !t.disabled);
 
     ok("E1 · bilinmeyen eylem yok", unknown.length === 0, unknown.map(t => t.act).join(",") || "temiz");
