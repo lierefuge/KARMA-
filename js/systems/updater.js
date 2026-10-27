@@ -277,8 +277,13 @@
       }
 
       try {
-        navigator.serviceWorker.register("sw.js").then(function (reg) {
+        /* updateViaCache:"none" → sw.js HTTP önbelleğinden okunmaz.
+           GitHub Pages sw.js'i max-age=600 ile sunuyor; bu ayar olmadan yeni
+           worker 10 dakikaya kadar gecikebiliyordu. */
+        navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then(function (reg) {
           registration = reg;
+          /* hemen güncelleme ara: bayat worker ile açılış yapma */
+          try { reg.update().catch(function () {}); } catch (e) {}
           /* yeni worker kurulduğunda şerit göster */
           reg.addEventListener("updatefound", function () {
             const nw = reg.installing;
@@ -290,6 +295,21 @@
             });
           });
         }).catch(function () { /* sw yoksa sessiz geç */ });
+      } catch (e) {}
+
+      /* Yeni worker kontrolü devraldığında sayfayı BİR KEZ yenile.
+         Kullanıcının şeride basmasını beklemek "güncelleme gelmiyor"
+         hissini doğuruyordu. Sürüm başına tek deneme (sessionStorage). */
+      try {
+        navigator.serviceWorker.addEventListener("controllerchange", function () {
+          var key = "karma_sw_auto_" + String(K.VERSION);
+          try {
+            if (sessionStorage.getItem(key)) return;
+            sessionStorage.setItem(key, "1");
+          } catch (e) { return; }
+          try { if (K.save) K.save(); } catch (e) {}
+          try { location.reload(); } catch (e) {}
+        });
       } catch (e) {}
 
       K.updater.check(true);
