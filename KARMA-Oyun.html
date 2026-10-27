@@ -1325,24 +1325,29 @@ textarea:focus-visible {
 .live-strip b { font-size: 11px; font-weight: 800; }
 .live-strip span { font-size: 10px; color: var(--text-2); }
 
-/* First-month career decisions */
-.journey-card { padding: 18px; margin-bottom: 18px; border: 1px solid var(--border); border-radius: 16px; background: var(--bg-card, #171923); }
-.journey-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.journey-card h2 { margin: 5px 0 14px; font-size: 20px; }
-.journey-card h3 { margin: 18px 0 8px; font-size: 15px; }
-.journey-card p { line-height: 1.6; font-size: 13px; overflow-wrap: anywhere; }
-.journey-targets { display: grid; gap: 8px; }
-.journey-targets > div { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 12px; }
-.journey-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 8px; }
-.journey-choices .btn { display: flex; flex-direction: column; align-items: flex-start; white-space: normal; text-align: left; padding: 12px; }
-.journey-choices span { font-size: 11px; line-height: 1.6; opacity: .8; }
-.journey-card details { margin-top: 14px; }
-.journey-card summary { cursor: pointer; padding: 8px 0; font-size: 13px; }
-.journey-entry { margin: 12px 0; border-top: 1px solid var(--border); padding-top: 10px; font-size: 12px; }
-@media (max-width: 480px) { .journey-card { padding: 12px; } .journey-targets > div { flex-wrap: wrap; } }
+/* ============================================================
+   v10.68 — KARİYER/STÜDYO TAŞMA SERTLEŞTİRMESİ
+   Ölçülen iki gerçek kaynak:
+   1) `.studio-craft` ikinci kolonu `minmax(280px, …)` — kariyer paneli
+      1280 px altında daralınca 280 px'lik taban ekranı taşırıyordu.
+   2) `.studio-hub` 1.4fr/1fr — `minmax(0, …)` olmadığı için fr birimleri
+      içeriğin min-content genişliğinin altına inemiyor, panel taşıyordu.
+   Bu iki blok dar ekranda TEK KOLONA yığılır.
+   ============================================================ */
+.studio-craft-side, .studio-hub-card, .studio-craft-main { min-width: 0; }
 
-.journey-help { margin-bottom: 18px; }
-.journey-help > summary { cursor: pointer; padding: 10px 0; font-size: 13px; color: var(--text-2); }
+@media (max-width: 1280px) {
+  .studio-craft { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .studio-craft-side { position: static; }
+}
+@media (max-width: 1100px) {
+  .studio-hub { grid-template-columns: minmax(0, 1fr); }
+  .studio-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+}
+@media (max-width: 820px) {
+  .stat-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  .studio-craft { gap: 10px; }
+}
 
 </style>
 <style>
@@ -1448,6 +1453,11 @@ textarea:focus-visible {
   z-index: 30;
   flex: 0 0 auto;
   height: 46px;
+  /* v10.68 — üst şerit DEKORATİF: tıklamayı yutmaz (bkz. apps/phone.js).
+     Yalnızca kontrol merkezi (#status-cc) tıklanabilir.
+     Kaydırma sırasında yumuşakça gizlenir/yükselir. */
+  transition: transform .22s ease, opacity .22s ease;
+  will-change: transform, opacity;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1463,6 +1473,22 @@ textarea:focus-visible {
 .status-right { display: flex; align-items: center; gap: 6px; font-size: 11px; }
 .sig { letter-spacing: -1px; font-size: 10px; }
 /* v10.37 — pil göstergesi kaldırıldı (pil mekaniği yok). */
+
+/* v10.68 — kaydırma sırasında üst kabuk gizlenir */
+.status-bar.sb-hidden,
+.phone-frame.chrome-hidden .status-bar {
+  transform: translateY(-120%);
+  opacity: 0;
+  pointer-events: none;
+}
+.phone-notch { transition: opacity .22s ease, transform .22s ease; }
+.phone-frame.chrome-hidden .phone-notch {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-14px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .status-bar, .phone-notch { transition: none; }
+}
 
 /* ---------- viewport ---------- */
 .phone-viewport {
@@ -3561,6 +3587,34 @@ body.theme-light {
 
 /* dar ekranda taşma güvenliği */
 .studio-card, .studio-row, .studio-bar { min-width: 0; }
+
+/* ============================================================
+   v10.68 — STÜDYO SERTLEŞTİRME (taşma · yanlış ölçek)
+   Stüdyo bileşenleri TELEFON içinde çiziliyor (ui/studio.js →
+   phone uygulamaları). Telefon çerçevesi masaüstünde de ~390 px
+   olduğu için bu dosyadaki @media kuralları (viewport'a bakar)
+   içeride HİÇ tetiklenmiyordu — dar ekranda taşma/yanlış ölçek
+   şikâyetinin kaynağı bu. .phone-screen `container: phone` tanımlı,
+   doğru araç @container.
+   ============================================================ */
+.studio-card, .studio-row, .studio-note { min-width: 0; }
+.studio-note { overflow-wrap: anywhere; }
+.studio-title, .studio-row-label { min-width: 0; }
+.studio-row-label.wide { flex: 0 0 auto; }
+
+@container phone (max-width: 380px) {
+  .studio-head { flex-wrap: wrap; gap: 6px; }
+  .studio-row { flex-wrap: wrap; }
+  .studio-row-label.wide { width: 100%; }
+  .studio-health-val { font-size: 19px; }
+  .studio-note { padding: 9px 10px; }
+}
+
+@container phone (max-width: 330px) {
+  .studio-card { padding: 10px; }
+  .studio-title { font-size: 12px; }
+  .studio-health-val { font-size: 17px; }
+}
 
 </style>
 <style>
@@ -7498,153 +7552,6 @@ body.hide-values .brand-sub::after {
   .app-x .xp-act { font-size: 10.5px; gap: 3px; }
   .app-x .xp-act svg { width: 15px; height: 15px; }
 }
-
-</style>
-<style>
-/* ==== css/social-refresh.css ==== */
-/* Phone-native social surfaces. Scoped to the four apps and shared action views. */
-.app-x, .app-instagram, .app-youtube, .app-tiktok { color: #f5f5f5; font-family: Arial, Helvetica, sans-serif; }
-.app-x { background: #000; }
-.app-x .app-body { padding: 0; gap: 0; position: relative; }
-.brand-x { justify-content: space-between; min-height: 48px; padding: 8px 14px; }
-.x-wordmark { font-size: 27px; line-height: 1; }
-.social-profile-btn, .social-icon-btn { background: none; border: 0; color: inherit; padding: 4px; cursor: pointer; }
-.social-icon-btn { font-size: 23px; }
-.x-feed-tabs { display: flex; position: sticky; top: 0; z-index: 4; background: rgba(0,0,0,.94); border-bottom: 1px solid #2f3336; }
-.x-feed-tabs button { flex: 1; background: none; color: #71767b; border: 0; padding: 15px 4px; font-size: 12px; font-weight: 700; position: relative; cursor: pointer; }
-.x-feed-tabs button.active { color: #e7e9ea; }
-.x-feed-tabs button.active::after { content: ''; position: absolute; bottom: 0; height: 4px; background: #1d9bf0; border-radius: 4px; left: 25%; right: 25%; }
-.app-x .x-post { border-bottom: 1px solid #2f3336; padding: 12px 10px; gap: 9px; margin: 0; }
-.app-x .xp-text { font-size: 13px; line-height: 1.5; margin: 5px 0 10px; }
-.app-x .xp-name { font-size: 12px; }
-.app-x .xp-handle { font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.app-x .xp-head { flex-wrap: wrap; gap: 3px; }
-.app-x .xp-actions { gap: 4px; justify-content: space-between; }
-.app-x .xp-act { background: none; border: 0; padding: 2px 0; color: #71767b; font: inherit; display: inline-flex; gap: 3px; align-items: center; cursor: pointer; }
-.app-x .xp-act b { font-size: 9px; font-weight: 400; }
-.app-x .xp-act svg { width: 16px; height: 16px; }
-.app-x .xp-like.on { color: #f91880; }
-.app-x .xp-repost.on { color: #00ba7c; }
-.app-x .xp-save.on { color: #1d9bf0; }
-.x-compose-fab { position: sticky; bottom: 15px; align-self: flex-end; margin: 0 14px 14px; flex-shrink: 0; width: 49px; height: 49px; border: 0; border-radius: 50%; background: #1d9bf0; color: white; display: grid; place-items: center; box-shadow: 0 3px 14px #0008; cursor: pointer; }
-.x-compose-fab svg { width: 23px; height: 23px; }
-.app-x .seg-bottom { background: #000; border-top: 1px solid #2f3336; }
-.social-search { padding: 9px 12px; }
-.social-search input { width: 100%; padding: 11px 15px; border: 1px solid transparent; border-radius: 24px; background: #202327; color: #e7e9ea; font-size: 13px; }
-.social-search input:focus { border-color: #1d9bf0; outline: none; }
-.social-menu-row, .social-person { display: flex; align-items: center; gap: 10px; width: 100%; border: 0; border-bottom: 1px solid #ffffff18; background: none; padding: 16px 8px; color: inherit; text-align: left; cursor: pointer; font-size: 13px; }
-.social-menu-row span:last-child, .social-person span:last-child { margin-left: auto; }
-.social-share-preview { padding: 18px; line-height: 1.6; border: 1px solid #ffffff22; border-radius: 14px; overflow-wrap: anywhere; }
-.social-comment { display: flex; gap: 10px; padding: 12px 0; }
-.social-comment b { font-size: 12px; }
-.social-comment p { margin-top: 5px; font-size: 13px; overflow-wrap: anywhere; }
-.social-comment-form { display: flex; gap: 8px; padding: 12px; border-top: 1px solid #ffffff22; }
-.social-comment-form input { width: 0; flex: 1; min-width: 0; border: 0; background: #ffffff12; border-radius: 18px; color: inherit; padding: 10px; }
-.social-comment-form button { border: 0; background: none; color: #3ea6ff; font-weight: bold; cursor: pointer; }
-.app-instagram .brand-ig { min-height: 52px; background: #000; border: 0; }
-.app-instagram .ig-wordmark { font-size: 25px; }
-.app-instagram .ig-stories { padding-top: 8px; border-bottom: 1px solid #262626; }
-.app-instagram .ig-post { margin: 0; border: 0; border-radius: 0; background: #000; }
-.app-instagram .ig-post-head { padding: 12px; }
-.app-instagram .ig-media { border-radius: 0; }
-.app-instagram .ig-actions { padding: 10px 12px 4px; }
-.app-instagram .ig-actions button { min-width: 28px; min-height: 32px; }
-.app-instagram .ig-body { padding: 4px 12px 16px; }
-.app-instagram .seg-bottom { background: #000; border-top: 1px solid #262626; }
-.app-instagram .social-create-tab .tb-ic { border: 2px solid currentColor; border-radius: 6px; width: 22px; height: 22px; font-size: 24px; line-height: 17px; }
-.app-instagram .ig-reels { gap: 0; }
-.app-instagram .ig-reel { min-height: 410px; scroll-snap-align: start; }
-.app-youtube .brand-yt { background: #0f0f0f; min-height: 50px; padding: 10px 12px; }
-.app-youtube .yt-wordmark { font-size: 19px; letter-spacing: -1px; }
-.app-youtube .yt-play { background: #f03; color: white; border-radius: 6px; width: 28px; height: 19px; font-size: 11px; display: grid; place-items: center; }
-.app-youtube .yt-top-actions { gap: 12px; }
-.app-youtube .filter-chips { padding: 8px 12px 12px; margin: 0; gap: 7px; }
-.app-youtube .fchip { border-radius: 7px; padding: 7px 11px; background: #272727; border: 0; font-weight: 600; }
-.app-youtube .fchip.active { background: #f1f1f1; color: #0f0f0f; }
-.app-youtube .yt-video { margin-bottom: 12px; }
-.app-youtube .yt-thumb { border-radius: 0; }
-.app-youtube .yt-video .vt { font-size: 13px; line-height: 1.4; }
-.app-youtube .yt-video .vm { font-size: 10px; line-height: 1.5; }
-.app-youtube .social-create-tab .tb-ic { background: #272727; border-radius: 50%; width: 32px; height: 32px; font-size: 27px; line-height: 30px; }
-.app-youtube .social-create-tab .tb-lb { display: none; }
-.yt-you-header { display: flex; align-items: center; gap: 12px; padding: 20px 14px; }
-.yt-you-header h2 { font-size: 20px; margin: 0 0 8px; }
-.app-tiktok .app-body { padding: 0; gap: 0; scroll-snap-type: y mandatory; }
-.app-tiktok .tt-feed { margin: 0; gap: 0; }
-.app-tiktok .tt-card { aspect-ratio: auto; min-height: 420px; height: var(--social-video-height, 450px); flex-shrink: 0; scroll-snap-align: start; scroll-snap-stop: always; }
-.app-tiktok .brand-tt { min-height: 45px; flex-shrink: 0; }
-.app-tiktok .tt-seg { gap: 16px; }
-.app-tiktok .tt-seg button { font-size: 13px; font-weight: 700; }
-.app-tiktok .tt-side { right: 8px; bottom: 86px; gap: 14px; }
-.app-tiktok .tt-bottom { padding: 14px 62px 18px 12px; }
-.app-tiktok .tt-desc { font-size: 12px; line-height: 1.5; }
-.app-tiktok .tt-user { font-size: 13px; }
-.app-tiktok .seg-bottom { min-height: 56px; }
-.app-tiktok .seg-bottom button .tb-lb { display: block; font-size: 8px; margin-top: 4px; white-space: nowrap; }
-.app-tiktok .seg-bottom button svg { width: 23px; height: 23px; }
-.app-tiktok .social-create-tab .tb-ic { background: #fff; color: #000; border-radius: 6px; width: 35px; height: 25px; box-shadow: -4px 0 #25f4ee, 4px 0 #fe2c55; display: grid; place-items: center; }
-.app-tiktok .social-create-tab .tb-lb { display: none; }
-.social-compose .app-body { padding: 16px; gap: 16px; }
-.social-cover-preview { display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 20px; min-height: 180px; border-radius: 12px; background: linear-gradient(140deg,#142838,#39132d); font-size: 50px; }
-.social-cover-preview span { font-size: 13px; }
-.social-compose textarea, .social-compose select { width: 100%; background: #202020; color: white; border: 1px solid #444; border-radius: 8px; padding: 10px; }
-.app-shell :is(.social-icon-btn,.social-profile-btn,.social-menu-row,.xp-act,.x-compose-fab):focus-visible { outline: 2px solid #3ea6ff; outline-offset: 2px; }
-@media (prefers-reduced-motion: reduce) { .app-shell.snap .app-body { scroll-behavior: auto; } }
-/* Supplied Android references: Instagram feed and YouTube Home / You. */
-.app-instagram { background: #0c1014; }
-.app-instagram .reference-ig { background: #0c1014; justify-content: space-between; padding: 10px 12px; }
-.ig-feed-title { font: 700 17px Arial, sans-serif; background: none; border: 0; color: #f5f5f5; cursor: pointer; }
-.ig-feed-title span { font-size: 14px; margin-left: 4px; }
-.reference-ig .ig-create { font-size: 32px; font-weight: 300; line-height: 30px; }
-.reference-ig .ig-notification { position: relative; width: 32px; height: 32px; }
-.social-unread-dot { position: absolute; right: 1px; top: 0; width: 7px; height: 7px; background: #ff3040; border-radius: 50%; }
-.app-instagram .ig-stories { gap: 13px; padding: 10px 10px 14px; border: none; }
-.app-instagram .ig-story { width: 66px; min-width: 66px; }
-.app-instagram .ig-story-ring { width: 65px; height: 65px; padding: 2px; }
-.app-instagram .ig-story-img { width: 57px; height: 57px; }
-.app-instagram .ig-story-name { font-size: 10px; margin-top: 5px; }
-.app-instagram .ig-post, .app-instagram .seg-bottom { background: #0c1014; }
-.app-instagram .ig-media { aspect-ratio: 4/5; }
-.app-instagram .seg-bottom button.active { background: #25292d; border-radius: 28px; }
-.app-instagram .seg-bottom { padding: 6px 8px; gap: 5px; }
-.app-instagram .seg-bottom button { min-height: 37px; }
-.app-youtube .yt-home-search { display: none; }
-.app-youtube .yt-home-search.open { display: flex; }
-.social-bell { position: relative; }
-.social-bell b { position: absolute; top: -4px; right: -5px; min-width: 13px; height: 13px; padding: 1px 3px; border-radius: 12px; background: #c03; color: white; font-size: 9px; }
-.yt-account { color: #f1f1f1; border: 1px solid #444; border-radius: 22px; background: none; padding: 7px 11px; font: 600 11px Arial, sans-serif; cursor: pointer; }
-.yt-short-shelf { padding: 10px; }
-.yt-short-shelf h2 { display: flex; align-items: center; gap: 9px; font-size: 17px; margin: 10px 0 14px; }
-.yt-short-shelf h2 > span { color: #f03; font-size: 26px; }
-.yt-short-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-.yt-short-tile { position: relative; aspect-ratio: 9/15; border: none; border-radius: 9px; overflow: hidden; color: white; text-align: left; cursor: pointer; }
-.yt-short-tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.yt-short-tile > span { position: absolute; bottom: 0; left: 0; right: 0; padding: 35px 7px 9px; font-size: 12px; font-weight: 600; background: linear-gradient(transparent,#000c); }
-.yt-you-header { padding: 17px 12px 12px; }
-.yt-you-header h2 { font-size: 20px; }
-.yt-you-header span { color: #aaa; font-size: 11px; }
-.yt-view-channel { background: #f1f1f1; color: #0f0f0f; border: 0; border-radius: 20px; padding: 9px; margin: 4px 12px 18px; cursor: pointer; font-size: 12px; font-weight: 600; }
-.yt-history, .yt-library { padding: 10px 12px; }
-.yt-history h2, .yt-library h2 { font-size: 17px; margin: 0 0 14px; }
-.yt-history-row { display: flex; overflow-x: auto; gap: 10px; }
-.yt-history-card { background: none; border: 0; color: inherit; text-align: left; width: 125px; flex-shrink: 0; padding: 0; cursor: pointer; }
-.yt-history-card b { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-weight: 500; font-size: 11px; margin-top: 7px; }
-.yt-history-card small, .yt-collection small { display: block; color: #aaa; font-size: 10px; margin-top: 5px; }
-.yt-history-art { display: grid; place-items: center; height: 70px; overflow: hidden; border-radius: 8px; background: #242424; }
-.yt-history-art img, .yt-collection-art img { width: 100%; height: 100%; object-fit: cover; }
-.yt-collection { display: flex; align-items: center; gap: 12px; padding: 9px 0; width: 100%; border: none; background: none; color: inherit; text-align: left; cursor: pointer; }
-.yt-collection > span:last-child { margin-left: auto; }
-.yt-collection b { font-size: 12px; font-weight: 500; }
-.yt-collection-art { width: 104px; height: 65px; border-radius: 9px; overflow: hidden; flex-shrink: 0; display: grid; place-items: center; box-shadow: 0 -4px #555; }
-.yt-collection-symbol { font-size: 24px; color: #fff; }
-.app-x .xp-actions > .muted { display: none; }
-.app-x .xp-actions > * { min-width: 0; }
-.app-x .app-body { overflow-x: hidden; }
-
-.app-instagram .app-body { padding: 0; gap: 0; }
-.app-youtube [hidden] { display: none !important; }
-
-.app-x .xp-act:not(.on) .x-on, .app-x .xp-act.on .x-off { display: none; }
 
 </style>
 <style>
@@ -16810,201 +16717,6 @@ window.K = window.K || {};
     }
   };
 })(window.K = window.K || {});
-
-</script>
-<script>
-/* ==== js/systems/journey.js ==== */
-/* First month: persistent local relationships, commitments and visible consequences.
-   Offers follow actual releases; a missed deadline never blocks the normal career. */
-(function (K) {
-  "use strict";
-  const U = K.util;
-  const EVENTS = {
-    circle: { title: "İlk çevren", role: "producer", text: "Semt prodüktörün iki gün sonra ev stüdyosunda. İlk adımını nasıl atmak istersin?", choices: [
-      { id: "meet", label: "Dinlemeye git", note: "2 gün sonra · yorgunluk +6 · prodüktörle samimiyet artar", days: 2, fatigue: 6 },
-      { id: "practice", label: "Evde prova yap", note: "2 gün sonra · yorgunluk +10 · müzik becerisi +1", days: 2, fatigue: 10 },
-      { id: "pass", label: "Şimdilik kendi planım", note: "Masraf ve ceza yok" }
-    ] },
-    session: { title: "Yayın öncesi son dinleme", role: "producer", text: "Prodüktörün hazırladığın parçayı birlikte dinlemeyi öneriyor. Kayıt hâlâ düzenlenebilir durumda.", choices: [
-      { id: "together", label: "Birlikte düzenle", note: "₺1.200 · 2 gün sonra · kalite +3 · yorgunluk +8 · samimiyet artar", cost: 1200, days: 2, fatigue: 8 },
-      { id: "solo", label: "Kendim prova edeyim", note: "Ücretsiz · 2 gün sonra · kalite +1 · yorgunluk +12", days: 2, fatigue: 12 },
-      { id: "pass", label: "Mevcut kaydı koru", note: "Masraf ve ceza yok" }
-    ] },
-    stage: { title: "İlk küçük sahne", role: "dj", text: "Mahalli DJ, yayınladığın şarkıyla açık mikrofon gecesinde kısa bir set istiyor. Sabit ücret ₺1.500; ulaşım ₺400.", choices: [
-      { id: "show", label: "Sahneye söz ver", note: "₺400 şimdi · 3 gün sonra ₺1.500 · yorgunluk +12 · DJ ile samimiyet artar", cost: 400, days: 3, fatigue: 12 },
-      { id: "share", label: "Evden tanıtım hazırla", note: "Ücretsiz · 2 gün sonra · şarkıya küçük tanıtım etkisi · yorgunluk +6", days: 2, fatigue: 6 },
-      { id: "pass", label: "Bu kez katılma", note: "Masraf ve ceza yok" }
-    ] },
-    followup: { title: "Seni yeniden dinleyen biri", role: "fan", text: "İlk dinleyicilerinden biri yeni şarkını soruyor. Bu küçük çevreyle bağını nasıl sürdüreceksin?", choices: [
-      { id: "reply", label: "Sohbet için vakit ayır", note: "1 gün sonra · hayranla samimiyet artar · yorgunluk +4", days: 1, fatigue: 4 },
-      { id: "practice", label: "Yeni işe hazırlan", note: "2 gün sonra · müzik becerisi +1 · yorgunluk +10", days: 2, fatigue: 10 },
-      { id: "pass", label: "Biraz ara ver", note: "Masraf ve ceza yok" }
-    ] }
-  };
-  K.journey = {
-    EVENTS,
-    ensure() {
-      const s = K.state;
-      // Established careers are not restarted when an older save is loaded.
-      if (!s.journey && s.day <= 30) s.journey = { closed: {}, history: [], milestones: {}, lastDay: -2 };
-      const j = s.journey;
-      if (!j) return null;
-      j.closed = j.closed || {}; j.history = j.history || []; j.milestones = j.milestones || {};
-      return j;
-    },
-    contact(role) { return K.contacts.list().find(c => c.role === role); },
-    tell(role, text, affinity) {
-      const c = K.journey.contact(role);
-      if (!c) return;
-      K.relation(c.id).met = true;
-      if (affinity) K.relations.addAffinity(c.id, affinity, "ilk_ay", { uncapped: true });
-      K.relations.pushArtistMessage(c.id, text, "chat", { topic: "ilk_ay", silent: true });
-    },
-    note(title, text) {
-      const s = K.state, j = K.journey.ensure();
-      j.history.unshift({ day: s.day, title, text });
-      j.history = j.history.slice(0, 16);
-      s.notifications = (s.notifications || []).concat({ day: s.day, title, msg: text, kind: "" }).slice(-60);
-      K.toast(title, text, "");
-    },
-    targets() {
-      const p = K.state.player, j = K.state.journey || {};
-      const sg = (p.songs || []);
-      return [
-        { id: "release", title: "İlk şarkını yayınla", done: sg.length > 0, act: "open-studio", label: "Stüdyoya git" },
-        { id: "listeners", title: "50 aylık dinleyiciye ulaş", done: (p.monthly || 0) >= 50 && sg.length > 0, act: "go-tab", arg: "releases", label: "Şarkını tanıt" },
-        { id: "income", title: "Müzikten ilk ₺1.000 gelir", done: (p.totalStreamRevenue || 0) + (j.showIncome || 0) >= 1000, act: "go-tab", arg: "analytics", label: "Gelirleri gör" }
-      ];
-    },
-    tick() {
-      const s = K.state, p = s.player, j = K.journey.ensure();
-      if (!j) return;
-      if (j.booking && s.day >= j.booking.dueDay) K.journey.finish();
-      K.journey.targets().forEach(t => {
-        if (t.done && !j.milestones[t.id]) {
-          j.milestones[t.id] = s.day;
-          K.journey.note("Kariyer adımı", t.title + " — tamamlandı.");
-        }
-      });
-      if (j.pending && s.day > j.pending.deadline) {
-        j.closed[j.pending.id] = "missed";
-        K.journey.note("Fırsatın zamanı geçti", EVENTS[j.pending.id].title + ": kendi planınla devam edebilirsin.");
-        j.pending = null; j.lastDay = s.day;
-      }
-      if (s.day > 30 || j.pending || j.booking || s.day - j.lastDay < 2) return;
-      const rel = (p.releases || []).find(r => r.stage === "prep" && (s.day + 2 - r.startDay) / Math.max(1, r.waitDays) < 0.4);
-      const song = (p.songs || []).find(x => !x.takenDown);
-      let id;
-      if (!j.closed.circle) id = "circle";
-      else if (!j.closed.session && rel) id = "session";
-      else if (!j.closed.stage && song) id = "stage";
-      else if (!j.closed.followup && j.closed.stage && song && s.day >= 20) id = "followup";
-      if (!id) return;
-      j.pending = { id, deadline: Math.min(30, s.day + 5), targetId: id === "session" ? rel.id : (song && song.id) };
-      const e = EVENTS[id];
-      K.journey.tell(e.role, e.text, 0);
-      K.journey.note(e.title, "Kariyerindeki İlk Ay kartında kararını verebilirsin. Son gün: " + j.pending.deadline + ".");
-    },
-    choose(id, choiceId) {
-      const s = K.state, p = s.player, j = K.journey.ensure();
-      if (!j || !j.pending || j.pending.id !== id || j.booking || s.day > j.pending.deadline) return false;
-      const e = EVENTS[id], ch = e.choices.find(c => c.id === choiceId);
-      if (!ch) return false;
-      if (ch.days && ((p.fatigue || 0) + ch.fatigue > 100 || (K.mental && K.mental.onHiatus()))) {
-        K.toast("Biraz dinlen", "Bu hazırlık için yeterli enerjin yok.", "warn"); return false;
-      }
-      const dueDay = s.day + (ch.days || 0);
-      if (id === "session" && ch.days) {
-        const rel = (p.releases || []).find(r => r.id === j.pending.targetId);
-        if (!rel || rel.stage !== "prep" || (dueDay - rel.startDay) / Math.max(1, rel.waitDays) >= 0.4) {
-          K.toast("Seans için süre kalmadı", "Proje dağıtıma geçiyor. Mevcut kaydı koruyarak devam edebilirsin.", "warn"); return false;
-        }
-      }
-      if (choiceId === "show" && K.journey.busyOn(dueDay)) {
-        K.toast("Takvim çakışıyor", "Aynı gün başka bir sahneye söz verdin.", "warn"); return false;
-      }
-      if (ch.cost && !K.economy.spend(ch.cost, id === "stage" ? "journey_travel" : "journey_session")) {
-        K.toast("Yetersiz bakiye", U.money(ch.cost) + " gerekiyor.", "warn"); return false;
-      }
-      const targetId = j.pending.targetId;
-      j.pending = null; j.closed[id] = choiceId; j.lastDay = s.day;
-      if (ch.days) {
-        p.fatigue = U.clamp((p.fatigue || 0) + ch.fatigue, 0, 100);
-        j.booking = { id, choiceId, targetId, dueDay, cost: ch.cost || 0 };
-        K.journey.note(e.title, ch.label + ": Gün " + dueDay + " için planlandı. " + ch.note);
-      } else K.journey.note(e.title, "Bu fırsatı pas geçtin; kariyerine kendi planınla devam ediyorsun.");
-      K.save(); K.refresh(); return true;
-    },
-    busyOn(day) {
-      const s = K.state;
-      return (s.concerts || []).some(c => c.status === "planlandı" && c.day === day) ||
-        !!(s.tour && s.tour.queue.some(c => c.day === day));
-    },
-    cancel(systemReason) {
-      const j = K.journey.ensure(), b = j && j.booking;
-      if (!b) return false;
-      j.booking = null; j.lastDay = K.state.day;
-      const refund = systemReason ? b.cost : Math.floor(b.cost / 2);
-      if (refund) K.economy.earn(refund, "cancel_refund");
-      const promised = ["meet", "together", "show", "reply"].includes(b.choiceId);
-      const text = systemReason || ("Planı iptal ettin. İade: " + U.money(refund) + (promised ? "; verdiğin söz nedeniyle samimiyet azalır." : "."));
-      if (!systemReason && ["meet", "together", "show", "reply"].includes(b.choiceId)) K.journey.tell(EVENTS[b.id].role, "Bu kez olmadı. Bir daha plan yaparken haberleşelim.", -2);
-      K.journey.note(EVENTS[b.id].title, text);
-      K.save(); K.refresh(); return true;
-    },
-    finish() {
-      const s = K.state, p = s.player, j = K.journey.ensure(), b = j.booking;
-      if (!b) return;
-      const rel = (p.releases || []).find(x => x.id === b.targetId);
-      const song = (p.songs || []).find(x => x.id === b.targetId && !x.takenDown);
-      if (b.id === "session" && (!rel || rel.stage !== "prep")) {
-        K.journey.cancel("Kayıt artık düzenlenebilir durumda değil. Seans ücreti tamamen iade edildi."); return;
-      }
-      if (b.id === "stage" && (!song || (b.choiceId === "show" && (K.journey.busyOn(b.dueDay) || K.mental.onHiatus())))) {
-        K.journey.cancel("Şarkı veya sahne takvimi değişti. Plan iptal edildi; ödenen masraf iade edildi."); return;
-      }
-      j.booking = null; j.lastDay = s.day;
-      let text;
-      if (b.choiceId === "practice") {
-        p.skills.music = U.clamp((p.skills.music || 0) + 1, 0, 100);
-        text = "Prova tamamlandı. Müzik becerin +1; bir sonraki kayda daha hazırsın.";
-      } else if (b.id === "circle") {
-        K.journey.tell("producer", "Geldiğin iyi oldu. Kaydın hazır olunca birlikte dinleyelim.", 4);
-        text = "Ev stüdyosunda tanıştınız. Prodüktörle samimiyet arttı; ilk projen hazır olunca yeni bir seans fırsatı doğacak.";
-      } else if (b.id === "session") {
-        const gain = b.choiceId === "together" ? 3 : 1;
-        (rel.tracks || []).forEach(t => { t.quality = U.clamp((t.quality || 50) + gain, 0, 99); });
-        if (b.choiceId === "together") K.journey.tell("producer", "Söz verdiğin gibi geldin. Nakaratı toparladık; çıkınca bana da yolla.", 3);
-        text = "“" + rel.title + "” düzenlendi. Parça kaliteleri +" + gain + " (en fazla 99).";
-      } else if (b.id === "stage") {
-        song.boosts = song.boosts || {};
-        song.boosts.journey = (song.boosts.journey || 0) + (b.choiceId === "show" ? 0.08 : 0.12);
-        if (b.choiceId === "show") {
-          K.economy.earn(1500, "journey_show"); j.showIncome = (j.showIncome || 0) + 1500;
-          K.journey.tell("dj", "Küçük bir geceydi ama sözünü tuttun. Set ücretin gönderildi. Bir sonraki işte haberleşiriz.", 4);
-          text = "Açık mikrofon setini tamamladın. ₺1.500 ücret − ₺400 ulaşım = ₺1.100 net; DJ ile samimiyet artar. Şarkın küçük bir tanıtım etkisi kazandı.";
-        } else text = "Evden hazırladığın tanıtım yayında. “" + song.title + "” küçük bir dinlenme desteği aldı; etkisini sonraki günlerde göreceksin.";
-      } else {
-        K.journey.tell("fan", j.showIncome ? "O küçük sahneden beri dinliyorum. Cevap vermen mutlu etti; yeni parçanı bekliyorum." : "İlk parçandan beri buradayım. Sohbet için sağ ol, yeni işini bekliyorum.", 5);
-        text = "İlk dinleyicinle bağını güçlendirdin. Samimiyet arttı; aynı kişi Mesajlar'da seni hatırlıyor.";
-      }
-      K.journey.note(EVENTS[b.id].title, text);
-    },
-    html() {
-      const s = K.state, j = s.journey;
-      if (!j) return "";
-      const pending = j.pending, b = j.booking;
-      const e = pending && EVENTS[pending.id];
-      const name = e && (s.contacts || []).find(c => c.role === e.role);
-      return `<section class="journey-card" aria-label="Kariyerindeki ilk ay">
-        <div class="journey-head"><div><span class="ob-hint">KARİYERİNDEKİ İLK AY</span><h2>${s.day <= 30 ? "Kendi çevreni kur" : "İlk ayın hikâyesi"}</h2></div><span class="pill">${Math.min(30, s.day)} / 30 gün</span></div>
-        <div class="journey-targets">${K.journey.targets().map(t => `<div><b>${j.milestones[t.id] || t.done ? "✓" : "○"} ${U.escape(t.title)}</b>${j.milestones[t.id] || t.done ? "" : `<button class="btn btn-xs btn-ghost" data-act="${t.act}" data-arg="${t.arg || ""}">${t.label}</button>`}</div>`).join("")}</div>
-        ${e ? `<h3>${U.escape(e.title)}</h3><p>${name ? U.escape(name.stageName) + " · " : ""}${U.escape(e.text)}</p><p class="ob-hint">Karar için son gün: ${pending.deadline}</p><div class="journey-choices">${e.choices.map(c => `<button class="btn btn-ghost" data-act="journey-choice" data-event="${pending.id}" data-choice="${c.id}" ${(c.cost || 0) > s.balance ? "disabled" : ""}><b>${c.label}</b><span>${c.note}</span></button>`).join("")}</div>` : b ? `<h3>${U.escape(EVENTS[b.id].title)} · Gün ${b.dueDay}</h3><p>${U.escape(EVENTS[b.id].choices.find(c => c.id === b.choiceId).note)}</p><p class="ob-hint">İptal edersen ${U.money(Math.floor(b.cost / 2))} iade edilir.${["meet", "together", "show", "reply"].includes(b.choiceId) ? " Verdiğin söz nedeniyle samimiyet azalır." : ""}</p><button class="btn btn-sm btn-ghost" data-act="journey-cancel">Planı iptal et</button>` : `<p class="ob-hint">${s.day <= 30 ? "Yeni fırsatlar projen ve yayının ilerledikçe gelecek. Beklerken üret, dinlen veya yan işlerinden gelir kazan." : "İlk ay tamamlandı. Yayınların, ilişkilerin ve gelir hedeflerinle kariyerine devam et."}</p>`}
-        ${j.history.length ? `<details><summary>Kariyer günlüğü (${j.history.length})</summary>${j.history.map(h => `<div class="journey-entry"><b>Gün ${h.day} · ${U.escape(h.title)}</b><p>${U.escape(h.text)}</p></div>`).join("")}</details>` : ""}
-      </section>`;
-    }
-  };
-})(window.K);
 
 </script>
 <script>
@@ -28127,6 +27839,293 @@ window.K = window.K || {};
 })(window.K = window.K || {});
 
 </script>
+  <!-- v10.68 — eksik iki modül: dosyalar vardı ama script etiketi yoktu.
+       socialActions ve journey undefined kalınca uygulama render'ları
+       "Cannot read properties of undefined (reading 'visible')" ile düşüyordu. -->
+  <script>
+/* ==== js/systems/social-actions.js ==== */
+/* Shared phone actions: real in-game sharing, clipboard and feed preferences. */
+(function (K) {
+  "use strict";
+  const U = K.util;
+  K.socialActions = {
+    prefs() {
+      const p = K.state.player;
+      p.socialPrefs = p.socialPrefs || {};
+      p.socialPrefs.hidden = p.socialPrefs.hidden || {};
+      p.socialPrefs.blocked = p.socialPrefs.blocked || {};
+      return p.socialPrefs;
+    },
+    visible(platform, item) {
+      const p = K.socialActions.prefs();
+      return !(p.hidden[platform] || []).includes(item.id) && !(p.blocked[platform] || []).includes(item.authorId || item.channelId);
+    },
+    hide(platform, id) {
+      const p = K.socialActions.prefs();
+      p.hidden[platform] = Array.from(new Set((p.hidden[platform] || []).concat(id))).slice(-200);
+      K.save(); K.phone.reRender();
+      K.toast("Akıştan gizlendi", "Akış tercihleri bölümünden geri alabilirsin.", "");
+    },
+    preferences(platform) {
+      K.phone.pushView({ title: "Akış tercihleri", shellClass: "app-" + platform,
+        render: () => `<div class="empty-note"><b>Gizlenen içerikler</b>${(K.socialActions.prefs().hidden[platform] || []).length} içerik akışından gizlendi.</div><button class="btn" data-pact="reset-hidden">Gizlenenleri tekrar göster</button>`,
+        onAction: act => { if (act === "reset-hidden") { K.socialActions.prefs().hidden[platform] = []; K.save(); K.phone.reRender(); } }
+      });
+    },
+    async copy(text) {
+      try {
+        if (!navigator.clipboard || !navigator.clipboard.writeText) throw new Error("clipboard unavailable");
+        await navigator.clipboard.writeText(text);
+        K.toast("Kopyalandı", "Paylaşım metni panoya kopyalandı.", "ok");
+      } catch (_) {
+        K.ui.modal({ title: "Paylaşım metni", body: `<label class="field">Metni seçip kopyalayabilirsin<textarea readonly rows="4">${U.escape(text)}</textarea></label>`, actions: [{ label: "Tamam" }] });
+      }
+    },
+    share(platform, item) {
+      if (!item) return;
+      const text = `${item.authorName || item.channel || K.state.player.stageName}: ${item.text || item.title || ""}`;
+      K.phone.pushView({ title: "Paylaş", shellClass: "app-" + platform,
+        render: () => `<div class="social-share-preview">${U.escape(text)}</div>
+          <button class="social-menu-row" data-pact="copy-share">Paylaşım metnini kopyala <span>↗</span></button>
+          <button class="social-menu-row" data-pact="send-share">Mesajla gönder <span>›</span></button>
+          ${platform === "x" ? '<button class="social-menu-row" data-pact="quote-share">Alıntıla <span>›</span></button>' : ''}
+          <button class="social-menu-row" data-pact="hide-share">Bu içerikle ilgilenmiyorum <span>−</span></button><button class="social-menu-row" data-pact="feed-preferences">Akış tercihleri <span>›</span></button>`,
+        onAction: act => {
+          if (act === "feed-preferences") K.socialActions.preferences(platform);
+          else if (act === "copy-share") K.socialActions.copy(text);
+          else if (act === "send-share") K.socialActions.sendPicker(text);
+          else if (act === "quote-share") K.phone.appById("x").quotePost(item.id);
+          else if (act === "hide-share") { K.phone.back(); K.socialActions.hide(platform, item.id); }
+        }
+      });
+    },
+    sendPicker(text) {
+      let sent = false;
+      const list = K.contacts.list().concat(K.interactions.followedArtists());
+      const people = list.filter((a, i) => list.findIndex(b => b.id === a.id) === i);
+      K.phone.pushView({ title: "Mesajla gönder", shellClass: "social-picker",
+        render: () => `<p class="muted">Bir alıcı seç</p>` + people.map(a => `<button class="social-person" data-pact="send-person" data-arg="${U.escape(a.id)}">${K.ui.artistAvatar(a.id, 36, true)}<span>${U.escape(a.stageName)}</span><span>Gönder</span></button>`).join(""),
+        onAction: (act, el) => {
+          if (act !== "send-person" || sent) return;
+          const before = K.state.player.messagesSentToday;
+          K.relations.sendMessage(el.dataset.arg, text);
+          if (K.state.player.messagesSentToday === before) return;
+          sent = true; K.save(); K.phone.back(); K.toast("Mesaj gönderildi", "Paylaştığın içerik sohbete eklendi.", "ok");
+        }
+      });
+    },
+    comments(key, title) {
+      K.phone.pushView({ title: "Yorumlar", sub: title || "", shellClass: "social-comments",
+        render: () => K.interactions.commentsFor(key, 6).map(c => `<div class="social-comment">${K.ui.avatar(c.user, 30, true)}<div><b>${U.escape(c.user)}</b><p>${U.escape(c.text)}</p></div></div>`).join(""),
+        composer: '<form class="social-comment-form"><input data-social-comment maxlength="500" aria-label="Yorum yaz" placeholder="Yorum ekle…"><button type="button" data-pact="send-comment">Gönder</button></form>',
+        onAction: act => {
+          if (act !== "send-comment") return;
+          const input = document.querySelector('[data-social-comment]');
+          if (!input || !input.value.trim()) return;
+          K.interactions.addComment(key, input.value.trim()); K.phone.reRender();
+        },
+        onMountFull: root => { const form = root.querySelector('form'); if (form) form.addEventListener('submit', e => { e.preventDefault(); form.querySelector('button').click(); }); }
+      });
+    }
+  };
+})(window.K);
+
+</script>
+  <script>
+/* ==== js/systems/journey.js ==== */
+/* First month: persistent local relationships, commitments and visible consequences.
+   Offers follow actual releases; a missed deadline never blocks the normal career. */
+(function (K) {
+  "use strict";
+  const U = K.util;
+  const EVENTS = {
+    circle: { title: "İlk çevren", role: "producer", text: "Semt prodüktörün iki gün sonra ev stüdyosunda. İlk adımını nasıl atmak istersin?", choices: [
+      { id: "meet", label: "Dinlemeye git", note: "2 gün sonra · yorgunluk +6 · prodüktörle samimiyet artar", days: 2, fatigue: 6 },
+      { id: "practice", label: "Evde prova yap", note: "2 gün sonra · yorgunluk +10 · müzik becerisi +1", days: 2, fatigue: 10 },
+      { id: "pass", label: "Şimdilik kendi planım", note: "Masraf ve ceza yok" }
+    ] },
+    session: { title: "Yayın öncesi son dinleme", role: "producer", text: "Prodüktörün hazırladığın parçayı birlikte dinlemeyi öneriyor. Kayıt hâlâ düzenlenebilir durumda.", choices: [
+      { id: "together", label: "Birlikte düzenle", note: "₺1.200 · 2 gün sonra · kalite +3 · yorgunluk +8 · samimiyet artar", cost: 1200, days: 2, fatigue: 8 },
+      { id: "solo", label: "Kendim prova edeyim", note: "Ücretsiz · 2 gün sonra · kalite +1 · yorgunluk +12", days: 2, fatigue: 12 },
+      { id: "pass", label: "Mevcut kaydı koru", note: "Masraf ve ceza yok" }
+    ] },
+    stage: { title: "İlk küçük sahne", role: "dj", text: "Mahalli DJ, yayınladığın şarkıyla açık mikrofon gecesinde kısa bir set istiyor. Sabit ücret ₺1.500; ulaşım ₺400.", choices: [
+      { id: "show", label: "Sahneye söz ver", note: "₺400 şimdi · 3 gün sonra ₺1.500 · yorgunluk +12 · DJ ile samimiyet artar", cost: 400, days: 3, fatigue: 12 },
+      { id: "share", label: "Evden tanıtım hazırla", note: "Ücretsiz · 2 gün sonra · şarkıya küçük tanıtım etkisi · yorgunluk +6", days: 2, fatigue: 6 },
+      { id: "pass", label: "Bu kez katılma", note: "Masraf ve ceza yok" }
+    ] },
+    followup: { title: "Seni yeniden dinleyen biri", role: "fan", text: "İlk dinleyicilerinden biri yeni şarkını soruyor. Bu küçük çevreyle bağını nasıl sürdüreceksin?", choices: [
+      { id: "reply", label: "Sohbet için vakit ayır", note: "1 gün sonra · hayranla samimiyet artar · yorgunluk +4", days: 1, fatigue: 4 },
+      { id: "practice", label: "Yeni işe hazırlan", note: "2 gün sonra · müzik becerisi +1 · yorgunluk +10", days: 2, fatigue: 10 },
+      { id: "pass", label: "Biraz ara ver", note: "Masraf ve ceza yok" }
+    ] }
+  };
+  K.journey = {
+    EVENTS,
+    ensure() {
+      const s = K.state;
+      // Established careers are not restarted when an older save is loaded.
+      if (!s.journey && s.day <= 30) s.journey = { closed: {}, history: [], milestones: {}, lastDay: -2 };
+      const j = s.journey;
+      if (!j) return null;
+      j.closed = j.closed || {}; j.history = j.history || []; j.milestones = j.milestones || {};
+      return j;
+    },
+    contact(role) { return K.contacts.list().find(c => c.role === role); },
+    tell(role, text, affinity) {
+      const c = K.journey.contact(role);
+      if (!c) return;
+      K.relation(c.id).met = true;
+      if (affinity) K.relations.addAffinity(c.id, affinity, "ilk_ay", { uncapped: true });
+      K.relations.pushArtistMessage(c.id, text, "chat", { topic: "ilk_ay", silent: true });
+    },
+    note(title, text) {
+      const s = K.state, j = K.journey.ensure();
+      j.history.unshift({ day: s.day, title, text });
+      j.history = j.history.slice(0, 16);
+      s.notifications = (s.notifications || []).concat({ day: s.day, title, msg: text, kind: "" }).slice(-60);
+      K.toast(title, text, "");
+    },
+    targets() {
+      const p = K.state.player, j = K.state.journey || {};
+      const sg = (p.songs || []);
+      return [
+        { id: "release", title: "İlk şarkını yayınla", done: sg.length > 0, act: "open-studio", label: "Stüdyoya git" },
+        { id: "listeners", title: "50 aylık dinleyiciye ulaş", done: (p.monthly || 0) >= 50 && sg.length > 0, act: "go-tab", arg: "releases", label: "Şarkını tanıt" },
+        { id: "income", title: "Müzikten ilk ₺1.000 gelir", done: (p.totalStreamRevenue || 0) + (j.showIncome || 0) >= 1000, act: "go-tab", arg: "analytics", label: "Gelirleri gör" }
+      ];
+    },
+    tick() {
+      const s = K.state, p = s.player, j = K.journey.ensure();
+      if (!j) return;
+      if (j.booking && s.day >= j.booking.dueDay) K.journey.finish();
+      K.journey.targets().forEach(t => {
+        if (t.done && !j.milestones[t.id]) {
+          j.milestones[t.id] = s.day;
+          K.journey.note("Kariyer adımı", t.title + " — tamamlandı.");
+        }
+      });
+      if (j.pending && s.day > j.pending.deadline) {
+        j.closed[j.pending.id] = "missed";
+        K.journey.note("Fırsatın zamanı geçti", EVENTS[j.pending.id].title + ": kendi planınla devam edebilirsin.");
+        j.pending = null; j.lastDay = s.day;
+      }
+      if (s.day > 30 || j.pending || j.booking || s.day - j.lastDay < 2) return;
+      const rel = (p.releases || []).find(r => r.stage === "prep" && (s.day + 2 - r.startDay) / Math.max(1, r.waitDays) < 0.4);
+      const song = (p.songs || []).find(x => !x.takenDown);
+      let id;
+      if (!j.closed.circle) id = "circle";
+      else if (!j.closed.session && rel) id = "session";
+      else if (!j.closed.stage && song) id = "stage";
+      else if (!j.closed.followup && j.closed.stage && song && s.day >= 20) id = "followup";
+      if (!id) return;
+      j.pending = { id, deadline: Math.min(30, s.day + 5), targetId: id === "session" ? rel.id : (song && song.id) };
+      const e = EVENTS[id];
+      K.journey.tell(e.role, e.text, 0);
+      K.journey.note(e.title, "Kariyerindeki İlk Ay kartında kararını verebilirsin. Son gün: " + j.pending.deadline + ".");
+    },
+    choose(id, choiceId) {
+      const s = K.state, p = s.player, j = K.journey.ensure();
+      if (!j || !j.pending || j.pending.id !== id || j.booking || s.day > j.pending.deadline) return false;
+      const e = EVENTS[id], ch = e.choices.find(c => c.id === choiceId);
+      if (!ch) return false;
+      if (ch.days && ((p.fatigue || 0) + ch.fatigue > 100 || (K.mental && K.mental.onHiatus()))) {
+        K.toast("Biraz dinlen", "Bu hazırlık için yeterli enerjin yok.", "warn"); return false;
+      }
+      const dueDay = s.day + (ch.days || 0);
+      if (id === "session" && ch.days) {
+        const rel = (p.releases || []).find(r => r.id === j.pending.targetId);
+        if (!rel || rel.stage !== "prep" || (dueDay - rel.startDay) / Math.max(1, rel.waitDays) >= 0.4) {
+          K.toast("Seans için süre kalmadı", "Proje dağıtıma geçiyor. Mevcut kaydı koruyarak devam edebilirsin.", "warn"); return false;
+        }
+      }
+      if (choiceId === "show" && K.journey.busyOn(dueDay)) {
+        K.toast("Takvim çakışıyor", "Aynı gün başka bir sahneye söz verdin.", "warn"); return false;
+      }
+      if (ch.cost && !K.economy.spend(ch.cost, id === "stage" ? "journey_travel" : "journey_session")) {
+        K.toast("Yetersiz bakiye", U.money(ch.cost) + " gerekiyor.", "warn"); return false;
+      }
+      const targetId = j.pending.targetId;
+      j.pending = null; j.closed[id] = choiceId; j.lastDay = s.day;
+      if (ch.days) {
+        p.fatigue = U.clamp((p.fatigue || 0) + ch.fatigue, 0, 100);
+        j.booking = { id, choiceId, targetId, dueDay, cost: ch.cost || 0 };
+        K.journey.note(e.title, ch.label + ": Gün " + dueDay + " için planlandı. " + ch.note);
+      } else K.journey.note(e.title, "Bu fırsatı pas geçtin; kariyerine kendi planınla devam ediyorsun.");
+      K.save(); K.refresh(); return true;
+    },
+    busyOn(day) {
+      const s = K.state;
+      return (s.concerts || []).some(c => c.status === "planlandı" && c.day === day) ||
+        !!(s.tour && s.tour.queue.some(c => c.day === day));
+    },
+    cancel(systemReason) {
+      const j = K.journey.ensure(), b = j && j.booking;
+      if (!b) return false;
+      j.booking = null; j.lastDay = K.state.day;
+      const refund = systemReason ? b.cost : Math.floor(b.cost / 2);
+      if (refund) K.economy.earn(refund, "cancel_refund");
+      const promised = ["meet", "together", "show", "reply"].includes(b.choiceId);
+      const text = systemReason || ("Planı iptal ettin. İade: " + U.money(refund) + (promised ? "; verdiğin söz nedeniyle samimiyet azalır." : "."));
+      if (!systemReason && ["meet", "together", "show", "reply"].includes(b.choiceId)) K.journey.tell(EVENTS[b.id].role, "Bu kez olmadı. Bir daha plan yaparken haberleşelim.", -2);
+      K.journey.note(EVENTS[b.id].title, text);
+      K.save(); K.refresh(); return true;
+    },
+    finish() {
+      const s = K.state, p = s.player, j = K.journey.ensure(), b = j.booking;
+      if (!b) return;
+      const rel = (p.releases || []).find(x => x.id === b.targetId);
+      const song = (p.songs || []).find(x => x.id === b.targetId && !x.takenDown);
+      if (b.id === "session" && (!rel || rel.stage !== "prep")) {
+        K.journey.cancel("Kayıt artık düzenlenebilir durumda değil. Seans ücreti tamamen iade edildi."); return;
+      }
+      if (b.id === "stage" && (!song || (b.choiceId === "show" && (K.journey.busyOn(b.dueDay) || K.mental.onHiatus())))) {
+        K.journey.cancel("Şarkı veya sahne takvimi değişti. Plan iptal edildi; ödenen masraf iade edildi."); return;
+      }
+      j.booking = null; j.lastDay = s.day;
+      let text;
+      if (b.choiceId === "practice") {
+        p.skills.music = U.clamp((p.skills.music || 0) + 1, 0, 100);
+        text = "Prova tamamlandı. Müzik becerin +1; bir sonraki kayda daha hazırsın.";
+      } else if (b.id === "circle") {
+        K.journey.tell("producer", "Geldiğin iyi oldu. Kaydın hazır olunca birlikte dinleyelim.", 4);
+        text = "Ev stüdyosunda tanıştınız. Prodüktörle samimiyet arttı; ilk projen hazır olunca yeni bir seans fırsatı doğacak.";
+      } else if (b.id === "session") {
+        const gain = b.choiceId === "together" ? 3 : 1;
+        (rel.tracks || []).forEach(t => { t.quality = U.clamp((t.quality || 50) + gain, 0, 99); });
+        if (b.choiceId === "together") K.journey.tell("producer", "Söz verdiğin gibi geldin. Nakaratı toparladık; çıkınca bana da yolla.", 3);
+        text = "“" + rel.title + "” düzenlendi. Parça kaliteleri +" + gain + " (en fazla 99).";
+      } else if (b.id === "stage") {
+        song.boosts = song.boosts || {};
+        song.boosts.journey = (song.boosts.journey || 0) + (b.choiceId === "show" ? 0.08 : 0.12);
+        if (b.choiceId === "show") {
+          K.economy.earn(1500, "journey_show"); j.showIncome = (j.showIncome || 0) + 1500;
+          K.journey.tell("dj", "Küçük bir geceydi ama sözünü tuttun. Set ücretin gönderildi. Bir sonraki işte haberleşiriz.", 4);
+          text = "Açık mikrofon setini tamamladın. ₺1.500 ücret − ₺400 ulaşım = ₺1.100 net; DJ ile samimiyet artar. Şarkın küçük bir tanıtım etkisi kazandı.";
+        } else text = "Evden hazırladığın tanıtım yayında. “" + song.title + "” küçük bir dinlenme desteği aldı; etkisini sonraki günlerde göreceksin.";
+      } else {
+        K.journey.tell("fan", j.showIncome ? "O küçük sahneden beri dinliyorum. Cevap vermen mutlu etti; yeni parçanı bekliyorum." : "İlk parçandan beri buradayım. Sohbet için sağ ol, yeni işini bekliyorum.", 5);
+        text = "İlk dinleyicinle bağını güçlendirdin. Samimiyet arttı; aynı kişi Mesajlar'da seni hatırlıyor.";
+      }
+      K.journey.note(EVENTS[b.id].title, text);
+    },
+    html() {
+      const s = K.state, j = s.journey;
+      if (!j) return "";
+      const pending = j.pending, b = j.booking;
+      const e = pending && EVENTS[pending.id];
+      const name = e && (s.contacts || []).find(c => c.role === e.role);
+      return `<section class="journey-card" aria-label="Kariyerindeki ilk ay">
+        <div class="journey-head"><div><span class="ob-hint">KARİYERİNDEKİ İLK AY</span><h2>${s.day <= 30 ? "Kendi çevreni kur" : "İlk ayın hikâyesi"}</h2></div><span class="pill">${Math.min(30, s.day)} / 30 gün</span></div>
+        <div class="journey-targets">${K.journey.targets().map(t => `<div><b>${j.milestones[t.id] || t.done ? "✓" : "○"} ${U.escape(t.title)}</b>${j.milestones[t.id] || t.done ? "" : `<button class="btn btn-xs btn-ghost" data-act="${t.act}" data-arg="${t.arg || ""}">${t.label}</button>`}</div>`).join("")}</div>
+        ${e ? `<h3>${U.escape(e.title)}</h3><p>${name ? U.escape(name.stageName) + " · " : ""}${U.escape(e.text)}</p><p class="ob-hint">Karar için son gün: ${pending.deadline}</p><div class="journey-choices">${e.choices.map(c => `<button class="btn btn-ghost" data-act="journey-choice" data-event="${pending.id}" data-choice="${c.id}" ${(c.cost || 0) > s.balance ? "disabled" : ""}><b>${c.label}</b><span>${c.note}</span></button>`).join("")}</div>` : b ? `<h3>${U.escape(EVENTS[b.id].title)} · Gün ${b.dueDay}</h3><p>${U.escape(EVENTS[b.id].choices.find(c => c.id === b.choiceId).note)}</p><p class="ob-hint">İptal edersen ${U.money(Math.floor(b.cost / 2))} iade edilir.${["meet", "together", "show", "reply"].includes(b.choiceId) ? " Verdiğin söz nedeniyle samimiyet azalır." : ""}</p><button class="btn btn-sm btn-ghost" data-act="journey-cancel">Planı iptal et</button>` : `<p class="ob-hint">${s.day <= 30 ? "Yeni fırsatlar projen ve yayının ilerledikçe gelecek. Beklerken üret, dinlen veya yan işlerinden gelir kazan." : "İlk ay tamamlandı. Yayınların, ilişkilerin ve gelir hedeflerinle kariyerine devam et."}</p>`}
+        ${j.history.length ? `<details><summary>Kariyer günlüğü (${j.history.length})</summary>${j.history.map(h => `<div class="journey-entry"><b>Gün ${h.day} · ${U.escape(h.title)}</b><p>${U.escape(h.text)}</p></div>`).join("")}</details>` : ""}
+      </section>`;
+    }
+  };
+})(window.K);
+
+</script>
   <script>
 /* ==== js/systems/labelsim.js ==== */
 /* ============================================================
@@ -28741,8 +28740,10 @@ window.K = window.K || {};
     likeCount(key, base) { return (base || 0) + (K.interactions.isLiked(key) ? 1 : 0); },
     toggleLike(key) {
       const p = K.interactions._p();
-      if (p.likes[key]) { delete p.likes[key]; return false; }
+      if (p.likes[key]) { delete p.likes[key]; K.save(); return false; }
       p.likes[key] = K.state.day;
+      /* v10.68 — beğeni KAYDEDİLMİYORDU: sayfa yenilenince (K.load) uçuyordu. */
+      K.save();
       return true;
     },
     likedSongs() {
@@ -43377,96 +43378,6 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
 </script>
 
-  <script>
-/* ==== js/systems/social-actions.js ==== */
-/* Shared phone actions: real in-game sharing, clipboard and feed preferences. */
-(function (K) {
-  "use strict";
-  const U = K.util;
-  K.socialActions = {
-    prefs() {
-      const p = K.state.player;
-      p.socialPrefs = p.socialPrefs || {};
-      p.socialPrefs.hidden = p.socialPrefs.hidden || {};
-      p.socialPrefs.blocked = p.socialPrefs.blocked || {};
-      return p.socialPrefs;
-    },
-    visible(platform, item) {
-      const p = K.socialActions.prefs();
-      return !(p.hidden[platform] || []).includes(item.id) && !(p.blocked[platform] || []).includes(item.authorId || item.channelId);
-    },
-    hide(platform, id) {
-      const p = K.socialActions.prefs();
-      p.hidden[platform] = Array.from(new Set((p.hidden[platform] || []).concat(id))).slice(-200);
-      K.save(); K.phone.reRender();
-      K.toast("Akıştan gizlendi", "Akış tercihleri bölümünden geri alabilirsin.", "");
-    },
-    preferences(platform) {
-      K.phone.pushView({ title: "Akış tercihleri", shellClass: "app-" + platform,
-        render: () => `<div class="empty-note"><b>Gizlenen içerikler</b>${(K.socialActions.prefs().hidden[platform] || []).length} içerik akışından gizlendi.</div><button class="btn" data-pact="reset-hidden">Gizlenenleri tekrar göster</button>`,
-        onAction: act => { if (act === "reset-hidden") { K.socialActions.prefs().hidden[platform] = []; K.save(); K.phone.reRender(); } }
-      });
-    },
-    async copy(text) {
-      try {
-        if (!navigator.clipboard || !navigator.clipboard.writeText) throw new Error("clipboard unavailable");
-        await navigator.clipboard.writeText(text);
-        K.toast("Kopyalandı", "Paylaşım metni panoya kopyalandı.", "ok");
-      } catch (_) {
-        K.ui.modal({ title: "Paylaşım metni", body: `<label class="field">Metni seçip kopyalayabilirsin<textarea readonly rows="4">${U.escape(text)}</textarea></label>`, actions: [{ label: "Tamam" }] });
-      }
-    },
-    share(platform, item) {
-      if (!item) return;
-      const text = `${item.authorName || item.channel || K.state.player.stageName}: ${item.text || item.title || ""}`;
-      K.phone.pushView({ title: "Paylaş", shellClass: "app-" + platform,
-        render: () => `<div class="social-share-preview">${U.escape(text)}</div>
-          <button class="social-menu-row" data-pact="copy-share">Paylaşım metnini kopyala <span>↗</span></button>
-          <button class="social-menu-row" data-pact="send-share">Mesajla gönder <span>›</span></button>
-          ${platform === "x" ? '<button class="social-menu-row" data-pact="quote-share">Alıntıla <span>›</span></button>' : ''}
-          <button class="social-menu-row" data-pact="hide-share">Bu içerikle ilgilenmiyorum <span>−</span></button><button class="social-menu-row" data-pact="feed-preferences">Akış tercihleri <span>›</span></button>`,
-        onAction: act => {
-          if (act === "feed-preferences") K.socialActions.preferences(platform);
-          else if (act === "copy-share") K.socialActions.copy(text);
-          else if (act === "send-share") K.socialActions.sendPicker(text);
-          else if (act === "quote-share") K.phone.appById("x").quotePost(item.id);
-          else if (act === "hide-share") { K.phone.back(); K.socialActions.hide(platform, item.id); }
-        }
-      });
-    },
-    sendPicker(text) {
-      let sent = false;
-      const list = K.contacts.list().concat(K.interactions.followedArtists());
-      const people = list.filter((a, i) => list.findIndex(b => b.id === a.id) === i);
-      K.phone.pushView({ title: "Mesajla gönder", shellClass: "social-picker",
-        render: () => `<p class="muted">Bir alıcı seç</p>` + people.map(a => `<button class="social-person" data-pact="send-person" data-arg="${U.escape(a.id)}">${K.ui.artistAvatar(a.id, 36, true)}<span>${U.escape(a.stageName)}</span><span>Gönder</span></button>`).join(""),
-        onAction: (act, el) => {
-          if (act !== "send-person" || sent) return;
-          const before = K.state.player.messagesSentToday;
-          K.relations.sendMessage(el.dataset.arg, text);
-          if (K.state.player.messagesSentToday === before) return;
-          sent = true; K.save(); K.phone.back(); K.toast("Mesaj gönderildi", "Paylaştığın içerik sohbete eklendi.", "ok");
-        }
-      });
-    },
-    comments(key, title) {
-      K.phone.pushView({ title: "Yorumlar", sub: title || "", shellClass: "social-comments",
-        render: () => K.interactions.commentsFor(key, 6).map(c => `<div class="social-comment">${K.ui.avatar(c.user, 30, true)}<div><b>${U.escape(c.user)}</b><p>${U.escape(c.text)}</p></div></div>`).join(""),
-        composer: '<form class="social-comment-form"><input data-social-comment maxlength="500" aria-label="Yorum yaz" placeholder="Yorum ekle…"><button type="button" data-pact="send-comment">Gönder</button></form>',
-        onAction: act => {
-          if (act !== "send-comment") return;
-          const input = document.querySelector('[data-social-comment]');
-          if (!input || !input.value.trim()) return;
-          K.interactions.addComment(key, input.value.trim()); K.phone.reRender();
-        },
-        onMountFull: root => { const form = root.querySelector('form'); if (form) form.addEventListener('submit', e => { e.preventDefault(); form.querySelector('button').click(); }); }
-      });
-    }
-  };
-})(window.K);
-
-</script>
-
   <!-- ================= PHONE APPS ================= -->
   <script>
 /* ==== js/apps/phone.js ==== */
@@ -43498,14 +43409,17 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     init() {
       U.on(U.qs("#home-indicator"), "click", () => { K.phone.haptic(12); K.phone.home(); });
       U.on(U.qs("#phone-viewport"), "click", K.phone.onClick);
-      // durum çubuğuna dokunmak da ana ekrana döndürür (kapan tuzağına karşı emniyet)
-      const sb = U.qs(".status-bar");
-      if (sb) {
-        sb.style.pointerEvents = "auto";
-        U.on(sb, "click", (e) => {
-          if (e.target.closest("#status-cc")) { if (K.cc) K.cc.open(); return; }
-          K.phone.home();
-        });
+      /* v10.68 — DURUM ÇUBUĞU ARTIK "ANA EKRAN" DÜĞMESİ DEĞİL.
+         Eski davranış: çubuğun TAMAMI tıklamayı yakalayıp `home()` çağırıyordu.
+         Çubuk 46 px yüksekliğinde ve ekranın en üstünde; uygulamaların başlık
+         şeridi (DM başlığı, geri düğmeleri) tam o bölgeye denk geldiği için
+         "DM'e basıyorum, ana menüye dönüyor" hatası doğuyordu.
+         Çözüm: çubuk dekoratif (pointer-events: none), yalnızca gerçek
+         düğme olan kontrol merkezi tıklanabilir. */
+      const cc = U.qs("#status-cc");
+      if (cc) {
+        cc.style.pointerEvents = "auto";
+        U.on(cc, "click", (e) => { e.stopPropagation(); if (K.cc) K.cc.open(); });
       }
       // ESC: önce modal, sonra telefon ekranı
       document.addEventListener("keydown", (e) => {
@@ -43515,6 +43429,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         if (!K.phone.homeActive) K.phone.home();
       });
       K.phone.setupSwipe();
+      K.phone.setupChromeAutoHide();
       K.phone.render();
     },
 
@@ -43522,6 +43437,38 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
        Görünümün "swipe" ayarına göre çalışır:
          swipe: { left: fn, right: fn }
        Instagram: sağa → DM, sola → canlı yayın. */
+    /* ---------------- ÜST KABUK OTOMATİK GİZLENME (v10.68) ----------------
+       İstek: "çentik/üst şerit gizlensin, yukarı kaydırınca gitsin".
+       Hem PC hem mobil için aynı davranış: telefon çerçevesi masaüstünde de
+       çizildiği için tek kod yolu yeterli.
+
+       Scroll olayı KABARMAZ ama yakalama (capture) fazında dinlenebilir —
+       bu yüzden her uygulamanın kendi kaydırma kabına ayrı dinleyici eklemek
+       yerine viewport üzerinde capture ile dinliyoruz. Böylece hangi ekran
+       olursa olsun çalışır. */
+    setupChromeAutoHide() {
+      const frame = U.qs("#phone-frame");
+      const vp = U.qs("#phone-viewport");
+      if (!frame || !vp) return;
+      const lastTop = new WeakMap();
+      let hidden = false;
+      const apply = (h) => {
+        if (h === hidden) return;
+        hidden = h;
+        frame.classList.toggle("chrome-hidden", h);
+      };
+      vp.addEventListener("scroll", (e) => {
+        const t = e.target;
+        if (!t || typeof t.scrollTop !== "number") return;
+        const y = t.scrollTop;
+        const prev = lastTop.get(t) || 0;
+        lastTop.set(t, y);
+        if (y <= 6) { apply(false); return; }          /* en üstte daima görünür */
+        if (y > prev + 2) apply(true);                  /* aşağı → gizle */
+        else if (y < prev - 2) apply(false);            /* yukarı → göster */
+      }, true);
+    },
+
     setupSwipe() {
       const vp = U.qs("#phone-viewport");
       if (!vp) return;
@@ -43821,7 +43768,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         <div class="seg ${bottom ? "seg-bottom" : ""} ${chrome ? "seg-" + chrome : ""}" data-tabs>
           ${v.tabs.map(t => {
             const on = (v.activeTab || v.tabs[0].id) === t.id;
-            return `<button data-tab="${t.id}" class="${on ? "active" : ""}${t.cls ? " " + t.cls : ""}" aria-label="${U.escape(t.label)}" aria-current="${on ? "page" : "false"}">
+            return `<button data-tab="${t.id}" class="${on ? "active" : ""}${t.cls ? " " + t.cls : ""}">
               ${t.icon ? `<span class="tb-ic">${t.icon}</span>` : ""}
               ${t.iconOnly ? "" : `<span class="tb-lb">${U.escape(t.label)}</span>`}
             </button>`;
@@ -43888,29 +43835,34 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     chromeHTML(v, chrome) {
       const needBack = K.phone.views.length > 1;
       const back = needBack ? `<button class="brand-back" data-back aria-label="Geri">‹</button>` : "";
+      const unreadIg = (K.interactions && K.interactions.unreadCount) ? (K.interactions.unreadCount("instagram") || 0) : 0;
 
-      if (chrome === "x") {
-        return `<div class="brand-top brand-x">${back}<button class="social-profile-btn" data-tab="mine" aria-label="Profil">${K.ui.avatar(K.state.player.stageName, 28, true)}</button><b class="x-wordmark">𝕏</b><button class="social-icon-btn" data-pact="x-preferences" aria-label="Akış tercihleri">☷</button></div>`;
-      }
-      const searchIcon = '<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="10.5" cy="10.5" r="7.5"/><path d="m16 16 5 5"/></svg>';
-      const bellIcon = '<svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 6-3 8-3 8h18s-3-2-3-8M10 20a2 2 0 0 0 4 0"/></svg>';
       if (chrome === "instagram") {
         const onProfile = v.activeTab === "profile";
-        const unread = K.interactions.unreadNotifications("instagram");
-        return `<div class="brand-top brand-ig reference-ig">
-          ${back}<button class="ig-top-btn ig-create" data-pact="new-post" aria-label="Oluştur">+</button>
-          ${onProfile ? `<b class="ig-top-username">${U.escape(K.state.player.stageName)}</b>` : `<button class="ig-feed-title" data-pact="ig-feed-menu">${v.state && v.state.feed === "following" ? "Takip ettiklerin" : "Senin için"} <span>⌄</span></button>`}
-          <button class="ig-top-btn ig-notification" data-pact="ig-activity" aria-label="Bildirimler"><svg viewBox="0 0 24 24" width="25" height="25" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21 3 12a5.5 5.5 0 0 1 9-6 5.5 5.5 0 0 1 9 6z"/></svg>${unread ? '<i class="social-unread-dot"></i>' : ''}</button>
+        return `<div class="brand-top brand-ig">
+          ${back}
+          ${onProfile
+            ? `<div class="ig-top-username">${U.escape(K.state.player.stageName.toLowerCase().replace(/\s/g, ""))}</div>`
+            : `<div class="ig-wordmark">Instagram</div>`}
+          <div class="ig-top-actions">
+            ${onProfile ? `<button class="ig-top-btn" data-tab="feed" aria-label="Ana sayfa">⌂</button>` : ""}
+            <button class="ig-top-btn" data-pact="ig-activity" aria-label="Bildirimler">
+              <span class="ig-heart">♡</span>
+              ${unreadIg ? `<b class="ig-badge">${Math.min(9, unreadIg)}</b>` : ""}
+            </button>
+            <button class="ig-top-btn" data-pact="ig-inbox" aria-label="Mesajlar">✈</button>
+          </div>
         </div>`;
       }
+
       if (chrome === "youtube") {
-        const you = v.activeTab === "library";
-        const count = K.ytnotif.unread();
-        return `<div class="brand-top brand-yt">${back}
-          ${you ? '<button class="yt-account" data-pact="yt-account">Hesaplar ⌄</button>' : '<div class="yt-wordmark"><span class="yt-play">▶</span> YouTube</div>'}
+        return `<div class="brand-top brand-yt">
+          ${back}
+          <div class="yt-wordmark"><span class="yt-play">▶</span> YouTube</div>
           <div class="yt-top-actions">
-            <button class="yt-top-btn social-bell" data-pact="yt-notifs" aria-label="Bildirimler">${bellIcon}${count ? `<b>${Math.min(count, 99)}</b>` : ''}</button>
-            <button class="yt-top-btn" data-pact="yt-search-focus" aria-label="Ara">${searchIcon}</button>
+            <button class="yt-top-btn" data-pact="yt-search-focus" aria-label="Ara">⌕</button>
+            <button class="yt-top-btn" data-pact="yt-notifs" aria-label="Bildirimler">🔔</button>
+            <button class="yt-top-btn yt-avatar" data-tab="mine" aria-label="Kanalım">${K.ui.avatar(K.state.player.stageName, 24, true)}</button>
           </div>
         </div>`;
       }
@@ -43964,11 +43916,16 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       const tab = e.target.closest("[data-tab]");
       if (tab) {
         const v = K.phone.views[K.phone.views.length - 1];
-        if (v) {
-          const target = (v.tabs || []).find(t => t.id === tab.dataset.tab);
-          if (target && target.action && v.onAction) { v.onAction(target.action, tab, v); return; }
-          v.activeTab = tab.dataset.tab; K.phone.renderTop();
-        }
+        const list = v && Array.isArray(v.tabs) ? v.tabs : [];
+        const tdef = list.find(t => t && t.id === tab.dataset.tab);
+        const handler = v && (v.onAction || v.onClick);
+        /* v10.68 — EYLEM SEKMESİ: `action` tanımlayan sekmeler (ör. TikTok
+           "Oluştur", "Gelen Kutusu") sekme DEĞİLDİR; aktif sekmeyi
+           değiştirmezler, yalnızca eylemlerini çalıştırırlar. Aksi hâlde
+           alttaki sekme durumu bozuluyor (gelen kutusu açılınca akış
+           sekmesi "inbox" oluyordu). */
+        if (v && tdef && tdef.action && handler) { handler(tdef.action, tab); return; }
+        if (v) { v.activeTab = tab.dataset.tab; K.phone.renderTop(); }
         return;
       }
 
@@ -43984,13 +43941,6 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           /* SVG ikonlu beğeni düğmelerinde metni EZME (Instagram gibi);
              yalnızca .on sınıfı ile renk/dolgu değişir. */
           if (!actEl.querySelector("svg")) actEl.textContent = on ? "♥" : "♡";
-          K.save();
-          const count = actEl.querySelector("[data-like-count]");
-          if (count) count.textContent = K.util.compact(K.interactions.likeCount(actEl.dataset.arg, +count.dataset.likeCount));
-          document.querySelectorAll("[data-like-for]").forEach(label => {
-            if (label.dataset.likeFor === actEl.dataset.arg) label.textContent = K.util.compact(K.interactions.likeCount(actEl.dataset.arg, +label.dataset.baseLikes)) + " beğenme";
-          });
-          actEl.setAttribute("aria-pressed", String(on));
           const v0 = K.phone.views[K.phone.views.length - 1];
           if (v0 && v0.state) v0.state.dirty = true;
           return;
@@ -44021,8 +43971,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         if (pact === "spotlight") { if (K.spotlight) K.spotlight.open(); return; }
         if (pact === "follow") {
           const on = K.interactions.toggleFollow(actEl.dataset.arg);
-          K.save();
-          actEl.classList.toggle("following", on);
+          actEl.classList.toggle("following", !on);
           actEl.textContent = on ? "Takip Ediliyor" : "Takip Et";
           return;
         }
@@ -44034,6 +43983,8 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     },
   };
 })(window.K);
+
+/* v10.68 — tetikleme: agac tutarli, tek dosya build yeniden uretilsin. */
 
 </script>
   <script>
@@ -47299,7 +47250,22 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
           else if (act === "open-profile") app.openProfile(el.dataset.arg);
           else if (act === "tt-comments") app.comments(el.dataset.arg);
           else if (act === "tt-share") K.socialActions.share("tiktok", app.videoById(el.dataset.arg));
-          else if (act === "tt-inbox") K.phone.openApp("messages");
+          /* v10.68 — GELEN KUTUSU: uygulama değiştirmek yerine TikTok içinde
+             push edilen bir görünüm açılır (sekme davranışı bozulmaz).
+             Liste, Mesajlar uygulamasının kendi satır üreticisinden gelir;
+             satıra dokunmak tam deneyim için Mesajlar'a geçer. */
+          else if (act === "tt-inbox") {
+            K.phone.pushView({
+              title: "Gelen Kutusu",
+              shellClass: "app-tiktok social-inbox",
+              render: () => {
+                const m = K.phone.appById("messages");
+                const body = (m && m.listHTML) ? m.listHTML() : '<div class="empty-note">Henüz mesaj yok.</div>';
+                return body + '<div class="empty-note" style="font-size:11px;opacity:.7">Sohbeti sürdürmek için Mesajlar uygulamasına geç.</div>';
+              },
+              onAction: () => { K.phone.openApp("messages"); }
+            });
+          }
           else if (act === "tt-more") {
             const v = app.videoById(el.dataset.arg);
             if (!v) K.toast("Video bulunamadı", "", "warn");
