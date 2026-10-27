@@ -224,7 +224,9 @@ const SUITES = [
      Kilitlediği sınıf: "yeni şarkı çıktı ama oyuna hiç girmedi" ve
      "Spotify listesi hiç değişmiyor". release-intel verisinin şemasını,
      takvim tohumlu rotasyonu ve veri yokken güvenli düşüşü doğrular. */
-  { id: "v1067",       script: "tools/smoke-v1067.js",       label: "v10.67 yeni çıkışlar + rotasyon" }
+  { id: "v1067",       script: "tools/smoke-v1067.js",       label: "v10.67 yeni çıkışlar + rotasyon" },
+  /* v10.70 — STÜDYO ODASI: eşya satın alma, yerleştirme, kalite/konfor. */
+  { id: "v1070",       script: "tools/smoke-v1070.js",       label: "v10.70 stüdyo odası (eşya · yerleşim · etki)" }
 ];
 
 /* ---- süit özeti çözümleyicisi (tek yerde) ---- */
