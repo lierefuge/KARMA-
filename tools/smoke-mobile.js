@@ -118,11 +118,12 @@ ok("M-6b · alt çubuk `position: fixed` kullanmıyor",
 {
   const headEnd = index.indexOf("</header>");
   const vsPos = index.indexOf('id="view-switch"');
+  const mainPos = index.indexOf("<main");
   ok("M-6b · #view-switch .topbar'ın DIŞINDA",
     headEnd >= 0 && vsPos > headEnd,
     "</header>@" + headEnd + " · view-switch@" + vsPos);
-  ok("M-6b · #view-switch #app'in akış çocuğu",
-    /<\/main>[\s\S]*?id="view-switch"/.test(index));
+  ok("M-6b · #view-switch başlık dışında ve ana içerikten önce",
+    headEnd >= 0 && vsPos > headEnd && mainPos > vsPos);
 }
 ok("M-6b · alt çubuk kendi yerini akışta alıyor (flex: 0 0 auto)",
   /\.view-switch\s*\{[^}]*flex:\s*0 0 auto/.test(mobile));
