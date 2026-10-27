@@ -229,6 +229,15 @@ html, body {
    4) KÜÇÜK EKRAN (≤620px): telefon çerçevesini sahneye yay
    ============================================================ */
 @media (max-width: 620px) {
+  .modal {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
+  }
+  .modal > .modal-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+  .modal > .modal-head, .modal > .modal-foot { flex: 0 0 auto; }
+
   .phone-stage {
     padding: 0;
     align-items: stretch;
