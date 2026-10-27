@@ -173,8 +173,8 @@ body::before {
 
 .topbar-actions { display: flex; gap: 10px; align-items: center; }
 
-/* ---- bölüm değiştirici (dar ekranlarda görünür) ---- */
-.view-switch { display: none; gap: 4px; padding: 4px; background: var(--glass); border: 1px solid var(--stroke); border-radius: var(--radius-s); }
+/* ---- bölüm değiştirici (üst barın altında, her ekranda) ---- */
+.view-switch { display: flex; gap: 4px; padding: 4px; margin: 12px 22px 0; background: var(--glass); border: 1px solid var(--stroke); border-radius: var(--radius-s); }
 .vs-btn {
   font-family: inherit; font-size: 12px; font-weight: 700;
   color: var(--text-2); background: transparent; border: none;
@@ -361,14 +361,10 @@ body::before {
   .brand { min-width: 0; }
   .brand-sub { display: none; }
   .topbar-stats { order: 3; width: 100%; }
-  .view-switch { display: flex; }
+  .view-switch { display: flex; margin: 10px 14px 0; }
   .topbar-actions { margin-left: auto; }
 
   .layout { grid-template-columns: 1fr; overflow: hidden; padding: 14px; gap: 14px; }
-
-  /* tek seferde bir bölüm göster */
-  body.view-career .phone-stage { display: none; }
-  body.view-phone .career-panel { display: none; }
 
   .career-panel { height: 100%; min-height: 0; }
   .phone-stage { justify-self: center; width: 100%; overflow-y: auto; padding-bottom: 10px; }
@@ -379,11 +375,10 @@ body::before {
      orantılı biçimde tanımlı (aşağıdaki medya sorgusuna bakın). */
 }
 
-/* Geniş ekran: değiştirici gizli, iki panel birlikte */
-@media (min-width: 1081px) {
-  body.view-career .phone-stage { display: flex; }
-  body.view-phone .career-panel { display: flex; }
-}
+/* tek seferde bir bölüm göster (tüm ekran genişliklerinde) */
+body.view-career .phone-stage { display: none; }
+body.view-phone .career-panel { display: none; }
+body.view-career .layout, body.view-phone .layout { grid-template-columns: 1fr; }
 
 </style>
 <style>
@@ -408,38 +403,12 @@ body::before {
 .career-tabs {
   flex: 0 0 auto;
   display: flex;
+  flex-wrap: wrap;
   gap: 4px;
   padding: 10px 12px;
   border-bottom: 1px solid var(--stroke);
   background: rgba(255,255,255,0.015);
-  overflow-x: auto;
-  scrollbar-width: none;
 }
-.career-tabs::-webkit-scrollbar { display: none; }
-/* v10.63 — sekme çubuğu taşması: 12 sekme 1280–1400px arasında kesiliyordu
-   (Girişim/Olaylar görünmüyordu). Dar ekranda iç boşluk kısılır; hâlâ
-   sığmıyorsa kenarlarda solma olur ve kaydırılabildiği anlaşılır. */
-@media (max-width: 1400px) {
-  .career-tabs { gap: 2px; padding: 9px 8px; }
-  .tab { font-size: 11px; padding: 7px 6px; letter-spacing: 0.1px; }
-}
-/* 1400'ün altında tek satıra sığmıyor (ölçüldü: 963px gerekli).
-   Gizlemek yerine alt satıra iner — hiçbir sekme erişilemez kalmaz. */
-@media (max-width: 1399px) and (min-width: 981px) {
-  /* 12 sekme tam 6×2 oturur: tek başına alt satıra düşen sekme olmaz */
-  .career-tabs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
-  .tab { text-align: center; padding: 7px 4px; font-size: 11px; }
-}
-/* Mobilde üç satır sekme çok yer kaplıyor: tek satır + yatay kaydırma kalır,
-   sağ kenardaki solma kaydırılabildiğini gösterir. */
-@media (max-width: 980px) {
-  .career-tabs { flex-wrap: nowrap; }
-  .career-tabs {
-    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 24px), transparent 100%);
-    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 24px), transparent 100%);
-  }
-}
-
 .tab {
   font-family: inherit;
   font-size: 12px;
@@ -449,11 +418,23 @@ body::before {
   background: transparent;
   border: 1px solid transparent;
   border-radius: var(--radius-s);
-  padding: 8px 15px;
+  padding: 7px 13px;
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.16s;
 }
+/* Mobilde tek satır + yatay kaydırma; kenardaki solma kaydırılabildiğini gösterir. */
+@media (max-width: 980px) {
+  .career-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 24px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 24px), transparent 100%);
+  }
+  .career-tabs::-webkit-scrollbar { display: none; }
+}
+
 .tab:hover { color: var(--text-0); background: var(--glass); }
 .tab.active {
   color: #fff;
@@ -1349,6 +1330,27 @@ textarea:focus-visible {
   .studio-craft { gap: 10px; }
 }
 
+/* ================= KARİYERDEKİ İLK AY ================= */
+.journey-card { padding: 18px; margin-bottom: 18px; border: 1px solid var(--stroke); border-radius: var(--radius-m); background: var(--glass); }
+.journey-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.journey-card h2 { margin: 5px 0 14px; font-size: 20px; }
+.journey-card h3 { margin: 18px 0 8px; font-size: 15px; }
+.journey-card p { line-height: 1.6; font-size: 13px; overflow-wrap: anywhere; }
+.journey-targets { display: grid; gap: 8px; }
+.journey-targets > div { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-width: 0; }
+.journey-targets b { font-size: 13px; min-width: 0; overflow-wrap: anywhere; }
+.journey-choices { display: grid; gap: 8px; margin-top: 10px; }
+.journey-choices .btn { display: flex; flex-direction: column; align-items: flex-start; text-align: left; width: 100%; height: auto; padding: 10px 14px; }
+.journey-choices span { font-size: 11px; line-height: 1.5; opacity: .8; font-weight: 500; }
+.journey-card details { margin-top: 14px; }
+.journey-card summary { cursor: pointer; padding: 8px 0; font-size: 13px; }
+.journey-entry { margin: 12px 0; border-top: 1px solid var(--stroke); padding-top: 10px; font-size: 12px; }
+@media (max-width: 480px) {
+  .journey-card { padding: 14px; }
+  .journey-targets > div { flex-wrap: wrap; }
+  .journey-targets > div .btn { flex: none; }
+}
+
 </style>
 <style>
 /* ==== css/phone.css ==== */
@@ -1442,6 +1444,8 @@ textarea:focus-visible {
   flex-direction: column;
   background: var(--bg-0);
   isolation: isolate;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
   /* v10.1 — uygulamalar PENCEREYE değil TELEFONUN KENDİ genişliğine göre
      yeniden boyutlansın diye kapsayıcı sorgusu kaynağı. */
   container: phone / inline-size;
@@ -1452,7 +1456,7 @@ textarea:focus-visible {
   position: relative;
   z-index: 30;
   flex: 0 0 auto;
-  height: 46px;
+  height: 50px;
   /* v10.68 — üst şerit DEKORATİF: tıklamayı yutmaz (bkz. apps/phone.js).
      Yalnızca kontrol merkezi (#status-cc) tıklanabilir.
      Kaydırma sırasında yumuşakça gizlenir/yükselir. */
@@ -1461,17 +1465,16 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px 0 26px;
-  font-size: 12.5px;
-  font-weight: 700;
+  padding: 4px 30px 0 40px;
+  font-size: 16px;
+  font-weight: 600;
   color: #fff;
   pointer-events: none;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
-.status-time { letter-spacing: 0.3px; }
+.status-time { letter-spacing: -0.2px; }
 .status-island { position: absolute; left: 50%; transform: translateX(-50%); }
-.status-right { display: flex; align-items: center; gap: 6px; font-size: 11px; }
-.sig { letter-spacing: -1px; font-size: 10px; }
+.status-right { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.sig { letter-spacing: -1px; font-size: 11px; }
 /* v10.37 — pil göstergesi kaldırıldı (pil mekaniği yok). */
 
 /* v10.68 — kaydırma sırasında üst kabuk gizlenir */
@@ -1573,15 +1576,14 @@ textarea:focus-visible {
 
 .app-icon {
   width: 60px; height: 60px;
-  border-radius: var(--radius-m);
+  border-radius: 22.37%;
   position: relative;
   display: grid; place-items: center;
   font-size: 27px;
-  box-shadow: 0 7px 18px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.14);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.28);
   overflow: hidden;
 }
-.app-icon::after { content: ""; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255,255,255,0.28), transparent 55%); pointer-events: none; }
-.app-label { font-size: 10.5px; font-weight: 600; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.7); letter-spacing: 0.1px; }
+.app-label { font-size: 11px; font-weight: 500; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.6); letter-spacing: 0.1px; }
 
 .app-badge {
   position: absolute; top: -3px; right: -3px;
@@ -1595,23 +1597,25 @@ textarea:focus-visible {
 }
 
 /* app icon color themes */
-.ic-spotify { background: linear-gradient(160deg, #1ed760, #0d8a37); }
-.ic-apple { background: linear-gradient(160deg, #fb5c74, #b31f3f); }
-.ic-youtube { background: linear-gradient(160deg, #ff4b4b, #b00); }
-.ic-instagram { background: radial-gradient(circle at 30% 110%, #ffd776 0%, #f56040 35%, #c13584 60%, #833ab4 100%); }
-.ic-tiktok { background: linear-gradient(160deg, #1a1a1a, #000); }
-.ic-x { background: linear-gradient(160deg, #2b2b2b, #000); }
-.ic-calls { background: linear-gradient(160deg, #5ff07a, #0fb44a); }
-.ic-messages { background: linear-gradient(160deg, #5ff07a, #0fb44a); }
+.ic-spotify { background: #1db954; }
+.ic-apple { background: linear-gradient(180deg, #fa5c8e, #fa2d48); }
+.ic-youtube { background: #ff0000; }
+.ic-instagram { background: linear-gradient(45deg, #fcb045 0%, #fd1d1d 50%, #833ab4 100%); }
+.ic-tiktok { background: #000; }
+.ic-x { background: #000; }
+.ic-calls { background: linear-gradient(180deg, #5ef46e, #34c759); }
+.ic-messages { background: linear-gradient(180deg, #5ef46e, #34c759); }
 
 /* dock */
 .home-dock {
   position: absolute;
-  left: 14px; right: 14px; bottom: 18px;
-  padding: 14px 16px;
-  border-radius: var(--radius-l);
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.13);
+  left: 10px; right: 10px; bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 30px;
+  background: rgba(255,255,255,0.16);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.08);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
@@ -1629,8 +1633,10 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(10,11,16,0.92);
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  background: rgba(10,11,16,0.8);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 0.5px solid rgba(255,255,255,0.12);
   min-height: 62px;
 }
 .app-back {
@@ -1642,7 +1648,7 @@ textarea:focus-visible {
   transition: background 0.15s;
 }
 .app-back:hover { background: rgba(255,255,255,0.16); }
-.app-nav-title { font-size: 15px; font-weight: 800; letter-spacing: 0.2px; }
+.app-nav-title { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
 .app-nav-sub { font-size: 10.5px; color: var(--text-3); font-weight: 600; }
 .app-nav .spacer { flex: 1; }
 
@@ -1720,7 +1726,7 @@ textarea:focus-visible {
 .p-avatar.round { border-radius: 50%; }
 
 .phone-hint { font-size: 11px; color: var(--text-3); letter-spacing: 0.2px; }
-.ic-news { background: linear-gradient(160deg, #ff9b4a, #d33b1f); }
+.ic-news { background: linear-gradient(180deg, #ff9f5a, #ff6b2c); }
 
 /* ============================================================
    v10.1 — TELEFON ÖLÇÜSÜ: HER EKRANDA AYNI ORAN
@@ -1750,7 +1756,7 @@ textarea:focus-visible {
    Bu sorgular PENCEREYE değil .phone-screen kapsayıcısına bakar.
    ============================================================ */
 @container phone (max-width: 360px) {
-  .app-icon { width: 52px; height: 52px; font-size: 23px; border-radius: var(--radius-s); }
+  .app-icon { width: 52px; height: 52px; font-size: 23px; }
   .app-grid { gap: 16px 10px; }
   .app-label { font-size: 9.5px; }
   .app-badge { min-width: 18px; height: 18px; font-size: 10px; }
@@ -3325,7 +3331,7 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 .fans-foot { text-align: center; font-size: 11px; color: var(--text-3, #9a9aa5); padding-bottom: 8px; }
 
 /* ana ekran ikonu */
-.app-icon.ic-fans { background: linear-gradient(160deg, #a855f7, #6d28d9); color: #fff; }
+.app-icon.ic-fans { background: linear-gradient(180deg, #bf7bff, #8e4dff); color: #fff; }
 
 </style>
 <style>
@@ -3873,6 +3879,9 @@ body.hide-values .brand-sub::after {
     from { opacity: 0; transform: translateY(12px); }
     to   { opacity: 1; transform: translateY(0); }
   }
+}
+@media (max-width: 1080px) {
+  .kub { bottom: calc(12px + var(--safe-bottom, 0px)); }
 }
 
 </style>
@@ -5355,9 +5364,9 @@ body.hide-values .brand-sub::after {
    ============================================================ */
 
 /* ana ekran ikonları */
-.ic-goals { background: linear-gradient(160deg, #ffb86b, #e0632a); color: #fff; }
-.ic-team  { background: linear-gradient(160deg, #6ec3ff, #2b6cff); color: #fff; }
-.ic-video { background: linear-gradient(160deg, #ff5c7a, #b02a4a); color: #fff; }
+.ic-goals { background: linear-gradient(180deg, #ffb35c, #ff7a1a); color: #fff; }
+.ic-team  { background: linear-gradient(180deg, #5ac8fa, #0a84ff); color: #fff; }
+.ic-video { background: linear-gradient(180deg, #ff6b87, #e0354f); color: #fff; }
 
 /* üst özet şeridi */
 .gl-top {
@@ -5695,8 +5704,8 @@ body.hide-values .brand-sub::after {
 .phset-item span { color: var(--text-3, #9a9aa5); font-weight: 600; }
 
 /* ana ekran ikonları */
-.ic-appstore  { background: linear-gradient(160deg, #2ec4ff, #0a6bd6); color: #fff; }
-.ic-phone-set { background: linear-gradient(160deg, #6b7280, #2b2f38); color: #fff; }
+.ic-appstore  { background: linear-gradient(180deg, #2fb8ff, #0a7cff); color: #fff; }
+.ic-phone-set { background: linear-gradient(180deg, #8e8e93, #636366); color: #fff; }
 
 /* dar ekran */
 @media (max-width: 380px) {
@@ -5805,7 +5814,6 @@ body.hide-values .brand-sub::after {
 }
 .brand-ic .brand-svg { width: 64%; height: 64%; }
 .sp-res-ic .brand-ic { border-radius: var(--radius-s); }
-
 
 </style>
 <style>
@@ -7555,6 +7563,170 @@ body.hide-values .brand-sub::after {
 
 </style>
 <style>
+/* ==== css/studio-view.css ==== */
+/* ============================================================
+   KARMA — css/studio-view.css
+   Kariyer › Stüdyo görünümünün görsel katmanı.
+   Yapı ve DOM kancaları (data-act, data-tab, sınıf adları) değişmedi;
+   yalnızca kart yüzeyi, hiyerarşi, boşluk ve boş durumlar yenilendi.
+   ============================================================ */
+
+.c-block:has(> .studio-hub) { display: flex; flex-direction: column; gap: 14px; }
+
+.c-block:has(> .studio-hub) > .c-head {
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--stroke);
+  margin-bottom: 2px;
+}
+.c-block:has(> .studio-hub) > .c-head h2 { font-size: 22px; letter-spacing: -.3px; }
+
+.studio-hub { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 14px; }
+
+.studio-hub-card {
+  position: relative; overflow: hidden;
+  padding: 20px;
+  border-radius: var(--radius-l);
+  border: 1px solid var(--stroke);
+  background: var(--bg-2);
+}
+.studio-hub-card.primary {
+  border-color: rgba(176,108,255,.32);
+  background:
+    radial-gradient(120% 130% at 0% 0%, rgba(176,108,255,.26), transparent 58%),
+    radial-gradient(90% 120% at 100% 100%, rgba(110,195,255,.12), transparent 60%),
+    var(--bg-2);
+}
+.studio-hub-card .hub-title { font-size: 12px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; color: var(--text-2); }
+.studio-hub-card.primary .hub-title { font-size: 18px; letter-spacing: -.2px; text-transform: none; color: var(--text-0); }
+.studio-hub-card .hub-sub { font-size: 12.5px; color: var(--text-2); line-height: 1.55; }
+
+.gh-hero-top { align-items: center; gap: 14px; }
+.studio-hub-card .hub-icon {
+  flex: none; width: 56px; height: 56px; border-radius: 16px;
+  display: grid; place-items: center; font-size: 26px;
+  background: linear-gradient(135deg, var(--karma), var(--karma-2));
+  box-shadow: 0 12px 30px rgba(176,108,255,.35);
+}
+
+.gh-steps { gap: 6px; margin-top: 18px; }
+.gh-step {
+  padding: 4px 10px 4px 4px; border-radius: var(--radius-pill);
+  background: rgba(255,255,255,.05); border: 1px solid var(--stroke);
+  font-size: 11px; font-weight: 700; color: var(--text-1);
+}
+.gh-step i { width: 18px; height: 18px; font-size: 10px; background: var(--karma); color: #fff; }
+.gh-step-sep { opacity: .35; font-size: 11px; }
+
+.gh-hero-line {
+  margin-top: 14px; padding: 10px 12px;
+  border-radius: var(--radius-s); background: rgba(0,0,0,.18); border: 1px solid var(--stroke);
+  font-size: 12px; line-height: 1.5; color: var(--text-1);
+}
+.studio-hub-card.primary .action-row { margin-top: auto; padding-top: 16px; gap: 12px; }
+.gh-hero-hint { font-size: 11.5px; color: var(--text-2); }
+
+.hub-stats { grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.hub-stats > div {
+  padding: 11px 12px; border-radius: var(--radius-m);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.hub-stats .k { font-size: 10px; letter-spacing: .4px; }
+.hub-stats .v { font-size: 20px; font-weight: 900; font-variant-numeric: tabular-nums; }
+
+.gh-meters { gap: 10px; margin-top: 14px; }
+.gh-meter-top { font-size: 11px; margin-bottom: 6px; }
+.gh-meter-bar { height: 6px; }
+
+.gh-split { align-items: stretch; gap: 14px; }
+
+.gh-panel {
+  padding: 16px; gap: 12px;
+  border-radius: var(--radius-l);
+  border: 1px solid var(--stroke);
+  background: var(--bg-2);
+}
+.gh-panel-head {
+  align-items: center; padding-bottom: 10px;
+  border-bottom: 1px solid var(--stroke);
+}
+.gh-panel-head b { font-size: 14px; }
+.gh-panel-head span {
+  padding: 3px 9px; border-radius: var(--radius-pill);
+  background: var(--glass); border: 1px solid var(--stroke);
+  font-size: 10px; color: var(--text-2);
+}
+
+.gh-advice { grid-template-columns: 36px minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.gh-advice {
+  padding: 12px; border-radius: var(--radius-m);
+  border: 1px solid var(--stroke); border-left-width: 3px;
+  background: var(--glass);
+  transition: background .15s ease, transform .15s ease;
+}
+.gh-advice:hover { background: var(--glass-2); transform: translateY(-1px); }
+.gh-adv-ic {
+  width: 36px; height: 36px; border-radius: 11px;
+  display: grid; place-items: center; font-size: 17px;
+  background: rgba(255,255,255,.06);
+}
+.gh-adv-body b { font-size: 12.5px; }
+.gh-adv-body span { font-size: 11px; }
+
+.gh-job {
+  padding: 12px; border-radius: var(--radius-m);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.gh-job-top b { font-size: 13px; }
+.gh-prog { height: 6px; }
+.gh-job-actions { gap: 6px; }
+
+.gh-empty {
+  flex: 1; justify-content: center;
+  padding: 26px 18px; gap: 8px;
+  border: 1px dashed var(--stroke-2); border-radius: var(--radius-m);
+  background: radial-gradient(circle at 50% 0%, rgba(176,108,255,.10), transparent 70%);
+}
+.gh-empty-ic {
+  display: grid; place-items: center;
+  width: 52px; height: 52px; margin-bottom: 4px;
+  border-radius: 16px; font-size: 24px;
+  background: var(--glass-2); border: 1px solid var(--stroke);
+}
+.gh-empty b { font-size: 13.5px; }
+.gh-empty span { font-size: 11.5px; }
+.gh-empty.sm { padding: 14px; }
+
+.gh-cal-grid { gap: 8px; }
+.gh-cal-day {
+  padding: 10px 4px; border-radius: var(--radius-m);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.gh-cal-day.busy { background: rgba(176,108,255,.14); border-color: rgba(176,108,255,.42); }
+.gh-cal-dom { font-size: 18px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.gh-cal-foot { font-size: 11.5px; }
+
+.gh-track {
+  padding: 10px 12px; border-radius: var(--radius-m);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.gh-lib-stats > div {
+  padding: 11px 12px; border-radius: var(--radius-m);
+  background: var(--glass); border: 1px solid var(--stroke);
+}
+.gh-lib-stats .v { font-size: 18px; font-weight: 900; }
+
+@media (max-width: 1100px) {
+  .studio-hub { grid-template-columns: minmax(0, 1fr); }
+  .gh-split { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 720px) {
+  .studio-hub-card { padding: 16px; }
+  .studio-hub-card .hub-icon { width: 46px; height: 46px; font-size: 22px; border-radius: 14px; }
+  .gh-panel { padding: 13px; }
+}
+
+</style>
+<style>
 /* ==== css/mobile.css ==== */
 /* ============================================================
    KARMA — css/mobile.css   (v10.15)
@@ -7747,17 +7919,18 @@ html, body {
   .view-switch {
     display: flex !important;          /* JS inline display ile çakışmaz */
     flex: 0 0 auto;
-    order: 10;                          /* akışta en altta kalsın */
     justify-content: center;
     gap: 6px;
+    margin: 0;
     padding: 8px calc(10px + var(--safe-left))
-             calc(8px + var(--safe-bottom))
+             8px
              calc(10px + var(--safe-right));
     background: rgba(14, 16, 23, 0.96);
-    border-top: 1px solid var(--stroke-2);
+    border: none;
+    border-bottom: 1px solid var(--stroke-2);
     backdrop-filter: blur(18px) saturate(140%);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
-    box-shadow: 0 -8px 26px rgba(0, 0, 0, 0.42);
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.42);
   }
   .view-switch .vs-btn {
     flex: 1 1 0;
@@ -7772,6 +7945,13 @@ html, body {
     letter-spacing: .2px;
   }
 
+  .toast-stack {
+    left: calc(10px + var(--safe-left));
+    right: calc(10px + var(--safe-right));
+    bottom: calc(12px + var(--safe-bottom));
+    max-width: none;
+  }
+
   /* üst barda artık yer kaplamasın */
   .topbar-actions { margin-left: auto; }
 }
@@ -7780,6 +7960,15 @@ html, body {
    4) KÜÇÜK EKRAN (≤620px): telefon çerçevesini sahneye yay
    ============================================================ */
 @media (max-width: 620px) {
+  .modal, .modal.modal-wide {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
+  }
+  .modal > .modal-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+  .modal > .modal-head, .modal > .modal-foot { flex: 0 0 auto; }
+
   .phone-stage {
     padding: 0;
     align-items: stretch;
@@ -7820,7 +8009,11 @@ html, body {
   .topbar { gap: 8px; }
   .brand-mark { width: 34px; height: 34px; font-size: 17px; border-radius: var(--radius-xs); }
   .brand-name { font-size: 14px; letter-spacing: 2px; }
-  .topbar-stats { gap: 6px; }
+  .topbar-stats {
+    gap: 6px;
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28px), transparent 100%);
+  }
   .stat { min-width: 78px; padding: 6px 11px; }
   .stat-value { font-size: 14px; }
   .stat-label { font-size: 8px; }
@@ -7943,6 +8136,19 @@ html, body {
       </div>
     </header>
 
+    <div class="view-switch" id="view-switch">
+      <button class="vs-btn active" data-view="career" aria-pressed="true">
+        <span class="vs-ico" aria-hidden="true">🎤</span>
+        <span class="vs-long">Sanatçı / Kariyer</span>
+        <span class="vs-mini">Kariyer</span>
+      </button>
+      <button class="vs-btn" data-view="phone" aria-pressed="false">
+        <span class="vs-ico" aria-hidden="true">📱</span>
+        <span class="vs-long">Telefon</span>
+        <span class="vs-mini">Telefon</span>
+      </button>
+    </div>
+
     <!-- ================= MAIN ================= -->
     <main class="layout">
 
@@ -7990,25 +8196,6 @@ html, body {
       </section>
 
     </main>
-
-    <!-- ================= BÖLÜM DEĞİŞTİRİCİ (v10.17.2) =================
-         #app'in son akış çocuğu → masaüstünde üst barda duran bu blok
-         dar ekranda gerçek bir ALT ÇUBUK olur. `position: fixed` YOK:
-         üst bardaki backdrop-filter fixed torunlar için kapsayıcı
-         yarattığından çubuk viewport yerine üst bara göre konumlanıyor
-         ve Ayarlar / Günü Bitir düğmelerini kapatıyordu. -->
-    <div class="view-switch" id="view-switch">
-      <button class="vs-btn active" data-view="career" aria-pressed="true">
-        <span class="vs-ico" aria-hidden="true">🎤</span>
-        <span class="vs-long">Sanatçı / Kariyer</span>
-        <span class="vs-mini">Kariyer</span>
-      </button>
-      <button class="vs-btn" data-view="phone" aria-pressed="false">
-        <span class="vs-ico" aria-hidden="true">📱</span>
-        <span class="vs-long">Telefon</span>
-        <span class="vs-mini">Telefon</span>
-      </button>
-    </div>
 
     <!-- ================= TOASTS / MODAL ================= -->
     <div class="toast-stack" id="toast-stack" role="status" aria-live="polite" aria-atomic="true"></div>
@@ -43265,7 +43452,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 })(window.K);
 
 </script>
-  <!-- v10.69.1 — Kariyer/Listeler yama modülü (career-ui.js dev dosyası düzenlenemediği için) -->
+  <!-- v10.69.1 — Kariyer/Listeler yama modülü (birleştirmede korunmalı) -->
   <script>
 /* ==== js/ui/career-charts.js ==== */
 /* ============================================================
@@ -50650,11 +50837,6 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     bindTopbar();
     bindViewSwitch();
     setView("career");
-    // dar ekranda bölüm değiştiriciyi görünür kıl
-    U.qs("#view-switch").style.display = window.innerWidth <= 1080 ? "flex" : "none";
-    window.addEventListener("resize", () => {
-      U.qs("#view-switch").style.display = window.innerWidth <= 1080 ? "flex" : "none";
-    });
     if (K.phoneOS) { K.phoneOS.ensureInstalled(); K.phoneOS.apply(); }
     // mahalle/semt çevresi (kalıcı kişiler)
     if (K.contacts && K.contacts.ensureRoster) K.contacts.ensureRoster();
