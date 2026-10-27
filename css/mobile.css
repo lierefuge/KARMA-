@@ -189,17 +189,18 @@ html, body {
   .view-switch {
     display: flex !important;          /* JS inline display ile çakışmaz */
     flex: 0 0 auto;
-    order: 10;                          /* akışta en altta kalsın */
     justify-content: center;
     gap: 6px;
+    margin: 0;
     padding: 8px calc(10px + var(--safe-left))
-             calc(8px + var(--safe-bottom))
+             8px
              calc(10px + var(--safe-right));
     background: rgba(14, 16, 23, 0.96);
-    border-top: 1px solid var(--stroke-2);
+    border: none;
+    border-bottom: 1px solid var(--stroke-2);
     backdrop-filter: blur(18px) saturate(140%);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
-    box-shadow: 0 -8px 26px rgba(0, 0, 0, 0.42);
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.42);
   }
   .view-switch .vs-btn {
     flex: 1 1 0;

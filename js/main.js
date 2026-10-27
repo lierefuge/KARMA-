@@ -186,11 +186,6 @@
     bindTopbar();
     bindViewSwitch();
     setView("career");
-    // dar ekranda bölüm değiştiriciyi görünür kıl
-    U.qs("#view-switch").style.display = window.innerWidth <= 1080 ? "flex" : "none";
-    window.addEventListener("resize", () => {
-      U.qs("#view-switch").style.display = window.innerWidth <= 1080 ? "flex" : "none";
-    });
     if (K.phoneOS) { K.phoneOS.ensureInstalled(); K.phoneOS.apply(); }
     // mahalle/semt çevresi (kalıcı kişiler)
     if (K.contacts && K.contacts.ensureRoster) K.contacts.ensureRoster();

@@ -138,6 +138,19 @@
       </div>
     </header>
 
+    <div class="view-switch" id="view-switch">
+      <button class="vs-btn active" data-view="career" aria-pressed="true">
+        <span class="vs-ico" aria-hidden="true">🎤</span>
+        <span class="vs-long">Sanatçı / Kariyer</span>
+        <span class="vs-mini">Kariyer</span>
+      </button>
+      <button class="vs-btn" data-view="phone" aria-pressed="false">
+        <span class="vs-ico" aria-hidden="true">📱</span>
+        <span class="vs-long">Telefon</span>
+        <span class="vs-mini">Telefon</span>
+      </button>
+    </div>
+
     <!-- ================= MAIN ================= -->
     <main class="layout">
 
@@ -185,25 +198,6 @@
       </section>
 
     </main>
-
-    <!-- ================= BÖLÜM DEĞİŞTİRİCİ (v10.17.2) =================
-         #app'in son akış çocuğu → masaüstünde üst barda duran bu blok
-         dar ekranda gerçek bir ALT ÇUBUK olur. `position: fixed` YOK:
-         üst bardaki backdrop-filter fixed torunlar için kapsayıcı
-         yarattığından çubuk viewport yerine üst bara göre konumlanıyor
-         ve Ayarlar / Günü Bitir düğmelerini kapatıyordu. -->
-    <div class="view-switch" id="view-switch">
-      <button class="vs-btn active" data-view="career" aria-pressed="true">
-        <span class="vs-ico" aria-hidden="true">🎤</span>
-        <span class="vs-long">Sanatçı / Kariyer</span>
-        <span class="vs-mini">Kariyer</span>
-      </button>
-      <button class="vs-btn" data-view="phone" aria-pressed="false">
-        <span class="vs-ico" aria-hidden="true">📱</span>
-        <span class="vs-long">Telefon</span>
-        <span class="vs-mini">Telefon</span>
-      </button>
-    </div>
 
     <!-- ================= TOASTS / MODAL ================= -->
     <div class="toast-stack" id="toast-stack" role="status" aria-live="polite" aria-atomic="true"></div>

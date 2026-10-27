@@ -140,8 +140,8 @@ body::before {
 
 .topbar-actions { display: flex; gap: 10px; align-items: center; }
 
-/* ---- bölüm değiştirici (dar ekranlarda görünür) ---- */
-.view-switch { display: none; gap: 4px; padding: 4px; background: var(--glass); border: 1px solid var(--stroke); border-radius: var(--radius-s); }
+/* ---- bölüm değiştirici (üst barın altında, her ekranda) ---- */
+.view-switch { display: flex; gap: 4px; padding: 4px; margin: 0 14px 10px; background: var(--glass); border: 1px solid var(--stroke); border-radius: var(--radius-s); }
 .vs-btn {
   font-family: inherit; font-size: 12px; font-weight: 700;
   color: var(--text-2); background: transparent; border: none;
@@ -333,10 +333,6 @@ body::before {
 
   .layout { grid-template-columns: 1fr; overflow: hidden; padding: 14px; gap: 14px; }
 
-  /* tek seferde bir bölüm göster */
-  body.view-career .phone-stage { display: none; }
-  body.view-phone .career-panel { display: none; }
-
   .career-panel { height: 100%; min-height: 0; }
   .phone-stage { justify-self: center; width: 100%; overflow-y: auto; padding-bottom: 10px; }
   /* NOT: .phone-frame ölçüsü burada TANIMLANMAZ.
@@ -346,8 +342,7 @@ body::before {
      orantılı biçimde tanımlı (aşağıdaki medya sorgusuna bakın). */
 }
 
-/* Geniş ekran: değiştirici gizli, iki panel birlikte */
-@media (min-width: 1081px) {
-  body.view-career .phone-stage { display: flex; }
-  body.view-phone .career-panel { display: flex; }
-}
+/* tek seferde bir bölüm göster (tüm ekran genişliklerinde) */
+body.view-career .phone-stage { display: none; }
+body.view-phone .career-panel { display: none; }
+body.view-career .layout, body.view-phone .layout { grid-template-columns: 1fr; }
