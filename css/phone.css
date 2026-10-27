@@ -88,6 +88,8 @@
   flex-direction: column;
   background: var(--bg-0);
   isolation: isolate;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
   /* v10.1 — uygulamalar PENCEREYE değil TELEFONUN KENDİ genişliğine göre
      yeniden boyutlansın diye kapsayıcı sorgusu kaynağı. */
   container: phone / inline-size;
@@ -98,7 +100,7 @@
   position: relative;
   z-index: 30;
   flex: 0 0 auto;
-  height: 46px;
+  height: 50px;
   /* v10.68 — üst şerit DEKORATİF: tıklamayı yutmaz (bkz. apps/phone.js).
      Yalnızca kontrol merkezi (#status-cc) tıklanabilir.
      Kaydırma sırasında yumuşakça gizlenir/yükselir. */
@@ -107,17 +109,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px 0 26px;
-  font-size: 12.5px;
-  font-weight: 700;
+  padding: 4px 30px 0 40px;
+  font-size: 16px;
+  font-weight: 600;
   color: #fff;
   pointer-events: none;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
-.status-time { letter-spacing: 0.3px; }
+.status-time { letter-spacing: -0.2px; }
 .status-island { position: absolute; left: 50%; transform: translateX(-50%); }
-.status-right { display: flex; align-items: center; gap: 6px; font-size: 11px; }
-.sig { letter-spacing: -1px; font-size: 10px; }
+.status-right { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+.sig { letter-spacing: -1px; font-size: 11px; }
 /* v10.37 — pil göstergesi kaldırıldı (pil mekaniği yok). */
 
 /* v10.68 — kaydırma sırasında üst kabuk gizlenir */
@@ -219,15 +220,14 @@
 
 .app-icon {
   width: 60px; height: 60px;
-  border-radius: var(--radius-m);
+  border-radius: 22.37%;
   position: relative;
   display: grid; place-items: center;
   font-size: 27px;
-  box-shadow: 0 7px 18px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.14);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.28);
   overflow: hidden;
 }
-.app-icon::after { content: ""; position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255,255,255,0.28), transparent 55%); pointer-events: none; }
-.app-label { font-size: 10.5px; font-weight: 600; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.7); letter-spacing: 0.1px; }
+.app-label { font-size: 11px; font-weight: 500; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.6); letter-spacing: 0.1px; }
 
 .app-badge {
   position: absolute; top: -3px; right: -3px;
@@ -241,23 +241,25 @@
 }
 
 /* app icon color themes */
-.ic-spotify { background: linear-gradient(160deg, #1ed760, #0d8a37); }
-.ic-apple { background: linear-gradient(160deg, #fb5c74, #b31f3f); }
-.ic-youtube { background: linear-gradient(160deg, #ff4b4b, #b00); }
-.ic-instagram { background: radial-gradient(circle at 30% 110%, #ffd776 0%, #f56040 35%, #c13584 60%, #833ab4 100%); }
-.ic-tiktok { background: linear-gradient(160deg, #1a1a1a, #000); }
-.ic-x { background: linear-gradient(160deg, #2b2b2b, #000); }
-.ic-calls { background: linear-gradient(160deg, #5ff07a, #0fb44a); }
-.ic-messages { background: linear-gradient(160deg, #5ff07a, #0fb44a); }
+.ic-spotify { background: #1db954; }
+.ic-apple { background: linear-gradient(180deg, #fa5c8e, #fa2d48); }
+.ic-youtube { background: #ff0000; }
+.ic-instagram { background: linear-gradient(45deg, #fcb045 0%, #fd1d1d 50%, #833ab4 100%); }
+.ic-tiktok { background: #000; }
+.ic-x { background: #000; }
+.ic-calls { background: linear-gradient(180deg, #5ef46e, #34c759); }
+.ic-messages { background: linear-gradient(180deg, #5ef46e, #34c759); }
 
 /* dock */
 .home-dock {
   position: absolute;
-  left: 14px; right: 14px; bottom: 18px;
-  padding: 14px 16px;
-  border-radius: var(--radius-l);
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.13);
+  left: 10px; right: 10px; bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 30px;
+  background: rgba(255,255,255,0.16);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.08);
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
@@ -275,8 +277,10 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(10,11,16,0.92);
-  border-bottom: 1px solid rgba(255,255,255,0.07);
+  background: rgba(10,11,16,0.8);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 0.5px solid rgba(255,255,255,0.12);
   min-height: 62px;
 }
 .app-back {
@@ -288,7 +292,7 @@
   transition: background 0.15s;
 }
 .app-back:hover { background: rgba(255,255,255,0.16); }
-.app-nav-title { font-size: 15px; font-weight: 800; letter-spacing: 0.2px; }
+.app-nav-title { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
 .app-nav-sub { font-size: 10.5px; color: var(--text-3); font-weight: 600; }
 .app-nav .spacer { flex: 1; }
 
@@ -366,7 +370,7 @@
 .p-avatar.round { border-radius: 50%; }
 
 .phone-hint { font-size: 11px; color: var(--text-3); letter-spacing: 0.2px; }
-.ic-news { background: linear-gradient(160deg, #ff9b4a, #d33b1f); }
+.ic-news { background: linear-gradient(180deg, #ff9f5a, #ff6b2c); }
 
 /* ============================================================
    v10.1 — TELEFON ÖLÇÜSÜ: HER EKRANDA AYNI ORAN
@@ -396,7 +400,7 @@
    Bu sorgular PENCEREYE değil .phone-screen kapsayıcısına bakar.
    ============================================================ */
 @container phone (max-width: 360px) {
-  .app-icon { width: 52px; height: 52px; font-size: 23px; border-radius: var(--radius-s); }
+  .app-icon { width: 52px; height: 52px; font-size: 23px; }
   .app-grid { gap: 16px 10px; }
   .app-label { font-size: 9.5px; }
   .app-badge { min-width: 18px; height: 18px; font-size: 10px; }
