@@ -99,7 +99,22 @@
           else if (act === "open-profile") app.openProfile(el.dataset.arg);
           else if (act === "tt-comments") app.comments(el.dataset.arg);
           else if (act === "tt-share") K.socialActions.share("tiktok", app.videoById(el.dataset.arg));
-          else if (act === "tt-inbox") K.phone.openApp("messages");
+          /* v10.68 — GELEN KUTUSU: uygulama değiştirmek yerine TikTok içinde
+             push edilen bir görünüm açılır (sekme davranışı bozulmaz).
+             Liste, Mesajlar uygulamasının kendi satır üreticisinden gelir;
+             satıra dokunmak tam deneyim için Mesajlar'a geçer. */
+          else if (act === "tt-inbox") {
+            K.phone.pushView({
+              title: "Gelen Kutusu",
+              shellClass: "app-tiktok social-inbox",
+              render: () => {
+                const m = K.phone.appById("messages");
+                const body = (m && m.listHTML) ? m.listHTML() : '<div class="empty-note">Henüz mesaj yok.</div>';
+                return body + '<div class="empty-note" style="font-size:11px;opacity:.7">Sohbeti sürdürmek için Mesajlar uygulamasına geç.</div>';
+              },
+              onAction: () => { K.phone.openApp("messages"); }
+            });
+          }
           else if (act === "tt-more") {
             const v = app.videoById(el.dataset.arg);
             if (!v) K.toast("Video bulunamadı", "", "warn");
