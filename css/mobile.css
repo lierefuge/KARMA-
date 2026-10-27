@@ -218,7 +218,7 @@ html, body {
   .toast-stack {
     left: calc(10px + var(--safe-left));
     right: calc(10px + var(--safe-right));
-    bottom: calc(76px + var(--safe-bottom));
+    bottom: calc(12px + var(--safe-bottom));
     max-width: none;
   }
 
@@ -279,7 +279,11 @@ html, body {
   .topbar { gap: 8px; }
   .brand-mark { width: 34px; height: 34px; font-size: 17px; border-radius: var(--radius-xs); }
   .brand-name { font-size: 14px; letter-spacing: 2px; }
-  .topbar-stats { gap: 6px; }
+  .topbar-stats {
+    gap: 6px;
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28px), transparent 100%);
+  }
   .stat { min-width: 78px; padding: 6px 11px; }
   .stat-value { font-size: 14px; }
   .stat-label { font-size: 8px; }

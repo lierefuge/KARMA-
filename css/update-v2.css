@@ -254,5 +254,5 @@ body.hide-values .brand-sub::after {
   }
 }
 @media (max-width: 1080px) {
-  .kub { bottom: calc(76px + var(--safe-bottom, 0px)); }
+  .kub { bottom: calc(12px + var(--safe-bottom, 0px)); }
 }
