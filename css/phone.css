@@ -99,6 +99,11 @@
   z-index: 30;
   flex: 0 0 auto;
   height: 46px;
+  /* v10.68 — üst şerit DEKORATİF: tıklamayı yutmaz (bkz. apps/phone.js).
+     Yalnızca kontrol merkezi (#status-cc) tıklanabilir.
+     Kaydırma sırasında yumuşakça gizlenir/yükselir. */
+  transition: transform .22s ease, opacity .22s ease;
+  will-change: transform, opacity;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -114,6 +119,22 @@
 .status-right { display: flex; align-items: center; gap: 6px; font-size: 11px; }
 .sig { letter-spacing: -1px; font-size: 10px; }
 /* v10.37 — pil göstergesi kaldırıldı (pil mekaniği yok). */
+
+/* v10.68 — kaydırma sırasında üst kabuk gizlenir */
+.status-bar.sb-hidden,
+.phone-frame.chrome-hidden .status-bar {
+  transform: translateY(-120%);
+  opacity: 0;
+  pointer-events: none;
+}
+.phone-notch { transition: opacity .22s ease, transform .22s ease; }
+.phone-frame.chrome-hidden .phone-notch {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-14px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .status-bar, .phone-notch { transition: none; }
+}
 
 /* ---------- viewport ---------- */
 .phone-viewport {
