@@ -44,8 +44,10 @@
     likeCount(key, base) { return (base || 0) + (K.interactions.isLiked(key) ? 1 : 0); },
     toggleLike(key) {
       const p = K.interactions._p();
-      if (p.likes[key]) { delete p.likes[key]; return false; }
+      if (p.likes[key]) { delete p.likes[key]; K.save(); return false; }
       p.likes[key] = K.state.day;
+      /* v10.68 — beğeni KAYDEDİLMİYORDU: sayfa yenilenince (K.load) uçuyordu. */
+      K.save();
       return true;
     },
     likedSongs() {
