@@ -168,10 +168,10 @@
 
   /* seans süresi: azalan verim — 2s temel, 4s +3, 6s +5, 8s +6 */
   const HOURS = [
-    { id: 2, name: "2 saat", qAdd: 0, fee: 0,    fatigue: 3,  desc: "Hızlı seans; acele kayıt." },
-    { id: 4, name: "4 saat", qAdd: 3, fee: 2500, fatigue: 7,  desc: "Standart seans; birkaç alım denenir." },
-    { id: 6, name: "6 saat", qAdd: 5, fee: 5000, fatigue: 12, desc: "Uzun seans; comp ve düzeltmeye zaman var." },
-    { id: 8, name: "8 saat", qAdd: 6, fee: 8000, fatigue: 18, desc: "Tam gün; en iyi alım, en yüksek yorgunluk." }
+    { id: 2, name: "2 saat", icon: "⏱️", qAdd: 0, fee: 0,    fatigue: 3,  desc: "Hızlı seans; acele kayıt." },
+    { id: 4, name: "4 saat", icon: "⏱️", qAdd: 3, fee: 2500, fatigue: 7,  desc: "Standart seans; birkaç alım denenir." },
+    { id: 6, name: "6 saat", icon: "⏱️", qAdd: 5, fee: 5000, fatigue: 12, desc: "Uzun seans; comp ve düzeltmeye zaman var." },
+    { id: 8, name: "8 saat", icon: "⏱️", qAdd: 6, fee: 8000, fatigue: 18, desc: "Tam gün; en iyi alım, en yüksek yorgunluk." }
   ];
 
   const pick = (arr, id) => arr.find(x => String(x.id) === String(id)) || arr[0];
