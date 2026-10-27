@@ -5,9 +5,9 @@
    ============================================================ */
 
 /* ana ekran ikonları */
-.ic-goals { background: linear-gradient(160deg, #ffb86b, #e0632a); color: #fff; }
-.ic-team  { background: linear-gradient(160deg, #6ec3ff, #2b6cff); color: #fff; }
-.ic-video { background: linear-gradient(160deg, #ff5c7a, #b02a4a); color: #fff; }
+.ic-goals { background: linear-gradient(180deg, #ffb35c, #ff7a1a); color: #fff; }
+.ic-team  { background: linear-gradient(180deg, #5ac8fa, #0a84ff); color: #fff; }
+.ic-video { background: linear-gradient(180deg, #ff6b87, #e0354f); color: #fff; }
 
 /* üst özet şeridi */
 .gl-top {

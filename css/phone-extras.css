@@ -287,8 +287,8 @@
 .phset-item span { color: var(--text-3, #9a9aa5); font-weight: 600; }
 
 /* ana ekran ikonları */
-.ic-appstore  { background: linear-gradient(160deg, #2ec4ff, #0a6bd6); color: #fff; }
-.ic-phone-set { background: linear-gradient(160deg, #6b7280, #2b2f38); color: #fff; }
+.ic-appstore  { background: linear-gradient(180deg, #2fb8ff, #0a7cff); color: #fff; }
+.ic-phone-set { background: linear-gradient(180deg, #8e8e93, #636366); color: #fff; }
 
 /* dar ekran */
 @media (max-width: 380px) {
@@ -397,4 +397,3 @@
 }
 .brand-ic .brand-svg { width: 64%; height: 64%; }
 .sp-res-ic .brand-ic { border-radius: var(--radius-s); }
-
