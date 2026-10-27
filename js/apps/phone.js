@@ -534,6 +534,22 @@
       if (tab) {
         const v = K.phone.views[K.phone.views.length - 1];
         if (v) { v.activeTab = tab.dataset.tab; K.phone.renderTop(); }
+        /* v10.68 — SEKME EYLEMİ BAĞLANDI.
+           TikTok'ta "Oluştur" sekmesi `action: "create"` tanımlıyor ama bu
+           eylemi çağıran kod yoktu; compose ekranı (ve içindeki
+           `publish-video` düğmesi) hiç açılmıyordu. Sekme tanımı bir
+           `action` bildirdiyse uygulamanın onClick'ine o eylemle devret. */
+        if (v) {
+          const list = Array.isArray(v.tabs) ? v.tabs : [];
+          const tdef = list.find(t => t && t.id === tab.dataset.tab);
+          const handler = v.onAction || v.onClick;
+          /* Yalnızca "eylem sekmesi" olanlar (action === id) dağıtılır.
+             Örn. TikTok "create" → compose açar. "inbox" gibi hem sekme hem
+             içerik olan sekmeler eskisi gibi yalnızca sekme değiştirir. */
+          if (tdef && tdef.action && tdef.action === tdef.id && handler) {
+            try { handler(tdef.action, tab); } catch (e) {}
+          }
+        }
         return;
       }
 
