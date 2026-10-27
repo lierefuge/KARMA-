@@ -189,17 +189,18 @@ html, body {
   .view-switch {
     display: flex !important;          /* JS inline display ile çakışmaz */
     flex: 0 0 auto;
-    order: 10;                          /* akışta en altta kalsın */
     justify-content: center;
     gap: 6px;
+    margin: 0;
     padding: 8px calc(10px + var(--safe-left))
-             calc(8px + var(--safe-bottom))
+             8px
              calc(10px + var(--safe-right));
     background: rgba(14, 16, 23, 0.96);
-    border-top: 1px solid var(--stroke-2);
+    border: none;
+    border-bottom: 1px solid var(--stroke-2);
     backdrop-filter: blur(18px) saturate(140%);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
-    box-shadow: 0 -8px 26px rgba(0, 0, 0, 0.42);
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.42);
   }
   .view-switch .vs-btn {
     flex: 1 1 0;
@@ -214,6 +215,13 @@ html, body {
     letter-spacing: .2px;
   }
 
+  .toast-stack {
+    left: calc(10px + var(--safe-left));
+    right: calc(10px + var(--safe-right));
+    bottom: calc(12px + var(--safe-bottom));
+    max-width: none;
+  }
+
   /* üst barda artık yer kaplamasın */
   .topbar-actions { margin-left: auto; }
 }
@@ -222,6 +230,15 @@ html, body {
    4) KÜÇÜK EKRAN (≤620px): telefon çerçevesini sahneye yay
    ============================================================ */
 @media (max-width: 620px) {
+  .modal, .modal.modal-wide {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 24px);
+    max-height: calc(100dvh - 24px - var(--safe-top) - var(--safe-bottom));
+  }
+  .modal > .modal-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+  .modal > .modal-head, .modal > .modal-foot { flex: 0 0 auto; }
+
   .phone-stage {
     padding: 0;
     align-items: stretch;
@@ -262,7 +279,11 @@ html, body {
   .topbar { gap: 8px; }
   .brand-mark { width: 34px; height: 34px; font-size: 17px; border-radius: var(--radius-xs); }
   .brand-name { font-size: 14px; letter-spacing: 2px; }
-  .topbar-stats { gap: 6px; }
+  .topbar-stats {
+    gap: 6px;
+    -webkit-mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28px), transparent 100%);
+    mask-image: linear-gradient(90deg, #000 0, #000 calc(100% - 28px), transparent 100%);
+  }
   .stat { min-width: 78px; padding: 6px 11px; }
   .stat-value { font-size: 14px; }
   .stat-label { font-size: 8px; }
