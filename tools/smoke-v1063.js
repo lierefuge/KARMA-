@@ -157,10 +157,12 @@ H.whenReady(dom, { label: "v1063" }).then((K) => {
        sahte "etkisiz düğme" hatası üretir. Bu yüzden (act,arg) çiftleri
        toplanır ve her turda düğüm yeniden bulunur. */
     const targets = qa("#career-body button").map(b => ({
-      act: b.dataset.act, arg: b.dataset.arg, disabled: !!b.disabled,
+      act: b.dataset.act, arg: b.dataset.arg, disabled: !!b.disabled, sroom: b.dataset.sroom,
       label: (b.textContent || "").trim(), aria: b.getAttribute("aria-label"), title: b.title
     }));
-    const noAct = targets.filter(b => !b.act && !b.disabled);
+    /* v10.70 — stüdyo odası düğmeleri kendi delege işleyicisini kullanır
+       (data-sroom); "eylemsiz" sayılmamalı, niyet aynı: her düğme bir iş yapar. */
+    const noAct = targets.filter(b => !b.act && !b.disabled && !b.sroom);
     const unknown = targets.filter(b => b.act && KNOWN.indexOf(b.act) < 0);
     const noLabel = targets.filter(b => !b.label && !b.aria && !b.title);
     ok("F1 · eylem tanımsız düğme yok", noAct.length === 0, noAct.length + " düğme");
