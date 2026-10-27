@@ -253,3 +253,6 @@ body.hide-values .brand-sub::after {
     to   { opacity: 1; transform: translateY(0); }
   }
 }
+@media (max-width: 1080px) {
+  .kub { bottom: calc(76px + var(--safe-bottom, 0px)); }
+}

@@ -214,6 +214,13 @@ html, body {
     letter-spacing: .2px;
   }
 
+  .toast-stack {
+    left: calc(10px + var(--safe-left));
+    right: calc(10px + var(--safe-right));
+    bottom: calc(76px + var(--safe-bottom));
+    max-width: none;
+  }
+
   /* üst barda artık yer kaplamasın */
   .topbar-actions { margin-left: auto; }
 }
