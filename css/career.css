@@ -935,21 +935,26 @@ textarea:focus-visible {
 .live-strip b { font-size: 11px; font-weight: 800; }
 .live-strip span { font-size: 10px; color: var(--text-2); }
 
-/* First-month career decisions */
-.journey-card { padding: 18px; margin-bottom: 18px; border: 1px solid var(--border); border-radius: 16px; background: var(--bg-card, #171923); }
-.journey-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.journey-card h2 { margin: 5px 0 14px; font-size: 20px; }
-.journey-card h3 { margin: 18px 0 8px; font-size: 15px; }
-.journey-card p { line-height: 1.6; font-size: 13px; overflow-wrap: anywhere; }
-.journey-targets { display: grid; gap: 8px; }
-.journey-targets > div { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 12px; }
-.journey-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 8px; }
-.journey-choices .btn { display: flex; flex-direction: column; align-items: flex-start; white-space: normal; text-align: left; padding: 12px; }
-.journey-choices span { font-size: 11px; line-height: 1.6; opacity: .8; }
-.journey-card details { margin-top: 14px; }
-.journey-card summary { cursor: pointer; padding: 8px 0; font-size: 13px; }
-.journey-entry { margin: 12px 0; border-top: 1px solid var(--border); padding-top: 10px; font-size: 12px; }
-@media (max-width: 480px) { .journey-card { padding: 12px; } .journey-targets > div { flex-wrap: wrap; } }
+/* ============================================================
+   v10.68 — KARİYER/STÜDYO TAŞMA SERTLEŞTİRMESİ
+   Ölçülen iki gerçek kaynak:
+   1) `.studio-craft` ikinci kolonu `minmax(280px, …)` — kariyer paneli
+      1280 px altında daralınca 280 px'lik taban ekranı taşırıyordu.
+   2) `.studio-hub` 1.4fr/1fr — `minmax(0, …)` olmadığı için fr birimleri
+      içeriğin min-content genişliğinin altına inemiyor, panel taşıyordu.
+   Bu iki blok dar ekranda TEK KOLONA yığılır.
+   ============================================================ */
+.studio-craft-side, .studio-hub-card, .studio-craft-main { min-width: 0; }
 
-.journey-help { margin-bottom: 18px; }
-.journey-help > summary { cursor: pointer; padding: 10px 0; font-size: 13px; color: var(--text-2); }
+@media (max-width: 1280px) {
+  .studio-craft { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .studio-craft-side { position: static; }
+}
+@media (max-width: 1100px) {
+  .studio-hub { grid-template-columns: minmax(0, 1fr); }
+  .studio-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+}
+@media (max-width: 820px) {
+  .stat-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+  .studio-craft { gap: 10px; }
+}
