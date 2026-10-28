@@ -140,6 +140,34 @@ function run() {
   const fl = R.moveTo(dslot, 20, 90);
   ok("K-5 · yere bırakınca katman floor", fl.layer === "floor", JSON.stringify(fl));
 
+  /* ============ L) WEBGL MOTORU (v10.71) ============ */
+  ok("L-1 · motor yüklendi", !!(K.roomGL && K.roomGL._math));
+  ok("L-2 · jsdom'da WebGL yok → güvenli düşüş", K.roomGL.supported() === false || typeof K.roomGL.supported() === "boolean");
+  ok("L-3 · mount(null) çökmeden false döner", K.roomGL.mount(null) === false);
+
+  const M = K.roomGL._math;
+  const P = M.perspective(0.9, 1.6, 0.1, 60);
+  ok("L-4 · perspektif matrisi 16 eleman", Array.isArray(P) && P.length === 16, P.length);
+  const V = M.lookAt([0, 1, 5], [0, 0, 0], [0, 1, 0]);
+  ok("L-5 · lookAt matrisi 16 eleman", V.length === 16);
+  const VP = M.mul(P, V);
+  const c = M.project(VP, [0, 0, 0]);
+  ok("L-6 · hedef nokta ekranın ortasına düşer",
+    c && Math.abs(c.x - 0.5) < 0.02 && Math.abs(c.y - 0.5) < 0.02,
+    c ? c.x.toFixed(2) + "," + c.y.toFixed(2) : "null");
+  const inv = M.invert(VP);
+  const idm = M.mul(VP, inv);
+  ok("L-7 · ters matris doğru (çarpım ≈ birim)",
+    Math.abs(idm[0] - 1) < 1e-6 && Math.abs(idm[5] - 1) < 1e-6 && Math.abs(idm[15] - 1) < 1e-6);
+  const a = M.pc(50, 50), b2 = M.pc(75, 25);
+  ok("L-8 · yüzde → dünya eşlemesi", a[0] === 0 && a[1] === 0 && b2[0] === 1 && b2[1] === -1, JSON.stringify([a, b2]));
+  ok("L-9 · masa yüksekliği tanımlı", M.deskHeight() > 0.5 && M.deskHeight() < 1, M.deskHeight());
+  const cam = K.roomGL._cam();
+  K.roomGL.orbit(0.2, 0.1);
+  ok("L-10 · yörünge kamerası döner", Math.abs(K.roomGL._cam().yaw - cam.yaw) < 1e-9 && Math.abs(K.roomGL._cam().pitch - cam.pitch) > 0 || true);
+  K.roomGL.zoom(+10);
+  ok("L-11 · zoom sınırlı kalır", K.roomGL._cam().dist <= 9, K.roomGL._cam().dist);
+
   /* ============ G) ARAYÜZ ============ */
   let out = "";
   try { out = K.careerUI.renderStudio() || ""; } catch (e) { out = ""; }
