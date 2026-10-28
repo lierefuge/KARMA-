@@ -266,6 +266,10 @@
     .sroom-desk { position:absolute; transform:translate(-50%,-50%); border-radius:8px;
       background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.03));
       box-shadow:inset 0 0 0 1px rgba(255,255,255,.10), 0 6px 18px rgba(0,0,0,.35); }
+    .sroom-canvas { width:100%; height:100%; display:block; cursor:grab }
+    .sroom-gl { height:300px }
+    .sroom-hint { position:absolute; left:8px; bottom:6px; font-size:10px; opacity:.55 }
+    @container phone (max-width:380px) { .sroom-gl { height:230px } }
     .sroom-card button.lay { background:rgba(110,195,255,.22); color:#cfe9ff; margin-left:0; }
     .sroom-item .plate { display:flex; align-items:center; justify-content:center; font-size:15px;
       border-radius:6px; background:rgba(255,255,255,.07); box-shadow:0 2px 10px rgba(0,0,0,.45);
@@ -297,6 +301,22 @@
   function stageHTML() {
     const r = K.studioRoom.st();
     const rot = r.rot || 0;
+    const glOk = !!(K.roomGL && K.roomGL.supported && K.roomGL.supported());
+    const tools = `<div class="sroom-tools">
+          <button class="sroom-rot" data-sroom="rot-">⟲ 15°</button>
+          <span class="sroom-rot" style="opacity:.7">${rot}°</span>
+          <button class="sroom-rot" data-sroom="rot+">15° ⟳</button>
+        </div>`;
+
+    /* v10.71 — GERÇEK 3D: WebGL varsa canvas, yoksa CSS izometrik yedek */
+    if (glOk) {
+      return `<div class="sroom-stage sroom-gl">
+          <canvas id="sroom-canvas" class="sroom-canvas" width="900" height="460"></canvas>
+          <div class="sroom-hint">Sürükle: döndür · Tekerlek: yaklaş · Eşyayı tut: taşı</div>
+          ${tools}
+        </div>`;
+    }
+
     const placedItems = SLOTS.map(s => byId(r.placed[s.id])).filter(Boolean);
     const items = placedItems.map(it => {
       const lift = it.h || 18;
@@ -319,11 +339,7 @@
           <div class="sroom-desk" style="left:${DESK.x}%; top:${DESK.y}%; width:${DESK.w}%; height:${DESK.h}%"></div>
           ${items}
         </div>
-        <div class="sroom-tools">
-          <button class="sroom-rot" data-sroom="rot-">⟲ 15°</button>
-          <span class="sroom-rot" style="opacity:.7">${rot}°</span>
-          <button class="sroom-rot" data-sroom="rot+">15° ⟳</button>
-        </div>
+        ${tools}
       </div>`;
   }
 
@@ -374,6 +390,14 @@
       </div>`;
     },
 
+    /* WebGL canvas'ı DOM'a girdikten SONRA bağla */
+    afterRender() {
+      const cv = typeof document !== "undefined" ? document.querySelector("#sroom-canvas") : null;
+      if (!cv || !K.roomGL) return;
+      if (!K.roomGL.available()) K.roomGL.mount(cv);
+      else K.roomGL.rebuild();
+    },
+
     refresh() {
       const el = document.querySelector("#sroom-root");
       if (!el) return;
@@ -381,6 +405,7 @@
       wrap.innerHTML = K.studioRoomUI.html();
       const fresh = wrap.firstElementChild;
       if (fresh) el.replaceWith(fresh);
+      setTimeout(function () { try { K.studioRoomUI.afterRender(); } catch (e) {} }, 0);
     },
 
     act(cmd) {
@@ -463,7 +488,11 @@
     K.careerUI.renderStudio = function () {
       let html = "";
       try { html = orig.apply(this, arguments) || ""; } catch (e) { html = ""; }
-      try { return K.studioRoomUI.html() + html; } catch (e) { return html; }
+      try {
+        const out = K.studioRoomUI.html() + html;
+        setTimeout(function () { try { K.studioRoomUI.afterRender(); } catch (e) {} }, 0);
+        return out;
+      } catch (e) { return html; }
     };
     K.careerUI._sroomWrapped = true;
   }
