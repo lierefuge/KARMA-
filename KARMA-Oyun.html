@@ -43709,6 +43709,14 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
 
   const byId = (id) => ITEMS.find(i => i.id === id) || null;
 
+  /* MASA YÜZEYİ — yüzde koordinatlarla (zemin düzleminde).
+     Hoparlör/mikrofon/ışık/masa eşyaları varsayılan olarak masada durur. */
+  const DESK = { x: 50, y: 62, w: 42, h: 16 };
+  const DESK_SLOTS = ["masa", "hoparlor", "mikrofon", "isik"];
+  const onDeskByDefault = (slot) => DESK_SLOTS.indexOf(slot) >= 0;
+  const deskHit = (x, y) => Math.abs(x - DESK.x) <= DESK.w / 2 + 2 &&
+                             Math.abs(y - DESK.y) <= DESK.h / 2 + 3;
+
   /* ---------------- SİSTEM ---------------- */
   K.studioRoom = {
     ITEMS: ITEMS,
@@ -43758,16 +43766,43 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       return { ok: true, item: it };
     },
 
-    /* eşyanın odadaki konumu (yüzde). Sürüklenmişse kayıtlı değer. */
+    /* eşyanın odadaki konumu: { x, y, layer } — layer: "floor" | "desk" */
     posOf(it) {
       const r = K.studioRoom.st();
       const p = r.pos[it.slot];
-      return (p && typeof p.x === "number") ? p : { x: it.x, y: it.y };
+      if (p && typeof p.x === "number") return p;
+      return { x: it.x, y: it.y, layer: onDeskByDefault(it.slot) ? "desk" : "floor" };
     },
-    moveTo(slot, x, y) {
+
+    moveTo(slot, x, y, layer) {
       const r = K.studioRoom.st();
-      r.pos[slot] = { x: Math.max(4, Math.min(96, Math.round(x))), y: Math.max(20, Math.min(94, Math.round(y))) };
+      const cx = Math.max(4, Math.min(96, Math.round(x)));
+      const cy = Math.max(20, Math.min(94, Math.round(y)));
+      const it = byId(r.placed[slot]);
+      r.pos[slot] = { x: cx, y: cy, layer: layer || (it && deskHit(cx, cy) ? "desk" : "floor") };
       return r.pos[slot];
+    },
+
+    /* masaya koy / yerden al */
+    setLayer(slot, layer) {
+      const r = K.studioRoom.st();
+      const cur = r.pos[slot] || (() => { const it = byId(r.placed[slot]); return { x: it ? it.x : 50, y: it ? it.y : 62 }; })();
+      const it = byId(r.placed[slot]);
+      const base = it || { x: 50, y: 58 };
+      const toDesk = layer === "desk";
+      r.pos[slot] = {
+        x: cur.x, y: toDesk ? Math.min(base.y, DESK.y + DESK.h / 2) : Math.max(base.y, DESK.y + DESK.h + 6),
+        layer: toDesk ? "desk" : "floor"
+      };
+      return r.pos[slot];
+    },
+
+    layerOf(slot) {
+      const r = K.studioRoom.st();
+      const p = r.pos[slot];
+      if (p && p.layer) return p.layer;
+      const it = byId(r.placed[slot]);
+      return it && onDeskByDefault(it.slot) ? "desk" : "floor";
     },
 
     rotate(step) {
@@ -43826,7 +43861,11 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     .sroom-item { position:absolute; transform-style:preserve-3d; pointer-events:auto; cursor:grab;
       touch-action:none; }
     .sroom-item:active { cursor:grabbing; }
-    .sroom-item.on-desk .plate { box-shadow:0 4px 14px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06); }
+    .sroom-item.on-desk .plate { box-shadow:0 6px 18px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.07); }
+    .sroom-desk { position:absolute; transform:translate(-50%,-50%); border-radius:8px;
+      background:linear-gradient(160deg,rgba(255,255,255,.10),rgba(255,255,255,.03));
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.10), 0 6px 18px rgba(0,0,0,.35); }
+    .sroom-card button.lay { background:rgba(110,195,255,.22); color:#cfe9ff; margin-left:0; }
     .sroom-item .plate { display:flex; align-items:center; justify-content:center; font-size:15px;
       border-radius:6px; background:rgba(255,255,255,.07); box-shadow:0 2px 10px rgba(0,0,0,.45);
       transform-origin:50% 100%; }
@@ -43861,11 +43900,11 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     const items = placedItems.map(it => {
       const lift = it.h || 18;
       const p = K.studioRoom.posOf(it);
-      const desk = /masa|hoparlor|mikrofon|isik/.test(it.slot);
-      return `<div class="sroom-item${desk ? " on-desk" : ""}" data-slot="${it.slot}"
-          style="left:${p.x}%; top:${p.y}%; z-index:${Math.round(p.y) + (desk ? 40 : 0)}">
+      const desk = p.layer === "desk";
+      return `<div class="sroom-item${desk ? " on-desk" : ""}" data-slot="${it.slot}" data-layer="${desk ? "desk" : "floor"}"
+          style="left:${p.x}%; top:${p.y}%; z-index:${Math.round(p.y) + (desk ? 40 : 0)}; --lift:${desk ? 22 : 0}px">
         <div class="plate" style="width:${(it.w || 12) * 2.4}px; height:${lift}px;
-          transform: translate(-50%,-100%) rotateZ(${-rot}deg) rotateX(-58deg);
+          transform: translate(-50%, calc(-100% - var(--lift,0px))) rotateZ(${-rot}deg) rotateX(-58deg);
           font-size:${Math.max(11, Math.round(lift / 2))}px">${it.icon}</div>
       </div>`;
     }).join("");
@@ -43876,6 +43915,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         <div class="sroom-floor" style="--rot:${rot}deg">
           <div class="sroom-tile"></div>
           <div class="sroom-grid"></div>
+          <div class="sroom-desk" style="left:${DESK.x}%; top:${DESK.y}%; width:${DESK.w}%; height:${DESK.h}%"></div>
           ${items}
         </div>
         <div class="sroom-tools">
@@ -43899,7 +43939,10 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         const locked = false;   /* v10.70 — kilit yok: her eşya alınabilir */
         const afford = K.economy.canAfford(it.cost);
         let btn;
-        if (on) btn = `<button class="ghost" disabled>Takılı</button>`;
+        if (on) {
+          const lay = K.studioRoom.layerOf(it.slot);
+          btn = `<button class="lay" data-sroom="layer:${it.id}">${lay === "desk" ? "⬇ Yerden al" : "⬆ Masaya koy"}</button>`;
+        }
         else if (owned) btn = `<button class="ghost" data-sroom="place:${it.id}">Yerleştir</button>`;
         else btn = `<button data-sroom="buy:${it.id}" ${locked || !afford ? "disabled" : ""}>${locked ? "🔒 " + it.minRep : U.money(it.cost)}</button>`;
         return `<div class="sroom-card${on ? " on" : ""}">
@@ -43944,6 +43987,16 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       if (cmd === "rot+") { K.studioRoom.rotate(15); K.studioRoomUI.refresh(); return; }
       if (cmd === "rot-") { K.studioRoom.rotate(-15); K.studioRoomUI.refresh(); return; }
       const [kind, id] = cmd.split(":");
+      if (kind === "layer") {
+        const it = K.studioRoom.byId(id);
+        if (!it) return;
+        const next = K.studioRoom.layerOf(it.slot) === "desk" ? "floor" : "desk";
+        K.studioRoom.setLayer(it.slot, next);
+        if (K.save) K.save();
+        if (K.toast) K.toast(next === "desk" ? "⬆ Masaya kondu" : "⬇ Yere alındı", it.name, "ok");
+        K.studioRoomUI.refresh();
+        return;
+      }
       const res = kind === "buy" ? K.studioRoom.buy(id) : K.studioRoom.place(id);
       if (!res.ok) { if (K.toast) K.toast("Olmadı", res.why, "warn"); return; }
       if (K.save) K.save();
@@ -43985,7 +44038,7 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       if (!dragging) return;
       const slot = dragging.getAttribute("data-slot");
       const p = pct(e);
-      if (slot && p) K.studioRoom.moveTo(slot, p.x, p.y);
+      if (slot && p) K.studioRoom.moveTo(slot, p.x, p.y);   /* katmanı bırakılan yer belirler */
       dragging = null;
       if (K.save) K.save();
     }, true);
