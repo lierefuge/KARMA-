@@ -123,6 +123,7 @@
       const r = p.studioRoom;
       r.owned = Array.isArray(r.owned) ? r.owned : [];
       r.placed = r.placed || {};
+      r.pos = r.pos || {};                 /* sürüklenen eşyaların konumu */
       r.rot = Number(r.rot) || 0;
       /* başlangıç eşyaları: hepsi ücretsiz olan "sade" set */
       if (!r.owned.length) {
@@ -141,9 +142,6 @@
       const it = byId(id);
       if (!it) return { ok: false, why: "Eşya bulunamadı." };
       if (K.studioRoom.owned(id)) return { ok: false, why: "Zaten sende." };
-      if ((it.minRep || 0) > (K.state.player.reputation || 0)) {
-        return { ok: false, why: "İtibar " + it.minRep + " gerekli." };
-      }
       if (!K.economy.canAfford(it.cost)) return { ok: false, why: "Para yetmiyor." };
       if (!K.economy.spend(it.cost, "stüdyo: " + it.name)) return { ok: false, why: "Para yetmiyor." };
       const r = K.studioRoom.st();
@@ -159,6 +157,18 @@
       if (!K.studioRoom.owned(id)) return { ok: false, why: "Önce satın al." };
       K.studioRoom.st().placed[it.slot] = id;
       return { ok: true, item: it };
+    },
+
+    /* eşyanın odadaki konumu (yüzde). Sürüklenmişse kayıtlı değer. */
+    posOf(it) {
+      const r = K.studioRoom.st();
+      const p = r.pos[it.slot];
+      return (p && typeof p.x === "number") ? p : { x: it.x, y: it.y };
+    },
+    moveTo(slot, x, y) {
+      const r = K.studioRoom.st();
+      r.pos[slot] = { x: Math.max(4, Math.min(96, Math.round(x))), y: Math.max(20, Math.min(94, Math.round(y))) };
+      return r.pos[slot];
     },
 
     rotate(step) {
@@ -208,7 +218,16 @@
       box-shadow:inset 0 0 0 1px rgba(255,255,255,.05); }
     .sroom-wall.back { left:0; top:0; width:100%; height:38%; }
     .sroom-wall.left { left:0; top:0; width:8%; height:100%; }
-    .sroom-item { position:absolute; transform-style:preserve-3d; pointer-events:none; }
+    .sroom-wall.right { right:0; top:0; width:8%; height:100%;
+      background:linear-gradient(180deg,#1b2130,#12161f); }
+    .sroom-grid { position:absolute; inset:0; border-radius:10px; opacity:.5;
+      background-image:linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
+      background-size:24px 24px; }
+    .sroom-item { position:absolute; transform-style:preserve-3d; pointer-events:auto; cursor:grab;
+      touch-action:none; }
+    .sroom-item:active { cursor:grabbing; }
+    .sroom-item.on-desk .plate { box-shadow:0 4px 14px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.06); }
     .sroom-item .plate { display:flex; align-items:center; justify-content:center; font-size:15px;
       border-radius:6px; background:rgba(255,255,255,.07); box-shadow:0 2px 10px rgba(0,0,0,.45);
       transform-origin:50% 100%; }
@@ -242,7 +261,10 @@
     const placedItems = SLOTS.map(s => byId(r.placed[s.id])).filter(Boolean);
     const items = placedItems.map(it => {
       const lift = it.h || 18;
-      return `<div class="sroom-item" style="left:${it.x}%; top:${it.y}%; z-index:${Math.round(it.y)}">
+      const p = K.studioRoom.posOf(it);
+      const desk = /masa|hoparlor|mikrofon|isik/.test(it.slot);
+      return `<div class="sroom-item${desk ? " on-desk" : ""}" data-slot="${it.slot}"
+          style="left:${p.x}%; top:${p.y}%; z-index:${Math.round(p.y) + (desk ? 40 : 0)}">
         <div class="plate" style="width:${(it.w || 12) * 2.4}px; height:${lift}px;
           transform: translate(-50%,-100%) rotateZ(${-rot}deg) rotateX(-58deg);
           font-size:${Math.max(11, Math.round(lift / 2))}px">${it.icon}</div>
@@ -251,8 +273,10 @@
     return `<div class="sroom-stage">
         <div class="sroom-wall back"></div>
         <div class="sroom-wall left"></div>
+        <div class="sroom-wall right"></div>
         <div class="sroom-floor" style="--rot:${rot}deg">
           <div class="sroom-tile"></div>
+          <div class="sroom-grid"></div>
           ${items}
         </div>
         <div class="sroom-tools">
@@ -273,7 +297,7 @@
         </div>` + list.map(it => {
         const owned = r.owned.indexOf(it.id) >= 0;
         const on = cur === it.id;
-        const locked = (it.minRep || 0) > (K.state.player.reputation || 0);
+        const locked = false;   /* v10.70 — kilit yok: her eşya alınabilir */
         const afford = K.economy.canAfford(it.cost);
         let btn;
         if (on) btn = `<button class="ghost" disabled>Takılı</button>`;
@@ -328,6 +352,45 @@
       K.studioRoomUI.refresh();
     }
   };
+
+  /* ---------------- SÜRÜKLE-BIRAK (v10.70) ----------------
+     Eşya zemin düzleminde taşınır; konum player.studioRoom.pos[slot]
+     altında saklanır ve yeniden açılışta korunur. */
+  let dragging = null;
+  function stageEl() { return document.querySelector(".sroom-stage"); }
+  function pct(e) {
+    const st = stageEl();
+    if (!st) return null;
+    const b = st.getBoundingClientRect();
+    const x = ((e.clientX - b.left) / b.width) * 100;
+    const y = ((e.clientY - b.top) / b.height) * 100;
+    return { x, y };
+  }
+  if (typeof document !== "undefined") {
+    document.addEventListener("pointerdown", (e) => {
+      const it = e.target.closest && e.target.closest(".sroom-item");
+      if (!it) return;
+      dragging = it;
+      it.style.zIndex = 999;
+      try { it.setPointerCapture(e.pointerId); } catch (err) {}
+      e.preventDefault();
+    }, true);
+    document.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      const p = pct(e);
+      if (!p) return;
+      dragging.style.left = Math.max(4, Math.min(96, p.x)) + "%";
+      dragging.style.top = Math.max(20, Math.min(94, p.y)) + "%";
+    }, true);
+    document.addEventListener("pointerup", (e) => {
+      if (!dragging) return;
+      const slot = dragging.getAttribute("data-slot");
+      const p = pct(e);
+      if (slot && p) K.studioRoom.moveTo(slot, p.x, p.y);
+      dragging = null;
+      if (K.save) K.save();
+    }, true);
+  }
 
   /* tıklama: kendi kapsayıcımıza delege */
   if (typeof document !== "undefined") {
