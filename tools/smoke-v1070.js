@@ -44,6 +44,7 @@ function finish() {
 function run() {
   const K = dom.window.K;
   const R = K.studioRoom;
+  const DESKX = 50, DESKY = 62;
 
   /* ============ A) KATALOG & BAŞLANGIÇ ============ */
   ok("A-1 · modül yüklendi", !!(K.studioRoom && K.studioRoomUI));
@@ -127,6 +128,18 @@ function run() {
   const po = R.posOf(item0);
   ok("F-6 · posOf kayıtlı konumu döner", po.x === 4 && po.y === 94, JSON.stringify(po));
 
+  /* ============ MASa KATMANI (v10.70) ============ */
+  const dslot = "hoparlor";
+  ok("K-1 · hoparlör varsayılan olarak masada", R.layerOf(dslot) === "desk", R.layerOf(dslot));
+  R.setLayer(dslot, "floor");
+  ok("K-2 · yerden al çalışır", R.layerOf(dslot) === "floor", R.layerOf(dslot));
+  R.setLayer(dslot, "desk");
+  ok("K-3 · masaya koy çalışır", R.layerOf(dslot) === "desk", R.layerOf(dslot));
+  const dl = R.moveTo(dslot, DESKX, DESKY);
+  ok("K-4 · masaya bırakınca katman desk", dl.layer === "desk", JSON.stringify(dl));
+  const fl = R.moveTo(dslot, 20, 90);
+  ok("K-5 · yere bırakınca katman floor", fl.layer === "floor", JSON.stringify(fl));
+
   /* ============ G) ARAYÜZ ============ */
   let out = "";
   try { out = K.careerUI.renderStudio() || ""; } catch (e) { out = ""; }
@@ -135,6 +148,8 @@ function run() {
   ok("G-3 · izometrik sahne var", out.indexOf("sroom-floor") >= 0);
   ok("G-3b · üç duvar çiziliyor", (out.match(/sroom-wall/g) || []).length === 3);
   ok("G-3c · eşyalar sürüklenebilir (data-slot)", (out.match(/data-slot=/g) || []).length >= 8);
+  ok("G-3d · masa yüzeyi çiziliyor", out.indexOf("sroom-desk") >= 0);
+  ok("G-3e · katman düğmesi var", /Yerden al|Masaya koy/.test(out));
   ok("G-4 · döndürme düğmeleri var", (out.match(/data-sroom="rot/g) || []).length === 2);
   ok("G-5 · satın alma düğmeleri var", (out.match(/data-sroom="buy:/g) || []).length >= 5);
   ok("G-6 · etki özeti görünür", /Kalite/.test(out) && /Konfor/.test(out) && /Yorgunluk/.test(out));
