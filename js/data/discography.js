@@ -3387,6 +3387,15 @@
       "tracks": [
         "Keklik Gibi"
       ]
+    },
+    {
+      "title": "Mustafa Sandal Saygı 1",
+      "type": "Single",
+      "year": "2026",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/91/ef/37/91ef3718-d087-cfd8-5149-1df177b3ea33/cover.jpg/600x600bb.jpg",
+      "tracks": [
+        "Gidenlerden (Mustafa Sandal Saygı 1)"
+      ]
     }
   ],
   "lierefuge": [

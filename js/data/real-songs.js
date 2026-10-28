@@ -4136,8 +4136,8 @@
     {
       "title": "Gidenlerden (Mustafa Sandal Saygı 1)",
       "artistName": "Melek Mosso & Mustafa Sandal",
-      "album": "Gidenlerden (Mustafa Sandal Saygı 1) - Single",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/0e/77/fe/0e77fe74-2b3c-b2ab-8d86-1d6a1bdd4c01/cover.jpg/600x600bb.jpg",
+      "album": "Mustafa Sandal Saygı 1",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/91/ef/37/91ef3718-d087-cfd8-5149-1df177b3ea33/cover.jpg/600x600bb.jpg",
       "year": "2026",
       "ms": 202000
     },

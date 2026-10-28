@@ -740,8 +740,8 @@
  },
  "melekmosso": {
   "Gidenlerden (Mustafa Sandal Saygı 1)": {
-   "a": "https://music.apple.com/tr/album/gidenlerden-mustafa-sandal-sayg%C4%B1-1/6770498841?i=6770498849&uo=4",
-   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/cd/1d/23/cd1d23d5-bcf9-6a33-a461-717c9e2eac77/mzaf_10434998475645797416.plus.aac.p.m4a"
+   "a": "https://music.apple.com/tr/album/gidenlerden-mustafa-sandal-sayg%C4%B1-1/6784326719?i=6784327630&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/f2/85/2f/f2852fcf-3fc7-0a6c-5655-3a59d3365b9b/mzaf_16715383976049607483.plus.aac.p.m4a"
   },
   "Hayatım Kaymış": {
    "a": "https://music.apple.com/tr/album/hayat%C4%B1m-kaym%C4%B1%C5%9F/1645141465?i=1645141474&uo=4",
