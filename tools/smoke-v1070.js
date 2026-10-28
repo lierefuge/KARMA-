@@ -97,14 +97,14 @@ function run() {
   R.place(target.id);
 
   /* ============ E) KAPILAR ============ */
-  const locked = R.ITEMS.filter(i => (i.minRep || 0) > 0).sort((a, b) => a.minRep - b.minRep)[0];
-  if (locked) {
-    K.state.player.reputation = 0;
-    ok("E-1 · itibar kapısı satın almayı engeller", R.buy(locked.id).ok === false, "gerekli " + locked.minRep);
-    K.state.player.reputation = 99;
-  }
+  /* v10.70 — KİLİT YOK: itibar 0 iken de her eşya alınabilir */
+  K.state.player.reputation = 0;
+  K.state.balance = 400000;
+  const repItem = R.ITEMS.filter(i => (i.minRep || 0) > 0 && !R.owned(i.id))[0];
+  ok("E-1 · kilit yok — itibar 0 iken alınabilir", repItem ? R.buy(repItem.id).ok === true : true,
+    repItem ? repItem.name : "yok");
   K.state.balance = 0;
-  const expensive = R.ITEMS.filter(i => i.cost > 0 && !R.owned(i.id) && (i.minRep || 0) === 0)[0];
+  const expensive = R.ITEMS.filter(i => i.cost > 0 && !R.owned(i.id))[0];
   ok("E-2 · para yetmezse satın alma reddedilir", expensive ? R.buy(expensive.id).ok === false : true);
   K.state.balance = before;
 
@@ -117,12 +117,24 @@ function run() {
   R.rotate(-15); R.rotate(-15);
   ok("F-3 · 0-359 aralığında kalır", R.st().rot >= 0 && R.st().rot < 360, R.st().rot + "°");
 
+  /* sürükleme / konum (v10.70) */
+  const mslot = R.SLOTS[0].id;
+  const mv = R.moveTo(mslot, 33, 71);
+  ok("F-4 · konum kaydedilir", mv.x === 33 && mv.y === 71, JSON.stringify(mv));
+  const cl = R.moveTo(mslot, -50, 500);
+  ok("F-5 · konum sınırlanır", cl.x === 4 && cl.y === 94, JSON.stringify(cl));
+  const item0 = R.byId(R.st().placed[mslot]);
+  const po = R.posOf(item0);
+  ok("F-6 · posOf kayıtlı konumu döner", po.x === 4 && po.y === 94, JSON.stringify(po));
+
   /* ============ G) ARAYÜZ ============ */
   let out = "";
   try { out = K.careerUI.renderStudio() || ""; } catch (e) { out = ""; }
   ok("G-1 · Studio sekmesi render ediliyor", out.length > 500, out.length + " bayt");
   ok("G-2 · oda bloğu HTML'de", out.indexOf('id="sroom-root"') >= 0);
   ok("G-3 · izometrik sahne var", out.indexOf("sroom-floor") >= 0);
+  ok("G-3b · üç duvar çiziliyor", (out.match(/sroom-wall/g) || []).length === 3);
+  ok("G-3c · eşyalar sürüklenebilir (data-slot)", (out.match(/data-slot=/g) || []).length >= 8);
   ok("G-4 · döndürme düğmeleri var", (out.match(/data-sroom="rot/g) || []).length === 2);
   ok("G-5 · satın alma düğmeleri var", (out.match(/data-sroom="buy:/g) || []).length >= 5);
   ok("G-6 · etki özeti görünür", /Kalite/.test(out) && /Konfor/.test(out) && /Yorgunluk/.test(out));
