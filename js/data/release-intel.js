@@ -4,7 +4,7 @@
 
    Üretici : node tools/fetch-new-releases.js
    Kaynak  : iTunes Lookup API (country=TR) — albüm → parça
-   Tarih   : 2026-10-26  ·  17 kayıt (17 tanesi depoda yok)
+   Tarih   : 2026-10-30  ·  19 kayıt (19 tanesi depoda yok)
 
    ŞEMA (kayıt başına)
    -------------------
@@ -31,11 +31,11 @@
   "use strict";
   K.RELEASE_INTEL = {
  "meta": {
-  "asof": "2026-10-26",
+  "asof": "2026-10-30",
   "window": 30,
   "source": "itunes-lookup-tr",
-  "count": 17,
-  "newCount": 17,
+  "count": 19,
+  "newCount": 19,
   "artistIds": {
    "sehinsah": 736313630,
    "weghrumi": 1564584641,
@@ -75,9 +75,79 @@
    "deryaulug": 1118978883,
    "liashine": 1486825049
   },
-  "generated": "2026-10-26T14:08:20.084Z"
+  "generated": "2026-10-30T00:46:49.082Z"
  },
  "releases": {
+  "hidra::fırma": {
+   "title": "FIRMA",
+   "artistId": "hidra",
+   "artistName": "Hidra",
+   "album": "FIRMA - Single",
+   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/1a/70/84/1a7084b8-ae7c-617b-0349-c1defc39c8b5/52724.jpg/600x600bb.jpg",
+   "releaseDate": "2026-10-29",
+   "ms": 158351,
+   "url": "https://music.apple.com/tr/album/firma/6827603293?i=6827603295&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/49/7c/2e/497c2e90-69ff-7a5b-f96f-738f900f6754/mzaf_1657670749555327369.plus.aac.p.m4a",
+   "trackArtist": "Hidra",
+   "isNew": true,
+   "intel": {
+    "genre": "rap",
+    "mood": "sert",
+    "energy": 8,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.9,
+     "traptr": 0.7,
+     "drilltr": 0.2,
+     "newmusic": 0.8,
+     "nightmode": 0.3,
+     "popturkiye": 0.1
+    },
+    "note": "Sert ritimleri ve vurucu sözleriyle öne çıkan yüksek enerjili bir Türkçe rap parçası.",
+    "tags": [
+     "rap",
+     "sert",
+     "hiphop"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
+  },
+  "cakal::yara izi": {
+   "title": "Yara İzi",
+   "artistId": "cakal",
+   "artistName": "Cakal",
+   "album": "Yara İzi - Single",
+   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/00/de/75/00de75c1-f132-f991-3da8-4e2f26081313/711641090311.jpg/600x600bb.jpg",
+   "releaseDate": "2026-10-29",
+   "ms": 164824,
+   "url": "https://music.apple.com/tr/album/yara-i-zi/6825362099?i=6825362412&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/13/7e/b3/137eb365-3172-ab84-9dde-cd5fb8ed2a39/mzaf_14920250883208867611.plus.aac.p.m4a",
+   "trackArtist": "Cakal & Zeynep Bastık",
+   "isNew": true,
+   "intel": {
+    "genre": "pop",
+    "mood": "melankolik",
+    "energy": 5,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.4,
+     "traptr": 0.4,
+     "drilltr": 0.1,
+     "newmusic": 0.9,
+     "nightmode": 0.7,
+     "popturkiye": 0.8
+    },
+    "note": "Pop ve trap tınılarını buluşturan duygusal ve akılda kalıcı bir düet parçası.",
+    "tags": [
+     "pop",
+     "duet",
+     "melankolik"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
+  },
   "sehinsah::sodom & gomore": {
    "title": "Sodom & Gomore",
    "artistId": "sehinsah",

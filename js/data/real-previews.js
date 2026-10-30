@@ -1078,8 +1078,8 @@
    "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/d1/b5/f0/d1b5f0e8-c529-9d17-526d-b25dc52cc402/mzaf_13462163800066070769.plus.aac.p.m4a"
   },
   "Ikarus": {
-   "a": "https://music.apple.com/tr/album/ikarus/1731984614?i=1731984615&uo=4",
-   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/4c/50/ac/4c50ac8c-60bd-b739-b82b-a7b3f074124a/mzaf_18100163609647278538.plus.aac.p.m4a"
+   "a": "https://music.apple.com/tr/album/ikarus/1741750606?i=1741750940&uo=4",
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/62/06/80/62068071-12ad-e6bb-f50e-7d9c98715999/mzaf_17593804240179228146.plus.aac.p.m4a"
   },
   "Kirlendi Tüm Duygularım": {
    "a": "https://music.apple.com/tr/album/kirlendi-t%C3%BCm-duygular%C4%B1m/1729410746?i=1729410753&uo=4",

@@ -326,8 +326,8 @@
     {
       "title": "Ikarus",
       "artistName": "Şehinşah",
-      "album": "Ikarus - Single",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/48/8c/ed/488ced22-f9f3-12cc-6470-5180e85f99db/0.jpg/600x600bb.jpg",
+      "album": "IKARUS",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/7b/b9/557bb9f3-4c23-1b48-03e8-c86d74f6928d/0.jpg/600x600bb.jpg",
       "year": "2024",
       "ms": 218344
     },

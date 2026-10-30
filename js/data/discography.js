@@ -418,7 +418,8 @@
         "Derin Aşk",
         "Daadoh",
         "Nefes Alama",
-        "Babaroblox (feat. Atlas)"
+        "Babaroblox (feat. Atlas)",
+        "Ikarus"
       ]
     },
     {
