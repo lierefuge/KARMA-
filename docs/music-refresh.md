@@ -16,7 +16,7 @@ GitHub repository **Settings → Secrets and variables → Actions** altında `G
 
 Varsayılan `gemini-3.5-flash` korunmuştur. 2026-10-26 tarihinde [Google model yaşam döngüsü belgesi](https://ai.google.dev/gemini-api/docs/deprecations), bu uç noktanın kapanmadığını ve istekleri `gemini-3.6-flash` modeline yönlendirdiğini bildiriyor. [Model listesi](https://ai.google.dev/gemini-api/docs/models) ile kontrol edildi. `--model` ile değiştirilebilir. Bu belge kontrolü, hesabın gerçek API erişiminin/kotasının doğrulanması değildir.
 
-AI yalnızca katalog kaydının etiketlerini tahmin eder; şarkı/sanatçı/tarih alanlarını yazamaz. Ses dosyası gönderilmediğinden tempo/enerji akustik ölçüm değildir. Prompt v1 cache'i, 6'lı batch (en fazla 8), istek arası 12 saniye, 429/5xx için sınırlı tekrar korunur. Günlük koşuda en fazla 48 eksik kayıt işlenir. Kota/model hataları eski intel'i korur; kalan kayıtlar sonraki çalışmaya kalır. Başarılı kayıtlar kısmi hatada saklanır ve araç hata çıkışı döndürür. Eksik/yinelenen model indekslerinde sıraya göre tahmin yapılmaz.
+AI yalnızca katalog kaydının etiketlerini tahmin eder; şarkı/sanatçı/tarih alanlarını yazamaz. Ses dosyası gönderilmediğinden tempo/enerji akustik ölçüm değildir. Prompt v1 cache'i, 6'lı batch (en fazla 8), istek arası 12 saniye, istek başına **90 saniye zaman aşımı** (`--timeout <ms>` ile değiştirilir) ve 429/5xx/zaman aşımı için **sınırlı tekrar (toplam 4 deneme)** korunur. Günlük koşuda en fazla 48 eksik kayıt işlenir. Kota/model hataları eski intel'i korur; kalan kayıtlar sonraki çalışmaya kalır. Başarılı kayıtlar kısmi hatada saklanır ve araç hata çıkışı döndürür. Eksik/yinelenen model indekslerinde sıraya göre tahmin yapılmaz.
 
 ## Diğer kaynaklar ve yayın zinciri
 

@@ -209,6 +209,17 @@ try {
     reset([row('alpha', 'Bir'), row('alpha', 'İki')]); assert.equal(run('ai-enrich.js', 'ok', ['--limit', '1']).status, 0);
     assert.equal(Object.values(load().releases).filter(r => r.intel).length, 1);
   });
+  /* 2026-10-31 günlük koşusunda istek 45 sn'yi aşınca abort edildi ve o turda
+     hiçbir kayıt zenginleştirilemedi. Davranış: zaman aşımı SINIRLI tekrar
+     denenir (1 + 3), sonsuz döngü yok, dosya yine de bozulmaz. */
+  check('request timeout is retried a bounded number of times', () => {
+    reset([row('alpha', 'Bir'), row('alpha', 'İki')]); const before = bytes();
+    const r = run('ai-enrich.js', 'ai-hang', ['--timeout', '1000']);
+    assert.equal(r.status, 1);                       /* kayıtlar işlenemedi */
+    assert.equal(r.calls, 4);                        /* 1 + 3 tekrar, ne 1 ne sonsuz */
+    assert.equal(bytes(), before);                   /* dosya bayt bayt korunur */
+    assert(/zaman aşımı/.test((r.stdout || '') + (r.stderr || '')));
+  });
   check('workflow YAML, midnight cron, dispatch, locks and scoped pushes', () => {
     const dailyText = fs.readFileSync(path.join(ROOT, '.github/workflows/daily-refresh.yml'), 'utf8');
     const buildText = fs.readFileSync(path.join(ROOT, '.github/workflows/build-artifact.yml'), 'utf8');

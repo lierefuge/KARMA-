@@ -18,6 +18,15 @@ global.fetch = async (url, options) => {
     if (scenario === 'quota') return reply('synthetic-test-key SECRET must never be logged', 429);
     if (scenario === 'model404') return reply('synthetic-test-key', 404);
     if (scenario === 'ai-empty') return reply({ candidates: [] });
+    /* Yanıt hiç gelmez: gerçek fetch gibi abort sinyaline AbortError ile
+       tepki verir. ai-enrich'in zaman aşımı + sınırlı tekrar yolunu sınar. */
+    if (scenario === 'ai-hang') return new Promise((_, reject) => {
+      const s = options && options.signal;
+      if (!s) return;
+      s.addEventListener('abort', () => {
+        const e = new Error('This operation was aborted'); e.name = 'AbortError'; reject(e);
+      });
+    });
     const content = JSON.parse(options.body).contents[0].parts[0].text;
     const n = [...content.matchAll(/^  \[\d+\]/gm)].length;
     const items = Array.from({ length: n }, (_, i) => ({ i, genre: 'rap', mood: 'sakin', energy: 12,

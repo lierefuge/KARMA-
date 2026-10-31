@@ -52,6 +52,7 @@
      node tools/ai-enrich.js --limit 5      # ilk 5 kayıt
      node tools/ai-enrich.js --force        # dolu olanları da yeniden işle
      node tools/ai-enrich.js --model gemini-3.6-flash
+     node tools/ai-enrich.js --timeout 120000   # istek zaman aşımı (varsayılan 90 sn)
    ============================================================ */
 const fs = require("fs");
 const path = require("path");
@@ -71,6 +72,11 @@ const ONLY = arg("only", null);
 const MODEL = arg("model", "gemini-3.5-flash");
 const DELAY = Number(arg("delay", 12000));   /* 5 istek/dk ücretsiz kota → 12 sn ara */
 const BATCH = Math.max(1, Math.min(8, Number(arg("batch", 6))));
+/* İSTEK ZAMAN AŞIMI. 45 sn çok düşüktü: 2026-10-31 günlük koşusunda model
+   yanıtı 45 sn'yi aştı, istek abort edildi ve o turda HİÇBİR kayıt
+   zenginleştirilemedi ("toplu hata: This operation was aborted").
+   Yeni taban 90 sn; `--timeout <ms>` ile değiştirilebilir. */
+const TIMEOUT = Math.max(10000, Number(arg("timeout", 90000)));
 
 const KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
 const PROMPT_VERSION = 1;
@@ -174,7 +180,7 @@ async function askModelOnce(batch) {
     }
   };
   const ctl = new AbortController();
-  const t = setTimeout(() => ctl.abort(), 45000);
+  const t = setTimeout(() => ctl.abort(), TIMEOUT);
   try {
     const res = await fetch(url, {
       method: "POST",
@@ -204,11 +210,25 @@ async function askModelOnce(batch) {
       throw new Error("model kayıt indeksleri eksik veya yineleniyor");
     }
     return items;
+  } catch (e) {
+    /* Abort, "HTTP hatası" değil: ayrı bir Error üretiyoruz ki askModel
+       bunu zaman aşımı olarak tanıyıp sınırlı tekrar denemesi yapabilsin. */
+    if (ctl.signal.aborted) {
+      const err = new Error("istek zaman aşımı (" + Math.round(TIMEOUT / 1000) + " sn)");
+      err.timeout = true;
+      throw err;
+    }
+    throw e;
   } finally { clearTimeout(t); }
 }
 
-/* Geçici hatalar (429 kota / 500 / 503 aşırı yük) için 3 deneme.
-   Kalıcı hatalar (400 şema, 404 model) hemen yukarı fırlatılır. */
+/* Geçici hatalar (429 kota / 500 / 503 aşırı yük / istek zaman aşımı) için
+   sınırlı tekrar: toplam 4 deneme (3 tekrar).
+   Kalıcı hatalar (400 şema, 404 model) hemen yukarı fırlatılır.
+
+   Zaman aşımı neden tekrar denenir? Aynı toplu istek ikinci denemede
+   genellikle geçer; ilk denemenin 90 sn'yi aşması kayıtların kalitesini
+   değil, o andaki sağlayıcı gecikmesini gösterir. */
 async function askModel(batch) {
   let lastErr;
   for (let attempt = 0; attempt < 4; attempt++) {
@@ -217,10 +237,12 @@ async function askModel(batch) {
     } catch (e) {
       lastErr = e;
       const s = e && e.status;
-      const retryable = s === 429 || s >= 500 || /Unterminated|JSON/i.test(String(e && e.message));
+      const retryable = e && e.timeout === true
+        || s === 429 || s >= 500 || /Unterminated|JSON/i.test(String(e && e.message));
       if (!retryable) throw e;
-      /* 429 = dakikalık kota → 15 sn bekle, hız sınırı penceresi kapansın */
-      const wait = s === 429 ? 15000 : 1500 * (attempt + 1);
+      /* 429 = dakikalık kota → 15 sn bekle, hız sınırı penceresi kapansın.
+         Zaman aşımı → kademeli geri çekilme (4/8/12 sn). */
+      const wait = s === 429 ? 15000 : (e && e.timeout ? 4000 * (attempt + 1) : 1500 * (attempt + 1));
       if (attempt < 3) await sleep(wait);
     }
   }
