@@ -32,6 +32,7 @@ Daha geniş ürün/mimari kararı gerektiren şirket simülasyonu, üretken yapa
 ## Kısa vade
 
 ### 01. Çıkış kampanyası ölçümleme panosu
+- **Durum:** **v10.73.0'da uygulandı** (`js/systems/campaign.js`, uygulama `js/apps/campaign.js`, süit `tools/smoke-v1073.js`). Kanal bazında harcama defteri, dinlenme/gelir atfı, kohort dönüşümü ve getiri (×) göstergesi.
 - **İşlev ve oyuncu değeri:** Ön kayıt, teaser, tanıtım kanalı ve bütçenin dinlenme, takipçi ve satışa dönüşümünü gösterir; oyuncu bütçeyi hangi kanala yatıracağına sonuç verisiyle karar verir.
 - **Bağlantı:** rollout, ekonomi, katalog ve platform istatistikleri. **Zorluk:** Orta.
 - **Güvenli ekleme:** Kampanya sonuçlarını yayın başına yeni bir kayıt alanında tut; eski yayınlar mevcut değerleriyle çalışmaya devam et.

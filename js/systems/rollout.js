@@ -127,6 +127,8 @@
       const cost = U.sum(ids, id => ch(id).cost);
       if (!K.economy.canAfford(cost)) { K.toast("Yetersiz bakiye", `${U.money(cost)} gerekiyor.`, "bad"); return false; }
       K.economy.spend(cost, "presave");
+      /* v10.73 — ölçümleme defteri: kanal harcamaları yazılır */
+      if (K.campaigns) K.campaigns.trackPresave(rel.id, ids, rel.title);
 
       rel.presave = {
         channels: ids, cost, startedDay: K.state.day,
@@ -159,6 +161,8 @@
 
         ps.collected += gain;
         ps.history.push(gain);
+        /* v10.73 — ön kayıtlar kanal verimine göre deftere yazılır */
+        if (K.campaigns) K.campaigns.trackCollect(rel.id, ps.channels, gain);
         ps.hype = U.clamp(ps.hype + gain / 4000, 0, 1);
       });
     },
@@ -194,6 +198,8 @@
       if (!win.ok) { K.toast("Teaser paylaşılamaz", win.why, "warn"); return false; }
       if (!K.economy.canAfford(t.cost)) { K.toast("Yetersiz bakiye", `${U.money(t.cost)} gerekiyor.`, "bad"); return false; }
       K.economy.spend(t.cost, "teaser");
+      /* v10.73 — teaser harcaması aşama satırı olarak deftere girer */
+      if (K.campaigns) K.campaigns.trackTeaser(rel.id, teaserId, t.cost, win.eff, rel.title);
 
       /* kampanya yoksa hype için geçici kap kur */
       if (!rel.presave) rel.presave = { channels: [], cost: 0, startedDay: K.state.day, collected: 0, history: [], hype: 0, fired: {} };
@@ -275,6 +281,10 @@
       const fw = song.firstWeek;
       const tier = DEBUTS.find(d => fw.total >= d.min) || DEBUTS[DEBUTS.length - 1];
       song.debut = { id: tier.id, label: tier.label, total: fw.total, day: fw.total };
+      /* v10.73 — kampanya sonucu kanallara atfedilir (dinlenme + gelir) */
+      if (K.campaigns && song.releaseId) {
+        K.campaigns.settle(song.releaseId, { streams: fw.total, revenue: song.revenue || 0 });
+      }
       /* kalıcı iz: güçlü hafta şarkıyı uzun yaşatır, zayıf hafta söndürür */
       song.dailyStreams = Math.max(5, (song.dailyStreams || 5) * tier.mult);
       song.debutMult = tier.mult;

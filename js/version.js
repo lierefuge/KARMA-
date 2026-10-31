@@ -11,7 +11,7 @@
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.72.0";
+  K.VERSION = "10.73.0";
   K.VERSION_DATE = "2026-11-01";
 })(window.K = window.K || {});
 /* v10.67.0 — yeni çıkış akışı (release-intel) + takvim tabanlı playlist rotasyonu. */

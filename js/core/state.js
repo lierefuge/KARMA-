@@ -699,6 +699,8 @@
       /* v10.72 — fan kohortları. Eski kayıtta tüm kitle "devralınan taban"
          kohortuna yazılır; hiçbir fan/gelir değeri geriye dönük düşmez. */
       if (!K.state.player.fanCohorts && K.fansCohort) K.fansCohort.state();
+      /* v10.73 — çıkış kampanyası ölçümleme defteri (yayın başına kanal harcaması/sonucu) */
+      if (!K.state.player.campaigns || typeof K.state.player.campaigns !== "object") K.state.player.campaigns = {};
       if (K.state.player.fanClub === undefined) K.state.player.fanClub = null;
       K.state.player.merchCooldownDay = K.state.player.merchCooldownDay || 0;
       K.state.player.vipCooldownDay = K.state.player.vipCooldownDay || 0;

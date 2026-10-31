@@ -2,11 +2,57 @@
 
 [README’ye dön](../README.md)
 
-Bu arşiv, önceki README’deki v2–v10.72 güncelleme notlarını korur.
+Bu arşiv, önceki README’deki v2–v10.73 güncelleme notlarını korur.
 Buradaki sayılar, test sonuçları ve davranış açıklamaları ilgili sürümün
 tarihsel kaydıdır. Güncel kullanım için [README](../README.md),
 yeni çıkış akışı için [v10.67 notları](v10.67.md) ve
 [ilk ay rehberini](first-month.md) kullan.
+
+## GÜNCELLEME v10.73 — ÇIKIŞ KAMPANYASI ÖLÇÜMLEME PANOSU
+
+Yol haritasının 01. maddesi. Şimdiye kadar kampanya parası **harcanıyordu**
+ama **ölçülmüyordu**: yayın çıkınca `rel.presave = null` oluyor, "hangi kanal
+ne kazandırdı" bilgisi kayboluyordu. Yeni modül: `js/systems/campaign.js` ·
+yeni süit: `tools/smoke-v1073.js` (**42 kontrol**).
+
+### 1 · 🧾 Harcama defteri
+Ön kayıt ve teaser harcamaları yayın başına ayrı defterde tutulur:
+kanal başına **gerçek `CHANNELS[].cost`**, teaser'lar ayrı satır,
+`totalSpend = kanal harcamaları + teaser harcamaları`. Aynı teaser iki kez
+sayılmaz.
+
+### 2 · 📈 Sonuç atfı (dinlenme · gelir)
+Yayının ilk hafta toplamı kanallara **`harcama × kanal verimi`** ağırlığıyla
+bölünür. Dağıtım en-büyük-kalan yöntemiyle yapılır: kanal toplamı yayın
+raporuyla **birebir** aynıdır (yuvarlama artığı kaybolmaz). Gelir de aynı
+ağırlıkla dağıtılır.
+
+### 3 · 🧭 Takipçi → kohort dönüşümü (v10.72 ile bağ)
+Kampanya açılırken kohort sayıları fotoğraflanır, yayın oturduğunda fark
+alınır. Her kanal kendi beslediği kohorta yazılır:
+
+```
+tiktok / shorts → shortform      igstory / x → word      mail → playlist
+```
+
+Aynı kohorta bakan kanallar harcama ağırlığıyla paylaşır. Defterde kanalı
+olmayan kohortların büyümesi **atfedilmez** (harcaması olmayan sonuç yazılmaz).
+
+### 4 · 📊 Panel
+Telefonda **📊 Kampanya** uygulaması: *Kampanyalar* sekmesi yayın başına
+harcama/sonuç ve kanal tablosu (harcama · dinlenme · takipçi · getiri ×),
+*Dönüşüm* sekmesi kanal → kohort eşlemesi ve takipçi başı maliyet.
+Kampanyası olmayan eski yayınlar panelde görünmez.
+
+**`≈ satış` sütunu bir tahmindir** (`dinlenme / 1500`) ve hiçbir gelir
+hesabına girmez — motorun yayın başına birim satışı yok; gerçek olan sütun
+**gelir**dir. Panel bunu açıkça etiketler.
+
+### Doğrulama
+```
+npm run verify        →  60/60 adım temiz
+node tools/smoke-v1073.js  →  42 kontrol (A–J)
+```
 
 ## GÜNCELLEME v10.72 — FAN KOHORT DÖNGÜSÜ
 

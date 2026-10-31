@@ -1,0 +1,51 @@
+/* ============================================================
+   v10.73 — KAMPANYA PANOSU (📊 uygulaması)
+   Çıkış kampanyası harcaması ve kanal bazında sonuç.
+   ============================================================ */
+.app-icon.ic-campaign { background: linear-gradient(180deg, #6ec3ff, #3b82f6); color: #fff; }
+
+.cmp-card { display: flex; flex-direction: column; gap: 9px; }
+.cmp-roi {
+  font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums;
+  padding: 3px 9px; border-radius: 9px; background: rgba(255,255,255,.06);
+}
+.cmp-roi.ok { color: #54d18b; }
+.cmp-roi.mid { color: #facc15; }
+.cmp-roi.bad { color: #ff7a7a; }
+
+.cmp-tot { display: flex; gap: 6px; }
+.cmp-tot > div {
+  flex: 1; text-align: center; padding: 7px 3px; border-radius: 9px;
+  background: rgba(255,255,255,.04);
+}
+.cmp-tot b { display: block; font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.cmp-tot span { font-size: 9.5px; opacity: .62; }
+
+.cmp-head-row {
+  display: grid; grid-template-columns: 1fr 62px 58px 52px 38px;
+  gap: 4px; font-size: 9.5px; letter-spacing: .03em; text-transform: uppercase;
+  color: var(--text-3, #9a9aa5); padding: 0 2px 4px;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+}
+.cmp-ch {
+  display: grid; grid-template-columns: 14px 1fr 62px 58px 52px 38px;
+  gap: 4px; align-items: center; font-size: 11px;
+  font-variant-numeric: tabular-nums; padding: 3px 2px;
+}
+.cmp-ch-ico { font-size: 12px; }
+.cmp-ch-name { opacity: .9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cmp-ch-spend { text-align: right; opacity: .85; }
+.cmp-ch-out, .cmp-ch-fol { text-align: right; opacity: .9; }
+.cmp-ch-roi { text-align: right; font-weight: 700; }
+.cmp-ch-roi.ok { color: #54d18b; }
+.cmp-ch-roi.mid { color: #facc15; }
+.cmp-ch-roi.bad { color: #ff7a7a; }
+
+.cmp-foot {
+  font-size: 11px; color: var(--text-3, #9a9aa5);
+  border-top: 1px solid rgba(255,255,255,.07); padding-top: 7px;
+}
+.cmp-foot b.ok { color: #54d18b; }
+.cmp-foot b.bad { color: #ff7a7a; }
+
+.cmp-conv-n { font-size: 15px; font-weight: 800; color: #6ec3ff; font-variant-numeric: tabular-nums; }

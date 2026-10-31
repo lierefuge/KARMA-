@@ -594,6 +594,8 @@
         const quality = t.quality;
         const song = {
           id: U.uid("song"),
+          /* v10.73 — kampanya atfı için yayın kimliği şarkıya bağlanır */
+          releaseId: rel.id,
           title: t.name,
           genre: rel.genre,
           kind: rel.kind || "normal",
