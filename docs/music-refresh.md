@@ -26,7 +26,18 @@ Günlük ve build iş akışları `content-update-${github.ref}` kilidini payla�
 
 İzin verilen yazımlar: `release-intel.js`, `real-youtube.js`, `real-songs.js`, `discography.js`, `real-previews.js` (hepsi `js/data/` altında); gerekli üretilmiş çıktılar `index.html`, `sw.js`, `KARMA-Oyun.html`, `version.json`. Geniş `git add -A`/`git add js/data` yoktur. Uzak dal ilerlemişse doğrulanmamış rebase veya force-push yapılmaz; koşu başarısız olur ve yeniden çalıştırılmalıdır.
 
-Günlük koşu → build-artifact → tests zinciri korunur. Botun açık `workflow_dispatch` çağrısı kabul edilir; build ve test aynı seçilen dalı kullanır. Token push'u kendiliğinden yeni koşu üretmez; tests geri çağrı yapmaz. API adımları birbirini durdurmaz; son özet kısmi kaynak hatasını kırmızı durumla bildirir. Build/doğrulama/push hataları gizlenmez. Gerekli Actions izinleri `contents: write` ve `actions: write`; dal korumaları aşılmaz.
+Günlük koşu → build-artifact → tests zinciri korunur. Botun açık `workflow_dispatch` çağrısı kabul edilir; build ve test aynı seçilen dalı kullanır. Token push'u kendiliğinden yeni koşu üretmez; tests geri çağrı yapmaz. API adımları birbirini durdurmaz.
+
+### Başarısızlık siyaseti (v10.71.0)
+
+İki tür başarısızlık ayrılır:
+
+- **Zorunlu adımlar** — veri farkı kontrolü, build + tam doğrulama, commit + push. Bunlardan biri düşerse iş akışı **kırmızıdır** ve `::error` ile adı yazılır; doğrulanmamış veri commit edilmez.
+- **Dış kaynaklar** — iTunes yeni çıkışlar, Gemini, YouTube, diskografi. Bunlar `continue-on-error` ile koşar; düşen kaynak **`::warning` ile adıyla** raporlanır ve iş akışı **yeşil kalır**, çünkü korunmuş veri ve başarılı güncellemeler kullanılmaya devam eder.
+
+Eskiden herhangi bir dış kaynak hatası iş akışını kırmızıya çeviriyordu, iş yine de commit atıyordu. Sonuç her gün kırmızı bir rozet ve gerçek regresyonun görünmez olmasıydı. Artık kırmızı yalnızca gerçekten müdahale gerektiren durumda yanar.
+
+`GEMINI_API_KEY` tanımlı değilse AI adımı hiç koşmaz; anahtar kontrol adımı bir kez `::warning` verir ve diğer kaynaklar etkilenmez. Özet tablosu her adımın durumunu ve zorunlu olup olmadığını `$GITHUB_STEP_SUMMARY` içinde gösterir. Gerekli Actions izinleri `contents: write` ve `actions: write`; dal korumaları aşılmaz.
 
 ## Testler
 

@@ -44,9 +44,23 @@ jobs:
         if: inputs.dry_run != true
         continue-on-error: true
         run: node tools/fetch-new-releases.js
+      - name: Gemini anahtarini kontrol et
+        id: key
+        if: inputs.dry_run != true
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          # Anahtar yoksa adım sessizce düşüp iş akışını kırmızıya çevirmesin:
+          # zenginleştirme OPSİYONEL bir kaynaktır, oyun gömülü veriyle devam eder.
+          if [ -n "$GEMINI_API_KEY" ]; then
+            echo "has=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=GEMINI_API_KEY tanimli degil::Gemini zenginlestirmesi atlanacak; diger kaynaklar ve korunmus veri kullanilir."
+          fi
       - name: Gemini ile zenginlestir
         id: ai
-        if: inputs.dry_run != true
+        if: inputs.dry_run != true && steps.key.outputs.has == 'true'
         continue-on-error: true
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -71,6 +85,7 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
       - name: Build ve tam dogrulama
+        id: build
         if: steps.data.outputs.changed == 'true'
         run: |
           npm run build
@@ -102,13 +117,52 @@ jobs:
         if: always()
         env:
           RELEASES: ${{ steps.releases.outcome }}
+          KEY: ${{ steps.key.outcome }}
           AI: ${{ steps.ai.outcome }}
           YOUTUBE: ${{ steps.youtube.outcome }}
           DISCOGRAPHY: ${{ steps.discography.outcome }}
+          DATA: ${{ steps.data.outcome }}
+          BUILD: ${{ steps.build.outcome }}
+          COMMIT: ${{ steps.commit.outcome }}
         run: |
-          echo "### Günlük veri kaynakları" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Yeni çıkışlar: $RELEASES; Gemini: $AI; YouTube: $YOUTUBE; diskografi: $DISCOGRAPHY" >> "$GITHUB_STEP_SUMMARY"
-          if [[ "$RELEASES $AI $YOUTUBE $DISCOGRAPHY" == *failure* ]]; then
-            echo "::warning::Bazı kaynaklar tamamlanamadı; korunmuş veri ve başarılı güncellemeler kullanıldı. Ayrıntılar ilgili adımda."
-            exit 1
-          fi
+          # KURAL: iki türlü başarısızlık ayrılır.
+          #   · ZORUNLU adımlar (veri kontrolü · build/verify · commit) düşerse → KIRMIZI
+          #   · DIŞ KAYNAKLAR (iTunes · Gemini · YouTube · diskografi) düşerse → UYARI
+          # Eskiden herhangi bir dış kaynak hatası iş akışını kırmızıya çeviriyordu;
+          # iş yine de commit atıyordu. Sonuç: her gün kırmızı bir rozet → gerçek
+          # regresyon geldiğinde kimse fark etmiyor (alarm yorgunluğu).
+          {
+            echo "### Günlük veri kaynakları"
+            echo ""
+            echo "| Adım | Durum | Zorunlu |"
+            echo "| --- | --- | --- |"
+            echo "| Yeni çıkışlar | $RELEASES | hayır |"
+            echo "| Gemini anahtarı | $KEY | hayır |"
+            echo "| Gemini zenginleştirme | $AI | hayır |"
+            echo "| YouTube | $YOUTUBE | hayır |"
+            echo "| Diskografi | $DISCOGRAPHY | hayır |"
+            echo "| Veri farkı | $DATA | evet |"
+            echo "| Build + doğrulama | $BUILD | evet |"
+            echo "| Commit + push | $COMMIT | evet |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # Dış kaynak: her düşen kaynak için TEK satırlık, adı geçen uyarı.
+          # (Adımın kendi logu korunur; burada yalnızca özet ve etiket verilir.)
+          for pair in "Yeni cikislar:$RELEASES" "Gemini:$AI" "YouTube:$YOUTUBE" "Diskografi:$DISCOGRAPHY"; do
+            name="${pair%%:*}"; state="${pair##*:}"
+            if [ "$state" = "failure" ]; then
+              echo "::warning title=Kaynak tamamlanamadi ($name)::Korunmus veri ve basarili guncellemeler kullanildi. Ayrintilar '$name' adiminin logunda."
+            fi
+          done
+
+          # Zorunlu adımlardan biri düştüyse iş gerçekten başarısızdır.
+          hard=0
+          for pair in "Veri farki:$DATA" "Build+dogrulama:$BUILD" "Commit+push:$COMMIT"; do
+            name="${pair%%:*}"; state="${pair##*:}"
+            if [ "$state" = "failure" ]; then
+              echo "::error title=Zorunlu adim dustu ($name)::Dogrulanmamis veri commit edilmez. Logu inceleyin."
+              hard=1
+            fi
+          done
+          if [ "$hard" = "1" ]; then exit 1; fi
+          echo "Dış kaynak uyarıları raporlandı; zorunlu adımlar temiz."
