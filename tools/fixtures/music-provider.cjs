@@ -4,6 +4,7 @@ const fs = require('fs');
 const scenario = process.env.KARMA_MUSIC_SCENARIO;
 const today = new Date(Date.now() + 3 * 3600000).toISOString().slice(0, 10);
 const setTimer = global.setTimeout;
+let rejectedThinking = false;
 global.setTimeout = (fn, ms, ...args) => setTimer(fn, ms >= 45000 ? ms : 0, ...args);
 const reply = (data, status = 200) => ({ ok: status === 200, status,
   text: async () => typeof data === 'string' ? data : JSON.stringify(data),
@@ -27,7 +28,18 @@ global.fetch = async (url, options) => {
         const e = new Error('This operation was aborted'); e.name = 'AbortError'; reject(e);
       });
     });
-    const content = JSON.parse(options.body).contents[0].parts[0].text;
+    const reqBody = JSON.parse(options.body);
+    const gc = reqBody.generationConfig || {};
+    /* Son isteğin üretim ayarlarını testin okuyabilmesi için yaz. */
+    fs.writeFileSync(process.env.KARMA_MUSIC_CALLS + '.req', JSON.stringify({
+      think: gc.thinkingConfig || null, max: gc.maxOutputTokens || null }));
+    /* `thinkingConfig` alanını tanımayan sağlayıcı: ilk istek 400, alan
+       kaldırılınca aynı istek geçer. Fallback yolunu sınar. */
+    if (scenario === 'ai-reject-thinking' && gc.thinkingConfig && !rejectedThinking) {
+      rejectedThinking = true;
+      return reply('Invalid JSON payload received. Unknown name "thinkingConfig"', 400);
+    }
+    const content = reqBody.contents[0].parts[0].text;
     const n = [...content.matchAll(/^  \[\d+\]/gm)].length;
     const items = Array.from({ length: n }, (_, i) => ({ i, genre: 'rap', mood: 'sakin', energy: 12,
       tempo: 'mid', fit: Object.fromEntries(['rapturkiye','traptr','drilltr','newmusic','nightmode','popturkiye'].map(p => [p, 1.2])),

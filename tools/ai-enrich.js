@@ -53,6 +53,8 @@
      node tools/ai-enrich.js --force        # dolu olanları da yeniden işle
      node tools/ai-enrich.js --model gemini-3.6-flash
      node tools/ai-enrich.js --timeout 120000   # istek zaman aşımı (varsayılan 90 sn)
+     node tools/ai-enrich.js --thinking 1024     # düşünme bütçesi (varsayılan 0 = kapalı)
+     node tools/ai-enrich.js --batch 8 --max-tokens 2048
    ============================================================ */
 const fs = require("fs");
 const path = require("path");
@@ -77,6 +79,18 @@ const BATCH = Math.max(1, Math.min(8, Number(arg("batch", 6))));
    zenginleştirilemedi ("toplu hata: This operation was aborted").
    Yeni taban 90 sn; `--timeout <ms>` ile değiştirilebilir. */
 const TIMEOUT = Math.max(10000, Number(arg("timeout", 90000)));
+
+/* DÜŞÜNME (thinking) BÜTÇESİ — gecikmenin asıl kaynağı.
+   gemini-3.5-flash ailesinde düşünme varsayılan olarak AÇIK; her istek
+   "iç konuşma" token'ları üretiyor. Bu iş için gereksiz: model yalnızca
+   ETFİKET üretiyor, akıl yürütme zinciri istemiyoruz (temperature=0 +
+   responseSchema zaten çıktıyı sıkıştırıyor). 0 = kapalı.
+   `--thinking <token>` ile açılabilir (ör. karmaşık toplu isteklerde). */
+const THINKING = Math.max(0, Number(arg("thinking", 0)));
+/* ÇIKTI TAVANI. Düşünme kapalıyken 6 kayıtlık toplu yanıt ≈ 1.0-1.2k
+   token; 4096 gereksizdi ve düşünme açıkken bütçeyi yiyip JSON'u
+   yarıda kesebiliyordu. 2048 hem yeterli hem kaçak üretimi sınırlar. */
+const MAX_TOKENS = Math.max(512, Number(arg("max-tokens", 2048)));
 
 const KEY = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || "";
 const PROMPT_VERSION = 1;
@@ -165,19 +179,21 @@ function promptFor(batch) {
   );
 }
 
-async function askModelOnce(batch) {
+async function askModelOnce(batch, sendThinkingConfig) {
   const url = "https://generativelanguage.googleapis.com/v1beta/models/"
     + encodeURIComponent(MODEL) + ":generateContent";
+  const generationConfig = {
+    temperature: 0,            /* değişkenliği azaltır; build kayıtlı veriyi kullanır */
+    responseMimeType: "application/json",
+    responseSchema: SCHEMA,
+    maxOutputTokens: MAX_TOKENS
+  };
+  /* Düşünme bütçesi: 0 = kapalı. Model bu alanı tanımıyorsa 400 döner;
+     askModel alanı bir kez kaldırıp tekrar dener (sendThinkingConfig). */
+  if (sendThinkingConfig) generationConfig.thinkingConfig = { thinkingBudget: THINKING };
   const body = {
     contents: [{ parts: [{ text: promptFor(batch) }] }],
-    generationConfig: {
-      temperature: 0,            /* değişkenliği azaltır; build kayıtlı veriyi kullanır */
-      responseMimeType: "application/json",
-      responseSchema: SCHEMA,
-      /* DİKKAT: 512 çok düşüktü — JSON yarıda kesilip "Unterminated string"
-         hatası veriyordu (bizzat yaşandı). Toplu yanıtta daha da kritik. */
-      maxOutputTokens: 4096
-    }
+    generationConfig
   };
   const ctl = new AbortController();
   const t = setTimeout(() => ctl.abort(), TIMEOUT);
@@ -191,6 +207,14 @@ async function askModelOnce(batch) {
     if (!res.ok) {
       const err = new Error("HTTP " + res.status);
       err.status = res.status;
+      /* Gövde ASLA hata mesajına/loga konmaz (sağlayıcı yanıtı sır içerebilir).
+         Yalnızca "thinkingConfig alanı tanınmadı" sınıflaması çıkarılır ki
+         askModel alanı kaldırıp yeniden deneyebilsin. */
+      try {
+        const detail = await res.text();
+        err.thinkingUnsupported = res.status === 400 && /thinking/i.test(detail)
+          && /unknown|invalid|unsupported|not supported|unrecognized/i.test(detail);
+      } catch { /* gövde okunamadı: sınıflama yok */ }
       throw err;
     }
     let j;
@@ -224,18 +248,28 @@ async function askModelOnce(batch) {
 
 /* Geçici hatalar (429 kota / 500 / 503 aşırı yük / istek zaman aşımı) için
    sınırlı tekrar: toplam 4 deneme (3 tekrar).
-   Kalıcı hatalar (400 şema, 404 model) hemen yukarı fırlatılır.
+   Kalıcı hatalar (400 şema, 404 model) hemen yukarı fırlatılır — tek istisna
+   `thinkingConfig` alanının tanınmaması: alan bir kez kaldırılır ve aynı
+   istek tekrarlanır.
 
    Zaman aşımı neden tekrar denenir? Aynı toplu istek ikinci denemede
    genellikle geçer; ilk denemenin 90 sn'yi aşması kayıtların kalitesini
    değil, o andaki sağlayıcı gecikmesini gösterir. */
+let sendThinkingConfig = true;
 async function askModel(batch) {
   let lastErr;
   for (let attempt = 0; attempt < 4; attempt++) {
     try {
-      return await askModelOnce(batch);
+      return await askModelOnce(batch, sendThinkingConfig);
     } catch (e) {
       lastErr = e;
+      /* Model thinkingConfig'i tanımıyor: alanı kalıcı olarak kapat,
+         bu denemeyi sayma. */
+      if (e && e.thinkingUnsupported && sendThinkingConfig) {
+        sendThinkingConfig = false;
+        attempt--;
+        continue;
+      }
       const s = e && e.status;
       const retryable = e && e.timeout === true
         || s === 429 || s >= 500 || /Unterminated|JSON/i.test(String(e && e.message));
@@ -307,6 +341,8 @@ function sanitize(out, r) {
   console.log("\nKARMA — AI zenginleştirme");
   console.log("  dosya    : js/data/release-intel.js");
   console.log("  model    : " + MODEL + "  (prompt v" + PROMPT_VERSION + ")");
+  console.log("  istek    : düşünme " + (THINKING ? THINKING + " token" : "kapalı")
+    + " · batch " + BATCH + " · çıktı " + MAX_TOKENS + " token · zaman aşımı " + Math.round(TIMEOUT / 1000) + " sn");
   console.log("  kayıt    : " + keys.length + " · işlenecek: " + slice.length);
 
   if (!slice.length) {

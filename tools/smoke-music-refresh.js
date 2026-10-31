@@ -220,6 +220,25 @@ try {
     assert.equal(bytes(), before);                   /* dosya bayt bayt korunur */
     assert(/zaman aşımı/.test((r.stdout || '') + (r.stderr || '')));
   });
+  /* Gecikmenin asıl kaynağı düşünme token'ları: varsayılan kapalı olmalı ve
+     çıktı tavanı 2048 olmalı. Hız regresyonu bu iki ayardan okunur. */
+  check('fast request config: thinking off, output capped', () => {
+    reset([row('alpha', 'Bir')]); assert.equal(run('ai-enrich.js', 'ok').status, 0);
+    const cfg = JSON.parse(fs.readFileSync(calls + '.req', 'utf8'));
+    assert.equal(cfg.think.thinkingBudget, 0);
+    assert.equal(cfg.max, 2048);
+    assert(/düşünme kapalı/.test(run('ai-enrich.js', 'ok', ['--force']).stdout));
+  });
+  /* Model `thinkingConfig` alanını tanımıyorsa: alan BİR KEZ kaldırılır,
+     istek tekrarlanır, zenginleştirme yine de tamamlanır. */
+  check('unknown thinkingConfig is dropped and the request retried once', () => {
+    reset([row('alpha', 'Bir')]);
+    const r = run('ai-enrich.js', 'ai-reject-thinking');
+    assert.equal(r.status, 0);
+    assert.equal(r.calls, 2);                          /* 1 reddedilen + 1 başarılı */
+    assert.equal(JSON.parse(fs.readFileSync(calls + '.req', 'utf8')).think, null);
+    assert(load().releases['alpha::bir'].intel, 'kayıt zenginleştirildi');
+  });
   check('workflow YAML, midnight cron, dispatch, locks and scoped pushes', () => {
     const dailyText = fs.readFileSync(path.join(ROOT, '.github/workflows/daily-refresh.yml'), 'utf8');
     const buildText = fs.readFileSync(path.join(ROOT, '.github/workflows/build-artifact.yml'), 'utf8');
