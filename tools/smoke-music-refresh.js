@@ -277,6 +277,14 @@ try {
     assert(daily.jobs.refresh.steps.some(s => s.run && s.run.includes('npm run verify')));
     assert(daily.jobs.refresh.steps.some(s => s.run === 'node tools/fetch-youtube.js'));
     assert(daily.jobs.refresh.steps.some(s => s.run === 'node tools/refresh-discographies.js'));
+    /* Koşu özeti artifact'a da yazılmalı: $GITHUB_STEP_SUMMARY API'den
+       okunamıyor, özet ancak artifact ile sonradan erişilebilir oluyor. */
+    const report = daily.jobs.refresh.steps.find(s => s.name === 'Kaynak durumlarini raporla');
+    assert(report.run.includes('daily-refresh-summary-'));
+    assert(report.run.includes('$GITHUB_STEP_SUMMARY'));
+    assert(daily.jobs.refresh.steps.some(s => s.uses && s.uses.startsWith('actions/upload-artifact')), 'artifact yükleme adımı yok');
+    assert(daily.jobs.refresh.steps.filter(s => s.uses && s.uses.startsWith('actions/upload-artifact'))
+      .every(s => s['if'] === 'always()'), 'artifact adımı her durumda koşmalı');
   });
   console.log('\nGeçen: ' + passed + ' · Kalan: 0');
 } finally { fs.rmSync(temp, { recursive: true, force: true }); }

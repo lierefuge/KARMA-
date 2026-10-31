@@ -43,7 +43,24 @@ Günlük koşu → build-artifact → tests zinciri korunur. Botun açık `workf
 
 Eskiden herhangi bir dış kaynak hatası iş akışını kırmızıya çeviriyordu, iş yine de commit atıyordu. Sonuç her gün kırmızı bir rozet ve gerçek regresyonun görünmez olmasıydı. Artık kırmızı yalnızca gerçekten müdahale gerektiren durumda yanar.
 
-`GEMINI_API_KEY` tanımlı değilse AI adımı hiç koşmaz; anahtar kontrol adımı bir kez `::warning` verir ve diğer kaynaklar etkilenmez. Özet tablosu her adımın durumunu ve zorunlu olup olmadığını `$GITHUB_STEP_SUMMARY` içinde gösterir. Gerekli Actions izinleri `contents: write` ve `actions: write`; dal korumaları aşılmaz.
+`GEMINI_API_KEY` tanımlı değilse AI adımı hiç koşmaz; anahtar kontrol adımı bir kez `::warning` verir ve diğer kaynaklar etkilenmez. Özet tablosu her adımın durumunu ve zorunlu olup olmadığını `$GITHUB_STEP_SUMMARY` içinde gösterir.
+
+### Koşu özeti sonradan nasıl okunur?
+
+`$GITHUB_STEP_SUMMARY` yalnızca koşu sayfasının HTML'inde render edilir; **REST API bu içeriği yayınlamaz.** Bu yüzden aynı Markdown, `daily-refresh-summary-<run_id>.md` adıyla **artifact** olarak da yükleniyor (30 gün saklanır, adım başarısız olsa bile).
+
+```bash
+# 1) artifact kimliğini bul
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "https://api.github.com/repos/OWNER/REPO/actions/runs/<run_id>/artifacts"   # .artifacts[].id / .name
+
+# 2) zip olarak indir (302 → imzalı URL, -L şart)
+curl -sL -H "Authorization: Bearer $TOKEN" \
+  "https://api.github.com/repos/OWNER/REPO/actions/artifacts/<artifact_id>/zip" -o summary.zip
+unzip -p summary.zip '*.md'
+```
+
+Artifact içeriği: koşu kimliği, dal/commit, tetikleyen olay, adım durumları tablosu, dış kaynak uyarıları ve zorunlu adım hatası olup olmadığı. Böylece koşu bittikten sonra da "hangi kaynak düştü" sorusu API'den yanıtlanabiliyor. Gerekli Actions izinleri `contents: write` ve `actions: write`; dal korumaları aşılmaz.
 
 ## Testler
 

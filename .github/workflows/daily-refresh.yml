@@ -114,6 +114,7 @@ jobs:
           TARGET_BRANCH: ${{ github.ref_name }}
         run: gh workflow run build-artifact.yml --ref "$TARGET_BRANCH"
       - name: Kaynak durumlarini raporla
+        id: report
         if: always()
         env:
           RELEASES: ${{ steps.releases.outcome }}
@@ -131,8 +132,22 @@ jobs:
           # Eskiden herhangi bir dış kaynak hatası iş akışını kırmızıya çeviriyordu;
           # iş yine de commit atıyordu. Sonuç: her gün kırmızı bir rozet → gerçek
           # regresyon geldiğinde kimse fark etmiyor (alarm yorgunluğu).
+
+          # ÖZET NEDEN DOSYAYA DA YAZILIYOR?
+          # `$GITHUB_STEP_SUMMARY` yalnızca koşu sayfasının HTML'inde render edilir;
+          # REST API bu içeriği YAYINLAMAZ. Aynı Markdown bir artifact'a yazılınca
+          # koşu bitkiken sonra da okunabiliyor:
+          #   GET /repos/{owner}/{repo}/actions/runs/{id}/artifacts
+          SUMMARY_FILE="daily-refresh-summary-${GITHUB_RUN_ID}.md"
           {
-            echo "### Günlük veri kaynakları"
+            echo "# Günlük veri yenileme — koşu ${GITHUB_RUN_ID}"
+            echo ""
+            echo "- Zaman: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "- Dal: ${GITHUB_REF_NAME} · commit: ${GITHUB_SHA}"
+            echo "- Tetikleyen: ${GITHUB_EVENT_NAME} · deneme: ${GITHUB_RUN_ATTEMPT}"
+            echo "- Koşu sayfası: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo ""
+            echo "## Adım durumları"
             echo ""
             echo "| Adım | Durum | Zorunlu |"
             echo "| --- | --- | --- |"
@@ -144,7 +159,35 @@ jobs:
             echo "| Veri farkı | $DATA | evet |"
             echo "| Build + doğrulama | $BUILD | evet |"
             echo "| Commit + push | $COMMIT | evet |"
-          } >> "$GITHUB_STEP_SUMMARY"
+            echo ""
+            echo "## Uyarılar"
+            echo ""
+            warned=0
+            for pair in "Yeni cikislar:$RELEASES" "Gemini:$AI" "YouTube:$YOUTUBE" "Diskografi:$DISCOGRAPHY"; do
+              name="${pair%%:*}"; state="${pair##*:}"
+              if [ "$state" = "failure" ]; then
+                echo "- \`$name\` tamamlanamadı — korunmuş veri ve başarılı güncellemeler kullanıldı; ayrıntı adımın logunda."
+                warned=1
+              fi
+            done
+            if [ "$warned" = "0" ]; then echo "- Yok."; fi
+            echo ""
+            echo "## Zorunlu adım hatası"
+            echo ""
+            hard_note=0
+            for pair in "Veri farki:$DATA" "Build+dogrulama:$BUILD" "Commit+push:$COMMIT"; do
+              name="${pair%%:*}"; state="${pair##*:}"
+              if [ "$state" = "failure" ]; then
+                echo "- \`$name\` düştü — doğrulanmamış veri commit EDİLMEDİ."
+                hard_note=1
+              fi
+            done
+            if [ "$hard_note" = "0" ]; then echo "- Yok."; fi
+          } > "$SUMMARY_FILE"
+
+          # Koşu sayfasında da görünsün (aynı içerik, tek kaynak).
+          cat "$SUMMARY_FILE" >> "$GITHUB_STEP_SUMMARY"
+          echo "Özet dosyası: $SUMMARY_FILE"
 
           # Dış kaynak: her düşen kaynak için TEK satırlık, adı geçen uyarı.
           # (Adımın kendi logu korunur; burada yalnızca özet ve etiket verilir.)
@@ -166,3 +209,12 @@ jobs:
           done
           if [ "$hard" = "1" ]; then exit 1; fi
           echo "Dış kaynak uyarıları raporlandı; zorunlu adımlar temiz."
+
+      - name: Ozeti artifact olarak yukle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: daily-refresh-summary-${{ github.run_id }}
+          path: daily-refresh-summary-${{ github.run_id }}.md
+          retention-days: 30
+          if-no-files-found: warn
