@@ -69,6 +69,8 @@ global.fetch = async (url, options) => {
   const track = { wrapperType: 'track', collectionId: id, trackId: 101,
     trackName: 'Yeni Parça', artistName, collectionName: 'Sentetik Single', releaseDate: today,
     trackTimeMillis: 120000, trackViewUrl: 'https://music.apple.com/tr/test', artworkUrl100: '', previewUrl: null };
+  if (scenario === 'catalog-one-bad') return catalog([{ wrapperType: 'collection', collectionId: id }, track,
+    { ...track, trackId: 102, trackName: 'Ön Sipariş', releaseDate: null }]);
   if (scenario === 'catalog-date') track.releaseDate = '2026-02-30';
   if (scenario === 'catalog-owner') track.artistName = 'Alphabet';
   return catalog([{ wrapperType: 'collection', collectionId: id }, track, { ...track }]);

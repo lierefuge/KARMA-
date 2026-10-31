@@ -8,6 +8,8 @@
 - `js/data/release-intel.js` ve mevcut `intel` şeması korunur. Oyun, editoryal listeler, haber ve ses önizleme tüketicileri değişmez. `intel` ve `preview` null olabilir; oyun mevcut çevrimdışı/kural tabanlı davranışını sürdürür.
 - Sanatçı kimliği için tam sahne adı veya tanımlı takma ad aranır. İlk arama sonucuna veya kısmi ad benzerliğine güvenilmez. Konuk kredileri ilk sanatçı adı üzerinden elenir; kaynak ad biçimi farklıysa kayıt atlanabilir.
 - Bozuk yerel veri üzerine yazılmaz. Boş/bozuk/kesilmiş katalog yanıtında ilgili sanatçının önceki kayıtları korunur. Süresi dolan kayıtlar yalnızca başarılı taranan sanatçılarda temizlenir; tüm sonucu boşaltacak yazım reddedilir. Oyun eski kayıtları mevcut yaş filtresiyle eler.
+
+**Parça düzeyi bozukluk (v10.71.0).** Parçanın kendisi geçersizse (`trackName` boş, `artistName` yok, `releaseDate` ayrıştırılamıyor veya `trackId` yok) o **parça atlanır**, alanı ve değeriyle loglanır, sanatçının geri kalanı normal taranır; koşu bu yüzden başarısız sayılmaz. Tipik tetikleyici ön sipariş parçasının `releaseDate: null` olmasıdır. Eskiden böyle tek bir kayıt sanatçının **tüm** taramasını iptal ediyordu: 29–30 Ekim 2026 koşularında her gün farklı üç sanatçı bu yüzden düşmüştü. Albüm yanıtı tümden bozuksa veya albüm tarihi geçersizse sanatçı yine **reddedilir** (`exit 1`) — gerçek sağlayıcı kesintisi koruması orada kalır.
 - Tekrarlanan kayıtlar limitten önce elenir; zenginleştirmeler korunur. İki yeni veri aracı doğrulama sonrası aynı dizindeki geçici dosyayı atomik yeniden adlandırır.
 
 ## Gemini

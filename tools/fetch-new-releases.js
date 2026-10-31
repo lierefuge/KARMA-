@@ -47,6 +47,25 @@
    · İçerik değişmediyse dosya HİÇ yazılmaz (boş commit olmaz).
    · Tek sanatçının hatası koşuyu durdurmaz; uyarı basılır, devam edilir.
 
+   BOZUK PARÇA (v10.71.0) — neden sanatçıyı iptal ETMİYORUZ?
+   -----------------------------------------------------------
+   29-30 Ekim 2026 koşularında her seferinde FARKLI üç sanatçı
+   "geçersiz katalog kaydı" ile düştü ve o sanatçıların o günkü
+   çıkışları hiç taranamadı. Sebep: tek bir bozuk kayıt (en tipik
+   tetikleyici ön sipariş parçasının `releaseDate: null` olması)
+   sanatçının TÜM taramasını iptal ediyordu. Pencere kayan 30 gün
+   olduğu için her gün başka bir albüm pencereye girip aynı hatayı
+   tekrarlıyordu.
+
+   Yeni politika:
+     · Parça düzeyi bozukluk  → O PARÇA atlanır, adı ve alanı loglanır,
+       sanatçının geri kalanı normal taranır (koşu başarısız sayılmaz).
+     · Albüm yanıtı tümden bozuk (`boş veya eksik albüm yanıtı`) ya da
+       albüm tarihi geçersiz  → sanatçı REDDEDİLİR (gerçek kesinti
+       koruması burada kalır, exit 1).
+   Böylece ön sipariş kaydı yüzünden veri kaybı olmuyor, gerçek
+   sağlayıcı kesintisi ise hâlâ yüksek sesle bildiriliyor.
+
    KULLANIM
    --------
      node tools/fetch-new-releases.js                 # son 30 gün
@@ -174,6 +193,16 @@ function ownsTrack(trackArtist, artist) {
 }
 
 /* ---------------- katalog: albüm üzerinden ---------------- */
+/* Parça düzeyi bozukluk: hangi alanın bozuk olduğunu ADIYLA döndürür.
+   Eski sürüm tek bir `throw` ile sanatçının tüm taramasını iptal ediyordu
+   ve mesaj hangi kaydın bozuk olduğunu söylemiyordu (teşhis edilemezdi). */
+function trackDefect(x) {
+  if (typeof x.trackName !== "string" || !x.trackName.trim()) return "trackName";
+  if (!x.artistName) return "artistName";
+  if (dayNum(x.releaseDate) == null) return "releaseDate";
+  if (!x.trackId) return "trackId";
+  return null;
+}
 async function recentAlbums(artistId, todayIso, windowDays) {
   const j = await getJSON(
     "https://itunes.apple.com/lookup?id=" + artistId +
@@ -191,8 +220,11 @@ async function recentAlbums(artistId, todayIso, windowDays) {
   });
 }
 
+/* Dönen değer: { tracks, skipped }. `skipped` parça düzeyi bozuk kayıtlar;
+   sanatçıyı iptal etmez, çağıran taraf adıyla loglar. */
 async function albumTracks(albumIds) {
   const out = [];
+  const skipped = [];
   for (let i = 0; i < albumIds.length; i += 100) {
     const ids = albumIds.slice(i, i + 100).join(",");
     const j = await getJSON(
@@ -205,24 +237,23 @@ async function albumTracks(albumIds) {
       }
     }
     j.results.forEach((x) => {
-      if (x.wrapperType === "track") {
-        if (typeof x.trackName !== "string" || !x.trackName.trim() || !x.artistName
-            || dayNum(x.releaseDate) == null || !x.trackId) throw new Error("geçersiz katalog kaydı");
-        out.push(x);
-      }
+      if (x.wrapperType !== "track") return;
+      const field = trackDefect(x);
+      if (field) { skipped.push({ field, track: x }); return; }
+      out.push(x);
     });
     await sleep(DELAY);
   }
-  return out;
+  return { tracks: out, skipped };
 }
 
 /* ---------------- sanatçı taraması ---------------- */
 async function scanArtist(a, artistId, ctx) {
   const albums = await recentAlbums(artistId, ctx.today, DAYS);
-  if (!albums.length) return { scanned: 0, fresh: 0, rows: [] };
+  if (!albums.length) return { scanned: 0, fresh: 0, rows: [], skipped: [] };
 
   await sleep(DELAY);
-  const tracks = await albumTracks(albums.map((al) => al.collectionId));
+  const { tracks, skipped } = await albumTracks(albums.map((al) => al.collectionId));
 
   const rows = [];
   const seen = new Set();
@@ -254,7 +285,7 @@ async function scanArtist(a, artistId, ctx) {
   });
 
   rows.sort((x, y) => (x.releaseDate < y.releaseDate ? 1 : x.releaseDate > y.releaseDate ? -1 : 0));
-  return { scanned, fresh: rows.length, rows: rows.slice(0, PER_ARTIST) };
+  return { scanned, fresh: rows.length, rows: rows.slice(0, PER_ARTIST), skipped };
 }
 
 /* ---------------- ana akış ---------------- */
@@ -295,7 +326,7 @@ async function scanArtist(a, artistId, ctx) {
   const ids = Object.assign({}, prevMeta.artistIds || {});
   const releases = Object.assign({}, prevReleases);
   const successful = new Set();
-  let scannedTotal = 0, freshTotal = 0, added = 0, updated = 0, errors = 0;
+  let scannedTotal = 0, freshTotal = 0, added = 0, updated = 0, errors = 0, skippedTotal = 0;
 
   for (let i = 0; i < roster.length; i++) {
     const a = roster[i];
@@ -313,6 +344,19 @@ async function scanArtist(a, artistId, ctx) {
       successful.add(a.id);
       scannedTotal += res.scanned;
       freshTotal += res.fresh;
+
+      /* Parça düzeyi bozukluk: ATLA, adıyla bildir. Sanatçı reddedilmez:
+         tek bir ön sipariş kaydı yüzünden o günün çıkışları kaybolmasın. */
+      res.skipped.forEach((s) => {
+        skippedTotal++;
+        const t = s.track || {};
+        const raw = s.field === "releaseDate" ? t.releaseDate : t[s.field];
+        const nm = (typeof t.trackName === "string" && t.trackName.trim())
+          ? t.trackName : "(adsız parça)";
+        console.log(tag + " ⚠ atlandı: \"" + String(nm).slice(0, 40) + "\" · alan: " + s.field
+          + " · değer: " + String(raw === undefined || raw === null ? "null" : raw).slice(0, 30)
+          + (t.collectionName ? " · albüm: " + String(t.collectionName).slice(0, 30) : ""));
+      });
 
       const line = [];
       res.rows.forEach((r) => {
@@ -392,7 +436,9 @@ async function scanArtist(a, artistId, ctx) {
 
   console.log("\n  taranan şarkı : " + scannedTotal);
   console.log("  pencerede     : " + freshTotal + " (" + meta.newCount + " tanesi depoda yok)");
-  console.log("  kayıt         : " + meta.count + " · yeni: " + added + " · güncellenen: " + updated + " · hata: " + errors);
+  console.log("  kayıt         : " + meta.count + " · yeni: " + added + " · güncellenen: " + updated
+    + " · hata: " + errors
+    + (skippedTotal ? " · atlanan parça: " + skippedTotal : ""));
   console.log("  süre          : " + ((Date.now() - started) / 1000).toFixed(1) + " sn");
 
   if (!changed) {

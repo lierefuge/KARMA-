@@ -46,11 +46,33 @@ function run(tool, scenario, args = [], key = true) {
 let passed = 0;
 function check(name, test) { test(); passed++; console.log('✅ ' + name); }
 try {
-  for (const scenario of ['catalog-empty', 'catalog-json', 'catalog-shape', 'catalog-date', 'album-empty']) {
+  for (const scenario of ['catalog-empty', 'catalog-json', 'catalog-shape', 'album-empty']) {
     check(scenario + ': previous data byte-preserved', () => {
       reset(); const before = bytes(); assert.equal(run('fetch-new-releases.js', scenario).status, 1); assert.equal(bytes(), before);
     });
   }
+  /* v10.71.0 — PARÇA DÜZEYİ BOZUKLUK sanatçıyı iptal etmez.
+     29-30 Ekim koşularında tek bir bozuk kayıt (ön sipariş parçasının
+     releaseDate: null olması) yüzünden her gün 3 sanatçının taraması
+     tümden iptal oluyordu. Artık o parça atlanır, sebebi adıyla loglanır,
+     sanatçının geri kalanı yazılır ve koşu başarısız sayılmaz. */
+  check('one malformed track is skipped, valid tracks still written', () => {
+    reset([]);
+    const r = run('fetch-new-releases.js', 'catalog-one-bad');
+    assert.equal(r.status, 0);                                     /* sanatçı reddedilmedi */
+    assert.deepEqual(Object.keys(load().releases), ['alpha::yeni parça']);
+    assert(/atlandı: "Ön Sipariş" · alan: releaseDate/.test(r.stdout));  /* teşhis adlandırılmış */
+    assert(/atlanan parça: 2/.test(r.stdout));                     /* iki sanatçı, iki bozuk parça */
+  });
+  /* Tarihi geçersiz parça da atlanır (sanatçı reddedilmez). Sonuç tamamen
+     boş kalırsa "mevcut veriyi ezme" koruması devreye girer: exit 1 + dosya korunur. */
+  check('invalid track date is skipped; empty result never overwrites data', () => {
+    reset(); const before = bytes();
+    const r = run('fetch-new-releases.js', 'catalog-date');
+    assert.equal(r.status, 1);
+    assert.equal(bytes(), before);
+    assert(/alan: releaseDate/.test(r.stdout));
+  });
   check('partial outage preserves failed artist, expires successful artist only', () => {
     reset(); assert.equal(run('fetch-new-releases.js', 'partial').status, 1);
     assert(load().releases['beta::eski']); assert(!load().releases['alpha::eski']); assert(load().releases['alpha::yeni parça']);
