@@ -2,11 +2,186 @@
 
 [README’ye dön](../README.md)
 
-Bu arşiv, önceki README’deki v2–v10.66 güncelleme notlarını korur.
+Bu arşiv, önceki README’deki v2–v10.71 güncelleme notlarını korur.
 Buradaki sayılar, test sonuçları ve davranış açıklamaları ilgili sürümün
 tarihsel kaydıdır. Güncel kullanım için [README](../README.md),
 yeni çıkış akışı için [v10.67 notları](v10.67.md) ve
 [ilk ay rehberini](first-month.md) kullan.
+
+## GÜNCELLEME v10.71 — KENDİ WEBGL MOTORU: STÜDYO ODASI 3B
+
+v10.70'in CSS izometrik sahnesi gerçek nesne hissi vermiyordu ve kamera
+serbest değildi. three.js 600 KB+ olduğu ve entegrasyonun yazma yolu ~150 KB'yi
+taşımadığı için **kendi küçük motorumuz** yazıldı: `js/systems/roomgl.js`
+(**~14 KB**, harici kütüphane yok).
+
+### 1 · 🎥 Serbest kamera
+Sürükle = **yörünge** (yaw/pitch), tekerlek = **zoom**. Yumuşak sınırlar var:
+kamera odanın altına ya da tepesine kaçmıyor, zoom belirli bir aralıkta kalıyor.
+
+### 2 · 📐 Gerçek geometri ve ışık
+Kutu, silindir, küre ve düzlem ilkelleri; Lambert ışık (tepe + yan dolgu) ve
+zemin gölge diski. Eşyalar artık CSS'le "dikilmiyor", gerçek gövde olarak
+görünüyor.
+
+### 3 · 🖱 Seçim ve sürükle-bırak
+Eşya seçimi ekrana **projeksiyonla** en yakın nesneyi bulur. Bırakma, zemine
+veya masa yüzeyine **ışın-ızgara kesişimi** ile hesaplanır; masaya bırakınca
+katman değişir (kararı `studioroom.js` verir).
+
+### 4 · 🔒 Veri sözleşmesi korunuyor
+Motor **hiçbir durum tutmaz**. Konum yüzdeleri (x,y) aynen saklanır:
+
+```
+dünya.x = (x - 50) / 25      dünya.z = (y - 50) / 25
+```
+
+Böylece v10.70 kayıtları ve `player.studioRoom` şeması geçerli kalır. WebGL
+yoksa `available()` false döner ve arayüz CSS izometrik sürümle çalışmaya
+devam eder — oyun asla kırılmaz.
+
+Bu sürümde ayrıca sürüm etiketi hizalandı: v10.70 ve v10.71 işi yayındayken
+`js/version.js` · `package.json` · `sw.js` · `version.json` hâlâ `10.69.0`
+diyordu; dördü birden **10.71.0** yapıldı.
+
+### Doğrulama
+```
+npm run verify         →  58/58 adım temiz
+node tools/smoke-v1070.js  →  56 kontrol (A–H + L motor blokları)
+```
+
+## GÜNCELLEME v10.70 — STÜDYO ODASI: EŞYA · YERLEŞİM · ETKİ
+
+Stüdyo artık bir oda. Eşya **satın alınır**, **yerleştirilir** ve etkisi
+doğrudan üretime yansır. Yeni süit: `tools/smoke-v1070.js` (**56 kontrol**).
+
+### 1 · 🪑 Katalog ve slotlar
+8 slot (masa, hoparlör, mikrofon, koltuk, aydınlatma, akustik panel, depolama,
+dekor) ve 20+ eşya. Aynı slota **tek eşya** takılır; değiştirmek ücretsizdir.
+Başlangıçta ücretsiz set sahiplenilmiş ve takılı gelir; pahalı eşyalar itibar
+kapılıdır.
+
+### 2 · 💸 Satın al → tak
+Eşya satın alınınca envantere girer ve otomatik yerleşir; **takılmayan eşya
+etki etmez**. Aynı eşya ikinci kez alınamaz, sahip olunmayan eşya takılamaz,
+para yetmezse satın alma reddedilir.
+
+### 3 · 📈 Etki kuralı (tek kaynak: `effects()`)
+```
+kalite = takılı eşyaların q toplamı  → kayıt kalitesine
+yorgunluk çarpanı = konfor (c) toplamı → 0.75–1 arası
+```
+
+### 4 · 🔄 Döndürme ve taşıma
+Oda 15° adımlarla döner (yön 0–359 aralığında kalır), eşyalar sürükle-bırak ile
+taşınır, konum yüzde olarak `player.studioRoom` altında saklanır.
+
+### 5 · 🖥 Masa üstü katmanı
+Yerden al / masaya koy: eşyanın katmanı `floor` ↔ `desk` olarak değişir ve
+masa yüzeyine göre yükseklik alır. Hoparlör varsayılan olarak masada durur.
+
+### Doğrulama
+```
+node tools/smoke-v1070.js  →  56 kontrol
+```
+
+## GÜNCELLEME v10.69.1 — KARİYER/LİSTELER YAMA MODÜLÜ
+
+v10.69'un ardından gelen hedefli düzeltme turu: Kariyer ve Listeler ekranındaki
+bozuk HTML, canlı şeridin birden fazla kez basılması ve stüdyo seans süresinin
+`undefined` görünmesi giderildi (`js/data/production.js`).
+
+## GÜNCELLEME v10.69 — GÜNCELLEME AKIŞI DÜZELTMESİ
+
+Şikâyet: *"güncelle dedim, güncellenmedi."* Sebep service worker'daydı.
+
+### 1 · ⏳ `skipWaiting` artık koşulsuz
+Eskiden yeni worker yalnızca "Güncelle" şeridine basılınca devreye giriyordu.
+Kullanıcı şeride basmazsa yeni worker `waiting` durumunda bekliyor, **tüm
+sekmeler kapanana kadar eski sürüm** çalışmaya devam ediyordu. Artık yeni worker
+hemen devreye girer ve sayfayı `updater.js` bir kez otomatik yeniler (durum
+kaydedilerek).
+
+### 2 · 🚫 `updateViaCache: none`
+`sw.js` kaydı tarayıcı HTTP önbelleğini atlayacak şekilde yapılıyor; eski worker
+dosyası önbellekten geri gelmiyor.
+
+### 3 · 🔑 Önbellek adı içerik hash'inden
+`CACHE_KEY` sürüm numarasından değil **içerik hash'inden** türetilir. Sürüm
+numarası değişmeden içerik değişirse (damgalama unutulduğunda tam olarak bu
+oldu) eski önbellek adı sabit kalıyor, `activate` hiçbir şeyi silmiyor ve oyuncu
+cache-first kuralı yüzünden eski JS/CSS'i sonsuza kadar çalıştırıyordu.
+
+### Doğrulama
+```
+Güncelleme akışı süiti  →  19 kontrol (sürüm · damga · worker)
+```
+
+## GÜNCELLEME v10.68 — TELEFON UYGULAMALARI VE İLK AY
+
+README'nin tamamı arşive taşındı: 3.039 satırlık README ikiye bölündü — kısa
+kullanım kılavuzu `README.md` olarak kaldı, tüm geçmiş notlar (2.782 satır) bu
+dosyaya taşındı. 37 dosya, +4.801/−3.496 satır.
+
+### 1 · 📱 iPhone tarzı telefon + görünüm değiştirici
+Telefon arayüzü iPhone düzenine çekildi; kariyer ve telefon arasında geçiş yapan
+görünüm değiştirici eklendi (PR #7, çakışmalar çözülerek birleştirildi).
+
+### 2 · 📸 Uygulamalar gerçek ürün düzenine geçti
+Instagram, YouTube, X ve TikTok arayüzleri paylaşılan Android ekran görüntüleri
+temel alınarak yenilendi. X'te akış/arama, Instagram'da hikâyeler ve Reels,
+YouTube'da Shorts ile "Siz" kitaplığı, TikTok'ta dikey akış ve gönderi oluşturma.
+Beğeniler, takipler, kaydetme, yorumlar ve gizlenen içerikler oyun kaydında korunur.
+
+### 3 · 🔔 Durum çubuğu ve gezinme
+Durum çubuğu artık ana ekran düğmesi değil ve kaydırınca gizleniyor; sekme ile
+eylem ayrımı netleşti, TikTok gelen kutusu görünümü düzeltildi, beğeni kalıcılığı
+sağlamlaştırıldı, stüdyo/kariyer taşmaları sertleştirildi.
+
+### 4 · 📖 İlk ay rehberi belgelendi
+`docs/first-month.md` eklendi: ilk 30 günün fırsatları, karar sonuçları ve kayıt
+uyumluluğu yazıya geçti.
+
+## GÜNCELLEME v10.67 — YENİ ÇIKIŞ AKIŞI · ROTASYON · AI · ÖLÜ KOD
+
+Oyun artık **gerçekten yeni çıkan** şarkıları alıyor: bir veri hattı, takvime
+bağlı bir rotasyon ve build-time AI etiketleme geldi; ayrıca 32 ölü fonksiyon
+kaldırıldı ve süit süresi 21,9 dakikadan 4-5 dakikaya indi. Yeni süit:
+`tools/smoke-v1067.js` (**bugün 62 kontrol**).
+
+Ayrıntılı anlatım: [v10.67 notları](v10.67.md).
+
+### 1 · 📡 release-intel — gerçek çıkış hattı
+`tools/fetch-new-releases.js`, oyundaki **37 sanatçının** kataloğunu iTunes
+(`country=TR`) üzerinden tarar, son N günün çıkışlarını bulur ve
+`js/data/release-intel.js`'e yazar. Kayıt başına `title`, `artistId`,
+`releaseDate`, `art`, `preview`, `trackArtist`, `isNew`, `intel` alanları tutulur.
+
+Yol boyunca çözülen üç tuzak: `sort=recent` yok sayılıyor (sıralama istemcide),
+`lookup` OFFSET desteklemiyor (katalog **albüm üzerinden** geziliyor; tarama
+35 sn'den ~8 sn'ye indi), ve iTunes sanatçının yalnızca **konuk** olduğu parçaları
+da döndürüyor (sahiplik `trackArtist` alanının ilk sanatçısına göre belirleniyor).
+
+**Çalınabilirlik:** yeni çıkışların 24'ünde de önizleme yoktu; `previewUrl`
+kayda yazılıp `lazy.previewFor()` bulamazsa `release-intel`'e düşülüyor →
+**23/23 yeni çıkış çalınabilir.**
+
+### 2 · 🔄 Takvim tohumlu playlist rotasyonu
+Tohum artık takvime bağlı: haftalık `w<ISO hafta>`, günlük `d<gün no>`. Tür
+listeleri (Rap Türkiye, Trap Zone, Drill, Gece Modu, Pop) haftada bir, Yeni
+Çıkanlar her gün döner. Tohum süreç içinde sabittir; testler `setRotation()` ile
+tohumu sabitleyebildiği için determinizm korunur.
+
+### 3 · 🧹 Ölü kod temizliği
+Üç turda 32 fonksiyon kaldırıldı (platforms + lists + awards: 7, systems: 13,
+data + core + apps: 12) ve `ytFor` / `intelOf` söküldü — `real-youtube` katmanı
+artık canlı.
+
+### Doğrulama
+```
+npm run verify        →  58/58 adım temiz
+node tools/smoke-v1067.js  →  62 kontrol
+```
 
 ## GÜNCELLEME v10.66 — GERÇEKÇİLİK TURU (6 YÜZEY · 30 ÖZELLİK)
 

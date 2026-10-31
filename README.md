@@ -4,17 +4,26 @@ Türk müzik endüstrisinde kendi sanatçı kariyerini kurduğun, tarayıcıda �
 bir simülasyon. İlk kaydını hazırla, yayınlarını dağıt, dinleyici kazan,
 sanatçılarla ilişki kur ve kariyerin büyüdükçe kendi müzik şirketini yönet.
 
-## v10.68.0 — Telefon uygulamaları ve ilk ay
+## v10.71.0 — Stüdyo odası ve WebGL motoru
 
-Instagram ve YouTube arayüzleri, paylaşılan Android ekran görüntüleri temel alınarak
-yenilendi. X’te akış/arama, Instagram’da hikâyeler ve Reels, YouTube’da Shorts ile
-“Siz” kitaplığı, TikTok’ta dikey akış ve gönderi oluşturma bulunur. Beğeniler,
-takipler, kaydetme, yorumlar ve gizlenen içerikler oyun kaydında korunur;
-paylaşımlar oyundaki kişilere mesaj olarak gönderilebilir.
+Stüdyo artık bir oda: **8 slot** ve **20+ eşya** satın alınır, yerleştirilir,
+15° adımlarla döndürülür ve sürükle-bırak ile taşınır. Eşyanın etkisi tek bir
+kaynaktan (`effects()`) gelir: takılı eşyaların **kalite** toplamı kayıt kalitesine,
+**konfor** toplamı seans yorgunluğuna (0,75–1 çarpanı) yansır. Yerden alıp masaya
+koyabilirsin; eşyanın katmanı `floor` ile `desk` arasında değişir.
 
-Bu uygulamalar kariyer simülasyonunun parçasıdır. Gerçek sosyal ağ hesaplarına
-bağlanmaz; kamera kaydı, video yükleme veya platformların tüm özelliklerini sunmaz.
-Akışlar oyundaki sanatçılar, yayınlar ve kapak görsellerinden oluşur.
+v10.71 sahneyi kendi **WebGL motorumuza** taşıdı (`js/systems/roomgl.js`, ~14 KB,
+harici kütüphane yok): serbest kamera (sürükle = yörünge, tekerlek = zoom), gerçek
+geometri (kutu/silindir/küre/düzlem), Lambert ışık ve zemin gölgesi, projeksiyonla
+eşya seçimi, ışın-ızgara kesişimiyle sürükle-bırak. Motor **durum tutmaz** — konum
+yüzdeleri aynen saklandığı için eski kayıtlar geçerli kalır; WebGL yoksa oyun CSS
+izometrik sahneyle çalışmaya devam eder.
+
+Sürüm notları v10.67 ve sonrası için [güncelleme arşivinde](docs/update-history.md).
+Telefon uygulamalarının (Instagram, YouTube, X, TikTok) yenilenişi v10.68'de
+yapıldı: akışlar, hikâyeler, Reels, Shorts ve gönderi oluşturma oyun kaydında
+korunur. Bu uygulamalar kariyer simülasyonunun parçasıdır; gerçek sosyal ağ
+hesaplarına bağlanmaz, kamera kaydı ve video yükleme sunmaz.
 
 ## Hızlı başlangıç
 
