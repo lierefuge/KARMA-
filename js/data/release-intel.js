@@ -4,7 +4,7 @@
 
    Üretici : node tools/fetch-new-releases.js
    Kaynak  : iTunes Lookup API (country=TR) — albüm → parça
-   Tarih   : 2026-10-30  ·  19 kayıt (19 tanesi depoda yok)
+   Tarih   : 2026-10-31  ·  22 kayıt (22 tanesi depoda yok)
 
    ŞEMA (kayıt başına)
    -------------------
@@ -31,11 +31,11 @@
   "use strict";
   K.RELEASE_INTEL = {
  "meta": {
-  "asof": "2026-10-30",
+  "asof": "2026-10-31",
   "window": 30,
   "source": "itunes-lookup-tr",
-  "count": 19,
-  "newCount": 19,
+  "count": 22,
+  "newCount": 22,
   "artistIds": {
    "sehinsah": 736313630,
    "weghrumi": 1564584641,
@@ -75,9 +75,51 @@
    "deryaulug": 1118978883,
    "liashine": 1486825049
   },
-  "generated": "2026-10-30T00:46:49.082Z"
+  "generated": "2026-10-31T00:38:39.874Z"
  },
  "releases": {
+  "sehinsah::70lik": {
+   "title": "70'lik",
+   "artistId": "sehinsah",
+   "artistName": "Şehinşah",
+   "album": "70'lik - Single",
+   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/55/c6/cc/55c6cc75-50c0-f9cc-5c62-6d6c394ecf9e/0.jpg/600x600bb.jpg",
+   "releaseDate": "2026-10-30",
+   "ms": 151484,
+   "url": "https://music.apple.com/tr/album/70lik/6821947549?i=6821947550&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/53/2a/64/532a64ed-90de-9184-448b-21d59f9d3b0e/mzaf_10072411139812807373.plus.aac.p.m4a",
+   "trackArtist": "Şehinşah",
+   "isNew": true,
+   "intel": null
+  },
+  "weghrumi::alo": {
+   "title": "ALO",
+   "artistId": "weghrumi",
+   "artistName": "wegh Rumi",
+   "album": "ALO - Single",
+   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/ac/91/f5/ac91f590-9936-39d7-8fbf-717ed24ed1cd/cover.jpg/600x600bb.jpg",
+   "releaseDate": "2026-10-30",
+   "ms": 192000,
+   "url": "https://music.apple.com/tr/album/alo/6827193278?i=6827193283&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/96/75/2c/96752c70-aa1f-1d73-7eeb-e22e50bf750e/mzaf_2418059643948227014.plus.aac.p.m4a",
+   "trackArtist": "Wegh",
+   "isNew": true,
+   "intel": null
+  },
+  "sila::uşak makamı (elektra)": {
+   "title": "Uşak Makamı (Elektra)",
+   "artistId": "sila",
+   "artistName": "Sıla",
+   "album": "Uşak Makamı (Elektra) - Single",
+   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/97/75/d7/9775d7e6-2738-8a9c-5d5d-cbc6c8728c6b/cover.jpg/600x600bb.jpg",
+   "releaseDate": "2026-10-30",
+   "ms": 238034,
+   "url": "https://music.apple.com/tr/album/u%C5%9Fak-makam%C4%B1-elektra/6821101625?i=6821101629&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b9/f8/b9/b9f8b98f-4b53-81d1-12e4-a4ac939a2790/mzaf_8897371133357917895.plus.aac.p.m4a",
+   "trackArtist": "Sıla & Tolga Şanlı",
+   "isNew": true,
+   "intel": null
+  },
   "hidra::fırma": {
    "title": "FIRMA",
    "artistId": "hidra",
