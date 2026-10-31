@@ -2,11 +2,62 @@
 
 [README’ye dön](../README.md)
 
-Bu arşiv, önceki README’deki v2–v10.71 güncelleme notlarını korur.
+Bu arşiv, önceki README’deki v2–v10.72 güncelleme notlarını korur.
 Buradaki sayılar, test sonuçları ve davranış açıklamaları ilgili sürümün
 tarihsel kaydıdır. Güncel kullanım için [README](../README.md),
 yeni çıkış akışı için [v10.67 notları](v10.67.md) ve
 [ilk ay rehberini](first-month.md) kullan.
+
+## GÜNCELLEME v10.72 — FAN KOHORT DÖNGÜSÜ
+
+Yol haritasının 03. maddesi. Takipçi sayısı artık tek bir sayı değil:
+**hangi kaynaktan geldiği** ve **ne kadar kalıcı olduğu** izleniyor.
+Yeni modül: `js/systems/fans-cohort.js` · yeni süit: `tools/smoke-v1072.js`
+(**31 kontrol**).
+
+### 1 · 🧭 Kohortlar neden PAY tabanlı?
+Takipçi sayısı zaten platform sayaçlarından türetiliyor
+(`ig + tiktok + x + ytSubs`). Kohortları ayrı bir **sayı** olarak tutmak iki
+kaynak yaratır ve er geç ayrışır: "kohort toplamı 12.400 ama takipçi 11.900".
+Bu yüzden modül **sayı değil pay** saklar:
+
+```
+pay[id] ∈ [0,1]     Σ pay = 1
+kişi[id] = en-büyük-kalan yuvarlama ile pay[id] × takipçi
+```
+
+Sonuç: kohort toplamı **her zaman** takipçiye eşit, bir fan iki kez sayılamaz
+(paylar toplamı 1).
+
+### 2 · 📡 Altı kaynak
+`legacy` (devralınan taban) · `shortform` (kısa video) · `playlist` (listeler) ·
+`radio` (radyo & basın) · `live` (sahne) · `word` (ağızdan ağıza).
+Göç kohortu **yeni kitle üretmez** — yalnızca başlangıç tabanıdır; kitle
+büyüdükçe payı kendiliğinden azalır, sayısı sabit kalır.
+
+### 3 · 💔 Sadakat ve kayıp
+Her kohortun kendi karakteristik sadakati var (sahne kitlesi en sadık,
+kısa video kitlesi en geçici). Sadakat hedefi **kitle ivmesiyle** ölçeklenir:
+ivme düşerse hedef de düşer. Günlük kayıp oranı
+`0.4% + (1 − sadakat) × 3%` aralığında. Kitle azaldığında kayıp **en
+sadakatsiz kohorttan daha çok** düşer.
+
+### 4 · 📊 Arayüz
+Fanbase uygulamasına **🧭 Kohortlar** sekmesi eklendi: kaynak başına kişi,
+pay çubuğu, sadakat etiketi (Geçici → Çekirdek), son 30 günün giriş/çıkışı ve
+ağırlıklı sadakat. Mevcut `Kitle` / `Fan Kulübü` / `Fan Merch & VIP` sekmeleri
+değişmedi.
+
+### 5 · 🔒 Eski kayıtlar
+Göç kuralı: `player.fanCohorts` yoksa tüm kitle `legacy` kohortuna yazılır.
+Fan sayısı, süperfan hesabı ve fan kulübü geliri **geriye dönük değişmez**;
+modül hiçbir gelir hesabı yapmaz (o `K.fans`'ta kalır).
+
+### Doğrulama
+```
+npm run verify        →  59/59 adım temiz
+node tools/smoke-v1072.js  →  31 kontrol (A–I)
+```
 
 ## GÜNCELLEME v10.71 — KENDİ WEBGL MOTORU: STÜDYO ODASI 3B
 

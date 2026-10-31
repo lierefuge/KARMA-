@@ -85,6 +85,46 @@
       </div>`;
   }
 
+  function kohortHTML() {
+    const r = K.fansCohort.report();
+    const lbl = (v) => K.fansCohort.loyaltyLabel(v);
+    const pct = (v) => Math.round(v * 100) + "%";
+    const bar = (row) => `<div class="fc-bar"><i style="width:${Math.max(2, Math.round(row.share * 100))}%"></i></div>`;
+    const rows = r.rows.length ? r.rows.map((row) => `
+      <div class="fc-row" data-cohort="${row.id}">
+        <div class="fc-head">
+          <span class="fc-icon">${row.icon}</span>
+          <span class="fc-name">${row.name}</span>
+          <b class="fc-count">${fmt(row.count)}</b>
+        </div>
+        ${bar(row)}
+        <div class="fc-meta">
+          <span>${pct(row.share)}</span>
+          <span class="fc-loy">${lbl(row.loyalty)} · ${pct(row.loyalty)}</span>
+          <span class="fc-io">+${fmt(row.in30)} / −${fmt(row.out30)}</span>
+        </div>
+      </div>`).join("")
+      : `<div class="mini-empty">Kohort verisi birikiyor…</div>`;
+
+    return `
+      <div class="fans-wrap">
+        <div class="fans-card">
+          <div class="fans-card-head"><div>
+            <div class="fans-card-title">🧭 Kohortlar</div>
+            <div class="fans-card-sub">Kitle nereden geliyor ve ne kadar kalıcı? · son ${K.fansCohort.WINDOW} gün</div>
+          </div></div>
+          <div class="fc-sum">
+            <div><b>${fmt(r.sum)}</b><span>kohort toplamı</span></div>
+            <div><b>${fmt(r.total)}</b><span>takipçi</span></div>
+            <div><b>${pct(r.loyalty)}</b><span>ağırlıklı sadakat</span></div>
+          </div>
+          <div class="fc-io-line">Son ${K.fansCohort.WINDOW} gün: <b class="ok">+${fmt(r.in30)}</b> giriş · <b class="bad">−${fmt(r.out30)}</b> çıkış</div>
+        </div>
+        <div class="fans-card fc-list">${rows}</div>
+        ${K.studio.note("🧭", "Kohort toplamı her zaman takipçi sayısına eşittir — aynı fan iki kez sayılmaz. Sahne kitlesi en sadık, kısa video kitlesi en geçicidir; kitle ivmesi düşerse sadakat hedefi de düşer.", "violet")}
+      </div>`;
+  }
+
   K.phone.register({
     id: "fans", name: "Fanbase", icon: "💜", iconClass: "ic-fans", dock: false,
 
@@ -95,11 +135,15 @@
         tabPos: "bottom",
         tabs: [
           { id: "kitle", label: "Kitle", icon: "💜" },
+          { id: "kohort", label: "Kohortlar", icon: "🧭" },
           { id: "kulup", label: "Fan Kulübü", icon: "🎟️" },
           { id: "urun", label: "Fan Merch & VIP", icon: "👕" }
         ],
         activeTab: params.tab || "kitle",
-        render: (tab) => (tab === "kulup" ? kulupHTML() : tab === "urun" ? urunHTML() : kitleHTML()),
+        render: (tab) => (tab === "kulup" ? kulupHTML()
+          : tab === "urun" ? urunHTML()
+          : tab === "kohort" ? kohortHTML()
+          : kitleHTML()),
         onAction(pact) {
           if (pact === "fans-club") {
             const p = K.state.player;

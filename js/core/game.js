@@ -104,6 +104,7 @@
       // sistem tick'leri
       if (K.relations && K.relations.dailyTick) K.relations.dailyTick();
       if (K.fans && K.fans.dailyTick) K.fans.dailyTick();
+      if (K.fansCohort && K.fansCohort.tick) K.fansCohort.tick();   /* v10.72 kohort döngüsü */
       if (K.shortform && K.shortform.tick) K.shortform.tick();
       if (K.catalog && K.catalog.tick) K.catalog.tick();
       if (K.press && K.press.tick) K.press.tick();

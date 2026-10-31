@@ -37,3 +37,31 @@
 
 /* ana ekran ikonu */
 .app-icon.ic-fans { background: linear-gradient(180deg, #bf7bff, #8e4dff); color: #fff; }
+
+/* ============================================================
+   v10.72 — FAN KOHORTLARI (🧭 sekmesi)
+   Kitleyi keşif kaynağına göre kırar; her kohortun payı, sadakati
+   ve son 30 günlük giriş/çıkışı gösterilir.
+   ============================================================ */
+.fc-sum { display: flex; gap: 8px; margin: 10px 0 6px; }
+.fc-sum > div {
+  flex: 1; text-align: center; padding: 8px 4px; border-radius: 10px;
+  background: rgba(255,255,255,.04);
+}
+.fc-sum b { display: block; font-size: 15px; font-weight: 800; }
+.fc-sum span { font-size: 10px; opacity: .65; }
+.fc-io-line { font-size: 11px; color: var(--text-3, #9a9aa5); }
+.fc-io-line b.ok { color: #54d18b; }
+.fc-io-line b.bad { color: #ff7a7a; }
+.fc-list { display: flex; flex-direction: column; gap: 10px; }
+.fc-row { display: flex; flex-direction: column; gap: 5px; }
+.fc-head { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+.fc-icon { font-size: 14px; }
+.fc-name { flex: 1; opacity: .92; }
+.fc-count { font-variant-numeric: tabular-nums; }
+.fc-bar { height: 6px; border-radius: 999px; background: rgba(255,255,255,.07); overflow: hidden; }
+.fc-bar i { display: block; height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, #b06cff, #6ec3ff); }
+.fc-meta { display: flex; justify-content: space-between; font-size: 10px;
+  color: var(--text-3, #9a9aa5); font-variant-numeric: tabular-nums; }
+.fc-loy { opacity: .9; }

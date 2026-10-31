@@ -44,6 +44,7 @@ Daha geniş ürün/mimari kararı gerektiren şirket simülasyonu, üretken yapa
 - **Kabul ölçütü:** Olayın etkisi başlangıç/bitiş günlerinde tutarlı işler; etkilenmeyen tür ve bölgeler değişmez; eski kayıtlar olay alanı olmadan açılır.
 
 ### 03. Fan kazanım ve kayıp döngüsü
+- **Durum:** **v10.72.0'da uygulandı** (`js/systems/fans-cohort.js`, süit `tools/smoke-v1072.js`). Pay tabanlı kohort modeli: 6 kaynak, kaynak bazlı sadakat, son 30 günün giriş/çıkışı, Fanbase → 🧭 Kohortlar sekmesi.
 - **İşlev ve oyuncu değeri:** Fan kitlesini keşif kaynağı, etkileşim, sadakat ve zamanla uzaklaşma kohortlarıyla izler; oyuncu tek seferlik takipçi artışından çok kitlesini elde tutmayı yönetir.
 - **Bağlantı:** fans, sosyal uygulamalar, konserler ve ekonomi. **Zorluk:** Orta.
 - **Güvenli ekleme:** Kohort verisini mevcut toplam fan katmanlarının yanına ekle; eski kayıtların toplamlarını varsayılan başlangıç kohortuna dönüştür.

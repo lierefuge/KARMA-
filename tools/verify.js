@@ -226,7 +226,8 @@ const SUITES = [
      takvim tohumlu rotasyonu ve veri yokken güvenli düşüşü doğrular. */
   { id: "v1067",       script: "tools/smoke-v1067.js",       label: "v10.67 yeni çıkışlar + rotasyon" },
   /* v10.70 — STÜDYO ODASI: eşya satın alma, yerleştirme, kalite/konfor. */
-  { id: "v1070",       script: "tools/smoke-v1070.js",       label: "v10.70 stüdyo odası (eşya · yerleşim · etki)" }
+  { id: "v1070",       script: "tools/smoke-v1070.js",       label: "v10.70 stüdyo odası (eşya · yerleşim · etki)" },
+  { id: "v1072",       script: "tools/smoke-v1072.js",       label: "v10.72 fan kohort döngüsü (göç · mutabakat · sadakat)" }
 ];
 
 /* ---- süit özeti çözümleyicisi (tek yerde) ---- */
