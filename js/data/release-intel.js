@@ -90,7 +90,28 @@
    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/53/2a/64/532a64ed-90de-9184-448b-21d59f9d3b0e/mzaf_10072411139812807373.plus.aac.p.m4a",
    "trackArtist": "Şehinşah",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "rap",
+    "mood": "karanlık, enerjik",
+    "energy": 8,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.9,
+     "traptr": 0.6,
+     "drilltr": 0.2,
+     "newmusic": 0.8,
+     "nightmode": 0.5,
+     "popturkiye": 0.1
+    },
+    "note": "Şehinşah'ın özgün vokali ve sert prodüksiyonuyla öne çıkan dinamik Türkçe rap çalışması.",
+    "tags": [
+     "rap",
+     "şehinşah",
+     "hip-hop"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "weghrumi::alo": {
    "title": "ALO",
@@ -104,7 +125,28 @@
    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/96/75/2c/96752c70-aa1f-1d73-7eeb-e22e50bf750e/mzaf_2418059643948227014.plus.aac.p.m4a",
    "trackArtist": "Wegh",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "trap",
+    "mood": "sert, agresif",
+    "energy": 8,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.8,
+     "traptr": 0.9,
+     "drilltr": 0.4,
+     "newmusic": 0.8,
+     "nightmode": 0.4,
+     "popturkiye": 0.1
+    },
+    "note": "Wegh'in kendine has üslubuyla harmanlanan tempolu ve modern trap tınlaması.",
+    "tags": [
+     "trap",
+     "wegh",
+     "sert"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "sila::uşak makamı (elektra)": {
    "title": "Uşak Makamı (Elektra)",
@@ -118,7 +160,28 @@
    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/b9/f8/b9/b9f8b98f-4b53-81d1-12e4-a4ac939a2790/mzaf_8897371133357917895.plus.aac.p.m4a",
    "trackArtist": "Sıla & Tolga Şanlı",
    "isNew": true,
-   "intel": null
+   "intel": {
+    "genre": "other",
+    "mood": "sakin, melankolik",
+    "energy": 4,
+    "tempo": "slow",
+    "fit": {
+     "rapturkiye": 0,
+     "traptr": 0,
+     "drilltr": 0,
+     "newmusic": 0.7,
+     "nightmode": 0.7,
+     "popturkiye": 0.4
+    },
+    "note": "Sıla ve Tolga Şanlı'dan makam unsurları barındıran dingin ve enstrümantal ağırlıklı eser.",
+    "tags": [
+     "akustik",
+     "sıla",
+     "etnik"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
   },
   "hidra::fırma": {
    "title": "FIRMA",
