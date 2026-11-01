@@ -59,7 +59,7 @@ async function run() {
     ok("A-0 · 6 ruh hali tanımlı", Object.keys(K.npcMind.MOODS).length === 6, Object.keys(K.npcMind.MOODS).length);
     ok("A-1 · ruh hali gün içinde deterministik", m1 && m2 && m1.key === m2.key, m1 && m1.key);
     ok("A-1 · ruh hali geçerli", !!K.npcMind.MOODS[m1.key]);
-    ok("A-2 · etiket ikon içerir", /[😌🔥🥱😤🥀😠]/.test(K.npcMind.moodLabel("sehinsah")), K.npcMind.moodLabel("sehinsah"));
+    ok("A-2 · etiket ikon içerir", /[😌🔥🥱😤🥀😠]/u.test(K.npcMind.moodLabel("sehinsah")), K.npcMind.moodLabel("sehinsah"));
     ok("A-3 · delta 0.5–1.2 aralığında", K.npcMind.moodDelta("sehinsah") >= 0.5 && K.npcMind.moodDelta("sehinsah") <= 1.2, K.npcMind.moodDelta("sehinsah"));
     ok("A-4 · cevap gecikmesi ms döner", K.npcMind.replyWait("sehinsah") >= 0);
 
