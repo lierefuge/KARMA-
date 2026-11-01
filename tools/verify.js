@@ -229,7 +229,8 @@ const SUITES = [
   { id: "v1070",       script: "tools/smoke-v1070.js",       label: "v10.70 stüdyo odası (eşya · yerleşim · etki)" },
   { id: "v1072",       script: "tools/smoke-v1072.js",       label: "v10.72 fan kohort döngüsü (göç · mutabakat · sadakat)" },
   { id: "v1073",       script: "tools/smoke-v1073.js",       label: "v10.73 kampanya panosu (kanal atfı · kohort dönüşümü · ROI)" },
-  { id: "v1074",       script: "tools/smoke-v1074.js",       label: "v10.74 içerik takvimi (plan · doygunluk · kampanya bağı)" }
+  { id: "v1074",       script: "tools/smoke-v1074.js",       label: "v10.74 içerik takvimi (plan · doygunluk · kampanya bağı)" },
+  { id: "v1075",       script: "tools/smoke-v1075.js",       label: "v10.75 SoundCloud (gerçek filtre · arama · kitaplık)" }
 ];
 
 /* ---- süit özeti çözümleyicisi (tek yerde) ---- */

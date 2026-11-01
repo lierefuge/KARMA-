@@ -2,11 +2,52 @@
 
 [README’ye dön](../README.md)
 
-Bu arşiv, önceki README’deki v2–v10.74 güncelleme notlarını korur.
+Bu arşiv, önceki README’deki v2–v10.75 güncelleme notlarını korur.
 Buradaki sayılar, test sonuçları ve davranış açıklamaları ilgili sürümün
 tarihsel kaydıdır. Güncel kullanım için [README](../README.md),
 yeni çıkış akışı için [v10.67 notları](v10.67.md) ve
 [ilk ay rehberini](first-month.md) kullan.
+
+## GÜNCELLEME v10.75 — SOUNDCLOUD UYGULAMASI (PR #9 · DÜZELTİLMİŞ)
+
+PR #9 (Jules) iOS telefon kabuğunu ve **SoundCloud** uygulamasını getirdi.
+İnceleme sonrası beş kusur düzeltildi ve süit eklendi; ardından birleştirildi.
+Yeni süit: `tools/smoke-v1075.js` (**35 kontrol**).
+
+### 1 · 📱 Ne geldi
+SoundCloud uygulaması: **Stream · Keşfet · Kitaplık**. iOS 18 tarzı blur'lu
+gezinme çubukları (`backdrop-filter` yalnız 4 yeni kural — mobil için ölçülü),
+Dynamic Island ve home indicator rötuşu, marka rengi `#ff5500`.
+
+### 2 · ✅ Düzeltilen beş kusur
+| Kusur | Önce | Sonra |
+| --- | --- | --- |
+| Etiket filtresi | Çipe basınca yalnız renk değişiyordu, liste aynı | Sanatçının **gerçek türüne** göre filtreler (`ARTISTS[].genre`) |
+| Sahte etiketler | Lo-Fi / Electronic / Remix (veride karşılığı yok) | Kaldırıldı; yerine Rap & Trap · Drill · R&B · Pop · Bağımsız |
+| Kitaplık kartları | 4 kart da aynı listeyi yeniden basıyordu | **Beğenilenler · Çalma Listeleri (`K.playlists`) · Dinleme Geçmişi · İstasyon** gerçek içerik açar |
+| Arama | `readonly` sahte kutu | Yazılabilir arama; parça/sanatçıya göre filtreler, etiketle birleşir |
+| Uydurma veri | Dinlenme yoksa `12400` basılıyordu | `—` gösterilir; türü olmayan parçada tür uydurulmaz |
+
+Ayrıca ölü değişken (`unreadTotal`) ve gereksiz inline stiller temizlendi;
+dinleme geçmişi `player.scHistory` içinde (en fazla 20, tekrarsız) tutuluyor.
+
+### 3 · 🔗 Mevcut sistemlere bağlanış
+- Çalma mevcut `K.audio` üzerinden — ses altyapısı tek kaynak.
+- Beğeniler `K.interactions` ile kayda yazılır (sayfa yenilenince kaybolmaz).
+- Çalma listeleri `K.playlists`'ten okunur (salt görünüm; yeni liste açma yok).
+- `musicBar` framework tarafından desteklenir (mini oynatıcı görünür).
+
+### 4 · 🧪 Neden süit şarttı
+PR 299 satır yeni kod getiriyordu ama **tek test yoktu**; `js/version.js` de
+10.71.0'da kalmıştı. Yeni süit etiket filtresini, aramayı, dört kitaplık
+kartını, geçmiş kaydını ve "uydurma sayı yok" kuralını kalıcı olarak korur.
+Sürüm 10.75.0'e hizalandı.
+
+### Doğrulama
+```
+npm run verify        →  62/62 adım temiz
+node tools/smoke-v1075.js  →  35 kontrol (A–H)
+```
 
 ## GÜNCELLEME v10.74 — SOSYAL MEDYA İÇERİK TAKVİMİ
 
