@@ -31,35 +31,50 @@
     return `<svg class="sc-wave-svg" viewBox="0 0 118 26" preserveAspectRatio="none">${rects.join("")}</svg>`;
   }
 
-  function trackCard(track, opts) {
-    opts = opts || {};
-    const np = (K.audio && K.audio.isPlaying()) ? K.audio.current() : null;
-    const isPlaying = np && (np.id === track.id || np.title === track.title);
-    const liked = K.interactions ? K.interactions.isLiked("sc_" + track.id) : false;
-    const coverSeed = track.coverSeed || track.id || track.title;
+  function isTrackPlaying(track) {
+    if (!K.audio || !K.audio.isPlaying()) return false;
+    const np = K.audio.current();
+    if (!np) return false;
+    return np.id === track.id || np.title === track.title;
+  }
+
+  function getTrackMeta(track) {
+    const title = track.title || "İsimsiz Parça";
+    const artist = track.artistName || track.artist || "Bilinmeyen Sanatçı";
+    const plays = track.streams || track.plays || 12400;
+    const genre = track.genre || "Hip-Hop & Rap";
+    const coverSeed = track.coverSeed || track.id || title;
+    return { title, artist, plays, genre, coverSeed };
+  }
+
+  function trackCard(track) {
+    const isPlaying = isTrackPlaying(track);
+    const meta = getTrackMeta(track);
+    const trackId = track.id || "";
+    const liked = !!(K.interactions && K.interactions.isLiked("sc_" + trackId));
 
     return `
-      <div class="sc-track-card ${isPlaying ? "playing" : ""}" data-song="${U.escape(track.id || "")}">
+      <div class="sc-track-card ${isPlaying ? "playing" : ""}" data-song="${U.escape(trackId)}">
         <div class="sc-track-top">
-          <div class="sc-track-art" data-pact="sc-play" data-arg="${U.escape(track.id || "")}">
-            ${K.ui.cover(coverSeed, (track.title || "?")[0], 48)}
+          <div class="sc-track-art" data-pact="sc-play" data-arg="${U.escape(trackId)}">
+            ${K.ui.cover(meta.coverSeed, meta.title[0], 48)}
             <button class="sc-art-play" aria-label="Çal">${isPlaying ? "⏸" : "▶"}</button>
           </div>
-          <div class="sc-track-meta grow" data-pact="sc-play" data-arg="${U.escape(track.id || "")}">
-            <div class="sc-track-title">${U.escape(track.title || "İsimsiz Parça")}</div>
-            <div class="sc-track-artist">${U.escape(track.artistName || track.artist || "Bilinmeyen Sanatçı")}</div>
+          <div class="sc-track-meta grow" data-pact="sc-play" data-arg="${U.escape(trackId)}">
+            <div class="sc-track-title">${U.escape(meta.title)}</div>
+            <div class="sc-track-artist">${U.escape(meta.artist)}</div>
             <div class="sc-track-stats">
-              <span>▶ ${U.fmt(track.streams || track.plays || 12400)}</span>
+              <span>▶ ${U.fmt(meta.plays)}</span>
               <span>·</span>
-              <span>${track.genre || "Hip-Hop & Rap"}</span>
+              <span>${meta.genre}</span>
             </div>
           </div>
-          <button class="sc-track-like ${liked ? "on" : ""}" data-pact="sc-like" data-arg="sc_${U.escape(track.id || "")}" aria-label="Beğen">
+          <button class="sc-track-like ${liked ? "on" : ""}" data-pact="sc-like" data-arg="sc_${U.escape(trackId)}" aria-label="Beğen">
             ${liked ? "♥" : "♡"}
           </button>
         </div>
-        <div class="sc-track-wave-row" data-pact="sc-play" data-arg="${U.escape(track.id || "")}">
-          ${waveformSVG(track.id || track.title, isPlaying)}
+        <div class="sc-track-wave-row" data-pact="sc-play" data-arg="${U.escape(trackId)}">
+          ${waveformSVG(meta.coverSeed, isPlaying)}
         </div>
       </div>`;
   }
