@@ -5,35 +5,44 @@
    ============================================================ */
 
 /* ============================================================
-   ALT NAVİGASYON (gerçek uygulamalar gibi)
+   ALT NAVİGASYON (gerçek iOS 18 translucent bar)
    view.tabPos === "bottom" olan uygulamalar kullanır.
    ============================================================ */
 .seg-bottom {
   flex-shrink: 0;
   display: flex; justify-content: space-around; gap: 2px;
-  margin: 0; padding: 7px 4px 11px;
+  margin: 0; padding: 7px 4px 16px;
   border: 0;
-  border-top: 1px solid rgba(255, 255, 255, .08);
+  border-top: 0.5px solid rgba(255, 255, 255, .12);
   border-radius: 0;
-  background: rgba(8, 8, 12, .96);
+  background: rgba(14, 14, 18, 0.82);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  z-index: 30;
 }
 .seg-bottom button {
   flex: 1;
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
   background: none; border: none; border-radius: 0;
   padding: 2px 0;
-  color: rgba(255, 255, 255, .45);
-  font-size: 9.5px; font-weight: 600; cursor: pointer;
+  color: rgba(255, 255, 255, .50);
+  font-size: 10px; font-weight: 500; cursor: pointer;
+  letter-spacing: -0.1px;
+  transition: transform 0.1s ease, color 0.15s ease;
 }
-.seg-bottom button.active { background: none; box-shadow: none; color: #1ed760; }
-.seg-bottom .tb-ic { font-size: 18px; line-height: 1; }
-.seg-bottom .tb-lb { letter-spacing: .2px; }
-/* Spotify dışındaki uygulamalar için nötr aktif renk */
-.app-instagram .seg-bottom button.active { color: #fff; }
-.app-youtube .seg-bottom button.active { color: #ff4b4b; }
+.seg-bottom button:active {
+  transform: scale(0.92);
+}
+.seg-bottom button.active { background: none; box-shadow: none; color: #1ed760; font-weight: 600; }
+.seg-bottom .tb-ic { font-size: 19px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+.seg-bottom .tb-lb { letter-spacing: .1px; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif; }
+/* Markalara göre iOS aktif renkleri */
+.app-instagram .seg-bottom button.active { color: #ffffff; }
+.app-youtube .seg-bottom button.active { color: #ff3b30; }
 .app-tiktok .seg-bottom button.active { color: #25f4ee; }
-.app-x .seg-bottom button.active { color: #fff; }
-.app-applemusic .seg-bottom button.active { color: #fb5c74; }
+.app-x .seg-bottom button.active { color: #ffffff; }
+.app-applemusic .seg-bottom button.active { color: #fa233b; }
+.app-soundcloud .seg-bottom button.active { color: #ff5500; }
 
 /* ============================================================
    INSTAGRAM / X 1:1 ek parçalar

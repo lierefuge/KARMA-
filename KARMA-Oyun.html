@@ -1424,13 +1424,14 @@ textarea:focus-visible {
 
 .phone-notch {
   position: absolute;
-  top: 22px; left: 50%;
+  top: 20px; left: 50%;
   transform: translateX(-50%);
-  width: 118px; height: 30px;
-  border-radius: var(--radius-pill);
+  width: 120px; height: 32px;
+  border-radius: 20px;
   background: #000;
-  z-index: 40;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+  z-index: 45;
+  box-shadow: 0 0 0 0.5px rgba(255,255,255,0.08), 0 3px 12px rgba(0,0,0,0.6);
+  transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1), height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .phone-screen {
@@ -1504,22 +1505,23 @@ textarea:focus-visible {
 /* ---------- home indicator ---------- */
 .home-indicator {
   position: absolute;
-  bottom: 7px; left: 50%;
+  bottom: 6px; left: 50%;
   transform: translateX(-50%);
-  width: 130px; height: 5px;
+  width: 134px; height: 5px;
   /* v10.55 — erişilebilirlik için <button> oldu; UA varsayılanlarını sıfırla */
   border: 0;
   padding: 0;
   appearance: none;
   -webkit-appearance: none;
-  border-radius: var(--radius-pill);
-  background: rgba(255,255,255,0.7);
+  border-radius: 100px;
+  background: rgba(255,255,255,0.65);
   z-index: 60;
   cursor: pointer;
-  transition: width 0.2s, background 0.2s;
+  transition: width 0.2s, background 0.2s, transform 0.15s;
 }
 .home-indicator:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-.home-indicator:hover { width: 150px; background: #fff; }
+.home-indicator:hover { width: 148px; background: #fff; }
+.home-indicator:active { transform: translateX(-50%) scale(0.96); }
 
 /* ================= HOME SCREEN ================= */
 .screen {
@@ -2491,8 +2493,11 @@ button.tt-grid-cell { border: 0; padding: 0; cursor: pointer; font-family: inher
 .brand-top {
   display: flex; align-items: center; gap: 10px;
   padding: 10px 14px 8px; min-height: 46px;
-  background: #000; border-bottom: 1px solid rgba(255,255,255,.06);
-  position: relative; z-index: 3;
+  background: rgba(0, 0, 0, 0.82);
+  border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  position: relative; z-index: 30;
 }
 .brand-back {
   background: none; border: 0; color: #fff; font-size: 22px; line-height: 1;
@@ -5422,35 +5427,44 @@ body.hide-values .brand-sub::after {
    ============================================================ */
 
 /* ============================================================
-   ALT NAVİGASYON (gerçek uygulamalar gibi)
+   ALT NAVİGASYON (gerçek iOS 18 translucent bar)
    view.tabPos === "bottom" olan uygulamalar kullanır.
    ============================================================ */
 .seg-bottom {
   flex-shrink: 0;
   display: flex; justify-content: space-around; gap: 2px;
-  margin: 0; padding: 7px 4px 11px;
+  margin: 0; padding: 7px 4px 16px;
   border: 0;
-  border-top: 1px solid rgba(255, 255, 255, .08);
+  border-top: 0.5px solid rgba(255, 255, 255, .12);
   border-radius: 0;
-  background: rgba(8, 8, 12, .96);
+  background: rgba(14, 14, 18, 0.82);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  z-index: 30;
 }
 .seg-bottom button {
   flex: 1;
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
   background: none; border: none; border-radius: 0;
   padding: 2px 0;
-  color: rgba(255, 255, 255, .45);
-  font-size: 9.5px; font-weight: 600; cursor: pointer;
+  color: rgba(255, 255, 255, .50);
+  font-size: 10px; font-weight: 500; cursor: pointer;
+  letter-spacing: -0.1px;
+  transition: transform 0.1s ease, color 0.15s ease;
 }
-.seg-bottom button.active { background: none; box-shadow: none; color: #1ed760; }
-.seg-bottom .tb-ic { font-size: 18px; line-height: 1; }
-.seg-bottom .tb-lb { letter-spacing: .2px; }
-/* Spotify dışındaki uygulamalar için nötr aktif renk */
-.app-instagram .seg-bottom button.active { color: #fff; }
-.app-youtube .seg-bottom button.active { color: #ff4b4b; }
+.seg-bottom button:active {
+  transform: scale(0.92);
+}
+.seg-bottom button.active { background: none; box-shadow: none; color: #1ed760; font-weight: 600; }
+.seg-bottom .tb-ic { font-size: 19px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+.seg-bottom .tb-lb { letter-spacing: .1px; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif; }
+/* Markalara göre iOS aktif renkleri */
+.app-instagram .seg-bottom button.active { color: #ffffff; }
+.app-youtube .seg-bottom button.active { color: #ff3b30; }
 .app-tiktok .seg-bottom button.active { color: #25f4ee; }
-.app-x .seg-bottom button.active { color: #fff; }
-.app-applemusic .seg-bottom button.active { color: #fb5c74; }
+.app-x .seg-bottom button.active { color: #ffffff; }
+.app-applemusic .seg-bottom button.active { color: #fa233b; }
+.app-soundcloud .seg-bottom button.active { color: #ff5500; }
 
 /* ============================================================
    INSTAGRAM / X 1:1 ek parçalar
@@ -6701,6 +6715,177 @@ body.hide-values .brand-sub::after {
 }
 .sp-play-btn:hover { transform: scale(1.05); }
 .sp-play-btn:active { transform: scale(.95); }
+
+/* ============================================================
+   SOUNDCLOUD iOS STİLLERİ (sc-*)
+   ============================================================ */
+.app-soundcloud {
+  background: #111113;
+  color: #fff;
+}
+.ic-soundcloud {
+  background: linear-gradient(135deg, #ff7700 0%, #ff3300 100%) !important;
+  color: #fff !important;
+}
+.sc-feed-view, .sc-discover-view, .sc-library-view {
+  padding: 10px 12px 24px;
+}
+.sc-hero-banner {
+  background: linear-gradient(135deg, rgba(255, 85, 0, 0.22), rgba(20, 20, 26, 0.85));
+  border: 1px solid rgba(255, 85, 0, 0.3);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.sc-hero-brand {
+  display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; color: #ff5500;
+}
+.sc-cloud-ic { font-size: 18px; display: inline-flex; align-items: center; }
+.sc-cloud-ic svg { width: 22px; height: 22px; }
+.sc-hero-sub {
+  font-size: 11.5px; color: rgba(255,255,255,0.7); margin-top: 4px;
+}
+.sc-hero-now {
+  margin-top: 10px; font-size: 11px; padding: 6px 10px; border-radius: 8px;
+  background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);
+}
+.sc-section-title {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 12px 0 8px;
+}
+.sc-section-title h3 {
+  font-size: 14px; font-weight: 700; letter-spacing: -0.2px; margin: 0;
+}
+.sc-count-badge {
+  background: rgba(255, 85, 0, 0.2); color: #ff5500;
+  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+}
+.sc-sub-label {
+  font-size: 10.5px; color: rgba(255,255,255,0.45);
+}
+.sc-track-list {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.sc-track-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 10px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.sc-track-card:hover, .sc-track-card.playing {
+  background: rgba(255, 85, 0, 0.08);
+  border-color: rgba(255, 85, 0, 0.35);
+}
+.sc-track-top {
+  display: flex; align-items: center; gap: 10px;
+}
+.sc-track-art {
+  position: relative; flex: 0 0 48px; width: 48px; height: 48px;
+  border-radius: 8px; overflow: hidden; cursor: pointer;
+}
+.sc-art-play {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.45);
+  display: grid; place-items: center; color: #fff; font-size: 14px;
+  border: none; opacity: 0; transition: opacity 0.15s;
+}
+.sc-track-art:hover .sc-art-play, .sc-track-card.playing .sc-art-play {
+  opacity: 1;
+}
+.sc-track-meta {
+  cursor: pointer; min-width: 0;
+}
+.sc-track-title {
+  font-size: 12.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sc-track-artist {
+  font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sc-track-stats {
+  font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 3px; display: flex; gap: 5px;
+}
+.sc-track-like {
+  background: none; border: none; font-size: 16px; color: rgba(255,255,255,0.4);
+  cursor: pointer; padding: 4px;
+}
+.sc-track-like.on {
+  color: #ff5500;
+}
+.sc-track-wave-row {
+  margin-top: 6px; padding-top: 4px;
+  border-top: 1px dashed rgba(255,255,255,0.06);
+  cursor: pointer;
+}
+.sc-wave-svg {
+  width: 100%; height: 22px; display: block;
+}
+.sc-tag-scroller {
+  display: flex; gap: 6px; overflow-x: auto; padding: 8px 0 12px; scrollbar-width: none;
+}
+.sc-tag-scroller::-webkit-scrollbar { display: none; }
+.sc-tag-chip {
+  padding: 5px 12px; border-radius: 100px; font-size: 11px; font-weight: 600;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+  color: #fff; cursor: pointer; white-space: nowrap;
+}
+.sc-tag-chip.active {
+  background: #ff5500; border-color: #ff5500; color: #fff;
+}
+.sc-search-bar {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+  border-radius: 10px; background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1); font-size: 12px;
+}
+.sc-search-bar input {
+  background: none; border: none; color: #fff; width: 100%; outline: none; font-size: 12px;
+}
+.sc-chart-banner {
+  background: linear-gradient(135deg, #ff5500, #ff2200);
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 12px;
+}
+.sc-chart-title { font-size: 13.5px; font-weight: 800; }
+.sc-chart-desc { font-size: 10.5px; opacity: 0.85; margin-top: 2px; }
+.sc-chart-row-wrap {
+  display: flex; align-items: center; gap: 8px;
+}
+.sc-chart-rank {
+  font-size: 13px; font-weight: 800; color: #ff884d; min-width: 18px; text-align: center;
+}
+.sc-lib-header {
+  display: flex; align-items: center; gap: 12px; padding: 8px 0 14px;
+}
+.sc-lib-avatar { flex: 0 0 auto; }
+.sc-lib-meta h2 { font-size: 16px; font-weight: 800; margin: 0; }
+.sc-lib-meta span { font-size: 11px; color: rgba(255,255,255,0.55); }
+.sc-lib-badges { display: flex; gap: 6px; margin-top: 5px; }
+.sc-badge-orange {
+  font-size: 9.5px; font-weight: 700; background: #ff5500; color: #fff;
+  padding: 2px 7px; border-radius: 6px;
+}
+.sc-badge-dim {
+  font-size: 9.5px; font-weight: 600; background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7); padding: 2px 7px; border-radius: 6px;
+}
+.sc-lib-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0;
+}
+.sc-lib-card {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 3px;
+  cursor: pointer; transition: background 0.15s;
+}
+.sc-lib-card:hover { background: rgba(255,255,255,0.09); }
+.sc-lib-card-ic { font-size: 16px; margin-bottom: 2px; }
+.sc-lib-card b { font-size: 12px; font-weight: 700; }
+.sc-lib-card small { font-size: 10px; color: rgba(255,255,255,0.45); }
+.sc-empty-card {
+  text-align: center; padding: 24px 14px; border-radius: 14px;
+  background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.12);
+}
+.sc-empty-icon { font-size: 32px; margin-bottom: 6px; }
+.sc-empty-t { font-size: 13px; font-weight: 700; }
+.sc-empty-d { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 3px; }
 
 /* ============================================================
    8) MOBİL
@@ -44534,6 +44719,9 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
       '<circle cx="7.6" cy="17.5" r="2.6"/>' +
       '<circle cx="16.6" cy="15.6" r="2.6"/></g>',
 
+    soundcloud:
+      '<path fill="#fff" d="M1.3 14.8c-.2 0-.3-.2-.3-.4v-2.8c0-.2.1-.4.3-.4.2 0 .4.2.4.4v2.8c0 .2-.2.4-.4.4zm1.8.8c-.2 0-.4-.2-.4-.4v-4.4c0-.2.2-.4.4-.4.2 0 .4.2.4.4v4.4c0 .2-.2.4-.4.4zm1.9.1c-.2 0-.4-.2-.4-.4V9.3c0-.2.2-.4.4-.4s.4.2.4.4v6c0 .2-.2.4-.4.4zm1.8 0c-.2 0-.4-.2-.4-.4V8.5c0-.2.2-.4.4-.4s.4.2.4.4v6.8c0 .2-.2.4-.4.4zm1.9 0c-.2 0-.4-.2-.4-.4V8.1c0-.2.2-.4.4-.4s.4.2.4.4v7.2c0 .2-.2.4-.4.4zm1.8.1c-.2 0-.4-.2-.4-.4v-8c0-.2.2-.4.4-.4s.4.2.4.4v8c0 .2-.2.4-.4.4zm2-.1c-.2 0-.4-.2-.4-.4V7.6c0-.2.2-.4.4-.4s.4.2.4.4v7.7c0 .2-.2.4-.4.4zm3.8.2h-2.3c-.2 0-.4-.2-.4-.4V7.2c.4-.2.8-.3 1.2-.4.4-.1.8-.1 1.2 0 .4.1.8.3 1.1.5.3.3.6.6.7 1 .4-.2.8-.3 1.3-.3.8 0 1.5.3 2.1.8.6.6.9 1.3.9 2.1 0 .2 0 .4-.1.6.5.3.9.7 1.2 1.2.3.5.4 1.1.4 1.7 0 .8-.3 1.5-.9 2.1-.6.6-1.3.9-2.1.9h-4.3c-.2 0-.4-.2-.4-.4v-.3c0-.2.2-.4.4-.4h4.3c.6 0 1.1-.2 1.5-.6.4-.4.6-.9.6-1.5 0-.6-.2-1.1-.6-1.5-.4-.4-.9-.6-1.5-.6-.2 0-.4.1-.6.2-.2.1-.4 0-.5-.2-.1-.2-.2-.5-.3-.7-.2-.6-.6-1.1-1.1-1.4-.5-.3-1.1-.4-1.7-.2-.4.1-.7.4-.9.7-.1.2-.3.3-.5.2-.2-.1-.5-.1-.7-.1-.6 0-1.1.2-1.5.6-.4.4-.6.9-.6 1.5v4.5z"/>',
+
     /* ---- video ---- */
     youtube: '<path fill="#fff" d="M9.3 7.7v8.6l7.1-4.3z"/>',
 
@@ -46404,6 +46592,294 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     }
   });
 })(window.K);
+
+</script>
+  <script>
+/* ==== js/apps/soundcloud.js ==== */
+/* ============================================================
+   KARMA — apps/soundcloud.js
+   SOUNDCLOUD iOS UYGULAMASI (Stream · Keşfet · Kitaplık)
+   iOS 18 tarzı şık kartlar, turuncu dalga formu, parça oynatma,
+   yüklenen parçalar ve sanatçı etkileşimi.
+   ============================================================ */
+(function (K) {
+  "use strict";
+
+  const U = K.util;
+
+  const SC_IC = {
+    home: `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5V20a2 2 0 0 1-2 2h-4a1 1 0 0 1-1-1v-5a1 1 0 0 0-1-1h-2a1 1 0 0 0-1 1v5a1 1 0 0 1-1 1H5a2 2 0 0 1-2-2z"/></svg>`,
+    feed: `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1" fill="currentColor"/></svg>`,
+    search: `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m16.5 16.5 4.5 4.5"/></svg>`,
+    library: `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>`
+  };
+
+  /* SoundCloud dalga formu mini SVG çizici */
+  function waveformSVG(seed, active) {
+    const bars = 28;
+    let s = typeof seed === "string" ? seed.split("").reduce((a, c) => a + c.charCodeAt(0), 0) : (seed || 42);
+    const rects = [];
+    for (let i = 0; i < bars; i++) {
+      s = (s * 9301 + 49297) % 233280;
+      const h = 6 + Math.round((s / 233280) * 18);
+      const y = (26 - h) / 2;
+      const col = active && i < 14 ? "#ff5500" : (active ? "#ff884d" : "rgba(255,255,255,0.35)");
+      rects.push(`<rect x="${i * 4.2}" y="${y.toFixed(1)}" width="2.4" height="${h}" rx="1" fill="${col}"/>`);
+    }
+    return `<svg class="sc-wave-svg" viewBox="0 0 118 26" preserveAspectRatio="none">${rects.join("")}</svg>`;
+  }
+
+  function trackCard(track, opts) {
+    opts = opts || {};
+    const np = (K.audio && K.audio.isPlaying()) ? K.audio.current() : null;
+    const isPlaying = np && (np.id === track.id || np.title === track.title);
+    const liked = K.interactions ? K.interactions.isLiked("sc_" + track.id) : false;
+    const coverSeed = track.coverSeed || track.id || track.title;
+
+    return `
+      <div class="sc-track-card ${isPlaying ? "playing" : ""}" data-song="${U.escape(track.id || "")}">
+        <div class="sc-track-top">
+          <div class="sc-track-art" data-pact="sc-play" data-arg="${U.escape(track.id || "")}">
+            ${K.ui.cover(coverSeed, (track.title || "?")[0], 48)}
+            <button class="sc-art-play" aria-label="Çal">${isPlaying ? "⏸" : "▶"}</button>
+          </div>
+          <div class="sc-track-meta grow" data-pact="sc-play" data-arg="${U.escape(track.id || "")}">
+            <div class="sc-track-title">${U.escape(track.title || "İsimsiz Parça")}</div>
+            <div class="sc-track-artist">${U.escape(track.artistName || track.artist || "Bilinmeyen Sanatçı")}</div>
+            <div class="sc-track-stats">
+              <span>▶ ${U.fmt(track.streams || track.plays || 12400)}</span>
+              <span>·</span>
+              <span>${track.genre || "Hip-Hop & Rap"}</span>
+            </div>
+          </div>
+          <button class="sc-track-like ${liked ? "on" : ""}" data-pact="sc-like" data-arg="sc_${U.escape(track.id || "")}" aria-label="Beğen">
+            ${liked ? "♥" : "♡"}
+          </button>
+        </div>
+        <div class="sc-track-wave-row" data-pact="sc-play" data-arg="${U.escape(track.id || "")}">
+          ${waveformSVG(track.id || track.title, isPlaying)}
+        </div>
+      </div>`;
+  }
+
+  K.phone.register({
+    id: "soundcloud",
+    name: "SoundCloud",
+    icon: "☁️",
+    iconClass: "ic-soundcloud",
+    dock: false,
+    musicBar: true,
+
+    render(params) {
+      params = params || {};
+      const view = {
+        title: "SoundCloud",
+        sub: "Akış ve Sesler",
+        shellClass: "app-soundcloud",
+        musicBar: true,
+        tabPos: "bottom",
+        tabs: [
+          { id: "feed", label: "Stream", icon: SC_IC.feed },
+          { id: "discover", label: "Keşfet", icon: SC_IC.search },
+          { id: "library", label: "Kitaplık", icon: SC_IC.library }
+        ],
+        activeTab: params.tab || "feed",
+        render: (tab) => {
+          const app = K.phone.appById("soundcloud");
+          if (tab === "discover") return app.discoverHTML();
+          if (tab === "library") return app.libraryHTML();
+          return app.feedHTML();
+        },
+        onAction: (act, el) => {
+          const app = K.phone.appById("soundcloud");
+          if (act === "sc-play") {
+            const sid = el.dataset.arg;
+            if (sid) app.playById(sid);
+          } else if (act === "sc-like") {
+            const id = el.dataset.arg;
+            if (K.interactions) {
+              const on = K.interactions.toggleLike(id);
+              el.classList.toggle("on", on);
+              el.textContent = on ? "♥" : "♡";
+            }
+          } else if (act === "sc-tag") {
+            app._currentTag = el.dataset.arg || "";
+            K.phone.renderTop();
+          } else if (act === "sc-upload-direct") {
+            if (K.careerUI && K.careerUI.showStudioWizard) {
+              K.careerUI.showStudioWizard();
+            } else {
+              K.toast("☁️ SoundCloud", "Parça yüklemek için Stüdyo sekmesini kullan.", "info");
+            }
+          }
+        }
+      };
+      return view;
+    },
+
+    /* ---- Şarkı çalma köprüsü ---- */
+    playById(id) {
+      if (!K.audio) return;
+      let target = null;
+      const p = K.state.player || {};
+      if (Array.isArray(p.songs)) target = p.songs.find(s => s && s.id === id);
+      if (!target && K.platforms && K.platforms.searchSongs) {
+        target = K.platforms.searchSongs("").find(s => s && s.id === id);
+      }
+      if (!target && K.SONGS) {
+        target = (K.SONGS || []).find(s => s && s.id === id);
+      }
+      if (target) {
+        K.audio.play({
+          id: target.id,
+          title: target.title,
+          artistName: target.artistName || target.artist || p.stageName || "Sanatçı",
+          coverSeed: target.coverSeed || target.id,
+          audioUrl: target.audioUrl || target.previewUrl || ""
+        });
+        K.toast("▶ SoundCloud Çalıyor", target.title, "ok");
+        K.phone.reRender();
+      }
+    },
+
+    /* ---- 1. Sekme: STREAM (Akış) ---- */
+    feedHTML() {
+      const p = K.state.player || {};
+      const songs = (p.songs || []).slice().reverse();
+      const recents = (K.platforms && K.platforms.searchSongs) ? K.platforms.searchSongs("").slice(0, 10) : [];
+      const np = (K.audio && K.audio.isPlaying()) ? K.audio.current() : null;
+
+      const heroHTML = `
+        <div class="sc-hero-banner">
+          <div class="sc-hero-brand">
+            <span class="sc-cloud-ic">${K.brandIcon("soundcloud") || "☁️"}</span>
+            <span class="sc-brand-title">SoundCloud Stream</span>
+          </div>
+          <div class="sc-hero-sub">Yeraltı prodüksiyonları, mixtape'ler ve yeni çıkanlar</div>
+          ${np ? `<div class="sc-hero-now"><span>Şu an çalıyor:</span> <b>${U.escape(np.title)}</b> · ${U.escape(np.artistName || "")}</div>` : ""}
+        </div>`;
+
+      let playerTracksHTML = "";
+      if (songs.length) {
+        playerTracksHTML = `
+          <div class="sc-section-title">
+            <h3>Yüklemelerin</h3>
+            <span class="sc-count-badge">${songs.length}</span>
+          </div>
+          <div class="sc-track-list">
+            ${songs.map(s => trackCard(s)).join("")}
+          </div>`;
+      } else {
+        playerTracksHTML = `
+          <div class="sc-empty-card">
+            <div class="sc-empty-icon">☁️</div>
+            <div class="sc-empty-t">Henüz SoundCloud'a parça yüklemedin</div>
+            <div class="sc-empty-d">Stüdyodan ilk tekilini hazırla veya bağımsız yükleme yap.</div>
+            <button class="btn btn-sm btn-primary" data-pact="sc-upload-direct" style="background:#ff5500;border:none;margin-top:8px">Parça Hazırla</button>
+          </div>`;
+      }
+
+      const streamFeedHTML = `
+        <div class="sc-section-title" style="margin-top:16px">
+          <h3>Takip Ettiğin Sesler</h3>
+          <span class="sc-sub-label">En son yüklemeler</span>
+        </div>
+        <div class="sc-track-list">
+          ${recents.map(r => trackCard(r)).join("")}
+        </div>`;
+
+      return `<div class="sc-feed-view">${heroHTML}${playerTracksHTML}${streamFeedHTML}</div>`;
+    },
+
+    /* ---- 2. Sekme: KEŞFET & CHARTS ---- */
+    discoverHTML() {
+      const tags = ["Tümü", "Rap & Trap", "Drill", "Underground", "Lo-Fi", "Electronic", "Remix"];
+      const activeTag = this._currentTag || "Tümü";
+      const trending = (K.platforms && K.platforms.searchSongs) ? K.platforms.searchSongs("").slice(0, 12) : [];
+
+      const tagsHTML = `
+        <div class="sc-tag-scroller">
+          ${tags.map(t => `<button class="sc-tag-chip ${t === activeTag ? "active" : ""}" data-pact="sc-tag" data-arg="${t}">${t}</button>`).join("")}
+        </div>`;
+
+      return `
+        <div class="sc-discover-view">
+          <div class="sc-search-bar">
+            <span>🔎</span>
+            <input type="text" placeholder="Parça, sanatçı veya podcast ara..." readonly data-pact="sc-tag" data-arg="Tümü">
+          </div>
+          ${tagsHTML}
+          <div class="sc-chart-banner">
+            <div class="sc-chart-title">🔥 SoundCloud Top 50 : Türkiye</div>
+            <div class="sc-chart-desc">En çok dinlenen bağımsız ve yükselen parçalar</div>
+          </div>
+          <div class="sc-track-list">
+            ${trending.map((t, idx) => `
+              <div class="sc-chart-row-wrap">
+                <span class="sc-chart-rank">${idx + 1}</span>
+                <div class="grow">${trackCard(t)}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>`;
+    },
+
+    /* ---- 3. Sekme: KİTAPLIK ---- */
+    libraryHTML() {
+      const p = K.state.player || {};
+      const songs = p.songs || [];
+      const likesObj = (p && p.likes) ? p.likes : {};
+      const likedKeys = Object.keys(likesObj).filter(k => k.startsWith("sc_"));
+      const unreadTotal = (K.relations && K.relations.unreadTotal) ? K.relations.unreadTotal() : 0;
+
+      return `
+        <div class="sc-library-view">
+          <div class="sc-lib-header">
+            <div class="sc-lib-avatar">${K.ui.avatar(p.stageName || "Sanatçı", 54, true)}</div>
+            <div class="sc-lib-meta grow">
+              <h2>${U.escape(p.stageName || "Sanatçı")}</h2>
+              <span>@${U.escape((p.stageName || "artist").toLowerCase().replace(/\s+/g, ""))}</span>
+              <div class="sc-lib-badges">
+                <span class="sc-badge-orange">Next Pro</span>
+                <span class="sc-badge-dim">${songs.length} Yükleme</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="sc-lib-grid">
+            <div class="sc-lib-card" data-pact="sc-tag" data-arg="likes">
+              <span class="sc-lib-card-ic" style="color:#ff5500">♥</span>
+              <b>Beğenilenler</b>
+              <small>${likedKeys.length} parça</small>
+            </div>
+            <div class="sc-lib-card" data-pact="sc-tag" data-arg="playlists">
+              <span class="sc-lib-card-ic">📂</span>
+              <b>Çalma Listeleri</b>
+              <small>Kitaplığın</small>
+            </div>
+            <div class="sc-lib-card" data-pact="sc-tag" data-arg="history">
+              <span class="sc-lib-card-ic">🕒</span>
+              <b>Dinleme Geçmişi</b>
+              <small>Son çalınanlar</small>
+            </div>
+            <div class="sc-lib-card" data-pact="sc-tag" data-arg="stations">
+              <span class="sc-lib-card-ic">📻</span>
+              <b>İstasyonlar</b>
+              <small>Algoritmik akış</small>
+            </div>
+          </div>
+
+          <div class="sc-section-title" style="margin-top:16px">
+            <h3>Diskografin</h3>
+          </div>
+          <div class="sc-track-list">
+            ${songs.length ? songs.map(s => trackCard(s)).join("") : '<div class="mini-empty">Henüz yayınlanmış bir izin yok.</div>'}
+          </div>
+        </div>`;
+    }
+  });
+
+})(window.K = window.K || {});
 
 </script>
   <script>

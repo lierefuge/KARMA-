@@ -241,6 +241,177 @@
 .sp-play-btn:active { transform: scale(.95); }
 
 /* ============================================================
+   SOUNDCLOUD iOS STİLLERİ (sc-*)
+   ============================================================ */
+.app-soundcloud {
+  background: #111113;
+  color: #fff;
+}
+.ic-soundcloud {
+  background: linear-gradient(135deg, #ff7700 0%, #ff3300 100%) !important;
+  color: #fff !important;
+}
+.sc-feed-view, .sc-discover-view, .sc-library-view {
+  padding: 10px 12px 24px;
+}
+.sc-hero-banner {
+  background: linear-gradient(135deg, rgba(255, 85, 0, 0.22), rgba(20, 20, 26, 0.85));
+  border: 1px solid rgba(255, 85, 0, 0.3);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.sc-hero-brand {
+  display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; color: #ff5500;
+}
+.sc-cloud-ic { font-size: 18px; display: inline-flex; align-items: center; }
+.sc-cloud-ic svg { width: 22px; height: 22px; }
+.sc-hero-sub {
+  font-size: 11.5px; color: rgba(255,255,255,0.7); margin-top: 4px;
+}
+.sc-hero-now {
+  margin-top: 10px; font-size: 11px; padding: 6px 10px; border-radius: 8px;
+  background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.08);
+}
+.sc-section-title {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 12px 0 8px;
+}
+.sc-section-title h3 {
+  font-size: 14px; font-weight: 700; letter-spacing: -0.2px; margin: 0;
+}
+.sc-count-badge {
+  background: rgba(255, 85, 0, 0.2); color: #ff5500;
+  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 10px;
+}
+.sc-sub-label {
+  font-size: 10.5px; color: rgba(255,255,255,0.45);
+}
+.sc-track-list {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.sc-track-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 10px;
+  transition: background 0.15s, border-color 0.15s;
+}
+.sc-track-card:hover, .sc-track-card.playing {
+  background: rgba(255, 85, 0, 0.08);
+  border-color: rgba(255, 85, 0, 0.35);
+}
+.sc-track-top {
+  display: flex; align-items: center; gap: 10px;
+}
+.sc-track-art {
+  position: relative; flex: 0 0 48px; width: 48px; height: 48px;
+  border-radius: 8px; overflow: hidden; cursor: pointer;
+}
+.sc-art-play {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.45);
+  display: grid; place-items: center; color: #fff; font-size: 14px;
+  border: none; opacity: 0; transition: opacity 0.15s;
+}
+.sc-track-art:hover .sc-art-play, .sc-track-card.playing .sc-art-play {
+  opacity: 1;
+}
+.sc-track-meta {
+  cursor: pointer; min-width: 0;
+}
+.sc-track-title {
+  font-size: 12.5px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sc-track-artist {
+  font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sc-track-stats {
+  font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 3px; display: flex; gap: 5px;
+}
+.sc-track-like {
+  background: none; border: none; font-size: 16px; color: rgba(255,255,255,0.4);
+  cursor: pointer; padding: 4px;
+}
+.sc-track-like.on {
+  color: #ff5500;
+}
+.sc-track-wave-row {
+  margin-top: 6px; padding-top: 4px;
+  border-top: 1px dashed rgba(255,255,255,0.06);
+  cursor: pointer;
+}
+.sc-wave-svg {
+  width: 100%; height: 22px; display: block;
+}
+.sc-tag-scroller {
+  display: flex; gap: 6px; overflow-x: auto; padding: 8px 0 12px; scrollbar-width: none;
+}
+.sc-tag-scroller::-webkit-scrollbar { display: none; }
+.sc-tag-chip {
+  padding: 5px 12px; border-radius: 100px; font-size: 11px; font-weight: 600;
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+  color: #fff; cursor: pointer; white-space: nowrap;
+}
+.sc-tag-chip.active {
+  background: #ff5500; border-color: #ff5500; color: #fff;
+}
+.sc-search-bar {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+  border-radius: 10px; background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1); font-size: 12px;
+}
+.sc-search-bar input {
+  background: none; border: none; color: #fff; width: 100%; outline: none; font-size: 12px;
+}
+.sc-chart-banner {
+  background: linear-gradient(135deg, #ff5500, #ff2200);
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 12px;
+}
+.sc-chart-title { font-size: 13.5px; font-weight: 800; }
+.sc-chart-desc { font-size: 10.5px; opacity: 0.85; margin-top: 2px; }
+.sc-chart-row-wrap {
+  display: flex; align-items: center; gap: 8px;
+}
+.sc-chart-rank {
+  font-size: 13px; font-weight: 800; color: #ff884d; min-width: 18px; text-align: center;
+}
+.sc-lib-header {
+  display: flex; align-items: center; gap: 12px; padding: 8px 0 14px;
+}
+.sc-lib-avatar { flex: 0 0 auto; }
+.sc-lib-meta h2 { font-size: 16px; font-weight: 800; margin: 0; }
+.sc-lib-meta span { font-size: 11px; color: rgba(255,255,255,0.55); }
+.sc-lib-badges { display: flex; gap: 6px; margin-top: 5px; }
+.sc-badge-orange {
+  font-size: 9.5px; font-weight: 700; background: #ff5500; color: #fff;
+  padding: 2px 7px; border-radius: 6px;
+}
+.sc-badge-dim {
+  font-size: 9.5px; font-weight: 600; background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7); padding: 2px 7px; border-radius: 6px;
+}
+.sc-lib-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0;
+}
+.sc-lib-card {
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 3px;
+  cursor: pointer; transition: background 0.15s;
+}
+.sc-lib-card:hover { background: rgba(255,255,255,0.09); }
+.sc-lib-card-ic { font-size: 16px; margin-bottom: 2px; }
+.sc-lib-card b { font-size: 12px; font-weight: 700; }
+.sc-lib-card small { font-size: 10px; color: rgba(255,255,255,0.45); }
+.sc-empty-card {
+  text-align: center; padding: 24px 14px; border-radius: 14px;
+  background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.12);
+}
+.sc-empty-icon { font-size: 32px; margin-bottom: 6px; }
+.sc-empty-t { font-size: 13px; font-weight: 700; }
+.sc-empty-d { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 3px; }
+
+/* ============================================================
    8) MOBİL
    ============================================================ */
 @container phone (max-width: 360px) {
