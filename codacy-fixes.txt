@@ -1,0 +1,6 @@
+diff --git a/tools/smoke-v1050.js b/tools/smoke-v1050.js
+--- a/tools/smoke-v1050.js
++++ b/tools/smoke-v1050.js
+@@ -62,1 +62,1 @@
+-    ok("A-2 Â· etiket ikon iÃ§erir", /[ðð¥ð¥±ð¤ð¥ð ]/.test(K.npcMind.moodLabel("sehinsah")), K.npcMind.moodLabel("sehinsah"));
++    ok("A-2 Â· etiket ikon iÃ§erir", /[ðð¥ð¥±ð¤ð¥ð ]/u.test(K.npcMind.moodLabel("sehinsah")), K.npcMind.moodLabel("sehinsah"));
