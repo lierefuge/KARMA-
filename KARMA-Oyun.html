@@ -3416,6 +3416,43 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 
 .cmp-conv-n { font-size: 15px; font-weight: 800; color: #6ec3ff; font-variant-numeric: tabular-nums; }
 
+/* ============================================================
+   v10.74 — İÇERİK TAKVİMİ (🗓 sekmesi)
+   Platform · format · gün planı ve kampanya kanalı bağlantısı.
+   ============================================================ */
+.cc-plats { display: flex; flex-direction: column; gap: 11px; }
+.cc-plat { display: flex; flex-direction: column; gap: 6px; }
+.cc-plat-head { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+.cc-plat-ico { font-size: 14px; }
+.cc-plat-name { flex: 1; font-weight: 700; }
+.cc-tempo { font-size: 9.5px; padding: 2px 7px; border-radius: 8px; background: rgba(255,255,255,.06); }
+.cc-tempo.ok { color: #54d18b; }
+.cc-tempo.mid { color: #facc15; }
+.cc-tempo.warn { color: #ff9f5a; }
+.cc-plat-nums { display: flex; flex-wrap: wrap; gap: 8px; font-size: 10px; color: var(--text-3, #9a9aa5); font-variant-numeric: tabular-nums; }
+.cc-plat-nums b { color: var(--text-1, #eee); font-weight: 700; }
+.cc-quick { display: flex; flex-wrap: wrap; gap: 5px; }
+.cc-chip {
+  font-size: 10px; padding: 4px 8px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.04);
+  color: var(--text-1, #eee); cursor: pointer;
+}
+.cc-chip:active { transform: scale(.96); }
+.cc-warn { font-size: 11px; color: #ff9f5a; margin-top: 6px; }
+.cc-list { display: flex; flex-direction: column; gap: 5px; }
+.cc-item {
+  display: flex; align-items: center; gap: 7px; font-size: 11px;
+  padding: 5px 2px; border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.cc-item-day { width: 42px; font-variant-numeric: tabular-nums; opacity: .7; }
+.cc-item-ico { width: 30px; }
+.cc-item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cc-mini {
+  font-size: 10px; padding: 3px 8px; border-radius: 8px; cursor: pointer;
+  border: 1px solid rgba(110,195,255,.35); background: rgba(110,195,255,.12); color: #cfe9ff;
+}
+.cc-mini.ghost { border-color: rgba(255,255,255,.12); background: transparent; color: var(--text-3, #9a9aa5); }
+
 </style>
 <style>
 /* ==== css/studio-theme.css ==== */
@@ -8303,7 +8340,7 @@ html, body {
    ============================================================ */
 (function (K) {
   "use strict";
-  K.VERSION = "10.73.0";
+  K.VERSION = "10.74.0";
   K.VERSION_DATE = "2026-11-01";
 })(window.K = window.K || {});
 /* v10.67.0 — yeni çıkış akışı (release-intel) + takvim tabanlı playlist rotasyonu. */
@@ -14280,6 +14317,8 @@ window.K = window.K || {};
       if (!K.state.player.fanCohorts && K.fansCohort) K.fansCohort.state();
       /* v10.73 — çıkış kampanyası ölçümleme defteri (yayın başına kanal harcaması/sonucu) */
       if (!K.state.player.campaigns || typeof K.state.player.campaigns !== "object") K.state.player.campaigns = {};
+      /* v10.74 — sosyal medya içerik takvimi (platform · gün · format) */
+      if (!K.state.player.contentPlan && K.contentCalendar) K.contentCalendar.ensure();
       if (K.state.player.fanClub === undefined) K.state.player.fanClub = null;
       K.state.player.merchCooldownDay = K.state.player.merchCooldownDay || 0;
       K.state.player.vipCooldownDay = K.state.player.vipCooldownDay || 0;
@@ -14494,6 +14533,7 @@ window.K = window.K || {};
       if (K.relations && K.relations.dailyTick) K.relations.dailyTick();
       if (K.fans && K.fans.dailyTick) K.fans.dailyTick();
       if (K.fansCohort && K.fansCohort.tick) K.fansCohort.tick();   /* v10.72 kohort döngüsü */
+      if (K.contentCalendar && K.contentCalendar.tick) K.contentCalendar.tick();   /* v10.74 içerik takvimi */
       if (K.shortform && K.shortform.tick) K.shortform.tick();
       if (K.catalog && K.catalog.tick) K.catalog.tick();
       if (K.press && K.press.tick) K.press.tick();
@@ -16723,6 +16763,289 @@ window.K = window.K || {};
         costPerFollower: s.followers > 0 ? s.spend / s.followers : null
       };
     }
+  };
+})(window.K = window.K || {});
+
+</script>
+<script>
+/* ==== js/systems/content-calendar.js ==== */
+/* ============================================================
+   KARMA — systems/content-calendar.js   (v10.74)
+
+   SOSYAL MEDYA İÇERİK TAKVİMİ  (yol haritası 16)
+   -----------------------------------------------
+   Kısa video · hikâye · canlı yayın · klip · gönderi formatlarını
+   PLATFORM + GÜN + (varsa) YAYIN bazında planlar.
+
+   NEDEN AYRI TAKVİM?
+   ------------------
+   Bugüne kadar içerik "o an ne paylaşırsam" mantığıyla atılıyordu
+   (`K.social.playerPost`). Çıkış haftası ise plan ister: teaser günleri,
+   çıkış günü, sonrası. Bu modül planı TUTAR ama paylaşımı KENDİSİ
+   YAPMAZ — yayınlama mevcut sosyal sisteme devredilir
+   (`K.social.playerPost`), böylece etkileşim formülü tek kaynak kalır.
+
+   KAMPANYA PANOSUYLA BAĞ (v10.73)
+   -------------------------------
+   Her platform bir kampanya KANALINA eşlenir:
+       instagram → igstory · tiktok → tiktok · x → x · youtube → shorts
+   Takvim, kanalın kampanya harcamasını ve o kanalın ürettiği
+   dinlenme/takipçi sonucunu `systems/campaign.js` defterinden okur.
+   Böylece "para harcanan kanalda içerik var mı" sorusu ölçülebilir:
+     · harcama var, plan yok  → tempo uyarısı
+     · plan var, harcama yok  → organik çalışıyorsun
+
+   DOYGUNLUK: aynı gün 3'ten fazla plan varsa uyarı verilir; aynı
+   platform + gün + format + yayın ikinci kez PLANLANAMAZ (tekrar yok).
+
+   ESKİ KAYITLAR: `player.contentPlan` yoksa boş açılır.
+   ============================================================ */
+(function (K) {
+  "use strict";
+  const U = K.util;
+  const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+
+  /* platform → kampanya kanalı (systems/campaign.js CH_COHORT ile uyumlu) */
+  const PLATFORMS = [
+    { id: "ig",      name: "Instagram", icon: "📸", channel: "igstory" },
+    { id: "tiktok",  name: "TikTok",    icon: "🎬", channel: "tiktok" },
+    { id: "yt",      name: "YouTube",   icon: "▶️", channel: "shorts" },
+    { id: "x",       name: "X",         icon: "🐦", channel: "x" }
+  ];
+
+  /* format → hangi platformlarda geçerli + gönderi türü (sosyal sisteme devredilir) */
+  const FORMATS = [
+    { id: "story",     name: "Hikâye",       icon: "📷", postType: "image",
+      plats: ["ig"],                         desc: "Günlük görünürlük; en yüksek dönüşüm." },
+    { id: "shortform", name: "Kısa video",   icon: "🎞️", postType: "reach",
+      plats: ["tiktok", "yt", "ig"],         desc: "Keşif motoru; trend yakalarsa patlar." },
+    { id: "live",      name: "Canlı yayın",  icon: "🔴", postType: "reach",
+      plats: ["ig", "tiktok", "yt"],         desc: "Sadık kitleyi ısıtır, anlık etkileşim." },
+    { id: "clip",      name: "Müzik klibi",  icon: "🎥", postType: "image",
+      plats: ["yt", "ig"],                   desc: "İtibar ve kalıcı görünürlük." },
+    { id: "post",      name: "Gönderi",      icon: "✍️", postType: "reach",
+      plats: ["x", "ig"],                    desc: "Duyuru ve yorum; ucuz ama dönüşümü düşük." }
+  ];
+
+  const MAX_PER_DAY = 3;          /* doygunluk eşiği */
+  const HORIZON = 21;             /* takvimde gösterilen gün sayısı */
+
+  function plat(id) { return PLATFORMS.find((p) => p.id === id) || null; }
+  function fmtDef(id) { return FORMATS.find((f) => f.id === id) || null; }
+
+  function blank() { return { v: 1, items: [] }; }
+
+  K.contentCalendar = {
+    PLATFORMS, FORMATS, MAX_PER_DAY, HORIZON,
+    plat, fmtDef,
+
+    /* ---------------- durum ---------------- */
+    ensure() {
+      const p = K.state.player;
+      if (!p.contentPlan || p.contentPlan.v !== 1 || !Array.isArray(p.contentPlan.items)) {
+        p.contentPlan = blank();
+      }
+      return p.contentPlan;
+    },
+
+    items() { return this.ensure().items; },
+
+    /* ---------------- planlama ---------------- */
+    /* Aynı platform + gün + format + yayın ikinci kez planlanamaz. */
+    canPlan(platform, format, day, releaseId) {
+      if (!plat(platform)) return { ok: false, why: "Bilinmeyen platform" };
+      const f = fmtDef(format);
+      if (!f) return { ok: false, why: "Bilinmeyen format" };
+      if (f.plats.indexOf(platform) < 0) return { ok: false, why: `${f.name} bu platformda paylaşılmaz` };
+      const d = Number(day);
+      if (!Number.isFinite(d)) return { ok: false, why: "Gün geçersiz" };
+      if (d < K.state.day) return { ok: false, why: "Geçmiş güne plan yapılmaz" };
+      const dup = this.items().some((it) => it.platform === platform && it.format === format
+        && it.day === d && (it.releaseId || null) === (releaseId || null));
+      if (dup) return { ok: false, why: "Bu içerik zaten planlı" };
+      const sameDay = this.items().filter((it) => it.day === d && it.status === "planned").length;
+      return { ok: true, why: sameDay >= MAX_PER_DAY ? `Dikkat: o gün ${sameDay} plan var (doygunluk)` : "Planlanabilir", saturated: sameDay >= MAX_PER_DAY };
+    },
+
+    plan(platform, format, day, releaseId, silent) {
+      const check = this.canPlan(platform, format, day, releaseId);
+      if (!check.ok) {
+        if (!silent && K.toast) K.toast("Planlanamadı", check.why, "warn");
+        return null;
+      }
+      const item = {
+        id: U.uid("plan"),
+        platform, format,
+        day: Number(day),
+        releaseId: releaseId || null,
+        status: "planned",
+        postId: null,
+        createdDay: K.state.day
+      };
+      this.items().push(item);
+      if (check.saturated && K.toast) {
+        K.toast("Doygunluk", "Aynı güne çok fazla içerik planladın; etkisi bölünebilir.", "warn");
+      }
+      return item;
+    },
+
+    cancel(itemId) {
+      const list = this.items();
+      const i = list.findIndex((it) => it.id === itemId);
+      if (i < 0) return false;
+      if (list[i].status !== "planned") return false;
+      list.splice(i, 1);
+      return true;
+    },
+
+    /* ---------------- önerilen takvim ---------------- */
+    /* Yayın gününe göre iskelet plan: teaser → çıkış → sonrası.
+       Yalnızca BOŞ slotları doldurur; oyuncunun planlarına dokunmaz. */
+    suggest(releaseId) {
+      const p = K.state.player;
+      const rel = (p.releases || []).find((r) => r.id === releaseId);
+      if (!rel) return [];
+      const day0 = (rel.startDay || K.state.day) + (rel.waitDays || 0);
+      const slots = [
+        { offset: -14, platform: "ig",     format: "story" },
+        { offset: -10, platform: "tiktok", format: "shortform" },
+        { offset: -7,  platform: "yt",     format: "shortform" },
+        { offset: -3,  platform: "ig",     format: "story" },
+        { offset: -1,  platform: "x",      format: "post" },
+        { offset: 0,   platform: "tiktok", format: "shortform" },
+        { offset: 0,   platform: "yt",     format: "clip" },
+        { offset: 1,   platform: "ig",     format: "live" },
+        { offset: 3,   platform: "x",      format: "post" },
+        { offset: 7,   platform: "ig",     format: "story" }
+      ];
+      const added = [];
+      slots.forEach((s) => {
+        const day = day0 + s.offset;
+        if (day < K.state.day) return;                 /* geçmiş slot atlanır */
+        const it = this.plan(s.platform, s.format, day, releaseId, true);
+        if (it) added.push(it);
+      });
+      return added;
+    },
+
+    /* ---------------- yayınlama (mevcut sosyal sisteme devredilir) ---------------- */
+    publish(itemId) {
+      const it = this.items().find((x) => x.id === itemId);
+      if (!it || it.status !== "planned") return false;
+      const f = fmtDef(it.format);
+      if (!f || !K.social || !K.social.playerPost) return this.markManual(itemId);
+      const res = K.social.playerPost(it.platform, null, f.postType, it.songId || null, null);
+      /* playerPost { post, outcome, ... } döndürür — gönderinin kendisi `post` alanında */
+      const post = (res && res.post) || res || null;
+      it.status = "published";
+      it.publishedDay = K.state.day;
+      it.postId = (post && post.id) || null;
+      it.outcome = (res && res.outcome) || null;
+      it.likes = (post && post.likes) || 0;
+      it.reach = (post && ((post.likes || 0) + (post.comments || 0) + (post.shares || 0))) || 0;
+      return true;
+    },
+
+    /* sosyal sistem yoksa (test/çevrimdışı) elle işaretle */
+    markManual(itemId) {
+      const it = this.items().find((x) => x.id === itemId);
+      if (!it || it.status !== "planned") return false;
+      it.status = "published";
+      it.publishedDay = K.state.day;
+      return true;
+    },
+
+    /* ---------------- günlük: kaçan planları işaretle ---------------- */
+    tick() {
+      const list = this.items();
+      let missed = 0;
+      list.forEach((it) => {
+        if (it.status === "planned" && it.day < K.state.day) { it.status = "missed"; missed++; }
+      });
+      /* takvimi şişirmesin: 90 günden eski kayıtlar düşer */
+      const cutoff = K.state.day - 90;
+      const kept = list.filter((it) => it.status === "planned" || it.day >= cutoff);
+      if (kept.length !== list.length) this.ensure().items = kept;
+      return missed;
+    },
+
+    /* ---------------- kampanya panosuyla bağ ---------------- */
+    /* Bir platformun kampanya kanalının TOPLAM harcaması ve sonucu. */
+    channelStats(channelId) {
+      const out = { spend: 0, streams: 0, followers: 0, revenue: 0, campaigns: 0 };
+      if (!K.campaigns || !K.campaigns.list) return out;
+      K.campaigns.list().forEach((c) => {
+        const row = (c.rows || []).find((r) => r.id === channelId);
+        if (!row) return;
+        out.spend += row.spend || 0;
+        out.streams += row.streams || 0;
+        out.followers += row.followers || 0;
+        out.revenue += row.revenue || 0;
+        out.campaigns++;
+      });
+      return out;
+    },
+
+    /* ---------------- rapor (UI) ---------------- */
+    report() {
+      const day = K.state.day;
+      const list = this.items();
+      const rows = PLATFORMS.map((pf) => {
+        const items = list.filter((it) => it.platform === pf.id);
+        const planned = items.filter((it) => it.status === "planned" && it.day >= day).length;
+        const published = items.filter((it) => it.status === "published").length;
+        const missed = items.filter((it) => it.status === "missed").length;
+        const ch = this.channelStats(pf.channel);
+        return {
+          id: pf.id, name: pf.name, icon: pf.icon, channel: pf.channel,
+          planned, published, missed,
+          posts: published,
+          spend: ch.spend,
+          streams: ch.streams,
+          followers: ch.followers,
+          perPost: published > 0 ? Math.round(ch.streams / published) : null,
+          /* tempo: harcama var ama plan yok / plan var harcama yok */
+          tempo: ch.spend > 0 && planned === 0 && published === 0 ? "idle"
+            : ch.spend === 0 && (planned + published) > 0 ? "organic"
+            : "ok"
+        };
+      });
+
+      const upcoming = list
+        .filter((it) => it.status === "planned")
+        .sort((a, b) => a.day - b.day)
+        .slice(0, 12)
+        .map((it) => ({
+          ...it,
+          platformName: (plat(it.platform) || {}).name || it.platform,
+          platformIcon: (plat(it.platform) || {}).icon || "•",
+          formatName: (fmtDef(it.format) || {}).name || it.format,
+          formatIcon: (fmtDef(it.format) || {}).icon || "•",
+          daysLeft: it.day - day
+        }));
+
+      const perDay = {};
+      list.filter((it) => it.status === "planned").forEach((it) => {
+        perDay[it.day] = (perDay[it.day] || 0) + 1;
+      });
+      const saturated = Object.keys(perDay).filter((d) => perDay[d] > MAX_PER_DAY).map(Number);
+
+      return {
+        day, rows, upcoming,
+        counts: {
+          planned: list.filter((it) => it.status === "planned").length,
+          published: list.filter((it) => it.status === "published").length,
+          missed: list.filter((it) => it.status === "missed").length
+        },
+        saturated, saturatedCount: saturated.length,
+        totalSpend: rows.reduce((a, r) => a + r.spend, 0),
+        totalStreams: rows.reduce((a, r) => a + r.streams, 0),
+        totalFollowers: rows.reduce((a, r) => a + r.followers, 0)
+      };
+    },
+
+    /* ---------------- test kancaları ---------------- */
+    _reset() { K.state.player.contentPlan = blank(); return this.ensure(); }
   };
 })(window.K = window.K || {});
 
@@ -51855,6 +52178,84 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
     </div>`;
   }
 
+  /* ---------------- 🗓 TAKVİM (yol haritası 16) ---------------- */
+  const tempoLabel = { ok: ["Tempo iyi", "ok"], idle: ["Harcama var, plan yok", "warn"], organic: ["Organik çalışıyor", "mid"] };
+
+  function takvimHTML() {
+    const r = K.contentCalendar.report();
+    const p = K.state.player;
+    /* öneri için yayın hattındaki en yakın proje */
+    const next = (p.releases || [])
+      .filter((x) => !x.done)
+      .map((x) => ({ x, day0: (x.startDay || K.state.day) + (x.waitDays || 0) }))
+      .filter((o) => o.day0 >= K.state.day)
+      .sort((a, b) => a.day0 - b.day0)[0] || null;
+
+    const platRows = r.rows.map((row) => {
+      const t = tempoLabel[row.tempo] || tempoLabel.ok;
+      const formats = (K.contentCalendar.FORMATS || []).filter((f) => f.plats.indexOf(row.id) >= 0);
+      return `
+        <div class="cc-plat" data-plat="${row.id}">
+          <div class="cc-plat-head">
+            <span class="cc-plat-ico">${row.icon}</span>
+            <span class="cc-plat-name">${row.name}</span>
+            <span class="cc-tempo ${t[1]}">${t[0]}</span>
+          </div>
+          <div class="cc-plat-nums">
+            <span><b>${row.planned}</b> planlı</span>
+            <span><b>${row.published}</b> yayınlandı</span>
+            <span><b>${row.missed}</b> kaçtı</span>
+            <span><b>${row.spend ? money(row.spend) : "—"}</b> kanal harcaması</span>
+            <span><b>${row.perPost != null ? fmt(row.perPost) : "—"}</b> dinlenme/gönderi</span>
+          </div>
+          <div class="cc-quick">
+            ${formats.map((f) => `<button class="cc-chip" data-pact="cal-plan" data-plat="${row.id}" data-fmt="${f.id}">${f.icon} + ${f.name}</button>`).join("")}
+          </div>
+        </div>`;
+    }).join("");
+
+    const upcoming = r.upcoming.length ? r.upcoming.map((it) => `
+      <div class="cc-item" data-plan="${it.id}">
+        <span class="cc-item-day">${it.daysLeft === 0 ? "bugün" : "+" + it.daysLeft + "g"}</span>
+        <span class="cc-item-ico">${it.platformIcon}${it.formatIcon}</span>
+        <span class="cc-item-name">${it.formatName} · ${it.platformName}</span>
+        <button class="cc-mini" data-pact="cal-pub" data-plan="${it.id}">Yayınla</button>
+        <button class="cc-mini ghost" data-pact="cal-cancel" data-plan="${it.id}">✕</button>
+      </div>`).join("")
+      : `<div class="mini-empty">Planlanmış içerik yok. Aşağıdaki hızlı plan düğmelerini kullan ya da önerilen takvimi kur.</div>`;
+
+    return `
+      <div class="fans-wrap">
+        <div class="fans-card">
+          <div class="fans-card-head"><div>
+            <div class="fans-card-title">🗓 İçerik takvimi</div>
+            <div class="fans-card-sub">Platform · format · gün · kampanya kanalı</div>
+          </div>
+          <b class="cmp-roi">${r.counts.planned} planlı</b></div>
+          <div class="cmp-tot">
+            <div><b>${r.counts.planned}</b><span>planlı</span></div>
+            <div><b>${r.counts.published}</b><span>yayınlandı</span></div>
+            <div><b>${r.counts.missed}</b><span>kaçtı</span></div>
+            <div><b>${money(r.totalSpend)}</b><span>kanal harcaması</span></div>
+          </div>
+          ${r.saturatedCount ? `<div class="cc-warn">⚠ ${r.saturatedCount} günde ${K.contentCalendar.MAX_PER_DAY}'ten fazla plan var — doygunluk etkiyi böler.</div>` : ""}
+          ${next ? `<button class="btn btn-primary" data-pact="cal-suggest" data-rel="${next.x.id}">Önerilen takvimi kur · ${next.x.title}</button>` : ""}
+        </div>
+
+        <div class="fans-card cc-plats">${platRows}</div>
+
+        ${K.studio.note("🗓", "Bir platformun kanal harcaması kampanya panosundan gelir. <b>Harcama var, plan yok</b> uyarısı parayı boşa akıtmamak için; <b>organik</b> etiketi kampanya olmadan içerikle büyümek demek.", "info")}
+
+        <div class="fans-card">
+          <div class="fans-card-head"><div>
+            <div class="fans-card-title">⏭ Yaklaşan içerikler</div>
+            <div class="fans-card-sub">Kaçan planlar gün geçince otomatik işaretlenir</div>
+          </div></div>
+          <div class="cc-list">${upcoming}</div>
+        </div>
+      </div>`;
+  }
+
   function donusumHTML() {
     const s = K.campaigns.summary();
     const srcInfo = {};
@@ -51915,11 +52316,36 @@ tespit edilirse dinlenme silinir, imaj ve itibar yanar. <b>3 strike = 60 gün pl
         tabPos: "bottom",
         tabs: [
           { id: "kampanya", label: "Kampanyalar", icon: "📊" },
+          { id: "takvim", label: "Takvim", icon: "🗓" },
           { id: "donusum", label: "Dönüşüm", icon: "🧭" }
         ],
         activeTab: params.tab || "kampanya",
-        render: (tab) => (tab === "donusum" ? donusumHTML() : kampanyaHTML()),
-        onAction() { /* salt okunur pano */ }
+        render: (tab) => (tab === "donusum" ? donusumHTML()
+          : tab === "takvim" ? takvimHTML()
+          : kampanyaHTML()),
+        onAction(pact, el) {
+          const CC = K.contentCalendar;
+          const planId = el && el.getAttribute("data-plan");
+          if (pact === "cal-plan") {
+            const platform = el.getAttribute("data-plat");
+            const format = el.getAttribute("data-fmt");
+            const it = CC.plan(platform, format, K.state.day + 1);
+            if (it && K.toast) K.toast("🗓 Planlandı", `${it.format} · yarın`, "ok");
+            K.phone.renderTop();
+          } else if (pact === "cal-suggest") {
+            const rel = el.getAttribute("data-rel");
+            const added = CC.suggest(rel);
+            if (K.toast) K.toast("🗓 Takvim kuruldu", added.length + " içerik planlandı", added.length ? "ok" : "warn");
+            K.phone.renderTop();
+          } else if (pact === "cal-pub") {
+            const done = CC.publish(planId);
+            if (K.toast) K.toast(done ? "✅ Yayınlandı" : "Yayınlanamadı", done ? "İçerik sosyal akışa gitti." : "Plan bulunamadı.", done ? "ok" : "warn");
+            K.phone.renderTop();
+          } else if (pact === "cal-cancel") {
+            CC.cancel(planId);
+            K.phone.renderTop();
+          }
+        }
       };
     }
   });

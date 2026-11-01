@@ -165,7 +165,10 @@ function run() {
   const app = K.phone.appById("campaign");
   ok("I-1 · uygulama kayıtlı", !!app);
   const view = app.render({});
-  ok("I-2 · iki sekme", (view.tabs || []).length === 2, (view.tabs || []).length);
+  /* v10.74 takvim sekmesini ekledi: sayıya değil, İÇERİĞE bakılır. */
+  ok("I-2 · temel sekmeler var (Kampanyalar + Dönüşüm)",
+    ["kampanya", "donusum"].every((id) => (view.tabs || []).some((t) => t.id === id)),
+    (view.tabs || []).map((t) => t.id).join(","));
   const kamp = view.render("kampanya");
   ok("I-3 · kampanya kartı render edildi", /cmp-card/.test(kamp) && /Test Single/.test(kamp));
   ok("I-4 · kanal satırları var", /cmp-ch-name/.test(kamp));

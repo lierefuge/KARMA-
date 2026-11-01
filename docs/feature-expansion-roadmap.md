@@ -126,6 +126,7 @@ Daha geniş ürün/mimari kararı gerektiren şirket simülasyonu, üretken yapa
 - **Kabul ölçütü:** Sunum penceresi ve kriterleri görünür; sonuçlar kayıtlıdır; aynı esere aynı pencere içinde tekrar sunum engellenir.
 
 ### 16. Sosyal medya içerik takvimi
+- **Durum:** **v10.74.0'da uygulandı** (`js/systems/content-calendar.js`, arayüz: Kampanya → 🗓 Takvim, süit `tools/smoke-v1074.js`). Platform/format/gün planı, doygunluk uyarısı, kampanya kanalı harcamasıyla tempo bağı ve tek dokunuşluk önerilen takvim.
 - **İşlev ve oyuncu değeri:** Kısa video, hikâye, canlı yayın ve müzik klibi formatlarını tarihe ve platforma göre planlar; tekrar ve aşırı paylaşım doygunluk yaratabilir.
 - **Bağlantı:** Instagram, TikTok, YouTube, X uygulamaları; sosyal ve rollout. **Zorluk:** Orta.
 - **Güvenli ekleme:** Ortak bir takvim modülü ekle; mevcut uygulama ekranları kendi görünümünü koruyup planlanan içeriği gösterir.

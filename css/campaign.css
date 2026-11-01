@@ -49,3 +49,40 @@
 .cmp-foot b.bad { color: #ff7a7a; }
 
 .cmp-conv-n { font-size: 15px; font-weight: 800; color: #6ec3ff; font-variant-numeric: tabular-nums; }
+
+/* ============================================================
+   v10.74 — İÇERİK TAKVİMİ (🗓 sekmesi)
+   Platform · format · gün planı ve kampanya kanalı bağlantısı.
+   ============================================================ */
+.cc-plats { display: flex; flex-direction: column; gap: 11px; }
+.cc-plat { display: flex; flex-direction: column; gap: 6px; }
+.cc-plat-head { display: flex; align-items: center; gap: 7px; font-size: 12px; }
+.cc-plat-ico { font-size: 14px; }
+.cc-plat-name { flex: 1; font-weight: 700; }
+.cc-tempo { font-size: 9.5px; padding: 2px 7px; border-radius: 8px; background: rgba(255,255,255,.06); }
+.cc-tempo.ok { color: #54d18b; }
+.cc-tempo.mid { color: #facc15; }
+.cc-tempo.warn { color: #ff9f5a; }
+.cc-plat-nums { display: flex; flex-wrap: wrap; gap: 8px; font-size: 10px; color: var(--text-3, #9a9aa5); font-variant-numeric: tabular-nums; }
+.cc-plat-nums b { color: var(--text-1, #eee); font-weight: 700; }
+.cc-quick { display: flex; flex-wrap: wrap; gap: 5px; }
+.cc-chip {
+  font-size: 10px; padding: 4px 8px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.10); background: rgba(255,255,255,.04);
+  color: var(--text-1, #eee); cursor: pointer;
+}
+.cc-chip:active { transform: scale(.96); }
+.cc-warn { font-size: 11px; color: #ff9f5a; margin-top: 6px; }
+.cc-list { display: flex; flex-direction: column; gap: 5px; }
+.cc-item {
+  display: flex; align-items: center; gap: 7px; font-size: 11px;
+  padding: 5px 2px; border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.cc-item-day { width: 42px; font-variant-numeric: tabular-nums; opacity: .7; }
+.cc-item-ico { width: 30px; }
+.cc-item-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cc-mini {
+  font-size: 10px; padding: 3px 8px; border-radius: 8px; cursor: pointer;
+  border: 1px solid rgba(110,195,255,.35); background: rgba(110,195,255,.12); color: #cfe9ff;
+}
+.cc-mini.ghost { border-color: rgba(255,255,255,.12); background: transparent; color: var(--text-3, #9a9aa5); }

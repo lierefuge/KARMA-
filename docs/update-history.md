@@ -2,11 +2,68 @@
 
 [README’ye dön](../README.md)
 
-Bu arşiv, önceki README’deki v2–v10.73 güncelleme notlarını korur.
+Bu arşiv, önceki README’deki v2–v10.74 güncelleme notlarını korur.
 Buradaki sayılar, test sonuçları ve davranış açıklamaları ilgili sürümün
 tarihsel kaydıdır. Güncel kullanım için [README](../README.md),
 yeni çıkış akışı için [v10.67 notları](v10.67.md) ve
 [ilk ay rehberini](first-month.md) kullan.
+
+## GÜNCELLEME v10.74 — SOSYAL MEDYA İÇERİK TAKVİMİ
+
+Yol haritasının 16. maddesi. İçerik şimdiye kadar "o an ne paylaşırsam"
+mantığıyla atılıyordu; çıkış haftası ise plan ister. Yeni modül:
+`js/systems/content-calendar.js` · yeni süit: `tools/smoke-v1074.js`
+(**44 kontrol**).
+
+### 1 · 🗓 Plan modeli
+Platform + format + gün + (varsa) yayın. Beş format:
+**hikâye** (yalnız Instagram) · **kısa video** (TikTok/YouTube/IG) ·
+**canlı yayın** · **müzik klibi** (YouTube/IG) · **gönderi** (X/IG).
+Aynı platform + gün + format + yayın **ikinci kez planlanamaz**; geçmiş
+güne plan yapılamaz.
+
+### 2 · ⚠ Doygunluk
+Aynı güne 3'ten fazla plan girilirse uyarı verilir (`MAX_PER_DAY = 3`) ve
+raporda doygun günler listelenir — aşırı paylaşım etkiyi böler.
+
+### 3 · 📤 Yayınlama devredilir
+Takvim paylaşımı KENDİSİ yapmaz: `K.social.playerPost` çağrılır ve gönderi
+mevcut sosyal akışa düşer. Etkileşim formülü tek kaynak kalır; plan
+`postId`, `outcome`, beğeni ve erişim bilgisini saklar.
+
+### 4 · 🔗 Kampanya panosu bağı (v10.73)
+Her platform bir kampanya kanalına eşlenir — `instagram → igstory`,
+`tiktok → tiktok`, `youtube → shorts`, `x → x`. Takvim kanal harcamasını
+ve o kanalın dinlenme/takipçi sonucunu defterden okur; platform başına
+**dinlenme/gönderi** ve tempo etiketi çıkarır:
+
+- **harcama var, plan yok** → para boşa akıyor uyarısı
+- **plan var, harcama yok** → organik büyüme
+- **ikisi de var** → tempo iyi
+
+### 5 · ✨ Önerilen takvim
+Yayın gününe göre iskelet plan (D-14 hikâye → D-10 kısa video → D-7 →
+D-3 → D-1 gönderi → D0 kısa video + klip → D+1 canlı → D+3 → D+7).
+Yalnızca **boş slotları** doldurur; oyuncunun kendi planlarına dokunmaz,
+ikinci çağrıda çoğaltmaz.
+
+### 6 · 💾 Kalıcılık
+Plan `player.contentPlan` altında tutulur: JSON ile serileşir, çevrimdışı
+kayıtta korunur. Kaçan planlar gün geçince `missed` olur; 90 günden eski
+kayıtlar takvimi şişirmesin diye düşer. Eski kayıtlarda plan yoksa boş
+takvim açılır.
+
+### 7 · 📱 Arayüz
+**📊 Kampanya** uygulamasına **🗓 Takvim** sekmesi eklendi: platform
+kartları (planlı/yayınlandı/kaçtı · kanal harcaması · dinlenme/gönderi),
+hızlı plan düğmeleri, yaklaşan içerik listesi ve tek dokunuşla
+"önerilen takvimi kur".
+
+### Doğrulama
+```
+npm run verify        →  61/61 adım temiz
+node tools/smoke-v1074.js  →  44 kontrol (A–J)
+```
 
 ## GÜNCELLEME v10.73 — ÇIKIŞ KAMPANYASI ÖLÇÜMLEME PANOSU
 
