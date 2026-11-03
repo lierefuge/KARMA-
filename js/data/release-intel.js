@@ -4,7 +4,7 @@
 
    Üretici : node tools/fetch-new-releases.js
    Kaynak  : iTunes Lookup API (country=TR) — albüm → parça
-   Tarih   : 2026-10-31  ·  22 kayıt (22 tanesi depoda yok)
+   Tarih   : 2026-11-03  ·  23 kayıt (23 tanesi depoda yok)
 
    ŞEMA (kayıt başına)
    -------------------
@@ -31,11 +31,11 @@
   "use strict";
   K.RELEASE_INTEL = {
  "meta": {
-  "asof": "2026-10-31",
+  "asof": "2026-11-03",
   "window": 30,
   "source": "itunes-lookup-tr",
-  "count": 22,
-  "newCount": 22,
+  "count": 23,
+  "newCount": 23,
   "artistIds": {
    "sehinsah": 736313630,
    "weghrumi": 1564584641,
@@ -75,7 +75,7 @@
    "deryaulug": 1118978883,
    "liashine": 1486825049
   },
-  "generated": "2026-10-31T00:38:39.874Z"
+  "generated": "2026-11-03T02:52:33.218Z"
  },
  "releases": {
   "sehinsah::70lik": {
@@ -428,6 +428,41 @@
     "v": 1
    }
   },
+  "era7capone::locada 4 model": {
+   "title": "LOCADA 4 MODEL",
+   "artistId": "era7capone",
+   "artistName": "Era7capone",
+   "album": "BİPOLAR",
+   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/45/e8/44/45e844fe-0527-ecc3-57fa-eccf49ba6d53/cover.jpg/600x600bb.jpg",
+   "releaseDate": "2026-10-16",
+   "ms": 152727,
+   "url": "https://music.apple.com/tr/album/locada-4-model/6822741275?i=6822741480&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6b/f1/1b/6bf11b0b-55ae-4802-abb5-712bc08d1cd7/mzaf_3184238368036363135.plus.aac.p.m4a",
+   "trackArtist": "Era7capone, MODIE & KERO",
+   "isNew": true,
+   "intel": {
+    "genre": "trap",
+    "mood": "agresif ve özgüvenli",
+    "energy": 8,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.8,
+     "traptr": 0.95,
+     "drilltr": 0.4,
+     "newmusic": 0.9,
+     "nightmode": 0.3,
+     "popturkiye": 0.1
+    },
+    "note": "Karakteristik trap altyapısı üzerinde dinamik ve sert bir vokalle ilerleyen hareketli parç",
+    "tags": [
+     "trap",
+     "sert",
+     "hareketli"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
+  },
   "era7capone::ok cnm": {
    "title": "OK CNM",
    "artistId": "era7capone",
@@ -504,7 +539,7 @@
    "artistName": "Era7capone",
    "album": "BİPOLAR",
    "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/45/e8/44/45e844fe-0527-ecc3-57fa-eccf49ba6d53/cover.jpg/600x600bb.jpg",
-   "releaseDate": "2026-10-16",
+   "releaseDate": "2026-10-15",
    "ms": 166917,
    "url": "https://music.apple.com/tr/album/yalanci/6822741275?i=6822741475&uo=4",
    "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/21/23/14/21231491-7b5f-9f44-d9c2-bb40fb1cd186/mzaf_4167762536284651350.plus.aac.p.m4a",
