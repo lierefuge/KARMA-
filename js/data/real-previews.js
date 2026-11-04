@@ -349,7 +349,7 @@
   },
   "VeRseNe GaSSoLiNaa": {
    "a": "https://music.apple.com/tr/album/versene-gassolinaa/6772263135?i=6772263142&uo=4",
-   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/00/1e/fe/001efeb0-4c65-9d0b-d4af-9c555d78316d/mzaf_11018149310690072689.plus.aac.p.m4a"
+   "p": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/3a/38/a6/3a38a678-f1de-c9e2-c64e-00a5169bd2d7/mzaf_17313196468552129957.plus.aac.p.m4a"
   },
   "YANKI X İNTİHAR": {
    "a": "https://music.apple.com/tr/album/yanki-x-i-nti-har/1779758324?i=1779758548&uo=4",
