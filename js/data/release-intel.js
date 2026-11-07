@@ -4,7 +4,7 @@
 
    Üretici : node tools/fetch-new-releases.js
    Kaynak  : iTunes Lookup API (country=TR) — albüm → parça
-   Tarih   : 2026-11-03  ·  23 kayıt (23 tanesi depoda yok)
+   Tarih   : 2026-11-07  ·  24 kayıt (24 tanesi depoda yok)
 
    ŞEMA (kayıt başına)
    -------------------
@@ -31,11 +31,11 @@
   "use strict";
   K.RELEASE_INTEL = {
  "meta": {
-  "asof": "2026-11-03",
+  "asof": "2026-11-07",
   "window": 30,
   "source": "itunes-lookup-tr",
-  "count": 23,
-  "newCount": 23,
+  "count": 24,
+  "newCount": 24,
   "artistIds": {
    "sehinsah": 736313630,
    "weghrumi": 1564584641,
@@ -75,9 +75,44 @@
    "deryaulug": 1118978883,
    "liashine": 1486825049
   },
-  "generated": "2026-11-03T02:52:33.218Z"
+  "generated": "2026-11-07T00:50:05.722Z"
  },
  "releases": {
+  "ati242::babyglock": {
+   "title": "Babyglock",
+   "artistId": "ati242",
+   "artistName": "Ati242",
+   "album": "Babyglock - Single",
+   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/2e/e9/ee/2ee9eeeb-e7ba-a9ce-723a-97d4ba9d1a62/711641013914.jpg/600x600bb.jpg",
+   "releaseDate": "2026-11-06",
+   "ms": 166000,
+   "url": "https://music.apple.com/tr/album/babyglock/6823645867?i=6823645874&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a5/15/39/a5153965-71f2-be92-b844-8d5fd499090a/mzaf_5022699986470079342.plus.aac.p.m4a",
+   "trackArtist": "Ati242",
+   "isNew": true,
+   "intel": {
+    "genre": "trap",
+    "mood": "agressive",
+    "energy": 8,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.8,
+     "traptr": 0.9,
+     "drilltr": 0.3,
+     "newmusic": 0.9,
+     "nightmode": 0.2,
+     "popturkiye": 0.1
+    },
+    "note": "Ati242'nin enerjisi yüksek, vurucu synthler ve sert altyapılı trap çalışması.",
+    "tags": [
+     "trap",
+     "sert",
+     "türkçe rap"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
+  },
   "sehinsah::70lik": {
    "title": "70'lik",
    "artistId": "sehinsah",
