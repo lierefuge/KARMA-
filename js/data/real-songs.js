@@ -326,8 +326,8 @@
     {
       "title": "Ikarus",
       "artistName": "Şehinşah",
-      "album": "IKARUS",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/55/7b/b9/557bb9f3-4c23-1b48-03e8-c86d74f6928d/0.jpg/600x600bb.jpg",
+      "album": "Ikarus - Single",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/48/8c/ed/488ced22-f9f3-12cc-6470-5180e85f99db/0.jpg/600x600bb.jpg",
       "year": "2024",
       "ms": 218344
     },
@@ -2395,9 +2395,9 @@
       "title": "pVg",
       "artistName": "Motive",
       "album": "pVg - Single",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/f1/8e/e9/f18ee97f-b53d-1fe1-260a-5ef0ae623a8d/cover.jpg/600x600bb.jpg",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/6d/fb/3b/6dfb3b17-bffe-ffc9-b8e2-829149af03f4/0.jpg/600x600bb.jpg",
       "year": "2024",
-      "ms": 243780
+      "ms": 243833
     },
     {
       "title": "Bellydance",

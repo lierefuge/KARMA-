@@ -1403,7 +1403,7 @@
       "title": "pVg - Single",
       "type": "Single",
       "year": "2024",
-      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music126/v4/f1/8e/e9/f18ee97f-b53d-1fe1-260a-5ef0ae623a8d/cover.jpg/600x600bb.jpg",
+      "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/6d/fb/3b/6dfb3b17-bffe-ffc9-b8e2-829149af03f4/0.jpg/600x600bb.jpg",
       "tracks": [
         "pVg"
       ]
