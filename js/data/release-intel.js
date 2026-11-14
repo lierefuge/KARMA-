@@ -4,7 +4,7 @@
 
    Üretici : node tools/fetch-new-releases.js
    Kaynak  : iTunes Lookup API (country=TR) — albüm → parça
-   Tarih   : 2026-11-09  ·  15 kayıt (15 tanesi depoda yok)
+   Tarih   : 2026-11-14  ·  20 kayıt (20 tanesi depoda yok)
 
    ŞEMA (kayıt başına)
    -------------------
@@ -31,11 +31,11 @@
   "use strict";
   K.RELEASE_INTEL = {
  "meta": {
-  "asof": "2026-11-09",
+  "asof": "2026-11-14",
   "window": 30,
   "source": "itunes-lookup-tr",
-  "count": 15,
-  "newCount": 15,
+  "count": 20,
+  "newCount": 20,
   "artistIds": {
    "sehinsah": 736313630,
    "weghrumi": 1564584641,
@@ -75,9 +75,184 @@
    "deryaulug": 1118978883,
    "liashine": 1486825049
   },
-  "generated": "2026-11-09T00:43:07.174Z"
+  "generated": "2026-11-14T01:23:48.327Z"
  },
  "releases": {
+  "lilzey::nejat_isler.mp3": {
+   "title": "nejat_isler.mp3",
+   "artistId": "lilzey",
+   "artistName": "Lil Zey",
+   "album": "nejat_isler.mp3 - Single",
+   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/8f/28/bd/8f28bdea-c4e4-ffd9-5b28-e6380fdef50b/cover.jpg/600x600bb.jpg",
+   "releaseDate": "2026-11-13",
+   "ms": 159040,
+   "url": "https://music.apple.com/tr/album/nejat-isler-mp3/6827094961?i=6827095191&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/70/32/bb/7032bb43-1b45-4c4b-1863-89c9bc29d3b0/mzaf_8764265305343197722.plus.aac.p.m4a",
+   "trackArtist": "Lil Zey",
+   "isNew": true,
+   "intel": {
+    "genre": "trap",
+    "mood": "karanlık",
+    "energy": 7,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.8,
+     "traptr": 0.9,
+     "drilltr": 0.2,
+     "newmusic": 0.9,
+     "nightmode": 0.8,
+     "popturkiye": 0.1
+    },
+    "note": "Lil Zey'in hipnotik vokalleriyle öne çıkan melankolik ve modern bir trap parçası.",
+    "tags": [
+     "trap",
+     "melankolik",
+     "gece"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
+  },
+  "sehinsah::niagara": {
+   "title": "Niagara",
+   "artistId": "sehinsah",
+   "artistName": "Şehinşah",
+   "album": "Niagara - Single",
+   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/4b/a5/3e/4ba53e75-a6ff-68b4-e8b3-2ca903487cd7/0.jpg/600x600bb.jpg",
+   "releaseDate": "2026-11-13",
+   "ms": 218182,
+   "url": "https://music.apple.com/tr/album/niagara/6828498154?i=6828498155&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/a4/e6/8b/a4e68b59-eb7e-9b26-9881-44c9f4b33d7d/mzaf_8674763340072503672.plus.aac.p.m4a",
+   "trackArtist": "Şehinşah",
+   "isNew": true,
+   "intel": {
+    "genre": "rap",
+    "mood": "enerjik",
+    "energy": 8,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.9,
+     "traptr": 0.8,
+     "drilltr": 0.3,
+     "newmusic": 0.9,
+     "nightmode": 0.4,
+     "popturkiye": 0.1
+    },
+    "note": "Şehinşah'ın kendine has flow'ları ve yüksek enerjili beat'leriyle dinamik bir çalışma.",
+    "tags": [
+     "rap",
+     "dinamik",
+     "flow"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
+  },
+  "saniser::sağ kalır insan": {
+   "title": "Sağ Kalır İnsan",
+   "artistId": "saniser",
+   "artistName": "Şanışer",
+   "album": "Sağ Kalır İnsan - Single",
+   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/19/6e/64/196e64ee-010f-59f0-673e-fe67ca16be68/0.jpg/600x600bb.jpg",
+   "releaseDate": "2026-11-13",
+   "ms": 182160,
+   "url": "https://music.apple.com/tr/album/sa%C4%9F-kal%C4%B1r-i-nsan/6828475467?i=6828475469&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/15/0c/53/150c53ae-3301-f2fe-2a65-d55a651a89b8/mzaf_10150288777151222680.plus.aac.p.m4a",
+   "trackArtist": "Şanışer",
+   "isNew": true,
+   "intel": {
+    "genre": "rap",
+    "mood": "düşünceli",
+    "energy": 6,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.9,
+     "traptr": 0.3,
+     "drilltr": 0.1,
+     "newmusic": 0.9,
+     "nightmode": 0.7,
+     "popturkiye": 0.2
+    },
+    "note": "Şanışer'in edebi lirizmini ve melodik nakaratlarını barındıran duygusal bir rap şarkısı.",
+    "tags": [
+     "lyrical",
+     "melodik",
+     "protest"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
+  },
+  "sila::zor sevdiğimden (elektra)": {
+   "title": "Zor Sevdiğimden (Elektra)",
+   "artistId": "sila",
+   "artistName": "Sıla",
+   "album": "Zor Sevdiğimden (Elektra) - Single",
+   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/e8/3c/52/e83c529a-8a77-1c66-8372-b04f2f48fdd7/cover.jpg/600x600bb.jpg",
+   "releaseDate": "2026-11-13",
+   "ms": 169130,
+   "url": "https://music.apple.com/tr/album/zor-sevdi%C4%9Fimden-elektra/6821101380?i=6821101862&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/8b/06/06/8b06068e-988b-bc95-a323-49bf91ff7d9d/mzaf_12944066366860090058.plus.aac.p.m4a",
+   "trackArtist": "Sıla & Tolga Şanlı",
+   "isNew": true,
+   "intel": {
+    "genre": "pop",
+    "mood": "romantik",
+    "energy": 5,
+    "tempo": "slow",
+    "fit": {
+     "rapturkiye": 0,
+     "traptr": 0,
+     "drilltr": 0,
+     "newmusic": 0.8,
+     "nightmode": 0.6,
+     "popturkiye": 0.9
+    },
+    "note": "Sıla ve Tolga Şanlı'dan duygusal derinliği yüksek, akustik dokulu bir pop iş birliği.",
+    "tags": [
+     "pop",
+     "akustik",
+     "duygusal"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
+  },
+  "weghrumi::ömerhayyam": {
+   "title": "ÖMERHAYYAM",
+   "artistId": "weghrumi",
+   "artistName": "wegh Rumi",
+   "album": "ÖMERHAYYAM - Single",
+   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/b1/7c/ea/b17cea89-2aaf-6a08-ec67-9ce283437c81/cover.jpg/600x600bb.jpg",
+   "releaseDate": "2026-11-13",
+   "ms": 138667,
+   "url": "https://music.apple.com/tr/album/%C3%B6merhayyam/6833086836?i=6833086837&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/0c/02/0e/0c020e35-4db3-dbf5-71bd-60d2837cbf5c/mzaf_2129284977356041206.plus.aac.p.m4a",
+   "trackArtist": "Wegh",
+   "isNew": true,
+   "intel": {
+    "genre": "trap",
+    "mood": "sert",
+    "energy": 8,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.8,
+     "traptr": 0.9,
+     "drilltr": 0.4,
+     "newmusic": 0.9,
+     "nightmode": 0.5,
+     "popturkiye": 0
+    },
+    "note": "Wegh'in agresif tarzını ve felsefi göndermelerini buluşturan sert bir trap parçası.",
+    "tags": [
+     "trap",
+     "sert",
+     "sokak"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
+  },
   "ati242::babyglock": {
    "title": "Babyglock",
    "artistId": "ati242",
