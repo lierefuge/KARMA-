@@ -4,7 +4,7 @@
 
    Üretici : node tools/fetch-new-releases.js
    Kaynak  : iTunes Lookup API (country=TR) — albüm → parça
-   Tarih   : 2026-11-14  ·  20 kayıt (20 tanesi depoda yok)
+   Tarih   : 2026-11-16  ·  12 kayıt (12 tanesi depoda yok)
 
    ŞEMA (kayıt başına)
    -------------------
@@ -31,11 +31,11 @@
   "use strict";
   K.RELEASE_INTEL = {
  "meta": {
-  "asof": "2026-11-14",
+  "asof": "2026-11-16",
   "window": 30,
   "source": "itunes-lookup-tr",
-  "count": 20,
-  "newCount": 20,
+  "count": 12,
+  "newCount": 12,
   "artistIds": {
    "sehinsah": 736313630,
    "weghrumi": 1564584641,
@@ -75,7 +75,7 @@
    "deryaulug": 1118978883,
    "liashine": 1486825049
   },
-  "generated": "2026-11-14T01:23:48.327Z"
+  "generated": "2026-11-16T00:55:12.240Z"
  },
  "releases": {
   "lilzey::nejat_isler.mp3": {
@@ -492,286 +492,6 @@
     "tags": [
      "agresif",
      "sert rap",
-     "düet"
-    ],
-    "model": "gemini-3.5-flash",
-    "v": 1
-   }
-  },
-  "motive::akila": {
-   "title": "Akila",
-   "artistId": "motive",
-   "artistName": "Motive",
-   "album": "Akila - Single",
-   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/27/15/f3/2715f3f6-35a6-6809-c750-3ba608f88311/0.jpg/600x600bb.jpg",
-   "releaseDate": "2026-10-16",
-   "ms": 168000,
-   "url": "https://music.apple.com/tr/album/akila/6821364741?i=6821364744&uo=4",
-   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/09/2a/47/092a47d9-6a68-2f1c-76db-ceded2b823a7/mzaf_5530631931527147371.plus.aac.p.m4a",
-   "trackArtist": "Motive",
-   "isNew": true,
-   "intel": {
-    "genre": "trap",
-    "mood": "iddialı",
-    "energy": 8,
-    "tempo": "fast",
-    "fit": {
-     "rapturkiye": 0.9,
-     "traptr": 0.95,
-     "drilltr": 0.3,
-     "newmusic": 0.85,
-     "nightmode": 0.4,
-     "popturkiye": 0.1
-    },
-    "note": "Motive'den sert altyapısı ve iddialı vokaliyle öne çıkan dinamik bir trap parçası.",
-    "tags": [
-     "trap",
-     "türkçe rap",
-     "enerjik"
-    ],
-    "model": "gemini-3.5-flash",
-    "v": 1
-   }
-  },
-  "era7capone::bipolar": {
-   "title": "BİPOLAR",
-   "artistId": "era7capone",
-   "artistName": "Era7capone",
-   "album": "BİPOLAR",
-   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/45/e8/44/45e844fe-0527-ecc3-57fa-eccf49ba6d53/cover.jpg/600x600bb.jpg",
-   "releaseDate": "2026-10-16",
-   "ms": 116818,
-   "url": "https://music.apple.com/tr/album/bi-polar/6822741275?i=6822741459&uo=4",
-   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/de/bf/bd/debfbd3b-ca02-e7ff-8fdc-2a5471e0585f/mzaf_4952478229143804545.plus.aac.p.m4a",
-   "trackArtist": "Era7capone & KERO",
-   "isNew": true,
-   "intel": {
-    "genre": "trap",
-    "mood": "agresif",
-    "energy": 8,
-    "tempo": "fast",
-    "fit": {
-     "rapturkiye": 0.85,
-     "traptr": 0.9,
-     "drilltr": 0.8,
-     "newmusic": 0.85,
-     "nightmode": 0.2,
-     "popturkiye": 0.1
-    },
-    "note": "Era7capone ve KERO'dan yüksek enerjili, sert ritimlere sahip dinamik bir trap çalışması.",
-    "tags": [
-     "trap",
-     "sert",
-     "enerjik"
-    ],
-    "model": "gemini-3.5-flash",
-    "v": 1
-   }
-  },
-  "era7capone::gangsta mentalıte": {
-   "title": "GANGSTA MENTALITE",
-   "artistId": "era7capone",
-   "artistName": "Era7capone",
-   "album": "BİPOLAR",
-   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/45/e8/44/45e844fe-0527-ecc3-57fa-eccf49ba6d53/cover.jpg/600x600bb.jpg",
-   "releaseDate": "2026-10-16",
-   "ms": 160000,
-   "url": "https://music.apple.com/tr/album/gangsta-mentalite/6822741275?i=6822741467&uo=4",
-   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/af/7e/b6/af7eb6b7-2d10-e75e-3ce5-636757d12bfd/mzaf_1914654235569147348.plus.aac.p.m4a",
-   "trackArtist": "Era7capone",
-   "isNew": true,
-   "intel": {
-    "genre": "drill",
-    "mood": "Sert ve agresif",
-    "energy": 10,
-    "tempo": "fast",
-    "fit": {
-     "rapturkiye": 0.8,
-     "traptr": 0.8,
-     "drilltr": 0.9,
-     "newmusic": 0.7,
-     "nightmode": 0.1,
-     "popturkiye": 0
-    },
-    "note": "Sert drill ritimleri ve sokak temasını öne çıkaran agresif vokal performansı.",
-    "tags": [
-     "drill",
-     "sokak rap",
-     "agresif"
-    ],
-    "model": "gemini-3.5-flash",
-    "v": 1
-   }
-  },
-  "era7capone::knv": {
-   "title": "KNV",
-   "artistId": "era7capone",
-   "artistName": "Era7capone",
-   "album": "BİPOLAR",
-   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/45/e8/44/45e844fe-0527-ecc3-57fa-eccf49ba6d53/cover.jpg/600x600bb.jpg",
-   "releaseDate": "2026-10-16",
-   "ms": 131000,
-   "url": "https://music.apple.com/tr/album/knv/6822741275?i=6822741472&uo=4",
-   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/33/29/1a/33291ac7-3039-48e9-5cd8-e89791c642bd/mzaf_4353046306672721026.plus.aac.p.m4a",
-   "trackArtist": "Era7capone",
-   "isNew": true,
-   "intel": {
-    "genre": "trap",
-    "mood": "agresif",
-    "energy": 10,
-    "tempo": "fast",
-    "fit": {
-     "rapturkiye": 0.8,
-     "traptr": 0.85,
-     "drilltr": 0.6,
-     "newmusic": 0.8,
-     "nightmode": 0.3,
-     "popturkiye": 0.1
-    },
-    "note": "Era7capone'un enerjik ve karanlık trap tınılarına sahip dinamik parçası.",
-    "tags": [
-     "trap",
-     "sert",
-     "gece"
-    ],
-    "model": "gemini-3.5-flash",
-    "v": 1
-   }
-  },
-  "era7capone::locada 4 model": {
-   "title": "LOCADA 4 MODEL",
-   "artistId": "era7capone",
-   "artistName": "Era7capone",
-   "album": "BİPOLAR",
-   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/45/e8/44/45e844fe-0527-ecc3-57fa-eccf49ba6d53/cover.jpg/600x600bb.jpg",
-   "releaseDate": "2026-10-16",
-   "ms": 152727,
-   "url": "https://music.apple.com/tr/album/locada-4-model/6822741275?i=6822741480&uo=4",
-   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6b/f1/1b/6bf11b0b-55ae-4802-abb5-712bc08d1cd7/mzaf_3184238368036363135.plus.aac.p.m4a",
-   "trackArtist": "Era7capone, MODIE & KERO",
-   "isNew": true,
-   "intel": {
-    "genre": "trap",
-    "mood": "agresif ve özgüvenli",
-    "energy": 8,
-    "tempo": "fast",
-    "fit": {
-     "rapturkiye": 0.8,
-     "traptr": 0.95,
-     "drilltr": 0.4,
-     "newmusic": 0.9,
-     "nightmode": 0.3,
-     "popturkiye": 0.1
-    },
-    "note": "Karakteristik trap altyapısı üzerinde dinamik ve sert bir vokalle ilerleyen hareketli parç",
-    "tags": [
-     "trap",
-     "sert",
-     "hareketli"
-    ],
-    "model": "gemini-3.5-flash",
-    "v": 1
-   }
-  },
-  "era7capone::ok cnm": {
-   "title": "OK CNM",
-   "artistId": "era7capone",
-   "artistName": "Era7capone",
-   "album": "BİPOLAR",
-   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/45/e8/44/45e844fe-0527-ecc3-57fa-eccf49ba6d53/cover.jpg/600x600bb.jpg",
-   "releaseDate": "2026-10-16",
-   "ms": 97500,
-   "url": "https://music.apple.com/tr/album/ok-cnm/6822741275?i=6822741461&uo=4",
-   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/6f/bd/21/6fbd214e-2f3e-8795-19d5-543faf9cc7a3/mzaf_14350991347007260218.plus.aac.p.m4a",
-   "trackArtist": "Era7capone",
-   "isNew": true,
-   "intel": {
-    "genre": "trap",
-    "mood": "özgüvenli",
-    "energy": 10,
-    "tempo": "fast",
-    "fit": {
-     "rapturkiye": 0.8,
-     "traptr": 0.9,
-     "drilltr": 0.5,
-     "newmusic": 0.8,
-     "nightmode": 0.2,
-     "popturkiye": 0.1
-    },
-    "note": "Bipolar albümünden dinamik ve vurucu trap ritimleriyle öne çıkan bir çalışma.",
-    "tags": [
-     "trap",
-     "hit",
-     "ritmik"
-    ],
-    "model": "gemini-3.5-flash",
-    "v": 1
-   }
-  },
-  "era7capone::papilo": {
-   "title": "PAPİLO",
-   "artistId": "era7capone",
-   "artistName": "Era7capone",
-   "album": "BİPOLAR",
-   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/45/e8/44/45e844fe-0527-ecc3-57fa-eccf49ba6d53/cover.jpg/600x600bb.jpg",
-   "releaseDate": "2026-10-16",
-   "ms": 152727,
-   "url": "https://music.apple.com/tr/album/papi-lo/6822741275?i=6822741480&uo=4",
-   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/6b/f1/1b/6bf11b0b-55ae-4802-abb5-712bc08d1cd7/mzaf_3184238368036363135.plus.aac.p.m4a",
-   "trackArtist": "Era7capone, MODIE & KERO",
-   "isNew": true,
-   "intel": {
-    "genre": "drill",
-    "mood": "sert",
-    "energy": 10,
-    "tempo": "fast",
-    "fit": {
-     "rapturkiye": 0.8,
-     "traptr": 0.8,
-     "drilltr": 0.85,
-     "newmusic": 0.8,
-     "nightmode": 0.2,
-     "popturkiye": 0.1
-    },
-    "note": "MODIE ve KERO eşliğinde tempolu ve sokak tınlayan sert bir drill parçası.",
-    "tags": [
-     "drill",
-     "sokak",
-     "düet"
-    ],
-    "model": "gemini-3.5-flash",
-    "v": 1
-   }
-  },
-  "era7capone::yalancı": {
-   "title": "YALANCI",
-   "artistId": "era7capone",
-   "artistName": "Era7capone",
-   "album": "BİPOLAR",
-   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/45/e8/44/45e844fe-0527-ecc3-57fa-eccf49ba6d53/cover.jpg/600x600bb.jpg",
-   "releaseDate": "2026-10-15",
-   "ms": 166917,
-   "url": "https://music.apple.com/tr/album/yalanci/6822741275?i=6822741475&uo=4",
-   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/21/23/14/21231491-7b5f-9f44-d9c2-bb40fb1cd186/mzaf_4167762536284651350.plus.aac.p.m4a",
-   "trackArtist": "Era7capone & Laçin",
-   "isNew": true,
-   "intel": {
-    "genre": "trap",
-    "mood": "melankolik",
-    "energy": 10,
-    "tempo": "mid",
-    "fit": {
-     "rapturkiye": 0.7,
-     "traptr": 0.75,
-     "drilltr": 0.2,
-     "newmusic": 0.8,
-     "nightmode": 0.8,
-     "popturkiye": 0.2
-    },
-    "note": "Laçin eşliğinde melankolik altyapısı ve duygu yüklü vokalleriyle dikkat çeken parça.",
-    "tags": [
-     "melankolik",
-     "rnb",
      "düet"
     ],
     "model": "gemini-3.5-flash",
