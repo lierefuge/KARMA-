@@ -4,7 +4,7 @@
 
    Üretici : node tools/fetch-new-releases.js
    Kaynak  : iTunes Lookup API (country=TR) — albüm → parça
-   Tarih   : 2026-11-16  ·  12 kayıt (12 tanesi depoda yok)
+   Tarih   : 2026-11-20  ·  13 kayıt (13 tanesi depoda yok)
 
    ŞEMA (kayıt başına)
    -------------------
@@ -31,11 +31,11 @@
   "use strict";
   K.RELEASE_INTEL = {
  "meta": {
-  "asof": "2026-11-16",
+  "asof": "2026-11-20",
   "window": 30,
   "source": "itunes-lookup-tr",
-  "count": 12,
-  "newCount": 12,
+  "count": 13,
+  "newCount": 13,
   "artistIds": {
    "sehinsah": 736313630,
    "weghrumi": 1564584641,
@@ -75,9 +75,44 @@
    "deryaulug": 1118978883,
    "liashine": 1486825049
   },
-  "generated": "2026-11-16T00:55:12.240Z"
+  "generated": "2026-11-20T02:12:50.155Z"
  },
  "releases": {
+  "khontkar::ı̇çerı̇ye": {
+   "title": "İÇERİYE",
+   "artistId": "khontkar",
+   "artistName": "Khontkar",
+   "album": "İÇERİYE - Single",
+   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/c1/be/e9/c1bee9a4-7396-d0f8-8dbe-04d4c9421d7e/cover.jpg/600x600bb.jpg",
+   "releaseDate": "2026-11-19",
+   "ms": 144000,
+   "url": "https://music.apple.com/tr/album/i-c-eri-ye/6835560601?i=6835560605&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/47/b0/19/47b019a1-1120-d1be-fa3b-47b5a8008824/mzaf_6809741498264706122.plus.aac.p.m4a",
+   "trackArtist": "Khontkar, Tuby & Yung Ouzo",
+   "isNew": true,
+   "intel": {
+    "genre": "trap",
+    "mood": "sert",
+    "energy": 8,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.9,
+     "traptr": 0.95,
+     "drilltr": 0.3,
+     "newmusic": 0.8,
+     "nightmode": 0.4,
+     "popturkiye": 0.1
+    },
+    "note": "Khontkar, Tuby ve Yung Ouzo'dan karanlık ve yüksek enerjili bir trap çalışması.",
+    "tags": [
+     "trap",
+     "sert",
+     "hiphop"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
+  },
   "lilzey::nejat_isler.mp3": {
    "title": "nejat_isler.mp3",
    "artistId": "lilzey",
