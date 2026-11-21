@@ -4,7 +4,7 @@
 
    Üretici : node tools/fetch-new-releases.js
    Kaynak  : iTunes Lookup API (country=TR) — albüm → parça
-   Tarih   : 2026-11-20  ·  13 kayıt (13 tanesi depoda yok)
+   Tarih   : 2026-11-21  ·  15 kayıt (15 tanesi depoda yok)
 
    ŞEMA (kayıt başına)
    -------------------
@@ -31,11 +31,11 @@
   "use strict";
   K.RELEASE_INTEL = {
  "meta": {
-  "asof": "2026-11-20",
+  "asof": "2026-11-21",
   "window": 30,
   "source": "itunes-lookup-tr",
-  "count": 13,
-  "newCount": 13,
+  "count": 15,
+  "newCount": 15,
   "artistIds": {
    "sehinsah": 736313630,
    "weghrumi": 1564584641,
@@ -75,9 +75,79 @@
    "deryaulug": 1118978883,
    "liashine": 1486825049
   },
-  "generated": "2026-11-20T02:12:50.155Z"
+  "generated": "2026-11-21T02:05:24.375Z"
  },
  "releases": {
+  "sehinsah::cennetten gelen": {
+   "title": "CENNETTEN GELEN",
+   "artistId": "sehinsah",
+   "artistName": "Şehinşah",
+   "album": "CENNETTEN GELEN - Single",
+   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/f7/0e/77/f70e772b-ab30-d348-e3c0-00fca9691d52/0.jpg/600x600bb.jpg",
+   "releaseDate": "2026-11-20",
+   "ms": 135285,
+   "url": "https://music.apple.com/tr/album/cennetten-gelen/6831559127?i=6831559128&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/e2/05/64/e2056430-7891-2753-3984-4deb32a2836a/mzaf_810641255903616654.plus.aac.p.m4a",
+   "trackArtist": "Şehinşah",
+   "isNew": true,
+   "intel": {
+    "genre": "rap",
+    "mood": "energetik",
+    "energy": 8,
+    "tempo": "fast",
+    "fit": {
+     "rapturkiye": 0.95,
+     "traptr": 0.7,
+     "drilltr": 0.2,
+     "newmusic": 0.9,
+     "nightmode": 0.4,
+     "popturkiye": 0.1
+    },
+    "note": "Şehinşah'ın dinamik vokalleri ve karmaşık kafiyeleriyle öne çıkan hareketli rap parçası.",
+    "tags": [
+     "rap",
+     "türkçe rap",
+     "teknik"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
+  },
+  "uzi::hırsız": {
+   "title": "Hırsız",
+   "artistId": "uzi",
+   "artistName": "UZI",
+   "album": "Hırsız - Single",
+   "art": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/7f/79/7f/7f797f3a-4936-8994-116f-fc076184c54d/26UM1IM42566.rgb.jpg/600x600bb.jpg",
+   "releaseDate": "2026-11-20",
+   "ms": 159024,
+   "url": "https://music.apple.com/tr/album/h%C4%B1rs%C4%B1z/6830265968?i=6830265971&uo=4",
+   "preview": "https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview221/v4/37/9e/61/379e6143-2e96-a566-1f88-46654eb61a04/mzaf_17324993946329251888.plus.aac.p.m4a",
+   "trackArtist": "UZI",
+   "isNew": true,
+   "intel": {
+    "genre": "trap",
+    "mood": "karanlık",
+    "energy": 7,
+    "tempo": "mid",
+    "fit": {
+     "rapturkiye": 0.85,
+     "traptr": 0.9,
+     "drilltr": 0.4,
+     "newmusic": 0.9,
+     "nightmode": 0.6,
+     "popturkiye": 0.1
+    },
+    "note": "UZI'nin kendine has tarzıyla sert altyapıları birleştiren karanlık trap çalışması.",
+    "tags": [
+     "trap",
+     "sokak",
+     "uzi"
+    ],
+    "model": "gemini-3.5-flash",
+    "v": 1
+   }
+  },
   "khontkar::ı̇çerı̇ye": {
    "title": "İÇERİYE",
    "artistId": "khontkar",
